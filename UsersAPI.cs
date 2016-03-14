@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright (c) 2014-2015, Achim 'ahzf' Friedland <achim@graphdefined.org>
+ * Copyright (c) 2014-2016, Achim 'ahzf' Friedland <achim@graphdefined.org>
  * This file is part of OpenDataAPI <http://www.github.com/GraphDefined/OpenDataAPI>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -46,7 +46,7 @@ using org.GraphDefined.Vanaheimr.Hermod.Sockets;
 
 #endregion
 
-namespace org.GraphDefined.UsersAPI
+namespace org.GraphDefined.OpenData
 {
 
     /// <summary>
@@ -57,25 +57,44 @@ namespace org.GraphDefined.UsersAPI
 
         #region Data
 
-        private static readonly Random          _Random                         = new Random();
+        /// <summary>
+        /// Internal non-cryptographic random number generator.
+        /// </summary>
+        protected static readonly Random                              _Random                        = new Random();
 
-        private const           String          DefaultHTTPServerName           = "Users API HTTP Service v0.8";
-        private static readonly IPPort          DefaultHTTPServerPort           = new IPPort(2002);
+        /// <summary>
+        /// The default HTTP server name.
+        /// </summary>
+        public  const             String                              DefaultHTTPServerName          = "GraphDefined Users API HTTP Service v0.8";
 
-        private readonly Func<String, Stream> _GetRessources;
+        /// <summary>
+        /// The default HTTP server port.
+        /// </summary>
+        public  static readonly   IPPort                              DefaultHTTPServerPort          = new IPPort(2002);
 
-        public  const           LogLevel        MinLogLevel_Console             = LogLevel.INFO;
-        public  const           LogLevel        MinLogLevel_LogFile             = LogLevel.INFO;
-        public  const           String          DefaultLogfileName              = "UsersAPI.log";
+        /// <summary>
+        /// The default service name.
+        /// </summary>
+        public  const             String                              DefaultServiceName             = "GraphDefined Users API";
 
-        public const            Byte            MinUserNameLenght       = 4;
-        public const            Byte            MinRealmLenght          = 2;
-        public const            Byte            MinPasswordLenght       = 8;
+        public  const             Byte                                DefaultMinUserNameLenght       = 4;
+        public  const             Byte                                DefaultMinRealmLenght          = 2;
+        public  const             Byte                                DefaultMinPasswordLenght       = 8;
 
-        public readonly         TimeSpan        SignInSessionLifetime   = TimeSpan.FromDays(30);
+        public  static readonly   TimeSpan                            DefaultSignInSessionLifetime   = TimeSpan.FromDays(30);
 
-        private readonly        Dictionary<User_Id, LoginPassword>      _LoginPasswords;
-        private readonly        List<VerificationToken>                 _VerificationTokens;
+
+        private readonly          Dictionary<User_Id, LoginPassword>  _LoginPasswords;
+        private readonly          List<VerificationToken>             _VerificationTokens;
+
+
+        protected readonly        Func<String, Stream>                RessourcesProvider;
+
+
+        /// <summary>
+        /// Default logfile name.
+        /// </summary>
+        public  const             String                              DefaultLogfileName             = "UsersAPI.log";
 
         #endregion
 
@@ -255,7 +274,7 @@ namespace org.GraphDefined.UsersAPI
         protected readonly Dictionary<User_Id, User> _Users;
 
         /// <summary>
-        /// A collection of users.
+        /// The collection of users.
         /// </summary>
         public Dictionary<User_Id, User> Users
         {
@@ -297,6 +316,62 @@ namespace org.GraphDefined.UsersAPI
         /// A delegate to create a "Reset Password"-mail.
         /// </summary>
         public ResetPasswordEMailCreatorDelegate ResetPasswordEMailCreator { get; set; }
+
+        #endregion
+
+        #region SignInSessionLifetime
+
+        private readonly TimeSpan _SignInSessionLifetime;
+
+        public TimeSpan SignInSessionLifetime
+        {
+            get
+            {
+                return _SignInSessionLifetime;
+            }
+        }
+
+        #endregion
+
+        #region MinUserNameLenght
+
+        private readonly Byte _MinUserNameLenght;
+
+        public Byte MinUserNameLenght
+        {
+            get
+            {
+                return _MinUserNameLenght;
+            }
+        }
+
+        #endregion
+
+        #region MinRealmLenght
+
+        private readonly Byte _MinRealmLenght;
+
+        public Byte MinRealmLenght
+        {
+            get
+            {
+                return _MinRealmLenght;
+            }
+        }
+
+        #endregion
+
+        #region MinPasswordLenght
+
+        private readonly Byte _MinPasswordLenght;
+
+        public Byte MinPasswordLenght
+        {
+            get
+            {
+                return _MinPasswordLenght;
+            }
+        }
 
         #endregion
 
@@ -348,6 +423,15 @@ namespace org.GraphDefined.UsersAPI
         /// <param name="HTTPServerPort"></param>
         /// <param name="URIPrefix"></param>
         /// 
+        /// <param name="ServiceName"></param>
+        /// <param name="APIEMailAddress"></param>
+        /// <param name="APIPublicKeyRing"></param>
+        /// <param name="APISecretKeyRing"></param>
+        /// <param name="APIPassphrase"></param>
+        /// <param name="APIAdminEMail"></param>
+        /// <param name="APISMTPClient"></param>
+        /// <param name="RessourcesProvider"></param>
+        /// 
         /// <param name="ServerThreadName"></param>
         /// <param name="ServerThreadPriority"></param>
         /// <param name="ServerThreadIsBackground"></param>
@@ -358,42 +442,42 @@ namespace org.GraphDefined.UsersAPI
         /// <param name="ConnectionTimeout"></param>
         /// <param name="MaxClientConnections"></param>
         /// 
-        /// <param name="ServiceName"></param>
-        /// <param name="APIEMailAddress"></param>
-        /// <param name="APIPublicKeyRing"></param>
-        /// <param name="APISecretKeyRing"></param>
-        /// <param name="APIPassphrase"></param>
-        /// <param name="APIAdminEMail"></param>
-        /// <param name="APISMTPClient"></param>
-        /// <param name="GetRessources"></param>
-        /// 
         /// <param name="DNSClient"></param>
         /// <param name="LogfileName"></param>
-        public UsersAPI(String                            HTTPServerName                    = DefaultHTTPServerName,
-                        IPPort                            HTTPServerPort                    = null,
-                        String                            URIPrefix                         = "/",
+        public UsersAPI(String                              HTTPServerName                    = DefaultHTTPServerName,
+                        IPPort                              HTTPServerPort                    = null,
+                        String                              URIPrefix                         = "/",
 
-                        String                            ServerThreadName                  = null,
-                        ThreadPriority                    ServerThreadPriority              = ThreadPriority.AboveNormal,
-                        Boolean                           ServerThreadIsBackground          = true,
-                        ConnectionIdBuilder               ConnectionIdBuilder               = null,
-                        ConnectionThreadsNameBuilder      ConnectionThreadsNameBuilder      = null,
-                        ConnectionThreadsPriorityBuilder  ConnectionThreadsPriorityBuilder  = null,
-                        Boolean                           ConnectionThreadsAreBackground    = true,
-                        TimeSpan?                         ConnectionTimeout                 = null,
-                        UInt32                            MaxClientConnections              = TCPServer.__DefaultMaxClientConnections,
+                        String                              ServiceName                       = DefaultServiceName,
+                        EMailAddress                        APIEMailAddress                   = null,
+                        PgpPublicKeyRing                    APIPublicKeyRing                  = null,
+                        PgpSecretKeyRing                    APISecretKeyRing                  = null,
+                        String                              APIPassphrase                     = null,
+                        EMailAddressList                    APIAdminEMail                     = null,
+                        SMTPClient                          APISMTPClient                     = null,
 
-                        String                            ServiceName                       = "Open Data API",
-                        EMailAddress                      APIEMailAddress                   = null,
-                        PgpPublicKeyRing                  APIPublicKeyRing                  = null,
-                        PgpSecretKeyRing                  APISecretKeyRing                  = null,
-                        String                            APIPassphrase                     = null,
-                        EMailAddressList                  APIAdminEMail                     = null,
-                        SMTPClient                        APISMTPClient                     = null,
-                        Func<String, Stream>              GetRessources                     = null,
+                        NewUserSignUpEMailCreatorDelegate   NewUserSignUpEMailCreator         = null,
+                        NewUserWelcomeEMailCreatorDelegate  NewUserWelcomeEMailCreator        = null,
+                        ResetPasswordEMailCreatorDelegate   ResetPasswordEMailCreator         = null,
+                        Byte                                MinUserNameLenght                 = DefaultMinUserNameLenght,
+                        Byte                                MinRealmLenght                    = DefaultMinRealmLenght,
+                        Byte                                MinPasswordLenght                 = DefaultMinPasswordLenght,
+                        TimeSpan?                           SignInSessionLifetime             = null,
 
-                        DNSClient             DNSClient                = null,
-                        String                LogfileName              = DefaultLogfileName)
+                        Func<String, Stream>                RessourcesProvider                = null,
+
+                        String                              ServerThreadName                  = null,
+                        ThreadPriority                      ServerThreadPriority              = ThreadPriority.AboveNormal,
+                        Boolean                             ServerThreadIsBackground          = true,
+                        ConnectionIdBuilder                 ConnectionIdBuilder               = null,
+                        ConnectionThreadsNameBuilder        ConnectionThreadsNameBuilder      = null,
+                        ConnectionThreadsPriorityBuilder    ConnectionThreadsPriorityBuilder  = null,
+                        Boolean                             ConnectionThreadsAreBackground    = true,
+                        TimeSpan?                           ConnectionTimeout                 = null,
+                        UInt32                              MaxClientConnections              = TCPServer.__DefaultMaxClientConnections,
+
+                        DNSClient                           DNSClient                         = null,
+                        String                              LogfileName                       = DefaultLogfileName)
 
             : this(new HTTPServer(TCPPort:                           HTTPServerPort != null ? HTTPServerPort : DefaultHTTPServerPort,
                                   DefaultServerName:                 HTTPServerName,
@@ -417,7 +501,16 @@ namespace org.GraphDefined.UsersAPI
                    APIPassphrase,
                    APIAdminEMail,
                    APISMTPClient,
-                   GetRessources,
+
+                   NewUserSignUpEMailCreator,
+                   NewUserWelcomeEMailCreator,
+                   ResetPasswordEMailCreator,
+                   MinUserNameLenght,
+                   MinRealmLenght,
+                   MinPasswordLenght,
+                   SignInSessionLifetime,
+
+                   RessourcesProvider,
 
                    DNSClient,
                    LogfileName)
@@ -491,49 +584,60 @@ namespace org.GraphDefined.UsersAPI
         /// <param name="APIPassphrase"></param>
         /// <param name="APIAdminEMail"></param>
         /// <param name="APISMTPClient"></param>
-        /// <param name="GetRessources"></param>
+        /// <param name="RessourcesProvider"></param>
         /// 
         /// <param name="DNSClient"></param>
         /// <param name="LogfileName"></param>
-        protected UsersAPI(HTTPServer HTTPServer,
-                           String URIPrefix = "/",
+        protected UsersAPI(HTTPServer                          HTTPServer,
+                           String                              URIPrefix                    = "/",
 
-                           String ServiceName = "Open Data API",
-                           EMailAddress APIEMailAddress = null,
-                           PgpPublicKeyRing APIPublicKeyRing = null,
-                           PgpSecretKeyRing APISecretKeyRing = null,
-                           String APIPassphrase = null,
-                           EMailAddressList APIAdminEMail = null,
-                           SMTPClient APISMTPClient = null,
-                           Func<String, Stream> GetRessources = null,
+                           String                              ServiceName                  = DefaultServiceName,
+                           EMailAddress                        APIEMailAddress              = null,
+                           PgpPublicKeyRing                    APIPublicKeyRing             = null,
+                           PgpSecretKeyRing                    APISecretKeyRing             = null,
+                           String                              APIPassphrase                = null,
+                           EMailAddressList                    APIAdminEMail                = null,
+                           SMTPClient                          APISMTPClient                = null,
 
-                           DNSClient DNSClient = null,
-                           String LogfileName = DefaultLogfileName)
+                           NewUserSignUpEMailCreatorDelegate   NewUserSignUpEMailCreator    = null,
+                           NewUserWelcomeEMailCreatorDelegate  NewUserWelcomeEMailCreator   = null,
+                           ResetPasswordEMailCreatorDelegate   ResetPasswordEMailCreator    = null,
+                           Byte                                MinUserNameLenght            = DefaultMinUserNameLenght,
+                           Byte                                MinRealmLenght               = DefaultMinRealmLenght,
+                           Byte                                MinPasswordLenght            = DefaultMinPasswordLenght,
+                           TimeSpan?                           SignInSessionLifetime        = null,
+
+                           Func<String, Stream>                RessourcesProvider           = null,
+
+                           DNSClient                           DNSClient                    = null,
+                           String                              LogfileName                  = DefaultLogfileName)
 
         {
 
             #region Init data
 
-            this._HTTPServer = HTTPServer;
-            this._URIPrefix = URIPrefix;
-            this._GetRessources = GetRessources;
+            this._HTTPServer             = HTTPServer;
+            this._URIPrefix              = URIPrefix;
+            this.RessourcesProvider      = RessourcesProvider;
+                                         
+            this._ServiceName            = ServiceName;
+            this._APIEMailAddress        = APIEMailAddress;
+            this._APIPublicKeyRing       = APIPublicKeyRing;
+            this._APISecretKeyRing       = APISecretKeyRing;
+            this._APIPassphrase          = APIPassphrase;
+            this._APIAdminEMail          = APIAdminEMail;
+            this._APISMTPClient          = APISMTPClient;
 
-            this._ServiceName = ServiceName;
-            this._APIEMailAddress = APIEMailAddress;
-            this._APIPublicKeyRing = APIPublicKeyRing;
-            this._APISecretKeyRing = APISecretKeyRing;
-            this._APIPassphrase = APIPassphrase;
-            this._APIAdminEMail = APIAdminEMail;
-            this._APISMTPClient = APISMTPClient;
+            this._SignInSessionLifetime  = SignInSessionLifetime.HasValue ? SignInSessionLifetime.Value : DefaultSignInSessionLifetime;
 
-            this._Users     = new Dictionary<User_Id, User>();
-            this._Groups    = new Dictionary<UserGroup_Id, UserGroup>();
-            this._Messages  = new Dictionary<Message_Id, Message>();
+            this._Users                  = new Dictionary<User_Id, User>();
+            this._Groups                 = new Dictionary<UserGroup_Id, UserGroup>();
+            this._Messages               = new Dictionary<Message_Id, Message>();
 
-            this._LoginPasswords = new Dictionary<User_Id, LoginPassword>();
-            this._VerificationTokens = new List<VerificationToken>();
+            this._LoginPasswords         = new Dictionary<User_Id, LoginPassword>();
+            this._VerificationTokens     = new List<VerificationToken>();
 
-            this._DNSClient = (DNSClient != null) ? DNSClient : new DNSClient(SearchForIPv6DNSServers: false);
+            this._DNSClient              = (DNSClient != null) ? DNSClient : new DNSClient(SearchForIPv6DNSServers: false);
 
             #endregion
 
@@ -1275,7 +1379,7 @@ namespace org.GraphDefined.UsersAPI
                                                   SetCookie = "SocialOpenData=login=" + _LoginPassword.Login.ToString().ToBase64() +
                                                                                ":username=" + _User.Name.ToBase64() +
                                                                           ":securitytoken=" + SecurityToken +
-                                                                               "; Expires=" + DateTime.Now.Add(SignInSessionLifetime).ToRfc1123() +
+                                                                               "; Expires=" + DateTime.Now.Add(_SignInSessionLifetime).ToRfc1123() +
                                                                                   "; Path=/",
                                                   // Domain=.offenes-jena.de;
                                                   // secure;"
@@ -1422,24 +1526,33 @@ namespace org.GraphDefined.UsersAPI
         /// <param name="APIPassphrase"></param>
         /// <param name="APIAdminEMail"></param>
         /// <param name="APISMTPClient"></param>
-        /// <param name="GetRessources"></param>
+        /// <param name="RessourcesProvider"></param>
         /// 
         /// <param name="DNSClient"></param>
         /// <param name="LogfileName"></param>
-        public static UsersAPI AttachToHTTPAPI(HTTPServer HTTPServer,
-                                               String URIPrefix = "/",
+        public static UsersAPI AttachToHTTPAPI(HTTPServer                          HTTPServer,
+                                               String                              URIPrefix                    = "/",
 
-                                               String ServiceName = "Users API",
-                                               EMailAddress APIEMailAddress = null,
-                                               PgpPublicKeyRing APIPublicKeyRing = null,
-                                               PgpSecretKeyRing APISecretKeyRing = null,
-                                               String APIPassphrase = null,
-                                               EMailAddressList APIAdminEMail = null,
-                                               SMTPClient APISMTPClient = null,
-                                               Func<String, Stream> GetRessources = null,
+                                               String                              ServiceName                  = DefaultServiceName,
+                                               EMailAddress                        APIEMailAddress              = null,
+                                               PgpPublicKeyRing                    APIPublicKeyRing             = null,
+                                               PgpSecretKeyRing                    APISecretKeyRing             = null,
+                                               String                              APIPassphrase                = null,
+                                               EMailAddressList                    APIAdminEMail                = null,
+                                               SMTPClient                          APISMTPClient                = null,
 
-                                               DNSClient DNSClient = null,
-                                               String LogfileName = DefaultLogfileName)
+                                               NewUserSignUpEMailCreatorDelegate   NewUserSignUpEMailCreator    = null,
+                                               NewUserWelcomeEMailCreatorDelegate  NewUserWelcomeEMailCreator   = null,
+                                               ResetPasswordEMailCreatorDelegate   ResetPasswordEMailCreator    = null,
+                                               Byte                                MinUserNameLenght            = DefaultMinUserNameLenght,
+                                               Byte                                MinRealmLenght               = DefaultMinRealmLenght,
+                                               Byte                                MinPasswordLenght            = DefaultMinPasswordLenght,
+                                               TimeSpan?                           SignInSessionLifetime        = null,
+
+                                               Func<String, Stream>                RessourcesProvider           = null,
+
+                                               DNSClient                           DNSClient                    = null,
+                                               String                              LogfileName                  = DefaultLogfileName)
 
         {
 
@@ -1453,7 +1566,16 @@ namespace org.GraphDefined.UsersAPI
                                 APIPassphrase,
                                 APIAdminEMail,
                                 APISMTPClient,
-                                GetRessources,
+
+                                NewUserSignUpEMailCreator,
+                                NewUserWelcomeEMailCreator,
+                                ResetPasswordEMailCreator,
+                                MinUserNameLenght,
+                                MinRealmLenght,
+                                MinPasswordLenght,
+                                SignInSessionLifetime,
+
+                                RessourcesProvider,
 
                                 DNSClient,
                                 LogfileName);
@@ -1462,22 +1584,22 @@ namespace org.GraphDefined.UsersAPI
 
         #endregion
 
-        #region (private) __GetRessources(Ressource)
 
-        private Stream __GetRessources(String Ressource)
+        #region (protected) __GetRessources(Ressource)
+
+        protected Stream __GetRessources(String Ressource)
         {
 
             var DataStream = this.GetType().Assembly.GetManifestResourceStream("org.GraphDefined.UserAPI.HTTPRoot" + Ressource);
 
             if (DataStream == null)
-                DataStream = _GetRessources(Ressource);
+                DataStream = RessourcesProvider(Ressource);
 
             return DataStream;
 
         }
 
         #endregion
-
 
 
 

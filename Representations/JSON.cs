@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright (c) 2014-2015, Achim 'ahzf' Friedland <achim@graphdefined.org>
+ * Copyright (c) 2014-2016, Achim 'ahzf' Friedland <achim@graphdefined.org>
  * This file is part of Open Data Graph API <http://www.github.com/GraphDefined/OpenDataAPI>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -28,7 +28,7 @@ using org.GraphDefined.Vanaheimr.Hermod.HTTP;
 
 #endregion
 
-namespace org.GraphDefined.UsersAPI
+namespace org.GraphDefined.OpenData
 {
 
     /// <summary>
