@@ -35,12 +35,10 @@ using org.GraphDefined.Vanaheimr.Illias;
 using org.GraphDefined.Vanaheimr.Styx.Arrows;
 using org.GraphDefined.Vanaheimr.Hermod;
 using org.GraphDefined.Vanaheimr.Hermod.HTTP;
-using org.GraphDefined.Vanaheimr.Hermod.Services.CSV;
 using org.GraphDefined.Vanaheimr.Hermod.DNS;
 using org.GraphDefined.Vanaheimr.Hermod.Mail;
 using org.GraphDefined.Vanaheimr.Hermod.SMTP;
 using org.GraphDefined.Vanaheimr.Hermod.Sockets.TCP;
-using org.GraphDefined.Vanaheimr.Hermod.Sockets.UDP;
 using org.GraphDefined.Vanaheimr.BouncyCastle;
 using org.GraphDefined.Vanaheimr.Hermod.Sockets;
 
@@ -98,14 +96,84 @@ namespace org.GraphDefined.OpenData
 
         #endregion
 
+        #region Events
+
+        #region RequestLog
+
+        /// <summary>
+        /// An event called whenever a request came in.
+        /// </summary>
+        public event RequestLogHandler RequestLog
+        {
+
+            add
+            {
+                _HTTPServer.RequestLog += value;
+            }
+
+            remove
+            {
+                _HTTPServer.RequestLog -= value;
+            }
+
+        }
+
+        #endregion
+
+        #region AccessLog
+
+        /// <summary>
+        /// An event called whenever a request could successfully be processed.
+        /// </summary>
+        public event AccessLogHandler AccessLog
+        {
+
+            add
+            {
+                _HTTPServer.AccessLog += value;
+            }
+
+            remove
+            {
+                _HTTPServer.AccessLog -= value;
+            }
+
+        }
+
+        #endregion
+
+        #region ErrorLog
+
+        /// <summary>
+        /// An event called whenever a request resulted in an error.
+        /// </summary>
+        public event ErrorLogHandler ErrorLog
+        {
+
+            add
+            {
+                _HTTPServer.ErrorLog += value;
+            }
+
+            remove
+            {
+                _HTTPServer.ErrorLog -= value;
+            }
+
+        }
+
+        #endregion
+
+        #endregion
+
         #region Properties
 
         #region HTTPServer
 
-        protected readonly HTTPServer _HTTPServer;
+        private readonly HTTPServer _HTTPServer;
 
         /// <summary>
-        /// The HTTP server of the Open Data API.
+        /// The HTTP server of the API.
         /// </summary>
         public HTTPServer HTTPServer
         {
@@ -117,10 +185,30 @@ namespace org.GraphDefined.OpenData
 
         #endregion
 
+        #region HTTPHostname
+
+        private readonly String _HTTPHostname;
+
+        /// <summary>
+        /// The HTTP hostname for all URIs within this API.
+        /// </summary>
+        public String HTTPHostname
+        {
+            get
+            {
+                return _HTTPHostname;
+            }
+        }
+
+        #endregion
+
         #region URIPrefix
 
         private readonly String _URIPrefix;
 
+        /// <summary>
+        /// The URI prefix of this HTTP API.
+        /// </summary>
         public String URIPrefix
         {
             get
@@ -288,34 +376,84 @@ namespace org.GraphDefined.OpenData
 
         #region NewUserSignUpEMailCreator
 
-        public delegate EMail NewUserSignUpEMailCreatorDelegate(User_Id Login, EMailAddress EMail, String Language, VerificationToken VerificationToken);
+        /// <summary>
+        /// A delegate for sending a sign-up e-mail to a new user.
+        /// </summary>
+        /// <param name="Login"></param>
+        /// <param name="EMail"></param>
+        /// <param name="Language"></param>
+        /// <param name="VerificationToken"></param>
+        public delegate EMail NewUserSignUpEMailCreatorDelegate(User_Id            Login,
+                                                                EMailAddress       EMail,
+                                                                String             Language,
+                                                                VerificationToken  VerificationToken);
+
+        private readonly NewUserSignUpEMailCreatorDelegate _NewUserSignUpEMailCreator;
 
         /// <summary>
-        /// A delegate to create a "New User Sign Up"-mail.
+        /// A delegate for sending a sign-up e-mail to a new user.
         /// </summary>
-        public NewUserSignUpEMailCreatorDelegate NewUserSignUpEMailCreator { get; set; }
+        public NewUserSignUpEMailCreatorDelegate NewUserSignUpEMailCreator
+        {
+            get
+            {
+                return _NewUserSignUpEMailCreator;
+            }
+        }
 
         #endregion
 
         #region NewUserWelcomeEMailCreator
 
-        public delegate EMail NewUserWelcomeEMailCreatorDelegate(User_Id Login, EMailAddress EMail, String Language);
+        /// <summary>
+        /// A delegate for sending a welcome e-mail to a new user.
+        /// </summary>
+        /// <param name="Login"></param>
+        /// <param name="EMail"></param>
+        /// <param name="Language"></param>
+        public delegate EMail NewUserWelcomeEMailCreatorDelegate(User_Id       Login,
+                                                                 EMailAddress  EMail,
+                                                                 String        Language);
+
+        private readonly NewUserWelcomeEMailCreatorDelegate _NewUserWelcomeEMailCreator;
 
         /// <summary>
-        /// A delegate to create a "New User Welcome"-mail.
+        /// A delegate for sending a welcome e-mail to a new user.
         /// </summary>
-        public NewUserWelcomeEMailCreatorDelegate NewUserWelcomeEMailCreator { get; set; }
+        public NewUserWelcomeEMailCreatorDelegate NewUserWelcomeEMailCreator
+        {
+            get
+            {
+                return _NewUserWelcomeEMailCreator;
+            }
+        }
 
         #endregion
 
         #region ResetPasswordEMailCreator
 
-        public delegate EMail ResetPasswordEMailCreatorDelegate(User_Id Login, SimpleEMailAddress EMail, String Language);
+        /// <summary>
+        /// A delegate for sending a reset password e-mail to a user.
+        /// </summary>
+        /// <param name="Login"></param>
+        /// <param name="EMail"></param>
+        /// <param name="Language"></param>
+        public delegate EMail ResetPasswordEMailCreatorDelegate(User_Id       Login,
+                                                                EMailAddress  EMail,
+                                                                String        Language);
+
+        private readonly ResetPasswordEMailCreatorDelegate _ResetPasswordEMailCreator;
 
         /// <summary>
-        /// A delegate to create a "Reset Password"-mail.
+        /// A delegate for sending a reset password e-mail to a user.
         /// </summary>
-        public ResetPasswordEMailCreatorDelegate ResetPasswordEMailCreator { get; set; }
+        public ResetPasswordEMailCreatorDelegate ResetPasswordEMailCreator
+        {
+            get
+            {
+                return _ResetPasswordEMailCreator;
+            }
+        }
 
         #endregion
 
@@ -337,6 +475,9 @@ namespace org.GraphDefined.OpenData
 
         private readonly Byte _MinUserNameLenght;
 
+        /// <summary>
+        /// The minimal user name length.
+        /// </summary>
         public Byte MinUserNameLenght
         {
             get
@@ -351,6 +492,9 @@ namespace org.GraphDefined.OpenData
 
         private readonly Byte _MinRealmLenght;
 
+        /// <summary>
+        /// The minimal realm length.
+        /// </summary>
         public Byte MinRealmLenght
         {
             get
@@ -365,6 +509,9 @@ namespace org.GraphDefined.OpenData
 
         private readonly Byte _MinPasswordLenght;
 
+        /// <summary>
+        /// The minimal password length.
+        /// </summary>
         public Byte MinPasswordLenght
         {
             get
@@ -419,18 +566,28 @@ namespace org.GraphDefined.OpenData
         /// <summary>
         /// Create a new HTTP server and attach this Open Data HTTP API to it.
         /// </summary>
-        /// <param name="HTTPServerName"></param>
-        /// <param name="HTTPServerPort"></param>
-        /// <param name="URIPrefix"></param>
+        /// <param name="HTTPServerName">The default HTTP servername, used whenever no HTTP Host-header had been given.</param>
+        /// <param name="HTTPServerPort">A TCP port to listen on.</param>
+        /// <param name="HTTPHostname">The HTTP hostname for all URIs within this API.</param>
+        /// <param name="URIPrefix">A common prefix for all URIs.</param>
         /// 
-        /// <param name="ServiceName"></param>
-        /// <param name="APIEMailAddress"></param>
-        /// <param name="APIPublicKeyRing"></param>
-        /// <param name="APISecretKeyRing"></param>
-        /// <param name="APIPassphrase"></param>
-        /// <param name="APIAdminEMail"></param>
-        /// <param name="APISMTPClient"></param>
-        /// <param name="RessourcesProvider"></param>
+        /// <param name="ServiceName">The name of the service.</param>
+        /// <param name="APIEMailAddress">An e-mail address for this API.</param>
+        /// <param name="APIPublicKeyRing">A GPG public key for this API.</param>
+        /// <param name="APISecretKeyRing">A GPG secret key for this API.</param>
+        /// <param name="APIPassphrase">A GPG passphrase for this API.</param>
+        /// <param name="APIAdminEMails">A list of admin e-mail addresses.</param>
+        /// <param name="APISMTPClient">A SMTP client for sending e-mails.</param>
+        /// 
+        /// <param name="NewUserSignUpEMailCreator">A delegate for sending a sign-up e-mail to a new user.</param>
+        /// <param name="NewUserWelcomeEMailCreator">A delegate for sending a welcome e-mail to a new user.</param>
+        /// <param name="ResetPasswordEMailCreator">A delegate for sending a reset password e-mail to a user.</param>
+        /// <param name="MinUserNameLenght">The minimal user name length.</param>
+        /// <param name="MinRealmLenght">The minimal realm length.</param>
+        /// <param name="MinPasswordLenght">The minimal password length.</param>
+        /// <param name="SignInSessionLifetime">The sign-in session lifetime.</param>
+        /// 
+        /// <param name="RessourcesProvider">A </param>
         /// 
         /// <param name="ServerThreadName"></param>
         /// <param name="ServerThreadPriority"></param>
@@ -446,6 +603,7 @@ namespace org.GraphDefined.OpenData
         /// <param name="LogfileName"></param>
         public UsersAPI(String                              HTTPServerName                    = DefaultHTTPServerName,
                         IPPort                              HTTPServerPort                    = null,
+                        String                              HTTPHostname                      = "*",
                         String                              URIPrefix                         = "/",
 
                         String                              ServiceName                       = DefaultServiceName,
@@ -453,7 +611,7 @@ namespace org.GraphDefined.OpenData
                         PgpPublicKeyRing                    APIPublicKeyRing                  = null,
                         PgpSecretKeyRing                    APISecretKeyRing                  = null,
                         String                              APIPassphrase                     = null,
-                        EMailAddressList                    APIAdminEMail                     = null,
+                        EMailAddressList                    APIAdminEMails                    = null,
                         SMTPClient                          APISMTPClient                     = null,
 
                         NewUserSignUpEMailCreatorDelegate   NewUserSignUpEMailCreator         = null,
@@ -492,6 +650,7 @@ namespace org.GraphDefined.OpenData
                                   MaxClientConnections:              MaxClientConnections,
                                   DNSClient:                         DNSClient,
                                   Autostart:                         false),
+                   HTTPHostname,
                    URIPrefix,
 
                    ServiceName,
@@ -499,7 +658,7 @@ namespace org.GraphDefined.OpenData
                    APIPublicKeyRing,
                    APISecretKeyRing,
                    APIPassphrase,
-                   APIAdminEMail,
+                   APIAdminEMails,
                    APISMTPClient,
 
                    NewUserSignUpEMailCreator,
@@ -515,57 +674,7 @@ namespace org.GraphDefined.OpenData
                    DNSClient,
                    LogfileName)
 
-        {
-
-            #region Configure HTTP Server events
-
-            // Server events...
-            _HTTPServer.OnStarted           += (Sender,    Timestamp, Message)                                    => Console.WriteLine("[" + Timestamp + "] '" + (Sender as HTTPServer).DefaultServerName + "' started on port(s) " + (Sender as HTTPServer).Select(tcpserver => tcpserver.Port).AggregateWith(", ") + (Message.IsNotNullOrEmpty() ? "; msg: '" + Message + "'..." : ""));
-            //_HTTPServer.OnNewConnection     += (TCPServer, Timestamp, RemoteSocket, ConnectionId, TCPConnection)  => Console.WriteLine("[" + Timestamp + "] New TCP/HTTP connection from " + TCPConnection.RemoteSocket.ToString());
-            _HTTPServer.OnExceptionOccured  += (Sender,    Timestamp, Exception)                                  => Console.WriteLine("[" + Timestamp + "] HTTP exception occured: '" + Exception.Message + "'");
-            //_HTTPServer.OnConnectionClosed  += (Sender,    Timestamp, RemoteSocket, ConnectionId, ClosedBy)       => Console.WriteLine("[" + Timestamp + "] TCP/HTTP connection from " + RemoteSocket.ToString() + " closed by " + ClosedBy.ToString().ToLower() + "!");
-            _HTTPServer.OnCompleted         += (Sender,    Timestamp, Message)                                    => Console.WriteLine("[" + Timestamp + "] '" + (Sender as HTTPServer).DefaultServerName + "' shutdown" + (Message.IsNotNullOrEmpty() ? "; msg: '" + Message + "'..." : "..."));
-
-            // HTTP events...
-            //_HTTPServer.RequestLog          += (Sender, Timestamp, Request)            => Console.WriteLine("[" + Timestamp + "] " + Request.HTTPMethod + " " + Request.URI);
-            //_HTTPServer.AccessLog           += (Sender, Timestamp, Request, Response)  => Console.WriteLine("[" + Timestamp + "] " + Request.HTTPMethod + " " + Request.URI + " => " + Response.HTTPStatusCode.SimpleString);
-
-
-            _HTTPServer.AccessLog += (HTTPServer, ServerTimestamp, Request, Response) => {
-
-                Console.WriteLine("[" + ServerTimestamp.ToString() + "] " +
-                                  (Request.X_Forwarded_For != null
-                                     ? Request.X_Forwarded_For + "(" +  Request.RemoteSocket + ") - "
-                                     : Request.RemoteSocket + " - ") +
-                                  Request.HTTPMethod   + " " +
-                                  Request.URI          + " " +
-                                  Response.HTTPStatusCode + " " +
-                                  Response.ContentLength + " bytes");
-
-            };
-
-            _HTTPServer.ErrorLog += (HTTPServer, ServerTimestamp, Request, Response, Error, LastException) => {
-
-                var _error            = (Error         == null) ? "" : Error;
-                var _exceptionMessage = (LastException == null) ? "" : Environment.NewLine + LastException.Message;
-
-                Console.Write("[" + ServerTimestamp.ToString() + "] " +
-                              (Request.X_Forwarded_For != null
-                                  ? Request.X_Forwarded_For + "(" + Request.RemoteSocket + ") - "
-                                  : Request.RemoteSocket + " - ") +
-                              Request.HTTPMethod + " " +
-                              Request.URI        + " => ");
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.Write("[" + Response.HTTPStatusCode + "] ");
-                Console.ResetColor();
-                Console.WriteLine((_error.           IsNotNullOrEmpty() ? _error  + "/"     : "" ) +
-                                  (_exceptionMessage.IsNotNullOrEmpty() ? _exceptionMessage : ""));
-
-            };
-
-            #endregion
-
-        }
+        { }
 
         #endregion
 
@@ -574,21 +683,32 @@ namespace org.GraphDefined.OpenData
         /// <summary>
         /// Attach this Open Data HTTP API to the given HTTP server.
         /// </summary>
-        /// <param name="HTTPServer"></param>
-        /// <param name="URIPrefix"></param>
+        /// <param name="HTTPServer">An existing HTTP server.</param>
+        /// <param name="HTTPHostname">The HTTP hostname for all URIs within this API.</param>
+        /// <param name="URIPrefix">A common prefix for all URIs.</param>
         /// 
-        /// <param name="ServiceName"></param>
-        /// <param name="APIEMailAddress"></param>
-        /// <param name="APIPublicKeyRing"></param>
-        /// <param name="APISecretKeyRing"></param>
-        /// <param name="APIPassphrase"></param>
-        /// <param name="APIAdminEMail"></param>
-        /// <param name="APISMTPClient"></param>
+        /// <param name="ServiceName">The name of the service.</param>
+        /// <param name="APIEMailAddress">An e-mail address for this API.</param>
+        /// <param name="APIPublicKeyRing">A GPG public key for this API.</param>
+        /// <param name="APISecretKeyRing">A GPG secret key for this API.</param>
+        /// <param name="APIPassphrase">A GPG passphrase for this API.</param>
+        /// <param name="APIAdminEMails">A list of admin e-mail addresses.</param>
+        /// <param name="APISMTPClient">A SMTP client for sending e-mails.</param>
+        /// 
+        /// <param name="NewUserSignUpEMailCreator">A delegate for sending a sign-up e-mail to a new user.</param>
+        /// <param name="NewUserWelcomeEMailCreator">A delegate for sending a welcome e-mail to a new user.</param>
+        /// <param name="ResetPasswordEMailCreator">A delegate for sending a reset password e-mail to a user.</param>
+        /// <param name="MinUserNameLenght">The minimal user name length.</param>
+        /// <param name="MinRealmLenght">The minimal realm length.</param>
+        /// <param name="MinPasswordLenght">The minimal password length.</param>
+        /// <param name="SignInSessionLifetime">The sign-in session lifetime.</param>
+        /// 
         /// <param name="RessourcesProvider"></param>
         /// 
         /// <param name="DNSClient"></param>
         /// <param name="LogfileName"></param>
         protected UsersAPI(HTTPServer                          HTTPServer,
+                           String                              HTTPHostname                 = "*",
                            String                              URIPrefix                    = "/",
 
                            String                              ServiceName                  = DefaultServiceName,
@@ -596,7 +716,7 @@ namespace org.GraphDefined.OpenData
                            PgpPublicKeyRing                    APIPublicKeyRing             = null,
                            PgpSecretKeyRing                    APISecretKeyRing             = null,
                            String                              APIPassphrase                = null,
-                           EMailAddressList                    APIAdminEMail                = null,
+                           EMailAddressList                    APIAdminEMails               = null,
                            SMTPClient                          APISMTPClient                = null,
 
                            NewUserSignUpEMailCreatorDelegate   NewUserSignUpEMailCreator    = null,
@@ -614,58 +734,150 @@ namespace org.GraphDefined.OpenData
 
         {
 
+            #region Initial checks
+
+            if (HTTPServer == null)
+                throw new ArgumentNullException(nameof(HTTPServer), "HTTPServer!");
+
+            if (NewUserSignUpEMailCreator  == null)
+                throw new ArgumentNullException(nameof(NewUserSignUpEMailCreator),   "NewUserSignUpEMailCreator!");
+
+            if (NewUserWelcomeEMailCreator == null)
+                throw new ArgumentNullException(nameof(NewUserWelcomeEMailCreator),  "NewUserWelcomeEMailCreator!");
+
+            if (ResetPasswordEMailCreator  == null)
+                throw new ArgumentNullException(nameof(ResetPasswordEMailCreator),   "ResetPasswordEMailCreator!");
+
+            #endregion
+
             #region Init data
 
-            this._HTTPServer             = HTTPServer;
-            this._URIPrefix              = URIPrefix;
-            this.RessourcesProvider      = RessourcesProvider;
-                                         
-            this._ServiceName            = ServiceName;
-            this._APIEMailAddress        = APIEMailAddress;
-            this._APIPublicKeyRing       = APIPublicKeyRing;
-            this._APISecretKeyRing       = APISecretKeyRing;
-            this._APIPassphrase          = APIPassphrase;
-            this._APIAdminEMail          = APIAdminEMail;
-            this._APISMTPClient          = APISMTPClient;
+            this._HTTPServer                  = HTTPServer;
+            this._HTTPHostname                = HTTPHostname.IsNotNullOrEmpty() ? HTTPHostname : "*";
+            this._URIPrefix                   = URIPrefix.   IsNotNullOrEmpty() ? URIPrefix    : "/";
 
-            this._SignInSessionLifetime  = SignInSessionLifetime.HasValue ? SignInSessionLifetime.Value : DefaultSignInSessionLifetime;
+            this._ServiceName                 = ServiceName. IsNotNullOrEmpty() ? ServiceName  : "UsersAPI";
+            this._APIEMailAddress             = APIEMailAddress;
+            this._APIPublicKeyRing            = APIPublicKeyRing;
+            this._APISecretKeyRing            = APISecretKeyRing;
+            this._APIPassphrase               = APIPassphrase;
+            this._APIAdminEMail               = APIAdminEMails;
+            this._APISMTPClient               = APISMTPClient;
 
-            this._Users                  = new Dictionary<User_Id, User>();
-            this._Groups                 = new Dictionary<UserGroup_Id, UserGroup>();
-            this._Messages               = new Dictionary<Message_Id, Message>();
+            this._NewUserSignUpEMailCreator   = NewUserSignUpEMailCreator;
+            this._NewUserWelcomeEMailCreator  = NewUserWelcomeEMailCreator;
+            this._ResetPasswordEMailCreator   = ResetPasswordEMailCreator;
+            this._MinUserNameLenght           = MinUserNameLenght;
+            this._MinRealmLenght              = MinRealmLenght;
+            this._MinPasswordLenght           = MinPasswordLenght;
+            this._SignInSessionLifetime       = SignInSessionLifetime.HasValue ? SignInSessionLifetime.Value : DefaultSignInSessionLifetime;
 
-            this._LoginPasswords         = new Dictionary<User_Id, LoginPassword>();
-            this._VerificationTokens     = new List<VerificationToken>();
+            this.RessourcesProvider           = RessourcesProvider;
 
-            this._DNSClient              = (DNSClient != null) ? DNSClient : new DNSClient(SearchForIPv6DNSServers: false);
+            this._Users                       = new Dictionary<User_Id, User>();
+            this._Groups                      = new Dictionary<UserGroup_Id, UserGroup>();
+            this._Messages                    = new Dictionary<Message_Id, Message>();
+
+            this._LoginPasswords              = new Dictionary<User_Id, LoginPassword>();
+            this._VerificationTokens          = new List<VerificationToken>();
+
+            this._DNSClient                   = (DNSClient != null) ? DNSClient : new DNSClient(SearchForIPv6DNSServers: false);
 
             #endregion
 
-            #region Register HTTP URI-templates
+            RegisterURITemplates();
 
-            #region /shared
+        }
 
-            _HTTPServer.RegisterResourcesFolder("/shared", "org.GraphDefined.OpenData.API.HTTPRoot");
+        #endregion
 
-            #endregion
+        #endregion
 
-            #region /raw
 
-            _HTTPServer.AddMethodCallback(HTTPMethod.GET,
-                                          "/raw",
-                                          HTTPContentType.HTML_UTF8,
-                                          Request => {
+        #region (static) AttachToHTTPAPI(HTTPServer, URIPrefix = "/", ...)
 
-                                              return new HTTPResponseBuilder(Request) {
-                                                  HTTPStatusCode = HTTPStatusCode.OK,
-                                                  ContentType = HTTPContentType.TEXT_UTF8,
-                                                  Content = Request.RawHTTPHeader.ToString().ToUTF8Bytes(),
-                                                  CacheControl = "private",
-                                                  //Expires         = "Mon, 25 Jun 2015 21:31:12 GMT",
-                                                  Connection = "close"
-                                              };
+        /// <summary>
+        /// Attach this Open Data HTTP API to the given HTTP server.
+        /// </summary>
+        /// <param name="HTTPServer"></param>
+        /// <param name="HTTPHostname">The HTTP hostname for all URIs within this API.</param>
+        /// <param name="URIPrefix"></param>
+        /// 
+        /// <param name="ServiceName"></param>
+        /// <param name="APIEMailAddress"></param>
+        /// <param name="APIPublicKeyRing"></param>
+        /// <param name="APISecretKeyRing"></param>
+        /// <param name="APIPassphrase"></param>
+        /// <param name="APIAdminEMail"></param>
+        /// <param name="APISMTPClient"></param>
+        /// <param name="RessourcesProvider"></param>
+        /// 
+        /// <param name="DNSClient"></param>
+        /// <param name="LogfileName"></param>
+        public static UsersAPI AttachToHTTPAPI(HTTPServer                          HTTPServer,
+                                               String                              HTTPHostname                 = "*",
+                                               String                              URIPrefix                    = "/",
 
-                                          });
+                                               String                              ServiceName                  = DefaultServiceName,
+                                               EMailAddress                        APIEMailAddress              = null,
+                                               PgpPublicKeyRing                    APIPublicKeyRing             = null,
+                                               PgpSecretKeyRing                    APISecretKeyRing             = null,
+                                               String                              APIPassphrase                = null,
+                                               EMailAddressList                    APIAdminEMail                = null,
+                                               SMTPClient                          APISMTPClient                = null,
+
+                                               NewUserSignUpEMailCreatorDelegate   NewUserSignUpEMailCreator    = null,
+                                               NewUserWelcomeEMailCreatorDelegate  NewUserWelcomeEMailCreator   = null,
+                                               ResetPasswordEMailCreatorDelegate   ResetPasswordEMailCreator    = null,
+                                               Byte                                MinUserNameLenght            = DefaultMinUserNameLenght,
+                                               Byte                                MinRealmLenght               = DefaultMinRealmLenght,
+                                               Byte                                MinPasswordLenght            = DefaultMinPasswordLenght,
+                                               TimeSpan?                           SignInSessionLifetime        = null,
+
+                                               Func<String, Stream>                RessourcesProvider           = null,
+
+                                               DNSClient                           DNSClient                    = null,
+                                               String                              LogfileName                  = DefaultLogfileName)
+
+        {
+
+            return new UsersAPI(HTTPServer,
+                                HTTPHostname,
+                                URIPrefix,
+
+                                ServiceName,
+                                APIEMailAddress,
+                                APIPublicKeyRing,
+                                APISecretKeyRing,
+                                APIPassphrase,
+                                APIAdminEMail,
+                                APISMTPClient,
+
+                                NewUserSignUpEMailCreator,
+                                NewUserWelcomeEMailCreator,
+                                ResetPasswordEMailCreator,
+                                MinUserNameLenght,
+                                MinRealmLenght,
+                                MinPasswordLenght,
+                                SignInSessionLifetime,
+
+                                RessourcesProvider,
+
+                                DNSClient,
+                                LogfileName);
+
+        }
+
+        #endregion
+
+        #region (private) RegisterURITemplates()
+
+        private void RegisterURITemplates()
+        {
+
+            #region /shared/UsersAPI
+
+            _HTTPServer.RegisterResourcesFolder("/shared/UsersAPI", "org.GraphDefined.OpenData.UsersAPI.HTTPRoot");
 
             #endregion
 
@@ -677,10 +889,33 @@ namespace org.GraphDefined.OpenData
             // -------------------------------------------------------------
             // curl -v -H "Accept: text/html" http://127.0.0.1:2100/signup
             // -------------------------------------------------------------
-            _HTTPServer.Redirect(HTTPMethod.GET,
-                                 "/signup",
-                                 HTTPContentType.HTML_UTF8,
-                                 "/index.html");
+            //_HTTPServer.Redirect(HTTPMethod.GET,
+            //                     "/signup",
+            //                     HTTPContentType.HTML_UTF8,
+            //                     "/index.html");
+
+            _HTTPServer.AddMethodCallback(HTTPMethod.GET,
+                                          new String[] { _URIPrefix + "signup" },
+                                          HTTPContentType.HTML_UTF8,
+                                          HTTPDelegate: Request => {
+
+                                              var _MemoryStream1 = new MemoryStream();
+                                              __GetRessources("template.html").SeekAndCopyTo(_MemoryStream1, 0);
+                                              var Template = _MemoryStream1.ToArray().ToUTF8String();
+
+                                              var _MemoryStream2 = new MemoryStream();
+                                              typeof(UsersAPI).Assembly.GetManifestResourceStream("org.GraphDefined.OpenData.UsersAPI.HTTPRoot.SignUp.index.html").SeekAndCopyTo(_MemoryStream2, 0);
+                                              var HTML     = Template.Replace("<%= content %>", _MemoryStream2.ToArray().ToUTF8String());
+
+                                              return new HTTPResponseBuilder(Request) {
+                                                  HTTPStatusCode  = HTTPStatusCode.OK,
+                                                  ContentType     = HTTPContentType.HTML_UTF8,
+                                                  Content         = HTML.ToUTF8Bytes(),
+                                                  Connection      = "close"
+                                              };
+
+                                          });
+
 
             #endregion
 
@@ -1503,83 +1738,6 @@ namespace org.GraphDefined.OpenData
 
             #endregion
 
-            #endregion
-
-        }
-
-        #endregion
-
-        #endregion
-
-
-        #region (static) AttachToHTTPAPI(HTTPServer, URIPrefix = "/", ...)
-
-        /// <summary>
-        /// Attach this Open Data HTTP API to the given HTTP server.
-        /// </summary>
-        /// <param name="HTTPServer"></param>
-        /// <param name="URIPrefix"></param>
-        /// <param name="ServiceName"></param>
-        /// <param name="APIEMailAddress"></param>
-        /// <param name="APIPublicKeyRing"></param>
-        /// <param name="APISecretKeyRing"></param>
-        /// <param name="APIPassphrase"></param>
-        /// <param name="APIAdminEMail"></param>
-        /// <param name="APISMTPClient"></param>
-        /// <param name="RessourcesProvider"></param>
-        /// 
-        /// <param name="DNSClient"></param>
-        /// <param name="LogfileName"></param>
-        public static UsersAPI AttachToHTTPAPI(HTTPServer                          HTTPServer,
-                                               String                              URIPrefix                    = "/",
-
-                                               String                              ServiceName                  = DefaultServiceName,
-                                               EMailAddress                        APIEMailAddress              = null,
-                                               PgpPublicKeyRing                    APIPublicKeyRing             = null,
-                                               PgpSecretKeyRing                    APISecretKeyRing             = null,
-                                               String                              APIPassphrase                = null,
-                                               EMailAddressList                    APIAdminEMail                = null,
-                                               SMTPClient                          APISMTPClient                = null,
-
-                                               NewUserSignUpEMailCreatorDelegate   NewUserSignUpEMailCreator    = null,
-                                               NewUserWelcomeEMailCreatorDelegate  NewUserWelcomeEMailCreator   = null,
-                                               ResetPasswordEMailCreatorDelegate   ResetPasswordEMailCreator    = null,
-                                               Byte                                MinUserNameLenght            = DefaultMinUserNameLenght,
-                                               Byte                                MinRealmLenght               = DefaultMinRealmLenght,
-                                               Byte                                MinPasswordLenght            = DefaultMinPasswordLenght,
-                                               TimeSpan?                           SignInSessionLifetime        = null,
-
-                                               Func<String, Stream>                RessourcesProvider           = null,
-
-                                               DNSClient                           DNSClient                    = null,
-                                               String                              LogfileName                  = DefaultLogfileName)
-
-        {
-
-            return new UsersAPI(HTTPServer,
-                                URIPrefix,
-
-                                ServiceName,
-                                APIEMailAddress,
-                                APIPublicKeyRing,
-                                APISecretKeyRing,
-                                APIPassphrase,
-                                APIAdminEMail,
-                                APISMTPClient,
-
-                                NewUserSignUpEMailCreator,
-                                NewUserWelcomeEMailCreator,
-                                ResetPasswordEMailCreator,
-                                MinUserNameLenght,
-                                MinRealmLenght,
-                                MinPasswordLenght,
-                                SignInSessionLifetime,
-
-                                RessourcesProvider,
-
-                                DNSClient,
-                                LogfileName);
-
         }
 
         #endregion
@@ -1689,6 +1847,58 @@ namespace org.GraphDefined.OpenData
             var Message = new Message(Id, Headline, Text);
 
             return _Messages.AddAndReturnValue(Message.Id, Message);
+
+        }
+
+        #endregion
+
+
+
+        #region Start()
+
+        public void Start()
+        {
+
+            lock (HTTPServer)
+            {
+
+                if (!HTTPServer.IsStarted)
+                    HTTPServer.Start();
+
+                //SendStarted(this, DateTime.Now);
+
+            }
+
+        }
+
+        #endregion
+
+        #region Shutdown(Message = null, Wait = true)
+
+        public void Shutdown(String Message = null, Boolean Wait = true)
+        {
+
+            lock (HTTPServer)
+            {
+
+                HTTPServer.Shutdown(Message, Wait);
+                //SendCompleted(this, DateTime.Now, Message);
+
+            }
+
+        }
+
+        #endregion
+
+        #region Dispose()
+
+        public void Dispose()
+        {
+
+            lock (HTTPServer)
+            {
+                HTTPServer.Dispose();
+            }
 
         }
 

@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /users
+Allow: /orgs
+Allow: /apps
+Allow: /datasets
+Allow: /datastreams
+Allow: /datasources
