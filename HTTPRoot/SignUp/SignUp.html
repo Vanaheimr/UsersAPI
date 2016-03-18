@@ -1,0 +1,58 @@
+﻿
+<link rel="stylesheet" type="text/css" href="/shared/UsersAPI/SignUp/SignUp.css">
+<script type="text/javascript" src="/shared/UsersAPI/SignUp/SignUp.js"></script>
+
+<div class="Infobox InfoHeadline">
+
+    <div class="InfoboxHeadline">
+        Create an account
+    </div>
+
+    <div class="InfoboxText">
+
+        <div id="signupimagediv">
+            <img src="/images/OKFN/CFG_logo.svg" style="width: 100%" />
+        </div>
+
+        <div id="signupformdiv">
+
+            <form id="signupform" name="signupform" method="post" action="/signup" accept-charset="UTF-8">
+
+                <input name="authenticity_token" type="hidden" value="123">
+
+                <div class="signupfield top">
+                    <input id="name" name="name" placeholder="Dein gewünschter Benutzername" tabindex="1">
+                    <div id="name_overlay" class="overlay"></div>
+                </div>
+
+                <div class="signupfield middle">
+                    <input id="email" name="email" placeholder="Deine E-Mail-Adresse" tabindex="2">
+                    <div id="email_overlay" class="overlay"></div>
+                </div>
+
+                <div class="signupfield middle">
+                    <textarea id="gpgpublickeyring" placeholder="Dein OpenPGP/GPG public key ring (optional)" tabindex="3"></textarea>
+                    <div id="email_overlay" class="overlay"></div>
+                </div>
+
+                <div class="signupfield middle">
+                    <input id="password1" name="password1" type="password" placeholder="Dein sicheres Passwort" tabindex="4">
+                    <div id="password1_overlay" class="overlay"></div>
+                </div>
+
+                <div class="signupfield bottom">
+                    <input id="password2" name="password2" type="password" placeholder="Bitte wiederhohle dein sicheres Passwort" tabindex="5">
+                    <div id="password2_overlay" class="overlay"></div>
+                </div>
+
+                <div>
+                    <button id="SubmitButton" name="SubmitButton" type="button" class="nButton" style="margin-top: 20px;" tabindex="6">Los geht's...</button>
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</div>

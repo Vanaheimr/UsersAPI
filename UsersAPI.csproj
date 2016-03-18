@@ -119,7 +119,7 @@
     <EmbeddedResource Include="HTTPRoot\css\Infobox.css" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="HTTPRoot\SignUp\styles.css" />
+    <EmbeddedResource Include="HTTPRoot\SignUp\SignUp.css" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="HTTPRoot\css\style.css" />
@@ -146,15 +146,26 @@
     <EmbeddedResource Include="HTTPRoot\fonts\FontAwesome.otf" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="HTTPRoot\js\SignInOut.js" />
+    <EmbeddedResource Include="HTTPRoot\SignInOut\SignInOut.js" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="HTTPRoot\SignUp\SignUp.js" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="HTTPRoot\SignUp\index.html" />
+    <EmbeddedResource Include="HTTPRoot\SignUp\SignUp.html" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <EmbeddedResource Include="HTTPRoot\js\OpenPGP.min.js" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="HTTPRoot\js\OpenPGP.js" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="HTTPRoot\js\default.js" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="HTTPRoot\SignInOut\SignInOut.css" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

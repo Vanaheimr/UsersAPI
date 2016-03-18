@@ -889,11 +889,6 @@ namespace org.GraphDefined.OpenData
             // -------------------------------------------------------------
             // curl -v -H "Accept: text/html" http://127.0.0.1:2100/signup
             // -------------------------------------------------------------
-            //_HTTPServer.Redirect(HTTPMethod.GET,
-            //                     "/signup",
-            //                     HTTPContentType.HTML_UTF8,
-            //                     "/index.html");
-
             _HTTPServer.AddMethodCallback(HTTPMethod.GET,
                                           new String[] { _URIPrefix + "signup" },
                                           HTTPContentType.HTML_UTF8,
@@ -904,7 +899,7 @@ namespace org.GraphDefined.OpenData
                                               var Template = _MemoryStream1.ToArray().ToUTF8String();
 
                                               var _MemoryStream2 = new MemoryStream();
-                                              typeof(UsersAPI).Assembly.GetManifestResourceStream("org.GraphDefined.OpenData.UsersAPI.HTTPRoot.SignUp.index.html").SeekAndCopyTo(_MemoryStream2, 0);
+                                              typeof(UsersAPI).Assembly.GetManifestResourceStream("org.GraphDefined.OpenData.UsersAPI.HTTPRoot.SignUp.SignUp.html").SeekAndCopyTo(_MemoryStream2, 0);
                                               var HTML     = Template.Replace("<%= content %>", _MemoryStream2.ToArray().ToUTF8String());
 
                                               return new HTTPResponseBuilder(Request) {

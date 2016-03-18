@@ -1,20 +1,4 @@
 
-.Info23box {
-    position:                   relative;
-    top:                        12vh;
-    width:                      60vw;
-    max-width:                  960px;
-    margin:                     auto;
-    margin-bottom:              25px;
-    font-size:                  120%;
-    display:                    block;
-    z-index:                    50;
-
-    background-color: rgba(215,224,241,0.80);
-    padding: 10px;
-    border-radius: 6px;
-}
-
 #signupimagediv {
     min-width:                  25px;
     width:                      calc(30% - 15px);
@@ -94,9 +78,8 @@
     box-shadow:                 0 0 10px rgba(255, 0, 0, 0.50);
 }
 
-#SignUpTextfieldGPGKey {
-    height:                     120px;
-    overflow:                   auto;
+#gpgpublickeyring {
+    height:                     20vh;
 }
 
 

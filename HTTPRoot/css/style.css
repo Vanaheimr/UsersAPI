@@ -172,49 +172,6 @@
                                  1px  1px 0 rgba(255, 255, 255, 0.8);
 }
 
-#signinpanelsmall {
-    position:                   fixed;
-    right:                      15px;
-    top:                        36px;
-    padding:                    8px 10px 8px 10px;
-    font-size:                  70%;
-    background-color:           #FFFFFF;
-    box-shadow:                 1px 1px 3px rgba(100, 100, 100, 0.7);
-    border-radius:              4px 4px 3px 3px;
-    z-index:                    100;
-    display:                    none;
-}
-
-#signinpanelsmall input {
-    margin-top:                 3px;
-    padding-left:               1px;
-}
-
-#signinpanelsmall input[type="text"], input[type="password"]  {
-    margin-bottom:              5px;
-    width:                      180px;
-}
-
-#signinpanelsmall input[type="button"] {
-    font-size:                  100%;
-    padding:                    6px 12px 6px 12px;
-}
-
-#signinpanelsmall_showrealmbutton {
-    display:                    inline-block;
-}
-
-#signinpanelsmall_realm {
-    display:                    none;
-}
-
-#signinpanelsmall > #errors {
-    color:                      #CC0000;
-    padding:                    6px 0px 10px 0px;
-    display:                    none;
-}
-
-
 /*.button {
     position: relative;
     display: inline-block;
