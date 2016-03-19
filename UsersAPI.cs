@@ -71,6 +71,11 @@ namespace org.GraphDefined.OpenData
         public  static readonly   IPPort                              DefaultHTTPServerPort          = new IPPort(2002);
 
         /// <summary>
+        /// The HTTP root for embedded ressources.
+        /// </summary>
+        public const              String                              HTTPRoot                       = "org.GraphDefined.OpenData.UsersAPI.HTTPRoot.";
+
+        /// <summary>
         /// The default service name.
         /// </summary>
         public  const             String                              DefaultServiceName             = "GraphDefined Users API";
@@ -93,6 +98,10 @@ namespace org.GraphDefined.OpenData
         /// Default logfile name.
         /// </summary>
         public  const             String                              DefaultLogfileName             = "UsersAPI.log";
+
+        public const String SignInOutContext = "";
+        public const String HTTPCookieId     = "OpenDataSocial";
+        public const String HTTPCookieDomain = "";
 
         #endregion
 
@@ -374,6 +383,23 @@ namespace org.GraphDefined.OpenData
 
         #endregion
 
+        #region DefaultLanguage
+
+        private readonly Languages _DefaultLanguage;
+
+        /// <summary>
+        /// The default language of the API.
+        /// </summary>
+        public Languages DefaultLanguage
+        {
+            get
+            {
+                return _DefaultLanguage;
+            }
+        }
+
+        #endregion
+
         #region NewUserSignUpEMailCreator
 
         /// <summary>
@@ -385,7 +411,7 @@ namespace org.GraphDefined.OpenData
         /// <param name="VerificationToken"></param>
         public delegate EMail NewUserSignUpEMailCreatorDelegate(User_Id            Login,
                                                                 EMailAddress       EMail,
-                                                                String             Language,
+                                                                Languages          Language,
                                                                 VerificationToken  VerificationToken);
 
         private readonly NewUserSignUpEMailCreatorDelegate _NewUserSignUpEMailCreator;
@@ -413,7 +439,7 @@ namespace org.GraphDefined.OpenData
         /// <param name="Language"></param>
         public delegate EMail NewUserWelcomeEMailCreatorDelegate(User_Id       Login,
                                                                  EMailAddress  EMail,
-                                                                 String        Language);
+                                                                 Languages     Language);
 
         private readonly NewUserWelcomeEMailCreatorDelegate _NewUserWelcomeEMailCreator;
 
@@ -579,6 +605,7 @@ namespace org.GraphDefined.OpenData
         /// <param name="APIAdminEMails">A list of admin e-mail addresses.</param>
         /// <param name="APISMTPClient">A SMTP client for sending e-mails.</param>
         /// 
+        /// <param name="DefaultLanguage">The default language of the API.</param>
         /// <param name="NewUserSignUpEMailCreator">A delegate for sending a sign-up e-mail to a new user.</param>
         /// <param name="NewUserWelcomeEMailCreator">A delegate for sending a welcome e-mail to a new user.</param>
         /// <param name="ResetPasswordEMailCreator">A delegate for sending a reset password e-mail to a user.</param>
@@ -614,6 +641,7 @@ namespace org.GraphDefined.OpenData
                         EMailAddressList                    APIAdminEMails                    = null,
                         SMTPClient                          APISMTPClient                     = null,
 
+                        Languages                           DefaultLanguage                   = Languages.en,
                         NewUserSignUpEMailCreatorDelegate   NewUserSignUpEMailCreator         = null,
                         NewUserWelcomeEMailCreatorDelegate  NewUserWelcomeEMailCreator        = null,
                         ResetPasswordEMailCreatorDelegate   ResetPasswordEMailCreator         = null,
@@ -661,6 +689,7 @@ namespace org.GraphDefined.OpenData
                    APIAdminEMails,
                    APISMTPClient,
 
+                   DefaultLanguage,
                    NewUserSignUpEMailCreator,
                    NewUserWelcomeEMailCreator,
                    ResetPasswordEMailCreator,
@@ -695,6 +724,7 @@ namespace org.GraphDefined.OpenData
         /// <param name="APIAdminEMails">A list of admin e-mail addresses.</param>
         /// <param name="APISMTPClient">A SMTP client for sending e-mails.</param>
         /// 
+        /// <param name="DefaultLanguage">The default language of the API.</param>
         /// <param name="NewUserSignUpEMailCreator">A delegate for sending a sign-up e-mail to a new user.</param>
         /// <param name="NewUserWelcomeEMailCreator">A delegate for sending a welcome e-mail to a new user.</param>
         /// <param name="ResetPasswordEMailCreator">A delegate for sending a reset password e-mail to a user.</param>
@@ -719,6 +749,7 @@ namespace org.GraphDefined.OpenData
                            EMailAddressList                    APIAdminEMails               = null,
                            SMTPClient                          APISMTPClient                = null,
 
+                           Languages                           DefaultLanguage              = Languages.en,
                            NewUserSignUpEMailCreatorDelegate   NewUserSignUpEMailCreator    = null,
                            NewUserWelcomeEMailCreatorDelegate  NewUserWelcomeEMailCreator   = null,
                            ResetPasswordEMailCreatorDelegate   ResetPasswordEMailCreator    = null,
@@ -764,6 +795,7 @@ namespace org.GraphDefined.OpenData
             this._APIAdminEMail               = APIAdminEMails;
             this._APISMTPClient               = APISMTPClient;
 
+            this._DefaultLanguage             = DefaultLanguage;
             this._NewUserSignUpEMailCreator   = NewUserSignUpEMailCreator;
             this._NewUserWelcomeEMailCreator  = NewUserWelcomeEMailCreator;
             this._ResetPasswordEMailCreator   = ResetPasswordEMailCreator;
@@ -799,17 +831,27 @@ namespace org.GraphDefined.OpenData
         /// <summary>
         /// Attach this Open Data HTTP API to the given HTTP server.
         /// </summary>
-        /// <param name="HTTPServer"></param>
+        /// <param name="HTTPServer">An existing HTTP server.</param>
         /// <param name="HTTPHostname">The HTTP hostname for all URIs within this API.</param>
-        /// <param name="URIPrefix"></param>
+        /// <param name="URIPrefix">A common prefix for all URIs.</param>
         /// 
-        /// <param name="ServiceName"></param>
-        /// <param name="APIEMailAddress"></param>
-        /// <param name="APIPublicKeyRing"></param>
-        /// <param name="APISecretKeyRing"></param>
-        /// <param name="APIPassphrase"></param>
-        /// <param name="APIAdminEMail"></param>
-        /// <param name="APISMTPClient"></param>
+        /// <param name="ServiceName">The name of the service.</param>
+        /// <param name="APIEMailAddress">An e-mail address for this API.</param>
+        /// <param name="APIPublicKeyRing">A GPG public key for this API.</param>
+        /// <param name="APISecretKeyRing">A GPG secret key for this API.</param>
+        /// <param name="APIPassphrase">A GPG passphrase for this API.</param>
+        /// <param name="APIAdminEMails">A list of admin e-mail addresses.</param>
+        /// <param name="APISMTPClient">A SMTP client for sending e-mails.</param>
+        /// 
+        /// <param name="DefaultLanguage">The default language of the API.</param>
+        /// <param name="NewUserSignUpEMailCreator">A delegate for sending a sign-up e-mail to a new user.</param>
+        /// <param name="NewUserWelcomeEMailCreator">A delegate for sending a welcome e-mail to a new user.</param>
+        /// <param name="ResetPasswordEMailCreator">A delegate for sending a reset password e-mail to a user.</param>
+        /// <param name="MinUserNameLenght">The minimal user name length.</param>
+        /// <param name="MinRealmLenght">The minimal realm length.</param>
+        /// <param name="MinPasswordLenght">The minimal password length.</param>
+        /// <param name="SignInSessionLifetime">The sign-in session lifetime.</param>
+        /// 
         /// <param name="RessourcesProvider"></param>
         /// 
         /// <param name="DNSClient"></param>
@@ -823,9 +865,10 @@ namespace org.GraphDefined.OpenData
                                                PgpPublicKeyRing                    APIPublicKeyRing             = null,
                                                PgpSecretKeyRing                    APISecretKeyRing             = null,
                                                String                              APIPassphrase                = null,
-                                               EMailAddressList                    APIAdminEMail                = null,
+                                               EMailAddressList                    APIAdminEMails               = null,
                                                SMTPClient                          APISMTPClient                = null,
 
+                                               Languages                           DefaultLanguage              = Languages.en,
                                                NewUserSignUpEMailCreatorDelegate   NewUserSignUpEMailCreator    = null,
                                                NewUserWelcomeEMailCreatorDelegate  NewUserWelcomeEMailCreator   = null,
                                                ResetPasswordEMailCreatorDelegate   ResetPasswordEMailCreator    = null,
@@ -850,9 +893,10 @@ namespace org.GraphDefined.OpenData
                                 APIPublicKeyRing,
                                 APISecretKeyRing,
                                 APIPassphrase,
-                                APIAdminEMail,
+                                APIAdminEMails,
                                 APISMTPClient,
 
+                                DefaultLanguage,
                                 NewUserSignUpEMailCreator,
                                 NewUserWelcomeEMailCreator,
                                 ResetPasswordEMailCreator,
@@ -877,7 +921,7 @@ namespace org.GraphDefined.OpenData
 
             #region /shared/UsersAPI
 
-            _HTTPServer.RegisterResourcesFolder("/shared/UsersAPI", "org.GraphDefined.OpenData.UsersAPI.HTTPRoot");
+            _HTTPServer.RegisterResourcesFolder("/shared/UsersAPI", HTTPRoot.Substring(0, HTTPRoot.Length - 1));
 
             #endregion
 
@@ -899,7 +943,7 @@ namespace org.GraphDefined.OpenData
                                               var Template = _MemoryStream1.ToArray().ToUTF8String();
 
                                               var _MemoryStream2 = new MemoryStream();
-                                              typeof(UsersAPI).Assembly.GetManifestResourceStream("org.GraphDefined.OpenData.UsersAPI.HTTPRoot.SignUp.SignUp.html").SeekAndCopyTo(_MemoryStream2, 0);
+                                              typeof(UsersAPI).Assembly.GetManifestResourceStream(HTTPRoot + "SignUp.SignUp-" + DefaultLanguage.ToString() + ".html").SeekAndCopyTo(_MemoryStream2, 0);
                                               var HTML     = Template.Replace("<%= content %>", _MemoryStream2.ToArray().ToUTF8String());
 
                                               return new HTTPResponseBuilder(Request) {
@@ -970,9 +1014,9 @@ namespace org.GraphDefined.OpenData
                                               if (NewUserWelcomeEMailCreatorLocal != null)
                                               {
 
-                                                  var NewUserMail = NewUserWelcomeEMailCreatorLocal(Login: VerificationToken.Login,
-                                                                                                       EMail: _User.EMail,
-                                                                                                       Language: "de");
+                                                  var NewUserMail = NewUserWelcomeEMailCreatorLocal(Login:     VerificationToken.Login,
+                                                                                                    EMail:     _User.EMail,
+                                                                                                    Language:  DefaultLanguage);
 
                                                   var MailResultTask = APISMTPClient.Send(NewUserMail);
 
@@ -1028,6 +1072,40 @@ namespace org.GraphDefined.OpenData
                                               };
 
                                           });
+
+            #endregion
+
+            #endregion
+
+            #region GET         ~/lostpassword
+
+            #region HTML_UTF8
+
+            // -------------------------------------------------------------------
+            // curl -v -H "Accept: text/html" http://127.0.0.1:2100/lostpassword
+            // -------------------------------------------------------------------
+            _HTTPServer.AddMethodCallback(HTTPMethod.GET,
+                                          new String[] { _URIPrefix + "lostpassword" },
+                                          HTTPContentType.HTML_UTF8,
+                                          HTTPDelegate: Request => {
+
+                                              var _MemoryStream1 = new MemoryStream();
+                                              __GetRessources("template.html").SeekAndCopyTo(_MemoryStream1, 0);
+                                              var Template = _MemoryStream1.ToArray().ToUTF8String();
+
+                                              var _MemoryStream2 = new MemoryStream();
+                                              typeof(UsersAPI).Assembly.GetManifestResourceStream(HTTPRoot + "SignInOut.LostPassword-" + DefaultLanguage.ToString() + ".html").SeekAndCopyTo(_MemoryStream2, 0);
+                                              var HTML     = Template.Replace("<%= content %>", _MemoryStream2.ToArray().ToUTF8String());
+
+                                              return new HTTPResponseBuilder(Request) {
+                                                  HTTPStatusCode  = HTTPStatusCode.OK,
+                                                  ContentType     = HTTPContentType.HTML_UTF8,
+                                                  Content         = HTML.ToUTF8Bytes(),
+                                                  Connection      = "close"
+                                              };
+
+                                          });
+
 
             #endregion
 
@@ -1311,7 +1389,7 @@ namespace org.GraphDefined.OpenData
 
                                               #endregion
 
-                                              var NewUser = CreateUser(Login: _Login,
+                                              var NewUser = CreateUser(Username: _Login,
                                                                        Password: NewUserData.GetString("password"),
                                                                        EMail: SimpleEMailAddress.Parse(NewUserData.GetString("email")),
                                                                        GPGPublicKeyRing: NewUserData.GetString("gpgpublickeyring"));
@@ -1331,10 +1409,10 @@ namespace org.GraphDefined.OpenData
                                               if (NewUserSignUpEMailCreatorLocal != null)
                                               {
 
-                                                  var NewUserMail = NewUserSignUpEMailCreatorLocal(Login: _Login,
-                                                                                                      EMail: new EMailAddress(matches.Groups[0].Value, null, PublicKeyRing),
-                                                                                                      Language: "de",
-                                                                                                      VerificationToken: VerificationToken);
+                                                  var NewUserMail = NewUserSignUpEMailCreatorLocal(Login:              _Login,
+                                                                                                   EMail:              new EMailAddress(matches.Groups[0].Value, null, PublicKeyRing),
+                                                                                                   Language:           DefaultLanguage,
+                                                                                                   VerificationToken:  VerificationToken);
 
                                                   var MailResultTask = APISMTPClient.Send(NewUserMail);
 
@@ -1456,16 +1534,16 @@ namespace org.GraphDefined.OpenData
 
                                               if (!LoginData.HasProperties)
                                                   return new HTTPResponseBuilder(Request) {
-                                                      HTTPStatusCode = HTTPStatusCode.BadRequest,
-                                                      Server = _HTTPServer.DefaultServerName,
-                                                      ContentType = HTTPContentType.JSON_UTF8,
-                                                      Content = new JObject(
-                                                                             new JProperty("@context", ""),
-                                                                             new JProperty("statuscode", 400),
-                                                                             new JProperty("description", "Invalid JSON!")
-                                                                        ).ToString().ToUTF8Bytes(),
-                                                      CacheControl = "public",
-                                                      Connection = "close"
+                                                      HTTPStatusCode  = HTTPStatusCode.BadRequest,
+                                                      Server          = _HTTPServer.DefaultServerName,
+                                                      ContentType     = HTTPContentType.JSON_UTF8,
+                                                      Content         = new JObject(
+                                                                            new JProperty("@context",     SignInOutContext),
+                                                                            new JProperty("statuscode",   400),
+                                                                            new JProperty("description",  "Invalid JSON!")
+                                                                       ).ToUTF8Bytes(),
+                                                      CacheControl    = "public",
+                                                      Connection      = "close"
                                                   };
 
                                               #endregion
@@ -1475,20 +1553,20 @@ namespace org.GraphDefined.OpenData
                                               //var LoginData = Body;
 
                                               // The login is taken from the URI, not from the JSON!
-                                              LoginData.SetProperty("login", Request.ParsedURIParameters[0]);
+                                              LoginData.SetProperty("username", Request.ParsedURIParameters[0]);
 
-                                              #region Verify login
+                                              #region Verify username
 
-                                              if (LoginData.GetString("login").Length < MinUserNameLenght)
+                                              if (LoginData.GetString("username").Length < MinUserNameLenght)
                                                   return new HTTPResponseBuilder(Request) {
                                                       HTTPStatusCode = HTTPStatusCode.BadRequest,
                                                       Server = _HTTPServer.DefaultServerName,
                                                       ContentType = HTTPContentType.JSON_UTF8,
                                                       Content = new JObject(
-                                                                             new JProperty("@context", ""),
-                                                                             new JProperty("statuscode", 400),
-                                                                             new JProperty("property", "login"),
-                                                                             new JProperty("description", "The login is too short!")
+                                                                             new JProperty("@context",     SignInOutContext),
+                                                                             new JProperty("statuscode",   400),
+                                                                             new JProperty("property",     "username"),
+                                                                             new JProperty("description",  "The login is too short!")
                                                                         ).ToString().ToUTF8Bytes(),
                                                       CacheControl = "public",
                                                       Connection = "close"
@@ -1505,10 +1583,10 @@ namespace org.GraphDefined.OpenData
                                                       Server = _HTTPServer.DefaultServerName,
                                                       ContentType = HTTPContentType.JSON_UTF8,
                                                       Content = new JObject(
-                                                                            new JProperty("@context", ""),
-                                                                            new JProperty("statuscode", 400),
-                                                                            new JProperty("property", "realm"),
-                                                                            new JProperty("description", "The realm is too short!")
+                                                                            new JProperty("@context",     SignInOutContext),
+                                                                            new JProperty("statuscode",   400),
+                                                                            new JProperty("property",     "realm"),
+                                                                            new JProperty("description",  "The realm is too short!")
                                                                         ).ToString().ToUTF8Bytes(),
                                                       CacheControl = "public",
                                                       Connection = "close"
@@ -1524,9 +1602,9 @@ namespace org.GraphDefined.OpenData
                                                       Server = _HTTPServer.DefaultServerName,
                                                       ContentType = HTTPContentType.JSON_UTF8,
                                                       Content = new JObject(
-                                                                             new JProperty("@context", ""),
-                                                                             new JProperty("statuscode", 400),
-                                                                             new JProperty("description", "Missing \"password\" property!")
+                                                                             new JProperty("@context",     SignInOutContext),
+                                                                             new JProperty("statuscode",   400),
+                                                                             new JProperty("description",  "Missing \"password\" property!")
                                                                         ).ToString().ToUTF8Bytes(),
                                                       CacheControl = "public",
                                                       Connection = "close"
@@ -1538,10 +1616,10 @@ namespace org.GraphDefined.OpenData
                                                       Server = _HTTPServer.DefaultServerName,
                                                       ContentType = HTTPContentType.JSON_UTF8,
                                                       Content = new JObject(
-                                                                             new JProperty("@context", ""),
-                                                                             new JProperty("statuscode", 400),
-                                                                             new JProperty("property", "name"),
-                                                                             new JProperty("description", "The password is too short!")
+                                                                             new JProperty("@context",     SignInOutContext),
+                                                                             new JProperty("statuscode",   400),
+                                                                             new JProperty("property",     "name"),
+                                                                             new JProperty("description",  "The password is too short!")
                                                                         ).ToString().ToUTF8Bytes(),
                                                       CacheControl = "public",
                                                       Connection = "close"
@@ -1555,7 +1633,7 @@ namespace org.GraphDefined.OpenData
                                               LoginPassword _LoginPassword = null;
                                               User _User = null;
 
-                                              if (!User_Id.TryParse(LoginData.GetString("login"), out _UserId) ||
+                                              if (!User_Id.TryParse(LoginData.GetString("username"), out _UserId) ||
                                                   !_LoginPasswords.TryGetValue(_UserId, out _LoginPassword) ||
                                                   !_Users.TryGetValue(_UserId, out _User))
 
@@ -1564,25 +1642,25 @@ namespace org.GraphDefined.OpenData
                                                       Server = _HTTPServer.DefaultServerName,
                                                       ContentType = HTTPContentType.JSON_UTF8,
                                                       Content = new JObject(
-                                                                             new JProperty("@context", ""),
-                                                                             new JProperty("property", "login"),
-                                                                             new JProperty("description", "The login does not exist!")
+                                                                             new JProperty("@context",     SignInOutContext),
+                                                                             new JProperty("property",     "username"),
+                                                                             new JProperty("description",  "Unknown user!")
                                                                         ).ToString().ToUTF8Bytes(),
                                                       CacheControl = "public",
                                                       Connection = "close"
                                                   };
 
 
-                                              if (_LoginPassword.CheckPassword(LoginData.GetString("password")))
+                                              if (!_LoginPassword.CheckPassword(LoginData.GetString("password")))
 
                                                   return new HTTPResponseBuilder(Request) {
                                                       HTTPStatusCode = HTTPStatusCode.Unauthorized,
                                                       Server = _HTTPServer.DefaultServerName,
                                                       ContentType = HTTPContentType.JSON_UTF8,
                                                       Content = new JObject(
-                                                                             new JProperty("@context", ""),
-                                                                             new JProperty("property", "login"),
-                                                                             new JProperty("description", "Invalid login or password!")
+                                                                             new JProperty("@context",     SignInOutContext),
+                                                                             new JProperty("property",     "username"),
+                                                                             new JProperty("description",  "Invalid username or password!")
                                                                         ).ToString().ToUTF8Bytes(),
                                                       //SetCookie       = "SocialOpenData=" +
                                                       //                       "; Expires=" + DateTime.Now.AddMinutes(-5).ToRfc1123() +
@@ -1601,17 +1679,19 @@ namespace org.GraphDefined.OpenData
                                                   HTTPStatusCode = HTTPStatusCode.Created,
                                                   ContentType = HTTPContentType.TEXT_UTF8,
                                                   Content = new JObject(
-                                                                             new JProperty("@context", ""),
-                                                                             new JProperty("login", _LoginPassword.Login.ToString()),
-                                                                             new JProperty("username", _User.Name)
-                                                                        ).ToString().ToUTF8Bytes(),
+                                                                             new JProperty("@context",  ""),
+                                                                             new JProperty("username",  _LoginPassword.Login.ToString()),
+                                                                             new JProperty("name",      _User.Name)
+                                                                        ).ToUTF8Bytes(),
                                                   CacheControl = "private",
-                                                  SetCookie = "SocialOpenData=login=" + _LoginPassword.Login.ToString().ToBase64() +
-                                                                               ":username=" + _User.Name.ToBase64() +
+                                                  SetCookie = HTTPCookieId + "=username=" + _LoginPassword.Login.ToString().ToBase64() +
+                                                                                   ":name=" + _User.Name.ToBase64() +
                                                                           ":securitytoken=" + SecurityToken +
                                                                                "; Expires=" + DateTime.Now.Add(_SignInSessionLifetime).ToRfc1123() +
+                                                                                (HTTPCookieDomain.IsNotNullOrEmpty()
+                                                                                    ? "; Domain=" + HTTPCookieDomain
+                                                                                    : "") +
                                                                                   "; Path=/",
-                                                  // Domain=.offenes-jena.de;
                                                   // secure;"
                                                   Connection = "close"
                                               };
@@ -1756,12 +1836,12 @@ namespace org.GraphDefined.OpenData
 
 
 
-        #region CreateUser(Login, Password, Name = null, EMail = null, GPGPublicKeyRing = null, Description = null, AuthenticateUser = false, HideUser = false)
+        #region CreateUser(Username, Password, Name = null, EMail = null, GPGPublicKeyRing = null, Description = null, AuthenticateUser = false, HideUser = false)
 
         /// <summary>
         /// Create a new user.
         /// </summary>
-        /// <param name="Login">The unique identification of the user.</param>
+        /// <param name="Username">The unique identification of the user.</param>
         /// <param name="Password">The password of the user.</param>
         /// <param name="Name">The offical (multi-language) name of the user.</param>
         /// <param name="EMail">The primary e-mail of the user.</param>
@@ -1769,7 +1849,7 @@ namespace org.GraphDefined.OpenData
         /// <param name="Description">An optional (multi-language) description of the user.</param>
         /// <param name="AuthenticateUser"></param>
         /// <param name="HideUser"></param>
-        public User CreateUser(User_Id             Login,
+        public User CreateUser(User_Id             Username,
                                String              Password,
                                String              Name              = null,
                                SimpleEMailAddress  EMail             = null,
@@ -1779,7 +1859,7 @@ namespace org.GraphDefined.OpenData
                                Boolean             HideUser          = false)
         {
 
-            var User = new User(Login, Name, EMail, GPGPublicKeyRing, Description);
+            var User = new User(Username, Name, EMail, GPGPublicKeyRing, Description);
 
             if (AuthenticateUser)
                 User.IsAuthenticated = true;
@@ -1787,7 +1867,7 @@ namespace org.GraphDefined.OpenData
             if (HideUser)
                 User.IsHidden        = true;
 
-            SetPassword(Login, Password != null ? Password : "");
+            SetPassword(Username, Password != null ? Password : "");
 
             return _Users.AddAndReturnValue(User.Id, User);
 
@@ -1847,6 +1927,7 @@ namespace org.GraphDefined.OpenData
 
         #endregion
 
+        // Create Mailinglist
 
 
         #region Start()

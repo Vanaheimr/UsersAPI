@@ -1,11 +1,11 @@
+//@ sourceURL=/shared/UsersAPI/SignInOut.js
 
-// Sign In and Sign Out...
-
-var SignInUser = "";
+var SignInUser   = "";
+var HTTPCookieId = "OpenDataSocial";
 
 function toggleLoginPanelSmall() {
 
-    var SignInPanel = document.querySelector('#signinpanelsmall');
+    var SignInPanel = document.querySelector('#SignInPanel');
 
     // Hide...
     if (SignInPanel.style.display == "block")
@@ -15,20 +15,20 @@ function toggleLoginPanelSmall() {
     else
     {
         SignInPanel.style.display = "block";
-        SignInPanel.querySelector('#login').focus();
+        SignInPanel.querySelector('#username').focus();
     }
 
 }
 
 function showLoginPanelSmall_Realm() {
-    ShowDiv("#signinpanelsmall_realm", "block");
-    HideDiv("#signinpanelsmall_showrealmbutton");
+    ShowElement("#SignInPanelRealm", "block");
+    HideElement("#SignInPanelShowRealmButton");
 }
 
 function hideLoginPanelSmall_Realm() {
 
-    HideDiv("#signinpanelsmall_realm");
-    ShowDiv("#signinpanelsmall_showrealmbutton");
+    HideElement("#SignInPanelRealm");
+    ShowElement("#SignInPanelShowRealmButton");
 
     document.querySelector('#signinpanelsmall').
              querySelector('#realm').
@@ -38,7 +38,7 @@ function hideLoginPanelSmall_Realm() {
 
 function sign_in() {
 
-    var SignInPanel  = document.querySelector('#signinpanelsmall');
+    var SignInPanel  = document.   querySelector('#SignInPanel');
     var Realm        = SignInPanel.querySelector('#realm').value;
     var SignInErrors = SignInPanel.querySelector('#errors');
 
@@ -54,7 +54,7 @@ function sign_in() {
     SignInErrors.style.display = "none";
     SignInErrors.innerText     = "";
 
-    SendJSON("/users/" + SignInPanel.querySelector('#login').value,
+    SendJSON("/users/" + SignInPanel.querySelector('#username').value,
              "AUTH",
              SubmitData,
 
@@ -62,10 +62,11 @@ function sign_in() {
 
             var JSONResponse = JSON.parse(ResponseText);
 
-            HideDiv('#anonymouscontrols');
-            HideDiv('#signinpanelsmall');
+            HideElement('#SignInPanel');
+            HideElement('#SignInLink');
+            ShowElement('#SignOutLink');
 
-            var UsernameDiv = ShowDiv('#usercontrols').
+            var UsernameDiv = ShowElement('#usercontrols').
                               querySelector("#username").
                               innerText = JSONResponse.username;
 
@@ -82,20 +83,21 @@ function sign_in() {
 
 function checkSignedIn() {
 
-    var SocialOpenDataCookie = GetCookie("SocialOpenData", function (cookie) {
+    var SocialOpenDataCookie = GetCookie(HTTPCookieId, function (cookie) {
 
-        HideDiv('#anonymouscontrols');
-        HideDiv('#signinpanelsmall');
+        HideElement('#SignInPanel');
+        HideElement('#SignInLink');
+        ShowElement('#SignOutLink');
 
-        var UsernameDiv = ShowDiv('#usercontrols').querySelector("#username");
+        var UsernameDiv = ShowElement('#usercontrols').querySelector("#username");
 
         // Crumbs are base64 encoded!
         var crumbs = cookie.split(":").forEach(function (crumbs) {
 
-            if (crumbs.startsWith("login"))
+            if (crumbs.startsWith("username"))
                 SignInUser            = atob(crumbs.split("=")[1]);
 
-            if (crumbs.startsWith("username"))
+            if (crumbs.startsWith("name"))
                 UsernameDiv.innerText = atob(crumbs.split("=")[1]);
 
         });
@@ -106,8 +108,9 @@ function checkSignedIn() {
 
 function sign_out() {
 
-    ShowDiv("#anonymouscontrols");
-    HideDiv("#usercontrols");
-    DeleteCookie("SocialOpenData");
+    HideElement("#usercontrols");
+    ShowElement('#SignInLink');
+    HideElement('#SignOutLink');
+    DeleteCookie(HTTPCookieId);
 
 }

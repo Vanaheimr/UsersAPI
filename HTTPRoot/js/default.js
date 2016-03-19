@@ -1,4 +1,5 @@
-﻿
+﻿//@ sourceURL=/shared/UsersAPI/default.js
+
 // IE11 workaround, as there 'EventTarget' is unknown!
 var _EventTarget = typeof EventTarget !== 'undefined' ? EventTarget.prototype : Element.prototype;
 
@@ -61,7 +62,7 @@ if (_EventTarget.addEventListeners2 !== 'function') {
     };
 }
 
-function HideDiv(DivName) {
+function HideElement(DivName) {
 
     var div = document.querySelector(DivName);
     div.style.display = "none";
@@ -70,7 +71,7 @@ function HideDiv(DivName) {
 
 }
 
-function ShowDiv(DivName, displaymode) {
+function ShowElement(DivName, displaymode) {
 
     if (displaymode == undefined)
         displaymode = "inline-block";
@@ -81,3 +82,106 @@ function ShowDiv(DivName, displaymode) {
     return div;
 
 }
+
+
+
+
+
+var SelectedLanguage = "en";
+
+function HideOverlay(target) {
+
+    if (target == null)
+        return;
+
+    var element = target.parentNode.querySelector('.overlay');
+
+    if (element != null)
+        element.style.display = "none";
+
+}
+
+// Change a few things up and try submitting again.
+function ShowError(target, I18NText) {
+
+    var element = target.parentNode.querySelector('.overlay');
+
+    if (I18NText == null || I18NText[SelectedLanguage] == null) {
+        element.innerHTML = "unknown error!";
+        element.className = "overlay overlayError";
+    }
+
+    else {
+        element.innerHTML = I18NText[SelectedLanguage];
+        element.className = "overlay overlayError overlayErrorText";
+    }
+
+    element.style.display = "inline-block";
+
+    return false;
+
+}
+
+// Better check yourself, you're not looking too good.
+function ShowWarning(target, I18NText) {
+
+    var element = target.parentNode.querySelector('.overlay');
+
+    if (I18NText == null || I18NText[SelectedLanguage] == null) {
+        element.innerHTML = "";
+        element.className = "overlay overlayWarning";
+    }
+
+    else {
+        element.innerHTML = I18NText[SelectedLanguage];
+        element.className = "overlay overlayWarning overlayWarningText";
+    }
+
+    element.style.display = "inline-block";
+
+    return true;
+
+}
+
+// This alert needs your attention, but it's not super important.
+function ShowNotice(target, I18NText) {
+
+    var element = target.parentNode.querySelector('.overlay');
+
+    if (I18NText == null || I18NText[SelectedLanguage] == null) {
+        element.innerHTML = "";
+        element.className = "overlay overlayNotice";
+    }
+
+    else {
+        element.innerHTML = I18NText[SelectedLanguage];
+        element.className = "overlay overlayNotice overlayNoticeText";
+    }
+
+    element.style.display = "inline-block";
+
+    return true;
+
+}
+
+// Everything is 200 Ok!
+function ShowOk(target, I18NText) {
+
+    var element = target.parentNode.querySelector('.overlay');
+
+    if (I18NText == null || I18NText[SelectedLanguage] == null) {
+        element.innerHTML = "";
+        element.className = "overlay overlayOk";
+    }
+
+    else {
+        element.innerHTML = I18NText[SelectedLanguage];
+        element.className = "overlay overlayOk overlayOkText";
+    }
+
+    element.style.display = "inline-block";
+
+    return true;
+
+}
+

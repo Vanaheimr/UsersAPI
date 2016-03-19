@@ -1,108 +1,7 @@
-//@ sourceURL=SignUp.js
+//@ sourceURL=/shared/UsersAPI/SignUp.js
 
-function HideOverlay(target) {
-
-    if (target == null)
-        return;
-
-    var element = target.parentNode.querySelector('.overlay');
-
-    if (element != null)
-        element.style.display = "none";
-
-}
-
-// Change a few things up and try submitting again.
-function ShowError(target, text) {
-
-    var element = target.parentNode.querySelector('.overlay');
-
-    if (text == null)
-    {
-        element.innerHTML = "";
-        element.className = "overlay overlayError";
-    }
-
-    else
-    {
-        element.innerHTML = text;
-        element.className = "overlay overlayError overlayErrorText";
-    }
-
-    element.style.display = "inline-block";
-
-    return false;
-
-}
-
-// Better check yourself, you're not looking too good.
-function ShowWarning(target, text) {
-
-    var element = target.parentNode.querySelector('.overlay');
-
-    if (text == null)
-    {
-        element.innerHTML = "";
-        element.className = "overlay overlayWarning";
-    }
-
-    else
-    {
-        element.innerHTML = text;
-        element.className = "overlay overlayWarning overlayWarningText";
-    }
-
-    element.style.display = "inline-block";
-
-    return true;
-
-}
-
-// This alert needs your attention, but it's not super important.
-function ShowNotice(target, text) {
-
-    var element = target.parentNode.querySelector('.overlay');
-
-    if (text == null) {
-        element.innerHTML = "";
-        element.className = "overlay overlayNotice";
-    }
-
-    else {
-        element.innerHTML = text;
-        element.className = "overlay overlayNotice overlayNoticeText";
-    }
-
-    element.style.display = "inline-block";
-
-    return true;
-
-}
-
-// Everything is 200 Ok!
-function ShowOk(target, text) {
-
-    var element = target.parentNode.querySelector('.overlay');
-
-    if (text == null)
-    {
-        element.innerHTML = "";
-        element.className = "overlay overlayOk";
-    }
-
-    else
-    {
-        element.innerHTML = text;
-        element.className = "overlay overlayOk overlayOkText";
-    }
-
-    element.style.display = "inline-block";
-
-    return true;
-
-}
-
-
+var MinUsernameLength = 4;
+var MinPasswordLength = 8;
 
 function SignUp_Verify_Name(event) {
 
@@ -113,11 +12,19 @@ function SignUp_Verify_Name(event) {
 
     var name = target.value;
 
-    if (name.length < 4)
-        return ShowError(target, "Der Name ist zu kurz!");
+    if (name.length < MinUsernameLength)
+        return ShowError(target,
+                         {
+                             "en": "The user name is too short!",
+                             "de": "Der Name ist zu kurz!"
+                         });
 
     if (!name.match(/^[a-zA-Z0-9-._]{4,}$/g))
-        return ShowError(target, "Ungültiger Name!");
+        return ShowError(target,
+                         {
+                             "en": "Invalid name!",
+                             "de": "Ungültiger Name!"
+                         });
 
     SendJSON("/users/" + name,
              "EXISTS",
@@ -139,7 +46,8 @@ function SignUp_Verify_EMail(event) {
 
     var target = event != null
                   ? event.target
-                  : document.querySelector('#signupform').querySelector('#email');
+                  : document.querySelector('#signupform').
+                             querySelector('#email');
 
     var email = target.value;
 
@@ -150,7 +58,11 @@ function SignUp_Verify_EMail(event) {
     // (?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+
     //    [a-z0-9](?:[a-z0-9-]*[a-z0-9])?
     if (!email.match(/^[a-z0-9]+[a-z0-9-._+%]*@[a-z0-9][a-z0-9-._]+\.[a-z]{2,}$/g))
-        return ShowError(target, "Ungültige E-Mail Adresse!");
+        return ShowError(target,
+                         {
+                             "en": "Invalid e-mail address!",
+                             "de": "Ungültige E-Mail Adresse!"
+                         });
 
     return ShowOk(target);
 
@@ -160,7 +72,8 @@ function SignUp_Verify_GPGPublicKey(event) {
 
     var target = event != null
                   ? event.target
-                  : document.querySelector('#signupform').querySelector('#gpgpublickeyring');
+                  : document.querySelector('#signupform').
+                             querySelector('#gpgpublickeyring');
 
     var gpgpublickeyring = target.value;
 
@@ -175,23 +88,33 @@ function SignUp_Verify_GPGPublicKey(event) {
         return ShowError(target, publicKey.err[0]);
 
     if (publicKey.keys.length == 0)
-        return ShowError(target, "Ungültiger OpenGPG public key!");
+        return ShowError(target,
+                         {
+                             "en": "Invalid OpenGPG public key!",
+                             "de": "Ungültiger OpenGPG public key!"
+                         });
 
     var UserId = publicKey.keys[0].users[0].userId.userid;
 
     var matches = UserId.match("(.*?)<(.*?)>");
     if (matches.length != 3)
-        return ShowError(target, "Ungültige Nutzerkennung im OpenGPG public key!");
+        return ShowError(target,
+                         {
+                             "en": "Invalid user id within the OpenGPG public key!",
+                             "de": "Ungültige Nutzerkennung im OpenGPG public key!"
+                         });
 
     var UserName      = matches[1];
-    var UserNameForm = document.querySelector('#signupform').querySelector('#name');
+    var UserNameForm = document.querySelector('#signupform').
+                                querySelector('#name');
     if (UserNameForm.value === "") {
         UserNameForm.value = UserName.replace(/[^a-zA-Z0-9-._]/g, "");
         SignUp_Verify_Name();
     }
 
     var EMailAddress = matches[2];
-    var EMailForm = document.querySelector('#signupform').querySelector('#email');
+    var EMailForm = document.querySelector('#signupform').
+                             querySelector('#email');
     if (EMailForm.value === "") {
         EMailForm.value = EMailAddress.replace(/[^a-z0-9-._@]/g, "");
         SignUp_Verify_EMail();
@@ -210,8 +133,12 @@ function SignUp_Verify_Password1(event) {
 
     var password1 = target.value;
 
-    if (password1.length < 8)
-        return ShowError(target, "Das Passwort ist zu kurz!");
+    if (password1.length < MinPasswordLength)
+        return ShowError(target,
+                         {
+                             "en": "The password is too short!",
+                             "de": "Das Passwort ist zu kurz!"
+                         });
     else {
         SignUp_Verify_Password2();
         return ShowOk(target);
@@ -223,15 +150,28 @@ function SignUp_Verify_Password2(event) {
 
     var target = event != null
                   ? event.target
-                  : document.querySelector('#signupform').querySelector('#password2');
+                  : document.querySelector('#signupform').
+                             querySelector('#password2');
 
-    var password1 = document.querySelector('#signupform').querySelector('#password1').value;
+    var password1 = document.querySelector('#signupform').
+                             querySelector('#password1').value;
     var password2 = target.value;
+
+    if (password2.length < MinPasswordLength)
+        return ShowError(target,
+                         {
+                             "en": "The password is too short!",
+                             "de": "Das Passwort ist zu kurz!"
+                         });
 
     if (password1 === password2)
         return ShowOk(target);
     else
-        return ShowError(target, "Die Passwörter stimmen nicht überein!");
+        return ShowError(target,
+                         {
+                             "en": "The passwords do not match!",
+                             "de": "Die Passwörter stimmen nicht überein!"
+                         });
 
 }
 
@@ -337,7 +277,7 @@ setTimeout(function () {
                            },
                            function (e) {
                                setTimeout(function () {
-                                   e.target.style.fontSize = "50%";
+                                   e.target.style.fontSize = "75%";
                                    SignUp_Verify_GPGPublicKey(e);
                                }, 100);
                            });
@@ -365,5 +305,3 @@ setTimeout(function () {
                          VerifyAndSubmit);
 
 }, 1000);
-
-

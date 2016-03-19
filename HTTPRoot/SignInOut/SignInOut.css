@@ -1,4 +1,5 @@
-﻿#signinpanelsmall {
+﻿
+#SignInPanel {
     position:                   fixed;
     right:                      15px;
     top:                        48px;
@@ -11,34 +12,74 @@
     display:                    none;
 }
 
-#signinpanelsmall input {
-    margin-top:                 3px;
+
+.SignInPanelElement {
+    color:                      rgb(0, 0, 0);
     padding-left:               1px;
-    border-radius:              3px;
-    border:                     1px solid #CCCCCC;
-    padding:                    3px 4px 2px 4px;
-    font-size:                  9pt;
+    padding-right:              2px;
 }
 
-#signinpanelsmall input[type="text"], input[type="password"]  {
-    margin-bottom:              5px;
-    width:                      180px;
+.SignInPanelElement > a {
+    display:                    block;
+    float:                      right;
+    color:                      rgba(80, 80, 88, 0.4);
+    text-align:                 right;
+    font-size:                  90%;
+    padding-top:                3px;
+    line-height:                18px;
+    padding-left:               6px;
 }
 
-#signinpanelsmall input[type="button"] {
-    font-size:                  100%;
-    padding:                    6px 12px 6px 12px;
+.SignInPanelElement > a:hover {
+    text-decoration:            none;
+    color:                      rgba(109, 178, 247, 0.95);
 }
+
+.SignInPanelElement > a:visited {
+    text-decoration:            none;
+}
+
+.SignInPanelElement > a:link {
+    text-decoration:            none;
+}
+
+
+
 
 #signinpanelsmall_showrealmbutton {
     display:                    inline-block;
 }
 
-#signinpanelsmall_realm {
+#SignInPanelRealm {
     display:                    none;
 }
 
-#signinpanelsmall > #errors {
+
+
+
+
+#SignInPanel input {
+    margin-top:                 3px;
+    padding-left:               1px;
+    border-radius:              3px;
+    border:                     1px solid #CCCCCC;
+    padding:                    4px 4px 3px 6px;
+    font-size:                  9pt;
+}
+
+#SignInPanel input[type="text"], input[type="password"]  {
+    display:                    block;
+    margin-bottom:              5px;
+    width:                      180px;
+}
+
+#SignInPanel input[type="button"] {
+    display:                    inline-block;
+    font-size:                  100%;
+    padding:                    5px 11px 5px 10px;
+}
+
+#SignInPanel > #errors {
     color:                      #CC0000;
     padding:                    6px 0px 10px 0px;
     display:                    none;

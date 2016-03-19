@@ -119,9 +119,6 @@
     <EmbeddedResource Include="HTTPRoot\css\Infobox.css" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="HTTPRoot\SignUp\SignUp.css" />
-  </ItemGroup>
-  <ItemGroup>
     <EmbeddedResource Include="HTTPRoot\css\style.css" />
   </ItemGroup>
   <ItemGroup>
@@ -152,7 +149,7 @@
     <EmbeddedResource Include="HTTPRoot\SignUp\SignUp.js" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="HTTPRoot\SignUp\SignUp.html" />
+    <EmbeddedResource Include="HTTPRoot\SignUp\SignUp-de.html" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="HTTPRoot\js\OpenPGP.min.js" />
@@ -165,6 +162,18 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="HTTPRoot\SignInOut\SignInOut.css" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="HTTPRoot\SignInOut\LostPassword-en.html" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="HTTPRoot\SignUp\SignUp-en.html" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="HTTPRoot\SignInOut\LostPassword-de.html" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="HTTPRoot\js\LoadThings.js" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
