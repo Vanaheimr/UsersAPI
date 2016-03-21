@@ -99,9 +99,10 @@ namespace org.GraphDefined.OpenData
         /// </summary>
         public  const             String                              DefaultLogfileName             = "UsersAPI.log";
 
-        public const String SignInOutContext = "";
-        public const String HTTPCookieId     = "OpenDataSocial";
-        public const String HTTPCookieDomain = "";
+        public const String SignUpContext     = "";
+        public const String SignInOutContext  = "";
+        public const String HTTPCookieId      = "OpenDataSocial";
+        public const String HTTPCookieDomain  = "";
 
         #endregion
 
@@ -314,18 +315,18 @@ namespace org.GraphDefined.OpenData
 
         #endregion
 
-        #region APIAdminEMail
+        #region APIAdminEMails
 
-        private readonly EMailAddressList _APIAdminEMail;
+        private readonly EMailAddressList _APIAdminEMails;
 
         /// <summary>
         /// The E-Mail Addresses of the service admins.
         /// </summary>
-        public EMailAddressList APIAdminEMail
+        public EMailAddressList APIAdminEMails
         {
             get
             {
-                return _APIAdminEMail;
+                return _APIAdminEMails;
             }
         }
 
@@ -792,7 +793,7 @@ namespace org.GraphDefined.OpenData
             this._APIPublicKeyRing            = APIPublicKeyRing;
             this._APISecretKeyRing            = APISecretKeyRing;
             this._APIPassphrase               = APIPassphrase;
-            this._APIAdminEMail               = APIAdminEMails;
+            this._APIAdminEMails              = APIAdminEMails;
             this._APISMTPClient               = APISMTPClient;
 
             this._DefaultLanguage             = DefaultLanguage;
@@ -1032,7 +1033,7 @@ namespace org.GraphDefined.OpenData
 
                                                   var AdminMail = new TextEMailBuilder() {
                                                       From = APIEMailAddress,
-                                                      To = APIAdminEMail,
+                                                      To = APIAdminEMails,
                                                       Subject = "New user activated: " + _User.Login.ToString() + " at " + DateTime.Now.ToString(),
                                                       Text = "New user activated: " + _User.Login.ToString() + " at " + DateTime.Now.ToString(),
                                                       Passphrase = APIPassphrase
@@ -1156,6 +1157,26 @@ namespace org.GraphDefined.OpenData
 
             #endregion
 
+            #region DEAUTH      ~/users
+
+            _HTTPServer.AddMethodCallback(HTTPMethod.DEAUTH,
+                                          "/users",
+                                          HTTPContentType.JSON_UTF8,
+                                          Request =>
+
+                                              new HTTPResponseBuilder(Request) {
+                                                  HTTPStatusCode  = HTTPStatusCode.OK,
+                                                  CacheControl    = "private",
+                                                  SetCookie       = HTTPCookieId + "=; Expires=" + DateTime.Now.ToRfc1123() +
+                                                                        (HTTPCookieDomain.IsNotNullOrEmpty()
+                                                                            ? "; Domain=" + HTTPCookieDomain
+                                                                            : "") +
+                                                                        "; Path=/",
+                                                  Connection      = "close"
+                                              });
+
+            #endregion
+
             #region ADD         ~/users/{UserId}
 
             #region JSON_UTF8
@@ -1204,9 +1225,9 @@ namespace org.GraphDefined.OpenData
                                                       Server = _HTTPServer.DefaultServerName,
                                                       ContentType = HTTPContentType.JSON_UTF8,
                                                       Content = new JObject(
-                                                                             new JProperty("@context", ""),
-                                                                             new JProperty("property", "name"),
-                                                                             new JProperty("description", "The name is invalid!")
+                                                                             new JProperty("@context",     SignUpContext),
+                                                                             new JProperty("property",     "name"),
+                                                                             new JProperty("description",  "The name is invalid!")
                                                                         ).ToString().ToUTF8Bytes(),
                                                       CacheControl = "public",
                                                       Connection = "close"
@@ -1222,9 +1243,9 @@ namespace org.GraphDefined.OpenData
                                                       Server = _HTTPServer.DefaultServerName,
                                                       ContentType = HTTPContentType.JSON_UTF8,
                                                       Content = new JObject(
-                                                                             new JProperty("@context", ""),
-                                                                             new JProperty("property", "name"),
-                                                                             new JProperty("description", "The name is too short!")
+                                                                             new JProperty("@context",     SignUpContext),
+                                                                             new JProperty("property",     "name"),
+                                                                             new JProperty("description",  "The name is too short!")
                                                                         ).ToString().ToUTF8Bytes(),
                                                       CacheControl = "public",
                                                       Connection = "close"
@@ -1240,9 +1261,9 @@ namespace org.GraphDefined.OpenData
                                                       Server = _HTTPServer.DefaultServerName,
                                                       ContentType = HTTPContentType.JSON_UTF8,
                                                       Content = new JObject(
-                                                                            new JProperty("@context", ""),
-                                                                            new JProperty("property", "email"),
-                                                                            new JProperty("description", "Missing \"email\" property!")
+                                                                            new JProperty("@context",     SignUpContext),
+                                                                            new JProperty("property",     "email"),
+                                                                            new JProperty("description",  "Missing \"email\" property!")
                                                                         ).ToString().ToUTF8Bytes(),
                                                       CacheControl = "public",
                                                       Connection = "close"
@@ -1302,32 +1323,18 @@ namespace org.GraphDefined.OpenData
 
                                               #region Verify GPG public key
 
-                                              if (!NewUserData.ContainsKey("gpgpublickeyring"))
-                                                  return new HTTPResponseBuilder(Request) {
-                                                      HTTPStatusCode = HTTPStatusCode.BadRequest,
-                                                      Server = _HTTPServer.DefaultServerName,
-                                                      ContentType = HTTPContentType.JSON_UTF8,
-                                                      Content = new JObject(
-                                                                             new JProperty("@context", ""),
-                                                                             new JProperty("property", "gpgpublickeyring"),
-                                                                             new JProperty("description", "Missing \"gpgpublickeyring\" property!")
-                                                                        ).ToString().ToUTF8Bytes(),
-                                                      CacheControl = "public",
-                                                      Connection = "close"
-                                                  };
-
                                               PgpPublicKeyRing PublicKeyRing = null;
 
-                                              if (NewUserData.ContainsKey("gpgpublickeyring") &&
-                                                  !OpenPGP.TryReadPublicKeyRing(NewUserData.GetString("gpgpublickeyring"), out PublicKeyRing))
+                                              if (NewUserData.ContainsKey("GPGPublicKeyRing") &&
+                                                  !OpenPGP.TryReadPublicKeyRing(NewUserData.GetString("GPGPublicKeyRing"), out PublicKeyRing))
                                                   return new HTTPResponseBuilder(Request) {
                                                       HTTPStatusCode = HTTPStatusCode.BadRequest,
                                                       Server = _HTTPServer.DefaultServerName,
                                                       ContentType = HTTPContentType.JSON_UTF8,
                                                       Content = new JObject(
-                                                                             new JProperty("@context", ""),
-                                                                             new JProperty("property", "gpgpublickeyring"),
-                                                                             new JProperty("description", "Invalid \"gpgpublickeyring\" property value!")
+                                                                             new JProperty("@context",     SignUpContext),
+                                                                             new JProperty("property",     "gpgpublickeyring"),
+                                                                             new JProperty("description",  "Invalid \"gpgpublickeyring\" property value!")
                                                                         ).ToString().ToUTF8Bytes(),
                                                       CacheControl = "public",
                                                       Connection = "close"
@@ -1343,8 +1350,8 @@ namespace org.GraphDefined.OpenData
                                                       Server = _HTTPServer.DefaultServerName,
                                                       ContentType = HTTPContentType.JSON_UTF8,
                                                       Content = new JObject(
-                                                                             new JProperty("@context", ""),
-                                                                             new JProperty("description", "Missing \"password\" property!")
+                                                                             new JProperty("@context",     SignUpContext),
+                                                                             new JProperty("description",  "Missing \"password\" property!")
                                                                         ).ToString().ToUTF8Bytes(),
                                                       CacheControl = "public",
                                                       Connection = "close"
@@ -1356,9 +1363,9 @@ namespace org.GraphDefined.OpenData
                                                       Server = _HTTPServer.DefaultServerName,
                                                       ContentType = HTTPContentType.JSON_UTF8,
                                                       Content = new JObject(
-                                                                             new JProperty("@context", ""),
-                                                                             new JProperty("property", "name"),
-                                                                             new JProperty("description", "The password is too short!")
+                                                                             new JProperty("@context",     SignUpContext),
+                                                                             new JProperty("property",     "name"),
+                                                                             new JProperty("description",  "The password is too short!")
                                                                         ).ToString().ToUTF8Bytes(),
                                                       CacheControl = "public",
                                                       Connection = "close"
@@ -1379,9 +1386,9 @@ namespace org.GraphDefined.OpenData
                                                       Server = _HTTPServer.DefaultServerName,
                                                       ContentType = HTTPContentType.JSON_UTF8,
                                                       Content = new JObject(
-                                                                             new JProperty("@context", ""),
-                                                                             new JProperty("property", "name"),
-                                                                             new JProperty("description", "The name is already in use!")
+                                                                             new JProperty("@context",     SignUpContext),
+                                                                             new JProperty("property",     "name"),
+                                                                             new JProperty("description",  "The name is already in use!")
                                                                         ).ToString().ToUTF8Bytes(),
                                                       CacheControl = "public",
                                                       Connection = "close"
@@ -1389,15 +1396,13 @@ namespace org.GraphDefined.OpenData
 
                                               #endregion
 
-                                              var NewUser = CreateUser(Username: _Login,
-                                                                       Password: NewUserData.GetString("password"),
-                                                                       EMail: SimpleEMailAddress.Parse(NewUserData.GetString("email")),
-                                                                       GPGPublicKeyRing: NewUserData.GetString("gpgpublickeyring"));
+                                              var NewUser = CreateUser(Username:          _Login,
+                                                                       Password:          NewUserData.GetString("password"),
+                                                                       EMail:             SimpleEMailAddress.Parse(NewUserData.GetString("email")),
+                                                                       GPGPublicKeyRing:  NewUserData.GetString("gpgpublickeyring"));
 
-                                              var VerificationToken = new VerificationToken(Seed: _Login.ToString() + NewUserData.GetString("password") + NewUserData.GetString("email"),
-                                                                                            UserId: _Login);
-
-                                              _VerificationTokens.Add(VerificationToken);
+                                              var VerificationToken = _VerificationTokens.AddAndReturnElement(new VerificationToken(Seed: _Login.ToString() + NewUserData.GetString("password") + NewUserData.GetString("email"),
+                                                                                                              UserId: _Login));
 
                                               #endregion
 
@@ -1428,7 +1433,7 @@ namespace org.GraphDefined.OpenData
 
                                                   var AdminMail = new TextEMailBuilder() {
                                                       From = APIEMailAddress,
-                                                      To = APIAdminEMail,
+                                                      To = APIAdminEMails,
                                                       Subject = "New user registered: " + _Login + " <" + matches.Groups[0].Value + "> at " + DateTime.Now.ToString(),
                                                       Text = "New user registered: " + _Login + " <" + matches.Groups[0].Value + "> at " + DateTime.Now.ToString(),
                                                       Passphrase = APIPassphrase
@@ -1679,7 +1684,7 @@ namespace org.GraphDefined.OpenData
                                                   HTTPStatusCode = HTTPStatusCode.Created,
                                                   ContentType = HTTPContentType.TEXT_UTF8,
                                                   Content = new JObject(
-                                                                             new JProperty("@context",  ""),
+                                                                             new JProperty("@context",  SignInOutContext),
                                                                              new JProperty("username",  _LoginPassword.Login.ToString()),
                                                                              new JProperty("name",      _User.Name)
                                                                         ).ToUTF8Bytes(),
@@ -1705,19 +1710,18 @@ namespace org.GraphDefined.OpenData
             _HTTPServer.AddMethodCallback(HTTPMethod.DEAUTH,
                                           "/users/{UserId}",
                                           HTTPContentType.JSON_UTF8,
-                                          Request => {
+                                          Request =>
 
-                                              return new HTTPResponseBuilder(Request) {
-                                                  HTTPStatusCode = HTTPStatusCode.OK,
-                                                  ContentType = HTTPContentType.TEXT_UTF8,
-                                                  Content = ("ok").ToUTF8Bytes(),
-                                                  CacheControl = "private",
-                                                  //Expires         = "Mon, 25 Jun 2015 21:31:12 GMT",
-                                                  SetCookie = "SocialOpenData=; Expires=Wed, 24 Nov 2016 09:44:55 GMT; Path=/", // Domain=.xing.com;
-                                                  Connection = "close"
-                                              };
-
-                                          });
+                                              new HTTPResponseBuilder(Request) {
+                                                  HTTPStatusCode  = HTTPStatusCode.OK,
+                                                  CacheControl    = "private",
+                                                  SetCookie       = HTTPCookieId + "=; Expires=" + DateTime.Now.ToRfc1123() +
+                                                                        (HTTPCookieDomain.IsNotNullOrEmpty()
+                                                                            ? "; Domain=" + HTTPCookieDomain
+                                                                            : "") +
+                                                                        "; Path=/",
+                                                  Connection      = "close"
+                                              });
 
             #endregion
 

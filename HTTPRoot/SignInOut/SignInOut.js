@@ -3,7 +3,7 @@
 var SignInUser   = "";
 var HTTPCookieId = "OpenDataSocial";
 
-function toggleLoginPanelSmall() {
+function ToggleLoginPanel() {
 
     var SignInPanel = document.querySelector('#SignInPanel');
 
@@ -30,13 +30,13 @@ function hideLoginPanelSmall_Realm() {
     HideElement("#SignInPanelRealm");
     ShowElement("#SignInPanelShowRealmButton");
 
-    document.querySelector('#signinpanelsmall').
+    document.querySelector('#SignInPanel').
              querySelector('#realm').
              value = "";
 
 }
 
-function sign_in() {
+function SignIn() {
 
     var SignInPanel  = document.   querySelector('#SignInPanel');
     var Realm        = SignInPanel.querySelector('#realm').value;
@@ -54,8 +54,8 @@ function sign_in() {
     SignInErrors.style.display = "none";
     SignInErrors.innerText     = "";
 
-    SendJSON("/users/" + SignInPanel.querySelector('#username').value,
-             "AUTH",
+    SendJSON("AUTH",
+             "/users/" + SignInPanel.querySelector('#username').value,
              SubmitData,
 
         function (HTTPStatus, ResponseText) {
@@ -66,7 +66,7 @@ function sign_in() {
             HideElement('#SignInLink');
             ShowElement('#SignOutLink');
 
-            var UsernameDiv = ShowElement('#usercontrols').
+            var UsernameDiv = ShowElement('#UserControls').
                               querySelector("#username").
                               innerText = JSONResponse.username;
 
@@ -89,7 +89,7 @@ function checkSignedIn() {
         HideElement('#SignInLink');
         ShowElement('#SignOutLink');
 
-        var UsernameDiv = ShowElement('#usercontrols').querySelector("#username");
+        var UsernameDiv = ShowElement('#UserControls').querySelector("#username");
 
         // Crumbs are base64 encoded!
         var crumbs = cookie.split(":").forEach(function (crumbs) {
@@ -106,11 +106,21 @@ function checkSignedIn() {
 
 }
 
-function sign_out() {
+function SignOut() {
 
-    HideElement("#usercontrols");
+    HideElement("#UserControls");
     ShowElement('#SignInLink');
     HideElement('#SignOutLink');
+
+    SendJSON("DEAUTH",
+             "/users",
+
+        function (HTTPStatus, ResponseText) {
+        },
+
+        function (HTTPStatus, StatusText, ResponseText) {
+        });
+
     DeleteCookie(HTTPCookieId);
 
 }

@@ -75,7 +75,44 @@ function GetJSON(URI, OnSuccess, OnError) {
 
 }
 
-function SendJSON(URI, HTTPVerb, Data, OnSuccess, OnError) {
+function SendJSON(HTTPVerb, URI, OnSuccess, OnError) {
+
+    var ajax = new XMLHttpRequest();
+    ajax.open(HTTPVerb, URI, true);
+    ajax.setRequestHeader("Accept",       "application/json; charset=UTF-8");
+    ajax.setRequestHeader("Content-Type", "application/json; charset=UTF-8");
+
+    ajax.onreadystatechange = function () {
+
+        // 0 UNSENT | 1 OPENED | 2 HEADERS_RECEIVED | 3 LOADING | 4 DONE
+        if (this.readyState == 4) {
+
+            // Ok
+            if (this.status >= 100 && this.status < 300) {
+
+                //alert(ajax.getAllResponseHeaders());
+                //alert(ajax.getResponseHeader("Date"));
+                //alert(ajax.getResponseHeader("Cache-control"));
+                //alert(ajax.getResponseHeader("ETag"));
+
+                if (OnSuccess && typeof OnSuccess === 'function')
+                    OnSuccess(this.status, ajax.responseText);
+
+            }
+
+            else
+                if (OnError && typeof OnError === 'function')
+                    OnError(this.status, this.statusText, ajax.responseText);
+
+        }
+
+    }
+
+    ajax.send();
+
+}
+
+function SendJSON(HTTPVerb, URI, Data, OnSuccess, OnError) {
 
     var ajax = new XMLHttpRequest();
     ajax.open(HTTPVerb, URI, true);

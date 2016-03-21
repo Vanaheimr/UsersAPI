@@ -26,9 +26,8 @@ function SignUp_Verify_Name(event) {
                              "de": "Ungültiger Name!"
                          });
 
-    SendJSON("/users/" + name,
-             "EXISTS",
-             null,
+    SendJSON("EXISTS",
+             "/users/" + name,
 
              function (HTTPStatus, ResponseText) {
                  alert("Gibt's schon! " + ResponseText);
@@ -191,16 +190,21 @@ function VerifyAndSubmit(event) {
             "email":            SignUpForm.
                                     querySelector('#email').
                                     value,
-            "gpgpublickeyring": SignUpForm.
-                                    querySelector('#gpgpublickeyring').
-                                    value,
             "password":         SignUpForm.
                                     querySelector('#password1').
                                     value,
         };
 
-        SendJSON("/users/" + SignUpForm.querySelector('#name').value,
-                 "ADD",
+        var GPGPublicKeyRing = SignUpForm.
+                                   querySelector('#gpgpublickeyring').
+                                   value;
+
+        if (GPGPublicKeyRing != null && GPGPublicKeyRing != "")
+            SubmitData.GPGPublicKeyRing = GPGPublicKeyRing;
+
+
+        SendJSON("ADD",
+                 "/users/" + SignUpForm.querySelector('#name').value,
                  SubmitData,
 
             function (HTTPStatus, ResponseText) {
