@@ -110,12 +110,6 @@
     <EmbeddedResource Include="HTTPRoot\css\edgeslist.css" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="HTTPRoot\css\font-awesome-4.3.0.css" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="HTTPRoot\css\font-awesome-4.3.0.min.css" />
-  </ItemGroup>
-  <ItemGroup>
     <EmbeddedResource Include="HTTPRoot\css\Infobox.css" />
   </ItemGroup>
   <ItemGroup>
@@ -174,6 +168,38 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="HTTPRoot\js\LoadThings.js" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="HTTPRoot\css\font-awesome.css" />
+    <EmbeddedResource Include="HTTPRoot\css\font-awesome.min.css" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="HTTPRoot\less\animated.less" />
+    <EmbeddedResource Include="HTTPRoot\less\bordered-pulled.less" />
+    <EmbeddedResource Include="HTTPRoot\less\core.less" />
+    <EmbeddedResource Include="HTTPRoot\less\fixed-width.less" />
+    <EmbeddedResource Include="HTTPRoot\less\font-awesome.less" />
+    <EmbeddedResource Include="HTTPRoot\less\icons.less" />
+    <EmbeddedResource Include="HTTPRoot\less\larger.less" />
+    <EmbeddedResource Include="HTTPRoot\less\list.less" />
+    <EmbeddedResource Include="HTTPRoot\less\mixins.less" />
+    <EmbeddedResource Include="HTTPRoot\less\path.less" />
+    <EmbeddedResource Include="HTTPRoot\less\rotated-flipped.less" />
+    <EmbeddedResource Include="HTTPRoot\less\stacked.less" />
+    <EmbeddedResource Include="HTTPRoot\less\variables.less" />
+    <EmbeddedResource Include="HTTPRoot\scss\font-awesome.scss" />
+    <EmbeddedResource Include="HTTPRoot\scss\_animated.scss" />
+    <EmbeddedResource Include="HTTPRoot\scss\_bordered-pulled.scss" />
+    <EmbeddedResource Include="HTTPRoot\scss\_core.scss" />
+    <EmbeddedResource Include="HTTPRoot\scss\_fixed-width.scss" />
+    <EmbeddedResource Include="HTTPRoot\scss\_icons.scss" />
+    <EmbeddedResource Include="HTTPRoot\scss\_larger.scss" />
+    <EmbeddedResource Include="HTTPRoot\scss\_list.scss" />
+    <EmbeddedResource Include="HTTPRoot\scss\_mixins.scss" />
+    <EmbeddedResource Include="HTTPRoot\scss\_path.scss" />
+    <EmbeddedResource Include="HTTPRoot\scss\_rotated-flipped.scss" />
+    <EmbeddedResource Include="HTTPRoot\scss\_stacked.scss" />
+    <EmbeddedResource Include="HTTPRoot\scss\_variables.scss" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
