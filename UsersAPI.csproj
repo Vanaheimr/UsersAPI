@@ -48,9 +48,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CommonTypes\LoginPassword.cs" />
-    <Compile Include="CommonTypes\Mandatory.cs" />
     <Compile Include="CommonTypes\MiniEdge.cs" />
-    <Compile Include="CommonTypes\Optional.cs" />
     <Compile Include="CommonTypes\PrivacyLevel.cs" />
     <Compile Include="CommonTypes\VerificationToken.cs" />
     <Compile Include="Entities\AEntity.cs" />
