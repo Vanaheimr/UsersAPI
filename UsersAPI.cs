@@ -384,6 +384,23 @@ namespace org.GraphDefined.OpenData
 
         #endregion
 
+        #region LogoImage
+
+        protected readonly String _LogoImage;
+
+        /// <summary>
+        /// The logo of the website.
+        /// </summary>
+        public String LogoImage
+        {
+            get
+            {
+                return _LogoImage;
+            }
+        }
+
+        #endregion
+
         #region DefaultLanguage
 
         private readonly Languages _DefaultLanguage;
@@ -607,6 +624,7 @@ namespace org.GraphDefined.OpenData
         /// <param name="APISMTPClient">A SMTP client for sending e-mails.</param>
         /// 
         /// <param name="DefaultLanguage">The default language of the API.</param>
+        /// <param name="LogoImage">The logo of the website.</param>
         /// <param name="NewUserSignUpEMailCreator">A delegate for sending a sign-up e-mail to a new user.</param>
         /// <param name="NewUserWelcomeEMailCreator">A delegate for sending a welcome e-mail to a new user.</param>
         /// <param name="ResetPasswordEMailCreator">A delegate for sending a reset password e-mail to a user.</param>
@@ -643,6 +661,7 @@ namespace org.GraphDefined.OpenData
                         SMTPClient                          APISMTPClient                     = null,
 
                         Languages                           DefaultLanguage                   = Languages.en,
+                        String                              LogoImage                         = null,
                         NewUserSignUpEMailCreatorDelegate   NewUserSignUpEMailCreator         = null,
                         NewUserWelcomeEMailCreatorDelegate  NewUserWelcomeEMailCreator        = null,
                         ResetPasswordEMailCreatorDelegate   ResetPasswordEMailCreator         = null,
@@ -691,6 +710,7 @@ namespace org.GraphDefined.OpenData
                    APISMTPClient,
 
                    DefaultLanguage,
+                   LogoImage,
                    NewUserSignUpEMailCreator,
                    NewUserWelcomeEMailCreator,
                    ResetPasswordEMailCreator,
@@ -726,6 +746,7 @@ namespace org.GraphDefined.OpenData
         /// <param name="APISMTPClient">A SMTP client for sending e-mails.</param>
         /// 
         /// <param name="DefaultLanguage">The default language of the API.</param>
+        /// <param name="LogoImage">The logo of the website.</param>
         /// <param name="NewUserSignUpEMailCreator">A delegate for sending a sign-up e-mail to a new user.</param>
         /// <param name="NewUserWelcomeEMailCreator">A delegate for sending a welcome e-mail to a new user.</param>
         /// <param name="ResetPasswordEMailCreator">A delegate for sending a reset password e-mail to a user.</param>
@@ -751,6 +772,7 @@ namespace org.GraphDefined.OpenData
                            SMTPClient                          APISMTPClient                = null,
 
                            Languages                           DefaultLanguage              = Languages.en,
+                           String                              LogoImage                    = null,
                            NewUserSignUpEMailCreatorDelegate   NewUserSignUpEMailCreator    = null,
                            NewUserWelcomeEMailCreatorDelegate  NewUserWelcomeEMailCreator   = null,
                            ResetPasswordEMailCreatorDelegate   ResetPasswordEMailCreator    = null,
@@ -797,6 +819,7 @@ namespace org.GraphDefined.OpenData
             this._APISMTPClient               = APISMTPClient;
 
             this._DefaultLanguage             = DefaultLanguage;
+            this._LogoImage                   = LogoImage;
             this._NewUserSignUpEMailCreator   = NewUserSignUpEMailCreator;
             this._NewUserWelcomeEMailCreator  = NewUserWelcomeEMailCreator;
             this._ResetPasswordEMailCreator   = ResetPasswordEMailCreator;
@@ -845,6 +868,7 @@ namespace org.GraphDefined.OpenData
         /// <param name="APISMTPClient">A SMTP client for sending e-mails.</param>
         /// 
         /// <param name="DefaultLanguage">The default language of the API.</param>
+        /// <param name="LogoImage">The logo of the website.</param>
         /// <param name="NewUserSignUpEMailCreator">A delegate for sending a sign-up e-mail to a new user.</param>
         /// <param name="NewUserWelcomeEMailCreator">A delegate for sending a welcome e-mail to a new user.</param>
         /// <param name="ResetPasswordEMailCreator">A delegate for sending a reset password e-mail to a user.</param>
@@ -870,6 +894,7 @@ namespace org.GraphDefined.OpenData
                                                SMTPClient                          APISMTPClient                = null,
 
                                                Languages                           DefaultLanguage              = Languages.en,
+                                               String                              LogoImage                    = null,
                                                NewUserSignUpEMailCreatorDelegate   NewUserSignUpEMailCreator    = null,
                                                NewUserWelcomeEMailCreatorDelegate  NewUserWelcomeEMailCreator   = null,
                                                ResetPasswordEMailCreatorDelegate   ResetPasswordEMailCreator    = null,
@@ -898,6 +923,7 @@ namespace org.GraphDefined.OpenData
                                 APISMTPClient,
 
                                 DefaultLanguage,
+                                LogoImage,
                                 NewUserSignUpEMailCreator,
                                 NewUserWelcomeEMailCreator,
                                 ResetPasswordEMailCreator,
@@ -945,7 +971,10 @@ namespace org.GraphDefined.OpenData
 
                                               var _MemoryStream2 = new MemoryStream();
                                               typeof(UsersAPI).Assembly.GetManifestResourceStream(HTTPRoot + "SignUp.SignUp-" + DefaultLanguage.ToString() + ".html").SeekAndCopyTo(_MemoryStream2, 0);
-                                              var HTML     = Template.Replace("<%= content %>", _MemoryStream2.ToArray().ToUTF8String());
+                                              var HTML     = Template.Replace("<%= content %>",   _MemoryStream2.ToArray().ToUTF8String());
+
+                                              if (LogoImage != null)
+                                                  HTML = HTML.Replace("<%= logoimage %>", String.Concat(@"<img src=""", LogoImage, @""" /> "));
 
                                               return new HTTPResponseBuilder(Request) {
                                                   HTTPStatusCode  = HTTPStatusCode.OK,

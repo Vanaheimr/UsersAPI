@@ -125,9 +125,32 @@
     display:                    inline-block;
 }
 
+.DialogImage > img {
+    width:                      100%;
+}
+
 .DialogForm2Cols {
     width:                      calc(70% - 15px);
     display:                    inline-block;
+}
+
+.DialogForm2Cols > p {
+    font-size:                  95%;
+    line-height:                130%;
+}
+
+.DialogForm2Cols > p > a {
+    color:                      #FF0000;
+    text-decoration:            none;
+}
+
+.gpgfingerprint {
+    font-family:                Courier New, monospace;
+    font-size:                  95%;
+}
+
+#signupform #gpgpublickeyring {
+    height:                     20vh;
 }
 
 .dialog {
@@ -196,10 +219,6 @@
     outline:                    none;
     border-color:               rgba(255, 0, 0, 0.90);
     box-shadow:                 0 0 10px rgba(255, 0, 0, 0.50);
-}
-
-#gpgpublickeyring {
-    height:                     20vh;
 }
 
 
