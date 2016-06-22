@@ -69,10 +69,11 @@ namespace org.GraphDefined.OpenData
         {
 
 
-            HTTPServer.AddMethodCallback(HTTPMethod.GET,
+            HTTPServer.AddMethodCallback(HTTPHostname.Any,
+                                         HTTPMethod.GET,
                                          UriTemplate,
                                          HTTPContentType.JSON_UTF8,
-                                         HTTPDelegate: Request => {
+                                         HTTPDelegate: async Request => {
 
                                              var skip      = Request.QueryString.GetUInt32("skip");
                                              var take      = Request.QueryString.GetUInt32("take");
@@ -114,10 +115,11 @@ namespace org.GraphDefined.OpenData
         {
 
 
-            HTTPServer.AddMethodCallback(HTTPMethod.EXISTS,
+            HTTPServer.AddMethodCallback(HTTPHostname.Any,
+                                         HTTPMethod.EXISTS,
                                          UriTemplate,
                                          HTTPContentType.JSON_UTF8,
-                                         HTTPDelegate: Request => {
+                                         HTTPDelegate: async Request => {
 
                                              TId   Id;
                                              TItem Item;
@@ -170,10 +172,11 @@ namespace org.GraphDefined.OpenData
         {
 
 
-            HTTPServer.AddMethodCallback(HTTPMethod.GET,
+            HTTPServer.AddMethodCallback(HTTPHostname.Any,
+                                         HTTPMethod.GET,
                                          UriTemplate,
                                          HTTPContentType.JSON_UTF8,
-                                         HTTPDelegate: Request => {
+                                         HTTPDelegate: async Request => {
 
                                              TId   Id;
                                              TItem Item;

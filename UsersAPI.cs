@@ -202,7 +202,7 @@ namespace org.GraphDefined.OpenData
         /// <summary>
         /// The HTTP hostname for all URIs within this API.
         /// </summary>
-        public String HTTPHostname
+        public String Hostname
         {
             get
             {
@@ -948,7 +948,7 @@ namespace org.GraphDefined.OpenData
 
             #region /shared/UsersAPI
 
-            _HTTPServer.RegisterResourcesFolder("/shared/UsersAPI", HTTPRoot.Substring(0, HTTPRoot.Length - 1));
+            _HTTPServer.RegisterResourcesFolder(HTTPHostname.Any, "/shared/UsersAPI", HTTPRoot.Substring(0, HTTPRoot.Length - 1));
 
             #endregion
 
@@ -960,10 +960,11 @@ namespace org.GraphDefined.OpenData
             // -------------------------------------------------------------
             // curl -v -H "Accept: text/html" http://127.0.0.1:2100/signup
             // -------------------------------------------------------------
-            _HTTPServer.AddMethodCallback(HTTPMethod.GET,
+            _HTTPServer.AddMethodCallback(HTTPHostname.Any,
+                                          HTTPMethod.GET,
                                           new String[] { _URIPrefix + "signup" },
                                           HTTPContentType.HTML_UTF8,
-                                          HTTPDelegate: Request => {
+                                          HTTPDelegate: async Request => {
 
                                               var _MemoryStream1 = new MemoryStream();
                                               __GetRessources("template.html").SeekAndCopyTo(_MemoryStream1, 0);
@@ -997,10 +998,11 @@ namespace org.GraphDefined.OpenData
             // ----------------------------------------------------------------------------------------------
             // curl -v -H "Accept: text/html" http://127.0.0.1:2100/verificationtokens/0vu04w2hgf0w2h4bv08w
             // ----------------------------------------------------------------------------------------------
-            _HTTPServer.AddMethodCallback(HTTPMethod.GET,
+            _HTTPServer.AddMethodCallback(HTTPHostname.Any,
+                                          HTTPMethod.GET,
                                           "/verificationtokens/{VerificationToken}",
                                           HTTPContentType.HTML_UTF8,
-                                          Request => {
+                                          HTTPDelegate: async Request => {
 
                                               VerificationToken VerificationToken = null;
 
@@ -1114,10 +1116,11 @@ namespace org.GraphDefined.OpenData
             // -------------------------------------------------------------------
             // curl -v -H "Accept: text/html" http://127.0.0.1:2100/lostpassword
             // -------------------------------------------------------------------
-            _HTTPServer.AddMethodCallback(HTTPMethod.GET,
+            _HTTPServer.AddMethodCallback(HTTPHostname.Any,
+                                          HTTPMethod.GET,
                                           new String[] { _URIPrefix + "lostpassword" },
                                           HTTPContentType.HTML_UTF8,
-                                          HTTPDelegate: Request => {
+                                          HTTPDelegate: async Request => {
 
                                               var _MemoryStream1 = new MemoryStream();
                                               __GetRessources("template.html").SeekAndCopyTo(_MemoryStream1, 0);
@@ -1149,11 +1152,12 @@ namespace org.GraphDefined.OpenData
             // -----------------------------------------------------------
             // curl -v -H "Accept: text/html" http://127.0.0.1:2100/users
             // -----------------------------------------------------------
-            _HTTPServer.AddMethodCallback(HTTPMethod.GET,
+            _HTTPServer.AddMethodCallback(HTTPHostname.Any,
+                                          HTTPMethod.GET,
                                           new String[] { _URIPrefix + "/users",
                                                          _URIPrefix + "/users/" },
                                           HTTPContentType.HTML_UTF8,
-                                          HTTPDelegate: Request => {
+                                          HTTPDelegate: async Request => {
 
                                               var _MemoryStream = new MemoryStream();
                                               __GetRessources("_header.html").SeekAndCopyTo(_MemoryStream, 3);
@@ -1188,10 +1192,11 @@ namespace org.GraphDefined.OpenData
 
             #region DEAUTH      ~/users
 
-            _HTTPServer.AddMethodCallback(HTTPMethod.DEAUTH,
+            _HTTPServer.AddMethodCallback(HTTPHostname.Any,
+                                          HTTPMethod.DEAUTH,
                                           "/users",
                                           HTTPContentType.JSON_UTF8,
-                                          Request =>
+                                          HTTPDelegate: async Request =>
 
                                               new HTTPResponseBuilder(Request) {
                                                   HTTPStatusCode  = HTTPStatusCode.OK,
@@ -1213,10 +1218,11 @@ namespace org.GraphDefined.OpenData
             // -------------------------------------------------------------------------------
             // curl -v -X ADD -H "Accept: application/json" http://127.0.0.1:2100/users/ahzf
             // -------------------------------------------------------------------------------
-            _HTTPServer.AddMethodCallback(HTTPMethod.ADD,
+            _HTTPServer.AddMethodCallback(HTTPHostname.Any,
+                                          HTTPMethod.ADD,
                                           "/users/{UserId}",
                                           HTTPContentType.JSON_UTF8,
-                                          HTTPDelegate: Request => {
+                                          HTTPDelegate: async Request => {
 
                                               #region Check JSON body...
 
@@ -1549,10 +1555,11 @@ namespace org.GraphDefined.OpenData
 
             #region AUTH        ~/users/{UserId}
 
-            _HTTPServer.AddMethodCallback(HTTPMethod.AUTH,
+            _HTTPServer.AddMethodCallback(HTTPHostname.Any,
+                                          HTTPMethod.AUTH,
                                           "/users/{UserId}",
                                           HTTPContentType.JSON_UTF8,
-                                          Request => {
+                                          HTTPDelegate: async Request => {
 
                                               #region Check JSON body...
 
@@ -1736,10 +1743,11 @@ namespace org.GraphDefined.OpenData
 
             #region DEAUTH      ~/users/{UserId}
 
-            _HTTPServer.AddMethodCallback(HTTPMethod.DEAUTH,
+            _HTTPServer.AddMethodCallback(HTTPHostname.Any,
+                                          HTTPMethod.DEAUTH,
                                           "/users/{UserId}",
                                           HTTPContentType.JSON_UTF8,
-                                          Request =>
+                                          HTTPDelegate: async Request =>
 
                                               new HTTPResponseBuilder(Request) {
                                                   HTTPStatusCode  = HTTPStatusCode.OK,
@@ -1756,7 +1764,8 @@ namespace org.GraphDefined.OpenData
 
             #region GET         ~/users/{UserId}/profilephoto
 
-            _HTTPServer.RegisterFilesystemFile("/users/{UserId}/profilephoto",
+            _HTTPServer.RegisterFilesystemFile(HTTPHostname.Any,
+                                               "/users/{UserId}/profilephoto",
                                                URIParams => "LocalHTTPRoot/data/Users/" + URIParams[0] + ".png",
                                                DefaultFile: "HTTPRoot/images/defaults/DefaultUser.png");
 
@@ -1770,11 +1779,12 @@ namespace org.GraphDefined.OpenData
             // -----------------------------------------------------------
             // curl -v -H "Accept: text/html" http://127.0.0.1:2100/groups
             // -----------------------------------------------------------
-            _HTTPServer.AddMethodCallback(HTTPMethod.GET,
+            _HTTPServer.AddMethodCallback(HTTPHostname.Any,
+                                          HTTPMethod.GET,
                                           new String[] { _URIPrefix + "/groups",
                                                          _URIPrefix + "/groups/" },
                                           HTTPContentType.HTML_UTF8,
-                                          HTTPDelegate: Request => {
+                                          HTTPDelegate: async Request => {
 
                                               var _MemoryStream = new MemoryStream();
                                               __GetRessources("_header.html").SeekAndCopyTo(_MemoryStream, 3);
