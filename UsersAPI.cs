@@ -660,7 +660,7 @@ namespace org.GraphDefined.OpenData
                         EMailAddressList                    APIAdminEMails                    = null,
                         SMTPClient                          APISMTPClient                     = null,
 
-                        Languages                           DefaultLanguage                   = Languages.en,
+                        Languages                           DefaultLanguage                   = Languages.eng,
                         String                              LogoImage                         = null,
                         NewUserSignUpEMailCreatorDelegate   NewUserSignUpEMailCreator         = null,
                         NewUserWelcomeEMailCreatorDelegate  NewUserWelcomeEMailCreator        = null,
@@ -771,7 +771,7 @@ namespace org.GraphDefined.OpenData
                            EMailAddressList                    APIAdminEMails               = null,
                            SMTPClient                          APISMTPClient                = null,
 
-                           Languages                           DefaultLanguage              = Languages.en,
+                           Languages                           DefaultLanguage              = Languages.eng,
                            String                              LogoImage                    = null,
                            NewUserSignUpEMailCreatorDelegate   NewUserSignUpEMailCreator    = null,
                            NewUserWelcomeEMailCreatorDelegate  NewUserWelcomeEMailCreator   = null,
@@ -893,7 +893,7 @@ namespace org.GraphDefined.OpenData
                                                EMailAddressList                    APIAdminEMails               = null,
                                                SMTPClient                          APISMTPClient                = null,
 
-                                               Languages                           DefaultLanguage              = Languages.en,
+                                               Languages                           DefaultLanguage              = Languages.eng,
                                                String                              LogoImage                    = null,
                                                NewUserSignUpEMailCreatorDelegate   NewUserSignUpEMailCreator    = null,
                                                NewUserWelcomeEMailCreatorDelegate  NewUserWelcomeEMailCreator   = null,
