@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright (c) 2014-2016, Achim 'ahzf' Friedland <achim@graphdefined.org>
+ * Copyright (c) 2014-2017, Achim 'ahzf' Friedland <achim@graphdefined.org>
  * This file is part of OpenDataAPI <http://www.github.com/GraphDefined/OpenDataAPI>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -118,12 +118,12 @@ namespace org.GraphDefined.OpenData
 
             add
             {
-                _HTTPServer.RequestLog += value;
+                HTTPServer.RequestLog += value;
             }
 
             remove
             {
-                _HTTPServer.RequestLog -= value;
+                HTTPServer.RequestLog -= value;
             }
 
         }
@@ -140,12 +140,12 @@ namespace org.GraphDefined.OpenData
 
             add
             {
-                _HTTPServer.AccessLog += value;
+                HTTPServer.AccessLog += value;
             }
 
             remove
             {
-                _HTTPServer.AccessLog -= value;
+                HTTPServer.AccessLog -= value;
             }
 
         }
@@ -162,72 +162,35 @@ namespace org.GraphDefined.OpenData
 
             add
             {
-                _HTTPServer.ErrorLog += value;
+                HTTPServer.ErrorLog += value;
             }
 
             remove
             {
-                _HTTPServer.ErrorLog -= value;
+                HTTPServer.ErrorLog -= value;
             }
 
         }
 
         #endregion
-
         #endregion
 
         #region Properties
 
-        #region HTTPServer
-
-        private readonly HTTPServer _HTTPServer;
-
         /// <summary>
         /// The HTTP server of the API.
         /// </summary>
-        public HTTPServer HTTPServer
-        {
-            get
-            {
-                return _HTTPServer;
-            }
-        }
-
-        #endregion
-
-        #region HTTPHostname
-
-        private readonly String _HTTPHostname;
+        public HTTPServer  HTTPServer   { get; }
 
         /// <summary>
         /// The HTTP hostname for all URIs within this API.
         /// </summary>
-        public String Hostname
-        {
-            get
-            {
-                return _HTTPHostname;
-            }
-        }
-
-        #endregion
-
-        #region URIPrefix
-
-        private readonly String _URIPrefix;
+        public String      Hostname     { get; }
 
         /// <summary>
         /// The URI prefix of this HTTP API.
         /// </summary>
-        public String URIPrefix
-        {
-            get
-            {
-                return _URIPrefix;
-            }
-        }
-
-        #endregion
+        public String      URIPrefix    { get; }
 
 
         #region ServiceName
@@ -649,7 +612,7 @@ namespace org.GraphDefined.OpenData
         /// <param name="LogfileName"></param>
         public UsersAPI(String                              HTTPServerName                    = DefaultHTTPServerName,
                         IPPort                              HTTPServerPort                    = null,
-                        String                              HTTPHostname                      = "*",
+                        String                              HTTPHostname                      = null,
                         String                              URIPrefix                         = "/",
 
                         String                              ServiceName                       = DefaultServiceName,
@@ -682,8 +645,9 @@ namespace org.GraphDefined.OpenData
                         TimeSpan?                           ConnectionTimeout                 = null,
                         UInt32                              MaxClientConnections              = TCPServer.__DefaultMaxClientConnections,
 
+                        String                              LogfileName                       = DefaultLogfileName,
                         DNSClient                           DNSClient                         = null,
-                        String                              LogfileName                       = DefaultLogfileName)
+                        Boolean                             Autostart                         = false)
 
             : this(new HTTPServer(TCPPort:                           HTTPServerPort != null ? HTTPServerPort : DefaultHTTPServerPort,
                                   DefaultServerName:                 HTTPServerName,
@@ -721,10 +685,14 @@ namespace org.GraphDefined.OpenData
 
                    RessourcesProvider,
 
-                   DNSClient,
                    LogfileName)
 
-        { }
+        {
+
+            if (Autostart)
+                HTTPServer.Start();
+
+        }
 
         #endregion
 
@@ -757,10 +725,9 @@ namespace org.GraphDefined.OpenData
         /// 
         /// <param name="RessourcesProvider"></param>
         /// 
-        /// <param name="DNSClient"></param>
         /// <param name="LogfileName"></param>
         protected UsersAPI(HTTPServer                          HTTPServer,
-                           String                              HTTPHostname                 = "*",
+                           String                              HTTPHostname                 = null,
                            String                              URIPrefix                    = "/",
 
                            String                              ServiceName                  = DefaultServiceName,
@@ -783,7 +750,6 @@ namespace org.GraphDefined.OpenData
 
                            Func<String, Stream>                RessourcesProvider           = null,
 
-                           DNSClient                           DNSClient                    = null,
                            String                              LogfileName                  = DefaultLogfileName)
 
         {
@@ -806,9 +772,12 @@ namespace org.GraphDefined.OpenData
 
             #region Init data
 
-            this._HTTPServer                  = HTTPServer;
-            this._HTTPHostname                = HTTPHostname.IsNotNullOrEmpty() ? HTTPHostname : "*";
-            this._URIPrefix                   = URIPrefix.   IsNotNullOrEmpty() ? URIPrefix    : "/";
+            this.HTTPServer                  = HTTPServer;
+            this.Hostname                    = HTTPHostname.IsNotNullOrEmpty() ? HTTPHostname : "*";
+            this.URIPrefix                   = URIPrefix.   IsNotNullOrEmpty() ? URIPrefix    : "/";
+
+            if (!this.URIPrefix.StartsWith("/", StringComparison.Ordinal))
+                this.URIPrefix = "/" + this.URIPrefix;
 
             this._ServiceName                 = ServiceName. IsNotNullOrEmpty() ? ServiceName  : "UsersAPI";
             this._APIEMailAddress             = APIEMailAddress;
@@ -837,7 +806,7 @@ namespace org.GraphDefined.OpenData
             this._LoginPasswords              = new Dictionary<User_Id,      LoginPassword>();
             this._VerificationTokens          = new List<VerificationToken>();
 
-            this._DNSClient                   = (DNSClient != null) ? DNSClient : new DNSClient(SearchForIPv6DNSServers: false);
+            this._DNSClient                   = HTTPServer.DNSClient;
 
             #endregion
 
@@ -879,7 +848,6 @@ namespace org.GraphDefined.OpenData
         /// 
         /// <param name="RessourcesProvider"></param>
         /// 
-        /// <param name="DNSClient"></param>
         /// <param name="LogfileName"></param>
         public static UsersAPI AttachToHTTPAPI(HTTPServer                          HTTPServer,
                                                String                              HTTPHostname                 = "*",
@@ -905,39 +873,34 @@ namespace org.GraphDefined.OpenData
 
                                                Func<String, Stream>                RessourcesProvider           = null,
 
-                                               DNSClient                           DNSClient                    = null,
                                                String                              LogfileName                  = DefaultLogfileName)
 
-        {
 
-            return new UsersAPI(HTTPServer,
-                                HTTPHostname,
-                                URIPrefix,
+            => new UsersAPI(HTTPServer,
+                            HTTPHostname,
+                            URIPrefix,
 
-                                ServiceName,
-                                APIEMailAddress,
-                                APIPublicKeyRing,
-                                APISecretKeyRing,
-                                APIPassphrase,
-                                APIAdminEMails,
-                                APISMTPClient,
+                            ServiceName,
+                            APIEMailAddress,
+                            APIPublicKeyRing,
+                            APISecretKeyRing,
+                            APIPassphrase,
+                            APIAdminEMails,
+                            APISMTPClient,
 
-                                DefaultLanguage,
-                                LogoImage,
-                                NewUserSignUpEMailCreator,
-                                NewUserWelcomeEMailCreator,
-                                ResetPasswordEMailCreator,
-                                MinUserNameLenght,
-                                MinRealmLenght,
-                                MinPasswordLenght,
-                                SignInSessionLifetime,
+                            DefaultLanguage,
+                            LogoImage,
+                            NewUserSignUpEMailCreator,
+                            NewUserWelcomeEMailCreator,
+                            ResetPasswordEMailCreator,
+                            MinUserNameLenght,
+                            MinRealmLenght,
+                            MinPasswordLenght,
+                            SignInSessionLifetime,
 
-                                RessourcesProvider,
+                            RessourcesProvider,
 
-                                DNSClient,
-                                LogfileName);
-
-        }
+                            LogfileName);
 
         #endregion
 
@@ -948,7 +911,7 @@ namespace org.GraphDefined.OpenData
 
             #region /shared/UsersAPI
 
-            _HTTPServer.RegisterResourcesFolder(HTTPHostname.Any, "/shared/UsersAPI", HTTPRoot.Substring(0, HTTPRoot.Length - 1));
+            HTTPServer.RegisterResourcesFolder(HTTPHostname.Any, "/shared/UsersAPI", HTTPRoot.Substring(0, HTTPRoot.Length - 1));
 
             #endregion
 
@@ -960,9 +923,9 @@ namespace org.GraphDefined.OpenData
             // -------------------------------------------------------------
             // curl -v -H "Accept: text/html" http://127.0.0.1:2100/signup
             // -------------------------------------------------------------
-            _HTTPServer.AddMethodCallback(HTTPHostname.Any,
+            HTTPServer.AddMethodCallback(HTTPHostname.Any,
                                           HTTPMethod.GET,
-                                          new String[] { _URIPrefix + "signup" },
+                                          new String[] { URIPrefix + "signup" },
                                           HTTPContentType.HTML_UTF8,
                                           HTTPDelegate: async Request => {
 
@@ -998,7 +961,7 @@ namespace org.GraphDefined.OpenData
             // ----------------------------------------------------------------------------------------------
             // curl -v -H "Accept: text/html" http://127.0.0.1:2100/verificationtokens/0vu04w2hgf0w2h4bv08w
             // ----------------------------------------------------------------------------------------------
-            _HTTPServer.AddMethodCallback(HTTPHostname.Any,
+            HTTPServer.AddMethodCallback(HTTPHostname.Any,
                                           HTTPMethod.GET,
                                           "/verificationtokens/{VerificationToken}",
                                           HTTPContentType.HTML_UTF8,
@@ -1016,7 +979,7 @@ namespace org.GraphDefined.OpenData
                                               if (VerificationToken == null)
                                                   return new HTTPResponseBuilder(Request) {
                                                       HTTPStatusCode = HTTPStatusCode.NotFound,
-                                                      Server = _HTTPServer.DefaultServerName,
+                                                      Server = HTTPServer.DefaultServerName,
                                                       ContentType = HTTPContentType.HTML_UTF8,
                                                       Content = ("VerificationToken not found!").ToUTF8Bytes(),
                                                       CacheControl = "public",
@@ -1027,7 +990,7 @@ namespace org.GraphDefined.OpenData
                                               if (!_Users.TryGetValue(VerificationToken.Login, out _User))
                                                   return new HTTPResponseBuilder(Request) {
                                                       HTTPStatusCode = HTTPStatusCode.NotFound,
-                                                      Server = _HTTPServer.DefaultServerName,
+                                                      Server = HTTPServer.DefaultServerName,
                                                       ContentType = HTTPContentType.HTML_UTF8,
                                                       Content = ("Login not found!").ToUTF8Bytes(),
                                                       CacheControl = "public",
@@ -1076,7 +1039,7 @@ namespace org.GraphDefined.OpenData
 
                                                   return new HTTPResponseBuilder(Request) {
                                                       HTTPStatusCode = HTTPStatusCode.Created,
-                                                      Server = _HTTPServer.DefaultServerName,
+                                                      Server = HTTPServer.DefaultServerName,
                                                       ContentType = HTTPContentType.JSON_UTF8,
                                                       Content = new JObject(
                                                                                new JProperty("@context", ""),
@@ -1094,7 +1057,7 @@ namespace org.GraphDefined.OpenData
 
                                               return new HTTPResponseBuilder(Request) {
                                                   HTTPStatusCode = HTTPStatusCode.OK,
-                                                  Server = _HTTPServer.DefaultServerName,
+                                                  Server = HTTPServer.DefaultServerName,
                                                   ContentType = HTTPContentType.HTML_UTF8,
                                                   Content = ("Account '" + VerificationToken.Login.ToString() + "' activated!").ToUTF8Bytes(),
                                                   CacheControl = "public",
@@ -1116,9 +1079,9 @@ namespace org.GraphDefined.OpenData
             // -------------------------------------------------------------------
             // curl -v -H "Accept: text/html" http://127.0.0.1:2100/lostpassword
             // -------------------------------------------------------------------
-            _HTTPServer.AddMethodCallback(HTTPHostname.Any,
+            HTTPServer.AddMethodCallback(HTTPHostname.Any,
                                           HTTPMethod.GET,
-                                          new String[] { _URIPrefix + "lostpassword" },
+                                          new String[] { URIPrefix + "lostpassword" },
                                           HTTPContentType.HTML_UTF8,
                                           HTTPDelegate: async Request => {
 
@@ -1152,10 +1115,10 @@ namespace org.GraphDefined.OpenData
             // -----------------------------------------------------------
             // curl -v -H "Accept: text/html" http://127.0.0.1:2100/users
             // -----------------------------------------------------------
-            _HTTPServer.AddMethodCallback(HTTPHostname.Any,
+            HTTPServer.AddMethodCallback(HTTPHostname.Any,
                                           HTTPMethod.GET,
-                                          new String[] { _URIPrefix + "/users",
-                                                         _URIPrefix + "/users/" },
+                                          new String[] { URIPrefix + "/users",
+                                                         URIPrefix + "/users/" },
                                           HTTPContentType.HTML_UTF8,
                                           HTTPDelegate: async Request => {
 
@@ -1181,7 +1144,7 @@ namespace org.GraphDefined.OpenData
             // curl -v -H "Accept: application/json" http://127.0.0.1:2100/users
             // -------------------------------------------------------------------
 
-            _HTTPServer.ITEMS_GET(UriTemplate: "/users",
+            HTTPServer.ITEMS_GET(UriTemplate: "/users",
                                   Dictionary: _Users,
                                   Filter: user => user.IsPublic,
                                   ToJSONDelegate: JSON.ToJSON);
@@ -1192,7 +1155,7 @@ namespace org.GraphDefined.OpenData
 
             #region DEAUTH      ~/users
 
-            _HTTPServer.AddMethodCallback(HTTPHostname.Any,
+            HTTPServer.AddMethodCallback(HTTPHostname.Any,
                                           HTTPMethod.DEAUTH,
                                           "/users",
                                           HTTPContentType.JSON_UTF8,
@@ -1219,7 +1182,7 @@ namespace org.GraphDefined.OpenData
             // -------------------------------------------------------------------------------
             // curl -v -X ADD -H "Accept: application/json" http://127.0.0.1:2100/users/ahzf
             // -------------------------------------------------------------------------------
-            _HTTPServer.AddMethodCallback(HTTPHostname.Any,
+            HTTPServer.AddMethodCallback(HTTPHostname.Any,
                                           HTTPMethod.ADD,
                                           "/users/{UserId}",
                                           HTTPContentType.JSON_UTF8,
@@ -1235,7 +1198,7 @@ namespace org.GraphDefined.OpenData
                                               if (!NewUserData.HasProperties)
                                                   return new HTTPResponseBuilder(Request) {
                                                       HTTPStatusCode = HTTPStatusCode.BadRequest,
-                                                      Server = _HTTPServer.DefaultServerName,
+                                                      Server = HTTPServer.DefaultServerName,
                                                       ContentType = HTTPContentType.JSON_UTF8,
                                                       Content = new JObject(
                                                                              new JProperty("@context", ""),
@@ -1258,7 +1221,7 @@ namespace org.GraphDefined.OpenData
                                               if (!User_Id.TryParse(Request.ParsedURIParameters[0], out _Login))
                                                   return new HTTPResponseBuilder(Request) {
                                                       HTTPStatusCode = HTTPStatusCode.BadRequest,
-                                                      Server = _HTTPServer.DefaultServerName,
+                                                      Server = HTTPServer.DefaultServerName,
                                                       ContentType = HTTPContentType.JSON_UTF8,
                                                       Content = new JObject(
                                                                              new JProperty("@context",     SignUpContext),
@@ -1276,7 +1239,7 @@ namespace org.GraphDefined.OpenData
                                               if (_Login.Length < MinUserNameLenght)
                                                   return new HTTPResponseBuilder(Request) {
                                                       HTTPStatusCode = HTTPStatusCode.BadRequest,
-                                                      Server = _HTTPServer.DefaultServerName,
+                                                      Server = HTTPServer.DefaultServerName,
                                                       ContentType = HTTPContentType.JSON_UTF8,
                                                       Content = new JObject(
                                                                              new JProperty("@context",     SignUpContext),
@@ -1294,7 +1257,7 @@ namespace org.GraphDefined.OpenData
                                               if (!NewUserData.ContainsKey("email"))
                                                   return new HTTPResponseBuilder(Request) {
                                                       HTTPStatusCode = HTTPStatusCode.BadRequest,
-                                                      Server = _HTTPServer.DefaultServerName,
+                                                      Server = HTTPServer.DefaultServerName,
                                                       ContentType = HTTPContentType.JSON_UTF8,
                                                       Content = new JObject(
                                                                             new JProperty("@context",     SignUpContext),
@@ -1316,7 +1279,7 @@ namespace org.GraphDefined.OpenData
                                               if (!matches.Success)
                                                   return new HTTPResponseBuilder(Request) {
                                                       HTTPStatusCode = HTTPStatusCode.BadRequest,
-                                                      Server = _HTTPServer.DefaultServerName,
+                                                      Server = HTTPServer.DefaultServerName,
                                                       ContentType = HTTPContentType.JSON_UTF8,
                                                       Content = new JObject(
                                                                             new JProperty("@context", ""),
@@ -1340,7 +1303,7 @@ namespace org.GraphDefined.OpenData
                                               {
                                                   return new HTTPResponseBuilder(Request) {
                                                       HTTPStatusCode = HTTPStatusCode.BadRequest,
-                                                      Server = _HTTPServer.DefaultServerName,
+                                                      Server = HTTPServer.DefaultServerName,
                                                       ContentType = HTTPContentType.JSON_UTF8,
                                                       Content = new JObject(
                                                                             new JProperty("@context", ""),
@@ -1365,7 +1328,7 @@ namespace org.GraphDefined.OpenData
                                                   !OpenPGP.TryReadPublicKeyRing(NewUserData.GetString("GPGPublicKeyRing"), out PublicKeyRing))
                                                   return new HTTPResponseBuilder(Request) {
                                                       HTTPStatusCode = HTTPStatusCode.BadRequest,
-                                                      Server = _HTTPServer.DefaultServerName,
+                                                      Server = HTTPServer.DefaultServerName,
                                                       ContentType = HTTPContentType.JSON_UTF8,
                                                       Content = new JObject(
                                                                              new JProperty("@context",     SignUpContext),
@@ -1383,7 +1346,7 @@ namespace org.GraphDefined.OpenData
                                               if (!NewUserData.ContainsKey("password"))
                                                   return new HTTPResponseBuilder(Request) {
                                                       HTTPStatusCode = HTTPStatusCode.BadRequest,
-                                                      Server = _HTTPServer.DefaultServerName,
+                                                      Server = HTTPServer.DefaultServerName,
                                                       ContentType = HTTPContentType.JSON_UTF8,
                                                       Content = new JObject(
                                                                              new JProperty("@context",     SignUpContext),
@@ -1396,7 +1359,7 @@ namespace org.GraphDefined.OpenData
                                               if (NewUserData.GetString("password").Length < MinPasswordLenght)
                                                   return new HTTPResponseBuilder(Request) {
                                                       HTTPStatusCode = HTTPStatusCode.BadRequest,
-                                                      Server = _HTTPServer.DefaultServerName,
+                                                      Server = HTTPServer.DefaultServerName,
                                                       ContentType = HTTPContentType.JSON_UTF8,
                                                       Content = new JObject(
                                                                              new JProperty("@context",     SignUpContext),
@@ -1419,7 +1382,7 @@ namespace org.GraphDefined.OpenData
 
                                                   return new HTTPResponseBuilder(Request) {
                                                       HTTPStatusCode = HTTPStatusCode.Conflict,
-                                                      Server = _HTTPServer.DefaultServerName,
+                                                      Server = HTTPServer.DefaultServerName,
                                                       ContentType = HTTPContentType.JSON_UTF8,
                                                       Content = new JObject(
                                                                              new JProperty("@context",     SignUpContext),
@@ -1481,7 +1444,7 @@ namespace org.GraphDefined.OpenData
 
                                                   return new HTTPResponseBuilder(Request) {
                                                       HTTPStatusCode = HTTPStatusCode.Created,
-                                                      Server = _HTTPServer.DefaultServerName,
+                                                      Server = HTTPServer.DefaultServerName,
                                                       ContentType = HTTPContentType.JSON_UTF8,
                                                       Content = new JObject(
                                                                                new JProperty("@context", ""),
@@ -1499,7 +1462,7 @@ namespace org.GraphDefined.OpenData
 
                                               return new HTTPResponseBuilder(Request) {
                                                   HTTPStatusCode = HTTPStatusCode.BadRequest,
-                                                  Server = _HTTPServer.DefaultServerName,
+                                                  Server = HTTPServer.DefaultServerName,
                                                   ContentType = HTTPContentType.JSON_UTF8,
                                                   Content = new JObject(
                                                                          new JProperty("@context", ""),
@@ -1523,7 +1486,7 @@ namespace org.GraphDefined.OpenData
             // curl -v -X EXITS -H "Accept: application/json" http://127.0.0.1:2100/users/ahzf
             // ---------------------------------------------------------------------------------
 
-            _HTTPServer.ITEM_EXISTS<User_Id, User>(UriTemplate: "/users/{UserId}",
+            HTTPServer.ITEM_EXISTS<User_Id, User>(UriTemplate: "/users/{UserId}",
                                                    ParseIdDelegate: User_Id.TryParse,
                                                    ParseIdError: Text => "Invalid user identification '" + Text + "'!",
                                                    TryGetItemDelegate: _Users.TryGetValue,
@@ -1542,7 +1505,7 @@ namespace org.GraphDefined.OpenData
             // curl -v -H "Accept: application/json" http://127.0.0.1:2100/users/ahzf
             // ------------------------------------------------------------------------
 
-            _HTTPServer.ITEM_GET<User_Id, User>(UriTemplate: "/users/{UserId}",
+            HTTPServer.ITEM_GET<User_Id, User>(UriTemplate: "/users/{UserId}",
                                                 ParseIdDelegate: User_Id.TryParse,
                                                 ParseIdError: Text => "Invalid user identification '" + Text + "'!",
                                                 TryGetItemDelegate: _Users.TryGetValue,
@@ -1554,11 +1517,11 @@ namespace org.GraphDefined.OpenData
 
             #endregion
 
-            _HTTPServer.AddMethodCallback(HTTPHostname.Any,
-                                          HTTPMethod.POST,
-                                          "/login",
-                                          HTTPContentType.XWWWFormUrlEncoded,
-                                          HTTPDelegate: Request => {
+            HTTPServer.AddMethodCallback(HTTPHostname.Any,
+                                         HTTPMethod.POST,
+                                         "/login",
+                                         HTTPContentType.XWWWFormUrlEncoded,
+                                         HTTPDelegate: Request => {
 
                                               //username=ahzf&password=sfdsdfsdf
 
@@ -1581,7 +1544,7 @@ namespace org.GraphDefined.OpenData
                                                   return Task.FromResult(
                                                       new HTTPResponseBuilder(Request) {
                                                           HTTPStatusCode  = HTTPStatusCode.BadRequest,
-                                                          Server          = _HTTPServer.DefaultServerName,
+                                                          Server          = HTTPServer.DefaultServerName,
                                                           ContentType     = HTTPContentType.JSON_UTF8,
                                                           Content         = new JObject(
                                                                                 new JProperty("@context",     SignInOutContext),
@@ -1599,7 +1562,7 @@ namespace org.GraphDefined.OpenData
                                                   return Task.FromResult(
                                                       new HTTPResponseBuilder(Request) {
                                                           HTTPStatusCode  = HTTPStatusCode.BadRequest,
-                                                          Server          = _HTTPServer.DefaultServerName,
+                                                          Server          = HTTPServer.DefaultServerName,
                                                           ContentType     = HTTPContentType.JSON_UTF8,
                                                           Content         = new JObject(
                                                                                 new JProperty("@context",     SignInOutContext),
@@ -1632,7 +1595,7 @@ namespace org.GraphDefined.OpenData
                                                   return Task.FromResult(
                                                       new HTTPResponseBuilder(Request) {
                                                           HTTPStatusCode  = HTTPStatusCode.BadRequest,
-                                                          Server          = _HTTPServer.DefaultServerName,
+                                                          Server          = HTTPServer.DefaultServerName,
                                                           ContentType     = HTTPContentType.JSON_UTF8,
                                                           Content         = new JObject(
                                                                                 new JProperty("@context",     SignInOutContext),
@@ -1650,7 +1613,7 @@ namespace org.GraphDefined.OpenData
                                                   return Task.FromResult(
                                                       new HTTPResponseBuilder(Request) {
                                                           HTTPStatusCode  = HTTPStatusCode.BadRequest,
-                                                          Server          = _HTTPServer.DefaultServerName,
+                                                          Server          = HTTPServer.DefaultServerName,
                                                           ContentType     = HTTPContentType.JSON_UTF8,
                                                           Content         = new JObject(
                                                                                 new JProperty("@context",     SignInOutContext),
@@ -1677,7 +1640,7 @@ namespace org.GraphDefined.OpenData
                                                   return Task.FromResult(
                                                       new HTTPResponseBuilder(Request) {
                                                           HTTPStatusCode  = HTTPStatusCode.NotFound,
-                                                          Server          = _HTTPServer.DefaultServerName,
+                                                          Server          = HTTPServer.DefaultServerName,
                                                           ContentType     = HTTPContentType.JSON_UTF8,
                                                           Content         = new JObject(
                                                                                 new JProperty("@context",     SignInOutContext),
@@ -1694,7 +1657,7 @@ namespace org.GraphDefined.OpenData
                                                   return Task.FromResult(
                                                       new HTTPResponseBuilder(Request) {
                                                           HTTPStatusCode  = HTTPStatusCode.Unauthorized,
-                                                          Server          = _HTTPServer.DefaultServerName,
+                                                          Server          = HTTPServer.DefaultServerName,
                                                           ContentType     = HTTPContentType.JSON_UTF8,
                                                           Content         = new JObject(
                                                                                 new JProperty("@context",     SignInOutContext),
@@ -1737,7 +1700,7 @@ namespace org.GraphDefined.OpenData
 
             #region AUTH        ~/users/{UserId}
 
-            _HTTPServer.AddMethodCallback(HTTPHostname.Any,
+            HTTPServer.AddMethodCallback(HTTPHostname.Any,
                                           HTTPMethod.AUTH,
                                           "/users/{UserId}",
                                           HTTPContentType.JSON_UTF8,
@@ -1759,7 +1722,7 @@ namespace org.GraphDefined.OpenData
                                                   return Task.FromResult(
                                                       new HTTPResponseBuilder(Request) {
                                                           HTTPStatusCode  = HTTPStatusCode.BadRequest,
-                                                          Server          = _HTTPServer.DefaultServerName,
+                                                          Server          = HTTPServer.DefaultServerName,
                                                           ContentType     = HTTPContentType.JSON_UTF8,
                                                           Content         = new JObject(
                                                                                 new JProperty("@context",     SignInOutContext),
@@ -1781,7 +1744,7 @@ namespace org.GraphDefined.OpenData
                                                   return Task.FromResult(
                                                       new HTTPResponseBuilder(Request) {
                                                           HTTPStatusCode = HTTPStatusCode.BadRequest,
-                                                          Server = _HTTPServer.DefaultServerName,
+                                                          Server = HTTPServer.DefaultServerName,
                                                           ContentType = HTTPContentType.JSON_UTF8,
                                                           Content = new JObject(
                                                                                  new JProperty("@context",     SignInOutContext),
@@ -1803,7 +1766,7 @@ namespace org.GraphDefined.OpenData
                                                   return Task.FromResult(
                                                       new HTTPResponseBuilder(Request) {
                                                           HTTPStatusCode = HTTPStatusCode.BadRequest,
-                                                          Server = _HTTPServer.DefaultServerName,
+                                                          Server = HTTPServer.DefaultServerName,
                                                           ContentType = HTTPContentType.JSON_UTF8,
                                                           Content = new JObject(
                                                                                 new JProperty("@context",     SignInOutContext),
@@ -1823,7 +1786,7 @@ namespace org.GraphDefined.OpenData
                                                   return Task.FromResult(
                                                       new HTTPResponseBuilder(Request) {
                                                           HTTPStatusCode  = HTTPStatusCode.BadRequest,
-                                                          Server          = _HTTPServer.DefaultServerName,
+                                                          Server          = HTTPServer.DefaultServerName,
                                                           ContentType     = HTTPContentType.JSON_UTF8,
                                                           Content         = new JObject(
                                                                                 new JProperty("@context",     SignInOutContext),
@@ -1839,7 +1802,7 @@ namespace org.GraphDefined.OpenData
                                                   return Task.FromResult(
                                                       new HTTPResponseBuilder(Request) {
                                                           HTTPStatusCode  = HTTPStatusCode.BadRequest,
-                                                          Server          = _HTTPServer.DefaultServerName,
+                                                          Server          = HTTPServer.DefaultServerName,
                                                           ContentType     = HTTPContentType.JSON_UTF8,
                                                           Content         = new JObject(
                                                                                 new JProperty("@context",     SignInOutContext),
@@ -1866,7 +1829,7 @@ namespace org.GraphDefined.OpenData
                                                   return Task.FromResult(
                                                       new HTTPResponseBuilder(Request) {
                                                           HTTPStatusCode  = HTTPStatusCode.NotFound,
-                                                          Server          = _HTTPServer.DefaultServerName,
+                                                          Server          = HTTPServer.DefaultServerName,
                                                           ContentType     = HTTPContentType.JSON_UTF8,
                                                           Content         = new JObject(
                                                                                 new JProperty("@context",     SignInOutContext),
@@ -1883,7 +1846,7 @@ namespace org.GraphDefined.OpenData
                                                   return Task.FromResult(
                                                       new HTTPResponseBuilder(Request) {
                                                           HTTPStatusCode  = HTTPStatusCode.Unauthorized,
-                                                          Server          = _HTTPServer.DefaultServerName,
+                                                          Server          = HTTPServer.DefaultServerName,
                                                           ContentType     = HTTPContentType.JSON_UTF8,
                                                           Content         = new JObject(
                                                                                 new JProperty("@context",     SignInOutContext),
@@ -1931,7 +1894,7 @@ namespace org.GraphDefined.OpenData
 
             #region DEAUTH      ~/users/{UserId}
 
-            _HTTPServer.AddMethodCallback(HTTPHostname.Any,
+            HTTPServer.AddMethodCallback(HTTPHostname.Any,
                                           HTTPMethod.DEAUTH,
                                           "/users/{UserId}",
                                           HTTPContentType.JSON_UTF8,
@@ -1953,7 +1916,7 @@ namespace org.GraphDefined.OpenData
 
             #region GET         ~/users/{UserId}/profilephoto
 
-            _HTTPServer.RegisterFilesystemFile(HTTPHostname.Any,
+            HTTPServer.RegisterFilesystemFile(HTTPHostname.Any,
                                                "/users/{UserId}/profilephoto",
                                                URIParams => "LocalHTTPRoot/data/Users/" + URIParams[0] + ".png",
                                                DefaultFile: "HTTPRoot/images/defaults/DefaultUser.png");
@@ -1968,10 +1931,10 @@ namespace org.GraphDefined.OpenData
             // -----------------------------------------------------------
             // curl -v -H "Accept: text/html" http://127.0.0.1:2100/groups
             // -----------------------------------------------------------
-            _HTTPServer.AddMethodCallback(HTTPHostname.Any,
+            HTTPServer.AddMethodCallback(HTTPHostname.Any,
                                           HTTPMethod.GET,
-                                          new String[] { _URIPrefix + "/groups",
-                                                         _URIPrefix + "/groups/" },
+                                          new String[] { URIPrefix + "/groups",
+                                                         URIPrefix + "/groups/" },
                                           HTTPContentType.HTML_UTF8,
                                           HTTPDelegate: async Request => {
 
@@ -1997,7 +1960,7 @@ namespace org.GraphDefined.OpenData
             // curl -v -H "Accept: application/json" http://127.0.0.1:2100/groups
             // ------------------------------------------------------------------
 
-            _HTTPServer.ITEMS_GET(UriTemplate: "/groups",
+            HTTPServer.ITEMS_GET(UriTemplate: "/groups",
                                   Dictionary: _Groups,
                                   Filter: group => group.IsPublic,
                                   ToJSONDelegate: JSON.ToJSON);
@@ -2014,7 +1977,7 @@ namespace org.GraphDefined.OpenData
             // curl -v -X EXITS -H "Accept: application/json" http://127.0.0.1:2100/groups/OK-Lab%20Jena
             // -------------------------------------------------------------------------------------------
 
-            _HTTPServer.ITEM_EXISTS<UserGroup_Id, UserGroup>(UriTemplate: "/groups/{GroupId}",
+            HTTPServer.ITEM_EXISTS<UserGroup_Id, UserGroup>(UriTemplate: "/groups/{GroupId}",
                                                              ParseIdDelegate: UserGroup_Id.TryParse,
                                                              ParseIdError: Text => "Invalid group identification '" + Text + "'!",
                                                              TryGetItemDelegate: _Groups.TryGetValue,
@@ -2033,7 +1996,7 @@ namespace org.GraphDefined.OpenData
             // curl -v -H "Accept: application/json" http://127.0.0.1:2100/groups/OK-Lab%20Jena
             // ----------------------------------------------------------------------------------
 
-            _HTTPServer.ITEM_GET<UserGroup_Id, UserGroup>(UriTemplate: "/groups/{GroupId}",
+            HTTPServer.ITEM_GET<UserGroup_Id, UserGroup>(UriTemplate: "/groups/{GroupId}",
                                                           ParseIdDelegate: UserGroup_Id.TryParse,
                                                           ParseIdError: Text => "Invalid group identification '" + Text + "'!",
                                                           TryGetItemDelegate: _Groups.TryGetValue,
