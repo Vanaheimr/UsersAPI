@@ -1554,6 +1554,187 @@ namespace org.GraphDefined.OpenData
 
             #endregion
 
+            _HTTPServer.AddMethodCallback(HTTPHostname.Any,
+                                          HTTPMethod.POST,
+                                          "/login",
+                                          HTTPContentType.XWWWFormUrlEncoded,
+                                          HTTPDelegate: Request => {
+
+                                              //username=ahzf&password=sfdsdfsdf
+
+                                              #region Check UTF8 text body...
+
+                                              HTTPResponse _HTTPResponse  = null;
+                                              String       LoginText      = null;
+                                              if (!Request.TryParseUTF8StringRequestBody(HTTPContentType.XWWWFormUrlEncoded, out LoginText, out _HTTPResponse, AllowEmptyHTTPBody: false))
+                                                  return Task.FromResult(_HTTPResponse);
+
+                                              var LoginData = LoginText.DoubleSplit('&', '=');
+
+                                              #endregion
+
+                                              #region Verify the username
+
+                                              String Username;
+
+                                              if (!LoginData.TryGetValue("username", out Username))
+                                                  return Task.FromResult(
+                                                      new HTTPResponseBuilder(Request) {
+                                                          HTTPStatusCode  = HTTPStatusCode.BadRequest,
+                                                          Server          = _HTTPServer.DefaultServerName,
+                                                          ContentType     = HTTPContentType.JSON_UTF8,
+                                                          Content         = new JObject(
+                                                                                new JProperty("@context",     SignInOutContext),
+                                                                                new JProperty("statuscode",   400),
+                                                                                new JProperty("property",     "username"),
+                                                                                new JProperty("description",  "The username is missing!")
+                                                                            ).ToString().ToUTF8Bytes(),
+                                                          CacheControl     = "private",
+                                                          Connection       = "close"
+                                                      }.AsImmutable());
+
+                                              Username = HTTPTools.URLDecode(Username);
+
+                                              if (Username.Length < MinUserNameLenght)
+                                                  return Task.FromResult(
+                                                      new HTTPResponseBuilder(Request) {
+                                                          HTTPStatusCode  = HTTPStatusCode.BadRequest,
+                                                          Server          = _HTTPServer.DefaultServerName,
+                                                          ContentType     = HTTPContentType.JSON_UTF8,
+                                                          Content         = new JObject(
+                                                                                new JProperty("@context",     SignInOutContext),
+                                                                                new JProperty("statuscode",   400),
+                                                                                new JProperty("property",     "username"),
+                                                                                new JProperty("description",  "The username is too short!")
+                                                                            ).ToString().ToUTF8Bytes(),
+                                                          CacheControl    = "private",
+                                                          Connection      = "close"
+                                                      }.AsImmutable());
+
+                                              #endregion
+
+                                              #region Verify the realm
+
+                                              String Realm;
+
+                                              LoginData.TryGetValue("realm", out Realm);
+
+                                              if (Realm.IsNotNullOrEmpty())
+                                                  Realm = HTTPTools.URLDecode(Realm);
+
+                                              #endregion
+
+                                              #region Verify the password
+
+                                              String Password;
+
+                                              if (!LoginData.TryGetValue("password", out Password))
+                                                  return Task.FromResult(
+                                                      new HTTPResponseBuilder(Request) {
+                                                          HTTPStatusCode  = HTTPStatusCode.BadRequest,
+                                                          Server          = _HTTPServer.DefaultServerName,
+                                                          ContentType     = HTTPContentType.JSON_UTF8,
+                                                          Content         = new JObject(
+                                                                                new JProperty("@context",     SignInOutContext),
+                                                                                new JProperty("statuscode",   400),
+                                                                                new JProperty("property",     "password"),
+                                                                                new JProperty("description",  "Missing \"password\" property!")
+                                                                           ).ToString().ToUTF8Bytes(),
+                                                          CacheControl    = "private",
+                                                          Connection      = "close"
+                                                      }.AsImmutable());
+
+                                              Password = HTTPTools.URLDecode(Password);
+
+                                              if (Password.Length < MinPasswordLenght)
+                                                  return Task.FromResult(
+                                                      new HTTPResponseBuilder(Request) {
+                                                          HTTPStatusCode  = HTTPStatusCode.BadRequest,
+                                                          Server          = _HTTPServer.DefaultServerName,
+                                                          ContentType     = HTTPContentType.JSON_UTF8,
+                                                          Content         = new JObject(
+                                                                                new JProperty("@context",     SignInOutContext),
+                                                                                new JProperty("statuscode",   400),
+                                                                                new JProperty("property",     "password"),
+                                                                                new JProperty("description",  "The password is too short!")
+                                                                           ).ToString().ToUTF8Bytes(),
+                                                          CacheControl    = "private",
+                                                          Connection      = "close"
+                                                      }.AsImmutable());
+
+                                              #endregion
+
+                                              #region Check login and password
+
+                                              User_Id       _UserId;
+                                              LoginPassword _LoginPassword  = null;
+                                              User          _User           = null;
+
+                                              if (!User_Id.TryParse(Username, out _UserId) ||
+                                                  !_LoginPasswords.TryGetValue(_UserId, out _LoginPassword) ||
+                                                  !_Users.         TryGetValue(_UserId, out _User))
+
+                                                  return Task.FromResult(
+                                                      new HTTPResponseBuilder(Request) {
+                                                          HTTPStatusCode  = HTTPStatusCode.NotFound,
+                                                          Server          = _HTTPServer.DefaultServerName,
+                                                          ContentType     = HTTPContentType.JSON_UTF8,
+                                                          Content         = new JObject(
+                                                                                new JProperty("@context",     SignInOutContext),
+                                                                                new JProperty("property",     "username"),
+                                                                                new JProperty("description",  "Unknown user!")
+                                                                            ).ToString().ToUTF8Bytes(),
+                                                          CacheControl    = "private",
+                                                          Connection      = "close"
+                                                      }.AsImmutable());
+
+
+                                              if (!_LoginPassword.CheckPassword(Password))
+
+                                                  return Task.FromResult(
+                                                      new HTTPResponseBuilder(Request) {
+                                                          HTTPStatusCode  = HTTPStatusCode.Unauthorized,
+                                                          Server          = _HTTPServer.DefaultServerName,
+                                                          ContentType     = HTTPContentType.JSON_UTF8,
+                                                          Content         = new JObject(
+                                                                                new JProperty("@context",     SignInOutContext),
+                                                                                new JProperty("property",     "username"),
+                                                                                new JProperty("description",  "Invalid username or password!")
+                                                                            ).ToString().ToUTF8Bytes(),
+                                                          CacheControl    = "private",
+                                                          Connection      = "close"
+                                                      }.AsImmutable());
+
+                                              #endregion
+
+                                              var SHA256Hash = new SHA256Managed();
+                                              var SecurityToken = SHA256Hash.ComputeHash((Guid.NewGuid().ToString() + _LoginPassword.Login + _LoginPassword.Realm).ToUTF8Bytes()).ToHexString();
+
+                                              return Task.FromResult(
+                                                  new HTTPResponseBuilder(Request) {
+                                                      HTTPStatusCode  = HTTPStatusCode.Created,
+                                                      ContentType     = HTTPContentType.HTML_UTF8,
+                                                      Content         = String.Concat(
+                                                                            @"<!DOCTYPE html>",
+                                                                            Environment.NewLine,
+                                                                            @"<html><head><meta http-equiv=""refresh"" content=""0; url=/"" /></head></html>"
+                                                                        ).ToUTF8Bytes(),
+                                                      CacheControl    = "private",
+                                                      SetCookie       = HTTPCookieId + "=username=" + _LoginPassword.Login.ToString().ToBase64() +
+                                                                                       ":name=" + _User.Name.ToBase64() +
+                                                                              ":securitytoken=" + SecurityToken +
+                                                                                   "; Expires=" + DateTime.Now.Add(_SignInSessionLifetime).ToRfc1123() +
+                                                                                    (HTTPCookieDomain.IsNotNullOrEmpty()
+                                                                                        ? "; Domain=" + HTTPCookieDomain
+                                                                                        : "") +
+                                                                                      "; Path=/",
+                                                      // _gitlab_session=653i45j69051238907520q1350275575; path=/; secure; HttpOnly
+                                                      Connection      = "close",
+                                                      X_FrameOptions  = "DENY"
+                                                  }.AsImmutable());
+
+                                          });
+
             #region AUTH        ~/users/{UserId}
 
             _HTTPServer.AddMethodCallback(HTTPHostname.Any,
@@ -1585,7 +1766,7 @@ namespace org.GraphDefined.OpenData
                                                                                 new JProperty("statuscode",   400),
                                                                                 new JProperty("description",  "Invalid JSON!")
                                                                            ).ToUTF8Bytes(),
-                                                          CacheControl    = "public",
+                                                          CacheControl    = "private",
                                                           Connection      = "close"
                                                       }.AsImmutable());
 
@@ -1608,8 +1789,8 @@ namespace org.GraphDefined.OpenData
                                                                                  new JProperty("property",     "username"),
                                                                                  new JProperty("description",  "The login is too short!")
                                                                             ).ToString().ToUTF8Bytes(),
-                                                          CacheControl = "public",
-                                                          Connection = "close"
+                                                          CacheControl    = "private",
+                                                          Connection      = "close"
                                                       }.AsImmutable());
 
                                               #endregion
@@ -1630,7 +1811,7 @@ namespace org.GraphDefined.OpenData
                                                                                 new JProperty("property",     "realm"),
                                                                                 new JProperty("description",  "The realm is too short!")
                                                                             ).ToString().ToUTF8Bytes(),
-                                                          CacheControl = "public",
+                                                          CacheControl = "private",
                                                           Connection = "close"
                                                       }.AsImmutable());
 
@@ -1641,32 +1822,33 @@ namespace org.GraphDefined.OpenData
                                               if (!LoginData.ContainsKey("password"))
                                                   return Task.FromResult(
                                                       new HTTPResponseBuilder(Request) {
-                                                          HTTPStatusCode = HTTPStatusCode.BadRequest,
-                                                          Server = _HTTPServer.DefaultServerName,
-                                                          ContentType = HTTPContentType.JSON_UTF8,
-                                                          Content = new JObject(
-                                                                                 new JProperty("@context",     SignInOutContext),
-                                                                                 new JProperty("statuscode",   400),
-                                                                                 new JProperty("description",  "Missing \"password\" property!")
-                                                                            ).ToString().ToUTF8Bytes(),
-                                                          CacheControl = "public",
-                                                          Connection = "close"
+                                                          HTTPStatusCode  = HTTPStatusCode.BadRequest,
+                                                          Server          = _HTTPServer.DefaultServerName,
+                                                          ContentType     = HTTPContentType.JSON_UTF8,
+                                                          Content         = new JObject(
+                                                                                new JProperty("@context",     SignInOutContext),
+                                                                                new JProperty("statuscode",   400),
+                                                                                new JProperty("property",     "password"),
+                                                                                new JProperty("description",  "Missing \"password\" property!")
+                                                                           ).ToString().ToUTF8Bytes(),
+                                                          CacheControl    = "private",
+                                                          Connection      = "close"
                                                       }.AsImmutable());
 
                                               if (LoginData.GetString("password").Length < MinPasswordLenght)
                                                   return Task.FromResult(
                                                       new HTTPResponseBuilder(Request) {
-                                                          HTTPStatusCode = HTTPStatusCode.BadRequest,
-                                                          Server = _HTTPServer.DefaultServerName,
-                                                          ContentType = HTTPContentType.JSON_UTF8,
-                                                          Content = new JObject(
-                                                                                 new JProperty("@context",     SignInOutContext),
-                                                                                 new JProperty("statuscode",   400),
-                                                                                 new JProperty("property",     "name"),
-                                                                                 new JProperty("description",  "The password is too short!")
-                                                                            ).ToString().ToUTF8Bytes(),
-                                                          CacheControl = "public",
-                                                          Connection = "close"
+                                                          HTTPStatusCode  = HTTPStatusCode.BadRequest,
+                                                          Server          = _HTTPServer.DefaultServerName,
+                                                          ContentType     = HTTPContentType.JSON_UTF8,
+                                                          Content         = new JObject(
+                                                                                new JProperty("@context",     SignInOutContext),
+                                                                                new JProperty("statuscode",   400),
+                                                                                new JProperty("property",     "password"),
+                                                                                new JProperty("description",  "The password is too short!")
+                                                                           ).ToString().ToUTF8Bytes(),
+                                                          CacheControl    = "private",
+                                                          Connection      = "close"
                                                       }.AsImmutable());
 
                                               #endregion
@@ -1683,16 +1865,16 @@ namespace org.GraphDefined.OpenData
 
                                                   return Task.FromResult(
                                                       new HTTPResponseBuilder(Request) {
-                                                          HTTPStatusCode = HTTPStatusCode.NotFound,
-                                                          Server = _HTTPServer.DefaultServerName,
-                                                          ContentType = HTTPContentType.JSON_UTF8,
-                                                          Content = new JObject(
-                                                                                 new JProperty("@context",     SignInOutContext),
-                                                                                 new JProperty("property",     "username"),
-                                                                                 new JProperty("description",  "Unknown user!")
+                                                          HTTPStatusCode  = HTTPStatusCode.NotFound,
+                                                          Server          = _HTTPServer.DefaultServerName,
+                                                          ContentType     = HTTPContentType.JSON_UTF8,
+                                                          Content         = new JObject(
+                                                                                new JProperty("@context",     SignInOutContext),
+                                                                                new JProperty("property",     "username"),
+                                                                                new JProperty("description",  "Unknown user!")
                                                                             ).ToString().ToUTF8Bytes(),
-                                                          CacheControl = "public",
-                                                          Connection = "close"
+                                                          CacheControl    = "private",
+                                                          Connection      = "close"
                                                       }.AsImmutable());
 
 
@@ -1700,19 +1882,19 @@ namespace org.GraphDefined.OpenData
 
                                                   return Task.FromResult(
                                                       new HTTPResponseBuilder(Request) {
-                                                          HTTPStatusCode = HTTPStatusCode.Unauthorized,
-                                                          Server = _HTTPServer.DefaultServerName,
-                                                          ContentType = HTTPContentType.JSON_UTF8,
-                                                          Content = new JObject(
-                                                                                 new JProperty("@context",     SignInOutContext),
-                                                                                 new JProperty("property",     "username"),
-                                                                                 new JProperty("description",  "Invalid username or password!")
+                                                          HTTPStatusCode  = HTTPStatusCode.Unauthorized,
+                                                          Server          = _HTTPServer.DefaultServerName,
+                                                          ContentType     = HTTPContentType.JSON_UTF8,
+                                                          Content         = new JObject(
+                                                                                new JProperty("@context",     SignInOutContext),
+                                                                                new JProperty("property",     "username"),
+                                                                                new JProperty("description",  "Invalid username or password!")
                                                                             ).ToString().ToUTF8Bytes(),
                                                           //SetCookie       = "SocialOpenData=" +
                                                           //                       "; Expires=" + DateTime.Now.AddMinutes(-5).ToRfc1123() +
                                                           //                          "; Path=/",
-                                                          CacheControl = "public",
-                                                          Connection = "close"
+                                                          CacheControl    = "private",
+                                                          Connection      = "close"
                                                       }.AsImmutable());
 
                                               #endregion
