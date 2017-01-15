@@ -930,66 +930,81 @@ namespace org.GraphDefined.OpenData
 
             HTTPServer.AddFilter((server, request) => {
 
-                var Cookie = request.Cookie;
-                var URI    = request.URI;
+                #region Protect anything under / and /admin...
 
-                // / or /index.html or /admin.. before signed in...
-
-                if ((URI         == "/" ||
-                     URI         == "/index.html" ||
-                     URI.StartsWith("/admin", StringComparison.Ordinal))
+                if ((request.URI         == "/" ||
+                     request.URI         == "/index.html" ||
+                     request.URI.StartsWith("/admin", StringComparison.Ordinal))
                      &&
-                    (Cookie      == null ||
-                     Cookie.Name != CookieName))
+                    (request.Cookie      == null ||
+                     request.Cookie.Name != CookieName))
                     // Unkown cookie?!
                 {
 
                     return new HTTPResponseBuilder(request) {
                                    HTTPStatusCode  = HTTPStatusCode.TemporaryRedirect,
                                    Location        = "/login",
+                                   Date            = DateTime.Now,
                                    Server          = HTTPServer.DefaultServerName,
+                                   CacheControl    = "private, max-age=0, no-cache",
                                    Connection      = "close"
                                }.AsImmutable();
 
                 }
 
-                if (URI.StartsWith("/admin", StringComparison.Ordinal) &&
-                    Cookie      != null &&
-                    Cookie.Name == CookieName &&
-                   !Cookie.Crumbs.Contains(new KeyValuePair<String, String>("isAdmin", "")))
+                #endregion
+
+                #region Disallow non-admins to access anything under /admin...
+
+                if (request.URI.StartsWith("/admin", StringComparison.Ordinal) &&
+                    request.Cookie      != null &&
+                    request.Cookie.Name == CookieName &&
+                   !request.Cookie.Crumbs.Contains(new KeyValuePair<String, String>("isAdmin", "")))
                     // Unkown cookie?!
                 {
 
                     return new HTTPResponseBuilder(request) {
                                    HTTPStatusCode  = HTTPStatusCode.TemporaryRedirect,
                                    Location        = "/",
+                                   Date            = DateTime.Now,
                                    Server          = HTTPServer.DefaultServerName,
+                                   CacheControl    = "private, max-age=0, no-cache",
                                    Connection      = "close"
                                }.AsImmutable();
 
                 }
 
+                #endregion
 
-                // GET /login, but your are already signed in...
+                #region GET "/login...", but the user us already logged in...
 
-                if (URI == "/login" && request.HTTPMethod == HTTPMethod.GET)
+                if ((request.URI == "/login"                    ||
+                     request.URI == "/login/"                   ||
+                     request.URI == "/login/index.html"         ||
+                     request.URI == "/login/lost_password.html" ||
+                     request.URI == "/login/set_password.html") &&
+                     request.HTTPMethod == HTTPMethod.GET)
                 {
 
-                    if (Cookie      != null &&
-                        Cookie.Name == CookieName)
+                    if (request.Cookie      != null &&
+                        request.Cookie.Name == CookieName)
                         // Unkown cookie?!
                     {
 
                         return new HTTPResponseBuilder(request) {
                                    HTTPStatusCode  = HTTPStatusCode.TemporaryRedirect,
                                    Location        = "/",
+                                   Date            = DateTime.Now,
                                    Server          = HTTPServer.DefaultServerName,
+                                   CacheControl    = "private, max-age=0, no-cache",
                                    Connection      = "close"
                                }.AsImmutable();
 
                     }
 
                 }
+
+                #endregion
 
                 return null;
 
@@ -1013,11 +1028,23 @@ namespace org.GraphDefined.OpenData
 
                 //}
 
-                if (URI == "/login" && request.HTTPMethod == HTTPMethod.GET)
+                if ((URI == "/login"  ||
+                     URI == "/login/") &&
+                     request.HTTPMethod == HTTPMethod.GET)
                 {
 
                     var NewRequest = new HTTPRequestBuilder(request);
-                    NewRequest.URI = "/login.html";
+                    NewRequest.URI = "/login/index.html";
+
+                    return NewRequest;
+
+                }
+
+                if (URI == "/admin" && request.HTTPMethod == HTTPMethod.GET)
+                {
+
+                    var NewRequest = new HTTPRequestBuilder(request);
+                    NewRequest.URI = "/admin/index.html";
 
                     return NewRequest;
 
