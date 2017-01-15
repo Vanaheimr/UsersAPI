@@ -1012,25 +1012,10 @@ namespace org.GraphDefined.OpenData
 
             HTTPServer.Rewrite((server, request) => {
 
-                var Cookie = request.Cookie;
-                var URI    = request.URI;
+                #region /login
 
-                //if (URI         == "/" &&
-                //   (Cookie      == null ||
-                //    Cookie.Name != HTTPCookieId))
-                //    // Unkown cookie?!
-                //{
-
-                //    var NewRequest = new HTTPRequestBuilder(request);
-                //    NewRequest.URI = "/login.html";
-
-                //    return NewRequest;
-
-                //}
-
-                if ((URI == "/login"  ||
-                     URI == "/login/") &&
-                     request.HTTPMethod == HTTPMethod.GET)
+                if (request.URI == "/login" &&
+                    request.HTTPMethod == HTTPMethod.GET)
                 {
 
                     var NewRequest = new HTTPRequestBuilder(request);
@@ -1040,7 +1025,42 @@ namespace org.GraphDefined.OpenData
 
                 }
 
-                if (URI == "/admin" && request.HTTPMethod == HTTPMethod.GET)
+                #endregion
+
+                #region /lost_password
+
+                if (request.URI == "/lost_password" &&
+                    request.HTTPMethod == HTTPMethod.GET)
+                {
+
+                    var NewRequest = new HTTPRequestBuilder(request);
+                    NewRequest.URI = "/login/lost_password.html";
+
+                    return NewRequest;
+
+                }
+
+                #endregion
+
+                #region /set_password
+
+                if (request.URI == "/set_password" &&
+                    request.HTTPMethod == HTTPMethod.GET)
+                {
+
+                    var NewRequest = new HTTPRequestBuilder(request);
+                    NewRequest.URI = "/login/set_password.html";
+
+                    return NewRequest;
+
+                }
+
+                #endregion
+
+                #region /admin
+
+                if (request.URI == "/admin" &&
+                    request.HTTPMethod == HTTPMethod.GET)
                 {
 
                     var NewRequest = new HTTPRequestBuilder(request);
@@ -1049,6 +1069,8 @@ namespace org.GraphDefined.OpenData
                     return NewRequest;
 
                 }
+
+                #endregion
 
                 return null;
 
