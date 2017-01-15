@@ -933,9 +933,11 @@ namespace org.GraphDefined.OpenData
                 var Cookie = request.Cookie;
                 var URI    = request.URI;
 
+                // / or /index.html or /admin.. before signed in...
+
                 if ((URI         == "/" ||
                      URI         == "/index.html" ||
-                     URI.StartsWith("/admin/", StringComparison.Ordinal))
+                     URI.StartsWith("/admin", StringComparison.Ordinal))
                      &&
                     (Cookie      == null ||
                      Cookie.Name != CookieName))
@@ -944,14 +946,33 @@ namespace org.GraphDefined.OpenData
 
                     return new HTTPResponseBuilder(request) {
                                    HTTPStatusCode  = HTTPStatusCode.TemporaryRedirect,
-                                   Location        = "/login.html",
+                                   Location        = "/login",
                                    Server          = HTTPServer.DefaultServerName,
                                    Connection      = "close"
                                }.AsImmutable();
 
                 }
 
-                if (URI == "/login.html")
+                if (URI.StartsWith("/admin", StringComparison.Ordinal) &&
+                    Cookie      != null &&
+                    Cookie.Name == CookieName &&
+                   !Cookie.Crumbs.Contains(new KeyValuePair<String, String>("isAdmin", "")))
+                    // Unkown cookie?!
+                {
+
+                    return new HTTPResponseBuilder(request) {
+                                   HTTPStatusCode  = HTTPStatusCode.TemporaryRedirect,
+                                   Location        = "/",
+                                   Server          = HTTPServer.DefaultServerName,
+                                   Connection      = "close"
+                               }.AsImmutable();
+
+                }
+
+
+                // GET /login, but your are already signed in...
+
+                if (URI == "/login" && request.HTTPMethod == HTTPMethod.GET)
                 {
 
                     if (Cookie      != null &&
@@ -992,24 +1013,15 @@ namespace org.GraphDefined.OpenData
 
                 //}
 
-                //if (URI == "/login.html")
-                //{
+                if (URI == "/login" && request.HTTPMethod == HTTPMethod.GET)
+                {
 
-                //    if (Cookie      != null &&
-                //        Cookie.Name == HTTPCookieId)
-                //        // Unkown cookie?!
-                //    {
+                    var NewRequest = new HTTPRequestBuilder(request);
+                    NewRequest.URI = "/login.html";
 
-                //        return new HTTPResponseBuilder(request) {
-                //                   HTTPStatusCode  = HTTPStatusCode.TemporaryRedirect,
-                //                   Location        = "/",
-                //                   Server          = HTTPServer.DefaultServerName,
-                //                   Connection      = "close"
-                //               }.AsImmutable();
+                    return NewRequest;
 
-                //    }
-
-                //}
+                }
 
                 return null;
 
