@@ -167,6 +167,31 @@ namespace org.GraphDefined.OpenData
         #endregion
 
 
+        #region IsAdmin
+
+        private Boolean _IsAdmin;
+
+        /// <summary>
+        /// The user has admin rights.
+        /// </summary>
+        [Mandatory]
+        public Boolean IsAdmin
+        {
+
+            get
+            {
+                return _IsAdmin;
+            }
+
+            set
+            {
+                _IsAdmin = value;
+            }
+
+        }
+
+        #endregion
+
         #region IsAuthenticated
 
         private Boolean _IsAuthenticated;
@@ -335,7 +360,7 @@ namespace org.GraphDefined.OpenData
             #region Initial checks
 
             if (Login == null)
-                throw new ArgumentNullException("Id", "The Id must not be null!");
+                throw new ArgumentNullException(nameof(Login), "The login of the user must not be null!");
 
             #endregion
 
@@ -345,6 +370,7 @@ namespace org.GraphDefined.OpenData
             this._Description               = Description != null ? Description : new I18NString();
             this._EMail                     = EMail;
             this._GPGPublicKeyRing          = GPGPublicKeyRing;
+            this._IsAdmin                   = false;
             this._IsAuthenticated           = false;
             this._IsHidden                  = false;
 

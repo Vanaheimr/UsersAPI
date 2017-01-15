@@ -101,7 +101,7 @@ namespace org.GraphDefined.OpenData
 
         public const String SignUpContext     = "";
         public const String SignInOutContext  = "";
-        public const String HTTPCookieId      = "OpenDataSocial";
+        public const String DefaultCookieName = "OpenDataSocial";
         public const String HTTPCookieDomain  = "";
 
         #endregion
@@ -364,6 +364,12 @@ namespace org.GraphDefined.OpenData
 
         #endregion
 
+        #region CookieName
+
+        public String CookieName { get; }
+
+        #endregion
+
         #region DefaultLanguage
 
         private readonly Languages _DefaultLanguage;
@@ -485,7 +491,7 @@ namespace org.GraphDefined.OpenData
         /// <summary>
         /// The minimal user name length.
         /// </summary>
-        public Byte MinUserNameLenght
+        public Byte MinLoginLenght
         {
             get
             {
@@ -623,6 +629,7 @@ namespace org.GraphDefined.OpenData
                         EMailAddressList                    APIAdminEMails                    = null,
                         SMTPClient                          APISMTPClient                     = null,
 
+                        String                              CookieName                        = DefaultCookieName,
                         Languages                           DefaultLanguage                   = Languages.eng,
                         String                              LogoImage                         = null,
                         NewUserSignUpEMailCreatorDelegate   NewUserSignUpEMailCreator         = null,
@@ -673,6 +680,7 @@ namespace org.GraphDefined.OpenData
                    APIAdminEMails,
                    APISMTPClient,
 
+                   CookieName,
                    DefaultLanguage,
                    LogoImage,
                    NewUserSignUpEMailCreator,
@@ -738,6 +746,7 @@ namespace org.GraphDefined.OpenData
                            EMailAddressList                    APIAdminEMails               = null,
                            SMTPClient                          APISMTPClient                = null,
 
+                           String                              CookieName                   = DefaultCookieName,
                            Languages                           DefaultLanguage              = Languages.eng,
                            String                              LogoImage                    = null,
                            NewUserSignUpEMailCreatorDelegate   NewUserSignUpEMailCreator    = null,
@@ -787,6 +796,7 @@ namespace org.GraphDefined.OpenData
             this._APIAdminEMails              = APIAdminEMails;
             this._APISMTPClient               = APISMTPClient;
 
+            this.CookieName                   = CookieName.IsNotNullOrEmpty() ? CookieName : DefaultCookieName;
             this._DefaultLanguage             = DefaultLanguage;
             this._LogoImage                   = LogoImage;
             this._NewUserSignUpEMailCreator   = NewUserSignUpEMailCreator;
@@ -861,6 +871,7 @@ namespace org.GraphDefined.OpenData
                                                EMailAddressList                    APIAdminEMails               = null,
                                                SMTPClient                          APISMTPClient                = null,
 
+                                               String                              CookieName                   = DefaultCookieName,
                                                Languages                           DefaultLanguage              = Languages.eng,
                                                String                              LogoImage                    = null,
                                                NewUserSignUpEMailCreatorDelegate   NewUserSignUpEMailCreator    = null,
@@ -888,6 +899,7 @@ namespace org.GraphDefined.OpenData
                             APIAdminEMails,
                             APISMTPClient,
 
+                            CookieName,
                             DefaultLanguage,
                             LogoImage,
                             NewUserSignUpEMailCreator,
@@ -915,6 +927,93 @@ namespace org.GraphDefined.OpenData
 
             #endregion
 
+
+            HTTPServer.AddFilter((server, request) => {
+
+                var Cookie = request.Cookie;
+                var URI    = request.URI;
+
+                if ((URI         == "/" ||
+                     URI         == "/index.html" ||
+                     URI.StartsWith("/admin/", StringComparison.Ordinal))
+                     &&
+                    (Cookie      == null ||
+                     Cookie.Name != CookieName))
+                    // Unkown cookie?!
+                {
+
+                    return new HTTPResponseBuilder(request) {
+                                   HTTPStatusCode  = HTTPStatusCode.TemporaryRedirect,
+                                   Location        = "/login.html",
+                                   Server          = HTTPServer.DefaultServerName,
+                                   Connection      = "close"
+                               }.AsImmutable();
+
+                }
+
+                if (URI == "/login.html")
+                {
+
+                    if (Cookie      != null &&
+                        Cookie.Name == CookieName)
+                        // Unkown cookie?!
+                    {
+
+                        return new HTTPResponseBuilder(request) {
+                                   HTTPStatusCode  = HTTPStatusCode.TemporaryRedirect,
+                                   Location        = "/",
+                                   Server          = HTTPServer.DefaultServerName,
+                                   Connection      = "close"
+                               }.AsImmutable();
+
+                    }
+
+                }
+
+                return null;
+
+            });
+
+            HTTPServer.Rewrite((server, request) => {
+
+                var Cookie = request.Cookie;
+                var URI    = request.URI;
+
+                //if (URI         == "/" &&
+                //   (Cookie      == null ||
+                //    Cookie.Name != HTTPCookieId))
+                //    // Unkown cookie?!
+                //{
+
+                //    var NewRequest = new HTTPRequestBuilder(request);
+                //    NewRequest.URI = "/login.html";
+
+                //    return NewRequest;
+
+                //}
+
+                //if (URI == "/login.html")
+                //{
+
+                //    if (Cookie      != null &&
+                //        Cookie.Name == HTTPCookieId)
+                //        // Unkown cookie?!
+                //    {
+
+                //        return new HTTPResponseBuilder(request) {
+                //                   HTTPStatusCode  = HTTPStatusCode.TemporaryRedirect,
+                //                   Location        = "/",
+                //                   Server          = HTTPServer.DefaultServerName,
+                //                   Connection      = "close"
+                //               }.AsImmutable();
+
+                //    }
+
+                //}
+
+                return null;
+
+            });
 
             #region GET         ~/signup
 
@@ -1165,7 +1264,7 @@ namespace org.GraphDefined.OpenData
                                                   new HTTPResponseBuilder(Request) {
                                                       HTTPStatusCode  = HTTPStatusCode.OK,
                                                       CacheControl    = "private",
-                                                      SetCookie       = HTTPCookieId + "=; Expires=" + DateTime.Now.ToRfc1123() +
+                                                      SetCookie       = CookieName + "=; Expires=" + DateTime.Now.ToRfc1123() +
                                                                             (HTTPCookieDomain.IsNotNullOrEmpty()
                                                                                 ? "; Domain=" + HTTPCookieDomain
                                                                                 : "") +
@@ -1236,7 +1335,7 @@ namespace org.GraphDefined.OpenData
 
                                               #region Verify login/name
 
-                                              if (_Login.Length < MinUserNameLenght)
+                                              if (_Login.Length < MinLoginLenght)
                                                   return new HTTPResponseBuilder(Request) {
                                                       HTTPStatusCode = HTTPStatusCode.BadRequest,
                                                       Server = HTTPServer.DefaultServerName,
@@ -1536,11 +1635,12 @@ namespace org.GraphDefined.OpenData
 
                                               #endregion
 
-                                              #region Verify the username
+                                              #region Verify the login
 
-                                              String Username;
+                                              String Login;
 
-                                              if (!LoginData.TryGetValue("username", out Username))
+                                              if (!LoginData.TryGetValue("login", out Login) ||
+                                                   Login.    IsNullOrEmpty())
                                                   return Task.FromResult(
                                                       new HTTPResponseBuilder(Request) {
                                                           HTTPStatusCode  = HTTPStatusCode.BadRequest,
@@ -1549,16 +1649,16 @@ namespace org.GraphDefined.OpenData
                                                           Content         = new JObject(
                                                                                 new JProperty("@context",     SignInOutContext),
                                                                                 new JProperty("statuscode",   400),
-                                                                                new JProperty("property",     "username"),
-                                                                                new JProperty("description",  "The username is missing!")
+                                                                                new JProperty("property",     "login"),
+                                                                                new JProperty("description",  "The login must not be empty!")
                                                                             ).ToString().ToUTF8Bytes(),
                                                           CacheControl     = "private",
                                                           Connection       = "close"
                                                       }.AsImmutable());
 
-                                              Username = HTTPTools.URLDecode(Username);
+                                              Login = HTTPTools.URLDecode(Login);
 
-                                              if (Username.Length < MinUserNameLenght)
+                                              if (Login.Length < MinLoginLenght)
                                                   return Task.FromResult(
                                                       new HTTPResponseBuilder(Request) {
                                                           HTTPStatusCode  = HTTPStatusCode.BadRequest,
@@ -1567,8 +1667,8 @@ namespace org.GraphDefined.OpenData
                                                           Content         = new JObject(
                                                                                 new JProperty("@context",     SignInOutContext),
                                                                                 new JProperty("statuscode",   400),
-                                                                                new JProperty("property",     "username"),
-                                                                                new JProperty("description",  "The username is too short!")
+                                                                                new JProperty("property",     "login"),
+                                                                                new JProperty("description",  "The login is too short!")
                                                                             ).ToString().ToUTF8Bytes(),
                                                           CacheControl    = "private",
                                                           Connection      = "close"
@@ -1591,8 +1691,9 @@ namespace org.GraphDefined.OpenData
 
                                               String Password;
 
-                                              if (!LoginData.TryGetValue("password", out Password))
-                                                  return Task.FromResult(
+                                              if (!LoginData.TryGetValue("password", out Password) ||
+                                                   Password. IsNullOrEmpty())
+                                                 return Task.FromResult(
                                                       new HTTPResponseBuilder(Request) {
                                                           HTTPStatusCode  = HTTPStatusCode.BadRequest,
                                                           Server          = HTTPServer.DefaultServerName,
@@ -1601,7 +1702,7 @@ namespace org.GraphDefined.OpenData
                                                                                 new JProperty("@context",     SignInOutContext),
                                                                                 new JProperty("statuscode",   400),
                                                                                 new JProperty("property",     "password"),
-                                                                                new JProperty("description",  "Missing \"password\" property!")
+                                                                                new JProperty("description",  "The password must not be empty!")
                                                                            ).ToString().ToUTF8Bytes(),
                                                           CacheControl    = "private",
                                                           Connection      = "close"
@@ -1633,7 +1734,7 @@ namespace org.GraphDefined.OpenData
                                               LoginPassword _LoginPassword  = null;
                                               User          _User           = null;
 
-                                              if (!User_Id.TryParse(Username, out _UserId) ||
+                                              if (!User_Id.TryParse(Login, out _UserId) ||
                                                   !_LoginPasswords.TryGetValue(_UserId, out _LoginPassword) ||
                                                   !_Users.         TryGetValue(_UserId, out _User))
 
@@ -1644,8 +1745,8 @@ namespace org.GraphDefined.OpenData
                                                           ContentType     = HTTPContentType.JSON_UTF8,
                                                           Content         = new JObject(
                                                                                 new JProperty("@context",     SignInOutContext),
-                                                                                new JProperty("property",     "username"),
-                                                                                new JProperty("description",  "Unknown user!")
+                                                                                new JProperty("property",     "login"),
+                                                                                new JProperty("description",  "Unknown login!")
                                                                             ).ToString().ToUTF8Bytes(),
                                                           CacheControl    = "private",
                                                           Connection      = "close"
@@ -1661,8 +1762,8 @@ namespace org.GraphDefined.OpenData
                                                           ContentType     = HTTPContentType.JSON_UTF8,
                                                           Content         = new JObject(
                                                                                 new JProperty("@context",     SignInOutContext),
-                                                                                new JProperty("property",     "username"),
-                                                                                new JProperty("description",  "Invalid username or password!")
+                                                                                new JProperty("property",     "password"),
+                                                                                new JProperty("description",  "Invalid password!")
                                                                             ).ToString().ToUTF8Bytes(),
                                                           CacheControl    = "private",
                                                           Connection      = "close"
@@ -1670,8 +1771,14 @@ namespace org.GraphDefined.OpenData
 
                                               #endregion
 
-                                              var SHA256Hash = new SHA256Managed();
-                                              var SecurityToken = SHA256Hash.ComputeHash((Guid.NewGuid().ToString() + _LoginPassword.Login + _LoginPassword.Realm).ToUTF8Bytes()).ToHexString();
+                                              var SHA256Hash     = new SHA256Managed();
+                                              var SecurityToken  = SHA256Hash.ComputeHash(
+                                                                       String.Concat(
+                                                                           Guid.NewGuid().ToString(),
+                                                                           _LoginPassword.Login,
+                                                                           _LoginPassword.Realm).
+                                                                       ToUTF8Bytes()).
+                                                                   ToHexString();
 
                                               return Task.FromResult(
                                                   new HTTPResponseBuilder(Request) {
@@ -1683,14 +1790,15 @@ namespace org.GraphDefined.OpenData
                                                                             @"<html><head><meta http-equiv=""refresh"" content=""0; url=/"" /></head></html>"
                                                                         ).ToUTF8Bytes(),
                                                       CacheControl    = "private",
-                                                      SetCookie       = HTTPCookieId + "=username=" + _LoginPassword.Login.ToString().ToBase64() +
-                                                                                       ":name=" + _User.Name.ToBase64() +
-                                                                              ":securitytoken=" + SecurityToken +
-                                                                                   "; Expires=" + DateTime.Now.Add(_SignInSessionLifetime).ToRfc1123() +
-                                                                                    (HTTPCookieDomain.IsNotNullOrEmpty()
-                                                                                        ? "; Domain=" + HTTPCookieDomain
-                                                                                        : "") +
-                                                                                      "; Path=/",
+                                                      SetCookie       = CookieName + "=login="    + _LoginPassword.Login.ToString().ToBase64() +
+                                                                                  ":username=" + _User.Name.ToBase64() +
+                                                                                (_User.IsAdmin ? ":isAdmin" : "") +
+                                                                             ":securitytoken=" + SecurityToken +
+                                                                                  "; Expires=" + DateTime.Now.Add(_SignInSessionLifetime).ToRfc1123() +
+                                                                                   (HTTPCookieDomain.IsNotNullOrEmpty()
+                                                                                       ? "; Domain=" + HTTPCookieDomain
+                                                                                       : "") +
+                                                                                     "; Path=/",
                                                       // _gitlab_session=653i45j69051238907520q1350275575; path=/; secure; HttpOnly
                                                       Connection      = "close",
                                                       X_FrameOptions  = "DENY"
@@ -1740,7 +1848,7 @@ namespace org.GraphDefined.OpenData
 
                                               #region Verify username
 
-                                              if (LoginData.GetString("username").Length < MinUserNameLenght)
+                                              if (LoginData.GetString("username").Length < MinLoginLenght)
                                                   return Task.FromResult(
                                                       new HTTPResponseBuilder(Request) {
                                                           HTTPStatusCode = HTTPStatusCode.BadRequest,
@@ -1876,14 +1984,15 @@ namespace org.GraphDefined.OpenData
                                                                             new JProperty("name",      _User.Name)
                                                                         ).ToUTF8Bytes(),
                                                       CacheControl    = "private",
-                                                      SetCookie       = HTTPCookieId + "=username=" + _LoginPassword.Login.ToString().ToBase64() +
-                                                                                       ":name=" + _User.Name.ToBase64() +
-                                                                              ":securitytoken=" + SecurityToken +
-                                                                                   "; Expires=" + DateTime.Now.Add(_SignInSessionLifetime).ToRfc1123() +
-                                                                                    (HTTPCookieDomain.IsNotNullOrEmpty()
-                                                                                        ? "; Domain=" + HTTPCookieDomain
-                                                                                        : "") +
-                                                                                      "; Path=/",
+                                                      SetCookie       = CookieName + "=login="    + _LoginPassword.Login.ToString().ToBase64() +
+                                                                                  ":username=" + _User.Name.ToBase64() +
+                                                                                (_User.IsAdmin ? ":isAdmin" : "") +
+                                                                             ":securitytoken=" + SecurityToken +
+                                                                                  "; Expires=" + DateTime.Now.Add(_SignInSessionLifetime).ToRfc1123() +
+                                                                                   (HTTPCookieDomain.IsNotNullOrEmpty()
+                                                                                       ? "; Domain=" + HTTPCookieDomain
+                                                                                       : "") +
+                                                                                     "; Path=/",
                                                       // secure;"
                                                       Connection = "close"
                                                   }.AsImmutable());
@@ -1904,7 +2013,7 @@ namespace org.GraphDefined.OpenData
                                                   new HTTPResponseBuilder(Request) {
                                                       HTTPStatusCode  = HTTPStatusCode.OK,
                                                       CacheControl    = "private",
-                                                      SetCookie       = HTTPCookieId + "=; Expires=" + DateTime.Now.ToRfc1123() +
+                                                      SetCookie       = CookieName + "=; Expires=" + DateTime.Now.ToRfc1123() +
                                                                             (HTTPCookieDomain.IsNotNullOrEmpty()
                                                                                 ? "; Domain=" + HTTPCookieDomain
                                                                                 : "") +
