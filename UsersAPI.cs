@@ -1090,7 +1090,7 @@ namespace org.GraphDefined.OpenData
                                           HTTPDelegate: async Request => {
 
                                               var _MemoryStream1 = new MemoryStream();
-                                              __GetRessources("template.html").SeekAndCopyTo(_MemoryStream1, 0);
+                                              GetUsersAPIRessource("template.html").SeekAndCopyTo(_MemoryStream1, 0);
                                               var Template = _MemoryStream1.ToArray().ToUTF8String();
 
                                               var _MemoryStream2 = new MemoryStream();
@@ -1246,7 +1246,7 @@ namespace org.GraphDefined.OpenData
                                           HTTPDelegate: async Request => {
 
                                               var _MemoryStream1 = new MemoryStream();
-                                              __GetRessources("template.html").SeekAndCopyTo(_MemoryStream1, 0);
+                                              GetUsersAPIRessource("template.html").SeekAndCopyTo(_MemoryStream1, 0);
                                               var Template = _MemoryStream1.ToArray().ToUTF8String();
 
                                               var _MemoryStream2 = new MemoryStream();
@@ -1283,9 +1283,9 @@ namespace org.GraphDefined.OpenData
                                           HTTPDelegate: async Request => {
 
                                               var _MemoryStream = new MemoryStream();
-                                              __GetRessources("_header.html").SeekAndCopyTo(_MemoryStream, 3);
-                                              __GetRessources("users.index.html").SeekAndCopyTo(_MemoryStream, 3);
-                                              __GetRessources("_footer.html").SeekAndCopyTo(_MemoryStream, 3);
+                                              GetUsersAPIRessource("_header.html").SeekAndCopyTo(_MemoryStream, 3);
+                                              GetUsersAPIRessource("users.index.html").SeekAndCopyTo(_MemoryStream, 3);
+                                              GetUsersAPIRessource("_footer.html").SeekAndCopyTo(_MemoryStream, 3);
 
                                               return new HTTPResponseBuilder(Request) {
                                                   HTTPStatusCode = HTTPStatusCode.OK,
@@ -2109,9 +2109,9 @@ namespace org.GraphDefined.OpenData
                                           HTTPDelegate: async Request => {
 
                                               var _MemoryStream = new MemoryStream();
-                                              __GetRessources("_header.html").SeekAndCopyTo(_MemoryStream, 3);
-                                              __GetRessources("groups.index.html").SeekAndCopyTo(_MemoryStream, 3);
-                                              __GetRessources("_footer.html").SeekAndCopyTo(_MemoryStream, 3);
+                                              GetUsersAPIRessource("_header.html").SeekAndCopyTo(_MemoryStream, 3);
+                                              GetUsersAPIRessource("groups.index.html").SeekAndCopyTo(_MemoryStream, 3);
+                                              GetUsersAPIRessource("_footer.html").SeekAndCopyTo(_MemoryStream, 3);
 
                                               return new HTTPResponseBuilder(Request) {
                                                   HTTPStatusCode = HTTPStatusCode.OK,
@@ -2183,12 +2183,12 @@ namespace org.GraphDefined.OpenData
         #endregion
 
 
-        #region (protected) __GetRessources(Ressource)
+        #region (protected) GetUsersAPIRessource(Ressource)
 
-        protected Stream __GetRessources(String Ressource)
+        protected Stream GetUsersAPIRessource(String Ressource)
         {
 
-            var DataStream = this.GetType().Assembly.GetManifestResourceStream("org.GraphDefined.UserAPI.HTTPRoot" + Ressource);
+            var DataStream = this.GetType().Assembly.GetManifestResourceStream(HTTPRoot + Ressource);
 
             if (DataStream == null)
                 DataStream = RessourcesProvider(Ressource);
