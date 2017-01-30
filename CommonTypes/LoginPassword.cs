@@ -94,6 +94,9 @@ namespace org.GraphDefined.OpenData
 
             #region Initial checks
 
+            if (Password.IsNullOrEmpty())
+                throw new ArgumentNullException(nameof(Password), "The given password must not be null or empty!");
+
             #endregion
 
             this._Login     = Login;

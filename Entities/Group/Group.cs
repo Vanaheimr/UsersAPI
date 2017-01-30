@@ -34,10 +34,12 @@ namespace org.GraphDefined.OpenData
 {
 
     /// <summary>
-    /// An Open Data user group.
+    /// An Open Data group.
     /// </summary>
-    public class UserGroup : AEntity<UserGroup_Id>,
-                             IEquatable<UserGroup>, IComparable<UserGroup>, IComparable
+    public class Group : AEntity<Group_Id>,
+                         IEquatable<Group>,
+                         IComparable<Group>,
+                         IComparable
     {
 
         #region Data
@@ -47,8 +49,8 @@ namespace org.GraphDefined.OpenData
         /// </summary>
         public const UInt16 DefaultGroupStatusHistorySize = 50;
 
-        private readonly ReactiveSet<MiniEdge<User, User2GroupEdges, UserGroup>> _User2GroupEdges;
-        private readonly ReactiveSet<MiniEdge<UserGroup, Group2UserEdges, User>> _Group2UserEdges;
+        private readonly ReactiveSet<MiniEdge<User,      User2GroupEdges, Group>> _User2GroupEdges;
+        private readonly ReactiveSet<MiniEdge<Group, Group2UserEdges, User>>      _Group2UserEdges;
 
         #endregion
 
@@ -155,7 +157,7 @@ namespace org.GraphDefined.OpenData
         /// <param name="Id">The unique identification of the user group.</param>
         /// <param name="Name">The offical (multi-language) name of the user group.</param>
         /// <param name="Description">An optional (multi-language) description of the user group.</param>
-        public UserGroup(UserGroup_Id  Id,
+        public Group(Group_Id  Id,
                          I18NString    Name         = null,
                          I18NString    Description  = null)
 
@@ -175,8 +177,8 @@ namespace org.GraphDefined.OpenData
             this._Name                      = Name        != null ? Name        : new I18NString();
             this._Description               = Description != null ? Description : new I18NString();
 
-            this._User2GroupEdges           = new ReactiveSet<MiniEdge<User, User2GroupEdges, UserGroup>>();
-            this._Group2UserEdges           = new ReactiveSet<MiniEdge<UserGroup, Group2UserEdges, User>>();
+            this._User2GroupEdges           = new ReactiveSet<MiniEdge<User, User2GroupEdges, Group>>();
+            this._Group2UserEdges           = new ReactiveSet<MiniEdge<Group, Group2UserEdges, User>>();
 
             #endregion
 
@@ -194,25 +196,25 @@ namespace org.GraphDefined.OpenData
 
 
 
-        public MiniEdge<User, User2GroupEdges, UserGroup>
+        public MiniEdge<User, User2GroupEdges, Group>
 
             AddIncomingEdge(User            Source,
                             User2GroupEdges EdgeLabel,
                             PrivacyLevel    PrivacyLevel = PrivacyLevel.Private)
 
         {
-            return this._User2GroupEdges.AddAndReturn(new MiniEdge<User, User2GroupEdges, UserGroup>(Source, EdgeLabel, this, PrivacyLevel));
+            return this._User2GroupEdges.AddAndReturn(new MiniEdge<User, User2GroupEdges, Group>(Source, EdgeLabel, this, PrivacyLevel));
         }
 
-        public MiniEdge<User, User2GroupEdges, UserGroup>
+        public MiniEdge<User, User2GroupEdges, Group>
 
-            AddIncomingEdge(MiniEdge<User, User2GroupEdges, UserGroup> Edge)
+            AddIncomingEdge(MiniEdge<User, User2GroupEdges, Group> Edge)
 
         {
             return this._User2GroupEdges.AddAndReturn(Edge);
         }
 
-        public MiniEdge<UserGroup, Group2UserEdges, User>
+        public MiniEdge<Group, Group2UserEdges, User>
 
             AddOutgoingEdge(Group2UserEdges EdgeLabel,
                             User            Target,
@@ -220,7 +222,7 @@ namespace org.GraphDefined.OpenData
 
         {
 
-            return this._Group2UserEdges.AddAndReturn(new MiniEdge<UserGroup, Group2UserEdges, User>(this, EdgeLabel, Target, PrivacyLevel));
+            return this._Group2UserEdges.AddAndReturn(new MiniEdge<Group, Group2UserEdges, User>(this, EdgeLabel, Target, PrivacyLevel));
 
         }
 
@@ -240,7 +242,7 @@ namespace org.GraphDefined.OpenData
                 throw new ArgumentNullException("The given object must not be null!");
 
             // Check if the given object is an user group.
-            var EVSE_Operator = Object as UserGroup;
+            var EVSE_Operator = Object as Group;
             if ((Object) EVSE_Operator == null)
                 throw new ArgumentException("The given object is not an user group!");
 
@@ -256,7 +258,7 @@ namespace org.GraphDefined.OpenData
         /// Compares two instances of this object.
         /// </summary>
         /// <param name="Operator">An user groups object to compare with.</param>
-        public Int32 CompareTo(UserGroup Operator)
+        public Int32 CompareTo(Group Operator)
         {
 
             if ((Object) Operator == null)
@@ -286,7 +288,7 @@ namespace org.GraphDefined.OpenData
                 return false;
 
             // Check if the given object is an user group.
-            var EVSE_Operator = Object as UserGroup;
+            var EVSE_Operator = Object as Group;
             if ((Object) EVSE_Operator == null)
                 return false;
 
@@ -303,7 +305,7 @@ namespace org.GraphDefined.OpenData
         /// </summary>
         /// <param name="Operator">An user groups to compare with.</param>
         /// <returns>True if both match; False otherwise.</returns>
-        public Boolean Equals(UserGroup Operator)
+        public Boolean Equals(Group Operator)
         {
 
             if ((Object) Operator == null)

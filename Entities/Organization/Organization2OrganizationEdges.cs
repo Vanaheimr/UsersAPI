@@ -18,12 +18,9 @@
 namespace org.GraphDefined.OpenData
 {
 
-    public enum User2GroupEdges
+    public enum Organization2OrganizationEdges
     {
-        IsAdmin,
-        join,
-        follows,
-        IsFollowedBy
+        IsSubsidary
     }
 
 }

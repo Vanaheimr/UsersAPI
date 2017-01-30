@@ -99,10 +99,19 @@ namespace org.GraphDefined.OpenData
         /// </summary>
         public  const             String                              DefaultLogfileName             = "UsersAPI.log";
 
-        public const String SignUpContext     = "";
-        public const String SignInOutContext  = "";
-        public const String DefaultCookieName = "OpenDataSocial";
-        public const String HTTPCookieDomain  = "";
+        public  const             String                              SignUpContext                  = "";
+        public  const             String                              SignInOutContext               = "";
+        public  const             String                              DefaultCookieName              = "OpenDataSocial";
+        public  const             String                              HTTPCookieDomain               = "";
+
+        public  const             String                              DefaultUserDBFile              = "UsersAPI_Users.db";
+        public  const             String                              DefaultPasswordFile            = "UsersAPI_Passwords.db";
+        public  const             String                              DefaultGroupDBFile             = "UsersAPI_Groups.db";
+        public  const             String                              DefaultUser2GroupDBFile        = "UsersAPI_User2Group.db";
+
+
+        private static            Regex                               UserDB_RegEx                   = new Regex(@"(\s)+",
+                                                                                                                 RegexOptions.IgnorePatternWhitespace);
 
         #endregion
 
@@ -330,22 +339,8 @@ namespace org.GraphDefined.OpenData
         #endregion
 
 
-        #region Users
+        public Group Admins { get; }
 
-        protected readonly Dictionary<User_Id, User> _Users;
-
-        /// <summary>
-        /// The collection of users.
-        /// </summary>
-        public Dictionary<User_Id, User> Users
-        {
-            get
-            {
-                return _Users;
-            }
-        }
-
-        #endregion
 
         #region LogoImage
 
@@ -401,18 +396,10 @@ namespace org.GraphDefined.OpenData
                                                                 Languages          Language,
                                                                 VerificationToken  VerificationToken);
 
-        private readonly NewUserSignUpEMailCreatorDelegate _NewUserSignUpEMailCreator;
-
         /// <summary>
         /// A delegate for sending a sign-up e-mail to a new user.
         /// </summary>
-        public NewUserSignUpEMailCreatorDelegate NewUserSignUpEMailCreator
-        {
-            get
-            {
-                return _NewUserSignUpEMailCreator;
-            }
-        }
+        public NewUserSignUpEMailCreatorDelegate NewUserSignUpEMailCreator { get; }
 
         #endregion
 
@@ -428,18 +415,10 @@ namespace org.GraphDefined.OpenData
                                                                  EMailAddress  EMail,
                                                                  Languages     Language);
 
-        private readonly NewUserWelcomeEMailCreatorDelegate _NewUserWelcomeEMailCreator;
-
         /// <summary>
         /// A delegate for sending a welcome e-mail to a new user.
         /// </summary>
-        public NewUserWelcomeEMailCreatorDelegate NewUserWelcomeEMailCreator
-        {
-            get
-            {
-                return _NewUserWelcomeEMailCreator;
-            }
-        }
+        public NewUserWelcomeEMailCreatorDelegate NewUserWelcomeEMailCreator { get; }
 
         #endregion
 
@@ -455,18 +434,10 @@ namespace org.GraphDefined.OpenData
                                                                 EMailAddress  EMail,
                                                                 String        Language);
 
-        private readonly ResetPasswordEMailCreatorDelegate _ResetPasswordEMailCreator;
-
         /// <summary>
         /// A delegate for sending a reset password e-mail to a user.
         /// </summary>
-        public ResetPasswordEMailCreatorDelegate ResetPasswordEMailCreator
-        {
-            get
-            {
-                return _ResetPasswordEMailCreator;
-            }
-        }
+        public ResetPasswordEMailCreatorDelegate ResetPasswordEMailCreator { get; }
 
         #endregion
 
@@ -530,41 +501,6 @@ namespace org.GraphDefined.OpenData
             get
             {
                 return _MinPasswordLenght;
-            }
-        }
-
-        #endregion
-
-
-        #region UserGroups
-
-        protected readonly Dictionary<UserGroup_Id, UserGroup> _Groups;
-
-        /// <summary>
-        /// A collection of user groups.
-        /// </summary>
-        public Dictionary<UserGroup_Id, UserGroup> Groups
-        {
-            get
-            {
-                return _Groups;
-            }
-        }
-
-        #endregion
-
-        #region Messages
-
-        protected readonly Dictionary<Message_Id, Message> _Messages;
-
-        /// <summary>
-        /// A collection of message.
-        /// </summary>
-        public Dictionary<Message_Id, Message> Message
-        {
-            get
-            {
-                return _Messages;
             }
         }
 
@@ -799,9 +735,9 @@ namespace org.GraphDefined.OpenData
             this.CookieName                   = CookieName.IsNotNullOrEmpty() ? CookieName : DefaultCookieName;
             this._DefaultLanguage             = DefaultLanguage;
             this._LogoImage                   = LogoImage;
-            this._NewUserSignUpEMailCreator   = NewUserSignUpEMailCreator;
-            this._NewUserWelcomeEMailCreator  = NewUserWelcomeEMailCreator;
-            this._ResetPasswordEMailCreator   = ResetPasswordEMailCreator;
+            this.NewUserSignUpEMailCreator   = NewUserSignUpEMailCreator;
+            this.NewUserWelcomeEMailCreator  = NewUserWelcomeEMailCreator;
+            this.ResetPasswordEMailCreator   = ResetPasswordEMailCreator;
             this._MinUserNameLenght           = MinUserNameLenght;
             this._MinRealmLenght              = MinRealmLenght;
             this._MinPasswordLenght           = MinPasswordLenght;
@@ -809,18 +745,106 @@ namespace org.GraphDefined.OpenData
 
             this.RessourcesProvider           = RessourcesProvider;
 
-            this._Users                       = new Dictionary<User_Id,      User>();
-            this._Groups                      = new Dictionary<UserGroup_Id, UserGroup>();
-            this._Messages                    = new Dictionary<Message_Id,   Message>();
+            this._Users                       = new Dictionary<User_Id,         User>();
+            this._Groups                      = new Dictionary<Group_Id,        Group>();
+            this._Organizations               = new Dictionary<Organization_Id, Organization>();
+            this._Messages                    = new Dictionary<Message_Id,      Message>();
 
-            this._LoginPasswords              = new Dictionary<User_Id,      LoginPassword>();
+            this._LoginPasswords              = new Dictionary<User_Id,         LoginPassword>();
             this._VerificationTokens          = new List<VerificationToken>();
 
             this._DNSClient                   = HTTPServer.DNSClient;
 
+            this.Admins                       = CreateGroup(Group_Id.Parse("Admins"),
+                                                            I18NString.Create(Languages.eng, "Admins"),
+                                                            I18NString.Create(Languages.eng, "All admins of the API."));
+
             #endregion
 
             RegisterURITemplates();
+
+            #region Read UserDB file...
+
+            if (File.Exists(DefaultUserDBFile))
+            {
+
+                File.ReadLines(DefaultUserDBFile).ForEachCounted((line, linenumber) => {
+
+                    try
+                    {
+
+                        var JSONCommand     = JObject.Parse(line);
+                        var JSONParameters  = (JSONCommand.First as JProperty).Value as JObject;
+
+                        switch ((JSONCommand.First as JProperty).Name)
+                        {
+
+                            case "CreateUser":
+
+                                var User = new User(User_Id.           Parse(JSONParameters["login"      ].Value<String>()),
+                                                    SimpleEMailAddress.Parse(JSONParameters["email"      ].Value<String>()),
+                                                                             JSONParameters["name"       ].Value<String>(),
+                                                                             JSONParameters["publickey"  ].Value<String>());
+                                                                             // description);
+
+
+                                _Users.AddAndReturnValue(User.Id, User);
+
+                                break;
+
+                        }
+
+                    }
+                    catch (Exception e)
+                    {
+                        DebugX.Log(@"Could not read UserDB file """ + DefaultUserDBFile + @""" line " + linenumber + ": " + e.Message);
+                    }
+
+                });
+
+            }
+
+            #endregion
+
+            #region Read Password file...
+
+            if (File.Exists(DefaultPasswordFile))
+            {
+
+                File.ReadLines(DefaultPasswordFile).ForEachCounted((line, linenumber) => {
+
+                    try
+                    {
+
+                        var LoginPassword  = line.Split(new Char[] { ':' }, StringSplitOptions.None);
+                        var Login          = User_Id.Parse(LoginPassword[0]);
+
+                        if (!_LoginPasswords.ContainsKey(Login))
+                            _LoginPasswords.Add(Login,
+                                                new LoginPassword(Login,
+                                                                  LoginPassword[1],
+                                                                  LoginPassword[2].IsNotNullOrEmpty()
+                                                                      ? LoginPassword[2]
+                                                                      : null));
+
+                        else
+                            _LoginPasswords[Login] = new LoginPassword(Login,
+                                                                       LoginPassword[1],
+                                                                       LoginPassword[2].IsNotNullOrEmpty()
+                                                                           ? LoginPassword[2]
+                                                                           : null);
+
+                    }
+                    catch (Exception e)
+                    {
+                        DebugX.Log(@"Could not read password file """ + DefaultPasswordFile + @""" line " + linenumber + ": " + e.Message);
+                    }
+
+                });
+
+            }
+
+            #endregion
 
         }
 
@@ -1376,7 +1400,7 @@ namespace org.GraphDefined.OpenData
 
                                               #region The 'login/name' is taken from the URI, not from the JSON!
 
-                                              User_Id _Login = null;
+                                              User_Id _Login;
 
                                               if (!User_Id.TryParse(Request.ParsedURIParameters[0], out _Login))
                                                   return new HTTPResponseBuilder(Request) {
@@ -1555,7 +1579,7 @@ namespace org.GraphDefined.OpenData
 
                                               #endregion
 
-                                              var NewUser = CreateUser(Username:          _Login,
+                                              var NewUser = CreateUser(Login:          _Login,
                                                                        Password:          NewUserData.GetString("password"),
                                                                        EMail:             SimpleEMailAddress.Parse(NewUserData.GetString("email")),
                                                                        GPGPublicKeyRing:  NewUserData.GetString("gpgpublickeyring"));
@@ -1853,7 +1877,7 @@ namespace org.GraphDefined.OpenData
                                                       CacheControl    = "private",
                                                       SetCookie       = CookieName + "=login="    + _LoginPassword.Login.ToString().ToBase64() +
                                                                                   ":username=" + _User.Name.ToBase64() +
-                                                                                (_User.IsAdmin ? ":isAdmin" : "") +
+                                                                                (IsAdmin(_User) ? ":isAdmin" : "") +
                                                                              ":securitytoken=" + SecurityToken +
                                                                                   "; Expires=" + DateTime.Now.Add(_SignInSessionLifetime).ToRfc1123() +
                                                                                    (HTTPCookieDomain.IsNotNullOrEmpty()
@@ -2047,7 +2071,7 @@ namespace org.GraphDefined.OpenData
                                                       CacheControl    = "private",
                                                       SetCookie       = CookieName + "=login="    + _LoginPassword.Login.ToString().ToBase64() +
                                                                                   ":username=" + _User.Name.ToBase64() +
-                                                                                (_User.IsAdmin ? ":isAdmin" : "") +
+                                                                                (IsAdmin(_User) ? ":isAdmin" : "") +
                                                                              ":securitytoken=" + SecurityToken +
                                                                                   "; Expires=" + DateTime.Now.Add(_SignInSessionLifetime).ToRfc1123() +
                                                                                    (HTTPCookieDomain.IsNotNullOrEmpty()
@@ -2147,8 +2171,8 @@ namespace org.GraphDefined.OpenData
             // curl -v -X EXITS -H "Accept: application/json" http://127.0.0.1:2100/groups/OK-Lab%20Jena
             // -------------------------------------------------------------------------------------------
 
-            HTTPServer.ITEM_EXISTS<UserGroup_Id, UserGroup>(UriTemplate: "/groups/{GroupId}",
-                                                             ParseIdDelegate: UserGroup_Id.TryParse,
+            HTTPServer.ITEM_EXISTS<Group_Id, Group>(UriTemplate: "/groups/{GroupId}",
+                                                             ParseIdDelegate: Group_Id.TryParse,
                                                              ParseIdError: Text => "Invalid group identification '" + Text + "'!",
                                                              TryGetItemDelegate: _Groups.TryGetValue,
                                                              ItemFilterDelegate: group => group.IsPublic,
@@ -2166,8 +2190,8 @@ namespace org.GraphDefined.OpenData
             // curl -v -H "Accept: application/json" http://127.0.0.1:2100/groups/OK-Lab%20Jena
             // ----------------------------------------------------------------------------------
 
-            HTTPServer.ITEM_GET<UserGroup_Id, UserGroup>(UriTemplate: "/groups/{GroupId}",
-                                                          ParseIdDelegate: UserGroup_Id.TryParse,
+            HTTPServer.ITEM_GET<Group_Id, Group>(UriTemplate: "/groups/{GroupId}",
+                                                          ParseIdDelegate: Group_Id.TryParse,
                                                           ParseIdError: Text => "Invalid group identification '" + Text + "'!",
                                                           TryGetItemDelegate: _Groups.TryGetValue,
                                                           ItemFilterDelegate: group => group.IsPublic,
@@ -2201,40 +2225,118 @@ namespace org.GraphDefined.OpenData
 
 
 
-        #region CreateUser(Username, Password, Name = null, EMail = null, GPGPublicKeyRing = null, Description = null, AuthenticateUser = false, HideUser = false)
+        #region CreateUser           (Login, EMail, Password, Name = null, GPGPublicKeyRing = null, Description = null, AuthenticateUser = false, HideUser = false)
 
         /// <summary>
         /// Create a new user.
         /// </summary>
-        /// <param name="Username">The unique identification of the user.</param>
+        /// <param name="Login">The unique identification of the user.</param>
+        /// <param name="EMail">The primary e-mail of the user.</param>
         /// <param name="Password">The password of the user.</param>
         /// <param name="Name">The offical (multi-language) name of the user.</param>
-        /// <param name="EMail">The primary e-mail of the user.</param>
         /// <param name="GPGPublicKeyRing">The PGP/GPG public keyring of the user.</param>
         /// <param name="Description">An optional (multi-language) description of the user.</param>
-        /// <param name="AuthenticateUser"></param>
+        /// <param name="IsAuthenticated"></param>
         /// <param name="HideUser"></param>
-        public User CreateUser(User_Id             Username,
+        public User CreateUser(User_Id             Login,
+                               SimpleEMailAddress  EMail,
                                String              Password,
-                               String              Name              = null,
-                               SimpleEMailAddress  EMail             = null,
-                               String              GPGPublicKeyRing  = null,
-                               I18NString          Description       = null,
-                               Boolean             AuthenticateUser  = false,
-                               Boolean             HideUser          = false)
+                               String              Name               = null,
+                               String              GPGPublicKeyRing   = null,
+                               I18NString          Description        = null,
+                               Boolean             IsAuthenticated    = false,
+                               Boolean             HideUser           = false)
         {
 
-            var User = new User(Username, Name, EMail, GPGPublicKeyRing, Description);
+            #region Initial checks
 
-            if (AuthenticateUser)
-                User.IsAuthenticated = true;
+            if (Password.IsNullOrEmpty())
+                throw new ArgumentNullException(nameof(Password), "The given password must not be null or empty!");
 
-            if (HideUser)
-                User.IsHidden        = true;
+            #endregion
 
-            SetPassword(Username, Password != null ? Password : "");
+            lock (_Users)
+            {
 
-            return _Users.AddAndReturnValue(User.Id, User);
+                if (_Users.ContainsKey(Login))
+                    throw new ArgumentException("The given username already exists!", nameof(Login));
+
+
+                var User = new User(Login,
+                                    EMail,
+                                    Name,
+                                    GPGPublicKeyRing,
+                                    Description);
+
+                if (IsAuthenticated)
+                    User.IsAuthenticated  = true;
+
+                if (HideUser)
+                    User.IsHidden         = true;
+
+                File.AppendAllText(DefaultUserDBFile,
+                                   UserDB_RegEx.Replace(new JObject(
+                                                            new JProperty("CreateUser", User.ToJSON())
+                                                        ).ToString(),
+                                                        " ") +
+                                   Environment.NewLine);
+
+                SetPassword(Login, Password);
+
+                return _Users.AddAndReturnValue(User.Id, User);
+
+            }
+
+        }
+
+        #endregion
+
+        #region CreateUserIfNotExists(Login, EMail, Password, Name = null, GPGPublicKeyRing = null, Description = null, AuthenticateUser = false, HideUser = false)
+
+        /// <summary>
+        /// Create a new user.
+        /// </summary>
+        /// <param name="Login">The unique identification of the user.</param>
+        /// <param name="EMail">The primary e-mail of the user.</param>
+        /// <param name="Password">The password of the user.</param>
+        /// <param name="Name">The offical (multi-language) name of the user.</param>
+        /// <param name="GPGPublicKeyRing">The PGP/GPG public keyring of the user.</param>
+        /// <param name="Description">An optional (multi-language) description of the user.</param>
+        /// <param name="IsAuthenticated"></param>
+        /// <param name="HideUser"></param>
+        public User CreateUserIfNotExists(User_Id             Login,
+                                          SimpleEMailAddress  EMail,
+                                          String              Password,
+                                          String              Name               = null,
+                                          String              GPGPublicKeyRing   = null,
+                                          I18NString          Description        = null,
+                                          Boolean             IsAuthenticated    = false,
+                                          Boolean             HideUser           = false)
+        {
+
+            #region Initial checks
+
+            if (Password.IsNullOrEmpty())
+                throw new ArgumentNullException(nameof(Password), "The given password must not be null or empty!");
+
+            #endregion
+
+            lock (_Users)
+            {
+
+                if (_Users.ContainsKey(Login))
+                    return _Users[Login];
+
+                return CreateUser(Login,
+                                  EMail,
+                                  Password,
+                                  Name,
+                                  GPGPublicKeyRing,
+                                  Description,
+                                  IsAuthenticated,
+                                  HideUser);
+
+            }
 
         }
 
@@ -2242,12 +2344,28 @@ namespace org.GraphDefined.OpenData
 
         #region SetPassword(Login, Password, Realm = null)
 
-        public void SetPassword(User_Id Login,
-                                String  Password,
-                                String  Realm  = null)
+        public void SetPassword(User_Id  Login,
+                                String   Password,
+                                String   Realm  = null)
         {
 
-            _LoginPasswords.Add(Login, new LoginPassword(Login, Password, Realm = null));
+            lock (_Users)
+            {
+
+                if (!_LoginPasswords.ContainsKey(Login))
+                    _LoginPasswords.Add(Login, new LoginPassword(Login, Password, Realm));
+                else
+                    _LoginPasswords[Login]   = new LoginPassword(Login, Password, Realm);
+
+                File.AppendAllText(DefaultPasswordFile,
+                                   String.Concat(Login,
+                                                 ":",
+                                                 Password,
+                                                 ":",
+                                                 Realm,
+                                                 Environment.NewLine));
+
+            }
 
         }
 
@@ -2256,26 +2374,134 @@ namespace org.GraphDefined.OpenData
                                 String        Realm  = null)
         {
 
-            _LoginPasswords.Add(Login, new LoginPassword(Login, Password, Realm = null));
+            lock (_Users)
+            {
+
+                if (!_LoginPasswords.ContainsKey(Login))
+                    _LoginPasswords.Add(Login, new LoginPassword(Login, Password, Realm));
+                else
+                    _LoginPasswords[Login]   = new LoginPassword(Login, Password, Realm);
+
+                File.AppendAllText(DefaultPasswordFile,
+                   String.Concat(Login,
+                                 ":",
+                                 Password,
+                                 ":",
+                                 Realm,
+                                 Environment.NewLine));
+
+            }
 
         }
 
         #endregion
 
+        #region Users
+
+        protected readonly Dictionary<User_Id, User> _Users;
+
+        public IEnumerable<User> Users
+            => _Users.Values;
+
+        #endregion
+
+
         #region CreateGroup(Id, Name = null, Description = null)
 
-        public UserGroup CreateGroup(UserGroup_Id  Id,
-                                     I18NString    Name         = null,
-                                     I18NString    Description  = null)
+        public Group CreateGroup(Group_Id    Id,
+                                 I18NString  Name         = null,
+                                 I18NString  Description  = null)
         {
 
-            var Group = new UserGroup(Id, Name, Description);
+            var Group = new Group(Id,
+                                  Name,
+                                  Description);
 
             return _Groups.AddAndReturnValue(Group.Id, Group);
 
         }
 
         #endregion
+
+        #region Groups
+
+        protected readonly Dictionary<Group_Id, Group> _Groups;
+
+        public IEnumerable<Group> Groups
+            => _Groups.Values;
+
+        #endregion
+
+        #region AddToGroup(User, Edge, Group, Privacy = Public)
+
+        public Boolean AddToGroup(User             User,
+                                  User2GroupEdges  Edge,
+                                  Group            Group,
+                                  PrivacyLevel     Privacy = PrivacyLevel.Public)
+        {
+
+            User. AddOutgoingEdge(Edge, Group, Privacy);
+            Group.AddIncomingEdge(User, Edge,  Privacy);
+
+            return true;
+
+        }
+
+        #endregion
+
+        #region IsAdmin(User)
+
+        public Boolean IsAdmin(User User)
+
+            => User.Groups(User2GroupEdges.IsAdmin).
+                    Contains(Admins);
+
+        #endregion
+
+
+        #region CreateOrganization(Id, Name = null, Description = null)
+
+        public Organization CreateOrganization(Organization_Id  Id,
+                                               I18NString       Name         = null,
+                                               I18NString       Description  = null)
+        {
+
+            var Organization = new Organization(Id,
+                                                Name,
+                                                Description);
+
+            return _Organizations.AddAndReturnValue(Organization.Id, Organization);
+
+        }
+
+        #endregion
+
+        #region Organizations
+
+        protected readonly Dictionary<Organization_Id, Organization> _Organizations;
+
+        public IEnumerable<Organization> Organizations
+            => _Organizations.Values;
+
+        #endregion
+
+        #region AddToGroup(User, Edge, Organization, Privacy = Public)
+
+        public Boolean AddToOrganization(User                    User,
+                                         User2OrganizationEdges  Edge,
+                                         Organization            Organization,
+                                         PrivacyLevel            Privacy = PrivacyLevel.Public)
+        {
+
+            User.        AddOutgoingEdge(Edge, Organization, Privacy);
+            Organization.AddIncomingEdge(User, Edge,         Privacy);
+
+            return true;
+
+        }
+
+        #endregion
+
 
         #region CreateMessage(Id, Headline = null, Text = null)
 
@@ -2289,6 +2515,18 @@ namespace org.GraphDefined.OpenData
             return _Messages.AddAndReturnValue(Message.Id, Message);
 
         }
+
+        #endregion
+
+        #region Messages
+
+        protected readonly Dictionary<Message_Id, Message> _Messages;
+
+        /// <summary>
+        /// A collection of message.
+        /// </summary>
+        public IEnumerable<Message> Messages
+            => _Messages.Values;
 
         #endregion
 

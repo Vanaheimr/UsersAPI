@@ -18,7 +18,6 @@
 #region Usings
 
 using System;
-using System.Text.RegularExpressions;
 
 using org.GraphDefined.Vanaheimr.Illias;
 
@@ -28,91 +27,124 @@ namespace org.GraphDefined.OpenData
 {
 
     /// <summary>
-    /// The unique identification of an user group.
+    /// The unique identification of a group.
     /// </summary>
-    public class UserGroup_Id : IId,
-                                IEquatable<UserGroup_Id>,
-                                IComparable<UserGroup_Id>
+    public struct Group_Id : IId<Group_Id>
 
     {
 
         #region Data
 
-        //ToDo: Replace with better randomness!
-        private static readonly Random _Random = new Random(DateTime.Now.Millisecond);
-
         /// <summary>
         /// The internal identification.
         /// </summary>
-        protected readonly String _Id;
+        private readonly String InternalId;
+
+        //ToDo: Replace with better randomness!
+        private static readonly Random _Random = new Random(DateTime.Now.Millisecond);
 
         #endregion
 
         #region Properties
 
-        #region Length
-
         /// <summary>
-        /// Returns the length of the identificator.
+        /// The length of the group identification.
         /// </summary>
         public UInt64 Length
-        {
-            get
-            {
-                return (UInt64) (_Id.Length);
-            }
-        }
-
-        #endregion
+            => (UInt64) InternalId.Length;
 
         #endregion
 
         #region Constructor(s)
 
         /// <summary>
-        /// Create a new user group identification based on the given string.
+        /// Create a new group identification based on the given string.
         /// </summary>
-        /// <param name="String">The string representation of the user group identification.</param>
-        private UserGroup_Id(String String)
+        /// <param name="String">The string representation of the group identification.</param>
+        private Group_Id(String String)
         {
-            _Id = String.Trim();
+            InternalId = String;
         }
 
         #endregion
 
 
-        #region Parse(Text)
+        #region (static) Parse(Text)
 
         /// <summary>
-        /// Parse the given string as an Electric Vehicle Charging Group Identification (EVCG Id)
+        /// Parse the given string as a group identification.
         /// </summary>
-        /// <param name="Text">A text representation of an Electric Vehicle Charging Group identification.</param>
-        public static UserGroup_Id Parse(String Text)
+        /// <param name="Text">A text representation of a group identification.</param>
+        public static Group_Id Parse(String Text)
         {
-            return new UserGroup_Id(Text);
+
+            #region Initial checks
+
+            if (Text != null)
+                Text = Text.Trim();
+
+            if (Text.IsNullOrEmpty())
+                throw new ArgumentNullException(nameof(Text), "The given text representation of a group identification must not be null or empty!");
+
+            #endregion
+
+            return new Group_Id(Text);
+
         }
 
         #endregion
 
-        #region TryParse(Text, out GroupId)
+        #region (static) TryParse(Text)
 
         /// <summary>
-        /// Parse the given string as an Electric Vehicle Charging Group Identification (EVCG Id)
+        /// Try to parse the given string as a group identification.
         /// </summary>
-        /// <param name="Text">A text representation of an Electric Vehicle Charging Group identification.</param>
-        /// <param name="GroupId">The parsed Electric Vehicle Charging Group identification.</param>
-        public static Boolean TryParse(String Text, out UserGroup_Id GroupId)
+        /// <param name="Text">A text representation of a group identification.</param>
+        public static Group_Id? TryParse(String Text)
         {
+
+            Group_Id _GroupId;
+
+            if (TryParse(Text, out _GroupId))
+                return _GroupId;
+
+            return new Group_Id?();
+
+        }
+
+        #endregion
+
+        #region (static) TryParse(Text, out GroupId)
+
+        /// <summary>
+        /// Try to parse the given string as a group identification.
+        /// </summary>
+        /// <param name="Text">A text representation of a group identification.</param>
+        /// <param name="GroupId">The parsed group identification.</param>
+        public static Boolean TryParse(String Text, out Group_Id GroupId)
+        {
+
+            #region Initial checks
+
+            if (Text != null)
+                Text = Text.Trim();
+
+            if (Text.IsNullOrEmpty())
+                throw new ArgumentNullException(nameof(Text), "The given text representation of a group identification must not be null or empty!");
+
+            #endregion
+
             try
             {
-                GroupId = new UserGroup_Id(Text);
+                GroupId = new Group_Id(Text);
                 return true;
             }
             catch (Exception)
             {
-                GroupId = null;
+                GroupId = default(Group_Id);
                 return false;
             }
+
         }
 
         #endregion
@@ -120,17 +152,11 @@ namespace org.GraphDefined.OpenData
         #region Clone
 
         /// <summary>
-        /// Clone an Group_Id.
+        /// Clone a group identification.
         /// </summary>
-        public UserGroup_Id Clone
-        {
-            get
-            {
 
-                return new UserGroup_Id(new String(_Id.ToCharArray()));
-
-            }
-        }
+        public Group_Id Clone
+            => new Group_Id(new String(InternalId.ToCharArray()));
 
         #endregion
 
@@ -142,10 +168,10 @@ namespace org.GraphDefined.OpenData
         /// <summary>
         /// Compares two instances of this object.
         /// </summary>
-        /// <param name="Group_Id1">A Group_Id.</param>
-        /// <param name="Group_Id2">Another Group_Id.</param>
+        /// <param name="Group_Id1">A group identification.</param>
+        /// <param name="Group_Id2">Another group identification.</param>
         /// <returns>true|false</returns>
-        public static Boolean operator == (UserGroup_Id Group_Id1, UserGroup_Id Group_Id2)
+        public static Boolean operator == (Group_Id Group_Id1, Group_Id Group_Id2)
         {
 
             // If both are null, or both are same instance, return true.
@@ -167,13 +193,11 @@ namespace org.GraphDefined.OpenData
         /// <summary>
         /// Compares two instances of this object.
         /// </summary>
-        /// <param name="Group_Id1">A Group_Id.</param>
-        /// <param name="Group_Id2">Another Group_Id.</param>
+        /// <param name="Group_Id1">A group identification.</param>
+        /// <param name="Group_Id2">Another group identification.</param>
         /// <returns>true|false</returns>
-        public static Boolean operator != (UserGroup_Id Group_Id1, UserGroup_Id Group_Id2)
-        {
-            return !(Group_Id1 == Group_Id2);
-        }
+        public static Boolean operator != (Group_Id Group_Id1, Group_Id Group_Id2)
+            => !(Group_Id1 == Group_Id2);
 
         #endregion
 
@@ -182,10 +206,10 @@ namespace org.GraphDefined.OpenData
         /// <summary>
         /// Compares two instances of this object.
         /// </summary>
-        /// <param name="Group_Id1">A Group_Id.</param>
-        /// <param name="Group_Id2">Another Group_Id.</param>
+        /// <param name="Group_Id1">A group identification.</param>
+        /// <param name="Group_Id2">Another group identification.</param>
         /// <returns>true|false</returns>
-        public static Boolean operator < (UserGroup_Id Group_Id1, UserGroup_Id Group_Id2)
+        public static Boolean operator < (Group_Id Group_Id1, Group_Id Group_Id2)
         {
 
             if ((Object) Group_Id1 == null)
@@ -202,13 +226,11 @@ namespace org.GraphDefined.OpenData
         /// <summary>
         /// Compares two instances of this object.
         /// </summary>
-        /// <param name="Group_Id1">A Group_Id.</param>
-        /// <param name="Group_Id2">Another Group_Id.</param>
+        /// <param name="Group_Id1">A group identification.</param>
+        /// <param name="Group_Id2">Another group identification.</param>
         /// <returns>true|false</returns>
-        public static Boolean operator <= (UserGroup_Id Group_Id1, UserGroup_Id Group_Id2)
-        {
-            return !(Group_Id1 > Group_Id2);
-        }
+        public static Boolean operator <= (Group_Id Group_Id1, Group_Id Group_Id2)
+            => !(Group_Id1 > Group_Id2);
 
         #endregion
 
@@ -217,10 +239,10 @@ namespace org.GraphDefined.OpenData
         /// <summary>
         /// Compares two instances of this object.
         /// </summary>
-        /// <param name="Group_Id1">A Group_Id.</param>
-        /// <param name="Group_Id2">Another Group_Id.</param>
+        /// <param name="Group_Id1">A group identification.</param>
+        /// <param name="Group_Id2">Another group identification.</param>
         /// <returns>true|false</returns>
-        public static Boolean operator > (UserGroup_Id Group_Id1, UserGroup_Id Group_Id2)
+        public static Boolean operator > (Group_Id Group_Id1, Group_Id Group_Id2)
         {
 
             if ((Object) Group_Id1 == null)
@@ -237,19 +259,17 @@ namespace org.GraphDefined.OpenData
         /// <summary>
         /// Compares two instances of this object.
         /// </summary>
-        /// <param name="Group_Id1">A Group_Id.</param>
-        /// <param name="Group_Id2">Another Group_Id.</param>
+        /// <param name="Group_Id1">A group identification.</param>
+        /// <param name="Group_Id2">Another group identification.</param>
         /// <returns>true|false</returns>
-        public static Boolean operator >= (UserGroup_Id Group_Id1, UserGroup_Id Group_Id2)
-        {
-            return !(Group_Id1 < Group_Id2);
-        }
+        public static Boolean operator >= (Group_Id Group_Id1, Group_Id Group_Id2)
+            => !(Group_Id1 < Group_Id2);
 
         #endregion
 
         #endregion
 
-        #region IComparable<Group_Id> Members
+        #region IComparable<GroupId> Members
 
         #region CompareTo(Object)
 
@@ -261,32 +281,31 @@ namespace org.GraphDefined.OpenData
         {
 
             if (Object == null)
-                throw new ArgumentNullException("The given object must not be null!");
+                throw new ArgumentNullException(nameof(Object), "The given object must not be null!");
 
-            // Check if the given object is an Group_Id.
-            var Group_Id = Object as UserGroup_Id;
-            if ((Object) Group_Id == null)
-                throw new ArgumentException("The given object is not a Group_Id!");
+            if (!(Object is Group_Id))
+                throw new ArgumentException("The given object is not a group identification!",
+                                            nameof(Object));
 
-            return CompareTo(Group_Id);
+            return CompareTo((Group_Id) Object);
 
         }
 
         #endregion
 
-        #region CompareTo(Group_Id)
+        #region CompareTo(GroupId)
 
         /// <summary>
         /// Compares two instances of this object.
         /// </summary>
-        /// <param name="Group_Id">An object to compare with.</param>
-        public Int32 CompareTo(UserGroup_Id Group_Id)
+        /// <param name="GroupId">An object to compare with.</param>
+        public Int32 CompareTo(Group_Id GroupId)
         {
 
-            if ((Object) Group_Id == null)
-                throw new ArgumentNullException("The given Group_Id must not be null!");
+            if ((Object) GroupId == null)
+                throw new ArgumentNullException(nameof(GroupId),  "The given group identification must not be null!");
 
-            return this._Id.CompareTo(Group_Id._Id);
+            return String.Compare(InternalId, GroupId.InternalId, StringComparison.Ordinal);
 
         }
 
@@ -294,7 +313,7 @@ namespace org.GraphDefined.OpenData
 
         #endregion
 
-        #region IEquatable<Group_Id> Members
+        #region IEquatable<GroupId> Members
 
         #region Equals(Object)
 
@@ -309,31 +328,29 @@ namespace org.GraphDefined.OpenData
             if (Object == null)
                 return false;
 
-            // Check if the given object is an Group_Id.
-            var Group_Id = Object as UserGroup_Id;
-            if ((Object) Group_Id == null)
+            if (!(Object is Group_Id))
                 return false;
 
-            return this.Equals(Group_Id);
+            return Equals((Group_Id) Object);
 
         }
 
         #endregion
 
-        #region Equals(Group_Id)
+        #region Equals(GroupId)
 
         /// <summary>
-        /// Compares two Group_Ids for equality.
+        /// Compares two group identifications for equality.
         /// </summary>
-        /// <param name="GroupId">A Group_Id to compare with.</param>
+        /// <param name="GroupId">An group identification to compare with.</param>
         /// <returns>True if both match; False otherwise.</returns>
-        public Boolean Equals(UserGroup_Id GroupId)
+        public Boolean Equals(Group_Id GroupId)
         {
 
             if ((Object) GroupId == null)
                 return false;
 
-            return _Id.Equals(GroupId._Id);
+            return InternalId.Equals(GroupId.InternalId);
 
         }
 
@@ -348,9 +365,7 @@ namespace org.GraphDefined.OpenData
         /// </summary>
         /// <returns>The HashCode of this object.</returns>
         public override Int32 GetHashCode()
-        {
-            return _Id.GetHashCode();
-        }
+            => InternalId.GetHashCode();
 
         #endregion
 
@@ -360,9 +375,7 @@ namespace org.GraphDefined.OpenData
         /// Return a string represtentation of this object.
         /// </summary>
         public override String ToString()
-        {
-            return _Id;
-        }
+            => InternalId;
 
         #endregion
 

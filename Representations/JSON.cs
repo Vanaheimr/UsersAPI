@@ -109,7 +109,7 @@ namespace org.GraphDefined.OpenData
 
         #region ToJSON(Group)
 
-        private static JObject AsJSON(this UserGroup Group)
+        private static JObject AsJSON(this Group Group)
         {
 
             return new JObject(new JProperty("@id",          Group.Id.ToString()),
@@ -124,7 +124,7 @@ namespace org.GraphDefined.OpenData
 
         }
 
-        public static JObject ToJSON(this UserGroup Group)
+        public static JObject ToJSON(this Group Group)
         {
 
             return new JObject(new JProperty("@context",  "http://api.opendata.social/context/group"),
@@ -136,7 +136,7 @@ namespace org.GraphDefined.OpenData
 
         #region ToJSON(Groups)
 
-        public static JObject ToJSON(this IEnumerable<UserGroup> Groups)
+        public static JObject ToJSON(this IEnumerable<Group> Groups)
         {
 
             return new JObject(new JProperty("@context",  "http://api.opendata.social/context/groups"),

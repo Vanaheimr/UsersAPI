@@ -293,10 +293,11 @@ namespace org.GraphDefined.OpenData
 
         }
 
-        public Int32 CompareTo(TId other)
-        {
-            return _Id.CompareTo(other);
-        }
+        public Int32 CompareTo(TId OtherId)
+            => _Id.CompareTo(OtherId);
+
+        public Boolean Equals(TId OtherId)
+            => _Id.Equals(OtherId);
 
     }
 

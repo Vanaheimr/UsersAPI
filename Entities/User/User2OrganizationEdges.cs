@@ -18,7 +18,7 @@
 namespace org.GraphDefined.OpenData
 {
 
-    public enum User2GroupEdges
+    public enum User2OrganizationEdges
     {
         IsAdmin,
         join,

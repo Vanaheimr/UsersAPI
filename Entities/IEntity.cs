@@ -33,7 +33,7 @@ namespace org.GraphDefined.OpenData
 
     }
 
-    public interface IEntity<TId> : IEntity, IComparable<TId>
+    public interface IEntity<TId> : IEntity, IComparable<TId>, IEquatable<TId>
         where TId : IId
 
     {

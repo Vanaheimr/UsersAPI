@@ -36,4 +36,7 @@ namespace org.GraphDefined.OpenData
 
     }
 
+    public interface IId<TId> : IId, IComparable<TId>, IEquatable<TId>
+    { }
+
 }

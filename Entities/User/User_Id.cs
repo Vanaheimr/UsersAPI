@@ -18,7 +18,6 @@
 #region Usings
 
 using System;
-using System.Text.RegularExpressions;
 
 using org.GraphDefined.Vanaheimr.Illias;
 
@@ -30,40 +29,29 @@ namespace org.GraphDefined.OpenData
     /// <summary>
     /// The unique identification of an user.
     /// </summary>
-    public class User_Id : IId,
-                           IEquatable<User_Id>,
-                           IComparable<User_Id>
+    public struct User_Id : IId<User_Id>
 
     {
 
         #region Data
 
-        //ToDo: Replace with better randomness!
-        private static readonly Random _Random = new Random(DateTime.Now.Millisecond);
-
         /// <summary>
         /// The internal identification.
         /// </summary>
-        protected readonly String _Id;
+        private readonly String InternalId;
+
+        //ToDo: Replace with better randomness!
+        private static readonly Random _Random = new Random(DateTime.Now.Millisecond);
 
         #endregion
 
         #region Properties
 
-        #region Length
-
         /// <summary>
-        /// Returns the length of the identificator.
+        /// The length of the user identification.
         /// </summary>
         public UInt64 Length
-        {
-            get
-            {
-                return (UInt64) (_Id.Length);
-            }
-        }
-
-        #endregion
+            => (UInt64) InternalId.Length;
 
         #endregion
 
@@ -75,34 +63,77 @@ namespace org.GraphDefined.OpenData
         /// <param name="String">The string representation of the user identification.</param>
         private User_Id(String String)
         {
-            _Id = String.Trim();
+            InternalId = String;
         }
 
         #endregion
 
 
-        #region Parse(Text)
+        #region (static) Parse(Text)
 
         /// <summary>
-        /// Parse the given string as an Electric Vehicle Charging Group Identification (EVCG Id)
+        /// Parse the given string as an user identification.
         /// </summary>
-        /// <param name="Text">A text representation of an Electric Vehicle Charging Group identification.</param>
+        /// <param name="Text">A text representation of an user identification.</param>
         public static User_Id Parse(String Text)
         {
+
+            #region Initial checks
+
+            if (Text != null)
+                Text = Text.Trim();
+
+            if (Text.IsNullOrEmpty())
+                throw new ArgumentNullException(nameof(Text), "The given text representation of an user identification must not be null or empty!");
+
+            #endregion
+
             return new User_Id(Text);
+
         }
 
         #endregion
 
-        #region TryParse(Text, out UserId)
+        #region (static) TryParse(Text)
 
         /// <summary>
-        /// Parse the given string as an Electric Vehicle Charging Group Identification (EVCG Id)
+        /// Try to parse the given string as an user identification.
         /// </summary>
-        /// <param name="Text">A text representation of an Electric Vehicle Charging Group identification.</param>
-        /// <param name="UserId">The parsed Electric Vehicle Charging Group identification.</param>
+        /// <param name="Text">A text representation of an user identification.</param>
+        public static User_Id? TryParse(String Text)
+        {
+
+            User_Id _UserId;
+
+            if (TryParse(Text, out _UserId))
+                return _UserId;
+
+            return new User_Id?();
+
+        }
+
+        #endregion
+
+        #region (static) TryParse(Text, out UserId)
+
+        /// <summary>
+        /// Try to parse the given string as an user identification.
+        /// </summary>
+        /// <param name="Text">A text representation of an user identification.</param>
+        /// <param name="UserId">The parsed user identification.</param>
         public static Boolean TryParse(String Text, out User_Id UserId)
         {
+
+            #region Initial checks
+
+            if (Text != null)
+                Text = Text.Trim();
+
+            if (Text.IsNullOrEmpty())
+                throw new ArgumentNullException(nameof(Text), "The given text representation of an user identification must not be null or empty!");
+
+            #endregion
+
             try
             {
                 UserId = new User_Id(Text);
@@ -110,9 +141,10 @@ namespace org.GraphDefined.OpenData
             }
             catch (Exception)
             {
-                UserId = null;
+                UserId = default(User_Id);
                 return false;
             }
+
         }
 
         #endregion
@@ -120,17 +152,11 @@ namespace org.GraphDefined.OpenData
         #region Clone
 
         /// <summary>
-        /// Clone an User_Id.
+        /// Clone an user identification.
         /// </summary>
+
         public User_Id Clone
-        {
-            get
-            {
-
-                return new User_Id(new String(_Id.ToCharArray()));
-
-            }
-        }
+            => new User_Id(new String(InternalId.ToCharArray()));
 
         #endregion
 
@@ -142,8 +168,8 @@ namespace org.GraphDefined.OpenData
         /// <summary>
         /// Compares two instances of this object.
         /// </summary>
-        /// <param name="User_Id1">A User_Id.</param>
-        /// <param name="User_Id2">Another User_Id.</param>
+        /// <param name="User_Id1">A user identification.</param>
+        /// <param name="User_Id2">Another user identification.</param>
         /// <returns>true|false</returns>
         public static Boolean operator == (User_Id User_Id1, User_Id User_Id2)
         {
@@ -167,13 +193,11 @@ namespace org.GraphDefined.OpenData
         /// <summary>
         /// Compares two instances of this object.
         /// </summary>
-        /// <param name="User_Id1">A User_Id.</param>
-        /// <param name="User_Id2">Another User_Id.</param>
+        /// <param name="User_Id1">A user identification.</param>
+        /// <param name="User_Id2">Another user identification.</param>
         /// <returns>true|false</returns>
         public static Boolean operator != (User_Id User_Id1, User_Id User_Id2)
-        {
-            return !(User_Id1 == User_Id2);
-        }
+            => !(User_Id1 == User_Id2);
 
         #endregion
 
@@ -182,8 +206,8 @@ namespace org.GraphDefined.OpenData
         /// <summary>
         /// Compares two instances of this object.
         /// </summary>
-        /// <param name="User_Id1">A User_Id.</param>
-        /// <param name="User_Id2">Another User_Id.</param>
+        /// <param name="User_Id1">A user identification.</param>
+        /// <param name="User_Id2">Another user identification.</param>
         /// <returns>true|false</returns>
         public static Boolean operator < (User_Id User_Id1, User_Id User_Id2)
         {
@@ -202,13 +226,11 @@ namespace org.GraphDefined.OpenData
         /// <summary>
         /// Compares two instances of this object.
         /// </summary>
-        /// <param name="User_Id1">A User_Id.</param>
-        /// <param name="User_Id2">Another User_Id.</param>
+        /// <param name="User_Id1">A user identification.</param>
+        /// <param name="User_Id2">Another user identification.</param>
         /// <returns>true|false</returns>
         public static Boolean operator <= (User_Id User_Id1, User_Id User_Id2)
-        {
-            return !(User_Id1 > User_Id2);
-        }
+            => !(User_Id1 > User_Id2);
 
         #endregion
 
@@ -217,8 +239,8 @@ namespace org.GraphDefined.OpenData
         /// <summary>
         /// Compares two instances of this object.
         /// </summary>
-        /// <param name="User_Id1">A User_Id.</param>
-        /// <param name="User_Id2">Another User_Id.</param>
+        /// <param name="User_Id1">A user identification.</param>
+        /// <param name="User_Id2">Another user identification.</param>
         /// <returns>true|false</returns>
         public static Boolean operator > (User_Id User_Id1, User_Id User_Id2)
         {
@@ -237,19 +259,17 @@ namespace org.GraphDefined.OpenData
         /// <summary>
         /// Compares two instances of this object.
         /// </summary>
-        /// <param name="User_Id1">A User_Id.</param>
-        /// <param name="User_Id2">Another User_Id.</param>
+        /// <param name="User_Id1">A user identification.</param>
+        /// <param name="User_Id2">Another user identification.</param>
         /// <returns>true|false</returns>
         public static Boolean operator >= (User_Id User_Id1, User_Id User_Id2)
-        {
-            return !(User_Id1 < User_Id2);
-        }
+            => !(User_Id1 < User_Id2);
 
         #endregion
 
         #endregion
 
-        #region IComparable<User_Id> Members
+        #region IComparable<UserId> Members
 
         #region CompareTo(Object)
 
@@ -261,32 +281,31 @@ namespace org.GraphDefined.OpenData
         {
 
             if (Object == null)
-                throw new ArgumentNullException("The given object must not be null!");
+                throw new ArgumentNullException(nameof(Object), "The given object must not be null!");
 
-            // Check if the given object is an User_Id.
-            var User_Id = Object as User_Id;
-            if ((Object) User_Id == null)
-                throw new ArgumentException("The given object is not a User_Id!");
+            if (!(Object is User_Id))
+                throw new ArgumentException("The given object is not an user identification!",
+                                            nameof(Object));
 
-            return CompareTo(User_Id);
+            return CompareTo((User_Id) Object);
 
         }
 
         #endregion
 
-        #region CompareTo(User_Id)
+        #region CompareTo(UserId)
 
         /// <summary>
         /// Compares two instances of this object.
         /// </summary>
-        /// <param name="User_Id">An object to compare with.</param>
-        public Int32 CompareTo(User_Id User_Id)
+        /// <param name="UserId">An object to compare with.</param>
+        public Int32 CompareTo(User_Id UserId)
         {
 
-            if ((Object) User_Id == null)
-                throw new ArgumentNullException("The given User_Id must not be null!");
+            if ((Object) UserId == null)
+                throw new ArgumentNullException(nameof(UserId),  "The given user identification must not be null!");
 
-            return this._Id.CompareTo(User_Id._Id);
+            return String.Compare(InternalId, UserId.InternalId, StringComparison.Ordinal);
 
         }
 
@@ -294,7 +313,7 @@ namespace org.GraphDefined.OpenData
 
         #endregion
 
-        #region IEquatable<User_Id> Members
+        #region IEquatable<UserId> Members
 
         #region Equals(Object)
 
@@ -309,23 +328,21 @@ namespace org.GraphDefined.OpenData
             if (Object == null)
                 return false;
 
-            // Check if the given object is an User_Id.
-            var User_Id = Object as User_Id;
-            if ((Object) User_Id == null)
+            if (!(Object is User_Id))
                 return false;
 
-            return this.Equals(User_Id);
+            return Equals((User_Id) Object);
 
         }
 
         #endregion
 
-        #region Equals(User_Id)
+        #region Equals(UserId)
 
         /// <summary>
-        /// Compares two User_Ids for equality.
+        /// Compares two user identifications for equality.
         /// </summary>
-        /// <param name="UserId">A User_Id to compare with.</param>
+        /// <param name="UserId">An user identification to compare with.</param>
         /// <returns>True if both match; False otherwise.</returns>
         public Boolean Equals(User_Id UserId)
         {
@@ -333,7 +350,7 @@ namespace org.GraphDefined.OpenData
             if ((Object) UserId == null)
                 return false;
 
-            return _Id.Equals(UserId._Id);
+            return InternalId.Equals(UserId.InternalId);
 
         }
 
@@ -348,9 +365,7 @@ namespace org.GraphDefined.OpenData
         /// </summary>
         /// <returns>The HashCode of this object.</returns>
         public override Int32 GetHashCode()
-        {
-            return _Id.GetHashCode();
-        }
+            => InternalId.GetHashCode();
 
         #endregion
 
@@ -360,9 +375,7 @@ namespace org.GraphDefined.OpenData
         /// Return a string represtentation of this object.
         /// </summary>
         public override String ToString()
-        {
-            return _Id;
-        }
+            => InternalId;
 
         #endregion
 

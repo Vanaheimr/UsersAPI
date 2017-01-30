@@ -18,18 +18,15 @@
 #region Usings
 
 using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Runtime.CompilerServices;
 
 #endregion
 
 namespace org.GraphDefined.OpenData
 {
 
-    public struct MiniEdge<TSource, TEdge, TTarget> : IEquatable <MiniEdge<TSource, TEdge, TTarget>>,
-                                                      IComparable<MiniEdge<TSource, TEdge, TTarget>>,
-                                                      IComparable
+    public class MiniEdge<TSource, TEdge, TTarget> : IEquatable <MiniEdge<TSource, TEdge, TTarget>>,
+                                                     IComparable<MiniEdge<TSource, TEdge, TTarget>>,
+                                                     IComparable
 
         where TSource : IEntity
         where TEdge   : IComparable
@@ -148,7 +145,10 @@ namespace org.GraphDefined.OpenData
             #region Initial checks
 
             if (Source == null)
-                throw new ArgumentNullException("Id", "The given Id must not be null!");
+                throw new ArgumentNullException(nameof(Source), "The given source must not be null!");
+
+            if (Target == null)
+                throw new ArgumentNullException(nameof(Target), "The given target must not be null!");
 
             #endregion
 
@@ -156,7 +156,7 @@ namespace org.GraphDefined.OpenData
             this._Target        = Target;
             this._EdgeLabel     = EdgeLabel;
             this._PrivacyLevel  = PrivacyLevel;
-            this._Created       = Created != null ? Created.Value : DateTime.Now;
+            this._Created       = Created ?? DateTime.Now;
          //   this._UserDefined   = new Dictionary<String, Object>();
 
         }
@@ -178,7 +178,6 @@ namespace org.GraphDefined.OpenData
             if (Object == null)
                 throw new ArgumentNullException("The given object must not be null!");
 
-            // Check if the given object is a miniedge.
             if (!(Object is MiniEdge<TSource, TEdge, TTarget>))
                 throw new ArgumentException("The given object is not a miniedge!");
 
@@ -200,9 +199,9 @@ namespace org.GraphDefined.OpenData
             if ((Object) MiniEdge == null)
                 throw new ArgumentNullException("The given miniedge must not be null!");
 
-            var source  = _Source.  CompareTo(MiniEdge._Source);
+            var source  = _Source.   CompareTo(MiniEdge._Source);
             var type    = _EdgeLabel.CompareTo(MiniEdge._EdgeLabel);
-            var target  = _Target.  CompareTo(MiniEdge._Target);
+            var target  = _Target.   CompareTo(MiniEdge._Target);
 
             if (type != 0)
                 return type;
@@ -236,7 +235,6 @@ namespace org.GraphDefined.OpenData
             if (Object == null)
                 return false;
 
-            // Check if the given object is a miniedge.
             if (!(Object is MiniEdge<TSource, TEdge, TTarget>))
                 return false;
 
@@ -246,12 +244,12 @@ namespace org.GraphDefined.OpenData
 
         #endregion
 
-        #region Equals(User)
+        #region Equals(MiniEdge)
 
         /// <summary>
         /// Compares two miniedges for equality.
         /// </summary>
-        /// <param name="User">A miniedge to compare with.</param>
+        /// <param name="MiniEdge">A miniedge to compare with.</param>
         /// <returns>True if both match; False otherwise.</returns>
         public Boolean Equals(MiniEdge<TSource, TEdge, TTarget> MiniEdge)
         {

@@ -28,6 +28,7 @@ using org.GraphDefined.Vanaheimr.Illias;
 using org.GraphDefined.Vanaheimr.Illias.Votes;
 using org.GraphDefined.Vanaheimr.Styx.Arrows;
 using org.GraphDefined.Vanaheimr.Hermod.Mail;
+using Newtonsoft.Json.Linq;
 
 #endregion
 
@@ -35,10 +36,9 @@ namespace org.GraphDefined.OpenData
 {
 
     /// <summary>
-    /// An Open Data user.
+    /// An user.
     /// </summary>
-    public class User : AEntity<User_Id>,
-                        IEquatable<User>, IComparable<User>, IComparable
+    public class User : AEntity<User_Id>
     {
 
         #region Data
@@ -50,147 +50,44 @@ namespace org.GraphDefined.OpenData
 
 
         private readonly ReactiveSet<MiniEdge<User, User2UserEdges,         User>>          _User2UserEdges;
-        private readonly ReactiveSet<MiniEdge<User, User2GroupEdges,        UserGroup>>         _User2GroupEdges;
-    //    private readonly ReactiveSet<MiniEdge<User, User2OrganizationEdges, Organization>>  _User2OrganizationEdges;
+        private readonly ReactiveSet<MiniEdge<User, User2GroupEdges,        Group>>         _User2GroupEdges;
+        private readonly ReactiveSet<MiniEdge<User, User2OrganizationEdges, Organization>>  _User2OrganizationEdges;
 
         #endregion
 
         #region Properties
 
-        #region Login
-
         /// <summary>
         /// The login of the user.
         /// </summary>
         [Mandatory]
-        public String Login
-        {
-            get
-            {
-                return Id.ToString();
-            }
-        }
-
-        #endregion
-
-        #region Name
-
-        private String _Name;
-
-        /// <summary>
-        /// The offical name of the user.
-        /// </summary>
-        [Mandatory]
-        public String Name
-        {
-
-            get
-            {
-                return _Name;
-            }
-
-            set
-            {
-                _Name = value;
-            }
-
-        }
-
-        #endregion
-
-        #region Description
-
-        private readonly I18NString _Description;
-
-        /// <summary>
-        /// An optional (multi-language) description of the user.
-        /// </summary>
-        [Optional]
-        public I18NString Description
-        {
-            get
-            {
-                return _Description;
-            }
-        }
-
-        #endregion
-
-        #region EMail
-
-        private SimpleEMailAddress _EMail;
+        public String              Login
+            => Id.ToString();
 
         /// <summary>
         /// The primary E-Mail address of the user.
         /// </summary>
         [Mandatory]
-        public SimpleEMailAddress EMail
-        {
+        public SimpleEMailAddress  EMail                { get; }
 
-            get
-            {
-                return _EMail;
-            }
-
-            set
-            {
-                _EMail = value;
-            }
-
-        }
-
-        #endregion
-
-        #region GPGPublicKeyRing
-
-        private String _GPGPublicKeyRing;
+        /// <summary>
+        /// The offical public name of the user.
+        /// </summary>
+        [Mandatory]
+        public String              Name                 { get; }
 
         /// <summary>
         /// The PGP/GPG public keyring of the user.
         /// </summary>
         [Optional]
-        public String GPGPublicKeyRing
-        {
-
-            get
-            {
-                return _GPGPublicKeyRing;
-            }
-
-            set
-            {
-                _GPGPublicKeyRing = value;
-            }
-
-        }
-
-        #endregion
-
-
-        #region IsAdmin
-
-        private Boolean _IsAdmin;
+        public String              GPGPublicKeyRing     { get; }
 
         /// <summary>
-        /// The user has admin rights.
+        /// An optional (multi-language) description of the user.
         /// </summary>
-        [Mandatory]
-        public Boolean IsAdmin
-        {
+        [Optional]
+        public I18NString          Description          { get; }
 
-            get
-            {
-                return _IsAdmin;
-            }
-
-            set
-            {
-                _IsAdmin = value;
-            }
-
-        }
-
-        #endregion
 
         #region IsAuthenticated
 
@@ -314,17 +211,54 @@ namespace org.GraphDefined.OpenData
 
         #endregion
 
-        #region FollowsUsers
+        #region Groups()
+
+        /// <summary>
+        /// All groups this user belongs to.
+        /// </summary>
+        public IEnumerable<Group> Groups()
+            => _User2GroupEdges.
+                   Select(edge => edge.Target);
+
+        #endregion
+
+        #region Groups(EdgeFilter)
+
+        /// <summary>
+        /// All groups this user belongs to,
+        /// filtered by the given edge label.
+        /// </summary>
+        public IEnumerable<Group> Groups(User2GroupEdges EdgeFilter)
+            => _User2GroupEdges.
+                   Where (edge => edge.EdgeLabel == EdgeFilter).
+                   Select(edge => edge.Target);
+
+        #endregion
+
+        #region Edges(Group)
+
+        /// <summary>
+        /// All groups this user belongs to,
+        /// filtered by the given edge label.
+        /// </summary>
+        public IEnumerable<User2GroupEdges> Edges(Group Group)
+            => _User2GroupEdges.
+                   Where (edge => edge.Target == Group).
+                   Select(edge => edge.EdgeLabel);
+
+        #endregion
+
+        #region FollowsGroups
 
         /// <summary>
         /// This user follows this other users.
         /// </summary>
-        public IEnumerable<UserGroup> FollowsGroups
+        public IEnumerable<Group> FollowsGroups
         {
             get
             {
                 return _User2GroupEdges.
-                           Where (edge => edge.EdgeLabel == User2GroupEdges.follows).
+                           Where(edge => edge.EdgeLabel == User2GroupEdges.follows).
                            Select(edge => edge.Target);
             }
         }
@@ -343,13 +277,13 @@ namespace org.GraphDefined.OpenData
         /// Create a new user.
         /// </summary>
         /// <param name="Login">The unique identification of the user.</param>
-        /// <param name="Name">The offical (multi-language) name of the user.</param>
         /// <param name="EMail">The primary e-mail of the user.</param>
+        /// <param name="Name">The offical (multi-language) name of the user.</param>
         /// <param name="GPGPublicKeyRing">The PGP/GPG public keyring of the user.</param>
         /// <param name="Description">An optional (multi-language) description of the user.</param>
         internal User(User_Id             Login,
+                      SimpleEMailAddress  EMail,
                       String              Name              = null,
-                      SimpleEMailAddress  EMail             = null,
                       String              GPGPublicKeyRing  = null,
                       I18NString          Description       = null)
 
@@ -366,17 +300,16 @@ namespace org.GraphDefined.OpenData
 
             #region Init data and properties
 
-            this._Name                      = Name        != null ? Name        : "";
-            this._Description               = Description != null ? Description : new I18NString();
-            this._EMail                     = EMail;
-            this._GPGPublicKeyRing          = GPGPublicKeyRing;
-            this._IsAdmin                   = false;
-            this._IsAuthenticated           = false;
-            this._IsHidden                  = false;
+            this.EMail                     = EMail;
+            this.Name                      = Name        != null ? Name        : "";
+            this.Description               = Description != null ? Description : new I18NString();
+            this.GPGPublicKeyRing          = GPGPublicKeyRing;
+            this._IsAuthenticated          = false;
+            this._IsHidden                 = false;
 
-            this._User2UserEdges            = new ReactiveSet<MiniEdge<User, User2UserEdges,         User>>();
-            this._User2GroupEdges           = new ReactiveSet<MiniEdge<User, User2GroupEdges,        UserGroup>>();
-            //this._User2OrganizationEdges    = new ReactiveSet<MiniEdge<User, User2OrganizationEdges, Organization>>();
+            this._User2UserEdges           = new ReactiveSet<MiniEdge<User, User2UserEdges,         User>>();
+            this._User2GroupEdges          = new ReactiveSet<MiniEdge<User, User2GroupEdges,        Group>>();
+            this._User2OrganizationEdges   = new ReactiveSet<MiniEdge<User, User2OrganizationEdges, Organization>>();
 
             #endregion
 
@@ -399,9 +332,7 @@ namespace org.GraphDefined.OpenData
             Follow(User          User,
                    PrivacyLevel  PrivacyLevel = PrivacyLevel.Private)
 
-        {
-            return User.AddIncomingEdge(AddOutgoingEdge(User2UserEdges.follows, User, PrivacyLevel));
-        }
+            => User.AddIncomingEdge(AddOutgoingEdge(User2UserEdges.follows, User, PrivacyLevel));
 
         //public MiniEdge<User, User2OrganizationEdges, Organization>
 
@@ -412,14 +343,12 @@ namespace org.GraphDefined.OpenData
         //    return Organization.AddIncomingEdge(AddOutgoingEdge(User2OrganizationEdges.follows, Organization, PrivacyLevel));
         //}
 
-        public MiniEdge<User, User2GroupEdges, UserGroup>
+        public MiniEdge<User, User2GroupEdges, Group>
 
-            Join(UserGroup         Group,
+            Join(Group         Group,
                  PrivacyLevel  PrivacyLevel = PrivacyLevel.Private)
 
-        {
-            return Group.AddIncomingEdge(AddOutgoingEdge(User2GroupEdges.join, Group, PrivacyLevel));
-        }
+            => Group.AddIncomingEdge(AddOutgoingEdge(User2GroupEdges.join, Group, PrivacyLevel));
 
 
 
@@ -433,50 +362,47 @@ namespace org.GraphDefined.OpenData
 
             AddIncomingEdge(MiniEdge<User, User2UserEdges, User>  Edge)
 
-        {
-            return this._User2UserEdges.AddAndReturn(Edge);
-        }
+            => _User2UserEdges.AddAndReturn(Edge);
 
         public MiniEdge<User, User2UserEdges, User>
 
             AddIncomingEdge(User            Source,
                             User2UserEdges  EdgeLabel,
-                            PrivacyLevel    PrivacyLevel = PrivacyLevel.Private)
+                            PrivacyLevel    PrivacyLevel = PrivacyLevel.Public)
 
-        {
-            return this._User2UserEdges.AddAndReturn(new MiniEdge<User, User2UserEdges, User>(Source, EdgeLabel, this, PrivacyLevel));
-        }
+            => _User2UserEdges.AddAndReturn(new MiniEdge<User, User2UserEdges, User>(Source, EdgeLabel, this, PrivacyLevel));
+
+
+
+
 
         public MiniEdge<User, User2UserEdges, User>
 
             AddOutgoingEdge(User2UserEdges  EdgeLabel,
                             User            Target,
-                            PrivacyLevel    PrivacyLevel = PrivacyLevel.Private)
+                            PrivacyLevel    PrivacyLevel = PrivacyLevel.Public)
 
-        {
-            return this._User2UserEdges.AddAndReturn(new MiniEdge<User, User2UserEdges, User>(this, EdgeLabel, Target, PrivacyLevel));
-        }
+            => _User2UserEdges.AddAndReturn(new MiniEdge<User, User2UserEdges, User>(this, EdgeLabel, Target, PrivacyLevel));
 
-        //public MiniEdge<User, User2OrganizationEdges, Organization>
+        public MiniEdge<User, User2OrganizationEdges, Organization>
 
-        //    AddOutgoingEdge(User2OrganizationEdges  EdgeLabel,
-        //                    Organization            Target,
-        //                    PrivacyLevel            PrivacyLevel = PrivacyLevel.Private)
+            AddOutgoingEdge(User2OrganizationEdges  EdgeLabel,
+                            Organization            Target,
+                            PrivacyLevel            PrivacyLevel = PrivacyLevel.Public)
 
-        //{
-        //    return this._User2OrganizationEdges.AddAndReturn(new MiniEdge<User, User2OrganizationEdges, Organization>(this, EdgeLabel, Target, PrivacyLevel));
-        //}
+            => _User2OrganizationEdges.AddAndReturn(new MiniEdge<User, User2OrganizationEdges, Organization>(this, EdgeLabel, Target, PrivacyLevel));
 
 
-        public MiniEdge<User, User2GroupEdges, UserGroup>
+
+
+
+        public MiniEdge<User, User2GroupEdges, Group>
 
             AddOutgoingEdge(User2GroupEdges EdgeLabel,
-                            UserGroup           Target,
-                            PrivacyLevel    PrivacyLevel = PrivacyLevel.Private)
+                            Group           Target,
+                            PrivacyLevel    PrivacyLevel = PrivacyLevel.Public)
 
-        {
-            return this._User2GroupEdges.AddAndReturn(new MiniEdge<User, User2GroupEdges, UserGroup>(this, EdgeLabel, Target, PrivacyLevel));
-        }
+            => _User2GroupEdges.AddAndReturn(new MiniEdge<User, User2GroupEdges, Group>(this, EdgeLabel, Target, PrivacyLevel));
 
 
 
@@ -594,6 +520,23 @@ namespace org.GraphDefined.OpenData
         {
             return Id.ToString();
         }
+
+        #endregion
+
+        #region ToJSON()
+
+        /// <summary>
+        /// Return a JSON representation of this object.
+        /// </summary>
+        public JObject ToJSON()
+
+            => new JObject(
+                   new JProperty("login",        Login),
+                   new JProperty("email",        EMail.ToString()),
+                   new JProperty("name",         Name),
+                   new JProperty("publickey",    GPGPublicKeyRing),
+                   new JProperty("description",  Description)
+               );
 
         #endregion
 
