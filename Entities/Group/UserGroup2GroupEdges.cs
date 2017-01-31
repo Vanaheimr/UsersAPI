@@ -15,34 +15,12 @@
  * limitations under the License.
  */
 
-#region Usings
-
-using System;
-
-#endregion
-
 namespace org.GraphDefined.OpenData
 {
 
-    public interface IEntity : IComparable
+    public enum Group2GroupEdges
     {
-
-        DateTime                                    LastChange { get; }
-
-        event PropertyChanged_EventHandler          OnPropertyChanged;
-
-    }
-
-    public interface IEntity<TId> : IEntity,
-                                    IEquatable<TId>,
-                                    IComparable<TId>
-
-        where TId : IId
-
-    {
-
-        TId Id { get; }
-
+        IsSubgroup
     }
 
 }

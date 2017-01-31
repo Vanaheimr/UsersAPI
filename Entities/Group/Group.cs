@@ -33,12 +33,10 @@ namespace org.GraphDefined.OpenData
 {
 
     /// <summary>
-    /// An Open Data group.
+    /// A group.
     /// </summary>
     public class Group : AEntity<Group_Id>,
-                         IEquatable<Group>,
-                         IComparable<Group>,
-                         IComparable
+                         IEntityClass<Group>
     {
 
         #region Data
@@ -48,8 +46,9 @@ namespace org.GraphDefined.OpenData
         /// </summary>
         public const UInt16 DefaultGroupStatusHistorySize = 50;
 
-        private readonly ReactiveSet<MiniEdge<User,      User2GroupEdges, Group>> _User2GroupEdges;
-        private readonly ReactiveSet<MiniEdge<Group, Group2UserEdges, User>>      _Group2UserEdges;
+        private readonly ReactiveSet<MiniEdge<User,  User2GroupEdges,  Group>> _User2GroupEdges;
+        private readonly ReactiveSet<MiniEdge<Group, Group2UserEdges,  User>>  _Group2UserEdges;
+        private readonly ReactiveSet<MiniEdge<Group, Group2GroupEdges, Group>> _Group2GroupEdges;
 
         #endregion
 
@@ -68,10 +67,16 @@ namespace org.GraphDefined.OpenData
         public I18NString  Description   { get; }
 
         /// <summary>
-        /// The group will be shown in group listings.
+        /// The user will be shown in group listings.
         /// </summary>
         [Mandatory]
         public Boolean     IsPublic      { get; }
+
+        /// <summary>
+        /// The user will be shown in group listings.
+        /// </summary>
+        [Mandatory]
+        public Boolean     IsDisabled    { get; }
 
         #endregion
 
@@ -87,28 +92,32 @@ namespace org.GraphDefined.OpenData
         /// <param name="Id">The unique identification of the user group.</param>
         /// <param name="Name">The offical (multi-language) name of the user group.</param>
         /// <param name="Description">An optional (multi-language) description of the user group.</param>
+        /// <param name="IsPublic">The group will be shown in user listings.</param>
+        /// <param name="IsDisabled">The group is disabled.</param>
         internal Group(Group_Id    Id,
                        I18NString  Name          = null,
-                       I18NString  Description   = null)
+                       I18NString  Description   = null,
+                       Boolean     IsPublic      = true,
+                       Boolean     IsDisabled    = false)
 
             : base(Id)
 
         {
 
-            #region Initial checks
+            #region Init properties
 
-            if (Id == null)
-                throw new ArgumentNullException(nameof(Id), "The group identification must not be null!");
+            this.Name               = Name        ?? new I18NString();
+            this.Description        = Description ?? new I18NString();
+            this.IsPublic           = IsPublic;
+            this.IsDisabled         = IsDisabled;
 
             #endregion
 
-            #region Init data and properties
+            #region Init edges
 
-            this.Name                      = Name        ?? new I18NString();
-            this.Description               = Description ?? new I18NString();
-
-            this._User2GroupEdges          = new ReactiveSet<MiniEdge<User, User2GroupEdges, Group>>();
-            this._Group2UserEdges          = new ReactiveSet<MiniEdge<Group, Group2UserEdges, User>>();
+            this._User2GroupEdges   = new ReactiveSet<MiniEdge<User,  User2GroupEdges,  Group>>();
+            this._Group2UserEdges   = new ReactiveSet<MiniEdge<Group, Group2UserEdges,  User>>();
+            this._Group2GroupEdges  = new ReactiveSet<MiniEdge<Group, Group2GroupEdges, Group>>();
 
             #endregion
 
@@ -117,74 +126,110 @@ namespace org.GraphDefined.OpenData
         #endregion
 
 
+        #region User  -> Group edges
 
-        #region Groups()
+        public MiniEdge<User, User2GroupEdges, Group>
 
-        /// <summary>
-        /// All groups this user belongs to.
-        /// </summary>
-        public IEnumerable<Group> Groups()
-            => _User2GroupEdges.
-                   Select(edge => edge.Target);
+            AddIncomingEdge(User             Source,
+                            User2GroupEdges  EdgeLabel,
+                            PrivacyLevel     PrivacyLevel = PrivacyLevel.Private)
 
-        #endregion
+            => _User2GroupEdges.AddAndReturn(new MiniEdge<User, User2GroupEdges, Group>(Source,
+                                                                                        EdgeLabel,
+                                                                                        this,
+                                                                                        PrivacyLevel));
 
-        #region Groups(EdgeFilter)
+        public MiniEdge<User, User2GroupEdges, Group>
 
-        /// <summary>
-        /// All groups this user belongs to,
-        /// filtered by the given edge label.
-        /// </summary>
-        public IEnumerable<Group> Groups(User2GroupEdges EdgeFilter)
-            => _User2GroupEdges.
-                   Where (edge => edge.EdgeLabel == EdgeFilter).
-                   Select(edge => edge.Target);
+            AddIncomingEdge(MiniEdge<User, User2GroupEdges, Group> Edge)
 
-        #endregion
+            => _User2GroupEdges.AddAndReturn(Edge);
+
 
         #region Edges(Group)
 
         /// <summary>
-        /// All groups this user belongs to,
+        /// All organizations this user belongs to,
         /// filtered by the given edge label.
         /// </summary>
-        public IEnumerable<User2GroupEdges> Edges(Group Group)
+        public IEnumerable<User2GroupEdges> InEdges(Group Group)
             => _User2GroupEdges.
                    Where (edge => edge.Target == Group).
                    Select(edge => edge.EdgeLabel);
 
         #endregion
 
+        #endregion
 
-        public MiniEdge<User, User2GroupEdges, Group>
-
-            AddIncomingEdge(User            Source,
-                            User2GroupEdges EdgeLabel,
-                            PrivacyLevel    PrivacyLevel = PrivacyLevel.Private)
-
-        {
-            return _User2GroupEdges.AddAndReturn(new MiniEdge<User, User2GroupEdges, Group>(Source, EdgeLabel, this, PrivacyLevel));
-        }
-
-        public MiniEdge<User, User2GroupEdges, Group>
-
-            AddIncomingEdge(MiniEdge<User, User2GroupEdges, Group> Edge)
-
-        {
-            return this._User2GroupEdges.AddAndReturn(Edge);
-        }
+        #region Group -> User  edges
 
         public MiniEdge<Group, Group2UserEdges, User>
 
-            AddOutgoingEdge(Group2UserEdges EdgeLabel,
-                            User            Target,
-                            PrivacyLevel    PrivacyLevel = PrivacyLevel.Private)
+            AddOutgoingEdge(Group2UserEdges  EdgeLabel,
+                            User             Target,
+                            PrivacyLevel     PrivacyLevel = PrivacyLevel.Private)
 
-        {
+            => _Group2UserEdges.AddAndReturn(new MiniEdge<Group, Group2UserEdges, User>(this,
+                                                                                        EdgeLabel,
+                                                                                        Target,
+                                                                                        PrivacyLevel));
 
-            return _Group2UserEdges.AddAndReturn(new MiniEdge<Group, Group2UserEdges, User>(this, EdgeLabel, Target, PrivacyLevel));
+        public MiniEdge<Group, Group2UserEdges, User>
 
-        }
+            AddIncomingEdge(MiniEdge<Group, Group2UserEdges, User> Edge)
+
+            => _Group2UserEdges.AddAndReturn(Edge);
+
+
+        #region Edges(User)
+
+        /// <summary>
+        /// All organizations this user belongs to,
+        /// filtered by the given edge label.
+        /// </summary>
+        public IEnumerable<Group2UserEdges> InEdges(User User)
+            => _Group2UserEdges.
+                   Where (edge => edge.Target == User).
+                   Select(edge => edge.EdgeLabel);
+
+        #endregion
+
+        #endregion
+
+        #region Group -> Group edges
+
+        public MiniEdge<Group, Group2GroupEdges, Group>
+
+            AddEdge(Group2GroupEdges EdgeLabel,
+                    Group Target,
+                    PrivacyLevel PrivacyLevel = PrivacyLevel.Private)
+
+            => _Group2GroupEdges.AddAndReturn(new MiniEdge<Group, Group2GroupEdges, Group>(this,
+                                                                                                                                     EdgeLabel,
+                                                                                                                                     Target,
+                                                                                                                                     PrivacyLevel));
+
+        public MiniEdge<Group, Group2GroupEdges, Group>
+
+            AddEdge(MiniEdge<Group, Group2GroupEdges, Group> Edge)
+
+            => _Group2GroupEdges.AddAndReturn(Edge);
+
+
+        #region Edges(Group)
+
+        /// <summary>
+        /// All organizations this user belongs to,
+        /// filtered by the given edge label.
+        /// </summary>
+        public IEnumerable<User2GroupEdges> Edges(Group Group)
+            => _User2GroupEdges.
+                   Where(edge => edge.Target == Group).
+                   Select(edge => edge.EdgeLabel);
+
+        #endregion
+
+        #endregion
 
 
         #region IComparable<Group> Members
@@ -199,12 +244,11 @@ namespace org.GraphDefined.OpenData
         {
 
             if (Object == null)
-                throw new ArgumentNullException("The given object must not be null!");
+                throw new ArgumentNullException(nameof(Object), "The given object must not be null!");
 
-            // Check if the given object is an user group.
             var EVSE_Operator = Object as Group;
             if ((Object) EVSE_Operator == null)
-                throw new ArgumentException("The given object is not an user group!");
+                throw new ArgumentException("The given object is not a group!");
 
             return CompareTo(EVSE_Operator);
 
@@ -212,19 +256,19 @@ namespace org.GraphDefined.OpenData
 
         #endregion
 
-        #region CompareTo(Operator)
+        #region CompareTo(Group)
 
         /// <summary>
         /// Compares two instances of this object.
         /// </summary>
-        /// <param name="Operator">An user groups object to compare with.</param>
-        public Int32 CompareTo(Group Operator)
+        /// <param name="Group">A group object to compare with.</param>
+        public Int32 CompareTo(Group Group)
         {
 
-            if ((Object) Operator == null)
-                throw new ArgumentNullException("The given user groups must not be null!");
+            if ((Object) Group == null)
+                throw new ArgumentNullException(nameof(Group), "The given group must not be null!");
 
-            return Id.CompareTo(Operator.Id);
+            return Id.CompareTo(Group.Id);
 
         }
 
@@ -247,12 +291,11 @@ namespace org.GraphDefined.OpenData
             if (Object == null)
                 return false;
 
-            // Check if the given object is an user group.
-            var EVSE_Operator = Object as Group;
-            if ((Object) EVSE_Operator == null)
+            var Group = Object as Group;
+            if ((Object) Group == null)
                 return false;
 
-            return this.Equals(EVSE_Operator);
+            return Equals(Group);
 
         }
 
@@ -261,17 +304,17 @@ namespace org.GraphDefined.OpenData
         #region Equals(Group)
 
         /// <summary>
-        /// Compares two user groups for equality.
+        /// Compares two groups for equality.
         /// </summary>
-        /// <param name="Operator">An user groups to compare with.</param>
+        /// <param name="Group">A group to compare with.</param>
         /// <returns>True if both match; False otherwise.</returns>
-        public Boolean Equals(Group Operator)
+        public Boolean Equals(Group Group)
         {
 
-            if ((Object) Operator == null)
+            if ((Object) Group == null)
                 return false;
 
-            return Id.Equals(Operator.Id);
+            return Id.Equals(Group.Id);
 
         }
 
@@ -285,9 +328,7 @@ namespace org.GraphDefined.OpenData
         /// Get the hashcode of this object.
         /// </summary>
         public override Int32 GetHashCode()
-        {
-            return Id.GetHashCode();
-        }
+            => Id.GetHashCode();
 
         #endregion
 
@@ -297,9 +338,7 @@ namespace org.GraphDefined.OpenData
         /// Get a string representation of this object.
         /// </summary>
         public override String ToString()
-        {
-            return Id.ToString();
-        }
+            => Id.ToString();
 
         #endregion
 
@@ -313,8 +352,125 @@ namespace org.GraphDefined.OpenData
             => new JObject(
                    new JProperty("id",           Id.         ToString()),
                    new JProperty("name",         Name.       ToJSON()),
-                   new JProperty("description",  Description.ToJSON())
+                   new JProperty("description",  Description.ToJSON()),
+                   new JProperty("isPublic",     IsPublic),
+                   new JProperty("isDisabled",   IsDisabled)
                );
+
+        #endregion
+
+
+        #region ToBuilder(NewGroupId = null)
+
+        /// <summary>
+        /// Return a builder for this group.
+        /// </summary>
+        /// <param name="NewGroupId">An optional new group identification.</param>
+        public Builder ToBuilder(Group_Id? NewGroupId = null)
+
+            => new Builder(NewGroupId ?? Id,
+                           Name,
+                           Description);
+
+        #endregion
+
+        #region (class) Builder
+
+        /// <summary>
+        /// A group builder.
+        /// </summary>
+        public class Builder
+        {
+
+            #region Properties
+
+            /// <summary>
+            /// The group identification.
+            /// </summary>
+            public Group_Id    Id               { get; set; }
+
+            /// <summary>
+            /// The offical public name of the group.
+            /// </summary>
+            [Optional]
+            public I18NString  Name             { get; set; }
+
+            /// <summary>
+            /// An optional (multi-language) description of the group.
+            /// </summary>
+            [Optional]
+            public I18NString  Description      { get; set; }
+
+            /// <summary>
+            /// The group will be shown in group listings.
+            /// </summary>
+            [Mandatory]
+            public Boolean     IsPublic         { get; set; }
+
+            /// <summary>
+            /// The group is disabled.
+            /// </summary>
+            [Mandatory]
+            public Boolean     IsDisabled       { get; set; }
+
+            #endregion
+
+            #region Constructor(s)
+
+            /// <summary>
+            /// Create a new group builder.
+            /// </summary>
+            /// <param name="Id">The unique identification of the group.</param>
+            /// <param name="Name">An offical (multi-language) name of the group.</param>
+            /// <param name="Description">An optional (multi-language) description of the group.</param>
+            /// <param name="IsPublic">The group will be shown in group listings.</param>
+            /// <param name="IsDisabled">The group is disabled.</param>
+            public Builder(Group_Id    Id,
+                           I18NString  Name          = null,
+                           I18NString  Description   = null,
+                           Boolean     IsPublic      = true,
+                           Boolean     IsDisabled    = false)
+            {
+
+                #region Init properties
+
+                this.Id           = Id;
+                this.Name         = Name        ?? new I18NString();
+                this.Description  = Description ?? new I18NString();
+                this.IsPublic     = IsPublic;
+                this.IsDisabled   = IsDisabled;
+
+                #endregion
+
+                #region Init edges
+
+                //this._User2UserEdges          = new ReactiveSet<MiniEdge<User, User2UserEdges,         User>>();
+                //this._User2GroupEdges         = new ReactiveSet<MiniEdge<User, User2GroupEdges,        Group>>();
+                //this._User2GroupEdges  = new ReactiveSet<MiniEdge<User, User2GroupEdges, Group>>();
+
+                #endregion
+
+            }
+
+            #endregion
+
+
+            #region Build()
+
+            /// <summary>
+            /// Return an immutable version of the group.
+            /// </summary>
+            public Group Build()
+
+                => new Group(Id,
+                             Name,
+                             Description,
+                             IsPublic,
+                             IsDisabled);
+
+            #endregion
+
+        }
 
         #endregion
 

@@ -31,6 +31,11 @@ namespace org.GraphDefined.OpenData
 
     public delegate void PropertyChanged_EventHandler(DateTime Timestamp, Object Sender, String PropertyName, Object OldValue, Object NewValue);
 
+    public interface IEntityClass<TClass> : IEquatable<TClass>,
+                                            IComparable<TClass>,
+                                            IComparable
+    { }
+
     /// <summary>
     /// An abstract entity.
     /// </summary>

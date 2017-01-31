@@ -36,9 +36,10 @@ namespace org.GraphDefined.OpenData
 {
 
     /// <summary>
-    /// An user.
+    /// A user.
     /// </summary>
-    public class User : AEntity<User_Id>
+    public class User : AEntity<User_Id>,
+                        IEntityClass<User>
     {
 
         #region Data
@@ -94,7 +95,7 @@ namespace org.GraphDefined.OpenData
         public Boolean             IsPublic             { get; }
 
         /// <summary>
-        /// The user will be shown in user listings.
+        /// The user is disabled.
         /// </summary>
         [Mandatory]
         public Boolean             IsDisabled           { get; }
@@ -243,7 +244,7 @@ namespace org.GraphDefined.OpenData
         /// <param name="Telephone">An optional telephone number of the user.</param>
         /// <param name="Description">An optional (multi-language) description of the user.</param>
         /// <param name="IsPublic">The user will be shown in user listings.</param>
-        /// <param name="IsDisabled">The user will be shown in user listings.</param>
+        /// <param name="IsDisabled">The user is disabled.</param>
         /// <param name="IsAuthenticated">The user will not be shown in user listings, as its primary e-mail address is not yet authenticated.</param>
         internal User(User_Id             Id,
                       SimpleEMailAddress  EMail,
@@ -292,15 +293,6 @@ namespace org.GraphDefined.OpenData
                    PrivacyLevel  PrivacyLevel = PrivacyLevel.Private)
 
             => User.AddIncomingEdge(AddOutgoingEdge(User2UserEdges.follows, User, PrivacyLevel));
-
-        //public MiniEdge<User, User2OrganizationEdges, Organization>
-
-        //    Follow(Organization  Organization,
-        //           PrivacyLevel  PrivacyLevel = PrivacyLevel.Private)
-
-        //{
-        //    return Organization.AddIncomingEdge(AddOutgoingEdge(User2OrganizationEdges.follows, Organization, PrivacyLevel));
-        //}
 
         public MiniEdge<User, User2GroupEdges, Group>
 
@@ -378,9 +370,8 @@ namespace org.GraphDefined.OpenData
         {
 
             if (Object == null)
-                throw new ArgumentNullException("The given object must not be null!");
+                throw new ArgumentNullException(nameof(Object), "The given object must not be null!");
 
-            // Check if the given object is an user.
             var EVSE_User = Object as User;
             if ((Object) EVSE_User == null)
                 throw new ArgumentException("The given object is not an user!");
@@ -426,12 +417,11 @@ namespace org.GraphDefined.OpenData
             if (Object == null)
                 return false;
 
-            // Check if the given object is an user.
-            var EVSE_User = Object as User;
-            if ((Object) EVSE_User == null)
+            var User = Object as User;
+            if ((Object) User == null)
                 return false;
 
-            return this.Equals(EVSE_User);
+            return Equals(User);
 
         }
 
@@ -464,9 +454,7 @@ namespace org.GraphDefined.OpenData
         /// Get the hashcode of this object.
         /// </summary>
         public override Int32 GetHashCode()
-        {
-            return Id.GetHashCode();
-        }
+            => Id.GetHashCode();
 
         #endregion
 
@@ -476,9 +464,7 @@ namespace org.GraphDefined.OpenData
         /// Get a string representation of this object.
         /// </summary>
         public override String ToString()
-        {
-            return Id.ToString();
-        }
+            => Id.ToString();
 
         #endregion
 
@@ -500,6 +486,168 @@ namespace org.GraphDefined.OpenData
                    new JProperty("isDisabled",       IsDisabled),
                    new JProperty("isAuthenticated",  IsAuthenticated)
                );
+
+        #endregion
+
+
+        #region ToBuilder(NewUserId = null)
+
+        /// <summary>
+        /// Return a builder for this user.
+        /// </summary>
+        /// <param name="NewUserId">An optional new user identification.</param>
+        public Builder ToBuilder(User_Id? NewUserId = null)
+
+            => new Builder(NewUserId ?? Id,
+                           EMail,
+                           Name,
+                           PublicKeyRing,
+                           Telephone,
+                           Description,
+                           IsPublic,
+                           IsDisabled,
+                           IsAuthenticated);
+
+        #endregion
+
+        #region (class) Builder
+
+        /// <summary>
+        /// A user.
+        /// </summary>
+        public class Builder
+        {
+
+            #region Properties
+
+            /// <summary>
+            /// The user identification.
+            /// </summary>
+            public User_Id             Id                   { get; set; }
+
+            /// <summary>
+            /// The primary E-Mail address of the user.
+            /// </summary>
+            [Mandatory]
+            public SimpleEMailAddress  EMail                { get; set; }
+
+            /// <summary>
+            /// The offical public name of the user.
+            /// </summary>
+            [Optional]
+            public String              Name                 { get; set; }
+
+            /// <summary>
+            /// The PGP/GPG public keyring of the user.
+            /// </summary>
+            [Optional]
+            public String              PublicKeyRing        { get; set; }
+
+            /// <summary>
+            /// The telephone number of the user.
+            /// </summary>
+            [Optional]
+            public String              Telephone            { get; set; }
+
+            /// <summary>
+            /// An optional (multi-language) description of the user.
+            /// </summary>
+            [Optional]
+            public I18NString          Description          { get; set; }
+
+            /// <summary>
+            /// The user will be shown in user listings.
+            /// </summary>
+            [Mandatory]
+            public Boolean             IsPublic             { get; set; }
+
+            /// <summary>
+            /// The user is disabled.
+            /// </summary>
+            [Mandatory]
+            public Boolean             IsDisabled           { get; set; }
+
+            /// <summary>
+            /// The user will not be shown in user listings, as its
+            /// primary e-mail address is not yet authenticated.
+            /// </summary>
+            [Mandatory]
+            public Boolean             IsAuthenticated      { get; set; }
+
+            #endregion
+
+            #region Constructor(s)
+
+            /// <summary>
+            /// Create a new user builder.
+            /// </summary>
+            /// <param name="Id">The unique identification of the user.</param>
+            /// <param name="EMail">The primary e-mail of the user.</param>
+            /// <param name="Name">An offical (multi-language) name of the user.</param>
+            /// <param name="PublicKeyRing">An optional PGP/GPG public keyring of the user.</param>
+            /// <param name="Telephone">An optional telephone number of the user.</param>
+            /// <param name="Description">An optional (multi-language) description of the user.</param>
+            /// <param name="IsPublic">The user will be shown in user listings.</param>
+            /// <param name="IsDisabled">The user is disabled.</param>
+            /// <param name="IsAuthenticated">The user will not be shown in user listings, as its primary e-mail address is not yet authenticated.</param>
+            public Builder(User_Id             Id,
+                           SimpleEMailAddress  EMail,
+                           String              Name              = null,
+                           String              PublicKeyRing     = null,
+                           String              Telephone         = null,
+                           I18NString          Description       = null,
+                           Boolean             IsPublic          = true,
+                           Boolean             IsDisabled        = false,
+                           Boolean             IsAuthenticated   = false)
+            {
+
+                #region Init properties
+
+                this.Id                       = Id;
+                this.EMail                    = EMail;
+                this.Name                     = Name        ?? "";
+                this.PublicKeyRing            = PublicKeyRing;
+                this.Telephone                = Telephone;
+                this.Description              = Description ?? new I18NString();
+                this.IsPublic                 = IsPublic;
+                this.IsDisabled               = IsDisabled;
+                this.IsAuthenticated          = IsAuthenticated;
+
+                #endregion
+
+                #region Init edges
+
+                //this._User2UserEdges          = new ReactiveSet<MiniEdge<User, User2UserEdges,         User>>();
+                //this._User2GroupEdges         = new ReactiveSet<MiniEdge<User, User2GroupEdges,        Group>>();
+                //this._User2OrganizationEdges  = new ReactiveSet<MiniEdge<User, User2OrganizationEdges, Organization>>();
+
+                #endregion
+
+            }
+
+            #endregion
+
+
+            #region Build()
+
+            /// <summary>
+            /// Return an immutable version of the user.
+            /// </summary>
+            public User Build()
+
+                => new User(Id,
+                            EMail,
+                            Name,
+                            PublicKeyRing,
+                            Telephone,
+                            Description,
+                            IsPublic,
+                            IsDisabled,
+                            IsAuthenticated);
+
+            #endregion
+
+        }
 
         #endregion
 

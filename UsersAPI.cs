@@ -1199,7 +1199,17 @@ namespace org.GraphDefined.OpenData
 
                                               _VerificationTokens.Remove(VerificationToken);
 
-                                              _User.IsAuthenticated = true;
+                                              lock (_Users)
+                                              {
+
+                                                  var UserBuilder = _User.ToBuilder();
+                                                  UserBuilder.IsAuthenticated = true;
+                                                  var AuthenticatedUser = UserBuilder.Build();
+
+                                                  _Users.Remove(_User.Id);
+                                                  _Users.Add(AuthenticatedUser.Id, AuthenticatedUser);
+
+                                              }
 
                                               #region Send New-User-Welcome-E-Mail
 
@@ -1237,19 +1247,20 @@ namespace org.GraphDefined.OpenData
 
                                                   #endregion
 
-                                                  return new HTTPResponseBuilder(Request) {
-                                                      HTTPStatusCode = HTTPStatusCode.Created,
-                                                      Server = HTTPServer.DefaultServerName,
-                                                      ContentType = HTTPContentType.JSON_UTF8,
-                                                      Content = new JObject(
-                                                                               new JProperty("@context", ""),
-                                                                               new JProperty("@id",   _User.Id.   ToString()),
-                                                                               new JProperty("email", _User.EMail.ToString())
-                                                                          ).ToString().ToUTF8Bytes(),
-                                                      CacheControl = "public",
-                                                      //Expires         = "Mon, 25 Jun 2015 21:31:12 GMT",
-                                                      Connection = "close"
-                                                  };
+                                                  return Task.FromResult(
+                                                      new HTTPResponseBuilder(Request) {
+                                                          HTTPStatusCode  = HTTPStatusCode.Created,
+                                                          Server          = HTTPServer.DefaultServerName,
+                                                          ContentType     = HTTPContentType.JSON_UTF8,
+                                                          Content         = new JObject(
+                                                                                new JProperty("@context", ""),
+                                                                                new JProperty("@id",   _User.Id.   ToString()),
+                                                                                new JProperty("email", _User.EMail.ToString())
+                                                                            ).ToString().ToUTF8Bytes(),
+                                                          CacheControl    = "public",
+                                                          //Expires         = "Mon, 25 Jun 2015 21:31:12 GMT",
+                                                          Connection      = "close"
+                                                      }.AsImmutable());
 
                                               }
 

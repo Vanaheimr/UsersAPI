@@ -35,12 +35,10 @@ namespace org.GraphDefined.OpenData
 {
 
     /// <summary>
-    /// An Open Data organization.
+    /// A organization.
     /// </summary>
     public class Organization : AEntity<Organization_Id>,
-                                IEquatable<Organization>,
-                                IComparable<Organization>,
-                                IComparable
+                                IEntityClass<Organization>
     {
 
         #region Data
@@ -50,8 +48,9 @@ namespace org.GraphDefined.OpenData
         /// </summary>
         public const UInt16 DefaultOrganizationStatusHistorySize = 50;
 
-        private readonly ReactiveSet<MiniEdge<User,         User2OrganizationEdges, Organization>>  _User2OrganizationEdges;
-        private readonly ReactiveSet<MiniEdge<Organization, Organization2UserEdges, User>>          _Organization2UserEdges;
+        private readonly ReactiveSet<MiniEdge<User,         User2OrganizationEdges,         Organization>>  _User2OrganizationEdges;
+        private readonly ReactiveSet<MiniEdge<Organization, Organization2UserEdges,         User>>          _Organization2UserEdges;
+        private readonly ReactiveSet<MiniEdge<Organization, Organization2OrganizationEdges, Organization>>  _Organization2OrganizationEdges;
 
         #endregion
 
@@ -70,10 +69,16 @@ namespace org.GraphDefined.OpenData
         public I18NString  Description   { get; }
 
         /// <summary>
-        /// The organization will not be shown in user listings.
+        /// The user will be shown in organization listings.
         /// </summary>
         [Mandatory]
-        public Boolean     IsHidden      { get; }
+        public Boolean     IsPublic      { get; }
+
+        /// <summary>
+        /// The user will be shown in organization listings.
+        /// </summary>
+        [Mandatory]
+        public Boolean     IsDisabled    { get; }
 
         #endregion
 
@@ -89,9 +94,13 @@ namespace org.GraphDefined.OpenData
         /// <param name="Id">The unique identification of the organization.</param>
         /// <param name="Name">The offical (multi-language) name of the organization.</param>
         /// <param name="Description">An optional (multi-language) description of the organization.</param>
+        /// <param name="IsPublic">The organization will be shown in user listings.</param>
+        /// <param name="IsDisabled">The organization is disabled.</param>
         public Organization(Organization_Id  Id,
                             I18NString       Name          = null,
-                            I18NString       Description   = null)
+                            I18NString       Description   = null,
+                            Boolean          IsPublic      = true,
+                            Boolean          IsDisabled    = false)
 
             : base(Id)
 
@@ -99,15 +108,18 @@ namespace org.GraphDefined.OpenData
 
             #region Init properties
 
-            this.Name         = Name        ?? new I18NString();
-            this.Description  = Description ?? new I18NString();
+            this.Name                     = Name        ?? new I18NString();
+            this.Description              = Description ?? new I18NString();
+            this.IsPublic                 = IsPublic;
+            this.IsDisabled               = IsDisabled;
 
             #endregion
 
             #region Init edges
 
-            this._User2OrganizationEdges    = new ReactiveSet<MiniEdge<User, User2OrganizationEdges, Organization>>();
-            this._Organization2UserEdges    = new ReactiveSet<MiniEdge<Organization, Organization2UserEdges, User>>();
+            this._User2OrganizationEdges          = new ReactiveSet<MiniEdge<User,         User2OrganizationEdges,         Organization>>();
+            this._Organization2UserEdges          = new ReactiveSet<MiniEdge<Organization, Organization2UserEdges,         User>>();
+            this._Organization2OrganizationEdges  = new ReactiveSet<MiniEdge<Organization, Organization2OrganizationEdges, Organization>>();
 
             #endregion
 
@@ -116,32 +128,97 @@ namespace org.GraphDefined.OpenData
         #endregion
 
 
+        #region User         -> Organization edges
 
-        #region Groups()
+        public MiniEdge<User, User2OrganizationEdges, Organization>
 
-        /// <summary>
-        /// All organizations this user belongs to.
-        /// </summary>
-        public IEnumerable<Organization> Groups()
-            => _User2OrganizationEdges.
-                   Select(edge => edge.Target);
+            AddIncomingEdge(User                    Source,
+                            User2OrganizationEdges  EdgeLabel,
+                            PrivacyLevel            PrivacyLevel = PrivacyLevel.Private)
 
-        #endregion
+            => _User2OrganizationEdges.AddAndReturn(new MiniEdge<User, User2OrganizationEdges, Organization>(Source,
+                                                                                                             EdgeLabel,
+                                                                                                             this,
+                                                                                                             PrivacyLevel));
 
-        #region Groups(EdgeFilter)
+        public MiniEdge<User, User2OrganizationEdges, Organization>
+
+            AddIncomingEdge(MiniEdge<User, User2OrganizationEdges, Organization> Edge)
+
+            => _User2OrganizationEdges.AddAndReturn(Edge);
+
+
+        #region Edges(Organization)
 
         /// <summary>
         /// All organizations this user belongs to,
         /// filtered by the given edge label.
         /// </summary>
-        public IEnumerable<Organization> Groups(User2OrganizationEdges EdgeFilter)
+        public IEnumerable<User2OrganizationEdges> InEdges(Organization Organization)
             => _User2OrganizationEdges.
-                   Where (edge => edge.EdgeLabel == EdgeFilter).
-                   Select(edge => edge.Target);
+                   Where (edge => edge.Target == Organization).
+                   Select(edge => edge.EdgeLabel);
 
         #endregion
 
-        #region Edges(Group)
+        #endregion
+
+        #region Organization -> User         edges
+
+        public MiniEdge<Organization, Organization2UserEdges, User>
+
+            AddOutgoingEdge(Organization2UserEdges  EdgeLabel,
+                            User                    Target,
+                            PrivacyLevel            PrivacyLevel = PrivacyLevel.Private)
+
+            => _Organization2UserEdges.AddAndReturn(new MiniEdge<Organization, Organization2UserEdges, User>(this,
+                                                                                                             EdgeLabel,
+                                                                                                             Target,
+                                                                                                             PrivacyLevel));
+
+        public MiniEdge<Organization, Organization2UserEdges, User>
+
+            AddIncomingEdge(MiniEdge<Organization, Organization2UserEdges, User> Edge)
+
+            => _Organization2UserEdges.AddAndReturn(Edge);
+
+
+        #region Edges(User)
+
+        /// <summary>
+        /// All organizations this user belongs to,
+        /// filtered by the given edge label.
+        /// </summary>
+        public IEnumerable<Organization2UserEdges> InEdges(User User)
+            => _Organization2UserEdges.
+                   Where (edge => edge.Target == User).
+                   Select(edge => edge.EdgeLabel);
+
+        #endregion
+
+        #endregion
+
+        #region Organization -> Organization edges
+
+        public MiniEdge<Organization, Organization2OrganizationEdges, Organization>
+
+            AddEdge(Organization2OrganizationEdges  EdgeLabel,
+                    Organization                    Target,
+                    PrivacyLevel                    PrivacyLevel = PrivacyLevel.Private)
+
+            => _Organization2OrganizationEdges.AddAndReturn(new MiniEdge<Organization, Organization2OrganizationEdges, Organization>(this,
+                                                                                                                                     EdgeLabel,
+                                                                                                                                     Target,
+                                                                                                                                     PrivacyLevel));
+
+        public MiniEdge<Organization, Organization2OrganizationEdges, Organization>
+
+            AddEdge(MiniEdge<Organization, Organization2OrganizationEdges, Organization> Edge)
+
+            => _Organization2OrganizationEdges.AddAndReturn(Edge);
+
+
+        #region Edges(Organization)
 
         /// <summary>
         /// All organizations this user belongs to,
@@ -149,41 +226,12 @@ namespace org.GraphDefined.OpenData
         /// </summary>
         public IEnumerable<User2OrganizationEdges> Edges(Organization Organization)
             => _User2OrganizationEdges.
-                   Where (edge => edge.Target == Organization).
+                   Where(edge => edge.Target == Organization).
                    Select(edge => edge.EdgeLabel);
 
         #endregion
 
-
-        public MiniEdge<User, User2OrganizationEdges, Organization>
-
-            AddIncomingEdge(User            Source,
-                            User2OrganizationEdges EdgeLabel,
-                            PrivacyLevel    PrivacyLevel = PrivacyLevel.Private)
-
-        {
-            return _User2OrganizationEdges.AddAndReturn(new MiniEdge<User, User2OrganizationEdges, Organization>(Source, EdgeLabel, this, PrivacyLevel));
-        }
-
-        public MiniEdge<User, User2OrganizationEdges, Organization>
-
-            AddIncomingEdge(MiniEdge<User, User2OrganizationEdges, Organization> Edge)
-
-        {
-            return _User2OrganizationEdges.AddAndReturn(Edge);
-        }
-
-        public MiniEdge<Organization, Organization2UserEdges, User>
-
-            AddOutgoingEdge(Organization2UserEdges EdgeLabel,
-                            User            Target,
-                            PrivacyLevel    PrivacyLevel = PrivacyLevel.Private)
-
-        {
-
-            return _Organization2UserEdges.AddAndReturn(new MiniEdge<Organization, Organization2UserEdges, User>(this, EdgeLabel, Target, PrivacyLevel));
-
-        }
+        #endregion
 
 
         #region IComparable<Organization> Members
@@ -198,12 +246,11 @@ namespace org.GraphDefined.OpenData
         {
 
             if (Object == null)
-                throw new ArgumentNullException("The given object must not be null!");
+                throw new ArgumentNullException(nameof(Object), "The given object must not be null!");
 
-            // Check if the given object is an user organization.
             var EVSE_Operator = Object as Organization;
             if ((Object) EVSE_Operator == null)
-                throw new ArgumentException("The given object is not an user organization!");
+                throw new ArgumentException("The given object is not an organization!");
 
             return CompareTo(EVSE_Operator);
 
@@ -211,19 +258,19 @@ namespace org.GraphDefined.OpenData
 
         #endregion
 
-        #region CompareTo(Operator)
+        #region CompareTo(Organization)
 
         /// <summary>
         /// Compares two instances of this object.
         /// </summary>
-        /// <param name="Operator">An user organizations object to compare with.</param>
-        public Int32 CompareTo(Organization Operator)
+        /// <param name="Organization">An organization object to compare with.</param>
+        public Int32 CompareTo(Organization Organization)
         {
 
-            if ((Object) Operator == null)
-                throw new ArgumentNullException("The given user organizations must not be null!");
+            if ((Object) Organization == null)
+                throw new ArgumentNullException(nameof(Organization), "The given organization must not be null!");
 
-            return Id.CompareTo(Operator.Id);
+            return Id.CompareTo(Organization.Id);
 
         }
 
@@ -246,12 +293,11 @@ namespace org.GraphDefined.OpenData
             if (Object == null)
                 return false;
 
-            // Check if the given object is an user organization.
-            var EVSE_Operator = Object as Organization;
-            if ((Object) EVSE_Operator == null)
+            var Organization = Object as Organization;
+            if ((Object) Organization == null)
                 return false;
 
-            return this.Equals(EVSE_Operator);
+            return Equals(Organization);
 
         }
 
@@ -260,17 +306,17 @@ namespace org.GraphDefined.OpenData
         #region Equals(Organization)
 
         /// <summary>
-        /// Compares two user organizations for equality.
+        /// Compares two organizations for equality.
         /// </summary>
-        /// <param name="Operator">An user organizations to compare with.</param>
+        /// <param name="Organization">An organization to compare with.</param>
         /// <returns>True if both match; False otherwise.</returns>
-        public Boolean Equals(Organization Operator)
+        public Boolean Equals(Organization Organization)
         {
 
-            if ((Object) Operator == null)
+            if ((Object) Organization == null)
                 return false;
 
-            return Id.Equals(Operator.Id);
+            return Id.Equals(Organization.Id);
 
         }
 
@@ -308,8 +354,125 @@ namespace org.GraphDefined.OpenData
             => new JObject(
                    new JProperty("@id",          Id.ToString()),
                    new JProperty("name",         Name),
-                   new JProperty("description",  Description)
+                   new JProperty("description",  Description),
+                   new JProperty("isPublic",     IsPublic),
+                   new JProperty("isDisabled",   IsDisabled)
                );
+
+        #endregion
+
+
+        #region ToBuilder(NewOrganizationId = null)
+
+        /// <summary>
+        /// Return a builder for this organization.
+        /// </summary>
+        /// <param name="NewOrganizationId">An optional new organization identification.</param>
+        public Builder ToBuilder(Organization_Id? NewOrganizationId = null)
+
+            => new Builder(NewOrganizationId ?? Id,
+                           Name,
+                           Description);
+
+        #endregion
+
+        #region (class) Builder
+
+        /// <summary>
+        /// An organization builder.
+        /// </summary>
+        public class Builder
+        {
+
+            #region Properties
+
+            /// <summary>
+            /// The organization identification.
+            /// </summary>
+            public Organization_Id  Id                   { get; set; }
+
+            /// <summary>
+            /// The offical public name of the organization.
+            /// </summary>
+            [Optional]
+            public I18NString       Name                 { get; set; }
+
+            /// <summary>
+            /// An optional (multi-language) description of the organization.
+            /// </summary>
+            [Optional]
+            public I18NString       Description          { get; set; }
+
+            /// <summary>
+            /// The organization will be shown in organization listings.
+            /// </summary>
+            [Mandatory]
+            public Boolean          IsPublic             { get; set; }
+
+            /// <summary>
+            /// The organization is disabled.
+            /// </summary>
+            [Mandatory]
+            public Boolean          IsDisabled           { get; set; }
+
+            #endregion
+
+            #region Constructor(s)
+
+            /// <summary>
+            /// Create a new organization builder.
+            /// </summary>
+            /// <param name="Id">The unique identification of the organization.</param>
+            /// <param name="Name">An offical (multi-language) name of the organization.</param>
+            /// <param name="Description">An optional (multi-language) description of the organization.</param>
+            /// <param name="IsPublic">The organization will be shown in organization listings.</param>
+            /// <param name="IsDisabled">The organization is disabled.</param>
+            public Builder(Organization_Id  Id,
+                           I18NString       Name          = null,
+                           I18NString       Description   = null,
+                           Boolean          IsPublic      = true,
+                           Boolean          IsDisabled    = false)
+            {
+
+                #region Init properties
+
+                this.Id           = Id;
+                this.Name         = Name        ?? new I18NString();
+                this.Description  = Description ?? new I18NString();
+                this.IsPublic     = IsPublic;
+                this.IsDisabled   = IsDisabled;
+
+                #endregion
+
+                #region Init edges
+
+                //this._User2UserEdges          = new ReactiveSet<MiniEdge<User, User2UserEdges,         User>>();
+                //this._User2GroupEdges         = new ReactiveSet<MiniEdge<User, User2GroupEdges,        Group>>();
+                //this._User2OrganizationEdges  = new ReactiveSet<MiniEdge<User, User2OrganizationEdges, Organization>>();
+
+                #endregion
+
+            }
+
+            #endregion
+
+
+            #region Build()
+
+            /// <summary>
+            /// Return an immutable version of the organization.
+            /// </summary>
+            public Organization Build()
+
+                => new Organization(Id,
+                                    Name,
+                                    Description,
+                                    IsPublic,
+                                    IsDisabled);
+
+            #endregion
+
+        }
 
         #endregion
 
