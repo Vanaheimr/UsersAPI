@@ -27,6 +27,7 @@ using System.Collections.Generic;
 using org.GraphDefined.Vanaheimr.Illias;
 using org.GraphDefined.Vanaheimr.Illias.Votes;
 using org.GraphDefined.Vanaheimr.Styx.Arrows;
+using Newtonsoft.Json.Linq;
 
 #endregion
 
@@ -49,99 +50,30 @@ namespace org.GraphDefined.OpenData
         /// </summary>
         public const UInt16 DefaultOrganizationStatusHistorySize = 50;
 
-        private readonly ReactiveSet<MiniEdge<User,      User2OrganizationEdges, Organization>> _User2OrganizationEdges;
-        private readonly ReactiveSet<MiniEdge<Organization, Organization2UserEdges, User>>      _Organization2UserEdges;
+        private readonly ReactiveSet<MiniEdge<User,         User2OrganizationEdges, Organization>>  _User2OrganizationEdges;
+        private readonly ReactiveSet<MiniEdge<Organization, Organization2UserEdges, User>>          _Organization2UserEdges;
 
         #endregion
 
         #region Properties
 
-        #region Name
-
-        private I18NString _Name;
-
         /// <summary>
-        /// The offical (multi-language) name of the user.
+        /// The offical (multi-language) name of the organization.
         /// </summary>
         [Mandatory]
-        public I18NString Name
-        {
-
-            get
-            {
-                return _Name;
-            }
-
-            set
-            {
-                _Name = value;
-            }
-
-        }
-
-        #endregion
-
-        #region Description
-
-        private readonly I18NString _Description;
+        public I18NString  Name          { get; }
 
         /// <summary>
-        /// An optional (multi-language) description of the user.
+        /// An optional (multi-language) description of the organization.
         /// </summary>
         [Optional]
-        public I18NString Description
-        {
-            get
-            {
-                return _Description;
-            }
-        }
-
-        #endregion
-
-        #region IsHidden / IsPublic
-
-        private Boolean _IsHidden;
+        public I18NString  Description   { get; }
 
         /// <summary>
-        /// The user will not be shown in user listings.
+        /// The organization will not be shown in user listings.
         /// </summary>
         [Mandatory]
-        public Boolean IsHidden
-        {
-
-            get
-            {
-                return _IsHidden;
-            }
-
-            set
-            {
-                _IsHidden = value;
-            }
-
-        }
-
-        /// <summary>
-        /// The user will be shown in user listings.
-        /// </summary>
-        [Mandatory]
-        public Boolean IsPublic
-        {
-
-            get
-            {
-                return !_IsHidden;
-            }
-
-            set
-            {
-                _IsHidden = !value;
-            }
-
-        }
-
-        #endregion
+        public Boolean     IsHidden      { get; }
 
         #endregion
 
@@ -152,41 +84,30 @@ namespace org.GraphDefined.OpenData
         #region Constructor(s)
 
         /// <summary>
-        /// Create a new user organization.
+        /// Create a new organization.
         /// </summary>
-        /// <param name="Id">The unique identification of the user organization.</param>
-        /// <param name="Name">The offical (multi-language) name of the user organization.</param>
-        /// <param name="Description">An optional (multi-language) description of the user organization.</param>
+        /// <param name="Id">The unique identification of the organization.</param>
+        /// <param name="Name">The offical (multi-language) name of the organization.</param>
+        /// <param name="Description">An optional (multi-language) description of the organization.</param>
         public Organization(Organization_Id  Id,
-                         I18NString    Name         = null,
-                         I18NString    Description  = null)
+                            I18NString       Name          = null,
+                            I18NString       Description   = null)
 
             : base(Id)
 
         {
 
-            #region Initial checks
+            #region Init properties
 
-            if (Id == null)
-                throw new ArgumentNullException("Id", "The Id must not be null!");
-
-            #endregion
-
-            #region Init data and properties
-
-            this._Name                      = Name        != null ? Name        : new I18NString();
-            this._Description               = Description != null ? Description : new I18NString();
-
-            this._User2OrganizationEdges           = new ReactiveSet<MiniEdge<User, User2OrganizationEdges, Organization>>();
-            this._Organization2UserEdges           = new ReactiveSet<MiniEdge<Organization, Organization2UserEdges, User>>();
+            this.Name         = Name        ?? new I18NString();
+            this.Description  = Description ?? new I18NString();
 
             #endregion
 
-            #region Init events
+            #region Init edges
 
-            #endregion
-
-            #region Link events
+            this._User2OrganizationEdges    = new ReactiveSet<MiniEdge<User, User2OrganizationEdges, Organization>>();
+            this._Organization2UserEdges    = new ReactiveSet<MiniEdge<Organization, Organization2UserEdges, User>>();
 
             #endregion
 
@@ -196,6 +117,44 @@ namespace org.GraphDefined.OpenData
 
 
 
+        #region Groups()
+
+        /// <summary>
+        /// All organizations this user belongs to.
+        /// </summary>
+        public IEnumerable<Organization> Groups()
+            => _User2OrganizationEdges.
+                   Select(edge => edge.Target);
+
+        #endregion
+
+        #region Groups(EdgeFilter)
+
+        /// <summary>
+        /// All organizations this user belongs to,
+        /// filtered by the given edge label.
+        /// </summary>
+        public IEnumerable<Organization> Groups(User2OrganizationEdges EdgeFilter)
+            => _User2OrganizationEdges.
+                   Where (edge => edge.EdgeLabel == EdgeFilter).
+                   Select(edge => edge.Target);
+
+        #endregion
+
+        #region Edges(Group)
+
+        /// <summary>
+        /// All organizations this user belongs to,
+        /// filtered by the given edge label.
+        /// </summary>
+        public IEnumerable<User2OrganizationEdges> Edges(Organization Organization)
+            => _User2OrganizationEdges.
+                   Where (edge => edge.Target == Organization).
+                   Select(edge => edge.EdgeLabel);
+
+        #endregion
+
+
         public MiniEdge<User, User2OrganizationEdges, Organization>
 
             AddIncomingEdge(User            Source,
@@ -203,7 +162,7 @@ namespace org.GraphDefined.OpenData
                             PrivacyLevel    PrivacyLevel = PrivacyLevel.Private)
 
         {
-            return this._User2OrganizationEdges.AddAndReturn(new MiniEdge<User, User2OrganizationEdges, Organization>(Source, EdgeLabel, this, PrivacyLevel));
+            return _User2OrganizationEdges.AddAndReturn(new MiniEdge<User, User2OrganizationEdges, Organization>(Source, EdgeLabel, this, PrivacyLevel));
         }
 
         public MiniEdge<User, User2OrganizationEdges, Organization>
@@ -211,7 +170,7 @@ namespace org.GraphDefined.OpenData
             AddIncomingEdge(MiniEdge<User, User2OrganizationEdges, Organization> Edge)
 
         {
-            return this._User2OrganizationEdges.AddAndReturn(Edge);
+            return _User2OrganizationEdges.AddAndReturn(Edge);
         }
 
         public MiniEdge<Organization, Organization2UserEdges, User>
@@ -222,7 +181,7 @@ namespace org.GraphDefined.OpenData
 
         {
 
-            return this._Organization2UserEdges.AddAndReturn(new MiniEdge<Organization, Organization2UserEdges, User>(this, EdgeLabel, Target, PrivacyLevel));
+            return _Organization2UserEdges.AddAndReturn(new MiniEdge<Organization, Organization2UserEdges, User>(this, EdgeLabel, Target, PrivacyLevel));
 
         }
 
@@ -325,9 +284,7 @@ namespace org.GraphDefined.OpenData
         /// Get the hashcode of this object.
         /// </summary>
         public override Int32 GetHashCode()
-        {
-            return Id.GetHashCode();
-        }
+            => Id.GetHashCode();
 
         #endregion
 
@@ -337,9 +294,22 @@ namespace org.GraphDefined.OpenData
         /// Get a string representation of this object.
         /// </summary>
         public override String ToString()
-        {
-            return Id.ToString();
-        }
+            => Id.ToString();
+
+        #endregion
+
+        #region ToJSON()
+
+        /// <summary>
+        /// Return a JSON representation of this object.
+        /// </summary>
+        public JObject ToJSON()
+
+            => new JObject(
+                   new JProperty("@id",          Id.ToString()),
+                   new JProperty("name",         Name),
+                   new JProperty("description",  Description)
+               );
 
         #endregion
 

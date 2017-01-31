@@ -19,14 +19,13 @@
 
 using System;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 
+using Newtonsoft.Json.Linq;
+
 using org.GraphDefined.Vanaheimr.Illias;
-using org.GraphDefined.Vanaheimr.Illias.Votes;
 using org.GraphDefined.Vanaheimr.Styx.Arrows;
+using org.GraphDefined.Vanaheimr.Hermod;
 
 #endregion
 
@@ -56,92 +55,23 @@ namespace org.GraphDefined.OpenData
 
         #region Properties
 
-        #region Name
-
-        private I18NString _Name;
-
         /// <summary>
-        /// The offical (multi-language) name of the user.
+        /// The offical (multi-language) name of the group.
         /// </summary>
         [Mandatory]
-        public I18NString Name
-        {
-
-            get
-            {
-                return _Name;
-            }
-
-            set
-            {
-                _Name = value;
-            }
-
-        }
-
-        #endregion
-
-        #region Description
-
-        private readonly I18NString _Description;
+        public I18NString  Name          { get; }
 
         /// <summary>
-        /// An optional (multi-language) description of the user.
+        /// An optional (multi-language) description of the group.
         /// </summary>
         [Optional]
-        public I18NString Description
-        {
-            get
-            {
-                return _Description;
-            }
-        }
-
-        #endregion
-
-        #region IsHidden / IsPublic
-
-        private Boolean _IsHidden;
+        public I18NString  Description   { get; }
 
         /// <summary>
-        /// The user will not be shown in user listings.
+        /// The group will be shown in group listings.
         /// </summary>
         [Mandatory]
-        public Boolean IsHidden
-        {
-
-            get
-            {
-                return _IsHidden;
-            }
-
-            set
-            {
-                _IsHidden = value;
-            }
-
-        }
-
-        /// <summary>
-        /// The user will be shown in user listings.
-        /// </summary>
-        [Mandatory]
-        public Boolean IsPublic
-        {
-
-            get
-            {
-                return !_IsHidden;
-            }
-
-            set
-            {
-                _IsHidden = !value;
-            }
-
-        }
-
-        #endregion
+        public Boolean     IsPublic      { get; }
 
         #endregion
 
@@ -157,9 +87,9 @@ namespace org.GraphDefined.OpenData
         /// <param name="Id">The unique identification of the user group.</param>
         /// <param name="Name">The offical (multi-language) name of the user group.</param>
         /// <param name="Description">An optional (multi-language) description of the user group.</param>
-        public Group(Group_Id  Id,
-                         I18NString    Name         = null,
-                         I18NString    Description  = null)
+        internal Group(Group_Id    Id,
+                       I18NString  Name          = null,
+                       I18NString  Description   = null)
 
             : base(Id)
 
@@ -168,25 +98,17 @@ namespace org.GraphDefined.OpenData
             #region Initial checks
 
             if (Id == null)
-                throw new ArgumentNullException("Id", "The Id must not be null!");
+                throw new ArgumentNullException(nameof(Id), "The group identification must not be null!");
 
             #endregion
 
             #region Init data and properties
 
-            this._Name                      = Name        != null ? Name        : new I18NString();
-            this._Description               = Description != null ? Description : new I18NString();
+            this.Name                      = Name        ?? new I18NString();
+            this.Description               = Description ?? new I18NString();
 
-            this._User2GroupEdges           = new ReactiveSet<MiniEdge<User, User2GroupEdges, Group>>();
-            this._Group2UserEdges           = new ReactiveSet<MiniEdge<Group, Group2UserEdges, User>>();
-
-            #endregion
-
-            #region Init events
-
-            #endregion
-
-            #region Link events
+            this._User2GroupEdges          = new ReactiveSet<MiniEdge<User, User2GroupEdges, Group>>();
+            this._Group2UserEdges          = new ReactiveSet<MiniEdge<Group, Group2UserEdges, User>>();
 
             #endregion
 
@@ -196,6 +118,44 @@ namespace org.GraphDefined.OpenData
 
 
 
+        #region Groups()
+
+        /// <summary>
+        /// All groups this user belongs to.
+        /// </summary>
+        public IEnumerable<Group> Groups()
+            => _User2GroupEdges.
+                   Select(edge => edge.Target);
+
+        #endregion
+
+        #region Groups(EdgeFilter)
+
+        /// <summary>
+        /// All groups this user belongs to,
+        /// filtered by the given edge label.
+        /// </summary>
+        public IEnumerable<Group> Groups(User2GroupEdges EdgeFilter)
+            => _User2GroupEdges.
+                   Where (edge => edge.EdgeLabel == EdgeFilter).
+                   Select(edge => edge.Target);
+
+        #endregion
+
+        #region Edges(Group)
+
+        /// <summary>
+        /// All groups this user belongs to,
+        /// filtered by the given edge label.
+        /// </summary>
+        public IEnumerable<User2GroupEdges> Edges(Group Group)
+            => _User2GroupEdges.
+                   Where (edge => edge.Target == Group).
+                   Select(edge => edge.EdgeLabel);
+
+        #endregion
+
+
         public MiniEdge<User, User2GroupEdges, Group>
 
             AddIncomingEdge(User            Source,
@@ -203,7 +163,7 @@ namespace org.GraphDefined.OpenData
                             PrivacyLevel    PrivacyLevel = PrivacyLevel.Private)
 
         {
-            return this._User2GroupEdges.AddAndReturn(new MiniEdge<User, User2GroupEdges, Group>(Source, EdgeLabel, this, PrivacyLevel));
+            return _User2GroupEdges.AddAndReturn(new MiniEdge<User, User2GroupEdges, Group>(Source, EdgeLabel, this, PrivacyLevel));
         }
 
         public MiniEdge<User, User2GroupEdges, Group>
@@ -222,7 +182,7 @@ namespace org.GraphDefined.OpenData
 
         {
 
-            return this._Group2UserEdges.AddAndReturn(new MiniEdge<Group, Group2UserEdges, User>(this, EdgeLabel, Target, PrivacyLevel));
+            return _Group2UserEdges.AddAndReturn(new MiniEdge<Group, Group2UserEdges, User>(this, EdgeLabel, Target, PrivacyLevel));
 
         }
 
@@ -340,6 +300,21 @@ namespace org.GraphDefined.OpenData
         {
             return Id.ToString();
         }
+
+        #endregion
+
+        #region ToJSON()
+
+        /// <summary>
+        /// Return a JSON representation of this object.
+        /// </summary>
+        public JObject ToJSON()
+
+            => new JObject(
+                   new JProperty("id",           Id.         ToString()),
+                   new JProperty("name",         Name.       ToJSON()),
+                   new JProperty("description",  Description.ToJSON())
+               );
 
         #endregion
 

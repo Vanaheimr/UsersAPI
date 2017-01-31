@@ -58,13 +58,6 @@ namespace org.GraphDefined.OpenData
         #region Properties
 
         /// <summary>
-        /// The login of the user.
-        /// </summary>
-        [Mandatory]
-        public String              Login
-            => Id.ToString();
-
-        /// <summary>
         /// The primary E-Mail address of the user.
         /// </summary>
         [Mandatory]
@@ -73,14 +66,20 @@ namespace org.GraphDefined.OpenData
         /// <summary>
         /// The offical public name of the user.
         /// </summary>
-        [Mandatory]
+        [Optional]
         public String              Name                 { get; }
 
         /// <summary>
         /// The PGP/GPG public keyring of the user.
         /// </summary>
         [Optional]
-        public String              GPGPublicKeyRing     { get; }
+        public String              PublicKeyRing        { get; }
+
+        /// <summary>
+        /// The telephone number of the user.
+        /// </summary>
+        [Optional]
+        public String              Telephone            { get; }
 
         /// <summary>
         /// An optional (multi-language) description of the user.
@@ -88,76 +87,24 @@ namespace org.GraphDefined.OpenData
         [Optional]
         public I18NString          Description          { get; }
 
+        /// <summary>
+        /// The user will be shown in user listings.
+        /// </summary>
+        [Mandatory]
+        public Boolean             IsPublic             { get; }
 
-        #region IsAuthenticated
-
-        private Boolean _IsAuthenticated;
+        /// <summary>
+        /// The user will be shown in user listings.
+        /// </summary>
+        [Mandatory]
+        public Boolean             IsDisabled           { get; }
 
         /// <summary>
         /// The user will not be shown in user listings, as its
         /// primary e-mail address is not yet authenticated.
         /// </summary>
         [Mandatory]
-        public Boolean IsAuthenticated
-        {
-
-            get
-            {
-                return _IsAuthenticated;
-            }
-
-            set
-            {
-                _IsAuthenticated = value;
-            }
-
-        }
-
-        #endregion
-
-        #region IsHidden / IsPublic
-
-        private Boolean _IsHidden;
-
-        /// <summary>
-        /// The user will not be shown in user listings.
-        /// </summary>
-        [Mandatory]
-        public Boolean IsHidden
-        {
-
-            get
-            {
-                return _IsHidden;
-            }
-
-            set
-            {
-                _IsHidden = value;
-            }
-
-        }
-
-        /// <summary>
-        /// The user will be shown in user listings.
-        /// </summary>
-        [Mandatory]
-        public Boolean IsPublic
-        {
-
-            get
-            {
-                return !_IsHidden;
-            }
-
-            set
-            {
-                _IsHidden = !value;
-            }
-
-        }
-
-        #endregion
+        public Boolean             IsAuthenticated      { get; }
 
 
         #region Genimi
@@ -248,6 +195,19 @@ namespace org.GraphDefined.OpenData
 
         #endregion
 
+        #region Edges(Organization)
+
+        /// <summary>
+        /// All organizations this user belongs to,
+        /// filtered by the given edge label.
+        /// </summary>
+        public IEnumerable<User2OrganizationEdges> Edges(Organization Organization)
+            => _User2OrganizationEdges.
+                   Where (edge => edge.Target == Organization).
+                   Select(edge => edge.EdgeLabel);
+
+        #endregion
+
         #region FollowsGroups
 
         /// <summary>
@@ -276,48 +236,47 @@ namespace org.GraphDefined.OpenData
         /// <summary>
         /// Create a new user.
         /// </summary>
-        /// <param name="Login">The unique identification of the user.</param>
+        /// <param name="Id">The unique identification of the user.</param>
         /// <param name="EMail">The primary e-mail of the user.</param>
-        /// <param name="Name">The offical (multi-language) name of the user.</param>
-        /// <param name="GPGPublicKeyRing">The PGP/GPG public keyring of the user.</param>
+        /// <param name="Name">An offical (multi-language) name of the user.</param>
+        /// <param name="PublicKeyRing">An optional PGP/GPG public keyring of the user.</param>
+        /// <param name="Telephone">An optional telephone number of the user.</param>
         /// <param name="Description">An optional (multi-language) description of the user.</param>
-        internal User(User_Id             Login,
+        /// <param name="IsPublic">The user will be shown in user listings.</param>
+        /// <param name="IsDisabled">The user will be shown in user listings.</param>
+        /// <param name="IsAuthenticated">The user will not be shown in user listings, as its primary e-mail address is not yet authenticated.</param>
+        internal User(User_Id             Id,
                       SimpleEMailAddress  EMail,
                       String              Name              = null,
-                      String              GPGPublicKeyRing  = null,
-                      I18NString          Description       = null)
+                      String              PublicKeyRing     = null,
+                      String              Telephone         = null,
+                      I18NString          Description       = null,
+                      Boolean             IsPublic          = true,
+                      Boolean             IsDisabled        = false,
+                      Boolean             IsAuthenticated   = false)
 
-            : base(Login)
+            : base(Id)
 
         {
 
-            #region Initial checks
+            #region Init properties
 
-            if (Login == null)
-                throw new ArgumentNullException(nameof(Login), "The login of the user must not be null!");
-
-            #endregion
-
-            #region Init data and properties
-
-            this.EMail                     = EMail;
-            this.Name                      = Name        != null ? Name        : "";
-            this.Description               = Description != null ? Description : new I18NString();
-            this.GPGPublicKeyRing          = GPGPublicKeyRing;
-            this._IsAuthenticated          = false;
-            this._IsHidden                 = false;
-
-            this._User2UserEdges           = new ReactiveSet<MiniEdge<User, User2UserEdges,         User>>();
-            this._User2GroupEdges          = new ReactiveSet<MiniEdge<User, User2GroupEdges,        Group>>();
-            this._User2OrganizationEdges   = new ReactiveSet<MiniEdge<User, User2OrganizationEdges, Organization>>();
+            this.EMail                    = EMail;
+            this.Name                     = Name        ?? "";
+            this.PublicKeyRing            = PublicKeyRing;
+            this.Telephone                = Telephone;
+            this.Description              = Description ?? new I18NString();
+            this.IsPublic                 = IsPublic;
+            this.IsDisabled               = IsDisabled;
+            this.IsAuthenticated          = IsAuthenticated;
 
             #endregion
 
-            #region Init events
+            #region Init edges
 
-            #endregion
-
-            #region Link events
+            this._User2UserEdges          = new ReactiveSet<MiniEdge<User, User2UserEdges,         User>>();
+            this._User2GroupEdges         = new ReactiveSet<MiniEdge<User, User2GroupEdges,        Group>>();
+            this._User2OrganizationEdges  = new ReactiveSet<MiniEdge<User, User2OrganizationEdges, Organization>>();
 
             #endregion
 
@@ -531,11 +490,15 @@ namespace org.GraphDefined.OpenData
         public JObject ToJSON()
 
             => new JObject(
-                   new JProperty("login",        Login),
-                   new JProperty("email",        EMail.ToString()),
-                   new JProperty("name",         Name),
-                   new JProperty("publickey",    GPGPublicKeyRing),
-                   new JProperty("description",  Description)
+                   new JProperty("@id",              Id.   ToString()),
+                   new JProperty("email",            EMail.ToString()),
+                   new JProperty("name",             Name),
+                   new JProperty("publickey",        PublicKeyRing),
+                   new JProperty("telephone",        Telephone),
+                   new JProperty("description",      Description),
+                   new JProperty("isPublic",         IsPublic),
+                   new JProperty("isDisabled",       IsDisabled),
+                   new JProperty("isAuthenticated",  IsAuthenticated)
                );
 
         #endregion

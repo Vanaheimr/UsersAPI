@@ -792,6 +792,20 @@ namespace org.GraphDefined.OpenData
 
                                 break;
 
+                            case "CreateGroup":
+
+                                //var Group = new Group(Group_Id.           Parse(JSONParameters["login"      ].Value<String>()),
+                                //                    SimpleEMailAddress.Parse(JSONParameters["email"      ].Value<String>()),
+                                //                                             JSONParameters["name"       ].Value<String>(),
+                                //                                             JSONParameters["publickey"  ].Value<String>());
+                                //                                             // description);
+
+
+                                //_Users.AddAndReturnValue(User.Id, User);
+
+                                break;
+
+
                         }
 
                     }
@@ -1149,7 +1163,7 @@ namespace org.GraphDefined.OpenData
                                           HTTPMethod.GET,
                                           "/verificationtokens/{VerificationToken}",
                                           HTTPContentType.HTML_UTF8,
-                                          HTTPDelegate: async Request => {
+                                          HTTPDelegate: Request => {
 
                                               VerificationToken VerificationToken = null;
 
@@ -1161,25 +1175,27 @@ namespace org.GraphDefined.OpenData
                                                   }
 
                                               if (VerificationToken == null)
-                                                  return new HTTPResponseBuilder(Request) {
-                                                      HTTPStatusCode = HTTPStatusCode.NotFound,
-                                                      Server = HTTPServer.DefaultServerName,
-                                                      ContentType = HTTPContentType.HTML_UTF8,
-                                                      Content = ("VerificationToken not found!").ToUTF8Bytes(),
-                                                      CacheControl = "public",
-                                                      Connection = "close"
-                                                  };
+                                                  return Task.FromResult(
+                                                      new HTTPResponseBuilder(Request) {
+                                                          HTTPStatusCode  = HTTPStatusCode.NotFound,
+                                                          Server          = HTTPServer.DefaultServerName,
+                                                          ContentType     = HTTPContentType.HTML_UTF8,
+                                                          Content         = ("VerificationToken not found!").ToUTF8Bytes(),
+                                                          CacheControl    = "public",
+                                                          Connection      = "close"
+                                                      }.AsImmutable());
 
                                               User _User = null;
                                               if (!_Users.TryGetValue(VerificationToken.Login, out _User))
-                                                  return new HTTPResponseBuilder(Request) {
-                                                      HTTPStatusCode = HTTPStatusCode.NotFound,
-                                                      Server = HTTPServer.DefaultServerName,
-                                                      ContentType = HTTPContentType.HTML_UTF8,
-                                                      Content = ("Login not found!").ToUTF8Bytes(),
-                                                      CacheControl = "public",
-                                                      Connection = "close"
-                                                  };
+                                                  return Task.FromResult(
+                                                      new HTTPResponseBuilder(Request) {
+                                                          HTTPStatusCode  = HTTPStatusCode.NotFound,
+                                                          Server          = HTTPServer.DefaultServerName,
+                                                          ContentType     = HTTPContentType.HTML_UTF8,
+                                                          Content         = ("Login not found!").ToUTF8Bytes(),
+                                                          CacheControl    = "public",
+                                                          Connection      = "close"
+                                                      }.AsImmutable());
 
                                               _VerificationTokens.Remove(VerificationToken);
 
@@ -1212,8 +1228,8 @@ namespace org.GraphDefined.OpenData
                                                   var AdminMail = new TextEMailBuilder() {
                                                       From = APIEMailAddress,
                                                       To = APIAdminEMails,
-                                                      Subject = "New user activated: " + _User.Login.ToString() + " at " + DateTime.Now.ToString(),
-                                                      Text = "New user activated: " + _User.Login.ToString() + " at " + DateTime.Now.ToString(),
+                                                      Subject = "New user activated: " + _User.Id.ToString() + " at " + DateTime.Now.ToString(),
+                                                      Text = "New user activated: " + _User.Id.ToString() + " at " + DateTime.Now.ToString(),
                                                       Passphrase = APIPassphrase
                                                   };
 
@@ -1227,7 +1243,7 @@ namespace org.GraphDefined.OpenData
                                                       ContentType = HTTPContentType.JSON_UTF8,
                                                       Content = new JObject(
                                                                                new JProperty("@context", ""),
-                                                                               new JProperty("@id", _User.Login.ToString()),
+                                                                               new JProperty("@id",   _User.Id.   ToString()),
                                                                                new JProperty("email", _User.EMail.ToString())
                                                                           ).ToString().ToUTF8Bytes(),
                                                       CacheControl = "public",
@@ -1239,16 +1255,17 @@ namespace org.GraphDefined.OpenData
 
                                               #endregion
 
-                                              return new HTTPResponseBuilder(Request) {
-                                                  HTTPStatusCode = HTTPStatusCode.OK,
-                                                  Server = HTTPServer.DefaultServerName,
-                                                  ContentType = HTTPContentType.HTML_UTF8,
-                                                  Content = ("Account '" + VerificationToken.Login.ToString() + "' activated!").ToUTF8Bytes(),
-                                                  CacheControl = "public",
-                                                  ETag = "1",
-                                                  //Expires         = "Mon, 25 Jun 2015 21:31:12 GMT",
-                                                  Connection = "close"
-                                              };
+                                              return Task.FromResult(
+                                                  new HTTPResponseBuilder(Request) {
+                                                      HTTPStatusCode  = HTTPStatusCode.OK,
+                                                      Server          = HTTPServer.DefaultServerName,
+                                                      ContentType     = HTTPContentType.HTML_UTF8,
+                                                      Content         = ("Account '" + VerificationToken.Login.ToString() + "' activated!").ToUTF8Bytes(),
+                                                      CacheControl    = "public",
+                                                      ETag            = "1",
+                                                      //Expires         = "Mon, 25 Jun 2015 21:31:12 GMT",
+                                                      Connection      = "close"
+                                                  }.AsImmutable());
 
                                           });
 
@@ -1579,10 +1596,10 @@ namespace org.GraphDefined.OpenData
 
                                               #endregion
 
-                                              var NewUser = CreateUser(Login:          _Login,
+                                              var NewUser = CreateUser(Id:          _Login,
                                                                        Password:          NewUserData.GetString("password"),
                                                                        EMail:             SimpleEMailAddress.Parse(NewUserData.GetString("email")),
-                                                                       GPGPublicKeyRing:  NewUserData.GetString("gpgpublickeyring"));
+                                                                       PublicKeyRing:  NewUserData.GetString("gpgpublickeyring"));
 
                                               var VerificationToken = _VerificationTokens.AddAndReturnElement(new VerificationToken(Seed: _Login.ToString() + NewUserData.GetString("password") + NewUserData.GetString("email"),
                                                                                                               UserId: _Login));
@@ -2225,27 +2242,31 @@ namespace org.GraphDefined.OpenData
 
 
 
-        #region CreateUser           (Login, EMail, Password, Name = null, GPGPublicKeyRing = null, Description = null, AuthenticateUser = false, HideUser = false)
+        #region CreateUser           (Id, EMail, Password, Name = null, GPGPublicKeyRing = null, Description = null, AuthenticateUser = false, HideUser = false)
 
         /// <summary>
         /// Create a new user.
         /// </summary>
-        /// <param name="Login">The unique identification of the user.</param>
+        /// <param name="Id">The unique identification of the user.</param>
         /// <param name="EMail">The primary e-mail of the user.</param>
         /// <param name="Password">The password of the user.</param>
-        /// <param name="Name">The offical (multi-language) name of the user.</param>
-        /// <param name="GPGPublicKeyRing">The PGP/GPG public keyring of the user.</param>
+        /// <param name="Name">An offical (multi-language) name of the user.</param>
+        /// <param name="PublicKeyRing">An optional PGP/GPG public keyring of the user.</param>
+        /// <param name="Telephone">An optional telephone number of the user.</param>
         /// <param name="Description">An optional (multi-language) description of the user.</param>
-        /// <param name="IsAuthenticated"></param>
-        /// <param name="HideUser"></param>
-        public User CreateUser(User_Id             Login,
+        /// <param name="IsPublic">The user will be shown in user listings.</param>
+        /// <param name="IsDisabled">The user will be shown in user listings.</param>
+        /// <param name="IsAuthenticated">The user will not be shown in user listings, as its primary e-mail address is not yet authenticated.</param>
+        public User CreateUser(User_Id             Id,
                                SimpleEMailAddress  EMail,
                                String              Password,
-                               String              Name               = null,
-                               String              GPGPublicKeyRing   = null,
-                               I18NString          Description        = null,
-                               Boolean             IsAuthenticated    = false,
-                               Boolean             HideUser           = false)
+                               String              Name              = null,
+                               String              PublicKeyRing     = null,
+                               String              Telephone         = null,
+                               I18NString          Description       = null,
+                               Boolean             IsPublic          = true,
+                               Boolean             IsDisabled        = false,
+                               Boolean             IsAuthenticated   = false)
         {
 
             #region Initial checks
@@ -2258,30 +2279,35 @@ namespace org.GraphDefined.OpenData
             lock (_Users)
             {
 
-                if (_Users.ContainsKey(Login))
-                    throw new ArgumentException("The given username already exists!", nameof(Login));
+                if (_Users.ContainsKey(Id))
+                    throw new ArgumentException("The given username already exists!", nameof(Id));
 
 
-                var User = new User(Login,
+                var User = new User(Id,
                                     EMail,
                                     Name,
-                                    GPGPublicKeyRing,
-                                    Description);
+                                    PublicKeyRing,
+                                    Telephone,
+                                    Description,
+                                    IsPublic,
+                                    IsDisabled,
+                                    IsAuthenticated);
 
-                if (IsAuthenticated)
-                    User.IsAuthenticated  = true;
+                //if (IsAuthenticated)
+                //    User.IsAuthenticated  = true;
 
-                if (HideUser)
-                    User.IsHidden         = true;
+                //if (HideUser)
+                //    User.IsHidden         = true;
 
                 File.AppendAllText(DefaultUserDBFile,
                                    UserDB_RegEx.Replace(new JObject(
-                                                            new JProperty("CreateUser", User.ToJSON())
+                                                            new JProperty("CreateUser",  User.ToJSON()),
+                                                            new JProperty("Timestamp",   DateTime.Now.ToIso8601())
                                                         ).ToString(),
                                                         " ") +
                                    Environment.NewLine);
 
-                SetPassword(Login, Password);
+                SetPassword(Id, Password);
 
                 return _Users.AddAndReturnValue(User.Id, User);
 
@@ -2291,27 +2317,31 @@ namespace org.GraphDefined.OpenData
 
         #endregion
 
-        #region CreateUserIfNotExists(Login, EMail, Password, Name = null, GPGPublicKeyRing = null, Description = null, AuthenticateUser = false, HideUser = false)
+        #region CreateUserIfNotExists(Id, EMail, Password, Name = null, PublicKeyRing = null, Description = null, AuthenticateUser = false, HideUser = false)
 
         /// <summary>
         /// Create a new user.
         /// </summary>
-        /// <param name="Login">The unique identification of the user.</param>
+        /// <param name="Id">The unique identification of the user.</param>
         /// <param name="EMail">The primary e-mail of the user.</param>
         /// <param name="Password">The password of the user.</param>
-        /// <param name="Name">The offical (multi-language) name of the user.</param>
-        /// <param name="GPGPublicKeyRing">The PGP/GPG public keyring of the user.</param>
+        /// <param name="Name">An offical (multi-language) name of the user.</param>
+        /// <param name="PublicKeyRing">An optional PGP/GPG public keyring of the user.</param>
+        /// <param name="Telephone">An optional telephone number of the user.</param>
         /// <param name="Description">An optional (multi-language) description of the user.</param>
-        /// <param name="IsAuthenticated"></param>
-        /// <param name="HideUser"></param>
-        public User CreateUserIfNotExists(User_Id             Login,
+        /// <param name="IsPublic">The user will be shown in user listings.</param>
+        /// <param name="IsDisabled">The user will be shown in user listings.</param>
+        /// <param name="IsAuthenticated">The user will not be shown in user listings, as its primary e-mail address is not yet authenticated.</param>
+        public User CreateUserIfNotExists(User_Id             Id,
                                           SimpleEMailAddress  EMail,
                                           String              Password,
-                                          String              Name               = null,
-                                          String              GPGPublicKeyRing   = null,
-                                          I18NString          Description        = null,
-                                          Boolean             IsAuthenticated    = false,
-                                          Boolean             HideUser           = false)
+                                          String              Name              = null,
+                                          String              PublicKeyRing     = null,
+                                          String              Telephone         = null,
+                                          I18NString          Description       = null,
+                                          Boolean             IsPublic          = true,
+                                          Boolean             IsDisabled        = false,
+                                          Boolean             IsAuthenticated   = false)
         {
 
             #region Initial checks
@@ -2324,17 +2354,19 @@ namespace org.GraphDefined.OpenData
             lock (_Users)
             {
 
-                if (_Users.ContainsKey(Login))
-                    return _Users[Login];
+                if (_Users.ContainsKey(Id))
+                    return _Users[Id];
 
-                return CreateUser(Login,
+                return CreateUser(Id,
                                   EMail,
                                   Password,
                                   Name,
-                                  GPGPublicKeyRing,
+                                  PublicKeyRing,
+                                  Telephone,
                                   Description,
-                                  IsAuthenticated,
-                                  HideUser);
+                                  IsPublic,
+                                  IsDisabled,
+                                  IsAuthenticated);
 
             }
 
@@ -2408,16 +2440,56 @@ namespace org.GraphDefined.OpenData
 
         #region CreateGroup(Id, Name = null, Description = null)
 
-        public Group CreateGroup(Group_Id    Id,
-                                 I18NString  Name         = null,
-                                 I18NString  Description  = null)
+        public Group CreateGroup(Group_Id   Id,
+                                 I18NString Name         = null,
+                                 I18NString Description  = null)
         {
 
-            var Group = new Group(Id,
-                                  Name,
-                                  Description);
+            lock (_Groups)
+            {
 
-            return _Groups.AddAndReturnValue(Group.Id, Group);
+                if (_Groups.ContainsKey(Id))
+                    throw new ArgumentException("The given group identification already exists!", nameof(Id));
+
+
+                var Group = new Group(Id,
+                                      Name,
+                                      Description);
+
+                File.AppendAllText(DefaultUserDBFile,
+                                   UserDB_RegEx.Replace(new JObject(
+                                                            new JProperty("CreateGroup",  Group.ToJSON()),
+                                                            new JProperty("Timestamp",    DateTime.Now.ToIso8601())
+                                                        ).ToString(),
+                                                        " ") +
+                                   Environment.NewLine);
+
+                return _Groups.AddAndReturnValue(Group.Id, Group);
+
+            }
+
+        }
+
+        #endregion
+
+        #region CreateGroupIfNotExists(Id, Name = null, Description = null)
+
+        public Group CreateGroupIfNotExists(Group_Id    Id,
+                                            I18NString  Name         = null,
+                                            I18NString  Description  = null)
+        {
+
+            lock (_Groups)
+            {
+
+                if (_Groups.ContainsKey(Id))
+                    return _Groups[Id];
+
+                return CreateGroup(Id,
+                                   Name,
+                                   Description);
+
+            }
 
         }
 
@@ -2440,8 +2512,24 @@ namespace org.GraphDefined.OpenData
                                   PrivacyLevel     Privacy = PrivacyLevel.Public)
         {
 
-            User. AddOutgoingEdge(Edge, Group, Privacy);
-            Group.AddIncomingEdge(User, Edge,  Privacy);
+            if (!User.Edges(Group).Any(edge => edge == Edge))
+                User. AddOutgoingEdge(Edge, Group, Privacy);
+
+            if (!Group.Edges(Group).Any(edge => edge == Edge))
+                Group.AddIncomingEdge(User, Edge,  Privacy);
+
+            File.AppendAllText(DefaultUserDBFile,
+                               UserDB_RegEx.Replace(new JObject(
+                                                        new JProperty("AddToGroup",
+                                                                      new JObject(
+                                                                          new JProperty("User",     User.Id.ToString()),
+                                                                          new JProperty("Edge",     Edge.   ToString()),
+                                                                          new JProperty("Group",    Group.  ToString()),
+                                                                          new JProperty("Privacy",  Privacy.ToString())
+                                                                      ))
+                                                    ).ToString(),
+                                                    " ") +
+                               Environment.NewLine);
 
             return true;
 
@@ -2466,11 +2554,28 @@ namespace org.GraphDefined.OpenData
                                                I18NString       Description  = null)
         {
 
-            var Organization = new Organization(Id,
-                                                Name,
-                                                Description);
+            lock (_Organizations)
+            {
 
-            return _Organizations.AddAndReturnValue(Organization.Id, Organization);
+                if (_Organizations.ContainsKey(Id))
+                    throw new ArgumentException("The given organization identification already exists!", nameof(Id));
+
+
+                var Organization = new Organization(Id,
+                                                    Name,
+                                                    Description);
+
+                File.AppendAllText(DefaultUserDBFile,
+                                   UserDB_RegEx.Replace(new JObject(
+                                                            new JProperty("CreateOrganization",  Organization.ToJSON()),
+                                                            new JProperty("Timestamp",           DateTime.Now.ToIso8601())
+                                                        ).ToString(),
+                                                        " ") +
+                                   Environment.NewLine);
+
+                return _Organizations.AddAndReturnValue(Organization.Id, Organization);
+
+            }
 
         }
 
@@ -2485,7 +2590,7 @@ namespace org.GraphDefined.OpenData
 
         #endregion
 
-        #region AddToGroup(User, Edge, Organization, Privacy = Public)
+        #region AddToOrganization(User, Edge, Organization, Privacy = Public)
 
         public Boolean AddToOrganization(User                    User,
                                          User2OrganizationEdges  Edge,
@@ -2493,8 +2598,24 @@ namespace org.GraphDefined.OpenData
                                          PrivacyLevel            Privacy = PrivacyLevel.Public)
         {
 
-            User.        AddOutgoingEdge(Edge, Organization, Privacy);
-            Organization.AddIncomingEdge(User, Edge,         Privacy);
+            if (!User.Edges(Organization).Any(edge => edge == Edge))
+                User.        AddOutgoingEdge(Edge, Organization, Privacy);
+
+            if (!Organization.Edges(Organization).Any(edge => edge == Edge))
+                Organization.AddIncomingEdge(User, Edge,         Privacy);
+
+            File.AppendAllText(DefaultUserDBFile,
+                               UserDB_RegEx.Replace(new JObject(
+                                                        new JProperty("AddToOrganization",
+                                                                      new JObject(
+                                                                          new JProperty("User",          User.Id.     ToString()),
+                                                                          new JProperty("Edge",          Edge.        ToString()),
+                                                                          new JProperty("Organization",  Organization.ToString()),
+                                                                          new JProperty("Privacy",       Privacy.     ToString())
+                                                                      ))
+                                                    ).ToString(),
+                                                    " ") +
+                               Environment.NewLine);
 
             return true;
 
