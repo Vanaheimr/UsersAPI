@@ -19,15 +19,13 @@
 
 using System;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 
-using org.GraphDefined.Vanaheimr.Illias;
-using org.GraphDefined.Vanaheimr.Illias.Votes;
-using org.GraphDefined.Vanaheimr.Styx.Arrows;
 using Newtonsoft.Json.Linq;
+
+using org.GraphDefined.Vanaheimr.Illias;
+using org.GraphDefined.Vanaheimr.Hermod;
+using org.GraphDefined.Vanaheimr.Styx.Arrows;
 
 #endregion
 
@@ -352,9 +350,9 @@ namespace org.GraphDefined.OpenData
         public JObject ToJSON()
 
             => new JObject(
-                   new JProperty("@id",          Id.ToString()),
-                   new JProperty("name",         Name),
-                   new JProperty("description",  Description),
+                   new JProperty("@id",          Id.         ToString()),
+                   new JProperty("name",         Name.       ToJSON()),
+                   new JProperty("description",  Description.ToJSON()),
                    new JProperty("isPublic",     IsPublic),
                    new JProperty("isDisabled",   IsDisabled)
                );
