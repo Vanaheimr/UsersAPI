@@ -513,6 +513,8 @@ namespace org.GraphDefined.OpenData
         /// </summary>
         public String CurrentHash { get; private set; }
 
+        public String SystemId { get; }
+
         #endregion
 
         #region Constructor(s)
@@ -761,6 +763,7 @@ namespace org.GraphDefined.OpenData
             this._VerificationTokens          = new List<VerificationToken>();
 
             this._DNSClient                   = HTTPServer.DNSClient;
+            this.SystemId                     = Environment.MachineName.Replace("/", "") + "/" + HTTPServer.DefaultHTTPServerPort;
 
             #endregion
 
@@ -2334,6 +2337,7 @@ namespace org.GraphDefined.OpenData
 
             var _JObject   = new JObject(
                                  new JProperty(Command,       JSON),
+                                 new JProperty("Writer",      SystemId),
                                  new JProperty("Timestamp",   DateTime.Now.ToIso8601()),
                                  new JProperty("Nonce",       Guid.NewGuid().ToString().Replace("-", "")),
                                  new JProperty("ParentHash",  CurrentHash)
@@ -2342,7 +2346,7 @@ namespace org.GraphDefined.OpenData
             var SHA256     = new SHA256Managed();
             CurrentHash    = SHA256.ComputeHash(Encoding.Unicode.GetBytes(UserDB_RegEx.Replace(_JObject.ToString(), " "))).
                                     Select(value => String.Format("{0:x2}", value)).
-                                    AggregateWith("");
+                                    Aggregate();
 
             _JObject.Add(new JProperty("HashValue", CurrentHash));
 
