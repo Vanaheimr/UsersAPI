@@ -41,6 +41,7 @@ using org.GraphDefined.Vanaheimr.Hermod.SMTP;
 using org.GraphDefined.Vanaheimr.Hermod.Sockets.TCP;
 using org.GraphDefined.Vanaheimr.BouncyCastle;
 using org.GraphDefined.Vanaheimr.Hermod.Sockets;
+using System.Text;
 
 #endregion
 
@@ -506,6 +507,12 @@ namespace org.GraphDefined.OpenData
 
         #endregion
 
+
+        /// <summary>
+        /// The current hash value of the API.
+        /// </summary>
+        public String CurrentHash { get; private set; }
+
         #endregion
 
         #region Constructor(s)
@@ -771,6 +778,7 @@ namespace org.GraphDefined.OpenData
 
                         var JSONCommand     = JObject.Parse(line);
                         var JSONParameters  = (JSONCommand.First as JProperty).Value as JObject;
+                        CurrentHash         = JSONCommand["HashValue"].Value<String>();
 
                         switch ((JSONCommand.First as JProperty).Name)
                         {
@@ -2318,20 +2326,33 @@ namespace org.GraphDefined.OpenData
         #endregion
 
 
+        #region (private) WriteToLogfile(Command, JSON)
+
         private void WriteToLogfile(String   Command,
                                     JObject  JSON)
         {
 
-            var jObject = new JObject(
-                              new JProperty(Command,      JSON),
-                              new JProperty("Timestamp",  DateTime.Now.ToIso8601())
-                          );
+            var _JObject   = new JObject(
+                                 new JProperty(Command,       JSON),
+                                 new JProperty("Timestamp",   DateTime.Now.ToIso8601()),
+                                 new JProperty("Nonce",       Guid.NewGuid().ToString().Replace("-", "")),
+                                 new JProperty("ParentHash",  CurrentHash)
+                             );
+
+            var SHA256     = new SHA256Managed();
+            CurrentHash    = SHA256.ComputeHash(Encoding.Unicode.GetBytes(UserDB_RegEx.Replace(_JObject.ToString(), " "))).
+                                    Select(value => String.Format("{0:x2}", value)).
+                                    AggregateWith("");
+
+            _JObject.Add(new JProperty("HashValue", CurrentHash));
 
             File.AppendAllText(DefaultUsersAPIFile,
-                               UserDB_RegEx.Replace(jObject.ToString(), " ") +
+                               UserDB_RegEx.Replace(_JObject.ToString(), " ") +
                                Environment.NewLine);
 
         }
+
+        #endregion
 
 
         #region CreateUser           (Id, EMail, Password, Name = null, PublicKeyRing = null, Telephone = null, Description = null, IsPublic = true, IsDisabled = false, IsAuthenticated = false)
@@ -2641,13 +2662,7 @@ namespace org.GraphDefined.OpenData
                                                     Name,
                                                     Description);
 
-                File.AppendAllText(DefaultUsersAPIFile,
-                                   UserDB_RegEx.Replace(new JObject(
-                                                            new JProperty("CreateOrganization",  Organization.ToJSON()),
-                                                            new JProperty("Timestamp",           DateTime.Now.ToIso8601())
-                                                        ).ToString(),
-                                                        " ") +
-                                   Environment.NewLine);
+                WriteToLogfile("CreateOrganization", Organization.ToJSON());
 
                 return _Organizations.AddAndReturnValue(Organization.Id, Organization);
 
