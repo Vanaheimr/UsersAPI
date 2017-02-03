@@ -111,7 +111,7 @@ namespace org.GraphDefined.OpenData
         //public  const             String                              DefaultUser2GroupDBFile        = "UsersAPI_User2Group.db";
 
 
-        private static            Regex                               UserDB_RegEx                   = new Regex(@"(\s)+",
+        public  static readonly   Regex                               UserDB_RegEx                   = new Regex(@"(\s)+",
                                                                                                                  RegexOptions.IgnorePatternWhitespace);
 
         #endregion
@@ -790,8 +790,7 @@ namespace org.GraphDefined.OpenData
 
                             case "CreateUser":
 
-                                var User = new User(User_Id.           Parse(JSONParameters["@id"            ].Value<String>(),
-                                                                             JSONParameters["realm"          ].Value<String>()),
+                                var User = new User(User_Id.           Parse(JSONParameters["@id"            ].Value<String>()),
                                                     SimpleEMailAddress.Parse(JSONParameters["email"          ].Value<String>()),
                                                                              JSONParameters["name"           ].Value<String>(),
                                                                              JSONParameters["publickey"      ].Value<String>(),
@@ -843,8 +842,7 @@ namespace org.GraphDefined.OpenData
 
                             case "AddUserToGroup":
 
-                                var U2G_User     = _Users [User_Id. Parse(JSONParameters["user" ].Value<String>(),
-                                                                          JSONParameters["realm"].Value<String>())];
+                                var U2G_User     = _Users [User_Id. Parse(JSONParameters["user" ].Value<String>())];
                                 var U2G_Group    = _Groups[Group_Id.Parse(JSONParameters["group"].Value<String>())];
                                 var U2G_Edge     = (User2GroupEdges) Enum.Parse(typeof(User2GroupEdges), JSONParameters["edge"].   Value<String>());
                                 var U2G_Privacy  = (PrivacyLevel)    Enum.Parse(typeof(PrivacyLevel),    JSONParameters["privacy"].Value<String>());
@@ -863,8 +861,7 @@ namespace org.GraphDefined.OpenData
 
                             case "AddUserToOrganization":
 
-                                var U2O_User          = _Users        [User_Id.        Parse(JSONParameters["user" ].Value<String>(),
-                                                                                             JSONParameters["realm"].Value<String>())];
+                                var U2O_User          = _Users        [User_Id.        Parse(JSONParameters["user" ].Value<String>())];
                                 var U2O_Organization  = _Organizations[Organization_Id.Parse(JSONParameters["organization"].Value<String>())];
                                 var U2O_Edge          = (User2OrganizationEdges) Enum.Parse(typeof(User2OrganizationEdges), JSONParameters["edge"].   Value<String>());
                                 var U2O_Privacy       = (PrivacyLevel)           Enum.Parse(typeof(PrivacyLevel),           JSONParameters["privacy"].Value<String>());
@@ -913,17 +910,15 @@ namespace org.GraphDefined.OpenData
                         if (!_LoginPasswords.ContainsKey(Login))
                             _LoginPasswords.Add(Login,
                                                 new LoginPassword(Login,
-                                                                  LoginPassword[2].IsNotNullOrEmpty()
-                                                                      ? LoginPassword[2]
-                                                                      : null,
-                                                                  LoginPassword[1]));
+                                                                  LoginPassword[1].IsNotNullOrEmpty()
+                                                                      ? LoginPassword[1]
+                                                                      : null));
 
                         else
                             _LoginPasswords[Login] = new LoginPassword(Login,
-                                                                       LoginPassword[2].IsNotNullOrEmpty()
-                                                                           ? LoginPassword[2]
-                                                                           : null,
-                                                                       LoginPassword[1]);
+                                                                       LoginPassword[1].IsNotNullOrEmpty()
+                                                                           ? LoginPassword[1]
+                                                                           : null);
 
                     }
                     catch (Exception e)
@@ -1924,7 +1919,9 @@ namespace org.GraphDefined.OpenData
                                               LoginPassword _LoginPassword  = null;
                                               User          _User           = null;
 
-                                              if (!User_Id.TryParse(Login, out _UserId) ||
+                                              if (!(Realm.IsNotNullOrEmpty()
+                                                        ? User_Id.TryParse(Login, Realm, out _UserId)
+                                                        : User_Id.TryParse(Login,        out _UserId)) ||
                                                   !_LoginPasswords.TryGetValue(_UserId, out _LoginPassword) ||
                                                   !_Users.         TryGetValue(_UserId, out _User))
 
@@ -1965,8 +1962,7 @@ namespace org.GraphDefined.OpenData
                                               var SecurityToken  = SHA256Hash.ComputeHash(
                                                                        String.Concat(
                                                                            Guid.NewGuid().ToString(),
-                                                                           _LoginPassword.Login,
-                                                                           _LoginPassword.Realm).
+                                                                           _LoginPassword.Login).
                                                                        ToUTF8Bytes()).
                                                                    ToHexString();
 
@@ -2041,14 +2037,14 @@ namespace org.GraphDefined.OpenData
                                               if (LoginData.GetString("username").Length < MinLoginLenght)
                                                   return Task.FromResult(
                                                       new HTTPResponseBuilder(Request) {
-                                                          HTTPStatusCode = HTTPStatusCode.BadRequest,
-                                                          Server = HTTPServer.DefaultServerName,
-                                                          ContentType = HTTPContentType.JSON_UTF8,
-                                                          Content = new JObject(
-                                                                                 new JProperty("@context",     SignInOutContext),
-                                                                                 new JProperty("statuscode",   400),
-                                                                                 new JProperty("property",     "username"),
-                                                                                 new JProperty("description",  "The login is too short!")
+                                                          HTTPStatusCode  = HTTPStatusCode.BadRequest,
+                                                          Server          = HTTPServer.DefaultServerName,
+                                                          ContentType     = HTTPContentType.JSON_UTF8,
+                                                          Content         = new JObject(
+                                                                                new JProperty("@context",     SignInOutContext),
+                                                                                new JProperty("statuscode",   400),
+                                                                                new JProperty("property",     "username"),
+                                                                                new JProperty("description",  "The login is too short!")
                                                                             ).ToString().ToUTF8Bytes(),
                                                           CacheControl    = "private",
                                                           Connection      = "close"
@@ -2063,17 +2059,17 @@ namespace org.GraphDefined.OpenData
                                                   LoginData.GetString("realm").Length < MinRealmLenght)
                                                   return Task.FromResult(
                                                       new HTTPResponseBuilder(Request) {
-                                                          HTTPStatusCode = HTTPStatusCode.BadRequest,
-                                                          Server = HTTPServer.DefaultServerName,
-                                                          ContentType = HTTPContentType.JSON_UTF8,
-                                                          Content = new JObject(
+                                                          HTTPStatusCode  = HTTPStatusCode.BadRequest,
+                                                          Server          = HTTPServer.DefaultServerName,
+                                                          ContentType     = HTTPContentType.JSON_UTF8,
+                                                          Content         = new JObject(
                                                                                 new JProperty("@context",     SignInOutContext),
                                                                                 new JProperty("statuscode",   400),
                                                                                 new JProperty("property",     "realm"),
                                                                                 new JProperty("description",  "The realm is too short!")
                                                                             ).ToString().ToUTF8Bytes(),
-                                                          CacheControl = "private",
-                                                          Connection = "close"
+                                                          CacheControl    = "private",
+                                                          Connection      = "close"
                                                       }.AsImmutable());
 
                                               #endregion
@@ -2116,11 +2112,14 @@ namespace org.GraphDefined.OpenData
 
                                               #region Check login and password
 
+                                              String        _Realm          = LoginData.GetString("realm");
                                               User_Id       _UserId;
                                               LoginPassword _LoginPassword  = null;
                                               User          _User           = null;
 
-                                              if (!User_Id.TryParse(LoginData.GetString("username"), out _UserId) ||
+                                              if (!(_Realm.IsNotNullOrEmpty()
+                                                   ? User_Id.TryParse(LoginData.GetString("username"), _Realm, out _UserId)
+                                                   : User_Id.TryParse(LoginData.GetString("username"),         out _UserId)) ||
                                                   !_LoginPasswords.TryGetValue(_UserId, out _LoginPassword) ||
                                                   !_Users.TryGetValue(_UserId, out _User))
 
@@ -2161,8 +2160,8 @@ namespace org.GraphDefined.OpenData
                                               #endregion
 
 
-                                              var SHA256Hash = new SHA256Managed();
-                                              var SecurityToken = SHA256Hash.ComputeHash((Guid.NewGuid().ToString() + _LoginPassword.Login + _LoginPassword.Realm).ToUTF8Bytes()).ToHexString();
+                                              var SHA256Hash    = new SHA256Managed();
+                                              var SecurityToken = SHA256Hash.ComputeHash((Guid.NewGuid().ToString() + _LoginPassword.Login).ToUTF8Bytes()).ToHexString();
 
                                               return Task.FromResult(
                                                   new HTTPResponseBuilder(Request) {
@@ -2490,14 +2489,12 @@ namespace org.GraphDefined.OpenData
             {
 
                 if (!_LoginPasswords.ContainsKey(Login))
-                    _LoginPasswords.Add(Login, new LoginPassword(Login, Password, Realm));
+                    _LoginPasswords.Add(Login, new LoginPassword(Login, Password));
                 else
-                    _LoginPasswords[Login]   = new LoginPassword(Login, Password, Realm);
+                    _LoginPasswords[Login]   = new LoginPassword(Login, Password);
 
                 File.AppendAllText(DefaultPasswordFile,
                                    String.Concat(Login,
-                                                 ":",
-                                                 Realm,
                                                  ":",
                                                  Password,
                                                  Environment.NewLine));
@@ -2521,8 +2518,6 @@ namespace org.GraphDefined.OpenData
 
                 File.AppendAllText(DefaultPasswordFile,
                    String.Concat(Login,
-                                 ":",
-                                 Realm,
                                  ":",
                                  Password,
                                  Environment.NewLine));
@@ -2622,7 +2617,6 @@ namespace org.GraphDefined.OpenData
                 WriteToLogfile("AddUserToGroup",
                                new JObject(
                                    new JProperty("user",     User.Id.ToString()),
-                                   new JProperty("realm",    User.Id.Realm),
                                    new JProperty("edge",     Edge.   ToString()),
                                    new JProperty("group",    Group.  ToString()),
                                    new JProperty("privacy",  Privacy.ToString())
@@ -2727,7 +2721,6 @@ namespace org.GraphDefined.OpenData
                 WriteToLogfile("AddUserToOrganization",
                                new JObject(
                                    new JProperty("user",          User.Id.     ToString()),
-                                   new JProperty("realm",         User.Id.Realm),
                                    new JProperty("edge",          Edge.        ToString()),
                                    new JProperty("organization",  Organization.ToString()),
                                    new JProperty("privacy",       Privacy.     ToString())
@@ -2744,14 +2737,22 @@ namespace org.GraphDefined.OpenData
         #endregion
 
 
-        #region CreateMessage(Id, Headline = null, Text = null)
+        #region CreateMessage(Id, Sender, Receivers, Headline = null, Text = null)
 
-        public Message CreateMessage(Message_Id  Id,
-                                     I18NString  Headline  = null,
-                                     I18NString  Text      = null)
+        public Message CreateMessage(User_Id               Sender,
+                                     IEnumerable<User_Id>  Receivers,
+                                     I18NString            Subject,
+                                     I18NString            Text,
+                                     Message_Id?           Id  = null)
         {
 
-            var Message = new Message(Id, Headline, Text);
+            var Message = new Message(Id.HasValue
+                                          ? Id.Value
+                                          : Message_Id.New,
+                                      Sender,
+                                      Receivers,
+                                      Subject,
+                                      Text);
 
             return _Messages.AddAndReturnValue(Message.Id, Message);
 

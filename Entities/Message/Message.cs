@@ -27,6 +27,8 @@ using System.Collections.Generic;
 using org.GraphDefined.Vanaheimr.Illias;
 using org.GraphDefined.Vanaheimr.Illias.Votes;
 using org.GraphDefined.Vanaheimr.Styx.Arrows;
+using Newtonsoft.Json.Linq;
+using org.GraphDefined.Vanaheimr.Hermod;
 
 #endregion
 
@@ -47,103 +49,36 @@ namespace org.GraphDefined.OpenData
         /// </summary>
         public const UInt16 DefaultMessageStatusHistorySize = 50;
 
-        private readonly ReactiveSet<MiniEdge<User, User2MessageEdges, Message>> _User2MessageEdges;
-        private readonly ReactiveSet<MiniEdge<Message, Message2UserEdges, User>> _Message2UserEdges;
-
         #endregion
 
         #region Properties
 
-        #region Name
-
-        private I18NString _Name;
+        /// <summary>
+        /// The sender of the message.
+        /// </summary>
+        public User_Id               Sender      { get; }
 
         /// <summary>
-        /// The offical (multi-language) name of the user.
+        /// The receivers of the message.
+        /// </summary>
+        public IEnumerable<User_Id>  Receivers   { get; }
+
+        /// <summary>
+        /// The (multi-language) subject of the message.
         /// </summary>
         [Mandatory]
-        public I18NString Name
-        {
-
-            get
-            {
-                return _Name;
-            }
-
-            set
-            {
-                _Name = value;
-            }
-
-        }
-
-        #endregion
-
-        #region Description
-
-        private readonly I18NString _Description;
+        public I18NString            Subject     { get; }
 
         /// <summary>
-        /// An optional (multi-language) description of the user.
-        /// </summary>
-        [Optional]
-        public I18NString Description
-        {
-            get
-            {
-                return _Description;
-            }
-        }
-
-        #endregion
-
-        #region IsHidden / IsPublic
-
-        private Boolean _IsHidden;
-
-        /// <summary>
-        /// The user will not be shown in user listings.
+        /// An optional (multi-language) text of the message.
         /// </summary>
         [Mandatory]
-        public Boolean IsHidden
-        {
-
-            get
-            {
-                return _IsHidden;
-            }
-
-            set
-            {
-                _IsHidden = value;
-            }
-
-        }
+        public I18NString            Text        { get; }
 
         /// <summary>
-        /// The user will be shown in user listings.
+        /// The message is a reply to another message.
         /// </summary>
-        [Mandatory]
-        public Boolean IsPublic
-        {
-
-            get
-            {
-                return !_IsHidden;
-            }
-
-            set
-            {
-                _IsHidden = !value;
-            }
-
-        }
-
-        #endregion
-
-        #endregion
-
-        #region Events
+        public Message_Id?           InReplyTo   { get; }
 
         #endregion
 
@@ -153,11 +88,17 @@ namespace org.GraphDefined.OpenData
         /// Create a new user group.
         /// </summary>
         /// <param name="Id">The unique identification of the user group.</param>
-        /// <param name="Name">The offical (multi-language) name of the user group.</param>
-        /// <param name="Description">An optional (multi-language) description of the user group.</param>
-        public Message(Message_Id     Id,
-                       I18NString  Name         = null,
-                       I18NString  Description  = null)
+        /// <param name="Sender">The sender of the message.</param>
+        /// <param name="Receivers">The receivers of the message.</param>
+        /// <param name="Subject">The (multi-language) subject of the message.</param>
+        /// <param name="Text">An optional (multi-language) text of the message.</param>
+        /// <param name="InReplyTo">The message is a reply to another message.</param>
+        public Message(Message_Id            Id,
+                       User_Id               Sender,
+                       IEnumerable<User_Id>  Receivers,
+                       I18NString            Subject,
+                       I18NString            Text,
+                       Message_Id?           InReplyTo = null)
 
             : base(Id)
 
@@ -165,64 +106,24 @@ namespace org.GraphDefined.OpenData
 
             #region Initial checks
 
-            if (Id == null)
-                throw new ArgumentNullException("Id", "The Id must not be null!");
+            if (Receivers == null || !Receivers.Any())
+                throw new ArgumentNullException(nameof(Receivers), "The enumeration of message receivers must not be null or empty!");
 
             #endregion
 
             #region Init data and properties
 
-            this._Name                      = Name        != null ? Name        : new I18NString();
-            this._Description               = Description != null ? Description : new I18NString();
-
-            this._User2MessageEdges           = new ReactiveSet<MiniEdge<User, User2MessageEdges, Message>>();
-            this._Message2UserEdges           = new ReactiveSet<MiniEdge<Message, Message2UserEdges, User>>();
-
-            #endregion
-
-            #region Init events
-
-            #endregion
-
-            #region Link events
+            this.Sender     = Sender;
+            this.Receivers  = Receivers;
+            this.Subject    = Subject ?? new I18NString();
+            this.Text       = Text    ?? new I18NString();
+            this.InReplyTo  = InReplyTo;
 
             #endregion
 
         }
 
         #endregion
-
-
-
-        public MiniEdge<User, User2MessageEdges, Message>
-
-            AddIncomingEdge(User               Source,
-                            User2MessageEdges  EdgeLabel,
-                            PrivacyLevel       PrivacyLevel = PrivacyLevel.Private)
-
-        {
-            return this._User2MessageEdges.AddAndReturn(new MiniEdge<User, User2MessageEdges, Message>(Source, EdgeLabel, this, PrivacyLevel));
-        }
-
-        public MiniEdge<User, User2MessageEdges, Message>
-
-            AddIncomingEdge(MiniEdge<User, User2MessageEdges, Message> Edge)
-
-        {
-            return this._User2MessageEdges.AddAndReturn(Edge);
-        }
-
-        public MiniEdge<Message, Message2UserEdges, User>
-
-            AddOutgoingEdge(Message2UserEdges  EdgeLabel,
-                            User            Target,
-                            PrivacyLevel    PrivacyLevel = PrivacyLevel.Private)
-
-        {
-
-            return this._Message2UserEdges.AddAndReturn(new MiniEdge<Message, Message2UserEdges, User>(this, EdgeLabel, Target, PrivacyLevel));
-
-        }
 
 
         #region IComparable<Message> Members
@@ -237,12 +138,11 @@ namespace org.GraphDefined.OpenData
         {
 
             if (Object == null)
-                throw new ArgumentNullException("The given object must not be null!");
+                throw new ArgumentNullException(nameof(Object), "The given object must not be null!");
 
-            // Check if the given object is an user group.
             var EVSE_Operator = Object as Message;
             if ((Object) EVSE_Operator == null)
-                throw new ArgumentException("The given object is not an user group!");
+                throw new ArgumentException("The given object is not an message!");
 
             return CompareTo(EVSE_Operator);
 
@@ -250,19 +150,19 @@ namespace org.GraphDefined.OpenData
 
         #endregion
 
-        #region CompareTo(Operator)
+        #region CompareTo(Message)
 
         /// <summary>
         /// Compares two instances of this object.
         /// </summary>
-        /// <param name="Operator">An user groups object to compare with.</param>
-        public Int32 CompareTo(Message Operator)
+        /// <param name="Message">An message object to compare with.</param>
+        public Int32 CompareTo(Message Message)
         {
 
-            if ((Object) Operator == null)
-                throw new ArgumentNullException("The given user groups must not be null!");
+            if ((Object) Message == null)
+                throw new ArgumentNullException(nameof(Message), "The given message must not be null!");
 
-            return Id.CompareTo(Operator.Id);
+            return Id.CompareTo(Message.Id);
 
         }
 
@@ -285,12 +185,11 @@ namespace org.GraphDefined.OpenData
             if (Object == null)
                 return false;
 
-            // Check if the given object is an user group.
-            var EVSE_Operator = Object as Message;
-            if ((Object) EVSE_Operator == null)
+            var Message = Object as Message;
+            if ((Object) Message == null)
                 return false;
 
-            return this.Equals(EVSE_Operator);
+            return Equals(Message);
 
         }
 
@@ -299,17 +198,17 @@ namespace org.GraphDefined.OpenData
         #region Equals(Message)
 
         /// <summary>
-        /// Compares two user groups for equality.
+        /// Compares two messages for equality.
         /// </summary>
-        /// <param name="Operator">An user groups to compare with.</param>
+        /// <param name="Message">An message to compare with.</param>
         /// <returns>True if both match; False otherwise.</returns>
-        public Boolean Equals(Message Operator)
+        public Boolean Equals(Message Message)
         {
 
-            if ((Object) Operator == null)
+            if ((Object) Message == null)
                 return false;
 
-            return Id.Equals(Operator.Id);
+            return Id.Equals(Message.Id);
 
         }
 
@@ -323,9 +222,7 @@ namespace org.GraphDefined.OpenData
         /// Get the hashcode of this object.
         /// </summary>
         public override Int32 GetHashCode()
-        {
-            return Id.GetHashCode();
-        }
+            => Id.GetHashCode();
 
         #endregion
 
@@ -335,9 +232,30 @@ namespace org.GraphDefined.OpenData
         /// Get a string representation of this object.
         /// </summary>
         public override String ToString()
-        {
-            return Id.ToString();
-        }
+            => Id.ToString();
+
+        #endregion
+
+        #region ToJSON(IncludeHash = true)
+
+        /// <summary>
+        /// Return a JSON representation of this object.
+        /// </summary>
+        /// <param name="IncludeHash">Include the hash value of this object.</param>
+        public override JObject ToJSON(Boolean IncludeHash = true)
+
+            => JSONObject.Create(
+
+                   new JProperty("@id",         Id.     ToString()),
+                   new JProperty("sender",      Sender. ToString()),
+                   new JProperty("subject",     Subject.ToJSON()),
+                   new JProperty("text",        Text.   ToJSON()),
+
+                   IncludeHash
+                       ? new JProperty("Hash",  CurrentHash)
+                       : null
+
+               );
 
         #endregion
 

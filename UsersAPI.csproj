@@ -63,12 +63,10 @@
     <Compile Include="Entities\IEntity.cs" />
     <Compile Include="Entities\IId.cs" />
     <Compile Include="Entities\Message\Message.cs" />
-    <Compile Include="Entities\Message\Message2UserEdges.cs" />
     <Compile Include="Entities\Message\Message_Id.cs" />
     <Compile Include="Entities\User\User.cs" />
     <Compile Include="Entities\User\User2OrganizationEdges.cs" />
     <Compile Include="Entities\User\User2GroupEdges.cs" />
-    <Compile Include="Entities\User\User2MessageEdges.cs" />
     <Compile Include="Entities\User\User2UserEdges.cs" />
     <Compile Include="Entities\User\User_Id.cs" />
     <Compile Include="Representations\HTTPHelper.cs" />

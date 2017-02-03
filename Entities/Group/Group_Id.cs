@@ -30,7 +30,6 @@ namespace org.GraphDefined.OpenData
     /// The unique identification of a group.
     /// </summary>
     public struct Group_Id : IId<Group_Id>
-
     {
 
         #region Data
@@ -163,107 +162,107 @@ namespace org.GraphDefined.OpenData
 
         #region Operator overloading
 
-        #region Operator == (Group_Id1, Group_Id2)
+        #region Operator == (GroupId1, GroupId2)
 
         /// <summary>
         /// Compares two instances of this object.
         /// </summary>
-        /// <param name="Group_Id1">A group identification.</param>
-        /// <param name="Group_Id2">Another group identification.</param>
+        /// <param name="GroupId1">A group identification.</param>
+        /// <param name="GroupId2">Another group identification.</param>
         /// <returns>true|false</returns>
-        public static Boolean operator == (Group_Id Group_Id1, Group_Id Group_Id2)
+        public static Boolean operator == (Group_Id GroupId1, Group_Id GroupId2)
         {
 
             // If both are null, or both are same instance, return true.
-            if (Object.ReferenceEquals(Group_Id1, Group_Id2))
+            if (Object.ReferenceEquals(GroupId1, GroupId2))
                 return true;
 
             // If one is null, but not both, return false.
-            if (((Object) Group_Id1 == null) || ((Object) Group_Id2 == null))
+            if (((Object) GroupId1 == null) || ((Object) GroupId2 == null))
                 return false;
 
-            return Group_Id1.Equals(Group_Id2);
+            return GroupId1.Equals(GroupId2);
 
         }
 
         #endregion
 
-        #region Operator != (Group_Id1, Group_Id2)
+        #region Operator != (GroupId1, GroupId2)
 
         /// <summary>
         /// Compares two instances of this object.
         /// </summary>
-        /// <param name="Group_Id1">A group identification.</param>
-        /// <param name="Group_Id2">Another group identification.</param>
+        /// <param name="GroupId1">A group identification.</param>
+        /// <param name="GroupId2">Another group identification.</param>
         /// <returns>true|false</returns>
-        public static Boolean operator != (Group_Id Group_Id1, Group_Id Group_Id2)
-            => !(Group_Id1 == Group_Id2);
+        public static Boolean operator != (Group_Id GroupId1, Group_Id GroupId2)
+            => !(GroupId1 == GroupId2);
 
         #endregion
 
-        #region Operator <  (Group_Id1, Group_Id2)
+        #region Operator <  (GroupId1, GroupId2)
 
         /// <summary>
         /// Compares two instances of this object.
         /// </summary>
-        /// <param name="Group_Id1">A group identification.</param>
-        /// <param name="Group_Id2">Another group identification.</param>
+        /// <param name="GroupId1">A group identification.</param>
+        /// <param name="GroupId2">Another group identification.</param>
         /// <returns>true|false</returns>
-        public static Boolean operator < (Group_Id Group_Id1, Group_Id Group_Id2)
+        public static Boolean operator < (Group_Id GroupId1, Group_Id GroupId2)
         {
 
-            if ((Object) Group_Id1 == null)
-                throw new ArgumentNullException("The given Group_Id1 must not be null!");
+            if ((Object) GroupId1 == null)
+                throw new ArgumentNullException(nameof(GroupId1), "The given GroupId1 must not be null!");
 
-            return Group_Id1.CompareTo(Group_Id2) < 0;
+            return GroupId1.CompareTo(GroupId2) < 0;
 
         }
 
         #endregion
 
-        #region Operator <= (Group_Id1, Group_Id2)
+        #region Operator <= (GroupId1, GroupId2)
 
         /// <summary>
         /// Compares two instances of this object.
         /// </summary>
-        /// <param name="Group_Id1">A group identification.</param>
-        /// <param name="Group_Id2">Another group identification.</param>
+        /// <param name="GroupId1">A group identification.</param>
+        /// <param name="GroupId2">Another group identification.</param>
         /// <returns>true|false</returns>
-        public static Boolean operator <= (Group_Id Group_Id1, Group_Id Group_Id2)
-            => !(Group_Id1 > Group_Id2);
+        public static Boolean operator <= (Group_Id GroupId1, Group_Id GroupId2)
+            => !(GroupId1 > GroupId2);
 
         #endregion
 
-        #region Operator >  (Group_Id1, Group_Id2)
+        #region Operator >  (GroupId1, GroupId2)
 
         /// <summary>
         /// Compares two instances of this object.
         /// </summary>
-        /// <param name="Group_Id1">A group identification.</param>
-        /// <param name="Group_Id2">Another group identification.</param>
+        /// <param name="GroupId1">A group identification.</param>
+        /// <param name="GroupId2">Another group identification.</param>
         /// <returns>true|false</returns>
-        public static Boolean operator > (Group_Id Group_Id1, Group_Id Group_Id2)
+        public static Boolean operator > (Group_Id GroupId1, Group_Id GroupId2)
         {
 
-            if ((Object) Group_Id1 == null)
-                throw new ArgumentNullException("The given Group_Id1 must not be null!");
+            if ((Object) GroupId1 == null)
+                throw new ArgumentNullException(nameof(GroupId1), "The given GroupId1 must not be null!");
 
-            return Group_Id1.CompareTo(Group_Id2) > 0;
+            return GroupId1.CompareTo(GroupId2) > 0;
 
         }
 
         #endregion
 
-        #region Operator >= (Group_Id1, Group_Id2)
+        #region Operator >= (GroupId1, GroupId2)
 
         /// <summary>
         /// Compares two instances of this object.
         /// </summary>
-        /// <param name="Group_Id1">A group identification.</param>
-        /// <param name="Group_Id2">Another group identification.</param>
+        /// <param name="GroupId1">A group identification.</param>
+        /// <param name="GroupId2">Another group identification.</param>
         /// <returns>true|false</returns>
-        public static Boolean operator >= (Group_Id Group_Id1, Group_Id Group_Id2)
-            => !(Group_Id1 < Group_Id2);
+        public static Boolean operator >= (Group_Id GroupId1, Group_Id GroupId2)
+            => !(GroupId1 < GroupId2);
 
         #endregion
 

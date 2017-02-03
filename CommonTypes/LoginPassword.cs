@@ -41,55 +41,16 @@ namespace org.GraphDefined.OpenData
 
         #region Properties
 
-        #region Login
+        public User_Id       Login      { get; }
 
-        private readonly User_Id _Login;
-
-        public User_Id Login
-        {
-            get
-            {
-                return _Login;
-            }
-        }
-
-        #endregion
-
-        #region Realm
-
-        private readonly String _Realm;
-
-        public String Realm
-        {
-            get
-            {
-                return _Realm;
-            }
-        }
-
-        #endregion
-
-        #region Password
-
-        private readonly SecureString _Password;
-
-        public SecureString Password
-        {
-            get
-            {
-                return _Password;
-            }
-        }
-
-        #endregion
+        public SecureString  Password   { get; }
 
         #endregion
 
         #region Constructor(s)
 
         public LoginPassword(User_Id  Login,
-                             String   Password,
-                             String   Realm     = null)
+                             String   Password)
         {
 
             #region Initial checks
@@ -99,29 +60,21 @@ namespace org.GraphDefined.OpenData
 
             #endregion
 
-            this._Login     = Login;
+            this.Login     = Login;
 
-            this._Password  = new SecureString();
+            this.Password  = new SecureString();
             foreach (var character in Password)
-                _Password.AppendChar(character);
-
-            this._Realm = Realm.IsNotNullOrEmpty() ? Realm : String.Empty;
+                this.Password.AppendChar(character);
 
         }
 
         internal LoginPassword(User_Id       Login,
                                SecureString  Password,
-                               String        Realm     = null,
                                String        Username  = null)
         {
 
-            #region Initial checks
-
-            #endregion
-
-            this._Login     = Login;
-            this._Password  = Password;
-            this._Realm     = Realm.   IsNotNullOrEmpty() ? Realm    : String.Empty;
+            this.Login     = Login;
+            this.Password  = Password;
 
         }
 
@@ -155,7 +108,7 @@ namespace org.GraphDefined.OpenData
             try
             {
 
-                bstr1 = Marshal.SecureStringToBSTR(_Password);
+                bstr1 = Marshal.SecureStringToBSTR(Password);
                 bstr2 = Marshal.SecureStringToBSTR(SecurePassword);
 
                 var length1 = Marshal.ReadInt32(bstr1, -4);
@@ -229,7 +182,7 @@ namespace org.GraphDefined.OpenData
             if ((Object) LoginPassword == null)
                 throw new ArgumentNullException("The given Login/Password object must not be null!");
 
-            return _Login.CompareTo(LoginPassword._Login);
+            return Login.CompareTo(LoginPassword.Login);
 
         }
 
@@ -276,7 +229,7 @@ namespace org.GraphDefined.OpenData
             if ((Object) LoginPassword == null)
                 return false;
 
-            return _Login.Equals(LoginPassword._Login);
+            return Login.Equals(LoginPassword.Login);
 
         }
 
@@ -291,7 +244,7 @@ namespace org.GraphDefined.OpenData
         /// </summary>
         public override Int32 GetHashCode()
         {
-            return _Login.GetHashCode();
+            return Login.GetHashCode();
         }
 
         #endregion
@@ -303,7 +256,7 @@ namespace org.GraphDefined.OpenData
         /// </summary>
         public override String ToString()
         {
-            return _Login.ToString();
+            return Login.ToString();
         }
 
         #endregion

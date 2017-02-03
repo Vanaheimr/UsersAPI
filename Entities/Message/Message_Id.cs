@@ -18,7 +18,6 @@
 #region Usings
 
 using System;
-using System.Text.RegularExpressions;
 
 using org.GraphDefined.Vanaheimr.Illias;
 
@@ -28,91 +27,133 @@ namespace org.GraphDefined.OpenData
 {
 
     /// <summary>
-    /// The unique identification of a news item.
+    /// The unique identification of a message.
     /// </summary>
-    public class Message_Id : IId,
-                              IEquatable<Message_Id>,
-                              IComparable<Message_Id>
-
+    public struct Message_Id : IId<Message_Id>
     {
 
         #region Data
 
-        //ToDo: Replace with better randomness!
-        private static readonly Random _Random = new Random(DateTime.Now.Millisecond);
-
         /// <summary>
         /// The internal identification.
         /// </summary>
-        protected readonly String _Id;
+        private readonly String InternalId;
+
+        //ToDo: Replace with better randomness!
+   //     private static readonly Random _Random = new Random(DateTime.Now.Millisecond);
 
         #endregion
 
         #region Properties
 
-        #region Length
-
         /// <summary>
-        /// Returns the length of the identificator.
+        /// The length of the message identification.
         /// </summary>
         public UInt64 Length
-        {
-            get
-            {
-                return (UInt64) (_Id.Length);
-            }
-        }
-
-        #endregion
+            => (UInt64) InternalId.Length;
 
         #endregion
 
         #region Constructor(s)
 
         /// <summary>
-        /// Create a new user group identification based on the given string.
+        /// Create a new message identification based on the given string.
         /// </summary>
-        /// <param name="String">The string representation of the user group identification.</param>
+        /// <param name="String">The string representation of the message identification.</param>
         private Message_Id(String String)
         {
-            _Id = String.Trim();
+            InternalId = String;
         }
 
         #endregion
 
 
-        #region Parse(Text)
+        #region (static) New
 
         /// <summary>
-        /// Parse the given string as an Electric Vehicle Charging Group Identification (EVCG Id)
+        /// Create a new random message identification.
         /// </summary>
-        /// <param name="Text">A text representation of an Electric Vehicle Charging Group identification.</param>
+        public static Message_Id New
+            => Parse(Guid.NewGuid().ToString().Replace("-", ""));
+
+        #endregion
+
+        #region (static) Parse(Text)
+
+        /// <summary>
+        /// Parse the given string as a message identification.
+        /// </summary>
+        /// <param name="Text">A text representation of a message identification.</param>
         public static Message_Id Parse(String Text)
         {
+
+            #region Initial checks
+
+            if (Text != null)
+                Text = Text.Trim();
+
+            if (Text.IsNullOrEmpty())
+                throw new ArgumentNullException(nameof(Text), "The given text representation of a message identification must not be null or empty!");
+
+            #endregion
+
             return new Message_Id(Text);
+
         }
 
         #endregion
 
-        #region TryParse(Text, out GroupId)
+        #region (static) TryParse(Text)
 
         /// <summary>
-        /// Parse the given string as an Electric Vehicle Charging Group Identification (EVCG Id)
+        /// Try to parse the given string as a message identification.
         /// </summary>
-        /// <param name="Text">A text representation of an Electric Vehicle Charging Group identification.</param>
-        /// <param name="GroupId">The parsed Electric Vehicle Charging Group identification.</param>
-        public static Boolean TryParse(String Text, out Message_Id GroupId)
+        /// <param name="Text">A text representation of a message identification.</param>
+        public static Message_Id? TryParse(String Text)
         {
+
+            Message_Id _MessageId;
+
+            if (TryParse(Text, out _MessageId))
+                return _MessageId;
+
+            return new Message_Id?();
+
+        }
+
+        #endregion
+
+        #region (static) TryParse(Text, out MessageId)
+
+        /// <summary>
+        /// Try to parse the given string as a message identification.
+        /// </summary>
+        /// <param name="Text">A text representation of a message identification.</param>
+        /// <param name="MessageId">The parsed message identification.</param>
+        public static Boolean TryParse(String Text, out Message_Id MessageId)
+        {
+
+            #region Initial checks
+
+            if (Text != null)
+                Text = Text.Trim();
+
+            if (Text.IsNullOrEmpty())
+                throw new ArgumentNullException(nameof(Text), "The given text representation of a message identification must not be null or empty!");
+
+            #endregion
+
             try
             {
-                GroupId = new Message_Id(Text);
+                MessageId = new Message_Id(Text);
                 return true;
             }
             catch (Exception)
             {
-                GroupId = null;
+                MessageId = default(Message_Id);
                 return false;
             }
+
         }
 
         #endregion
@@ -120,136 +161,124 @@ namespace org.GraphDefined.OpenData
         #region Clone
 
         /// <summary>
-        /// Clone an Message_Id.
+        /// Clone a message identification.
         /// </summary>
+
         public Message_Id Clone
-        {
-            get
-            {
-
-                return new Message_Id(new String(_Id.ToCharArray()));
-
-            }
-        }
+            => new Message_Id(new String(InternalId.ToCharArray()));
 
         #endregion
 
 
         #region Operator overloading
 
-        #region Operator == (Message_Id1, Message_Id2)
+        #region Operator == (MessageId1, MessageId2)
 
         /// <summary>
         /// Compares two instances of this object.
         /// </summary>
-        /// <param name="Message_Id1">A Message_Id.</param>
-        /// <param name="Message_Id2">Another Message_Id.</param>
+        /// <param name="MessageId1">A message identification.</param>
+        /// <param name="MessageId2">Another message identification.</param>
         /// <returns>true|false</returns>
-        public static Boolean operator == (Message_Id Message_Id1, Message_Id Message_Id2)
+        public static Boolean operator == (Message_Id MessageId1, Message_Id MessageId2)
         {
 
             // If both are null, or both are same instance, return true.
-            if (Object.ReferenceEquals(Message_Id1, Message_Id2))
+            if (Object.ReferenceEquals(MessageId1, MessageId2))
                 return true;
 
             // If one is null, but not both, return false.
-            if (((Object) Message_Id1 == null) || ((Object) Message_Id2 == null))
+            if (((Object) MessageId1 == null) || ((Object) MessageId2 == null))
                 return false;
 
-            return Message_Id1.Equals(Message_Id2);
+            return MessageId1.Equals(MessageId2);
 
         }
 
         #endregion
 
-        #region Operator != (Message_Id1, Message_Id2)
+        #region Operator != (MessageId1, MessageId2)
 
         /// <summary>
         /// Compares two instances of this object.
         /// </summary>
-        /// <param name="Message_Id1">A Message_Id.</param>
-        /// <param name="Message_Id2">Another Message_Id.</param>
+        /// <param name="MessageId1">A message identification.</param>
+        /// <param name="MessageId2">Another message identification.</param>
         /// <returns>true|false</returns>
-        public static Boolean operator != (Message_Id Message_Id1, Message_Id Message_Id2)
-        {
-            return !(Message_Id1 == Message_Id2);
-        }
+        public static Boolean operator != (Message_Id MessageId1, Message_Id MessageId2)
+            => !(MessageId1 == MessageId2);
 
         #endregion
 
-        #region Operator <  (Message_Id1, Message_Id2)
+        #region Operator <  (MessageId1, MessageId2)
 
         /// <summary>
         /// Compares two instances of this object.
         /// </summary>
-        /// <param name="Message_Id1">A Message_Id.</param>
-        /// <param name="Message_Id2">Another Message_Id.</param>
+        /// <param name="MessageId1">A message identification.</param>
+        /// <param name="MessageId2">Another message identification.</param>
         /// <returns>true|false</returns>
-        public static Boolean operator < (Message_Id Message_Id1, Message_Id Message_Id2)
+        public static Boolean operator < (Message_Id MessageId1, Message_Id MessageId2)
         {
 
-            if ((Object) Message_Id1 == null)
-                throw new ArgumentNullException("The given Message_Id1 must not be null!");
+            if ((Object) MessageId1 == null)
+                throw new ArgumentNullException(nameof(MessageId1), "The given MessageId1 must not be null!");
 
-            return Message_Id1.CompareTo(Message_Id2) < 0;
+            return MessageId1.CompareTo(MessageId2) < 0;
 
         }
 
         #endregion
 
-        #region Operator <= (Message_Id1, Message_Id2)
+        #region Operator <= (MessageId1, MessageId2)
 
         /// <summary>
         /// Compares two instances of this object.
         /// </summary>
-        /// <param name="Message_Id1">A Message_Id.</param>
-        /// <param name="Message_Id2">Another Message_Id.</param>
+        /// <param name="MessageId1">A message identification.</param>
+        /// <param name="MessageId2">Another message identification.</param>
         /// <returns>true|false</returns>
-        public static Boolean operator <= (Message_Id Message_Id1, Message_Id Message_Id2)
-        {
-            return !(Message_Id1 > Message_Id2);
-        }
+        public static Boolean operator <= (Message_Id MessageId1, Message_Id MessageId2)
+            => !(MessageId1 > MessageId2);
 
         #endregion
 
-        #region Operator >  (Message_Id1, Message_Id2)
+        #region Operator >  (MessageId1, MessageId2)
 
         /// <summary>
         /// Compares two instances of this object.
         /// </summary>
-        /// <param name="Message_Id1">A Message_Id.</param>
-        /// <param name="Message_Id2">Another Message_Id.</param>
+        /// <param name="MessageId1">A message identification.</param>
+        /// <param name="MessageId2">Another message identification.</param>
         /// <returns>true|false</returns>
-        public static Boolean operator > (Message_Id Message_Id1, Message_Id Message_Id2)
+        public static Boolean operator > (Message_Id MessageId1, Message_Id MessageId2)
         {
 
-            if ((Object) Message_Id1 == null)
-                throw new ArgumentNullException("The given Message_Id1 must not be null!");
+            if ((Object) MessageId1 == null)
+                throw new ArgumentNullException(nameof(MessageId1), "The given MessageId1 must not be null!");
 
-            return Message_Id1.CompareTo(Message_Id2) > 0;
+            return MessageId1.CompareTo(MessageId2) > 0;
 
         }
 
         #endregion
 
-        #region Operator >= (Message_Id1, Message_Id2)
+        #region Operator >= (MessageId1, MessageId2)
 
         /// <summary>
         /// Compares two instances of this object.
         /// </summary>
-        /// <param name="Message_Id1">A Message_Id.</param>
-        /// <param name="Message_Id2">Another Message_Id.</param>
+        /// <param name="MessageId1">A message identification.</param>
+        /// <param name="MessageId2">Another message identification.</param>
         /// <returns>true|false</returns>
-        public static Boolean operator >= (Message_Id Message_Id1, Message_Id Message_Id2)
-        {
-            return !(Message_Id1 < Message_Id2);
-        }
+        public static Boolean operator >= (Message_Id MessageId1, Message_Id MessageId2)
+            => !(MessageId1 < MessageId2);
 
         #endregion
 
         #endregion
 
-        #region IComparable<Message_Id> Members
+        #region IComparable<MessageId> Members
 
         #region CompareTo(Object)
 
@@ -261,32 +290,31 @@ namespace org.GraphDefined.OpenData
         {
 
             if (Object == null)
-                throw new ArgumentNullException("The given object must not be null!");
+                throw new ArgumentNullException(nameof(Object), "The given object must not be null!");
 
-            // Check if the given object is an Message_Id.
-            var Message_Id = Object as Message_Id;
-            if ((Object) Message_Id == null)
-                throw new ArgumentException("The given object is not a Message_Id!");
+            if (!(Object is Message_Id))
+                throw new ArgumentException("The given object is not a message identification!",
+                                            nameof(Object));
 
-            return CompareTo(Message_Id);
+            return CompareTo((Message_Id) Object);
 
         }
 
         #endregion
 
-        #region CompareTo(Message_Id)
+        #region CompareTo(MessageId)
 
         /// <summary>
         /// Compares two instances of this object.
         /// </summary>
-        /// <param name="Message_Id">An object to compare with.</param>
-        public Int32 CompareTo(Message_Id Message_Id)
+        /// <param name="MessageId">An object to compare with.</param>
+        public Int32 CompareTo(Message_Id MessageId)
         {
 
-            if ((Object) Message_Id == null)
-                throw new ArgumentNullException("The given Message_Id must not be null!");
+            if ((Object) MessageId == null)
+                throw new ArgumentNullException(nameof(MessageId),  "The given message identification must not be null!");
 
-            return this._Id.CompareTo(Message_Id._Id);
+            return String.Compare(InternalId, MessageId.InternalId, StringComparison.Ordinal);
 
         }
 
@@ -294,7 +322,7 @@ namespace org.GraphDefined.OpenData
 
         #endregion
 
-        #region IEquatable<Message_Id> Members
+        #region IEquatable<MessageId> Members
 
         #region Equals(Object)
 
@@ -309,31 +337,29 @@ namespace org.GraphDefined.OpenData
             if (Object == null)
                 return false;
 
-            // Check if the given object is an Message_Id.
-            var Message_Id = Object as Message_Id;
-            if ((Object) Message_Id == null)
+            if (!(Object is Message_Id))
                 return false;
 
-            return this.Equals(Message_Id);
+            return Equals((Message_Id) Object);
 
         }
 
         #endregion
 
-        #region Equals(Message_Id)
+        #region Equals(MessageId)
 
         /// <summary>
-        /// Compares two Message_Ids for equality.
+        /// Compares two message identifications for equality.
         /// </summary>
-        /// <param name="GroupId">A Message_Id to compare with.</param>
+        /// <param name="MessageId">An message identification to compare with.</param>
         /// <returns>True if both match; False otherwise.</returns>
-        public Boolean Equals(Message_Id GroupId)
+        public Boolean Equals(Message_Id MessageId)
         {
 
-            if ((Object) GroupId == null)
+            if ((Object) MessageId == null)
                 return false;
 
-            return _Id.Equals(GroupId._Id);
+            return InternalId.Equals(MessageId.InternalId);
 
         }
 
@@ -348,9 +374,7 @@ namespace org.GraphDefined.OpenData
         /// </summary>
         /// <returns>The HashCode of this object.</returns>
         public override Int32 GetHashCode()
-        {
-            return _Id.GetHashCode();
-        }
+            => InternalId.GetHashCode();
 
         #endregion
 
@@ -360,9 +384,7 @@ namespace org.GraphDefined.OpenData
         /// Return a string represtentation of this object.
         /// </summary>
         public override String ToString()
-        {
-            return _Id;
-        }
+            => InternalId;
 
         #endregion
 

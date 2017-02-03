@@ -121,6 +121,8 @@ namespace org.GraphDefined.OpenData
 
             #endregion
 
+            CalcHash();
+
         }
 
         #endregion
@@ -342,19 +344,26 @@ namespace org.GraphDefined.OpenData
 
         #endregion
 
-        #region ToJSON()
+        #region ToJSON(IncludeHash = true)
 
         /// <summary>
         /// Return a JSON representation of this object.
         /// </summary>
-        public JObject ToJSON()
+        /// <param name="IncludeHash">Include the hash value of this object.</param>
+        public override JObject ToJSON(Boolean IncludeHash = true)
 
-            => new JObject(
+            => JSONObject.Create(
+
                    new JProperty("@id",          Id.         ToString()),
                    new JProperty("name",         Name.       ToJSON()),
                    new JProperty("description",  Description.ToJSON()),
                    new JProperty("isPublic",     IsPublic),
-                   new JProperty("isDisabled",   IsDisabled)
+                   new JProperty("isDisabled",   IsDisabled),
+
+                   IncludeHash
+                       ? new JProperty("Hash",   CurrentHash)
+                       : null
+
                );
 
         #endregion

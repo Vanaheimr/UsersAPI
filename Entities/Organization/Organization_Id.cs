@@ -30,7 +30,6 @@ namespace org.GraphDefined.OpenData
     /// The unique identification of an organization.
     /// </summary>
     public struct Organization_Id : IId<Organization_Id>
-
     {
 
         #region Data
@@ -163,107 +162,107 @@ namespace org.GraphDefined.OpenData
 
         #region Operator overloading
 
-        #region Operator == (Organization_Id1, Organization_Id2)
+        #region Operator == (OrganizationId1, OrganizationId2)
 
         /// <summary>
         /// Compares two instances of this object.
         /// </summary>
-        /// <param name="Organization_Id1">A organization identification.</param>
-        /// <param name="Organization_Id2">Another organization identification.</param>
+        /// <param name="OrganizationId1">A organization identification.</param>
+        /// <param name="OrganizationId2">Another organization identification.</param>
         /// <returns>true|false</returns>
-        public static Boolean operator == (Organization_Id Organization_Id1, Organization_Id Organization_Id2)
+        public static Boolean operator == (Organization_Id OrganizationId1, Organization_Id OrganizationId2)
         {
 
             // If both are null, or both are same instance, return true.
-            if (Object.ReferenceEquals(Organization_Id1, Organization_Id2))
+            if (Object.ReferenceEquals(OrganizationId1, OrganizationId2))
                 return true;
 
             // If one is null, but not both, return false.
-            if (((Object) Organization_Id1 == null) || ((Object) Organization_Id2 == null))
+            if (((Object) OrganizationId1 == null) || ((Object) OrganizationId2 == null))
                 return false;
 
-            return Organization_Id1.Equals(Organization_Id2);
+            return OrganizationId1.Equals(OrganizationId2);
 
         }
 
         #endregion
 
-        #region Operator != (Organization_Id1, Organization_Id2)
+        #region Operator != (OrganizationId1, OrganizationId2)
 
         /// <summary>
         /// Compares two instances of this object.
         /// </summary>
-        /// <param name="Organization_Id1">A organization identification.</param>
-        /// <param name="Organization_Id2">Another organization identification.</param>
+        /// <param name="OrganizationId1">A organization identification.</param>
+        /// <param name="OrganizationId2">Another organization identification.</param>
         /// <returns>true|false</returns>
-        public static Boolean operator != (Organization_Id Organization_Id1, Organization_Id Organization_Id2)
-            => !(Organization_Id1 == Organization_Id2);
+        public static Boolean operator != (Organization_Id OrganizationId1, Organization_Id OrganizationId2)
+            => !(OrganizationId1 == OrganizationId2);
 
         #endregion
 
-        #region Operator <  (Organization_Id1, Organization_Id2)
+        #region Operator <  (OrganizationId1, OrganizationId2)
 
         /// <summary>
         /// Compares two instances of this object.
         /// </summary>
-        /// <param name="Organization_Id1">A organization identification.</param>
-        /// <param name="Organization_Id2">Another organization identification.</param>
+        /// <param name="OrganizationId1">A organization identification.</param>
+        /// <param name="OrganizationId2">Another organization identification.</param>
         /// <returns>true|false</returns>
-        public static Boolean operator < (Organization_Id Organization_Id1, Organization_Id Organization_Id2)
+        public static Boolean operator < (Organization_Id OrganizationId1, Organization_Id OrganizationId2)
         {
 
-            if ((Object) Organization_Id1 == null)
-                throw new ArgumentNullException("The given Organization_Id1 must not be null!");
+            if ((Object) OrganizationId1 == null)
+                throw new ArgumentNullException(nameof(OrganizationId1), "The given OrganizationId1 must not be null!");
 
-            return Organization_Id1.CompareTo(Organization_Id2) < 0;
+            return OrganizationId1.CompareTo(OrganizationId2) < 0;
 
         }
 
         #endregion
 
-        #region Operator <= (Organization_Id1, Organization_Id2)
+        #region Operator <= (OrganizationId1, OrganizationId2)
 
         /// <summary>
         /// Compares two instances of this object.
         /// </summary>
-        /// <param name="Organization_Id1">A organization identification.</param>
-        /// <param name="Organization_Id2">Another organization identification.</param>
+        /// <param name="OrganizationId1">A organization identification.</param>
+        /// <param name="OrganizationId2">Another organization identification.</param>
         /// <returns>true|false</returns>
-        public static Boolean operator <= (Organization_Id Organization_Id1, Organization_Id Organization_Id2)
-            => !(Organization_Id1 > Organization_Id2);
+        public static Boolean operator <= (Organization_Id OrganizationId1, Organization_Id OrganizationId2)
+            => !(OrganizationId1 > OrganizationId2);
 
         #endregion
 
-        #region Operator >  (Organization_Id1, Organization_Id2)
+        #region Operator >  (OrganizationId1, OrganizationId2)
 
         /// <summary>
         /// Compares two instances of this object.
         /// </summary>
-        /// <param name="Organization_Id1">A organization identification.</param>
-        /// <param name="Organization_Id2">Another organization identification.</param>
+        /// <param name="OrganizationId1">A organization identification.</param>
+        /// <param name="OrganizationId2">Another organization identification.</param>
         /// <returns>true|false</returns>
-        public static Boolean operator > (Organization_Id Organization_Id1, Organization_Id Organization_Id2)
+        public static Boolean operator > (Organization_Id OrganizationId1, Organization_Id OrganizationId2)
         {
 
-            if ((Object) Organization_Id1 == null)
-                throw new ArgumentNullException("The given Organization_Id1 must not be null!");
+            if ((Object) OrganizationId1 == null)
+                throw new ArgumentNullException(nameof(OrganizationId1), "The given OrganizationId1 must not be null!");
 
-            return Organization_Id1.CompareTo(Organization_Id2) > 0;
+            return OrganizationId1.CompareTo(OrganizationId2) > 0;
 
         }
 
         #endregion
 
-        #region Operator >= (Organization_Id1, Organization_Id2)
+        #region Operator >= (OrganizationId1, OrganizationId2)
 
         /// <summary>
         /// Compares two instances of this object.
         /// </summary>
-        /// <param name="Organization_Id1">A organization identification.</param>
-        /// <param name="Organization_Id2">Another organization identification.</param>
+        /// <param name="OrganizationId1">A organization identification.</param>
+        /// <param name="OrganizationId2">Another organization identification.</param>
         /// <returns>true|false</returns>
-        public static Boolean operator >= (Organization_Id Organization_Id1, Organization_Id Organization_Id2)
-            => !(Organization_Id1 < Organization_Id2);
+        public static Boolean operator >= (Organization_Id OrganizationId1, Organization_Id OrganizationId2)
+            => !(OrganizationId1 < OrganizationId2);
 
         #endregion
 

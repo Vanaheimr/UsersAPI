@@ -30,7 +30,6 @@ namespace org.GraphDefined.OpenData
     /// The unique identification of an user.
     /// </summary>
     public struct User_Id : IId<User_Id>
-
     {
 
         #region Data
@@ -38,25 +37,25 @@ namespace org.GraphDefined.OpenData
         /// <summary>
         /// The internal identification.
         /// </summary>
-        private readonly String InternalId;
+        private readonly String  InternalId;
 
-        //ToDo: Replace with better randomness!
-        private static readonly Random _Random = new Random(DateTime.Now.Millisecond);
+        /// <summary>
+        /// The internal realm.
+        /// </summary>
+        private readonly String  Realm;
 
         #endregion
 
         #region Properties
 
         /// <summary>
-        /// The realm.
-        /// </summary>
-        public String Realm { get; }
-
-        /// <summary>
         /// The length of the user identification.
         /// </summary>
         public UInt64 Length
-            => (UInt64) (InternalId.Length + Realm.Length);
+
+            => Realm.IsNotNullOrEmpty()
+                   ? (UInt64) (InternalId.Length + 1 + Realm.Length)
+                   : (UInt64) (InternalId.Length);
 
         #endregion
 
@@ -68,7 +67,7 @@ namespace org.GraphDefined.OpenData
         /// <param name="String">The string representation of the user identification.</param>
         /// <param name="Realm">An optional realm of the user identification.</param>
         private User_Id(String  String,
-                        String  Realm = "")
+                        String  Realm = null)
         {
 
             this.InternalId  = String;
@@ -79,14 +78,14 @@ namespace org.GraphDefined.OpenData
         #endregion
 
 
-        #region (static) Parse(Text, Realm = "")
+        #region (static) Parse   (Text, Realm = null)
 
         /// <summary>
         /// Parse the given string as an user identification.
         /// </summary>
         /// <param name="Text">A text representation of an user identification.</param>
         /// <param name="Realm">An optional realm of the user identification.</param>
-        public static User_Id Parse(String Text, String Realm = "")
+        public static User_Id Parse(String Text, String Realm = null)
         {
 
             #region Initial checks
@@ -97,6 +96,22 @@ namespace org.GraphDefined.OpenData
             if (Text.IsNullOrEmpty())
                 throw new ArgumentNullException(nameof(Text), "The given text representation of an user identification must not be null or empty!");
 
+            if (Text.Contains("@"))
+            {
+
+                if (Realm.IsNotNullOrEmpty())
+                    throw new ArgumentException("The given text representation of an user identification is invalid!", nameof(Text));
+
+                var Splitted = Text.Split(new Char[] { '@' }, StringSplitOptions.RemoveEmptyEntries);
+
+                if (Splitted.Length != 2)
+                    throw new ArgumentException("The given text representation of an user identification is invalid!", nameof(Text));
+
+                Text   = Splitted[0];
+                Realm  = Splitted[1];
+
+            }
+
             #endregion
 
             return new User_Id(Text, Realm);
@@ -105,15 +120,41 @@ namespace org.GraphDefined.OpenData
 
         #endregion
 
-        #region (static) TryParse(Text, Realm = "")
+        #region (static) TryParse(Text, Realm = null)
 
         /// <summary>
         /// Try to parse the given string as an user identification.
         /// </summary>
         /// <param name="Text">A text representation of an user identification.</param>
         /// <param name="Realm">An optional realm of the user identification.</param>
-        public static User_Id? TryParse(String Text, String Realm = "")
+        public static User_Id? TryParse(String Text, String Realm = null)
         {
+
+            #region Initial checks
+
+            if (Text != null)
+                Text = Text.Trim();
+
+            if (Text.IsNullOrEmpty())
+                throw new ArgumentNullException(nameof(Text), "The given text representation of an user identification must not be null or empty!");
+
+            if (Text.Contains("@"))
+            {
+
+                if (Realm.IsNotNullOrEmpty())
+                    throw new ArgumentException("The given text representation of an user identification is invalid!", nameof(Text));
+
+                var Splitted = Text.Split(new Char[] { '@' }, StringSplitOptions.RemoveEmptyEntries);
+
+                if (Splitted.Length != 2)
+                    throw new ArgumentException("The given text representation of an user identification is invalid!", nameof(Text));
+
+                Text   = Splitted[0];
+                Realm  = Splitted[1];
+
+            }
+
+            #endregion
 
             User_Id _UserId;
 
@@ -144,11 +185,26 @@ namespace org.GraphDefined.OpenData
             if (Text.IsNullOrEmpty())
                 throw new ArgumentNullException(nameof(Text), "The given text representation of an user identification must not be null or empty!");
 
+            String Realm = null;
+
+            if (Text.Contains("@"))
+            {
+
+                var Splitted = Text.Split(new Char[] { '@' }, StringSplitOptions.RemoveEmptyEntries);
+
+                if (Splitted.Length != 2)
+                    throw new ArgumentException("The given text representation of an user identification is invalid!", nameof(Text));
+
+                Text   = Splitted[0];
+                Realm  = Splitted[1];
+
+            }
+
             #endregion
 
             try
             {
-                UserId = new User_Id(Text);
+                UserId = new User_Id(Text, Realm);
                 return true;
             }
             catch (Exception)
@@ -179,6 +235,22 @@ namespace org.GraphDefined.OpenData
 
             if (Text.IsNullOrEmpty())
                 throw new ArgumentNullException(nameof(Text), "The given text representation of an user identification must not be null or empty!");
+
+            if (Text.Contains("@"))
+            {
+
+                if (Realm.IsNotNullOrEmpty())
+                    throw new ArgumentException("The given text representation of an user identification is invalid!", nameof(Text));
+
+                var Splitted = Text.Split(new Char[] { '@' }, StringSplitOptions.RemoveEmptyEntries);
+
+                if (Splitted.Length != 2)
+                    throw new ArgumentException("The given text representation of an user identification is invalid!", nameof(Text));
+
+                Text   = Splitted[0];
+                Realm  = Splitted[1];
+
+            }
 
             #endregion
 
@@ -263,7 +335,7 @@ namespace org.GraphDefined.OpenData
         {
 
             if ((Object) UserId1 == null)
-                throw new ArgumentNullException("The given UserId1 must not be null!");
+                throw new ArgumentNullException(nameof(UserId1), "The given UserId1 must not be null!");
 
             return UserId1.CompareTo(UserId2) < 0;
 
@@ -296,7 +368,7 @@ namespace org.GraphDefined.OpenData
         {
 
             if ((Object) UserId1 == null)
-                throw new ArgumentNullException("The given UserId1 must not be null!");
+                throw new ArgumentNullException(nameof(UserId1), "The given UserId1 must not be null!");
 
             return UserId1.CompareTo(UserId2) > 0;
 
@@ -420,7 +492,9 @@ namespace org.GraphDefined.OpenData
         /// </summary>
         /// <returns>The HashCode of this object.</returns>
         public override Int32 GetHashCode()
-            => InternalId.GetHashCode();
+
+            => InternalId.GetHashCode() ^
+               Realm.     GetHashCode();
 
         #endregion
 
@@ -430,7 +504,10 @@ namespace org.GraphDefined.OpenData
         /// Return a string represtentation of this object.
         /// </summary>
         public override String ToString()
-            => InternalId;
+
+            => Realm.IsNotNullOrEmpty()
+                   ? InternalId + "@" + Realm
+                   : InternalId;
 
         #endregion
 

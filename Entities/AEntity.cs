@@ -18,9 +18,14 @@
 #region Usings
 
 using System;
+using System.Text;
+using System.Linq;
 using System.Collections.Generic;
+using System.Security.Cryptography;
 using System.Collections.Concurrent;
 using System.Runtime.CompilerServices;
+
+using Newtonsoft.Json.Linq;
 
 using org.GraphDefined.Vanaheimr.Illias;
 
@@ -45,84 +50,31 @@ namespace org.GraphDefined.OpenData
 
         #region Properties
 
-        #region Id
-
-        private readonly TId _Id;
-
         /// <summary>
         /// The global unique identification of this entity.
         /// </summary>
         [Mandatory]
-        public TId Id
-        {
-            get
-            {
-                return _Id;
-            }
-        }
-
-        #endregion
-
-        #region DataSource
-
-        private String _DataSource;
+        public TId                                   Id            { get; }
 
         /// <summary>
         /// The source of this information, e.g. the WWCP importer used.
         /// </summary>
         [Optional]
-        public String DataSource
-        {
-
-            get
-            {
-                return _DataSource;
-            }
-
-            set
-            {
-                _DataSource = value;
-            }
-
-        }
-
-        #endregion
-
-        #region LastChange
-
-        private DateTime _LastChange;
+        public String                                DataSource    { get; set; }
 
         /// <summary>
         /// The timestamp of the last changes within this ChargingPool.
         /// Can be used as a HTTP ETag.
         /// </summary>
         [Mandatory]
-        public DateTime LastChange
-        {
-            get
-            {
-                return _LastChange;
-            }
-        }
+        public DateTime                              LastChange    { get; protected set; }
 
-        #endregion
-
-        #region Unstructured
-
-        private ConcurrentDictionary<String, Object> _UserDefined;
+        public String                                CurrentHash   { get; protected set; }
 
         /// <summary>
         /// A lookup for user-defined properties.
         /// </summary>
-        public ConcurrentDictionary<String, Object> UserDefined
-        {
-            get
-            {
-                return _UserDefined;
-            }
-        }
-
-        #endregion
+        public ConcurrentDictionary<String, Object>  UserDefined   { get; }
 
         #endregion
 
@@ -148,10 +100,10 @@ namespace org.GraphDefined.OpenData
 
             #endregion
 
-            this._Id           = Id;
-            this._DataSource   = String.Empty;
-            this._LastChange   = DateTime.Now;
-            this._UserDefined  = new ConcurrentDictionary<String, Object>();
+            this.Id           = Id;
+            this.DataSource   = String.Empty;
+            this.LastChange   = DateTime.Now;
+            this.UserDefined  = new ConcurrentDictionary<String, Object>();
 
         }
 
@@ -229,15 +181,17 @@ namespace org.GraphDefined.OpenData
             #region Initial checks
 
             if (PropertyName == null)
-                throw new ArgumentNullException("PropertyName", "The given parameter must not be null!");
+                throw new ArgumentNullException(nameof(PropertyName), "The given property name must not be null!");
 
             #endregion
 
-            this._LastChange = DateTime.Now;
+            this.LastChange = DateTime.Now;
 
-            var OnPropertyChangedLocal = OnPropertyChanged;
-            if (OnPropertyChangedLocal != null)
-                OnPropertyChangedLocal(_LastChange, this, PropertyName, OldValue, NewValue);
+            OnPropertyChanged?.Invoke(LastChange,
+                                      this,
+                                      PropertyName,
+                                      OldValue,
+                                      NewValue);
 
         }
 
@@ -255,12 +209,12 @@ namespace org.GraphDefined.OpenData
 
             get
             {
-                return _UserDefined[PropertyName];
+                return UserDefined[PropertyName];
             }
 
             set
             {
-                _UserDefined[PropertyName] = value;
+                UserDefined[PropertyName] = value;
             }
 
         }
@@ -278,9 +232,34 @@ namespace org.GraphDefined.OpenData
 
             Object Value;
 
-            _UserDefined.TryRemove(PropertyName, out Value);
+            UserDefined.TryRemove(PropertyName, out Value);
 
         }
+
+        #endregion
+
+
+        #region (protected) CalcHash()
+
+        protected void CalcHash()
+        {
+
+            var SHA256 = new SHA256Managed();
+            CurrentHash = SHA256.ComputeHash(Encoding.Unicode.GetBytes(UsersAPI.UserDB_RegEx.Replace(ToJSON(IncludeHash: false).ToString(), " "))).
+                                 Select(value => String.Format("{0:x2}", value)).
+                                 Aggregate();
+
+        }
+
+        #endregion
+
+        #region ToJSON(IncludeHash = true)
+
+        /// <summary>
+        /// Return a JSON representation of this object.
+        /// </summary>
+        /// <param name="IncludeHash">Include the hash value of this object.</param>
+        public abstract JObject ToJSON(Boolean IncludeHash = true);
 
         #endregion
 
@@ -289,20 +268,20 @@ namespace org.GraphDefined.OpenData
         {
 
             if (obj is AEntity<TId>)
-                return _Id.CompareTo((AEntity<TId>) obj);
+                return Id.CompareTo((AEntity<TId>) obj);
 
             if (obj is TId)
-                return _Id.CompareTo((TId) obj);
+                return Id.CompareTo((TId) obj);
 
             return -1;
 
         }
 
         public Int32 CompareTo(TId OtherId)
-            => _Id.CompareTo(OtherId);
+            => Id.CompareTo(OtherId);
 
         public Boolean Equals(TId OtherId)
-            => _Id.Equals(OtherId);
+            => Id.Equals(OtherId);
 
     }
 
