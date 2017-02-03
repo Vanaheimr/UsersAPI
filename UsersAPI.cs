@@ -832,7 +832,8 @@ namespace org.GraphDefined.OpenData
 
                             case "AddUserToGroup":
 
-                                var U2G_User     = _Users [User_Id. Parse(JSONParameters["user" ].Value<String>())];
+                                var U2G_User     = _Users [User_Id. Parse(JSONParameters["user" ].Value<String>(),
+                                                                          JSONParameters["realm"].Value<String>())];
                                 var U2G_Group    = _Groups[Group_Id.Parse(JSONParameters["group"].Value<String>())];
                                 var U2G_Edge     = (User2GroupEdges) Enum.Parse(typeof(User2GroupEdges), JSONParameters["edge"].   Value<String>());
                                 var U2G_Privacy  = (PrivacyLevel)    Enum.Parse(typeof(PrivacyLevel),    JSONParameters["privacy"].Value<String>());
@@ -851,7 +852,8 @@ namespace org.GraphDefined.OpenData
 
                             case "AddUserToOrganization":
 
-                                var U2O_User          = _Users        [User_Id.        Parse(JSONParameters["user"        ].Value<String>())];
+                                var U2O_User          = _Users        [User_Id.        Parse(JSONParameters["user" ].Value<String>(),
+                                                                                             JSONParameters["realm"].Value<String>())];
                                 var U2O_Organization  = _Organizations[Organization_Id.Parse(JSONParameters["organization"].Value<String>())];
                                 var U2O_Edge          = (User2OrganizationEdges) Enum.Parse(typeof(User2OrganizationEdges), JSONParameters["edge"].   Value<String>());
                                 var U2O_Privacy       = (PrivacyLevel)           Enum.Parse(typeof(PrivacyLevel),           JSONParameters["privacy"].Value<String>());
@@ -2316,6 +2318,21 @@ namespace org.GraphDefined.OpenData
         #endregion
 
 
+        private void WriteToLogfile(String   Command,
+                                    JObject  JSON)
+        {
+
+            var jObject = new JObject(
+                              new JProperty(Command,      JSON),
+                              new JProperty("Timestamp",  DateTime.Now.ToIso8601())
+                          );
+
+            File.AppendAllText(DefaultUsersAPIFile,
+                               UserDB_RegEx.Replace(jObject.ToString(), " ") +
+                               Environment.NewLine);
+
+        }
+
 
         #region CreateUser           (Id, EMail, Password, Name = null, PublicKeyRing = null, Telephone = null, Description = null, IsPublic = true, IsDisabled = false, IsAuthenticated = false)
 
@@ -2368,19 +2385,7 @@ namespace org.GraphDefined.OpenData
                                     IsDisabled,
                                     IsAuthenticated);
 
-                //if (IsAuthenticated)
-                //    User.IsAuthenticated  = true;
-
-                //if (HideUser)
-                //    User.IsHidden         = true;
-
-                File.AppendAllText(DefaultUsersAPIFile,
-                                   UserDB_RegEx.Replace(new JObject(
-                                                            new JProperty("CreateUser",  User.ToJSON()),
-                                                            new JProperty("Timestamp",   DateTime.Now.ToIso8601())
-                                                        ).ToString(),
-                                                        " ") +
-                                   Environment.NewLine);
+                WriteToLogfile("CreateUser", User.ToJSON());
 
                 SetPassword(Id, Password);
 
@@ -2531,13 +2536,7 @@ namespace org.GraphDefined.OpenData
                                       Name,
                                       Description);
 
-                File.AppendAllText(DefaultUsersAPIFile,
-                                   UserDB_RegEx.Replace(new JObject(
-                                                            new JProperty("CreateGroup",  Group.ToJSON()),
-                                                            new JProperty("Timestamp",    DateTime.Now.ToIso8601())
-                                                        ).ToString(),
-                                                        " ") +
-                                   Environment.NewLine);
+                WriteToLogfile("CreateGroup", Group.ToJSON());
 
                 return _Groups.AddAndReturnValue(Group.Id, Group);
 
@@ -2595,18 +2594,14 @@ namespace org.GraphDefined.OpenData
                 if (!Group.Edges(Group).Any(edge => edge == Edge))
                     Group.AddIncomingEdge(User, Edge,  Privacy);
 
-                File.AppendAllText(DefaultUsersAPIFile,
-                                   UserDB_RegEx.Replace(new JObject(
-                                                            new JProperty("AddUserToGroup",
-                                                                          new JObject(
-                                                                              new JProperty("user",     User.Id.ToString()),
-                                                                              new JProperty("edge",     Edge.   ToString()),
-                                                                              new JProperty("group",    Group.  ToString()),
-                                                                              new JProperty("privacy",  Privacy.ToString())
-                                                                          ))
-                                                        ).ToString(),
-                                                        " ") +
-                                   Environment.NewLine);
+                WriteToLogfile("AddUserToGroup",
+                               new JObject(
+                                   new JProperty("user",     User.Id.ToString()),
+                                   new JProperty("realm",    User.Id.Realm),
+                                   new JProperty("edge",     Edge.   ToString()),
+                                   new JProperty("group",    Group.  ToString()),
+                                   new JProperty("privacy",  Privacy.ToString())
+                               ));
 
                 return true;
 
@@ -2710,18 +2705,14 @@ namespace org.GraphDefined.OpenData
                 if (!Organization.Edges(Organization).Any(edge => edge == Edge))
                     Organization.AddIncomingEdge(User, Edge,         Privacy);
 
-                File.AppendAllText(DefaultUsersAPIFile,
-                                   UserDB_RegEx.Replace(new JObject(
-                                                            new JProperty("AddUserToOrganization",
-                                                                          new JObject(
-                                                                              new JProperty("user",          User.Id.     ToString()),
-                                                                              new JProperty("edge",          Edge.        ToString()),
-                                                                              new JProperty("organization",  Organization.ToString()),
-                                                                              new JProperty("privacy",       Privacy.     ToString())
-                                                                          ))
-                                                        ).ToString(),
-                                                        " ") +
-                                   Environment.NewLine);
+                WriteToLogfile("AddUserToOrganization",
+                               new JObject(
+                                   new JProperty("user",          User.Id.     ToString()),
+                                   new JProperty("realm",         User.Id.Realm),
+                                   new JProperty("edge",          Edge.        ToString()),
+                                   new JProperty("organization",  Organization.ToString()),
+                                   new JProperty("privacy",       Privacy.     ToString())
+                               ));
 
                 return true;
 
