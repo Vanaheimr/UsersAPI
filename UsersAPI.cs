@@ -104,10 +104,10 @@ namespace org.GraphDefined.OpenData
         public  const             String                              DefaultCookieName              = "OpenDataSocial";
         public  const             String                              HTTPCookieDomain               = "";
 
-        public  const             String                              DefaultUserDBFile              = "UsersAPI_Users.db";
+        public  const             String                              DefaultUsersAPIFile            = "UsersAPI_Users.db";
         public  const             String                              DefaultPasswordFile            = "UsersAPI_Passwords.db";
-        public  const             String                              DefaultGroupDBFile             = "UsersAPI_Groups.db";
-        public  const             String                              DefaultUser2GroupDBFile        = "UsersAPI_User2Group.db";
+        //public  const             String                              DefaultGroupDBFile             = "UsersAPI_Groups.db";
+        //public  const             String                              DefaultUser2GroupDBFile        = "UsersAPI_User2Group.db";
 
 
         private static            Regex                               UserDB_RegEx                   = new Regex(@"(\s)+",
@@ -755,20 +755,16 @@ namespace org.GraphDefined.OpenData
 
             this._DNSClient                   = HTTPServer.DNSClient;
 
-            this.Admins                       = CreateGroup(Group_Id.Parse("Admins"),
-                                                            I18NString.Create(Languages.eng, "Admins"),
-                                                            I18NString.Create(Languages.eng, "All admins of the API."));
-
             #endregion
 
             RegisterURITemplates();
 
-            #region Read UserDB file...
+            #region Read UsersAPI file...
 
-            if (File.Exists(DefaultUserDBFile))
+            if (File.Exists(DefaultUsersAPIFile))
             {
 
-                File.ReadLines(DefaultUserDBFile).ForEachCounted((line, linenumber) => {
+                File.ReadLines(DefaultUsersAPIFile).ForEachCounted((line, linenumber) => {
 
                     try
                     {
@@ -779,44 +775,112 @@ namespace org.GraphDefined.OpenData
                         switch ((JSONCommand.First as JProperty).Name)
                         {
 
+                            #region CreateUser
+
                             case "CreateUser":
 
-                                var User = new User(User_Id.           Parse(JSONParameters["login"      ].Value<String>()),
-                                                    SimpleEMailAddress.Parse(JSONParameters["email"      ].Value<String>()),
-                                                                             JSONParameters["name"       ].Value<String>(),
-                                                                             JSONParameters["publickey"  ].Value<String>());
-                                                                             // description);
-
+                                var User = new User(User_Id.           Parse(JSONParameters["@id"            ].Value<String>(),
+                                                                             JSONParameters["realm"          ].Value<String>()),
+                                                    SimpleEMailAddress.Parse(JSONParameters["email"          ].Value<String>()),
+                                                                             JSONParameters["name"           ].Value<String>(),
+                                                                             JSONParameters["publickey"      ].Value<String>(),
+                                                                             JSONParameters["telephone"      ].Value<String>(),
+                                                                             JSONParameters.ParseI18NString("description"),
+                                                                             JSONParameters["isPublic"       ].Value<Boolean>(),
+                                                                             JSONParameters["isDisabled"     ].Value<Boolean>(),
+                                                                             JSONParameters["isAuthenticated"].Value<Boolean>());
 
                                 _Users.AddAndReturnValue(User.Id, User);
 
                                 break;
 
+                            #endregion
+
+                            #region CreateGroup
+
                             case "CreateGroup":
 
-                                //var Group = new Group(Group_Id.           Parse(JSONParameters["login"      ].Value<String>()),
-                                //                    SimpleEMailAddress.Parse(JSONParameters["email"      ].Value<String>()),
-                                //                                             JSONParameters["name"       ].Value<String>(),
-                                //                                             JSONParameters["publickey"  ].Value<String>());
-                                //                                             // description);
+                                var Group = new Group(Group_Id.Parse(JSONParameters["@id"].Value<String>()),
+                                                      JSONParameters.ParseI18NString("name"),
+                                                      JSONParameters.ParseI18NString("description"),
+                                                      JSONParameters["isPublic"].   Value<Boolean>(),
+                                                      JSONParameters["isDisabled"]. Value<Boolean>());
 
-
-                                //_Users.AddAndReturnValue(User.Id, User);
+                                _Groups.AddAndReturnValue(Group.Id, Group);
 
                                 break;
 
+                            #endregion
+
+                            #region CreateOrganization
+
+                            case "CreateOrganization":
+
+                                var Organization = new Organization(Organization_Id.Parse(JSONParameters["@id"].Value<String>()),
+                                                                    JSONParameters.ParseI18NString("name"),
+                                                                    JSONParameters.ParseI18NString("description"),
+                                                                    JSONParameters["isPublic"].Value<Boolean>(),
+                                                                    JSONParameters["isDisabled"].Value<Boolean>());
+
+                                _Organizations.AddAndReturnValue(Organization.Id, Organization);
+
+                                break;
+
+                            #endregion
+
+                            #region AddUserToGroup
+
+                            case "AddUserToGroup":
+
+                                var U2G_User     = _Users [User_Id. Parse(JSONParameters["user" ].Value<String>())];
+                                var U2G_Group    = _Groups[Group_Id.Parse(JSONParameters["group"].Value<String>())];
+                                var U2G_Edge     = (User2GroupEdges) Enum.Parse(typeof(User2GroupEdges), JSONParameters["edge"].   Value<String>());
+                                var U2G_Privacy  = (PrivacyLevel)    Enum.Parse(typeof(PrivacyLevel),    JSONParameters["privacy"].Value<String>());
+
+                                if (!U2G_User.Edges(U2G_Group).Any(edge => edge == U2G_Edge))
+                                    U2G_User.AddOutgoingEdge(U2G_Edge, U2G_Group, U2G_Privacy);
+
+                                if (!U2G_Group.Edges(U2G_Group).Any(edge => edge == U2G_Edge))
+                                    U2G_Group.AddIncomingEdge(U2G_User, U2G_Edge, U2G_Privacy);
+
+                                break;
+
+                            #endregion
+
+                            #region AddUserToOrganization
+
+                            case "AddUserToOrganization":
+
+                                var U2O_User          = _Users        [User_Id.        Parse(JSONParameters["user"        ].Value<String>())];
+                                var U2O_Organization  = _Organizations[Organization_Id.Parse(JSONParameters["organization"].Value<String>())];
+                                var U2O_Edge          = (User2OrganizationEdges) Enum.Parse(typeof(User2OrganizationEdges), JSONParameters["edge"].   Value<String>());
+                                var U2O_Privacy       = (PrivacyLevel)           Enum.Parse(typeof(PrivacyLevel),           JSONParameters["privacy"].Value<String>());
+
+                                if (!U2O_User.Edges(U2O_Organization).Any(edge => edge == U2O_Edge))
+                                    U2O_User.AddOutgoingEdge(U2O_Edge, U2O_Organization, U2O_Privacy);
+
+                                if (!U2O_Organization.Edges(U2O_Organization).Any(edge => edge == U2O_Edge))
+                                    U2O_Organization.AddIncomingEdge(U2O_User, U2O_Edge, U2O_Privacy);
+
+                                break;
+
+                             #endregion
 
                         }
 
                     }
                     catch (Exception e)
                     {
-                        DebugX.Log(@"Could not read UserDB file """ + DefaultUserDBFile + @""" line " + linenumber + ": " + e.Message);
+                        DebugX.Log(@"Could not read UserDB file """ + DefaultUsersAPIFile + @""" line " + linenumber + ": " + e.Message);
                     }
 
                 });
 
             }
+
+            this.Admins  = CreateGroupIfNotExists(Group_Id.Parse("Admins"),
+                                                  I18NString.Create(Languages.eng, "Admins"),
+                                                  I18NString.Create(Languages.eng, "All admins of the API."));
 
             #endregion
 
@@ -836,17 +900,17 @@ namespace org.GraphDefined.OpenData
                         if (!_LoginPasswords.ContainsKey(Login))
                             _LoginPasswords.Add(Login,
                                                 new LoginPassword(Login,
-                                                                  LoginPassword[1],
                                                                   LoginPassword[2].IsNotNullOrEmpty()
                                                                       ? LoginPassword[2]
-                                                                      : null));
+                                                                      : null,
+                                                                  LoginPassword[1]));
 
                         else
                             _LoginPasswords[Login] = new LoginPassword(Login,
-                                                                       LoginPassword[1],
                                                                        LoginPassword[2].IsNotNullOrEmpty()
                                                                            ? LoginPassword[2]
-                                                                           : null);
+                                                                           : null,
+                                                                       LoginPassword[1]);
 
                     }
                     catch (Exception e)
@@ -2253,7 +2317,7 @@ namespace org.GraphDefined.OpenData
 
 
 
-        #region CreateUser           (Id, EMail, Password, Name = null, GPGPublicKeyRing = null, Description = null, AuthenticateUser = false, HideUser = false)
+        #region CreateUser           (Id, EMail, Password, Name = null, PublicKeyRing = null, Telephone = null, Description = null, IsPublic = true, IsDisabled = false, IsAuthenticated = false)
 
         /// <summary>
         /// Create a new user.
@@ -2310,7 +2374,7 @@ namespace org.GraphDefined.OpenData
                 //if (HideUser)
                 //    User.IsHidden         = true;
 
-                File.AppendAllText(DefaultUserDBFile,
+                File.AppendAllText(DefaultUsersAPIFile,
                                    UserDB_RegEx.Replace(new JObject(
                                                             new JProperty("CreateUser",  User.ToJSON()),
                                                             new JProperty("Timestamp",   DateTime.Now.ToIso8601())
@@ -2328,7 +2392,7 @@ namespace org.GraphDefined.OpenData
 
         #endregion
 
-        #region CreateUserIfNotExists(Id, EMail, Password, Name = null, PublicKeyRing = null, Description = null, AuthenticateUser = false, HideUser = false)
+        #region CreateUserIfNotExists(Id, EMail, Password, Name = null, PublicKeyRing = null, Telephone = null, Description = null, IsPublic = true, IsDisabled = false, IsAuthenticated = false)
 
         /// <summary>
         /// Create a new user.
@@ -2403,9 +2467,9 @@ namespace org.GraphDefined.OpenData
                 File.AppendAllText(DefaultPasswordFile,
                                    String.Concat(Login,
                                                  ":",
-                                                 Password,
-                                                 ":",
                                                  Realm,
+                                                 ":",
+                                                 Password,
                                                  Environment.NewLine));
 
             }
@@ -2428,9 +2492,9 @@ namespace org.GraphDefined.OpenData
                 File.AppendAllText(DefaultPasswordFile,
                    String.Concat(Login,
                                  ":",
-                                 Password,
-                                 ":",
                                  Realm,
+                                 ":",
+                                 Password,
                                  Environment.NewLine));
 
             }
@@ -2449,7 +2513,7 @@ namespace org.GraphDefined.OpenData
         #endregion
 
 
-        #region CreateGroup(Id, Name = null, Description = null)
+        #region CreateGroup           (Id, Name = null, Description = null)
 
         public Group CreateGroup(Group_Id   Id,
                                  I18NString Name         = null,
@@ -2467,7 +2531,7 @@ namespace org.GraphDefined.OpenData
                                       Name,
                                       Description);
 
-                File.AppendAllText(DefaultUserDBFile,
+                File.AppendAllText(DefaultUsersAPIFile,
                                    UserDB_RegEx.Replace(new JObject(
                                                             new JProperty("CreateGroup",  Group.ToJSON()),
                                                             new JProperty("Timestamp",    DateTime.Now.ToIso8601())
@@ -2524,25 +2588,31 @@ namespace org.GraphDefined.OpenData
         {
 
             if (!User.Edges(Group).Any(edge => edge == Edge))
+            {
+
                 User. AddOutgoingEdge(Edge, Group, Privacy);
 
-            if (!Group.Edges(Group).Any(edge => edge == Edge))
-                Group.AddIncomingEdge(User, Edge,  Privacy);
+                if (!Group.Edges(Group).Any(edge => edge == Edge))
+                    Group.AddIncomingEdge(User, Edge,  Privacy);
 
-            File.AppendAllText(DefaultUserDBFile,
-                               UserDB_RegEx.Replace(new JObject(
-                                                        new JProperty("AddToGroup",
-                                                                      new JObject(
-                                                                          new JProperty("User",     User.Id.ToString()),
-                                                                          new JProperty("Edge",     Edge.   ToString()),
-                                                                          new JProperty("Group",    Group.  ToString()),
-                                                                          new JProperty("Privacy",  Privacy.ToString())
-                                                                      ))
-                                                    ).ToString(),
-                                                    " ") +
-                               Environment.NewLine);
+                File.AppendAllText(DefaultUsersAPIFile,
+                                   UserDB_RegEx.Replace(new JObject(
+                                                            new JProperty("AddUserToGroup",
+                                                                          new JObject(
+                                                                              new JProperty("user",     User.Id.ToString()),
+                                                                              new JProperty("edge",     Edge.   ToString()),
+                                                                              new JProperty("group",    Group.  ToString()),
+                                                                              new JProperty("privacy",  Privacy.ToString())
+                                                                          ))
+                                                        ).ToString(),
+                                                        " ") +
+                                   Environment.NewLine);
 
-            return true;
+                return true;
+
+            }
+
+            return false;
 
         }
 
@@ -2558,7 +2628,7 @@ namespace org.GraphDefined.OpenData
         #endregion
 
 
-        #region CreateOrganization(Id, Name = null, Description = null)
+        #region CreateOrganization           (Id, Name = null, Description = null)
 
         public Organization CreateOrganization(Organization_Id  Id,
                                                I18NString       Name         = null,
@@ -2576,7 +2646,7 @@ namespace org.GraphDefined.OpenData
                                                     Name,
                                                     Description);
 
-                File.AppendAllText(DefaultUserDBFile,
+                File.AppendAllText(DefaultUsersAPIFile,
                                    UserDB_RegEx.Replace(new JObject(
                                                             new JProperty("CreateOrganization",  Organization.ToJSON()),
                                                             new JProperty("Timestamp",           DateTime.Now.ToIso8601())
@@ -2585,6 +2655,29 @@ namespace org.GraphDefined.OpenData
                                    Environment.NewLine);
 
                 return _Organizations.AddAndReturnValue(Organization.Id, Organization);
+
+            }
+
+        }
+
+        #endregion
+
+        #region CreateOrganizationIfNotExists(Id, Name = null, Description = null)
+
+        public Organization CreateOrganizationIfNotExists(Organization_Id  Id,
+                                                          I18NString       Name         = null,
+                                                          I18NString       Description  = null)
+        {
+
+            lock (_Organizations)
+            {
+
+                if (_Organizations.ContainsKey(Id))
+                    return _Organizations[Id];
+
+                return CreateOrganization(Id,
+                                          Name,
+                                          Description);
 
             }
 
@@ -2610,25 +2703,31 @@ namespace org.GraphDefined.OpenData
         {
 
             if (!User.Edges(Organization).Any(edge => edge == Edge))
-                User.        AddOutgoingEdge(Edge, Organization, Privacy);
+            {
 
-            if (!Organization.Edges(Organization).Any(edge => edge == Edge))
-                Organization.AddIncomingEdge(User, Edge,         Privacy);
+                User.AddOutgoingEdge(Edge, Organization, Privacy);
 
-            File.AppendAllText(DefaultUserDBFile,
-                               UserDB_RegEx.Replace(new JObject(
-                                                        new JProperty("AddToOrganization",
-                                                                      new JObject(
-                                                                          new JProperty("User",          User.Id.     ToString()),
-                                                                          new JProperty("Edge",          Edge.        ToString()),
-                                                                          new JProperty("Organization",  Organization.ToString()),
-                                                                          new JProperty("Privacy",       Privacy.     ToString())
-                                                                      ))
-                                                    ).ToString(),
-                                                    " ") +
-                               Environment.NewLine);
+                if (!Organization.Edges(Organization).Any(edge => edge == Edge))
+                    Organization.AddIncomingEdge(User, Edge,         Privacy);
 
-            return true;
+                File.AppendAllText(DefaultUsersAPIFile,
+                                   UserDB_RegEx.Replace(new JObject(
+                                                            new JProperty("AddUserToOrganization",
+                                                                          new JObject(
+                                                                              new JProperty("user",          User.Id.     ToString()),
+                                                                              new JProperty("edge",          Edge.        ToString()),
+                                                                              new JProperty("organization",  Organization.ToString()),
+                                                                              new JProperty("privacy",       Privacy.     ToString())
+                                                                          ))
+                                                        ).ToString(),
+                                                        " ") +
+                                   Environment.NewLine);
+
+                return true;
+
+            }
+
+            return false;
 
         }
 

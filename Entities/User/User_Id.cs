@@ -48,10 +48,15 @@ namespace org.GraphDefined.OpenData
         #region Properties
 
         /// <summary>
+        /// The realm.
+        /// </summary>
+        public String Realm { get; }
+
+        /// <summary>
         /// The length of the user identification.
         /// </summary>
         public UInt64 Length
-            => (UInt64) InternalId.Length;
+            => (UInt64) (InternalId.Length + Realm.Length);
 
         #endregion
 
@@ -61,21 +66,27 @@ namespace org.GraphDefined.OpenData
         /// Create a new user identification based on the given string.
         /// </summary>
         /// <param name="String">The string representation of the user identification.</param>
-        private User_Id(String String)
+        /// <param name="Realm">An optional realm of the user identification.</param>
+        private User_Id(String  String,
+                        String  Realm = "")
         {
-            InternalId = String;
+
+            this.InternalId  = String;
+            this.Realm       = Realm ?? "";
+
         }
 
         #endregion
 
 
-        #region (static) Parse(Text)
+        #region (static) Parse(Text, Realm = "")
 
         /// <summary>
         /// Parse the given string as an user identification.
         /// </summary>
         /// <param name="Text">A text representation of an user identification.</param>
-        public static User_Id Parse(String Text)
+        /// <param name="Realm">An optional realm of the user identification.</param>
+        public static User_Id Parse(String Text, String Realm = "")
         {
 
             #region Initial checks
@@ -88,24 +99,25 @@ namespace org.GraphDefined.OpenData
 
             #endregion
 
-            return new User_Id(Text);
+            return new User_Id(Text, Realm);
 
         }
 
         #endregion
 
-        #region (static) TryParse(Text)
+        #region (static) TryParse(Text, Realm = "")
 
         /// <summary>
         /// Try to parse the given string as an user identification.
         /// </summary>
         /// <param name="Text">A text representation of an user identification.</param>
-        public static User_Id? TryParse(String Text)
+        /// <param name="Realm">An optional realm of the user identification.</param>
+        public static User_Id? TryParse(String Text, String Realm = "")
         {
 
             User_Id _UserId;
 
-            if (TryParse(Text, out _UserId))
+            if (TryParse(Text, Realm, out _UserId))
                 return _UserId;
 
             return new User_Id?();
@@ -149,121 +161,159 @@ namespace org.GraphDefined.OpenData
 
         #endregion
 
+        #region (static) TryParse(Text, Realm, out UserId)
+
+        /// <summary>
+        /// Try to parse the given string as an user identification.
+        /// </summary>
+        /// <param name="Text">A text representation of an user identification.</param>
+        /// <param name="Realm">An optional realm of the user identification.</param>
+        /// <param name="UserId">The parsed user identification.</param>
+        public static Boolean TryParse(String Text, String Realm, out User_Id UserId)
+        {
+
+            #region Initial checks
+
+            if (Text != null)
+                Text = Text.Trim();
+
+            if (Text.IsNullOrEmpty())
+                throw new ArgumentNullException(nameof(Text), "The given text representation of an user identification must not be null or empty!");
+
+            #endregion
+
+            try
+            {
+                UserId = new User_Id(Text, Realm);
+                return true;
+            }
+            catch (Exception)
+            {
+                UserId = default(User_Id);
+                return false;
+            }
+
+        }
+
+        #endregion
+
         #region Clone
 
         /// <summary>
-        /// Clone an user identification.
+        /// Clone this user identification.
         /// </summary>
 
         public User_Id Clone
-            => new User_Id(new String(InternalId.ToCharArray()));
+
+            => new User_Id(new String(InternalId.ToCharArray()),
+                           new String(Realm.     ToCharArray()));
 
         #endregion
 
 
         #region Operator overloading
 
-        #region Operator == (User_Id1, User_Id2)
+        #region Operator == (UserId1, UserId2)
 
         /// <summary>
         /// Compares two instances of this object.
         /// </summary>
-        /// <param name="User_Id1">A user identification.</param>
-        /// <param name="User_Id2">Another user identification.</param>
+        /// <param name="UserId1">A user identification.</param>
+        /// <param name="UserId2">Another user identification.</param>
         /// <returns>true|false</returns>
-        public static Boolean operator == (User_Id User_Id1, User_Id User_Id2)
+        public static Boolean operator == (User_Id UserId1, User_Id UserId2)
         {
 
             // If both are null, or both are same instance, return true.
-            if (Object.ReferenceEquals(User_Id1, User_Id2))
+            if (Object.ReferenceEquals(UserId1, UserId2))
                 return true;
 
             // If one is null, but not both, return false.
-            if (((Object) User_Id1 == null) || ((Object) User_Id2 == null))
+            if (((Object) UserId1 == null) || ((Object) UserId2 == null))
                 return false;
 
-            return User_Id1.Equals(User_Id2);
+            return UserId1.Equals(UserId2);
 
         }
 
         #endregion
 
-        #region Operator != (User_Id1, User_Id2)
+        #region Operator != (UserId1, UserId2)
 
         /// <summary>
         /// Compares two instances of this object.
         /// </summary>
-        /// <param name="User_Id1">A user identification.</param>
-        /// <param name="User_Id2">Another user identification.</param>
+        /// <param name="UserId1">A user identification.</param>
+        /// <param name="UserId2">Another user identification.</param>
         /// <returns>true|false</returns>
-        public static Boolean operator != (User_Id User_Id1, User_Id User_Id2)
-            => !(User_Id1 == User_Id2);
+        public static Boolean operator != (User_Id UserId1, User_Id UserId2)
+            => !(UserId1 == UserId2);
 
         #endregion
 
-        #region Operator <  (User_Id1, User_Id2)
+        #region Operator <  (UserId1, UserId2)
 
         /// <summary>
         /// Compares two instances of this object.
         /// </summary>
-        /// <param name="User_Id1">A user identification.</param>
-        /// <param name="User_Id2">Another user identification.</param>
+        /// <param name="UserId1">A user identification.</param>
+        /// <param name="UserId2">Another user identification.</param>
         /// <returns>true|false</returns>
-        public static Boolean operator < (User_Id User_Id1, User_Id User_Id2)
+        public static Boolean operator < (User_Id UserId1, User_Id UserId2)
         {
 
-            if ((Object) User_Id1 == null)
-                throw new ArgumentNullException("The given User_Id1 must not be null!");
+            if ((Object) UserId1 == null)
+                throw new ArgumentNullException("The given UserId1 must not be null!");
 
-            return User_Id1.CompareTo(User_Id2) < 0;
+            return UserId1.CompareTo(UserId2) < 0;
 
         }
 
         #endregion
 
-        #region Operator <= (User_Id1, User_Id2)
+        #region Operator <= (UserId1, UserId2)
 
         /// <summary>
         /// Compares two instances of this object.
         /// </summary>
-        /// <param name="User_Id1">A user identification.</param>
-        /// <param name="User_Id2">Another user identification.</param>
+        /// <param name="UserId1">A user identification.</param>
+        /// <param name="UserId2">Another user identification.</param>
         /// <returns>true|false</returns>
-        public static Boolean operator <= (User_Id User_Id1, User_Id User_Id2)
-            => !(User_Id1 > User_Id2);
+        public static Boolean operator <= (User_Id UserId1, User_Id UserId2)
+            => !(UserId1 > UserId2);
 
         #endregion
 
-        #region Operator >  (User_Id1, User_Id2)
+        #region Operator >  (UserId1, UserId2)
 
         /// <summary>
         /// Compares two instances of this object.
         /// </summary>
-        /// <param name="User_Id1">A user identification.</param>
-        /// <param name="User_Id2">Another user identification.</param>
+        /// <param name="UserId1">A user identification.</param>
+        /// <param name="UserId2">Another user identification.</param>
         /// <returns>true|false</returns>
-        public static Boolean operator > (User_Id User_Id1, User_Id User_Id2)
+        public static Boolean operator > (User_Id UserId1, User_Id UserId2)
         {
 
-            if ((Object) User_Id1 == null)
-                throw new ArgumentNullException("The given User_Id1 must not be null!");
+            if ((Object) UserId1 == null)
+                throw new ArgumentNullException("The given UserId1 must not be null!");
 
-            return User_Id1.CompareTo(User_Id2) > 0;
+            return UserId1.CompareTo(UserId2) > 0;
 
         }
 
         #endregion
 
-        #region Operator >= (User_Id1, User_Id2)
+        #region Operator >= (UserId1, UserId2)
 
         /// <summary>
         /// Compares two instances of this object.
         /// </summary>
-        /// <param name="User_Id1">A user identification.</param>
-        /// <param name="User_Id2">Another user identification.</param>
+        /// <param name="UserId1">A user identification.</param>
+        /// <param name="UserId2">Another user identification.</param>
         /// <returns>true|false</returns>
-        public static Boolean operator >= (User_Id User_Id1, User_Id User_Id2)
-            => !(User_Id1 < User_Id2);
+        public static Boolean operator >= (User_Id UserId1, User_Id UserId2)
+            => !(UserId1 < UserId2);
 
         #endregion
 
@@ -305,7 +355,11 @@ namespace org.GraphDefined.OpenData
             if ((Object) UserId == null)
                 throw new ArgumentNullException(nameof(UserId),  "The given user identification must not be null!");
 
-            return String.Compare(InternalId, UserId.InternalId, StringComparison.Ordinal);
+            var c = String.Compare(InternalId, UserId.InternalId, StringComparison.Ordinal);
+            if (c != 0)
+                return c;
+
+            return String.Compare(Realm, UserId.Realm, StringComparison.Ordinal);
 
         }
 
@@ -350,7 +404,8 @@ namespace org.GraphDefined.OpenData
             if ((Object) UserId == null)
                 return false;
 
-            return InternalId.Equals(UserId.InternalId);
+            return InternalId.Equals(UserId.InternalId) &&
+                   Realm.     Equals(UserId.Realm);
 
         }
 

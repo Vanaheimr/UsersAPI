@@ -19,16 +19,14 @@
 
 using System;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 
-using org.GraphDefined.Vanaheimr.Illias;
-using org.GraphDefined.Vanaheimr.Illias.Votes;
-using org.GraphDefined.Vanaheimr.Styx.Arrows;
-using org.GraphDefined.Vanaheimr.Hermod.Mail;
 using Newtonsoft.Json.Linq;
+
+using org.GraphDefined.Vanaheimr.Illias;
+using org.GraphDefined.Vanaheimr.Styx.Arrows;
+using org.GraphDefined.Vanaheimr.Hermod;
+using org.GraphDefined.Vanaheimr.Hermod.Mail;
 
 #endregion
 
@@ -477,11 +475,12 @@ namespace org.GraphDefined.OpenData
 
             => new JObject(
                    new JProperty("@id",              Id.   ToString()),
+                   new JProperty("realm",            Id.   Realm),
                    new JProperty("email",            EMail.ToString()),
                    new JProperty("name",             Name),
                    new JProperty("publickey",        PublicKeyRing),
                    new JProperty("telephone",        Telephone),
-                   new JProperty("description",      Description),
+                   new JProperty("description",      Description.ToJSON()),
                    new JProperty("isPublic",         IsPublic),
                    new JProperty("isDisabled",       IsDisabled),
                    new JProperty("isAuthenticated",  IsAuthenticated)

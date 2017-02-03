@@ -350,7 +350,7 @@ namespace org.GraphDefined.OpenData
         public JObject ToJSON()
 
             => new JObject(
-                   new JProperty("id",           Id.         ToString()),
+                   new JProperty("@id",          Id.         ToString()),
                    new JProperty("name",         Name.       ToJSON()),
                    new JProperty("description",  Description.ToJSON()),
                    new JProperty("isPublic",     IsPublic),
