@@ -102,7 +102,7 @@ namespace org.GraphDefined.OpenData
 
         public  const             String                              SignUpContext                  = "";
         public  const             String                              SignInOutContext               = "";
-        public  const             String                              DefaultCookieName              = "OpenDataSocial";
+        public  const             String                              DefaultCookieName              = "UsersAPI";
         public  const             String                              HTTPCookieDomain               = "";
 
         public  const             String                              DefaultUsersAPIFile            = "UsersAPI_Users.db";
