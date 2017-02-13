@@ -937,6 +937,53 @@ namespace org.GraphDefined.OpenData
 
             #endregion
 
+            #region Read SecurityToken file...
+
+            if (File.Exists(DefaultSecurityTokenFile))
+            {
+
+                lock (SecurityTokens)
+                {
+
+                    File.ReadLines(DefaultSecurityTokenFile).ForEachCounted((line, linenumber) => {
+
+                        try
+                        {
+
+                            var Tokens         = line.Split(new Char[] { ';' }, StringSplitOptions.None);
+
+                            var SecurityToken  = Tokens[0];
+                            var Login          = User_Id. Parse(Tokens[1]);
+                            var Expires        = DateTime.Parse(Tokens[2]);
+
+                            if (!SecurityTokens.ContainsKey(SecurityToken) &&
+                                _LoginPasswords.ContainsKey(Login) &&
+                                Expires > DateTime.Now)
+
+                                SecurityTokens.Add(SecurityToken,
+                                                   new Tuple<User_Id, DateTime>(Login,
+                                                                                Expires));
+
+
+                        }
+                        catch (Exception e)
+                        {
+                            DebugX.Log(@"Could not read security token file """ + DefaultSecurityTokenFile + @""" line " + linenumber + ": " + e.Message);
+                        }
+
+                    });
+
+
+                    // Write filtered (no invalid users, no expired tokens) tokens back to file...
+                    File.WriteAllLines(DefaultSecurityTokenFile,
+                                       SecurityTokens.Select(token => token.Key + ";" + token.Value.Item1 + ";" + token.Value.Item2.ToIso8601()));
+
+                }
+
+            }
+
+            #endregion
+
         }
 
         #endregion
