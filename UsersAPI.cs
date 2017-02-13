@@ -107,12 +107,16 @@ namespace org.GraphDefined.OpenData
 
         public  const             String                              DefaultUsersAPIFile            = "UsersAPI_Users.db";
         public  const             String                              DefaultPasswordFile            = "UsersAPI_Passwords.db";
+        public  const             String                              SecurityTokenCookieKey         = "securitytoken";
+        public  const             String                              DefaultSecurityTokenFile       = "UsersAPI_SecurityTokens.db";
         //public  const             String                              DefaultGroupDBFile             = "UsersAPI_Groups.db";
         //public  const             String                              DefaultUser2GroupDBFile        = "UsersAPI_User2Group.db";
 
 
         public  static readonly   Regex                               UserDB_RegEx                   = new Regex(@"(\s)+",
                                                                                                                  RegexOptions.IgnorePatternWhitespace);
+
+        protected readonly Dictionary<String, Tuple<User_Id, DateTime>> SecurityTokens;
 
         #endregion
 
@@ -764,6 +768,7 @@ namespace org.GraphDefined.OpenData
 
             this._DNSClient                   = HTTPServer.DNSClient;
             this.SystemId                     = Environment.MachineName.Replace("/", "") + "/" + HTTPServer.DefaultHTTPServerPort;
+            this.SecurityTokens               = new Dictionary<String, Tuple<User_Id, DateTime>>();
 
             #endregion
 
@@ -1659,8 +1664,6 @@ namespace org.GraphDefined.OpenData
                                          HTTPContentType.XWWWFormUrlEncoded,
                                          HTTPDelegate: Request => {
 
-                                              //username=ahzf&password=sfdsdfsdf
-
                                               #region Check UTF8 text body...
 
                                               HTTPResponse _HTTPResponse  = null;
@@ -1817,8 +1820,21 @@ namespace org.GraphDefined.OpenData
                                                                            _LoginPassword.Login).
                                                                        ToUTF8Bytes()).
                                                                    ToHexString();
+                                              var Expires        = DateTime.Now.Add(_SignInSessionLifetime);
 
-                                              return Task.FromResult(
+                                              lock (SecurityTokens)
+                                              {
+
+                                                  SecurityTokens.Add(SecurityToken,
+                                                                     new Tuple<User_Id, DateTime>(_LoginPassword.Login,
+                                                                                                  Expires));
+
+                                                  File.AppendAllText(DefaultSecurityTokenFile,
+                                                                     SecurityToken + ";" + _LoginPassword.Login + ";" + Expires.ToIso8601() + Environment.NewLine);
+
+                                             }
+
+                                             return Task.FromResult(
                                                   new HTTPResponseBuilder(Request) {
                                                       HTTPStatusCode  = HTTPStatusCode.Created,
                                                       ContentType     = HTTPContentType.HTML_UTF8,
@@ -1832,7 +1848,7 @@ namespace org.GraphDefined.OpenData
                                                                                   ":username=" + _User.Name.ToBase64() +
                                                                                 (IsAdmin(_User) ? ":isAdmin" : "") +
                                                                              ":securitytoken=" + SecurityToken +
-                                                                                  "; Expires=" + DateTime.Now.Add(_SignInSessionLifetime).ToRfc1123() +
+                                                                                  "; Expires=" + Expires.ToRfc1123() +
                                                                                    (HTTPCookieDomain.IsNotNullOrEmpty()
                                                                                        ? "; Domain=" + HTTPCookieDomain
                                                                                        : "") +
@@ -2178,6 +2194,10 @@ namespace org.GraphDefined.OpenData
         }
 
         #endregion
+
+
+        protected String GetSecurityToken(HTTPRequest Request)
+            => Request.Cookie[UsersAPI.SecurityTokenCookieKey];
 
 
         #region (private) WriteToLogfile(Command, JSON)
