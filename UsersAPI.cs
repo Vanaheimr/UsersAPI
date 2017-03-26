@@ -732,10 +732,9 @@ namespace org.GraphDefined.OpenData
 
             this.HTTPServer                  = HTTPServer;
             this.Hostname                    = HTTPHostname.IsNotNullOrEmpty() ? HTTPHostname : "*";
-            this.URIPrefix                   = URIPrefix.   IsNotNullOrEmpty() ? URIPrefix    : "/";
-
-            if (!this.URIPrefix.StartsWith("/", StringComparison.Ordinal))
-                this.URIPrefix = "/" + this.URIPrefix;
+            this.URIPrefix                   = (URIPrefix ?? "/").StartsWith("/", StringComparison.Ordinal)
+                                                   ? URIPrefix
+                                                   : URIPrefix = "/" + URIPrefix;
 
             this._ServiceName                 = ServiceName. IsNotNullOrEmpty() ? ServiceName  : "UsersAPI";
             this._APIEMailAddress             = APIEMailAddress;
