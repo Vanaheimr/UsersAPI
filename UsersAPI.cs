@@ -2243,7 +2243,19 @@ namespace org.GraphDefined.OpenData
 
 
         protected String GetSecurityToken(HTTPRequest Request)
-            => Request.Cookie[UsersAPI.SecurityTokenCookieKey];
+        {
+
+            if (Request.Cookie == null)
+                return null;
+
+            String Value = null;
+
+            if (Request.Cookie.TryGet(UsersAPI.SecurityTokenCookieKey, out Value))
+                return Value;
+
+            return null;
+
+        }
 
 
         #region (private) WriteToLogfile(Command, JSON)
