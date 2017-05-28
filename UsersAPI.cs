@@ -589,6 +589,7 @@ namespace org.GraphDefined.OpenData
                         Byte                                MinPasswordLenght                 = DefaultMinPasswordLenght,
                         TimeSpan?                           SignInSessionLifetime             = null,
 
+                        Boolean                             SkipURITemplates                  = false,
                         Func<String, Stream>                RessourcesProvider                = null,
 
                         String                              ServerThreadName                  = null,
@@ -640,6 +641,7 @@ namespace org.GraphDefined.OpenData
                    MinPasswordLenght,
                    SignInSessionLifetime,
 
+                   SkipURITemplates,
                    RessourcesProvider,
 
                    LogfileName)
@@ -706,6 +708,7 @@ namespace org.GraphDefined.OpenData
                            Byte                                MinPasswordLenght            = DefaultMinPasswordLenght,
                            TimeSpan?                           SignInSessionLifetime        = null,
 
+                           Boolean                             SkipURITemplates             = false,
                            Func<String, Stream>                RessourcesProvider           = null,
 
                            String                              LogfileName                  = DefaultLogfileName)
@@ -771,7 +774,8 @@ namespace org.GraphDefined.OpenData
 
             #endregion
 
-            RegisterURITemplates();
+            if (!SkipURITemplates)
+                RegisterURITemplates();
 
             #region Read UsersAPI file...
 
@@ -1043,6 +1047,7 @@ namespace org.GraphDefined.OpenData
                                                Byte                                MinPasswordLenght            = DefaultMinPasswordLenght,
                                                TimeSpan?                           SignInSessionLifetime        = null,
 
+                                               Boolean                             SkipURITemplates             = false,
                                                Func<String, Stream>                RessourcesProvider           = null,
 
                                                String                              LogfileName                  = DefaultLogfileName)
@@ -1071,6 +1076,7 @@ namespace org.GraphDefined.OpenData
                             MinPasswordLenght,
                             SignInSessionLifetime,
 
+                            SkipURITemplates,
                             RessourcesProvider,
 
                             LogfileName);
@@ -1120,7 +1126,7 @@ namespace org.GraphDefined.OpenData
                                                   Connection      = "close"
                                               };
 
-                                          });
+                                          }, AllowReplacement: URIReplacement.Allow);
 
 
             #endregion
@@ -1253,7 +1259,7 @@ namespace org.GraphDefined.OpenData
                                                       Connection      = "close"
                                                   }.AsImmutable());
 
-                                          });
+                                          }, AllowReplacement: URIReplacement.Allow);
 
             #endregion
 
@@ -1287,7 +1293,7 @@ namespace org.GraphDefined.OpenData
                                                   Connection      = "close"
                                               };
 
-                                          });
+                                          }, AllowReplacement: URIReplacement.Allow);
 
 
             #endregion
@@ -1321,7 +1327,7 @@ namespace org.GraphDefined.OpenData
                                                   Connection = "close"
                                               };
 
-                                          });
+                                          }, AllowReplacement: URIReplacement.Allow);
 
             #endregion
 

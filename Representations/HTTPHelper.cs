@@ -65,7 +65,7 @@ namespace org.GraphDefined.OpenData
                                             String                      UriTemplate,
                                             IEnumerable<TItem>          Enumeration,
                                             ItemFilterDelegate<TItem>   Filter,
-                                            ItemsToJSONDelegate<TItem>      ToJSONDelegate)
+                                            ItemsToJSONDelegate<TItem>  ToJSONDelegate)
         {
 
 
