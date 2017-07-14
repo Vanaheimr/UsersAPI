@@ -210,120 +210,64 @@ namespace org.GraphDefined.OpenData
 
         #region ServiceName
 
-        private readonly String _ServiceName;
-
         /// <summary>
         /// The name of the Open Data API service.
         /// </summary>
-        public String ServiceName
-        {
-            get
-            {
-                return _ServiceName;
-            }
-        }
+        public String ServiceName { get; }
 
         #endregion
 
         #region APIEMailAddress
 
-        private readonly EMailAddress _APIEMailAddress;
-
         /// <summary>
         /// A sender e-mail address for the Open Data API.
         /// </summary>
-        public EMailAddress APIEMailAddress
-        {
-            get
-            {
-                return _APIEMailAddress;
-            }
-        }
+        public EMailAddress APIEMailAddress { get; }
 
         #endregion
 
         #region APIPublicKeyRing
 
-        private readonly PgpPublicKeyRing _APIPublicKeyRing;
-
         /// <summary>
         /// The PGP/GPG public key ring of the Open Data API.
         /// </summary>
-        public PgpPublicKeyRing APIPublicKeyRing
-        {
-            get
-            {
-                return _APIPublicKeyRing;
-            }
-        }
+        public PgpPublicKeyRing APIPublicKeyRing { get; }
 
         #endregion
 
         #region APISecretKeyRing
 
-        private readonly PgpSecretKeyRing _APISecretKeyRing;
-
         /// <summary>
         /// The PGP/GPG secret key ring of the Open Data API.
         /// </summary>
-        public PgpSecretKeyRing APISecretKeyRing
-        {
-            get
-            {
-                return _APISecretKeyRing;
-            }
-        }
+        public PgpSecretKeyRing APISecretKeyRing { get; }
 
         #endregion
 
         #region APIPassphrase
 
-        private readonly String _APIPassphrase;
-
         /// <summary>
         /// The passphrase of the PGP/GPG secret key of the Open Data API.
         /// </summary>
-        public String APIPassphrase
-        {
-            get
-            {
-                return _APIPassphrase;
-            }
-        }
+        public String APIPassphrase { get; }
 
         #endregion
 
         #region APIAdminEMails
 
-        private readonly EMailAddressList _APIAdminEMails;
-
         /// <summary>
         /// The E-Mail Addresses of the service admins.
         /// </summary>
-        public EMailAddressList APIAdminEMails
-        {
-            get
-            {
-                return _APIAdminEMails;
-            }
-        }
+        public EMailAddressList APIAdminEMails { get; }
 
         #endregion
 
         #region APISMTPClient
 
-        private readonly SMTPClient _APISMTPClient;
-
         /// <summary>
         /// A SMTP client to be used by the Open Data API.
         /// </summary>
-        public SMTPClient APISMTPClient
-        {
-            get
-            {
-                return _APISMTPClient;
-            }
-        }
+        public SMTPClient APISMTPClient { get; }
 
         #endregion
 
@@ -740,17 +684,17 @@ namespace org.GraphDefined.OpenData
                                                    ? URIPrefix
                                                    : URIPrefix = "/" + URIPrefix;
 
-            this._ServiceName                 = ServiceName. IsNotNullOrEmpty() ? ServiceName  : "UsersAPI";
-            this._APIEMailAddress             = APIEMailAddress;
-            this._APIPublicKeyRing            = APIPublicKeyRing;
-            this._APISecretKeyRing            = APISecretKeyRing;
-            this._APIPassphrase               = APIPassphrase;
-            this._APIAdminEMails              = APIAdminEMails;
-            this._APISMTPClient               = APISMTPClient;
+            this.ServiceName                 = ServiceName. IsNotNullOrEmpty() ? ServiceName  : "UsersAPI";
+            this.APIEMailAddress             = APIEMailAddress;
+            this.APIPublicKeyRing            = APIPublicKeyRing;
+            this.APISecretKeyRing            = APISecretKeyRing;
+            this.APIPassphrase               = APIPassphrase;
+            this.APIAdminEMails = APIAdminEMails;
+            this.APISMTPClient = APISMTPClient;
 
-            this.CookieName                   = CookieName.IsNotNullOrEmpty() ? CookieName : DefaultCookieName;
-            this._DefaultLanguage             = DefaultLanguage;
-            this._LogoImage                   = LogoImage;
+            this.CookieName                  = CookieName.IsNotNullOrEmpty() ? CookieName : DefaultCookieName;
+            this._DefaultLanguage            = DefaultLanguage;
+            this._LogoImage                  = LogoImage;
             this.NewUserSignUpEMailCreator   = NewUserSignUpEMailCreator;
             this.NewUserWelcomeEMailCreator  = NewUserWelcomeEMailCreator;
             this.ResetPasswordEMailCreator   = ResetPasswordEMailCreator;
@@ -1218,11 +1162,11 @@ namespace org.GraphDefined.OpenData
                                                   #region Send Admin-Mail...
 
                                                   var AdminMail = new TextEMailBuilder() {
-                                                      From = APIEMailAddress,
-                                                      To = APIAdminEMails,
-                                                      Subject = "New user activated: " + _User.Id.ToString() + " at " + DateTime.Now.ToString(),
-                                                      Text = "New user activated: " + _User.Id.ToString() + " at " + DateTime.Now.ToString(),
-                                                      Passphrase = APIPassphrase
+                                                      From        = APIEMailAddress,
+                                                      To          = APIAdminEMails,
+                                                      Subject     = "New user activated: " + _User.Id.ToString() + " at " + DateTime.Now.ToString(),
+                                                      Text        = "New user activated: " + _User.Id.ToString() + " at " + DateTime.Now.ToString(),
+                                                      Passphrase  = APIPassphrase
                                                   };
 
                                                   var MailResultTask = APISMTPClient.Send(AdminMail).Wait(30000);
@@ -1625,11 +1569,11 @@ namespace org.GraphDefined.OpenData
                                                   #region Send Admin-Mail...
 
                                                   var AdminMail = new TextEMailBuilder() {
-                                                      From = APIEMailAddress,
-                                                      To = APIAdminEMails,
-                                                      Subject = "New user registered: " + _Login + " <" + matches.Groups[0].Value + "> at " + DateTime.Now.ToString(),
-                                                      Text = "New user registered: " + _Login + " <" + matches.Groups[0].Value + "> at " + DateTime.Now.ToString(),
-                                                      Passphrase = APIPassphrase
+                                                      From        = APIEMailAddress,
+                                                      To          = APIAdminEMails,
+                                                      Subject     = "New user registered: " + _Login + " <" + matches.Groups[0].Value + "> at " + DateTime.Now.ToString(),
+                                                      Text        = "New user registered: " + _Login + " <" + matches.Groups[0].Value + "> at " + DateTime.Now.ToString(),
+                                                      Passphrase  = APIPassphrase
                                                   };
 
                                                   var MailResultTask = APISMTPClient.Send(AdminMail).Wait(30000);
