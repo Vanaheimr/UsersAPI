@@ -156,7 +156,7 @@ namespace org.GraphDefined.OpenData
             this._Target        = Target;
             this._EdgeLabel     = EdgeLabel;
             this._PrivacyLevel  = PrivacyLevel;
-            this._Created       = Created ?? DateTime.Now;
+            this._Created       = Created ?? DateTime.UtcNow;
          //   this._UserDefined   = new Dictionary<String, Object>();
 
         }

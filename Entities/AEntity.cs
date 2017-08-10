@@ -102,7 +102,7 @@ namespace org.GraphDefined.OpenData
 
             this.Id           = Id;
             this.DataSource   = String.Empty;
-            this.LastChange   = DateTime.Now;
+            this.LastChange   = DateTime.UtcNow;
             this.UserDefined  = new ConcurrentDictionary<String, Object>();
 
         }
@@ -185,7 +185,7 @@ namespace org.GraphDefined.OpenData
 
             #endregion
 
-            this.LastChange = DateTime.Now;
+            this.LastChange = DateTime.UtcNow;
 
             OnPropertyChanged?.Invoke(LastChange,
                                       this,

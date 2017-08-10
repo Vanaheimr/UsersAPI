@@ -906,7 +906,7 @@ namespace org.GraphDefined.OpenData
 
                             if (!SecurityTokens.ContainsKey(SecurityToken) &&
                                 _LoginPasswords.ContainsKey(Login) &&
-                                Expires > DateTime.Now)
+                                Expires > DateTime.UtcNow)
 
                                 SecurityTokens.Add(SecurityToken,
                                                    new Tuple<User_Id, DateTime>(Login,
@@ -1164,8 +1164,8 @@ namespace org.GraphDefined.OpenData
                                                   var AdminMail = new TextEMailBuilder() {
                                                       From        = APIEMailAddress,
                                                       To          = APIAdminEMails,
-                                                      Subject     = "New user activated: " + _User.Id.ToString() + " at " + DateTime.Now.ToString(),
-                                                      Text        = "New user activated: " + _User.Id.ToString() + " at " + DateTime.Now.ToString(),
+                                                      Subject     = "New user activated: " + _User.Id.ToString() + " at " + DateTime.UtcNow.ToString(),
+                                                      Text        = "New user activated: " + _User.Id.ToString() + " at " + DateTime.UtcNow.ToString(),
                                                       Passphrase  = APIPassphrase
                                                   };
 
@@ -1303,7 +1303,7 @@ namespace org.GraphDefined.OpenData
                                                   new HTTPResponseBuilder(Request) {
                                                       HTTPStatusCode  = HTTPStatusCode.OK,
                                                       CacheControl    = "private",
-                                                      SetCookie       = CookieName + "=; Expires=" + DateTime.Now.ToRfc1123() +
+                                                      SetCookie       = CookieName + "=; Expires=" + DateTime.UtcNow.ToRfc1123() +
                                                                             (HTTPCookieDomain.IsNotNullOrEmpty()
                                                                                 ? "; Domain=" + HTTPCookieDomain
                                                                                 : "") +
@@ -1571,8 +1571,8 @@ namespace org.GraphDefined.OpenData
                                                   var AdminMail = new TextEMailBuilder() {
                                                       From        = APIEMailAddress,
                                                       To          = APIAdminEMails,
-                                                      Subject     = "New user registered: " + _Login + " <" + matches.Groups[0].Value + "> at " + DateTime.Now.ToString(),
-                                                      Text        = "New user registered: " + _Login + " <" + matches.Groups[0].Value + "> at " + DateTime.Now.ToString(),
+                                                      Subject     = "New user registered: " + _Login + " <" + matches.Groups[0].Value + "> at " + DateTime.UtcNow.ToString(),
+                                                      Text        = "New user registered: " + _Login + " <" + matches.Groups[0].Value + "> at " + DateTime.UtcNow.ToString(),
                                                       Passphrase  = APIPassphrase
                                                   };
 
@@ -1661,22 +1661,24 @@ namespace org.GraphDefined.OpenData
                                          HTTPContentType.XWWWFormUrlEncoded,
                                          HTTPDelegate: Request => {
 
+                                              //Note: Add LoginRequest event!
+
                                               #region Check UTF8 text body...
 
-                                              HTTPResponse _HTTPResponse  = null;
-                                              String       LoginText      = null;
-                                              if (!Request.TryParseUTF8StringRequestBody(HTTPContentType.XWWWFormUrlEncoded, out LoginText, out _HTTPResponse, AllowEmptyHTTPBody: false))
-                                                  return Task.FromResult(_HTTPResponse);
+                                              if (!Request.TryParseUTF8StringRequestBody(HTTPContentType.XWWWFormUrlEncoded,
+                                                                                         out String       LoginText,
+                                                                                         out HTTPResponse _HTTPResponse,
+                                                                                         AllowEmptyHTTPBody: false))
 
-                                              var LoginData = LoginText.DoubleSplit('&', '=');
+                                                  return Task.FromResult(_HTTPResponse);
 
                                               #endregion
 
+                                              var LoginData = LoginText.DoubleSplit('&', '=');
+
                                               #region Verify the login
 
-                                              String Login;
-
-                                              if (!LoginData.TryGetValue("login", out Login) ||
+                                              if (!LoginData.TryGetValue("login", out String Login) ||
                                                    Login.    IsNullOrEmpty())
                                                   return Task.FromResult(
                                                       new HTTPResponseBuilder(Request) {
@@ -1715,9 +1717,7 @@ namespace org.GraphDefined.OpenData
 
                                               #region Verify the realm
 
-                                              String Realm;
-
-                                              LoginData.TryGetValue("realm", out Realm);
+                                              LoginData.TryGetValue("realm", out String Realm);
 
                                               if (Realm.IsNotNullOrEmpty())
                                                   Realm = HTTPTools.URLDecode(Realm);
@@ -1726,9 +1726,7 @@ namespace org.GraphDefined.OpenData
 
                                               #region Verify the password
 
-                                              String Password;
-
-                                              if (!LoginData.TryGetValue("password", out Password) ||
+                                              if (!LoginData.TryGetValue("password", out String Password) ||
                                                    Password. IsNullOrEmpty())
                                                  return Task.FromResult(
                                                       new HTTPResponseBuilder(Request) {
@@ -1765,17 +1763,26 @@ namespace org.GraphDefined.OpenData
 
                                               #endregion
 
+                                              #region Get RedirectURI
+
+                                              LoginData.TryGetValue("RedirectURI", out String RedirectURI);
+
+                                              if (RedirectURI.IsNotNullOrEmpty())
+                                                 RedirectURI = HTTPTools.URLDecode(Realm);
+                                              else
+                                                 RedirectURI = "/";
+
+                                              #endregion
+
                                               #region Check login and password
 
-                                              User_Id       _UserId;
-                                              LoginPassword _LoginPassword  = null;
-                                              User          _User           = null;
+                                              User_Id  _UserId;
 
                                               if (!(Realm.IsNotNullOrEmpty()
                                                         ? User_Id.TryParse(Login, Realm, out _UserId)
                                                         : User_Id.TryParse(Login,        out _UserId)) ||
-                                                  !_LoginPasswords.TryGetValue(_UserId, out _LoginPassword) ||
-                                                  !_Users.         TryGetValue(_UserId, out _User))
+                                                  !_LoginPasswords.TryGetValue(_UserId, out LoginPassword _LoginPassword) ||
+                                                  !_Users.         TryGetValue(_UserId, out User          _User))
 
                                                   return Task.FromResult(
                                                       new HTTPResponseBuilder(Request) {
@@ -1817,7 +1824,7 @@ namespace org.GraphDefined.OpenData
                                                                            _LoginPassword.Login).
                                                                        ToUTF8Bytes()).
                                                                    ToHexString();
-                                              var Expires        = DateTime.Now.Add(_SignInSessionLifetime);
+                                              var Expires        = DateTime.UtcNow.Add(_SignInSessionLifetime);
 
                                               lock (SecurityTokens)
                                               {
@@ -1831,14 +1838,18 @@ namespace org.GraphDefined.OpenData
 
                                              }
 
+
+
+                                             //Note: Add LoginResponse event!
+
                                              return Task.FromResult(
                                                   new HTTPResponseBuilder(Request) {
                                                       HTTPStatusCode  = HTTPStatusCode.Created,
                                                       ContentType     = HTTPContentType.HTML_UTF8,
                                                       Content         = String.Concat(
-                                                                            @"<!DOCTYPE html>",
-                                                                            Environment.NewLine,
-                                                                            @"<html><head><meta http-equiv=""refresh"" content=""0; url=/"" /></head></html>"
+                                                                            "<!DOCTYPE html>", Environment.NewLine,
+                                                                            @"<html><head><meta http-equiv=""refresh"" content=""0; url=" + RedirectURI + @""" /></head></html>",
+                                                                            Environment.NewLine
                                                                         ).ToUTF8Bytes(),
                                                       CacheControl    = "private",
                                                       SetCookie       = CookieName + "=login="    + _LoginPassword.Login.ToString().ToBase64() +
@@ -2016,7 +2027,7 @@ namespace org.GraphDefined.OpenData
                                                                                 new JProperty("description",  "Invalid username or password!")
                                                                             ).ToString().ToUTF8Bytes(),
                                                           //SetCookie       = "SocialOpenData=" +
-                                                          //                       "; Expires=" + DateTime.Now.AddMinutes(-5).ToRfc1123() +
+                                                          //                       "; Expires=" + DateTime.UtcNow.AddMinutes(-5).ToRfc1123() +
                                                           //                          "; Path=/",
                                                           CacheControl    = "private",
                                                           Connection      = "close"
@@ -2042,7 +2053,7 @@ namespace org.GraphDefined.OpenData
                                                                                   ":username=" + _User.Name.ToBase64() +
                                                                                 (IsAdmin(_User) ? ":isAdmin" : "") +
                                                                              ":securitytoken=" + SecurityToken +
-                                                                                  "; Expires=" + DateTime.Now.Add(_SignInSessionLifetime).ToRfc1123() +
+                                                                                  "; Expires=" + DateTime.UtcNow.Add(_SignInSessionLifetime).ToRfc1123() +
                                                                                    (HTTPCookieDomain.IsNotNullOrEmpty()
                                                                                        ? "; Domain=" + HTTPCookieDomain
                                                                                        : "") +
@@ -2067,7 +2078,7 @@ namespace org.GraphDefined.OpenData
                                                   new HTTPResponseBuilder(Request) {
                                                       HTTPStatusCode  = HTTPStatusCode.OK,
                                                       CacheControl    = "private",
-                                                      SetCookie       = CookieName + "=; Expires=" + DateTime.Now.ToRfc1123() +
+                                                      SetCookie       = CookieName + "=; Expires=" + DateTime.UtcNow.ToRfc1123() +
                                                                             (HTTPCookieDomain.IsNotNullOrEmpty()
                                                                                 ? "; Domain=" + HTTPCookieDomain
                                                                                 : "") +
@@ -2218,7 +2229,7 @@ namespace org.GraphDefined.OpenData
             var _JObject   = new JObject(
                                  new JProperty(Command,       JSON),
                                  new JProperty("Writer",      SystemId),
-                                 new JProperty("Timestamp",   DateTime.Now.ToIso8601()),
+                                 new JProperty("Timestamp",   DateTime.UtcNow.ToIso8601()),
                                  new JProperty("Nonce",       Guid.NewGuid().ToString().Replace("-", "")),
                                  new JProperty("ParentHash",  CurrentHash)
                              );
@@ -2667,7 +2678,7 @@ namespace org.GraphDefined.OpenData
                 if (!HTTPServer.IsStarted)
                     HTTPServer.Start();
 
-                //SendStarted(this, DateTime.Now);
+                //SendStarted(this, DateTime.UtcNow);
 
             }
 
@@ -2684,7 +2695,7 @@ namespace org.GraphDefined.OpenData
             {
 
                 HTTPServer.Shutdown(Message, Wait);
-                //SendCompleted(this, DateTime.Now, Message);
+                //SendCompleted(this, DateTime.UtcNow, Message);
 
             }
 
