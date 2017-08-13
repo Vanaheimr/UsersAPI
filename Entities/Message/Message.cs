@@ -252,7 +252,7 @@ namespace org.GraphDefined.OpenData
                    new JProperty("text",        Text.   ToJSON()),
 
                    IncludeHash
-                       ? new JProperty("Hash",  CurrentHash)
+                       ? new JProperty("Hash",  CurrentCryptoHash)
                        : null
 
                );

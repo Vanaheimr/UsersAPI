@@ -361,7 +361,7 @@ namespace org.GraphDefined.OpenData
                    new JProperty("isDisabled",   IsDisabled),
 
                    IncludeHash
-                       ? new JProperty("Hash",   CurrentHash)
+                       ? new JProperty("Hash",   CurrentCryptoHash)
                        : null
 
                );

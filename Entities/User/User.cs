@@ -87,6 +87,13 @@ namespace org.GraphDefined.OpenData
         public I18NString          Description          { get; }
 
         /// <summary>
+        /// The user will not be shown in user listings, as its
+        /// primary e-mail address is not yet authenticated.
+        /// </summary>
+        [Mandatory]
+        public Boolean             IsAuthenticated      { get; }
+
+        /// <summary>
         /// The user will be shown in user listings.
         /// </summary>
         [Mandatory]
@@ -97,14 +104,6 @@ namespace org.GraphDefined.OpenData
         /// </summary>
         [Mandatory]
         public Boolean             IsDisabled           { get; }
-
-        /// <summary>
-        /// The user will not be shown in user listings, as its
-        /// primary e-mail address is not yet authenticated.
-        /// </summary>
-        [Mandatory]
-        public Boolean             IsAuthenticated      { get; }
-
 
         #region Genimi
 
@@ -241,18 +240,18 @@ namespace org.GraphDefined.OpenData
         /// <param name="PublicKeyRing">An optional PGP/GPG public keyring of the user.</param>
         /// <param name="Telephone">An optional telephone number of the user.</param>
         /// <param name="Description">An optional (multi-language) description of the user.</param>
+        /// <param name="IsAuthenticated">The user will not be shown in user listings, as its primary e-mail address is not yet authenticated.</param>
         /// <param name="IsPublic">The user will be shown in user listings.</param>
         /// <param name="IsDisabled">The user is disabled.</param>
-        /// <param name="IsAuthenticated">The user will not be shown in user listings, as its primary e-mail address is not yet authenticated.</param>
         internal User(User_Id             Id,
                       SimpleEMailAddress  EMail,
                       String              Name              = null,
                       String              PublicKeyRing     = null,
                       String              Telephone         = null,
                       I18NString          Description       = null,
+                      Boolean             IsAuthenticated   = false,
                       Boolean             IsPublic          = true,
-                      Boolean             IsDisabled        = false,
-                      Boolean             IsAuthenticated   = false)
+                      Boolean             IsDisabled        = false)
 
             : base(Id)
 
@@ -265,9 +264,9 @@ namespace org.GraphDefined.OpenData
             this.PublicKeyRing            = PublicKeyRing;
             this.Telephone                = Telephone;
             this.Description              = Description ?? new I18NString();
+            this.IsAuthenticated          = IsAuthenticated;
             this.IsPublic                 = IsPublic;
             this.IsDisabled               = IsDisabled;
-            this.IsAuthenticated          = IsAuthenticated;
 
             #endregion
 
@@ -478,18 +477,31 @@ namespace org.GraphDefined.OpenData
 
             => JSONObject.Create(
 
-                   new JProperty("@id",              Id.   ToString()),
-                   new JProperty("email",            EMail.ToString()),
-                   new JProperty("name",             Name),
-                   new JProperty("publickey",        PublicKeyRing),
-                   new JProperty("telephone",        Telephone),
-                   new JProperty("description",      Description.ToJSON()),
-                   new JProperty("isPublic",         IsPublic),
-                   new JProperty("isDisabled",       IsDisabled),
-                   new JProperty("isAuthenticated",  IsAuthenticated),
+                   new JProperty("@context",            "https://api.opendata.social/context/user"),
+                   new JProperty("@id",                 Id.   ToString()),
+                   new JProperty("name",                Name),
+                   new JProperty("email",               EMail.ToString()),
+
+                   PublicKeyRing != null
+                       ? new JProperty("publickey",     PublicKeyRing)
+                       : null,
+
+                   Telephone != null
+                       ? new JProperty("telephone",     Telephone)
+                       : null,
+
+                   Description.IsNeitherNullNorEmpty()
+                       ? new JProperty("description",   Description.ToJSON())
+                       : null,
+
+                   new JProperty("isAuthenticated",     IsAuthenticated),
+                   new JProperty("isPublic",            IsPublic),
+                   new JProperty("isDisabled",          IsDisabled),
+
+                   new JProperty("signatures",          new JArray()),
 
                    IncludeHash
-                       ? new JProperty("Hash",       CurrentHash)
+                       ? new JProperty("hash",          CurrentCryptoHash)
                        : null
 
                );
@@ -648,9 +660,9 @@ namespace org.GraphDefined.OpenData
                             PublicKeyRing,
                             Telephone,
                             Description,
+                            IsAuthenticated,
                             IsPublic,
-                            IsDisabled,
-                            IsAuthenticated);
+                            IsDisabled);
 
             #endregion
 

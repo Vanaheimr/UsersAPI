@@ -61,35 +61,8 @@ namespace org.GraphDefined.OpenData
         public static JObject ErrorMessage(String Message)
         {
 
-            return new JObject(new JProperty("@context",     "http://api.opendata.social/context/errors"),
+            return new JObject(new JProperty("@context",     "https://api.opendata.social/context/errors"),
                                new JProperty("description",  Message));
-
-        }
-
-        #endregion
-
-        #region ToJSON(User)
-
-        private static JObject AsJSON(this User User)
-        {
-
-            return new JObject(new JProperty("@id",          User.Id.ToString()),
-                               new JProperty("name",         User.Name),
-                               new JProperty("inedges",      new JObject(
-                                   new JProperty("IsFollowedBy",     new JArray(User.FollowsUsers.SafeSelect(u => u.Id.ToString())))
-                               )),
-                               new JProperty("outedges",     new JObject(
-                                   new JProperty("follows",          new JArray(User.FollowsUsers.SafeSelect(u => u.Id.ToString())))
-                               ))
-                              );
-
-        }
-
-        public static JObject ToJSON(this User User)
-        {
-
-            return new JObject(new JProperty("@context",  "http://api.opendata.social/context/user"),
-                               new JProperty("user",      User.AsJSON()));
 
         }
 
@@ -98,12 +71,11 @@ namespace org.GraphDefined.OpenData
         #region ToJSON(Users)
 
         public static JObject ToJSON(this IEnumerable<User> Users)
-        {
 
-            return new JObject(new JProperty("@context",  "http://api.opendata.social/context/users"),
-                               new JProperty("users",     new JArray(Users.SafeSelect(user => user.AsJSON()))));
-
-        }
+            => JSONObject.Create(
+                   new JProperty("@context",  "https://api.opendata.social/context/users"),
+                   new JProperty("users",     new JArray(Users.SafeSelect(user => user.ToJSON())))
+               );
 
         #endregion
 
@@ -127,7 +99,7 @@ namespace org.GraphDefined.OpenData
         public static JObject ToJSON(this Group Group)
         {
 
-            return new JObject(new JProperty("@context",  "http://api.opendata.social/context/group"),
+            return new JObject(new JProperty("@context",  "https://api.opendata.social/context/group"),
                                new JProperty("group",     Group.AsJSON()));
 
         }
@@ -139,7 +111,7 @@ namespace org.GraphDefined.OpenData
         public static JObject ToJSON(this IEnumerable<Group> Groups)
         {
 
-            return new JObject(new JProperty("@context",  "http://api.opendata.social/context/groups"),
+            return new JObject(new JProperty("@context",  "https://api.opendata.social/context/groups"),
                                new JProperty("groups",    new JArray(Groups.SafeSelect(group => group.AsJSON()))));
 
         }

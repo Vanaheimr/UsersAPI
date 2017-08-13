@@ -203,6 +203,27 @@
     <EmbeddedResource Include="HTTPRoot\scss\_stacked.scss" />
     <EmbeddedResource Include="HTTPRoot\scss\_variables.scss" />
   </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="HTTPRoot\images\dummy-user-gray-150x150.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="HTTPRoot\login\login.scss" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="compilerconfig.json" />
+    <None Include="compilerconfig.json.defaults">
+      <DependentUpon>compilerconfig.json</DependentUpon>
+    </None>
+    <EmbeddedResource Include="HTTPRoot\defaults\defaults.scss" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="HTTPRoot\login\login.css">
+      <DependentUpon>login.scss</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="HTTPRoot\login\login.min.css">
+      <DependentUpon>login.css</DependentUpon>
+    </EmbeddedResource>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

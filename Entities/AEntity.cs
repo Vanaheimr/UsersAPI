@@ -54,27 +54,27 @@ namespace org.GraphDefined.OpenData
         /// The global unique identification of this entity.
         /// </summary>
         [Mandatory]
-        public TId                                   Id            { get; }
+        public TId                                   Id                  { get; }
 
         /// <summary>
         /// The source of this information, e.g. the WWCP importer used.
         /// </summary>
         [Optional]
-        public String                                DataSource    { get; set; }
+        public String                                DataSource          { get; set; }
 
         /// <summary>
         /// The timestamp of the last changes within this ChargingPool.
         /// Can be used as a HTTP ETag.
         /// </summary>
         [Mandatory]
-        public DateTime                              LastChange    { get; protected set; }
+        public DateTime                              LastChange          { get; protected set; }
 
-        public String                                CurrentHash   { get; protected set; }
+        public String                                CurrentCryptoHash   { get; protected set; }
 
         /// <summary>
         /// A lookup for user-defined properties.
         /// </summary>
-        public ConcurrentDictionary<String, Object>  UserDefined   { get; }
+        public ConcurrentDictionary<String, Object>  UserDefined         { get; }
 
         #endregion
 
@@ -244,10 +244,10 @@ namespace org.GraphDefined.OpenData
         protected void CalcHash()
         {
 
-            var SHA256 = new SHA256Managed();
-            CurrentHash = SHA256.ComputeHash(Encoding.Unicode.GetBytes(UsersAPI.UserDB_RegEx.Replace(ToJSON(IncludeHash: false).ToString(), " "))).
-                                 Select(value => String.Format("{0:x2}", value)).
-                                 Aggregate();
+            CurrentCryptoHash = "json:sha256:" +
+                          new SHA256Managed().ComputeHash(Encoding.Unicode.GetBytes(UsersAPI.UserDB_RegEx.Replace(ToJSON(IncludeHash: false).ToString(), " "))).
+                                              Select(value => String.Format("{0:x2}", value)).
+                                              Aggregate();
 
         }
 

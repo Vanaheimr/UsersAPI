@@ -749,9 +749,9 @@ namespace org.GraphDefined.OpenData
                                                                              JSONParameters["publickey"      ].Value<String>(),
                                                                              JSONParameters["telephone"      ].Value<String>(),
                                                                              JSONParameters.ParseI18NString("description"),
+                                                                             JSONParameters["isAuthenticated"].Value<Boolean>(),
                                                                              JSONParameters["isPublic"       ].Value<Boolean>(),
-                                                                             JSONParameters["isDisabled"     ].Value<Boolean>(),
-                                                                             JSONParameters["isAuthenticated"].Value<Boolean>());
+                                                                             JSONParameters["isDisabled"     ].Value<Boolean>());
 
                                 _Users.AddAndReturnValue(User.Id, User);
 
@@ -1643,13 +1643,13 @@ namespace org.GraphDefined.OpenData
             // curl -v -H "Accept: application/json" http://127.0.0.1:2100/users/ahzf
             // ------------------------------------------------------------------------
 
-            HTTPServer.ITEM_GET<User_Id, User>(UriTemplate: "/users/{UserId}",
-                                                ParseIdDelegate: User_Id.TryParse,
-                                                ParseIdError: Text => "Invalid user identification '" + Text + "'!",
-                                                TryGetItemDelegate: _Users.TryGetValue,
-                                                ItemFilterDelegate: user => user.IsPublic,
-                                                TryGetItemError: userId => "Unknown user '" + userId + "'!",
-                                                ToJSONDelegate: JSON.ToJSON);
+            HTTPServer.ITEM_GET<User_Id, User>(UriTemplate:         "/users/{UserId}",
+                                               ParseIdDelegate:     User_Id.TryParse,
+                                               ParseIdError:        Text => "Invalid user identification '" + Text + "'!",
+                                               TryGetItemDelegate:  _Users.TryGetValue,
+                                               ItemFilterDelegate:  user   => user.IsPublic,
+                                               TryGetItemError:     userId => "Unknown user '" + userId + "'!",
+                                               ToJSONDelegate:      user   => user.ToJSON(IncludeHash: true));
 
             #endregion
 
@@ -2210,9 +2210,7 @@ namespace org.GraphDefined.OpenData
             if (Request.Cookie == null)
                 return null;
 
-            String Value = null;
-
-            if (Request.Cookie.TryGet(UsersAPI.SecurityTokenCookieKey, out Value))
+            if (Request.Cookie.TryGet(SecurityTokenCookieKey, out String Value))
                 return Value;
 
             return null;
@@ -2262,9 +2260,9 @@ namespace org.GraphDefined.OpenData
         /// <param name="PublicKeyRing">An optional PGP/GPG public keyring of the user.</param>
         /// <param name="Telephone">An optional telephone number of the user.</param>
         /// <param name="Description">An optional (multi-language) description of the user.</param>
+        /// <param name="IsAuthenticated">The user will not be shown in user listings, as its primary e-mail address is not yet authenticated.</param>
         /// <param name="IsPublic">The user will be shown in user listings.</param>
         /// <param name="IsDisabled">The user will be shown in user listings.</param>
-        /// <param name="IsAuthenticated">The user will not be shown in user listings, as its primary e-mail address is not yet authenticated.</param>
         public User CreateUser(User_Id             Id,
                                SimpleEMailAddress  EMail,
                                String              Password,
@@ -2272,9 +2270,9 @@ namespace org.GraphDefined.OpenData
                                String              PublicKeyRing     = null,
                                String              Telephone         = null,
                                I18NString          Description       = null,
+                               Boolean             IsAuthenticated   = false,
                                Boolean             IsPublic          = true,
-                               Boolean             IsDisabled        = false,
-                               Boolean             IsAuthenticated   = false)
+                               Boolean             IsDisabled        = false)
         {
 
             #region Initial checks
@@ -2297,9 +2295,9 @@ namespace org.GraphDefined.OpenData
                                     PublicKeyRing,
                                     Telephone,
                                     Description,
+                                    IsAuthenticated,
                                     IsPublic,
-                                    IsDisabled,
-                                    IsAuthenticated);
+                                    IsDisabled);
 
                 WriteToLogfile("CreateUser", User.ToJSON());
 
