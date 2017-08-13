@@ -2,5 +2,9 @@
   {
     "outputFile": "HTTPRoot/login/login.css",
     "inputFile": "HTTPRoot/login/login.scss"
+  },
+  {
+    "outputFile": "HTTPRoot/styles.css",
+    "inputFile": "HTTPRoot/styles.scss"
   }
 ]

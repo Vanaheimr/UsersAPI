@@ -215,6 +215,7 @@
       <DependentUpon>compilerconfig.json</DependentUpon>
     </None>
     <EmbeddedResource Include="HTTPRoot\defaults\defaults.scss" />
+    <EmbeddedResource Include="HTTPRoot\styles.scss" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="HTTPRoot\login\login.css">
@@ -222,6 +223,14 @@
     </EmbeddedResource>
     <EmbeddedResource Include="HTTPRoot\login\login.min.css">
       <DependentUpon>login.css</DependentUpon>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="HTTPRoot\styles.css">
+      <DependentUpon>styles.scss</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="HTTPRoot\styles.min.css">
+      <DependentUpon>styles.css</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
