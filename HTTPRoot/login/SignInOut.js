@@ -1,5 +1,4 @@
 var SignInUser = "";
-var HTTPCookieId = "UsersAPI";
 function HideElement(DivName) {
     var div = document.querySelector(DivName);
     div.style.display = "none";

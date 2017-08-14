@@ -218,10 +218,20 @@
     <EmbeddedResource Include="HTTPRoot\styles.scss" />
     <EmbeddedResource Include="HTTPRoot\profile\profile.scss" />
     <EmbeddedResource Include="HTTPRoot\admin\admin.scss" />
+    <EmbeddedResource Include="HTTPRoot\libs\date.format.js.map">
+      <DependentUpon>date.format.ts</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="HTTPRoot\defaults\defaults.js.map">
+      <DependentUpon>defaults.ts</DependentUpon>
+    </EmbeddedResource>
+    <None Include="HTTPRoot\libs\EventSource.js.map">
+      <DependentUpon>EventSource.ts</DependentUpon>
+    </None>
     <EmbeddedResource Include="HTTPRoot\login\SignInOut.js.map">
       <DependentUpon>SignInOut.ts</DependentUpon>
     </EmbeddedResource>
     <None Include="README.md" />
+    <None Include="tsconfig.json" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="HTTPRoot\login\login.css">
@@ -251,8 +261,17 @@
     <Content Include="HTTPRoot\admin\admin.css">
       <DependentUpon>admin.scss</DependentUpon>
     </Content>
+    <EmbeddedResource Include="HTTPRoot\defaults\defaults.js">
+      <DependentUpon>defaults.ts</DependentUpon>
+    </EmbeddedResource>
+    <Content Include="HTTPRoot\libs\EventSource.js">
+      <DependentUpon>EventSource.ts</DependentUpon>
+    </Content>
     <EmbeddedResource Include="HTTPRoot\login\SignInOut.js">
       <DependentUpon>SignInOut.ts</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="HTTPRoot\libs\date.format.js">
+      <DependentUpon>date.format.ts</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="HTTPRoot\js\date.format.js" />
     <Content Include="HTTPRoot\js\date.js" />
@@ -261,13 +280,16 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="HTTPRoot\libs\date.format.ts" />
+    <EmbeddedResource Include="HTTPRoot\libs\EventSource.ts" />
+    <EmbeddedResource Include="HTTPRoot\defaults\defaults.ts" />
+    <TypeScriptCompile Include="HTTPRoot\libs\sse.d.ts" />
     <EmbeddedResource Include="HTTPRoot\login\SignInOut.ts" />
   </ItemGroup>
-  <ItemGroup>
-    <TypeScriptCompile Include="HTTPRoot\compileAll.ts" />
-    <EmbeddedResource Include="HTTPRoot\defaults\defaults.ts" />
-  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PreBuildEvent>tsc</PreBuildEvent>
+  </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

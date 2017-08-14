@@ -1,5 +1,5 @@
-﻿var SignInUser    = "";
-var HTTPCookieId  = "UsersAPI";
+﻿
+var SignInUser = "";
 
 function HideElement(DivName) {
 
@@ -44,8 +44,8 @@ function GetCookie(CookieName: String): String {
 }
 
 function WithCookie(CookieName: String,
-                    OnSucess:   CookieEater,
-                    OnFailure) {
+                           OnSucess:   CookieEater,
+                           OnFailure) {
 
     var Cookie = GetCookie(CookieName);
 
@@ -203,7 +203,7 @@ function GetLogin() : string {
 
 function GetUsername(): string {
 
-    var Cookie    = GetCookie(HTTPCookieId);
+    var Cookie    = GetCookie( HTTPCookieId);
     var Username  = "";
 
     if (Cookie != null) {
@@ -225,19 +225,18 @@ function GetUsername(): string {
 function SignOut() {
 
     SendJSON("DEAUTH",
-             "/users",
-             "",
-             "",
+                           "/users",
+                           "",
+                           "",
 
-             function (HTTPStatus, ResponseText) {
-             },
+                           function (HTTPStatus, ResponseText) {
+                           },
 
-             function (HTTPStatus, StatusText, ResponseText) {
-             });
+                           function (HTTPStatus, StatusText, ResponseText) {
+                           });
 
     DeleteCookie(HTTPCookieId, "/");
 
     location.href = "/login";
 
 }
-

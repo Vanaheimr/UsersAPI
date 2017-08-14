@@ -1,0 +1,12 @@
+{
+  "compilerOptions": {
+    "module": "system",
+    "noImplicitAny": false,
+    "sourceMap": true,
+    "allowJs": false
+  },
+  "files": [
+    "HTTPRoot/defaults/defaults.ts",
+    "HTTPRoot/login/SignInOut.ts"
+  ]
+}

@@ -75,7 +75,7 @@ function GetJSON(URI, OnSuccess, OnError) {
 
 }
 
-function SendJSON(HTTPVerb, URI, OnSuccess, OnError) {
+function SendJSON_old(HTTPVerb, URI, OnSuccess, OnError) {
 
     var ajax = new XMLHttpRequest();
     ajax.open(HTTPVerb, URI, true);
@@ -112,7 +112,7 @@ function SendJSON(HTTPVerb, URI, OnSuccess, OnError) {
 
 }
 
-function SendJSON(HTTPVerb, URI, Data, OnSuccess, OnError) {
+function SendJSON_old(HTTPVerb, URI, Data, OnSuccess, OnError) {
 
     var ajax = new XMLHttpRequest();
     ajax.open(HTTPVerb, URI, true);

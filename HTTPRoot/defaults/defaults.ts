@@ -1,5 +1,8 @@
 ﻿
-var CurrentlyHighlightedMenuItem = "";
+var HTTPCookieId: string = "UsersAPI";
+var CurrentlyHighlightedMenuItem  = "";
+
+// #region MenuHighlight(name)
 
 function MenuHighlight(name) {
 
@@ -31,6 +34,9 @@ function MenuHighlight(name) {
 
 }
 
+// #endregion
+
+// #region SendJSON(HTTPVerb, URI, APIKey, Data, OnSuccess, OnError)
 
 function SendJSON(HTTPVerb, URI, APIKey, Data, OnSuccess, OnError) {
 
@@ -74,3 +80,5 @@ function SendJSON(HTTPVerb, URI, APIKey, Data, OnSuccess, OnError) {
         ajax.send();
 
 }
+
+// #endregion

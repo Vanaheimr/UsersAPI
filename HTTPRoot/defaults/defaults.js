@@ -1,4 +1,6 @@
+var HTTPCookieId = "UsersAPI";
 var CurrentlyHighlightedMenuItem = "";
+// #region MenuHighlight(name)
 function MenuHighlight(name) {
     if (CurrentlyHighlightedMenuItem != "") {
         var OldItem = document.getElementById('Item' + CurrentlyHighlightedMenuItem);
@@ -19,6 +21,8 @@ function MenuHighlight(name) {
         history.pushState(null, null, '/' + name.toLowerCase() + '/index.shtml');
     }
 }
+// #endregion
+// #region SendJSON(HTTPVerb, URI, APIKey, Data, OnSuccess, OnError)
 function SendJSON(HTTPVerb, URI, APIKey, Data, OnSuccess, OnError) {
     var ajax = new XMLHttpRequest();
     ajax.open(HTTPVerb, URI, true); // , user, password);
@@ -47,4 +51,5 @@ function SendJSON(HTTPVerb, URI, APIKey, Data, OnSuccess, OnError) {
     else
         ajax.send();
 }
+// #endregion
 //# sourceMappingURL=defaults.js.map
