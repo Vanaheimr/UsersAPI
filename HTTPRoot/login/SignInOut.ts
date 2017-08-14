@@ -1,5 +1,5 @@
 ﻿var SignInUser    = "";
-var HTTPCookieId  = "HeldeleMobility";
+var HTTPCookieId  = "UsersAPI";
 
 function HideElement(DivName) {
 
