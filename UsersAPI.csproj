@@ -218,6 +218,9 @@
     <EmbeddedResource Include="HTTPRoot\styles.scss" />
     <EmbeddedResource Include="HTTPRoot\profile\profile.scss" />
     <EmbeddedResource Include="HTTPRoot\admin\admin.scss" />
+    <EmbeddedResource Include="HTTPRoot\login\SignInOut.js.map">
+      <DependentUpon>SignInOut.ts</DependentUpon>
+    </EmbeddedResource>
     <None Include="README.md" />
   </ItemGroup>
   <ItemGroup>
@@ -248,9 +251,21 @@
     <Content Include="HTTPRoot\admin\admin.css">
       <DependentUpon>admin.scss</DependentUpon>
     </Content>
+    <EmbeddedResource Include="HTTPRoot\login\SignInOut.js">
+      <DependentUpon>SignInOut.ts</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="HTTPRoot\js\date.format.js" />
+    <Content Include="HTTPRoot\js\date.js" />
     <EmbeddedResource Include="HTTPRoot\admin\admin.min.css">
       <DependentUpon>admin.css</DependentUpon>
     </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="HTTPRoot\login\SignInOut.ts" />
+  </ItemGroup>
+  <ItemGroup>
+    <TypeScriptCompile Include="HTTPRoot\compileAll.ts" />
+    <EmbeddedResource Include="HTTPRoot\defaults\defaults.ts" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
