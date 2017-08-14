@@ -6,5 +6,13 @@
   {
     "outputFile": "HTTPRoot/styles.css",
     "inputFile": "HTTPRoot/styles.scss"
+  },
+  {
+    "outputFile": "HTTPRoot/profile/profile.css",
+    "inputFile": "HTTPRoot/profile/profile.scss"
+  },
+  {
+    "outputFile": "HTTPRoot/admin/admin.css",
+    "inputFile": "HTTPRoot/admin/admin.scss"
   }
 ]

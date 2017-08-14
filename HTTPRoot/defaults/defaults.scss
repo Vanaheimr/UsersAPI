@@ -1,21 +1,24 @@
-﻿
-$NavigationWidth:           60px;
-$NavigationBackground:      rgb(204, 45, 123);
-$NavigationBackHover:       rgb(247, 186, 61);
-$NavigationMenuColor:       rgb(103,  89,  57);
-$NavigationTextColor:       rgb(132,  90,  45);
-$NavigationTextHover:       rgb(247, 227, 185);
+﻿// Note: Remember to mark every variable as "!default" to avoid
+//       that a custom style will be refined by a default value!
 
-$SubnavigationWidth:        200px;
-$SubnavigationBackground:   rgb(207, 188, 151);
-$SubnavigationTextColor:    rgb(125, 102,  57);
-$SubnavigationBackHover:    rgb(232, 215, 178);
-$SubnavigationTextHover:    rgb(177, 155, 112);
+$NavigationWidth:           60px                  !default;
+$NavigationBackground:      rgb(204, 45, 123)   !default;
+$NavigationBackHover:       rgb(247, 186, 61)   !default;
+$NavigationMenuColor:       rgb(103,  89,  57)  !default;
+$NavigationTextColor:       rgb(132,  90,  45)  !default;
+$NavigationTextHover:       rgb(247, 227, 185)  !default;
+/*background: lighten($bg-color, 10%);*/
 
-$TopbarHeight:              60px;
+$SubnavigationWidth:        200px                 !default;
+$SubnavigationBackground:   rgb(207, 188, 151)  !default;
+$SubnavigationTextColor:    rgb(125, 102,  57)  !default;
+$SubnavigationBackHover:    rgb(232, 215, 178)  !default;
+$SubnavigationTextHover:    rgb(177, 155, 112)  !default;
+
+$TopbarHeight:              60px !default;
 
 
-$Shadow:                    2px 2px 7px #828282;
+$Shadow:                    2px 2px 7px #828282      !default;
 /*$CITMBlue:                  rgba( 86, 132, 204,   1);*/
-$CITMBlue95:                rgba(247, 186,  61, .95);
+$CITMBlue95:                rgba(247, 186,  61, .95) !default;
 /*$CITMGray:                  rgba(143, 145, 149,   1);*/
