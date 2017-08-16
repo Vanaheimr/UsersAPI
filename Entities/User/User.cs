@@ -478,30 +478,30 @@ namespace org.GraphDefined.OpenData
             => JSONObject.Create(
 
                    new JProperty("@context",            "https://api.opendata.social/context/user"),
-                   new JProperty("@id",                 Id.   ToString()),
-                   new JProperty("name",                Name),
-                   new JProperty("email",               EMail.ToString()),
+                   new JProperty("@id", Id.   ToString()),
+                   new JProperty("name", Name),
+                   new JProperty("email", EMail.ToString()),
 
                    PublicKeyRing != null
-                       ? new JProperty("publickey",     PublicKeyRing)
+                       ? new JProperty("publickey", PublicKeyRing)
                        : null,
 
                    Telephone != null
-                       ? new JProperty("telephone",     Telephone)
+                       ? new JProperty("telephone", Telephone)
                        : null,
 
-                   Description.IsNeitherNullNorEmpty()
-                       ? new JProperty("description",   Description.ToJSON())
+                   IEnumerableExtensions.IsNeitherNullNorEmpty(Description)
+                       ? new JProperty("description", Description.ToJSON())
                        : null,
 
-                   new JProperty("isAuthenticated",     IsAuthenticated),
-                   new JProperty("isPublic",            IsPublic),
-                   new JProperty("isDisabled",          IsDisabled),
+                   new JProperty("isAuthenticated", IsAuthenticated),
+                   new JProperty("isPublic", IsPublic),
+                   new JProperty("isDisabled", IsDisabled),
 
                    new JProperty("signatures",          new JArray()),
 
                    IncludeHash
-                       ? new JProperty("hash",          CurrentCryptoHash)
+                       ? new JProperty("hash", CurrentCryptoHash)
                        : null
 
                );
