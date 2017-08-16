@@ -1,7 +1,7 @@
 var HTTPCookieId = "UsersAPI";
 var CurrentlyHighlightedMenuItem = "";
 // #region MenuHighlight(name)
-function MenuHighlight(name) {
+function MenuHighlight(name, NoURIupdate) {
     if (CurrentlyHighlightedMenuItem != "") {
         var OldItem = document.getElementById('Item' + CurrentlyHighlightedMenuItem);
         if (OldItem != null)
@@ -17,7 +17,7 @@ function MenuHighlight(name) {
     if (NewMenu != null)
         NewMenu.style.display = "block";
     CurrentlyHighlightedMenuItem = name;
-    if (history && history.pushState) {
+    if (history && history.pushState && !NoURIupdate) {
         history.pushState(null, null, '/' + name.toLowerCase() + '/index.shtml');
     }
 }

@@ -4,7 +4,7 @@ var CurrentlyHighlightedMenuItem  = "";
 
 // #region MenuHighlight(name)
 
-function MenuHighlight(name) {
+function MenuHighlight(name: string, NoURIupdate?: boolean) {
 
     if (CurrentlyHighlightedMenuItem != "") {
 
@@ -28,7 +28,7 @@ function MenuHighlight(name) {
 
     CurrentlyHighlightedMenuItem = name;
 
-    if (history && history.pushState) {
+    if (history && history.pushState && !NoURIupdate) {
         history.pushState(null, null, '/' + name.toLowerCase() + '/index.shtml');
     }
 
