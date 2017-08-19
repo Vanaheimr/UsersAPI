@@ -95,6 +95,8 @@ body {
       background-color: #f7ba3d; }
       #navigation ul li:hover a {
         color: #f7e3b9; }
+    #navigation ul li.active {
+      background-color: #ce8900; }
   @media only screen and (max-width: 512px) {
     #navigation {
       padding-right: 0px; } }

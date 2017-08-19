@@ -5,14 +5,14 @@ function MenuHighlight(name, NoURIupdate) {
     if (CurrentlyHighlightedMenuItem != "") {
         var OldItem = document.getElementById('Item' + CurrentlyHighlightedMenuItem);
         if (OldItem != null)
-            OldItem.style.backgroundColor = "";
+            OldItem.classList.remove('active');
         var OldMenu = document.getElementById('Menu' + CurrentlyHighlightedMenuItem);
         if (OldMenu != null)
             OldMenu.style.display = "none";
     }
     var NewItem = document.getElementById('Item' + name);
     if (NewItem != null)
-        NewItem.style.backgroundColor = "rgb(206, 137, 0)";
+        NewItem.classList.add('active');
     var NewMenu = document.getElementById('Menu' + name);
     if (NewMenu != null)
         NewMenu.style.display = "block";

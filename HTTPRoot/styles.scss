@@ -145,6 +145,10 @@ body {
 
         }
 
+        li.active {
+            background-color:    $NavigationBackActive;
+        }
+
     }
 
     @media only screen and (max-width: 512px) {
