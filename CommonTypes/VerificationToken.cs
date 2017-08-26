@@ -31,7 +31,7 @@ using System.Security.Cryptography;
 
 #endregion
 
-namespace org.GraphDefined.OpenData
+namespace org.GraphDefined.OpenData.Users
 {
 
     /// <summary>

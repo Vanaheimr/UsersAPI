@@ -28,7 +28,7 @@ using org.GraphDefined.Vanaheimr.Hermod.HTTP;
 
 #endregion
 
-namespace org.GraphDefined.OpenData
+namespace org.GraphDefined.OpenData.Users
 {
 
     /// <summary>

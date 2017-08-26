@@ -42,10 +42,11 @@ using org.GraphDefined.Vanaheimr.Hermod.Sockets.TCP;
 using org.GraphDefined.Vanaheimr.BouncyCastle;
 using org.GraphDefined.Vanaheimr.Hermod.Sockets;
 using System.Text;
+using org.GraphDefined.Vanaheimr.Hermod.Distributed;
 
 #endregion
 
-namespace org.GraphDefined.OpenData
+namespace org.GraphDefined.OpenData.Users
 {
 
     /// <summary>
@@ -111,10 +112,6 @@ namespace org.GraphDefined.OpenData
         public  const             String                              DefaultSecurityTokenFile       = "UsersAPI_SecurityTokens.db";
         //public  const             String                              DefaultGroupDBFile             = "UsersAPI_Groups.db";
         //public  const             String                              DefaultUser2GroupDBFile        = "UsersAPI_User2Group.db";
-
-
-        public  static readonly   Regex                               UserDB_RegEx                   = new Regex(@"(\s)+",
-                                                                                                                 RegexOptions.IgnorePatternWhitespace);
 
         protected readonly Dictionary<String, Tuple<User_Id, DateTime>> SecurityTokens;
 
@@ -678,26 +675,26 @@ namespace org.GraphDefined.OpenData
 
             #region Init data
 
-            this.HTTPServer                  = HTTPServer;
-            this.Hostname                    = HTTPHostname.IsNotNullOrEmpty() ? HTTPHostname : "*";
-            this.URIPrefix                   = (URIPrefix ?? "/").StartsWith("/", StringComparison.Ordinal)
-                                                   ? URIPrefix
-                                                   : URIPrefix = "/" + URIPrefix;
+            this.HTTPServer                   = HTTPServer;
+            this.Hostname                     = HTTPHostname.IsNotNullOrEmpty() ? HTTPHostname : "*";
+            this.URIPrefix                    = (URIPrefix ?? "/").StartsWith("/", StringComparison.Ordinal)
+                                                    ? URIPrefix
+                                                    : URIPrefix = "/" + URIPrefix;
 
-            this.ServiceName                 = ServiceName. IsNotNullOrEmpty() ? ServiceName  : "UsersAPI";
-            this.APIEMailAddress             = APIEMailAddress;
-            this.APIPublicKeyRing            = APIPublicKeyRing;
-            this.APISecretKeyRing            = APISecretKeyRing;
-            this.APIPassphrase               = APIPassphrase;
-            this.APIAdminEMails = APIAdminEMails;
-            this.APISMTPClient = APISMTPClient;
+            this.ServiceName                  = ServiceName. IsNotNullOrEmpty() ? ServiceName  : "UsersAPI";
+            this.APIEMailAddress              = APIEMailAddress;
+            this.APIPublicKeyRing             = APIPublicKeyRing;
+            this.APISecretKeyRing             = APISecretKeyRing;
+            this.APIPassphrase                = APIPassphrase;
+            this.APIAdminEMails               = APIAdminEMails;
+            this.APISMTPClient                = APISMTPClient;
 
-            this.CookieName                  = CookieName.IsNotNullOrEmpty() ? CookieName : DefaultCookieName;
-            this._DefaultLanguage            = DefaultLanguage;
-            this._LogoImage                  = LogoImage;
-            this.NewUserSignUpEMailCreator   = NewUserSignUpEMailCreator;
-            this.NewUserWelcomeEMailCreator  = NewUserWelcomeEMailCreator;
-            this.ResetPasswordEMailCreator   = ResetPasswordEMailCreator;
+            this.CookieName                   = CookieName.IsNotNullOrEmpty() ? CookieName : DefaultCookieName;
+            this._DefaultLanguage             = DefaultLanguage;
+            this._LogoImage                   = LogoImage;
+            this.NewUserSignUpEMailCreator    = NewUserSignUpEMailCreator;
+            this.NewUserWelcomeEMailCreator   = NewUserWelcomeEMailCreator;
+            this.ResetPasswordEMailCreator    = ResetPasswordEMailCreator;
             this._MinUserNameLenght           = MinUserNameLenght;
             this._MinRealmLenght              = MinRealmLenght;
             this._MinPasswordLenght           = MinPasswordLenght;
@@ -746,8 +743,8 @@ namespace org.GraphDefined.OpenData
                                 var User = new User(User_Id.           Parse(JSONParameters["@id"            ].Value<String>()),
                                                     SimpleEMailAddress.Parse(JSONParameters["email"          ].Value<String>()),
                                                                              JSONParameters["name"           ].Value<String>(),
-                                                                             JSONParameters["publickey"      ].Value<String>(),
-                                                                             JSONParameters["telephone"      ].Value<String>(),
+                                                                             JSONParameters["publicKey"      ]?.Value<String>(),
+                                                                             JSONParameters["telephone"      ]?.Value<String>(),
                                                                              JSONParameters.ParseI18NString("description"),
                                                                              JSONParameters["isAuthenticated"].Value<Boolean>(),
                                                                              JSONParameters["isPublic"       ].Value<Boolean>(),
@@ -852,26 +849,41 @@ namespace org.GraphDefined.OpenData
             if (File.Exists(DefaultPasswordFile))
             {
 
+                String[] elements;
+
                 File.ReadLines(DefaultPasswordFile).ForEachCounted((line, linenumber) => {
 
                     try
                     {
 
-                        var LoginPassword  = line.Split(new Char[] { ':' }, StringSplitOptions.None);
-                        var Login          = User_Id.Parse(LoginPassword[0]);
+                        elements = line.Split(new Char[] { ':' }, StringSplitOptions.None);
 
-                        if (!_LoginPasswords.ContainsKey(Login))
-                            _LoginPasswords.Add(Login,
-                                                new LoginPassword(Login,
-                                                                  LoginPassword[1].IsNotNullOrEmpty()
-                                                                      ? LoginPassword[1]
-                                                                      : null));
+                        if (elements.Length == 3)
+                        {
+
+                            var Login = User_Id.Parse(elements[0]);
+
+                            if (elements[1].IsNotNullOrEmpty() &&
+                                elements[2].IsNotNullOrEmpty())
+                            {
+
+                                if (!_LoginPasswords.ContainsKey(Login))
+                                    _LoginPasswords.Add(Login,
+                                                        new LoginPassword(Login,
+                                                                          Password.ParseHash(elements[1],
+                                                                                             elements[2])));
+
+                                else
+                                    _LoginPasswords[Login] = new LoginPassword(Login,
+                                                                               Password.ParseHash(elements[1],
+                                                                                                  elements[2]));
+
+                            }
+
+                        }
 
                         else
-                            _LoginPasswords[Login] = new LoginPassword(Login,
-                                                                       LoginPassword[1].IsNotNullOrEmpty()
-                                                                           ? LoginPassword[1]
-                                                                           : null);
+                            DebugX.Log(@"Could not read password file """ + DefaultPasswordFile + @""" line " + linenumber);
 
                     }
                     catch (Exception e)
@@ -1533,9 +1545,9 @@ namespace org.GraphDefined.OpenData
 
                                               #endregion
 
-                                              var NewUser = CreateUser(Id:          _Login,
-                                                                       Password:          NewUserData.GetString("password"),
-                                                                       EMail:             SimpleEMailAddress.Parse(NewUserData.GetString("email")),
+                                              var NewUser = CreateUser(Id:             _Login,
+                                                                       Password:       Password.Parse(NewUserData.GetString("password")),
+                                                                       EMail:          SimpleEMailAddress.Parse(NewUserData.GetString("email")),
                                                                        PublicKeyRing:  NewUserData.GetString("gpgpublickeyring"));
 
                                               var VerificationToken = _VerificationTokens.AddAndReturnElement(new VerificationToken(Seed: _Login.ToString() + NewUserData.GetString("password") + NewUserData.GetString("email"),
@@ -2233,14 +2245,14 @@ namespace org.GraphDefined.OpenData
                              );
 
             var SHA256     = new SHA256Managed();
-            CurrentHash    = SHA256.ComputeHash(Encoding.Unicode.GetBytes(UserDB_RegEx.Replace(_JObject.ToString(), " "))).
+            CurrentHash    = SHA256.ComputeHash(Encoding.Unicode.GetBytes(Vanaheimr.Hermod.Distributed.Helpers.UserDB_RegEx.Replace(_JObject.ToString(), " "))).
                                     Select(value => String.Format("{0:x2}", value)).
                                     Aggregate();
 
             _JObject.Add(new JProperty("HashValue", CurrentHash));
 
             File.AppendAllText(DefaultUsersAPIFile,
-                               UserDB_RegEx.Replace(_JObject.ToString(), " ") +
+                               Vanaheimr.Hermod.Distributed.Helpers.UserDB_RegEx.Replace(_JObject.ToString(), " ") +
                                Environment.NewLine);
 
         }
@@ -2265,7 +2277,7 @@ namespace org.GraphDefined.OpenData
         /// <param name="IsDisabled">The user will be shown in user listings.</param>
         public User CreateUser(User_Id             Id,
                                SimpleEMailAddress  EMail,
-                               String              Password,
+                               Password            Password,
                                String              Name              = null,
                                String              PublicKeyRing     = null,
                                String              Telephone         = null,
@@ -2274,13 +2286,6 @@ namespace org.GraphDefined.OpenData
                                Boolean             IsPublic          = true,
                                Boolean             IsDisabled        = false)
         {
-
-            #region Initial checks
-
-            if (Password.IsNullOrEmpty())
-                throw new ArgumentNullException(nameof(Password), "The given password must not be null or empty!");
-
-            #endregion
 
             lock (_Users)
             {
@@ -2328,7 +2333,7 @@ namespace org.GraphDefined.OpenData
         /// <param name="IsAuthenticated">The user will not be shown in user listings, as its primary e-mail address is not yet authenticated.</param>
         public User CreateUserIfNotExists(User_Id             Id,
                                           SimpleEMailAddress  EMail,
-                                          String              Password,
+                                          Password            Password,
                                           String              Name              = null,
                                           String              PublicKeyRing     = null,
                                           String              Telephone         = null,
@@ -2337,13 +2342,6 @@ namespace org.GraphDefined.OpenData
                                           Boolean             IsDisabled        = false,
                                           Boolean             IsAuthenticated   = false)
         {
-
-            #region Initial checks
-
-            if (Password.IsNullOrEmpty())
-                throw new ArgumentNullException(nameof(Password), "The given password must not be null or empty!");
-
-            #endregion
 
             lock (_Users)
             {
@@ -2368,11 +2366,10 @@ namespace org.GraphDefined.OpenData
 
         #endregion
 
-        #region SetPassword(Login, Password, Realm = null)
+        #region SetPassword(Login, Password)
 
-        public void SetPassword(User_Id  Login,
-                                String   Password,
-                                String   Realm  = null)
+        public void SetPassword(User_Id   Login,
+                                Password  Password)
         {
 
             lock (_Users)
@@ -2386,31 +2383,10 @@ namespace org.GraphDefined.OpenData
                 File.AppendAllText(DefaultPasswordFile,
                                    String.Concat(Login,
                                                  ":",
-                                                 Password,
+                                                 Password.Salt.UnsecureString(),
+                                                 ":",
+                                                 Password.UnsecureString,
                                                  Environment.NewLine));
-
-            }
-
-        }
-
-        public void SetPassword(User_Id       Login,
-                                SecureString  Password,
-                                String        Realm  = null)
-        {
-
-            lock (_Users)
-            {
-
-                if (!_LoginPasswords.ContainsKey(Login))
-                    _LoginPasswords.Add(Login, new LoginPassword(Login, Password, Realm));
-                else
-                    _LoginPasswords[Login]   = new LoginPassword(Login, Password, Realm);
-
-                File.AppendAllText(DefaultPasswordFile,
-                   String.Concat(Login,
-                                 ":",
-                                 Password,
-                                 Environment.NewLine));
 
             }
 

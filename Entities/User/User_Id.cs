@@ -23,13 +23,16 @@ using org.GraphDefined.Vanaheimr.Illias;
 
 #endregion
 
-namespace org.GraphDefined.OpenData
+namespace org.GraphDefined.OpenData.Users
 {
 
     /// <summary>
     /// The unique identification of an user.
     /// </summary>
-    public struct User_Id : IId<User_Id>
+    public struct User_Id : IId,
+                            IEquatable<User_Id>,
+                            IComparable<User_Id>
+
     {
 
         #region Data

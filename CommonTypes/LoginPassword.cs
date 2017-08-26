@@ -33,44 +33,32 @@ using System.Runtime.InteropServices;
 
 #endregion
 
-namespace org.GraphDefined.OpenData
+namespace org.GraphDefined.OpenData.Users
 {
 
-    public class LoginPassword : IEquatable<LoginPassword>, IComparable<LoginPassword>, IComparable
+    public class LoginPassword : IEquatable<LoginPassword>,
+                                 IComparable<LoginPassword>,
+                                 IComparable
     {
 
         #region Properties
 
-        public User_Id       Login      { get; }
+        /// <summary>
+        /// The login.
+        /// </summary>
+        public User_Id   Login      { get; }
 
-        public SecureString  Password   { get; }
+        /// <summary>
+        /// The password.
+        /// </summary>
+        public Password  Password   { get; }
 
         #endregion
 
         #region Constructor(s)
 
-        public LoginPassword(User_Id  Login,
-                             String   Password)
-        {
-
-            #region Initial checks
-
-            if (Password.IsNullOrEmpty())
-                throw new ArgumentNullException(nameof(Password), "The given password must not be null or empty!");
-
-            #endregion
-
-            this.Login     = Login;
-
-            this.Password  = new SecureString();
-            foreach (var character in Password)
-                this.Password.AppendChar(character);
-
-        }
-
-        internal LoginPassword(User_Id       Login,
-                               SecureString  Password,
-                               String        Username  = null)
+        public LoginPassword(User_Id   Login,
+                             Password  Password)
         {
 
             this.Login     = Login;
@@ -81,66 +69,17 @@ namespace org.GraphDefined.OpenData
         #endregion
 
 
-        #region CheckPassword(Password)
+        #region CheckPassword(Text)
 
-        public Boolean CheckPassword(String Password)
-        {
-
-            var _Password  = new SecureString();
-
-            foreach (var character in Password)
-                _Password.AppendChar(character);
-
-            return CheckPassword(_Password);
-
-        }
+        public Boolean CheckPassword(String Text)
+            => this.Password.Verify(Text);
 
         #endregion
 
         #region CheckPassword(SecurePassword)
 
-        public Boolean CheckPassword(SecureString SecurePassword)
-        {
-
-            var bstr1 = IntPtr.Zero;
-            var bstr2 = IntPtr.Zero;
-
-            try
-            {
-
-                bstr1 = Marshal.SecureStringToBSTR(Password);
-                bstr2 = Marshal.SecureStringToBSTR(SecurePassword);
-
-                var length1 = Marshal.ReadInt32(bstr1, -4);
-                var length2 = Marshal.ReadInt32(bstr2, -4);
-
-                if (length1 != length2)
-                    return false;
-
-                byte b1;
-                byte b2;
-
-                for (var x = 0; x < length1; ++x)
-                {
-
-                    b1 = Marshal.ReadByte(bstr1, x);
-                    b2 = Marshal.ReadByte(bstr2, x);
-
-                    if (b1 != b2)
-                        return false;
-
-                }
-
-                return true;
-
-            }
-            finally
-            {
-                if (bstr2 != IntPtr.Zero) Marshal.ZeroFreeBSTR(bstr2);
-                if (bstr1 != IntPtr.Zero) Marshal.ZeroFreeBSTR(bstr1);
-            }
-
-        }
+        public Boolean CheckPassword(Password Password)
+            => Password.Equals(Password);
 
         #endregion
 

@@ -27,16 +27,17 @@ using org.GraphDefined.Vanaheimr.Illias;
 using org.GraphDefined.Vanaheimr.Styx.Arrows;
 using org.GraphDefined.Vanaheimr.Hermod;
 using org.GraphDefined.Vanaheimr.Hermod.Mail;
+using org.GraphDefined.Vanaheimr.Hermod.Distributed;
 
 #endregion
 
-namespace org.GraphDefined.OpenData
+namespace org.GraphDefined.OpenData.Users
 {
 
     /// <summary>
     /// A user.
     /// </summary>
-    public class User : AEntity<User_Id>,
+    public class User : ADistributedEntity<User_Id>,
                         IEntityClass<User>
     {
 

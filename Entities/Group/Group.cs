@@ -26,16 +26,17 @@ using Newtonsoft.Json.Linq;
 using org.GraphDefined.Vanaheimr.Illias;
 using org.GraphDefined.Vanaheimr.Styx.Arrows;
 using org.GraphDefined.Vanaheimr.Hermod;
+using org.GraphDefined.Vanaheimr.Hermod.Distributed;
 
 #endregion
 
-namespace org.GraphDefined.OpenData
+namespace org.GraphDefined.OpenData.Users
 {
 
     /// <summary>
     /// A group.
     /// </summary>
-    public class Group : AEntity<Group_Id>,
+    public class Group : ADistributedEntity<Group_Id>,
                          IEntityClass<Group>
     {
 

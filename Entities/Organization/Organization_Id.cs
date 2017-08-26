@@ -23,13 +23,15 @@ using org.GraphDefined.Vanaheimr.Illias;
 
 #endregion
 
-namespace org.GraphDefined.OpenData
+namespace org.GraphDefined.OpenData.Users
 {
 
     /// <summary>
     /// The unique identification of an organization.
     /// </summary>
-    public struct Organization_Id : IId<Organization_Id>
+    public struct Organization_Id : IId,
+                                    IEquatable<Organization_Id>,
+                                    IComparable<Organization_Id>
     {
 
         #region Data
@@ -38,9 +40,6 @@ namespace org.GraphDefined.OpenData
         /// The internal identification.
         /// </summary>
         private readonly String InternalId;
-
-        //ToDo: Replace with better randomness!
-        private static readonly Random _Random = new Random(DateTime.UtcNow.Millisecond);
 
         #endregion
 

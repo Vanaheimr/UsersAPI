@@ -23,13 +23,15 @@ using org.GraphDefined.Vanaheimr.Illias;
 
 #endregion
 
-namespace org.GraphDefined.OpenData
+namespace org.GraphDefined.OpenData.Users
 {
 
     /// <summary>
     /// The unique identification of a message.
     /// </summary>
-    public struct Message_Id : IId<Message_Id>
+    public struct Message_Id : IId,
+                               IEquatable<Message_Id>,
+                               IComparable<Message_Id>
     {
 
         #region Data
@@ -40,7 +42,7 @@ namespace org.GraphDefined.OpenData
         private readonly String InternalId;
 
         //ToDo: Replace with better randomness!
-   //     private static readonly Random _Random = new Random(DateTime.UtcNow.Millisecond);
+        private static readonly Random _Random = new Random(DateTime.UtcNow.Millisecond);
 
         #endregion
 

@@ -19,9 +19,11 @@
 
 using System;
 
+using org.GraphDefined.Vanaheimr.Illias;
+
 #endregion
 
-namespace org.GraphDefined.OpenData
+namespace org.GraphDefined.OpenData.Users
 {
 
     public class MiniEdge<TSource, TEdge, TTarget> : IEquatable <MiniEdge<TSource, TEdge, TTarget>>,
