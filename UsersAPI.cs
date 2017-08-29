@@ -1811,7 +1811,7 @@ namespace org.GraphDefined.OpenData.Users
                                                       }.AsImmutable());
 
 
-                                              if (!_LoginPassword.CheckPassword(Password))
+                                              if (!_LoginPassword.VerifyPassword(Password))
 
                                                   return Task.FromResult(
                                                       new HTTPResponseBuilder(Request) {
@@ -2026,7 +2026,7 @@ namespace org.GraphDefined.OpenData.Users
                                                       }.AsImmutable());
 
 
-                                              if (!_LoginPassword.CheckPassword(LoginData.GetString("password")))
+                                              if (!_LoginPassword.VerifyPassword(LoginData.GetString("password")))
 
                                                   return Task.FromResult(
                                                       new HTTPResponseBuilder(Request) {
@@ -2236,24 +2236,29 @@ namespace org.GraphDefined.OpenData.Users
                                     JObject  JSON)
         {
 
-            var _JObject   = new JObject(
-                                 new JProperty(Command,       JSON),
-                                 new JProperty("Writer",      SystemId),
-                                 new JProperty("Timestamp",   DateTime.UtcNow.ToIso8601()),
-                                 new JProperty("Nonce",       Guid.NewGuid().ToString().Replace("-", "")),
-                                 new JProperty("ParentHash",  CurrentHash)
-                             );
+            lock (DefaultUsersAPIFile)
+            {
 
-            var SHA256     = new SHA256Managed();
-            CurrentHash    = SHA256.ComputeHash(Encoding.Unicode.GetBytes(Vanaheimr.Hermod.Distributed.Helpers.UserDB_RegEx.Replace(_JObject.ToString(), " "))).
-                                    Select(value => String.Format("{0:x2}", value)).
-                                    Aggregate();
+                var _JObject   = new JObject(
+                                     new JProperty(Command,       JSON),
+                                     new JProperty("Writer",      SystemId),
+                                     new JProperty("Timestamp",   DateTime.UtcNow.ToIso8601()),
+                                     new JProperty("Nonce",       Guid.NewGuid().ToString().Replace("-", "")),
+                                     new JProperty("ParentHash",  CurrentHash)
+                                 );
 
-            _JObject.Add(new JProperty("HashValue", CurrentHash));
+                var SHA256     = new SHA256Managed();
+                CurrentHash    = SHA256.ComputeHash(Encoding.Unicode.GetBytes(Vanaheimr.Hermod.Distributed.Helpers.UserDB_RegEx.Replace(_JObject.ToString(), " "))).
+                                        Select(value => String.Format("{0:x2}", value)).
+                                        Aggregate();
 
-            File.AppendAllText(DefaultUsersAPIFile,
-                               Vanaheimr.Hermod.Distributed.Helpers.UserDB_RegEx.Replace(_JObject.ToString(), " ") +
-                               Environment.NewLine);
+                _JObject.Add(new JProperty("HashValue", CurrentHash));
+
+                File.AppendAllText(DefaultUsersAPIFile,
+                                   Vanaheimr.Hermod.Distributed.Helpers.UserDB_RegEx.Replace(_JObject.ToString(), " ") +
+                                   Environment.NewLine);
+
+            }
 
         }
 

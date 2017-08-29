@@ -101,9 +101,7 @@ namespace org.GraphDefined.OpenData.Users
         public static Organization_Id? TryParse(String Text)
         {
 
-            Organization_Id _OrganizationId;
-
-            if (TryParse(Text, out _OrganizationId))
+            if (TryParse(Text, out Organization_Id _OrganizationId))
                 return _OrganizationId;
 
             return new Organization_Id?();

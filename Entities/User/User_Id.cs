@@ -159,9 +159,7 @@ namespace org.GraphDefined.OpenData.Users
 
             #endregion
 
-            User_Id _UserId;
-
-            if (TryParse(Text, Realm, out _UserId))
+            if (TryParse(Text, Realm, out User_Id _UserId))
                 return _UserId;
 
             return new User_Id?();

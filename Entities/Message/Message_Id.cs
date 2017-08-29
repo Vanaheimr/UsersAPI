@@ -114,9 +114,7 @@ namespace org.GraphDefined.OpenData.Users
         public static Message_Id? TryParse(String Text)
         {
 
-            Message_Id _MessageId;
-
-            if (TryParse(Text, out _MessageId))
+            if (TryParse(Text, out Message_Id _MessageId))
                 return _MessageId;
 
             return new Message_Id?();

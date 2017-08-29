@@ -18,24 +18,15 @@
 #region Usings
 
 using System;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-
-using org.GraphDefined.Vanaheimr.Illias;
-using org.GraphDefined.Vanaheimr.Illias.Votes;
-using org.GraphDefined.Vanaheimr.Styx.Arrows;
-using System.Security.Cryptography;
-using System.Security;
-using System.Runtime.InteropServices;
 
 #endregion
 
 namespace org.GraphDefined.OpenData.Users
 {
 
+    /// <summary>
+    /// A user identification and password combination.
+    /// </summary>
     public class LoginPassword : IEquatable<LoginPassword>,
                                  IComparable<LoginPassword>,
                                  IComparable
@@ -44,12 +35,12 @@ namespace org.GraphDefined.OpenData.Users
         #region Properties
 
         /// <summary>
-        /// The login.
+        /// The unique user identification.
         /// </summary>
         public User_Id   Login      { get; }
 
         /// <summary>
-        /// The password.
+        /// The password of the user.
         /// </summary>
         public Password  Password   { get; }
 
@@ -57,6 +48,11 @@ namespace org.GraphDefined.OpenData.Users
 
         #region Constructor(s)
 
+        /// <summary>
+        /// Create a new user identification and password combination.
+        /// </summary>
+        /// <param name="Login">The unique user identification.</param>
+        /// <param name="Password">The password of the user.</param>
         public LoginPassword(User_Id   Login,
                              Password  Password)
         {
@@ -69,17 +65,14 @@ namespace org.GraphDefined.OpenData.Users
         #endregion
 
 
-        #region CheckPassword(Text)
+        #region VerifyPassword(Password)
 
-        public Boolean CheckPassword(String Text)
-            => this.Password.Verify(Text);
-
-        #endregion
-
-        #region CheckPassword(SecurePassword)
-
-        public Boolean CheckPassword(Password Password)
-            => Password.Equals(Password);
+        /// <summary>
+        /// Verify the given password.
+        /// </summary>
+        /// <param name="Password">A password to verify.</param>
+        public Boolean VerifyPassword(String Password)
+            => this.Password.Verify(Password);
 
         #endregion
 
@@ -149,7 +142,7 @@ namespace org.GraphDefined.OpenData.Users
             if ((Object) _LoginPassword == null)
                 return false;
 
-            return this.Equals(_LoginPassword);
+            return Equals(_LoginPassword);
 
         }
 
@@ -168,7 +161,8 @@ namespace org.GraphDefined.OpenData.Users
             if ((Object) LoginPassword == null)
                 return false;
 
-            return Login.Equals(LoginPassword.Login);
+            return Login.   Equals(LoginPassword.Login) &&
+                   Password.Equals(LoginPassword.Password);
 
         }
 
@@ -182,9 +176,9 @@ namespace org.GraphDefined.OpenData.Users
         /// Get the hashcode of this object.
         /// </summary>
         public override Int32 GetHashCode()
-        {
-            return Login.GetHashCode();
-        }
+
+            => Login.   GetHashCode() ^
+               Password.GetHashCode();
 
         #endregion
 
@@ -194,9 +188,7 @@ namespace org.GraphDefined.OpenData.Users
         /// Get a string representation of this object.
         /// </summary>
         public override String ToString()
-        {
-            return Login.ToString();
-        }
+            => Login.ToString();
 
         #endregion
 
