@@ -82,6 +82,11 @@ namespace org.GraphDefined.OpenData.Users
         /// </summary>
         public  const             String                              DefaultServiceName             = "GraphDefined Users API";
 
+        /// <summary>
+        /// The default language of the API.
+        /// </summary>
+        public  const             Languages                           DefaultLanguage                = Languages.eng;
+
         public  const             Byte                                DefaultMinUserNameLenght       = 4;
         public  const             Byte                                DefaultMinRealmLenght          = 2;
         public  const             Byte                                DefaultMinPasswordLenght       = 8;
@@ -92,10 +97,6 @@ namespace org.GraphDefined.OpenData.Users
         private readonly          Dictionary<User_Id, LoginPassword>  _LoginPasswords;
         private readonly          List<VerificationToken>             _VerificationTokens;
 
-
-        protected readonly        Func<String, Stream>                RessourcesProvider;
-
-
         /// <summary>
         /// Default logfile name.
         /// </summary>
@@ -103,7 +104,12 @@ namespace org.GraphDefined.OpenData.Users
 
         public  const             String                              SignUpContext                  = "";
         public  const             String                              SignInOutContext               = "";
+
+        /// <summary>
+        /// The name of the default HTTP cookie.
+        /// </summary>
         public  const             String                              DefaultCookieName              = "UsersAPI";
+
         public  const             String                              HTTPCookieDomain               = "";
 
         public  const             String                              DefaultUsersAPIFile            = "UsersAPI_Users.db";
@@ -312,20 +318,12 @@ namespace org.GraphDefined.OpenData.Users
 
         #endregion
 
-        #region DefaultLanguage
-
-        private readonly Languages _DefaultLanguage;
+        #region Language
 
         /// <summary>
-        /// The default language of the API.
+        /// The main language of this API.
         /// </summary>
-        public Languages DefaultLanguage
-        {
-            get
-            {
-                return _DefaultLanguage;
-            }
-        }
+        public Languages Language { get; }
 
         #endregion
 
@@ -461,6 +459,11 @@ namespace org.GraphDefined.OpenData.Users
 
         public String SystemId { get; }
 
+        /// <summary>
+        /// The logfile of this API.
+        /// </summary>
+        public String LogfileName { get; }
+
         #endregion
 
         #region Constructor(s)
@@ -483,7 +486,8 @@ namespace org.GraphDefined.OpenData.Users
         /// <param name="APIAdminEMails">A list of admin e-mail addresses.</param>
         /// <param name="APISMTPClient">A SMTP client for sending e-mails.</param>
         /// 
-        /// <param name="DefaultLanguage">The default language of the API.</param>
+        /// <param name="CookieName">The name of the HTTP Cookie for authentication.</param>
+        /// <param name="Language">The main language of the API.</param>
         /// <param name="LogoImage">The logo of the website.</param>
         /// <param name="NewUserSignUpEMailCreator">A delegate for sending a sign-up e-mail to a new user.</param>
         /// <param name="NewUserWelcomeEMailCreator">A delegate for sending a welcome e-mail to a new user.</param>
@@ -493,62 +497,50 @@ namespace org.GraphDefined.OpenData.Users
         /// <param name="MinPasswordLenght">The minimal password length.</param>
         /// <param name="SignInSessionLifetime">The sign-in session lifetime.</param>
         /// 
-        /// <param name="RessourcesProvider">A </param>
-        /// 
-        /// <param name="ServerThreadName"></param>
-        /// <param name="ServerThreadPriority"></param>
-        /// <param name="ServerThreadIsBackground"></param>
-        /// <param name="ConnectionIdBuilder"></param>
-        /// <param name="ConnectionThreadsNameBuilder"></param>
-        /// <param name="ConnectionThreadsPriorityBuilder"></param>
-        /// <param name="ConnectionThreadsAreBackground"></param>
-        /// <param name="ConnectionTimeout"></param>
-        /// <param name="MaxClientConnections"></param>
-        /// 
-        /// <param name="DNSClient"></param>
-        /// <param name="LogfileName"></param>
-        public UsersAPI(String                              HTTPServerName                    = DefaultHTTPServerName,
-                        IPPort                              HTTPServerPort                    = null,
-                        String                              HTTPHostname                      = null,
-                        String                              URIPrefix                         = "/",
+        /// <param name="SkipURITemplates">Skip URI templates.</param>
+        /// <param name="LogfileName">The name of the logfile for this API.</param>
+        /// <param name="DNSClient">The DNS client of the API.</param>
+        /// <param name="Autostart">Whether to start the API automatically.</param>
+        public UsersAPI(String                              HTTPServerName                     = DefaultHTTPServerName,
+                        IPPort                              HTTPServerPort                     = null,
+                        String                              HTTPHostname                       = null,
+                        String                              URIPrefix                          = "/",
 
-                        String                              ServiceName                       = DefaultServiceName,
-                        EMailAddress                        APIEMailAddress                   = null,
-                        PgpPublicKeyRing                    APIPublicKeyRing                  = null,
-                        PgpSecretKeyRing                    APISecretKeyRing                  = null,
-                        String                              APIPassphrase                     = null,
-                        EMailAddressList                    APIAdminEMails                    = null,
-                        SMTPClient                          APISMTPClient                     = null,
+                        String                              ServiceName                        = DefaultServiceName,
+                        EMailAddress                        APIEMailAddress                    = null,
+                        PgpPublicKeyRing                    APIPublicKeyRing                   = null,
+                        PgpSecretKeyRing                    APISecretKeyRing                   = null,
+                        String                              APIPassphrase                      = null,
+                        EMailAddressList                    APIAdminEMails                     = null,
+                        SMTPClient                          APISMTPClient                      = null,
 
-                        String                              CookieName                        = DefaultCookieName,
-                        Languages                           DefaultLanguage                   = Languages.eng,
-                        String                              LogoImage                         = null,
-                        NewUserSignUpEMailCreatorDelegate   NewUserSignUpEMailCreator         = null,
-                        NewUserWelcomeEMailCreatorDelegate  NewUserWelcomeEMailCreator        = null,
-                        ResetPasswordEMailCreatorDelegate   ResetPasswordEMailCreator         = null,
-                        Byte                                MinUserNameLenght                 = DefaultMinUserNameLenght,
-                        Byte                                MinRealmLenght                    = DefaultMinRealmLenght,
-                        Byte                                MinPasswordLenght                 = DefaultMinPasswordLenght,
-                        TimeSpan?                           SignInSessionLifetime             = null,
+                        String                              CookieName                         = DefaultCookieName,
+                        Languages                           Language                           = DefaultLanguage,
+                        String                              LogoImage                          = null,
+                        NewUserSignUpEMailCreatorDelegate   NewUserSignUpEMailCreator          = null,
+                        NewUserWelcomeEMailCreatorDelegate  NewUserWelcomeEMailCreator         = null,
+                        ResetPasswordEMailCreatorDelegate   ResetPasswordEMailCreator          = null,
+                        Byte                                MinUserNameLenght                  = DefaultMinUserNameLenght,
+                        Byte                                MinRealmLenght                     = DefaultMinRealmLenght,
+                        Byte                                MinPasswordLenght                  = DefaultMinPasswordLenght,
+                        TimeSpan?                           SignInSessionLifetime              = null,
 
-                        Boolean                             SkipURITemplates                  = false,
-                        Func<String, Stream>                RessourcesProvider                = null,
+                        String                              ServerThreadName                   = null,
+                        ThreadPriority                      ServerThreadPriority               = ThreadPriority.AboveNormal,
+                        Boolean                             ServerThreadIsBackground           = true,
+                        ConnectionIdBuilder                 ConnectionIdBuilder                = null,
+                        ConnectionThreadsNameBuilder        ConnectionThreadsNameBuilder       = null,
+                        ConnectionThreadsPriorityBuilder    ConnectionThreadsPriorityBuilder   = null,
+                        Boolean                             ConnectionThreadsAreBackground     = true,
+                        TimeSpan?                           ConnectionTimeout                  = null,
+                        UInt32                              MaxClientConnections               = TCPServer.__DefaultMaxClientConnections,
 
-                        String                              ServerThreadName                  = null,
-                        ThreadPriority                      ServerThreadPriority              = ThreadPriority.AboveNormal,
-                        Boolean                             ServerThreadIsBackground          = true,
-                        ConnectionIdBuilder                 ConnectionIdBuilder               = null,
-                        ConnectionThreadsNameBuilder        ConnectionThreadsNameBuilder      = null,
-                        ConnectionThreadsPriorityBuilder    ConnectionThreadsPriorityBuilder  = null,
-                        Boolean                             ConnectionThreadsAreBackground    = true,
-                        TimeSpan?                           ConnectionTimeout                 = null,
-                        UInt32                              MaxClientConnections              = TCPServer.__DefaultMaxClientConnections,
+                        Boolean                             SkipURITemplates                   = false,
+                        String                              LogfileName                        = DefaultLogfileName,
+                        DNSClient                           DNSClient                          = null,
+                        Boolean                             Autostart                          = false)
 
-                        String                              LogfileName                       = DefaultLogfileName,
-                        DNSClient                           DNSClient                         = null,
-                        Boolean                             Autostart                         = false)
-
-            : this(new HTTPServer(TCPPort:                           HTTPServerPort != null ? HTTPServerPort : DefaultHTTPServerPort,
+            : this(new HTTPServer(TCPPort:                           HTTPServerPort ?? DefaultHTTPServerPort,
                                   DefaultServerName:                 HTTPServerName,
                                   ServerThreadName:                  ServerThreadName,
                                   ServerThreadPriority:              ServerThreadPriority,
@@ -573,7 +565,7 @@ namespace org.GraphDefined.OpenData.Users
                    APISMTPClient,
 
                    CookieName,
-                   DefaultLanguage,
+                   Language,
                    LogoImage,
                    NewUserSignUpEMailCreator,
                    NewUserWelcomeEMailCreator,
@@ -584,8 +576,6 @@ namespace org.GraphDefined.OpenData.Users
                    SignInSessionLifetime,
 
                    SkipURITemplates,
-                   RessourcesProvider,
-
                    LogfileName)
 
         {
@@ -614,7 +604,8 @@ namespace org.GraphDefined.OpenData.Users
         /// <param name="APIAdminEMails">A list of admin e-mail addresses.</param>
         /// <param name="APISMTPClient">A SMTP client for sending e-mails.</param>
         /// 
-        /// <param name="DefaultLanguage">The default language of the API.</param>
+        /// <param name="CookieName">The name of the HTTP Cookie for authentication.</param>
+        /// <param name="Language">The main language of the API.</param>
         /// <param name="LogoImage">The logo of the website.</param>
         /// <param name="NewUserSignUpEMailCreator">A delegate for sending a sign-up e-mail to a new user.</param>
         /// <param name="NewUserWelcomeEMailCreator">A delegate for sending a welcome e-mail to a new user.</param>
@@ -624,9 +615,8 @@ namespace org.GraphDefined.OpenData.Users
         /// <param name="MinPasswordLenght">The minimal password length.</param>
         /// <param name="SignInSessionLifetime">The sign-in session lifetime.</param>
         /// 
-        /// <param name="RessourcesProvider"></param>
-        /// 
-        /// <param name="LogfileName"></param>
+        /// <param name="SkipURITemplates">Skip URI templates.</param>
+        /// <param name="LogfileName">The name of the logfile for this API.</param>
         protected UsersAPI(HTTPServer                          HTTPServer,
                            String                              HTTPHostname                 = null,
                            String                              URIPrefix                    = "/",
@@ -640,7 +630,7 @@ namespace org.GraphDefined.OpenData.Users
                            SMTPClient                          APISMTPClient                = null,
 
                            String                              CookieName                   = DefaultCookieName,
-                           Languages                           DefaultLanguage              = Languages.eng,
+                           Languages                           Language                     = DefaultLanguage,
                            String                              LogoImage                    = null,
                            NewUserSignUpEMailCreatorDelegate   NewUserSignUpEMailCreator    = null,
                            NewUserWelcomeEMailCreatorDelegate  NewUserWelcomeEMailCreator   = null,
@@ -651,8 +641,6 @@ namespace org.GraphDefined.OpenData.Users
                            TimeSpan?                           SignInSessionLifetime        = null,
 
                            Boolean                             SkipURITemplates             = false,
-                           Func<String, Stream>                RessourcesProvider           = null,
-
                            String                              LogfileName                  = DefaultLogfileName)
 
         {
@@ -690,7 +678,7 @@ namespace org.GraphDefined.OpenData.Users
             this.APISMTPClient                = APISMTPClient;
 
             this.CookieName                   = CookieName.IsNotNullOrEmpty() ? CookieName : DefaultCookieName;
-            this._DefaultLanguage             = DefaultLanguage;
+            this.Language                     = Language;
             this._LogoImage                   = LogoImage;
             this.NewUserSignUpEMailCreator    = NewUserSignUpEMailCreator;
             this.NewUserWelcomeEMailCreator   = NewUserWelcomeEMailCreator;
@@ -698,9 +686,7 @@ namespace org.GraphDefined.OpenData.Users
             this._MinUserNameLenght           = MinUserNameLenght;
             this._MinRealmLenght              = MinRealmLenght;
             this._MinPasswordLenght           = MinPasswordLenght;
-            this._SignInSessionLifetime       = SignInSessionLifetime.HasValue ? SignInSessionLifetime.Value : DefaultSignInSessionLifetime;
-
-            this.RessourcesProvider           = RessourcesProvider;
+            this._SignInSessionLifetime       = SignInSessionLifetime ?? DefaultSignInSessionLifetime;
 
             this._Users                       = new Dictionary<User_Id,         User>();
             this._Groups                      = new Dictionary<Group_Id,        Group>();
@@ -713,6 +699,8 @@ namespace org.GraphDefined.OpenData.Users
             this._DNSClient                   = HTTPServer.DNSClient;
             this.SystemId                     = Environment.MachineName.Replace("/", "") + "/" + HTTPServer.DefaultHTTPServerPort;
             this.SecurityTokens               = new Dictionary<String, Tuple<User_Id, DateTime>>();
+
+            this.LogfileName                  = LogfileName ?? DefaultLogfileName;
 
             #endregion
 
@@ -968,6 +956,7 @@ namespace org.GraphDefined.OpenData.Users
         /// <param name="APIAdminEMails">A list of admin e-mail addresses.</param>
         /// <param name="APISMTPClient">A SMTP client for sending e-mails.</param>
         /// 
+        /// <param name="CookieName">The name of the HTTP Cookie for authentication.</param>
         /// <param name="DefaultLanguage">The default language of the API.</param>
         /// <param name="LogoImage">The logo of the website.</param>
         /// <param name="NewUserSignUpEMailCreator">A delegate for sending a sign-up e-mail to a new user.</param>
@@ -978,9 +967,8 @@ namespace org.GraphDefined.OpenData.Users
         /// <param name="MinPasswordLenght">The minimal password length.</param>
         /// <param name="SignInSessionLifetime">The sign-in session lifetime.</param>
         /// 
-        /// <param name="RessourcesProvider"></param>
-        /// 
-        /// <param name="LogfileName"></param>
+        /// <param name="SkipURITemplates">Skip URI templates.</param>
+        /// <param name="LogfileName">The name of the logfile for this API.</param>
         public static UsersAPI AttachToHTTPAPI(HTTPServer                          HTTPServer,
                                                String                              HTTPHostname                 = "*",
                                                String                              URIPrefix                    = "/",
@@ -1005,8 +993,6 @@ namespace org.GraphDefined.OpenData.Users
                                                TimeSpan?                           SignInSessionLifetime        = null,
 
                                                Boolean                             SkipURITemplates             = false,
-                                               Func<String, Stream>                RessourcesProvider           = null,
-
                                                String                              LogfileName                  = DefaultLogfileName)
 
 
@@ -1034,7 +1020,6 @@ namespace org.GraphDefined.OpenData.Users
                             SignInSessionLifetime,
 
                             SkipURITemplates,
-                            RessourcesProvider,
 
                             LogfileName);
 
@@ -2198,20 +2183,14 @@ namespace org.GraphDefined.OpenData.Users
 
         #endregion
 
-
         #region (protected) GetUsersAPIRessource(Ressource)
 
+        /// <summary>
+        /// Get an embedded ressource of the UsersAPI.
+        /// </summary>
+        /// <param name="Ressource">The path and name of the ressource to load.</param>
         protected Stream GetUsersAPIRessource(String Ressource)
-        {
-
-            var DataStream = this.GetType().Assembly.GetManifestResourceStream(HTTPRoot + Ressource);
-
-            if (DataStream == null)
-                DataStream = RessourcesProvider(Ressource);
-
-            return DataStream;
-
-        }
+            => GetType().Assembly.GetManifestResourceStream(HTTPRoot + Ressource);
 
         #endregion
 
