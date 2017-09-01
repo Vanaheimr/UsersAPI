@@ -198,17 +198,17 @@ namespace org.GraphDefined.OpenData.Users
         /// <summary>
         /// The HTTP server of the API.
         /// </summary>
-        public HTTPServer  HTTPServer   { get; }
+        public HTTPServer    HTTPServer   { get; }
 
         /// <summary>
         /// The HTTP hostname for all URIs within this API.
         /// </summary>
-        public String      Hostname     { get; }
+        public HTTPHostname  Hostname     { get; }
 
         /// <summary>
         /// The URI prefix of this HTTP API.
         /// </summary>
-        public String      URIPrefix    { get; }
+        public String        URIPrefix    { get; }
 
 
         #region ServiceName
@@ -503,7 +503,7 @@ namespace org.GraphDefined.OpenData.Users
         /// <param name="Autostart">Whether to start the API automatically.</param>
         public UsersAPI(String                              HTTPServerName                     = DefaultHTTPServerName,
                         IPPort                              HTTPServerPort                     = null,
-                        String                              HTTPHostname                       = null,
+                        HTTPHostname                        HTTPHostname                       = null,
                         String                              URIPrefix                          = "/",
 
                         String                              ServiceName                        = DefaultServiceName,
@@ -618,7 +618,7 @@ namespace org.GraphDefined.OpenData.Users
         /// <param name="SkipURITemplates">Skip URI templates.</param>
         /// <param name="LogfileName">The name of the logfile for this API.</param>
         protected UsersAPI(HTTPServer                          HTTPServer,
-                           String                              HTTPHostname                 = null,
+                           HTTPHostname                        HTTPHostname                 = null,
                            String                              URIPrefix                    = "/",
 
                            String                              ServiceName                  = DefaultServiceName,
@@ -664,7 +664,7 @@ namespace org.GraphDefined.OpenData.Users
             #region Init data
 
             this.HTTPServer                   = HTTPServer;
-            this.Hostname                     = HTTPHostname.IsNotNullOrEmpty() ? HTTPHostname : "*";
+            this.Hostname                     = HTTPHostname ?? HTTPHostname.Parse("*");
             this.URIPrefix                    = (URIPrefix ?? "/").StartsWith("/", StringComparison.Ordinal)
                                                     ? URIPrefix
                                                     : URIPrefix = "/" + URIPrefix;
@@ -970,7 +970,7 @@ namespace org.GraphDefined.OpenData.Users
         /// <param name="SkipURITemplates">Skip URI templates.</param>
         /// <param name="LogfileName">The name of the logfile for this API.</param>
         public static UsersAPI AttachToHTTPAPI(HTTPServer                          HTTPServer,
-                                               String                              HTTPHostname                 = "*",
+                                               HTTPHostname                        HTTPHostname                 = null,
                                                String                              URIPrefix                    = "/",
 
                                                String                              ServiceName                  = DefaultServiceName,
