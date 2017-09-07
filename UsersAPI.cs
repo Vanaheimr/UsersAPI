@@ -1281,7 +1281,7 @@ namespace org.GraphDefined.OpenData.Users
 
             HTTPServer.ITEMS_GET(UriTemplate: "/users",
                                   Dictionary: _Users,
-                                  Filter: user => user.IsPublic,
+                                  Filter: user => true,// user.IsPublic,
                                   ToJSONDelegate: JSON.ToJSON);
 
             #endregion
