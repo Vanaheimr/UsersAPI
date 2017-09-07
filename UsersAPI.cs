@@ -2266,9 +2266,9 @@ namespace org.GraphDefined.OpenData.Users
                                String              PublicKeyRing     = null,
                                String              Telephone         = null,
                                I18NString          Description       = null,
-                               Boolean             IsAuthenticated   = false,
                                Boolean             IsPublic          = true,
-                               Boolean             IsDisabled        = false)
+                               Boolean             IsDisabled        = false,
+                               Boolean             IsAuthenticated   = false)
         {
 
             lock (_Users)
@@ -2284,9 +2284,9 @@ namespace org.GraphDefined.OpenData.Users
                                     PublicKeyRing,
                                     Telephone,
                                     Description,
-                                    IsAuthenticated,
                                     IsPublic,
-                                    IsDisabled);
+                                    IsDisabled,
+                                    IsAuthenticated);
 
                 WriteToLogfile("CreateUser", User.ToJSON());
 
