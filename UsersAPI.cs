@@ -580,6 +580,8 @@ namespace org.GraphDefined.OpenData.Users
 
         {
 
+            // Everything is done in the other constructor!
+
             if (Autostart)
                 HTTPServer.Start();
 
@@ -704,233 +706,14 @@ namespace org.GraphDefined.OpenData.Users
 
             #endregion
 
-            if (!SkipURITemplates)
-                RegisterURITemplates();
-
-            #region Read UsersAPI file...
-
-            if (File.Exists(DefaultUsersAPIFile))
-            {
-
-                File.ReadLines(DefaultUsersAPIFile).ForEachCounted((line, linenumber) => {
-
-                    try
-                    {
-
-                        var JSONCommand     = JObject.Parse(line);
-                        var JSONParameters  = (JSONCommand.First as JProperty).Value as JObject;
-                        CurrentHash         = JSONCommand["HashValue"].Value<String>();
-
-                        switch ((JSONCommand.First as JProperty).Name)
-                        {
-
-                            #region CreateUser
-
-                            case "CreateUser":
-
-                                var User = new User(User_Id.           Parse(JSONParameters["@id"            ].Value<String>()),
-                                                    SimpleEMailAddress.Parse(JSONParameters["email"          ].Value<String>()),
-                                                                             JSONParameters["name"           ].Value<String>(),
-                                                                             JSONParameters["publicKey"      ]?.Value<String>(),
-                                                                             JSONParameters["telephone"      ]?.Value<String>(),
-                                                                             JSONParameters.ParseI18NString("description"),
-                                                                             JSONParameters["isAuthenticated"].Value<Boolean>(),
-                                                                             JSONParameters["isPublic"       ].Value<Boolean>(),
-                                                                             JSONParameters["isDisabled"     ].Value<Boolean>());
-
-                                _Users.AddAndReturnValue(User.Id, User);
-
-                                break;
-
-                            #endregion
-
-                            #region CreateGroup
-
-                            case "CreateGroup":
-
-                                var Group = new Group(Group_Id.Parse(JSONParameters["@id"].Value<String>()),
-                                                      JSONParameters.ParseI18NString("name"),
-                                                      JSONParameters.ParseI18NString("description"),
-                                                      JSONParameters["isPublic"].   Value<Boolean>(),
-                                                      JSONParameters["isDisabled"]. Value<Boolean>());
-
-                                _Groups.AddAndReturnValue(Group.Id, Group);
-
-                                break;
-
-                            #endregion
-
-                            #region CreateOrganization
-
-                            case "CreateOrganization":
-
-                                var Organization = new Organization(Organization_Id.Parse(JSONParameters["@id"].Value<String>()),
-                                                                    JSONParameters.ParseI18NString("name"),
-                                                                    JSONParameters.ParseI18NString("description"),
-                                                                    JSONParameters["isPublic"].Value<Boolean>(),
-                                                                    JSONParameters["isDisabled"].Value<Boolean>());
-
-                                _Organizations.AddAndReturnValue(Organization.Id, Organization);
-
-                                break;
-
-                            #endregion
-
-                            #region AddUserToGroup
-
-                            case "AddUserToGroup":
-
-                                var U2G_User     = _Users [User_Id. Parse(JSONParameters["user" ].Value<String>())];
-                                var U2G_Group    = _Groups[Group_Id.Parse(JSONParameters["group"].Value<String>())];
-                                var U2G_Edge     = (User2GroupEdges) Enum.Parse(typeof(User2GroupEdges), JSONParameters["edge"].   Value<String>());
-                                var U2G_Privacy  = (PrivacyLevel)    Enum.Parse(typeof(PrivacyLevel),    JSONParameters["privacy"].Value<String>());
-
-                                if (!U2G_User.Edges(U2G_Group).Any(edge => edge == U2G_Edge))
-                                    U2G_User.AddOutgoingEdge(U2G_Edge, U2G_Group, U2G_Privacy);
-
-                                if (!U2G_Group.Edges(U2G_Group).Any(edge => edge == U2G_Edge))
-                                    U2G_Group.AddIncomingEdge(U2G_User, U2G_Edge, U2G_Privacy);
-
-                                break;
-
-                            #endregion
-
-                            #region AddUserToOrganization
-
-                            case "AddUserToOrganization":
-
-                                var U2O_User          = _Users        [User_Id.        Parse(JSONParameters["user" ].Value<String>())];
-                                var U2O_Organization  = _Organizations[Organization_Id.Parse(JSONParameters["organization"].Value<String>())];
-                                var U2O_Edge          = (User2OrganizationEdges) Enum.Parse(typeof(User2OrganizationEdges), JSONParameters["edge"].   Value<String>());
-                                var U2O_Privacy       = (PrivacyLevel)           Enum.Parse(typeof(PrivacyLevel),           JSONParameters["privacy"].Value<String>());
-
-                                if (!U2O_User.Edges(U2O_Organization).Any(edge => edge == U2O_Edge))
-                                    U2O_User.AddOutgoingEdge(U2O_Edge, U2O_Organization, U2O_Privacy);
-
-                                if (!U2O_Organization.Edges(U2O_Organization).Any(edge => edge == U2O_Edge))
-                                    U2O_Organization.AddIncomingEdge(U2O_User, U2O_Edge, U2O_Privacy);
-
-                                break;
-
-                             #endregion
-
-                        }
-
-                    }
-                    catch (Exception e)
-                    {
-                        DebugX.Log(@"Could not read UserDB file """ + DefaultUsersAPIFile + @""" line " + linenumber + ": " + e.Message);
-                    }
-
-                });
-
-            }
-
             this.Admins  = CreateGroupIfNotExists(Group_Id.Parse("Admins"),
                                                   I18NString.Create(Languages.eng, "Admins"),
-                                                  I18NString.Create(Languages.eng, "All admins of the API."));
+                                                  I18NString.Create(Languages.eng, "All admins of this API."));
 
-            #endregion
+            ReadStoredData();
 
-            #region Read Password file...
-
-            if (File.Exists(DefaultPasswordFile))
-            {
-
-                String[] elements;
-
-                File.ReadLines(DefaultPasswordFile).ForEachCounted((line, linenumber) => {
-
-                    try
-                    {
-
-                        elements = line.Split(new Char[] { ':' }, StringSplitOptions.None);
-
-                        if (elements.Length == 3)
-                        {
-
-                            var Login = User_Id.Parse(elements[0]);
-
-                            if (elements[1].IsNotNullOrEmpty() &&
-                                elements[2].IsNotNullOrEmpty())
-                            {
-
-                                if (!_LoginPasswords.ContainsKey(Login))
-                                    _LoginPasswords.Add(Login,
-                                                        new LoginPassword(Login,
-                                                                          Password.ParseHash(elements[1],
-                                                                                             elements[2])));
-
-                                else
-                                    _LoginPasswords[Login] = new LoginPassword(Login,
-                                                                               Password.ParseHash(elements[1],
-                                                                                                  elements[2]));
-
-                            }
-
-                        }
-
-                        else
-                            DebugX.Log(@"Could not read password file """ + DefaultPasswordFile + @""" line " + linenumber);
-
-                    }
-                    catch (Exception e)
-                    {
-                        DebugX.Log(@"Could not read password file """ + DefaultPasswordFile + @""" line " + linenumber + ": " + e.Message);
-                    }
-
-                });
-
-            }
-
-            #endregion
-
-            #region Read SecurityToken file...
-
-            if (File.Exists(DefaultSecurityTokenFile))
-            {
-
-                lock (SecurityTokens)
-                {
-
-                    File.ReadLines(DefaultSecurityTokenFile).ForEachCounted((line, linenumber) => {
-
-                        try
-                        {
-
-                            var Tokens         = line.Split(new Char[] { ';' }, StringSplitOptions.None);
-
-                            var SecurityToken  = Tokens[0];
-                            var Login          = User_Id. Parse(Tokens[1]);
-                            var Expires        = DateTime.Parse(Tokens[2]);
-
-                            if (!SecurityTokens.ContainsKey(SecurityToken) &&
-                                _LoginPasswords.ContainsKey(Login) &&
-                                Expires > DateTime.UtcNow)
-
-                                SecurityTokens.Add(SecurityToken,
-                                                   new Tuple<User_Id, DateTime>(Login,
-                                                                                Expires));
-
-
-                        }
-                        catch (Exception e)
-                        {
-                            DebugX.Log(@"Could not read security token file """ + DefaultSecurityTokenFile + @""" line " + linenumber + ": " + e.Message);
-                        }
-
-                    });
-
-
-                    // Write filtered (no invalid users, no expired tokens) tokens back to file...
-                    File.WriteAllLines(DefaultSecurityTokenFile,
-                                       SecurityTokens.Select(token => token.Key + ";" + token.Value.Item1 + ";" + token.Value.Item2.ToIso8601()));
-
-                }
-
-            }
-
-            #endregion
+            if (!SkipURITemplates)
+                RegisterURITemplates();
 
         }
 
@@ -1207,6 +990,223 @@ namespace org.GraphDefined.OpenData.Users
 
             #endregion
 
+            #region GET         ~/login
+
+            HTTPServer.AddMethodCallback(HTTPHostname.Any,
+                             HTTPMethod.POST,
+                             "/login",
+                             HTTPContentType.XWWWFormUrlEncoded,
+                             HTTPDelegate: Request => {
+
+                                  //Note: Add LoginRequest event!
+
+                                  #region Check UTF8 text body...
+
+                                  if (!Request.TryParseUTF8StringRequestBody(HTTPContentType.XWWWFormUrlEncoded,
+                                                                             out String       LoginText,
+                                                                             out HTTPResponse _HTTPResponse,
+                                                                             AllowEmptyHTTPBody: false))
+
+                                      return Task.FromResult(_HTTPResponse);
+
+                                  #endregion
+
+                                  var LoginData = LoginText.DoubleSplit('&', '=');
+
+                                  #region Verify the login
+
+                                  if (!LoginData.TryGetValue("login", out String Login) ||
+                                       Login.    IsNullOrEmpty())
+                                      return Task.FromResult(
+                                          new HTTPResponseBuilder(Request) {
+                                              HTTPStatusCode  = HTTPStatusCode.BadRequest,
+                                              Server          = HTTPServer.DefaultServerName,
+                                              ContentType     = HTTPContentType.JSON_UTF8,
+                                              Content         = new JObject(
+                                                                    new JProperty("@context",     SignInOutContext),
+                                                                    new JProperty("statuscode",   400),
+                                                                    new JProperty("property",     "login"),
+                                                                    new JProperty("description",  "The login must not be empty!")
+                                                                ).ToString().ToUTF8Bytes(),
+                                              CacheControl     = "private",
+                                              Connection       = "close"
+                                          }.AsImmutable());
+
+                                  Login = HTTPTools.URLDecode(Login);
+
+                                  if (Login.Length < MinLoginLenght)
+                                      return Task.FromResult(
+                                          new HTTPResponseBuilder(Request) {
+                                              HTTPStatusCode  = HTTPStatusCode.BadRequest,
+                                              Server          = HTTPServer.DefaultServerName,
+                                              ContentType     = HTTPContentType.JSON_UTF8,
+                                              Content         = new JObject(
+                                                                    new JProperty("@context",     SignInOutContext),
+                                                                    new JProperty("statuscode",   400),
+                                                                    new JProperty("property",     "login"),
+                                                                    new JProperty("description",  "The login is too short!")
+                                                                ).ToString().ToUTF8Bytes(),
+                                              CacheControl    = "private",
+                                              Connection      = "close"
+                                          }.AsImmutable());
+
+                                  #endregion
+
+                                  #region Verify the realm
+
+                                  LoginData.TryGetValue("realm", out String Realm);
+
+                                  if (Realm.IsNotNullOrEmpty())
+                                      Realm = HTTPTools.URLDecode(Realm);
+
+                                  #endregion
+
+                                  #region Verify the password
+
+                                  if (!LoginData.TryGetValue("password", out String Password) ||
+                                       Password. IsNullOrEmpty())
+                                     return Task.FromResult(
+                                          new HTTPResponseBuilder(Request) {
+                                              HTTPStatusCode  = HTTPStatusCode.BadRequest,
+                                              Server          = HTTPServer.DefaultServerName,
+                                              ContentType     = HTTPContentType.JSON_UTF8,
+                                              Content         = new JObject(
+                                                                    new JProperty("@context",     SignInOutContext),
+                                                                    new JProperty("statuscode",   400),
+                                                                    new JProperty("property",     "password"),
+                                                                    new JProperty("description",  "The password must not be empty!")
+                                                               ).ToString().ToUTF8Bytes(),
+                                              CacheControl    = "private",
+                                              Connection      = "close"
+                                          }.AsImmutable());
+
+                                  Password = HTTPTools.URLDecode(Password);
+
+                                  if (Password.Length < MinPasswordLenght)
+                                      return Task.FromResult(
+                                          new HTTPResponseBuilder(Request) {
+                                              HTTPStatusCode  = HTTPStatusCode.BadRequest,
+                                              Server          = HTTPServer.DefaultServerName,
+                                              ContentType     = HTTPContentType.JSON_UTF8,
+                                              Content         = new JObject(
+                                                                    new JProperty("@context",     SignInOutContext),
+                                                                    new JProperty("statuscode",   400),
+                                                                    new JProperty("property",     "password"),
+                                                                    new JProperty("description",  "The password is too short!")
+                                                               ).ToString().ToUTF8Bytes(),
+                                              CacheControl    = "private",
+                                              Connection      = "close"
+                                          }.AsImmutable());
+
+                                  #endregion
+
+                                  #region Get RedirectURI
+
+                                  LoginData.TryGetValue("RedirectURI", out String RedirectURI);
+
+                                  if (RedirectURI.IsNotNullOrEmpty())
+                                     RedirectURI = HTTPTools.URLDecode(Realm);
+                                  else
+                                     RedirectURI = "/";
+
+                                  #endregion
+
+                                  #region Check login and password
+
+                                  User_Id  _UserId;
+
+                                  if (!(Realm.IsNotNullOrEmpty()
+                                            ? User_Id.TryParse(Login, Realm, out _UserId)
+                                            : User_Id.TryParse(Login,        out _UserId)) ||
+                                      !_LoginPasswords.TryGetValue(_UserId, out LoginPassword _LoginPassword) ||
+                                      !_Users.         TryGetValue(_UserId, out User          _User))
+
+                                      return Task.FromResult(
+                                          new HTTPResponseBuilder(Request) {
+                                              HTTPStatusCode  = HTTPStatusCode.NotFound,
+                                              Server          = HTTPServer.DefaultServerName,
+                                              ContentType     = HTTPContentType.JSON_UTF8,
+                                              Content         = new JObject(
+                                                                    new JProperty("@context",     SignInOutContext),
+                                                                    new JProperty("property",     "login"),
+                                                                    new JProperty("description",  "Unknown login!")
+                                                                ).ToString().ToUTF8Bytes(),
+                                              CacheControl    = "private",
+                                              Connection      = "close"
+                                          }.AsImmutable());
+
+
+                                  if (!_LoginPassword.VerifyPassword(Password))
+
+                                      return Task.FromResult(
+                                          new HTTPResponseBuilder(Request) {
+                                              HTTPStatusCode  = HTTPStatusCode.Unauthorized,
+                                              Server          = HTTPServer.DefaultServerName,
+                                              ContentType     = HTTPContentType.JSON_UTF8,
+                                              Content         = new JObject(
+                                                                    new JProperty("@context",     SignInOutContext),
+                                                                    new JProperty("property",     "password"),
+                                                                    new JProperty("description",  "Invalid password!")
+                                                                ).ToString().ToUTF8Bytes(),
+                                              CacheControl    = "private",
+                                              Connection      = "close"
+                                          }.AsImmutable());
+
+                                  #endregion
+
+                                  var SHA256Hash     = new SHA256Managed();
+                                  var SecurityToken  = SHA256Hash.ComputeHash(
+                                                           String.Concat(
+                                                               Guid.NewGuid().ToString(),
+                                                               _LoginPassword.Login).
+                                                           ToUTF8Bytes()).
+                                                       ToHexString();
+                                  var Expires        = DateTime.UtcNow.Add(_SignInSessionLifetime);
+
+                                  lock (SecurityTokens)
+                                  {
+
+                                      SecurityTokens.Add(SecurityToken,
+                                                         new Tuple<User_Id, DateTime>(_LoginPassword.Login,
+                                                                                      Expires));
+
+                                      File.AppendAllText(DefaultSecurityTokenFile,
+                                                         SecurityToken + ";" + _LoginPassword.Login + ";" + Expires.ToIso8601() + Environment.NewLine);
+
+                                 }
+
+
+
+                                 //Note: Add LoginResponse event!
+
+                                 return Task.FromResult(
+                                      new HTTPResponseBuilder(Request) {
+                                          HTTPStatusCode  = HTTPStatusCode.Created,
+                                          ContentType     = HTTPContentType.HTML_UTF8,
+                                          Content         = String.Concat(
+                                                                "<!DOCTYPE html>", Environment.NewLine,
+                                                                @"<html><head><meta http-equiv=""refresh"" content=""0; url=" + RedirectURI + @""" /></head></html>",
+                                                                Environment.NewLine
+                                                            ).ToUTF8Bytes(),
+                                          CacheControl    = "private",
+                                          SetCookie       = CookieName + "=login="    + _LoginPassword.Login.ToString().ToBase64() +
+                                                                      ":username=" + _User.Name.ToBase64() +
+                                                                    (IsAdmin(_User) ? ":isAdmin" : "") +
+                                                                 ":securitytoken=" + SecurityToken +
+                                                                      "; Expires=" + Expires.ToRfc1123() +
+                                                                       (HTTPCookieDomain.IsNotNullOrEmpty()
+                                                                           ? "; Domain=" + HTTPCookieDomain
+                                                                           : "") +
+                                                                         "; Path=/",
+                                          // _gitlab_session=653i45j69051238907520q1350275575; path=/; secure; HttpOnly
+                                          Connection      = "close",
+                                          X_FrameOptions  = "DENY"
+                                      }.AsImmutable());
+
+                              });
+
+            #endregion
+
             #region GET         ~/lostpassword
 
             #region HTML_UTF8
@@ -1245,46 +1245,13 @@ namespace org.GraphDefined.OpenData.Users
 
             #region GET         ~/users
 
-            #region HTML_UTF8
-
-            // -----------------------------------------------------------
-            // curl -v -H "Accept: text/html" http://127.0.0.1:2100/users
-            // -----------------------------------------------------------
-            HTTPServer.AddMethodCallback(HTTPHostname.Any,
-                                          HTTPMethod.GET,
-                                          new String[] { URIPrefix + "/users",
-                                                         URIPrefix + "/users/" },
-                                          HTTPContentType.HTML_UTF8,
-                                          HTTPDelegate: async Request => {
-
-                                              var _MemoryStream = new MemoryStream();
-                                              GetUsersAPIRessource("_header.html").SeekAndCopyTo(_MemoryStream, 3);
-                                              GetUsersAPIRessource("users.index.html").SeekAndCopyTo(_MemoryStream, 3);
-                                              GetUsersAPIRessource("_footer.html").SeekAndCopyTo(_MemoryStream, 3);
-
-                                              return new HTTPResponseBuilder(Request) {
-                                                  HTTPStatusCode = HTTPStatusCode.OK,
-                                                  ContentType = HTTPContentType.HTML_UTF8,
-                                                  Content = _MemoryStream.ToArray(),
-                                                  Connection = "close"
-                                              };
-
-                                          }, AllowReplacement: URIReplacement.Allow);
-
-            #endregion
-
-            #region JSON_UTF8
-
             // -------------------------------------------------------------------
             // curl -v -H "Accept: application/json" http://127.0.0.1:2100/users
             // -------------------------------------------------------------------
-
             HTTPServer.ITEMS_GET(UriTemplate: "/users",
                                   Dictionary: _Users,
                                   Filter: user => user.IsPublic,
                                   ToJSONDelegate: JSON.ToJSON);
-
-            #endregion
 
             #endregion
 
@@ -1311,8 +1278,6 @@ namespace org.GraphDefined.OpenData.Users
             #endregion
 
             #region ADD         ~/users/{UserId}
-
-            #region JSON_UTF8
 
             // -------------------------------------------------------------------------------
             // curl -v -X ADD -H "Accept: application/json" http://127.0.0.1:2100/users/ahzf
@@ -1611,16 +1576,11 @@ namespace org.GraphDefined.OpenData.Users
 
             #endregion
 
-            #endregion
-
             #region EXISTS      ~/users/{UserId}
-
-            #region JSON_UTF8
 
             // ---------------------------------------------------------------------------------
             // curl -v -X EXITS -H "Accept: application/json" http://127.0.0.1:2100/users/ahzf
             // ---------------------------------------------------------------------------------
-
             HTTPServer.ITEM_EXISTS<User_Id, User>(UriTemplate: "/users/{UserId}",
                                                    ParseIdDelegate: User_Id.TryParse,
                                                    ParseIdError: Text => "Invalid user identification '" + Text + "'!",
@@ -1630,16 +1590,11 @@ namespace org.GraphDefined.OpenData.Users
 
             #endregion
 
-            #endregion
-
             #region GET         ~/users/{UserId}
-
-            #region JSON_UTF8
 
             // ------------------------------------------------------------------------
             // curl -v -H "Accept: application/json" http://127.0.0.1:2100/users/ahzf
             // ------------------------------------------------------------------------
-
             HTTPServer.ITEM_GET<User_Id, User>(UriTemplate:         "/users/{UserId}",
                                                ParseIdDelegate:     User_Id.TryParse,
                                                ParseIdError:        Text => "Invalid user identification '" + Text + "'!",
@@ -1649,221 +1604,6 @@ namespace org.GraphDefined.OpenData.Users
                                                ToJSONDelegate:      user   => user.ToJSON(IncludeHash: true));
 
             #endregion
-
-            #endregion
-
-            HTTPServer.AddMethodCallback(HTTPHostname.Any,
-                                         HTTPMethod.POST,
-                                         "/login",
-                                         HTTPContentType.XWWWFormUrlEncoded,
-                                         HTTPDelegate: Request => {
-
-                                              //Note: Add LoginRequest event!
-
-                                              #region Check UTF8 text body...
-
-                                              if (!Request.TryParseUTF8StringRequestBody(HTTPContentType.XWWWFormUrlEncoded,
-                                                                                         out String       LoginText,
-                                                                                         out HTTPResponse _HTTPResponse,
-                                                                                         AllowEmptyHTTPBody: false))
-
-                                                  return Task.FromResult(_HTTPResponse);
-
-                                              #endregion
-
-                                              var LoginData = LoginText.DoubleSplit('&', '=');
-
-                                              #region Verify the login
-
-                                              if (!LoginData.TryGetValue("login", out String Login) ||
-                                                   Login.    IsNullOrEmpty())
-                                                  return Task.FromResult(
-                                                      new HTTPResponseBuilder(Request) {
-                                                          HTTPStatusCode  = HTTPStatusCode.BadRequest,
-                                                          Server          = HTTPServer.DefaultServerName,
-                                                          ContentType     = HTTPContentType.JSON_UTF8,
-                                                          Content         = new JObject(
-                                                                                new JProperty("@context",     SignInOutContext),
-                                                                                new JProperty("statuscode",   400),
-                                                                                new JProperty("property",     "login"),
-                                                                                new JProperty("description",  "The login must not be empty!")
-                                                                            ).ToString().ToUTF8Bytes(),
-                                                          CacheControl     = "private",
-                                                          Connection       = "close"
-                                                      }.AsImmutable());
-
-                                              Login = HTTPTools.URLDecode(Login);
-
-                                              if (Login.Length < MinLoginLenght)
-                                                  return Task.FromResult(
-                                                      new HTTPResponseBuilder(Request) {
-                                                          HTTPStatusCode  = HTTPStatusCode.BadRequest,
-                                                          Server          = HTTPServer.DefaultServerName,
-                                                          ContentType     = HTTPContentType.JSON_UTF8,
-                                                          Content         = new JObject(
-                                                                                new JProperty("@context",     SignInOutContext),
-                                                                                new JProperty("statuscode",   400),
-                                                                                new JProperty("property",     "login"),
-                                                                                new JProperty("description",  "The login is too short!")
-                                                                            ).ToString().ToUTF8Bytes(),
-                                                          CacheControl    = "private",
-                                                          Connection      = "close"
-                                                      }.AsImmutable());
-
-                                              #endregion
-
-                                              #region Verify the realm
-
-                                              LoginData.TryGetValue("realm", out String Realm);
-
-                                              if (Realm.IsNotNullOrEmpty())
-                                                  Realm = HTTPTools.URLDecode(Realm);
-
-                                              #endregion
-
-                                              #region Verify the password
-
-                                              if (!LoginData.TryGetValue("password", out String Password) ||
-                                                   Password. IsNullOrEmpty())
-                                                 return Task.FromResult(
-                                                      new HTTPResponseBuilder(Request) {
-                                                          HTTPStatusCode  = HTTPStatusCode.BadRequest,
-                                                          Server          = HTTPServer.DefaultServerName,
-                                                          ContentType     = HTTPContentType.JSON_UTF8,
-                                                          Content         = new JObject(
-                                                                                new JProperty("@context",     SignInOutContext),
-                                                                                new JProperty("statuscode",   400),
-                                                                                new JProperty("property",     "password"),
-                                                                                new JProperty("description",  "The password must not be empty!")
-                                                                           ).ToString().ToUTF8Bytes(),
-                                                          CacheControl    = "private",
-                                                          Connection      = "close"
-                                                      }.AsImmutable());
-
-                                              Password = HTTPTools.URLDecode(Password);
-
-                                              if (Password.Length < MinPasswordLenght)
-                                                  return Task.FromResult(
-                                                      new HTTPResponseBuilder(Request) {
-                                                          HTTPStatusCode  = HTTPStatusCode.BadRequest,
-                                                          Server          = HTTPServer.DefaultServerName,
-                                                          ContentType     = HTTPContentType.JSON_UTF8,
-                                                          Content         = new JObject(
-                                                                                new JProperty("@context",     SignInOutContext),
-                                                                                new JProperty("statuscode",   400),
-                                                                                new JProperty("property",     "password"),
-                                                                                new JProperty("description",  "The password is too short!")
-                                                                           ).ToString().ToUTF8Bytes(),
-                                                          CacheControl    = "private",
-                                                          Connection      = "close"
-                                                      }.AsImmutable());
-
-                                              #endregion
-
-                                              #region Get RedirectURI
-
-                                              LoginData.TryGetValue("RedirectURI", out String RedirectURI);
-
-                                              if (RedirectURI.IsNotNullOrEmpty())
-                                                 RedirectURI = HTTPTools.URLDecode(Realm);
-                                              else
-                                                 RedirectURI = "/";
-
-                                              #endregion
-
-                                              #region Check login and password
-
-                                              User_Id  _UserId;
-
-                                              if (!(Realm.IsNotNullOrEmpty()
-                                                        ? User_Id.TryParse(Login, Realm, out _UserId)
-                                                        : User_Id.TryParse(Login,        out _UserId)) ||
-                                                  !_LoginPasswords.TryGetValue(_UserId, out LoginPassword _LoginPassword) ||
-                                                  !_Users.         TryGetValue(_UserId, out User          _User))
-
-                                                  return Task.FromResult(
-                                                      new HTTPResponseBuilder(Request) {
-                                                          HTTPStatusCode  = HTTPStatusCode.NotFound,
-                                                          Server          = HTTPServer.DefaultServerName,
-                                                          ContentType     = HTTPContentType.JSON_UTF8,
-                                                          Content         = new JObject(
-                                                                                new JProperty("@context",     SignInOutContext),
-                                                                                new JProperty("property",     "login"),
-                                                                                new JProperty("description",  "Unknown login!")
-                                                                            ).ToString().ToUTF8Bytes(),
-                                                          CacheControl    = "private",
-                                                          Connection      = "close"
-                                                      }.AsImmutable());
-
-
-                                              if (!_LoginPassword.VerifyPassword(Password))
-
-                                                  return Task.FromResult(
-                                                      new HTTPResponseBuilder(Request) {
-                                                          HTTPStatusCode  = HTTPStatusCode.Unauthorized,
-                                                          Server          = HTTPServer.DefaultServerName,
-                                                          ContentType     = HTTPContentType.JSON_UTF8,
-                                                          Content         = new JObject(
-                                                                                new JProperty("@context",     SignInOutContext),
-                                                                                new JProperty("property",     "password"),
-                                                                                new JProperty("description",  "Invalid password!")
-                                                                            ).ToString().ToUTF8Bytes(),
-                                                          CacheControl    = "private",
-                                                          Connection      = "close"
-                                                      }.AsImmutable());
-
-                                              #endregion
-
-                                              var SHA256Hash     = new SHA256Managed();
-                                              var SecurityToken  = SHA256Hash.ComputeHash(
-                                                                       String.Concat(
-                                                                           Guid.NewGuid().ToString(),
-                                                                           _LoginPassword.Login).
-                                                                       ToUTF8Bytes()).
-                                                                   ToHexString();
-                                              var Expires        = DateTime.UtcNow.Add(_SignInSessionLifetime);
-
-                                              lock (SecurityTokens)
-                                              {
-
-                                                  SecurityTokens.Add(SecurityToken,
-                                                                     new Tuple<User_Id, DateTime>(_LoginPassword.Login,
-                                                                                                  Expires));
-
-                                                  File.AppendAllText(DefaultSecurityTokenFile,
-                                                                     SecurityToken + ";" + _LoginPassword.Login + ";" + Expires.ToIso8601() + Environment.NewLine);
-
-                                             }
-
-
-
-                                             //Note: Add LoginResponse event!
-
-                                             return Task.FromResult(
-                                                  new HTTPResponseBuilder(Request) {
-                                                      HTTPStatusCode  = HTTPStatusCode.Created,
-                                                      ContentType     = HTTPContentType.HTML_UTF8,
-                                                      Content         = String.Concat(
-                                                                            "<!DOCTYPE html>", Environment.NewLine,
-                                                                            @"<html><head><meta http-equiv=""refresh"" content=""0; url=" + RedirectURI + @""" /></head></html>",
-                                                                            Environment.NewLine
-                                                                        ).ToUTF8Bytes(),
-                                                      CacheControl    = "private",
-                                                      SetCookie       = CookieName + "=login="    + _LoginPassword.Login.ToString().ToBase64() +
-                                                                                  ":username=" + _User.Name.ToBase64() +
-                                                                                (IsAdmin(_User) ? ":isAdmin" : "") +
-                                                                             ":securitytoken=" + SecurityToken +
-                                                                                  "; Expires=" + Expires.ToRfc1123() +
-                                                                                   (HTTPCookieDomain.IsNotNullOrEmpty()
-                                                                                       ? "; Domain=" + HTTPCookieDomain
-                                                                                       : "") +
-                                                                                     "; Path=/",
-                                                      // _gitlab_session=653i45j69051238907520q1350275575; path=/; secure; HttpOnly
-                                                      Connection      = "close",
-                                                      X_FrameOptions  = "DENY"
-                                                  }.AsImmutable());
-
-                                          });
 
             #region AUTH        ~/users/{UserId}
 
@@ -2097,40 +1837,9 @@ namespace org.GraphDefined.OpenData.Users
 
             #region GET         ~/groups
 
-            #region HTML_UTF8
-
-            // -----------------------------------------------------------
-            // curl -v -H "Accept: text/html" http://127.0.0.1:2100/groups
-            // -----------------------------------------------------------
-            HTTPServer.AddMethodCallback(HTTPHostname.Any,
-                                          HTTPMethod.GET,
-                                          new String[] { URIPrefix + "/groups",
-                                                         URIPrefix + "/groups/" },
-                                          HTTPContentType.HTML_UTF8,
-                                          HTTPDelegate: async Request => {
-
-                                              var _MemoryStream = new MemoryStream();
-                                              GetUsersAPIRessource("_header.html").SeekAndCopyTo(_MemoryStream, 3);
-                                              GetUsersAPIRessource("groups.index.html").SeekAndCopyTo(_MemoryStream, 3);
-                                              GetUsersAPIRessource("_footer.html").SeekAndCopyTo(_MemoryStream, 3);
-
-                                              return new HTTPResponseBuilder(Request) {
-                                                  HTTPStatusCode = HTTPStatusCode.OK,
-                                                  ContentType = HTTPContentType.HTML_UTF8,
-                                                  Content = _MemoryStream.ToArray(),
-                                                  Connection = "close"
-                                              };
-
-                                          });
-
-            #endregion
-
-            #region JSON_UTF8
-
             // ------------------------------------------------------------------
             // curl -v -H "Accept: application/json" http://127.0.0.1:2100/groups
             // ------------------------------------------------------------------
-
             HTTPServer.ITEMS_GET(UriTemplate: "/groups",
                                   Dictionary: _Groups,
                                   Filter: group => group.IsPublic,
@@ -2138,16 +1847,11 @@ namespace org.GraphDefined.OpenData.Users
 
             #endregion
 
-            #endregion
-
             #region EXISTS      ~/groups/{GroupId}
-
-            #region JSON_UTF8
 
             // -------------------------------------------------------------------------------------------
             // curl -v -X EXITS -H "Accept: application/json" http://127.0.0.1:2100/groups/OK-Lab%20Jena
             // -------------------------------------------------------------------------------------------
-
             HTTPServer.ITEM_EXISTS<Group_Id, Group>(UriTemplate: "/groups/{GroupId}",
                                                              ParseIdDelegate: Group_Id.TryParse,
                                                              ParseIdError: Text => "Invalid group identification '" + Text + "'!",
@@ -2157,25 +1861,290 @@ namespace org.GraphDefined.OpenData.Users
 
             #endregion
 
-            #endregion
-
             #region GET         ~/groups/{GroupId}
-
-            #region JSON_UTF8
 
             // ----------------------------------------------------------------------------------
             // curl -v -H "Accept: application/json" http://127.0.0.1:2100/groups/OK-Lab%20Jena
             // ----------------------------------------------------------------------------------
-
-            HTTPServer.ITEM_GET<Group_Id, Group>(UriTemplate: "/groups/{GroupId}",
-                                                          ParseIdDelegate: Group_Id.TryParse,
-                                                          ParseIdError: Text => "Invalid group identification '" + Text + "'!",
-                                                          TryGetItemDelegate: _Groups.TryGetValue,
-                                                          ItemFilterDelegate: group => group.IsPublic,
-                                                          TryGetItemError: groupId => "Unknown group '" + groupId + "'!",
-                                                          ToJSONDelegate: JSON.ToJSON);
+            HTTPServer.ITEM_GET<Group_Id, Group>(UriTemplate:         "/groups/{GroupId}",
+                                                 ParseIdDelegate:     Group_Id.TryParse,
+                                                 ParseIdError:        Text => "Invalid group identification '" + Text + "'!",
+                                                 TryGetItemDelegate:  _Groups.TryGetValue,
+                                                 ItemFilterDelegate:  group => group.IsPublic,
+                                                 TryGetItemError:     groupId => "Unknown group '" + groupId + "'!",
+                                                 ToJSONDelegate:      _ => _.ToJSON());
 
             #endregion
+
+
+            #region GET         ~/orgs
+
+            // ------------------------------------------------------------------
+            // curl -v -H "Accept: application/json" http://127.0.0.1:2100/orgs
+            // ------------------------------------------------------------------
+            HTTPServer.ITEMS_GET(UriTemplate:     "/orgs",
+                                  Dictionary:      _Organizations,
+                                  Filter:          org => org.IsPublic,
+                                  ToJSONDelegate:  JSON.ToJSON);
+
+            #endregion
+
+            #region EXISTS      ~/orgs/{OrgId}
+
+            // ------------------------------------------------------------------------------------
+            // curl -v -X EXITS -H "Accept: application/json" http://127.0.0.1:2100/orgs/Stadtrat
+            // ------------------------------------------------------------------------------------
+            HTTPServer.ITEM_EXISTS<Organization_Id, Organization>(UriTemplate:               "/orgs/{OrgId}",
+                                                                  ParseIdDelegate:           Organization_Id.TryParse,
+                                                                  ParseIdError:              Text  => "Invalid organization identification '" + Text + "'!",
+                                                                  TryGetItemDelegate:        _Organizations.TryGetValue,
+                                                                  ItemFilterDelegate:   org   => org.IsPublic,
+                                                                  TryGetItemError:           orgId => "Unknown organization '" + orgId + "'!");
+
+            #endregion
+
+            #region GET         ~/orgs/{OrgId}
+
+            // ---------------------------------------------------------------------------
+            // curl -v -H "Accept: application/json" http://127.0.0.1:2100/orgs/Stadtrat
+            // ---------------------------------------------------------------------------
+            HTTPServer.ITEM_GET<Organization_Id, Organization>(UriTemplate:          "/orgs/{OrgId}",
+                                                                ParseIdDelegate:     Organization_Id.TryParse,
+                                                                ParseIdError:        Text  => "Invalid organization identification '" + Text + "'!",
+                                                                TryGetItemDelegate:  _Organizations.TryGetValue,
+                                                                ItemFilterDelegate:  org   => org.IsPublic,
+                                                                TryGetItemError:     orgId => "Unknown organization '" + orgId + "'!",
+                                                                ToJSONDelegate:      _ => _.ToJSON());
+
+            #endregion
+
+        }
+
+        #endregion
+
+        #region (private) ReadStoredData()
+
+        private void ReadStoredData()
+        {
+
+            #region Read UsersAPI file...
+
+            if (File.Exists(DefaultUsersAPIFile))
+            {
+
+                File.ReadLines(DefaultUsersAPIFile).ForEachCounted((line, linenumber) => {
+
+                    try
+                    {
+
+                        var JSONCommand     = JObject.Parse(line);
+                        var JSONParameters  = (JSONCommand.First as JProperty).Value as JObject;
+                        CurrentHash         = JSONCommand["HashValue"].Value<String>();
+
+                        switch ((JSONCommand.First as JProperty).Name)
+                        {
+
+                            #region CreateUser
+
+                            case "CreateUser":
+
+                                var User = new User(User_Id.           Parse(JSONParameters["@id"            ].Value<String>()),
+                                                    SimpleEMailAddress.Parse(JSONParameters["email"          ].Value<String>()),
+                                                                             JSONParameters["name"           ].Value<String>(),
+                                                                             JSONParameters["publicKey"      ]?.Value<String>(),
+                                                                             JSONParameters["telephone"      ]?.Value<String>(),
+                                                                             JSONParameters.ParseI18NString("description"),
+                                                                             JSONParameters["isAuthenticated"].Value<Boolean>(),
+                                                                             JSONParameters["isPublic"       ].Value<Boolean>(),
+                                                                             JSONParameters["isDisabled"     ].Value<Boolean>());
+
+                                _Users.AddAndReturnValue(User.Id, User);
+
+                                break;
+
+                            #endregion
+
+                            #region CreateGroup
+
+                            case "CreateGroup":
+
+                                var Group = new Group(Group_Id.Parse(JSONParameters["@id"].Value<String>()),
+                                                      JSONParameters.ParseI18NString("name"),
+                                                      JSONParameters.ParseI18NString("description"),
+                                                      JSONParameters["isPublic"].   Value<Boolean>(),
+                                                      JSONParameters["isDisabled"]. Value<Boolean>());
+
+                                _Groups.AddAndReturnValue(Group.Id, Group);
+
+                                break;
+
+                            #endregion
+
+                            #region CreateOrganization
+
+                            case "CreateOrganization":
+
+                                var Organization = new Organization(Organization_Id.Parse(JSONParameters["@id"].Value<String>()),
+                                                                    JSONParameters.ParseI18NString("name"),
+                                                                    JSONParameters.ParseI18NString("description"),
+                                                                    JSONParameters["isPublic"].Value<Boolean>(),
+                                                                    JSONParameters["isDisabled"].Value<Boolean>());
+
+                                _Organizations.AddAndReturnValue(Organization.Id, Organization);
+
+                                break;
+
+                            #endregion
+
+                            #region AddUserToGroup
+
+                            case "AddUserToGroup":
+
+                                var U2G_User     = _Users [User_Id. Parse(JSONParameters["user" ].Value<String>())];
+                                var U2G_Group    = _Groups[Group_Id.Parse(JSONParameters["group"].Value<String>())];
+                                var U2G_Edge     = (User2GroupEdges) Enum.Parse(typeof(User2GroupEdges), JSONParameters["edge"].   Value<String>());
+                                var U2G_Privacy  = (PrivacyLevel)    Enum.Parse(typeof(PrivacyLevel),    JSONParameters["privacy"].Value<String>());
+
+                                if (!U2G_User.Edges(U2G_Group).Any(edge => edge == U2G_Edge))
+                                    U2G_User.AddOutgoingEdge(U2G_Edge, U2G_Group, U2G_Privacy);
+
+                                if (!U2G_Group.Edges(U2G_Group).Any(edge => edge == U2G_Edge))
+                                    U2G_Group.AddIncomingEdge(U2G_User, U2G_Edge, U2G_Privacy);
+
+                                break;
+
+                            #endregion
+
+                            #region AddUserToOrganization
+
+                            case "AddUserToOrganization":
+
+                                var U2O_User          = _Users        [User_Id.        Parse(JSONParameters["user" ].Value<String>())];
+                                var U2O_Organization  = _Organizations[Organization_Id.Parse(JSONParameters["organization"].Value<String>())];
+                                var U2O_Edge          = (User2OrganizationEdges) Enum.Parse(typeof(User2OrganizationEdges), JSONParameters["edge"].   Value<String>());
+                                var U2O_Privacy       = (PrivacyLevel)           Enum.Parse(typeof(PrivacyLevel),           JSONParameters["privacy"].Value<String>());
+
+                                if (!U2O_User.Edges(U2O_Organization).Any(edge => edge == U2O_Edge))
+                                    U2O_User.AddOutgoingEdge(U2O_Edge, U2O_Organization, U2O_Privacy);
+
+                                if (!U2O_Organization.Edges(U2O_Organization).Any(edge => edge == U2O_Edge))
+                                    U2O_Organization.AddIncomingEdge(U2O_User, U2O_Edge, U2O_Privacy);
+
+                                break;
+
+                             #endregion
+
+                        }
+
+                    }
+                    catch (Exception e)
+                    {
+                        DebugX.Log(@"Could not read UserDB file """ + DefaultUsersAPIFile + @""" line " + linenumber + ": " + e.Message);
+                    }
+
+                });
+
+            }
+
+            #endregion
+
+            #region Read Password file...
+
+            if (File.Exists(DefaultPasswordFile))
+            {
+
+                String[] elements;
+
+                File.ReadLines(DefaultPasswordFile).ForEachCounted((line, linenumber) => {
+
+                    try
+                    {
+
+                        elements = line.Split(new Char[] { ':' }, StringSplitOptions.None);
+
+                        if (elements.Length == 3)
+                        {
+
+                            var Login = User_Id.Parse(elements[0]);
+
+                            if (elements[1].IsNotNullOrEmpty() &&
+                                elements[2].IsNotNullOrEmpty())
+                            {
+
+                                if (!_LoginPasswords.ContainsKey(Login))
+                                    _LoginPasswords.Add(Login,
+                                                        new LoginPassword(Login,
+                                                                          Password.ParseHash(elements[1],
+                                                                                             elements[2])));
+
+                                else
+                                    _LoginPasswords[Login] = new LoginPassword(Login,
+                                                                               Password.ParseHash(elements[1],
+                                                                                                  elements[2]));
+
+                            }
+
+                        }
+
+                        else
+                            DebugX.Log(@"Could not read password file """ + DefaultPasswordFile + @""" line " + linenumber);
+
+                    }
+                    catch (Exception e)
+                    {
+                        DebugX.Log(@"Could not read password file """ + DefaultPasswordFile + @""" line " + linenumber + ": " + e.Message);
+                    }
+
+                });
+
+            }
+
+            #endregion
+
+            #region Read SecurityToken file...
+
+            if (File.Exists(DefaultSecurityTokenFile))
+            {
+
+                lock (SecurityTokens)
+                {
+
+                    File.ReadLines(DefaultSecurityTokenFile).ForEachCounted((line, linenumber) => {
+
+                        try
+                        {
+
+                            var Tokens         = line.Split(new Char[] { ';' }, StringSplitOptions.None);
+
+                            var SecurityToken  = Tokens[0];
+                            var Login          = User_Id. Parse(Tokens[1]);
+                            var Expires        = DateTime.Parse(Tokens[2]);
+
+                            if (!SecurityTokens.ContainsKey(SecurityToken) &&
+                                _LoginPasswords.ContainsKey(Login) &&
+                                Expires > DateTime.UtcNow)
+
+                                SecurityTokens.Add(SecurityToken,
+                                                   new Tuple<User_Id, DateTime>(Login,
+                                                                                Expires));
+
+
+                        }
+                        catch (Exception e)
+                        {
+                            DebugX.Log(@"Could not read security token file """ + DefaultSecurityTokenFile + @""" line " + linenumber + ": " + e.Message);
+                        }
+
+                    });
+
+
+                    // Write filtered (no invalid users, no expired tokens) tokens back to file...
+                    File.WriteAllLines(DefaultSecurityTokenFile,
+                                       SecurityTokens.Select(token => token.Key + ";" + token.Value.Item1 + ";" + token.Value.Item2.ToIso8601()));
+
+                }
+
+            }
 
             #endregion
 

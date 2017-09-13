@@ -24,7 +24,6 @@ using Newtonsoft.Json.Linq;
 
 using org.GraphDefined.Vanaheimr.Illias;
 using org.GraphDefined.Vanaheimr.Hermod;
-using org.GraphDefined.Vanaheimr.Hermod.HTTP;
 
 #endregion
 
@@ -37,37 +36,6 @@ namespace org.GraphDefined.OpenData.Users
     public static class JSON
     {
 
-        //#region ToUTF8Bytes(JObject)
-
-        //public static Byte[] ToUTF8Bytes(this JObject JObject)
-        //{
-        //    return JObject.ToString().ToUTF8Bytes();
-        //}
-
-        //#endregion
-
-        //#region ToUTF8Bytes(JArray)
-
-        //public static Byte[] ToUTF8Bytes(this JArray JArray)
-        //{
-        //    return JArray.ToString().ToUTF8Bytes();
-        //}
-
-        //#endregion
-
-
-        #region ErrorMessage(Message)
-
-        public static JObject ErrorMessage(String Message)
-        {
-
-            return new JObject(new JProperty("@context",     "https://api.opendata.social/context/errors"),
-                               new JProperty("description",  Message));
-
-        }
-
-        #endregion
-
         #region ToJSON(Users)
 
         public static JObject ToJSON(this IEnumerable<User> Users)
@@ -79,40 +47,25 @@ namespace org.GraphDefined.OpenData.Users
 
         #endregion
 
-        #region ToJSON(Group)
-
-        private static JObject AsJSON(this Group Group)
-        {
-
-            return new JObject(new JProperty("@id",          Group.Id.ToString()),
-                               new JProperty("name",         Group.Name.ToJSON())
-                               //new JProperty("inedges",      new JObject(
-                               //    new JProperty("IsFollowedBy",     new JArray(Group.FollowsGroups.SafeSelect(u => u.Id.ToString())))
-                               //)),
-                               //new JProperty("outedges",     new JObject(
-                               //    new JProperty("follows",          new JArray(Group.FollowsGroups.SafeSelect(u => u.Id.ToString())))
-                               //))
-                              );
-
-        }
-
-        public static JObject ToJSON(this Group Group)
-        {
-
-            return new JObject(new JProperty("@context",  "https://api.opendata.social/context/group"),
-                               new JProperty("group",     Group.AsJSON()));
-
-        }
-
-        #endregion
-
         #region ToJSON(Groups)
 
         public static JObject ToJSON(this IEnumerable<Group> Groups)
         {
 
             return new JObject(new JProperty("@context",  "https://api.opendata.social/context/groups"),
-                               new JProperty("groups",    new JArray(Groups.SafeSelect(group => group.AsJSON()))));
+                               new JProperty("groups",    new JArray(Groups.SafeSelect(group => group.ToJSON()))));
+
+        }
+
+        #endregion
+
+        #region ToJSON(Organizations)
+
+        public static JObject ToJSON(this IEnumerable<Organization> Organizations)
+        {
+
+            return new JObject(new JProperty("@context",  "http://api.opendata.social/context/organizations"),
+                               new JProperty("orgs",      new JArray(Organizations.SafeSelect(organization => organization.ToJSON()))));
 
         }
 

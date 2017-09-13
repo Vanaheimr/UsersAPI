@@ -44,6 +44,19 @@ namespace org.GraphDefined.OpenData.Users
     public static class HTTPHelper
     {
 
+        #region ErrorMessage(Message, Context = null)
+
+        public static JObject ErrorMessage(String  Message,
+                                           String  Context  = null)
+
+            => new JObject(
+                   new JProperty("@context",     Context ?? "https://api.opendata.social/context/errors"),
+                   new JProperty("description",  Message)
+               );
+
+        #endregion
+
+
         #region ITEMS_GET(...)
 
         public static void ITEMS_GET<TId, TItem>(this HTTPServer             HTTPServer,
@@ -111,7 +124,8 @@ namespace org.GraphDefined.OpenData.Users
                                                    Func<String, String>            ParseIdError,
                                                    TryGetItemDelegate<TId, TItem>  TryGetItemDelegate,
                                                    ItemFilterDelegate<TItem>       ItemFilterDelegate,
-                                                   Func<TId,   String>             TryGetItemError)
+                                                   Func<TId,   String>             TryGetItemError,
+                                                   String                          HTTPServerName  = HTTPServer.DefaultHTTPServerName)
         {
 
 
@@ -121,32 +135,36 @@ namespace org.GraphDefined.OpenData.Users
                                          HTTPContentType.JSON_UTF8,
                                          HTTPDelegate: async Request => {
 
-                                             TId   Id;
-                                             TItem Item;
-
-                                             if (!ParseIdDelegate(Request.ParsedURIParameters[0], out Id))
+                                             if (!ParseIdDelegate(Request.ParsedURIParameters[0], out TId Id))
                                                  return new HTTPResponseBuilder(Request) {
-                                                     HTTPStatusCode  = HTTPStatusCode.BadRequest,
-                                                     Server          = HTTPServer.DefaultServerName,
-                                                     ContentType     = HTTPContentType.JSON_UTF8,
-                                                     Content         = JSON.ErrorMessage(ParseIdError(Request.ParsedURIParameters[0])).ToUTF8Bytes(),
-                                                     CacheControl    = "no-cache",
-                                                     Connection      = "close"
+                                                     HTTPStatusCode             = HTTPStatusCode.BadRequest,
+                                                     Server                     = HTTPServerName,
+                                                     Date                       = DateTime.UtcNow,
+                                                     AccessControlAllowOrigin   = "*",
+                                                     AccessControlAllowMethods  = "GET, EXISTS, COUNT",
+                                                     AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
+                                                     ETag                       = "1",
+                                                     ContentType                = HTTPContentType.JSON_UTF8,
+                                                     Content                    = ErrorMessage(ParseIdError(Request.ParsedURIParameters[0])).ToUTF8Bytes(),
+                                                     CacheControl               = "no-cache",
+                                                     Connection                 = "close"
                                                  };
 
-                                             if (!TryGetItemDelegate(Id, out Item) || !ItemFilterDelegate(Item))
+                                             if (!TryGetItemDelegate(Id, out TItem Item) || !ItemFilterDelegate(Item))
                                                  return new HTTPResponseBuilder(Request) {
                                                      HTTPStatusCode  = HTTPStatusCode.NotFound,
-                                                     Server          = HTTPServer.DefaultServerName,
+                                                     Server          = HTTPServerName,
+                                                     Date            = DateTime.UtcNow,
                                                      ContentType     = HTTPContentType.JSON_UTF8,
-                                                     Content         = JSON.ErrorMessage(TryGetItemError(Id)).ToUTF8Bytes(),
+                                                     Content         = ErrorMessage(TryGetItemError(Id)).ToUTF8Bytes(),
                                                      CacheControl    = "no-cache",
                                                      Connection      = "close"
                                                  };
 
                                              return new HTTPResponseBuilder(Request) {
                                                  HTTPStatusCode  = HTTPStatusCode.OK,
-                                                 Server          = HTTPServer.DefaultServerName,
+                                                 Server          = HTTPServerName,
+                                                 Date            = DateTime.UtcNow,
                                                  ETag            = "1",
                                                  CacheControl    = "public",
                                                  //Expires         = "Mon, 25 Jun 2015 21:31:12 GMT",
@@ -186,7 +204,7 @@ namespace org.GraphDefined.OpenData.Users
                                                      HTTPStatusCode  = HTTPStatusCode.BadRequest,
                                                      Server          = HTTPServer.DefaultServerName,
                                                      ContentType     = HTTPContentType.JSON_UTF8,
-                                                     Content         = JSON.ErrorMessage(ParseIdError(Request.ParsedURIParameters[0])).ToUTF8Bytes(),
+                                                     Content         = ErrorMessage(ParseIdError(Request.ParsedURIParameters[0])).ToUTF8Bytes(),
                                                      CacheControl    = "no-cache",
                                                      Connection      = "close"
                                                  };
@@ -196,7 +214,7 @@ namespace org.GraphDefined.OpenData.Users
                                                      HTTPStatusCode  = HTTPStatusCode.NotFound,
                                                      Server          = HTTPServer.DefaultServerName,
                                                      ContentType     = HTTPContentType.JSON_UTF8,
-                                                     Content         = JSON.ErrorMessage(TryGetItemError(Id)).ToUTF8Bytes(),
+                                                     Content         = ErrorMessage(TryGetItemError(Id)).ToUTF8Bytes(),
                                                      CacheControl    = "no-cache",
                                                      Connection      = "close"
                                                  };
