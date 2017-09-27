@@ -990,15 +990,15 @@ namespace org.GraphDefined.OpenData.Users
 
             #endregion
 
-            #region GET         ~/login
+            #region POST         ~/login
 
             HTTPServer.AddMethodCallback(HTTPHostname.Any,
-                             HTTPMethod.POST,
-                             "/login",
-                             HTTPContentType.XWWWFormUrlEncoded,
-                             HTTPDelegate: Request => {
+                                         HTTPMethod.POST,
+                                         "/login",
+                                         HTTPContentType.XWWWFormUrlEncoded,
+                                         HTTPDelegate: Request => {
 
-                                  //Note: Add LoginRequest event!
+                                              //Note: Add LoginRequest event!
 
                                   #region Check UTF8 text body...
 
