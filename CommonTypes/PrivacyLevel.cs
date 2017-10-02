@@ -20,8 +20,8 @@ namespace org.GraphDefined.OpenData.Users
 
     public enum PrivacyLevel
     {
-        Internal,
         Private,
+        Internal,
         Friends,
         Public
     }

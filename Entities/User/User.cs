@@ -287,6 +287,9 @@ namespace org.GraphDefined.OpenData.Users
 
 
 
+
+
+
         public MiniEdge<User, User2UserEdges, User>
 
             Follow(User          User,
@@ -354,6 +357,29 @@ namespace org.GraphDefined.OpenData.Users
                             PrivacyLevel    PrivacyLevel = PrivacyLevel.Public)
 
             => _User2GroupEdges.AddAndReturn(new MiniEdge<User, User2GroupEdges, Group>(this, EdgeLabel, Target, PrivacyLevel));
+
+
+
+
+
+        public IEnumerable<Organization> Organizations(Boolean Recursive = false)
+        {
+
+            var Level1 = _User2OrganizationEdges.
+                             Where (edge => edge.EdgeLabel == User2OrganizationEdges.IsAdmin ||
+                                            edge.EdgeLabel == User2OrganizationEdges.IsMember).
+                             Select(edge => edge.Target);
+
+            var Level2 = Level1.SelectMany(organization => organization.
+                                                               Org2Org().
+                                                               Where(edge => edge.EdgeLabel == Organization2OrganizationEdges.IsChild)).
+                                Select    (edge         => edge.Target);
+
+            return Recursive
+                       ? Level1
+                       : Level1.Concat(Level2);
+
+        }
 
 
 

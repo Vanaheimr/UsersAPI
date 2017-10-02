@@ -67,6 +67,7 @@ namespace org.GraphDefined.OpenData.Users
         [Optional]
         public I18NString  Description   { get; }
 
+
         /// <summary>
         /// The user will be shown in organization listings.
         /// </summary>
@@ -93,13 +94,17 @@ namespace org.GraphDefined.OpenData.Users
         /// <param name="Id">The unique identification of the organization.</param>
         /// <param name="Name">The offical (multi-language) name of the organization.</param>
         /// <param name="Description">An optional (multi-language) description of the organization.</param>
+        /// <param name="ParentOrganization">An optional parent organization.</param>
+        /// 
         /// <param name="IsPublic">The organization will be shown in user listings.</param>
         /// <param name="IsDisabled">The organization is disabled.</param>
         public Organization(Organization_Id  Id,
-                            I18NString       Name          = null,
-                            I18NString       Description   = null,
-                            Boolean          IsPublic      = true,
-                            Boolean          IsDisabled    = false)
+                            I18NString       Name                = null,
+                            I18NString       Description         = null,
+                            Organization     ParentOrganization  = null,
+
+                            Boolean          IsPublic            = true,
+                            Boolean          IsDisabled          = false)
 
             : base(Id)
 
@@ -107,10 +112,11 @@ namespace org.GraphDefined.OpenData.Users
 
             #region Init properties
 
-            this.Name                     = Name        ?? new I18NString();
-            this.Description              = Description ?? new I18NString();
-            this.IsPublic                 = IsPublic;
-            this.IsDisabled               = IsDisabled;
+            this.Name          = Name        ?? new I18NString();
+            this.Description   = Description ?? new I18NString();
+
+            this.IsPublic      = IsPublic;
+            this.IsDisabled    = IsDisabled;
 
             #endregion
 
@@ -219,6 +225,10 @@ namespace org.GraphDefined.OpenData.Users
             => _Organization2OrganizationEdges.AddAndReturn(Edge);
 
 
+        public IEnumerable<MiniEdge<Organization, Organization2OrganizationEdges, Organization>> Org2Org()
+            => _Organization2OrganizationEdges;
+
+
         #region Edges(Organization)
 
         /// <summary>
@@ -227,7 +237,7 @@ namespace org.GraphDefined.OpenData.Users
         /// </summary>
         public IEnumerable<User2OrganizationEdges> Edges(Organization Organization)
             => _User2OrganizationEdges.
-                   Where(edge => edge.Target == Organization).
+                   Where (edge => edge.Target == Organization).
                    Select(edge => edge.EdgeLabel);
 
         #endregion
@@ -433,13 +443,17 @@ namespace org.GraphDefined.OpenData.Users
             /// <param name="Id">The unique identification of the organization.</param>
             /// <param name="Name">An offical (multi-language) name of the organization.</param>
             /// <param name="Description">An optional (multi-language) description of the organization.</param>
+            /// <param name="ParentOrganization">An optional parent organization.</param>
+            /// 
             /// <param name="IsPublic">The organization will be shown in organization listings.</param>
             /// <param name="IsDisabled">The organization is disabled.</param>
             public Builder(Organization_Id  Id,
-                           I18NString       Name          = null,
-                           I18NString       Description   = null,
-                           Boolean          IsPublic      = true,
-                           Boolean          IsDisabled    = false)
+                           I18NString       Name                = null,
+                           I18NString       Description         = null,
+                           Organization     ParentOrganization  = null,
+
+                           Boolean          IsPublic            = true,
+                           Boolean          IsDisabled          = false)
             {
 
                 #region Init properties
@@ -447,6 +461,7 @@ namespace org.GraphDefined.OpenData.Users
                 this.Id           = Id;
                 this.Name         = Name        ?? new I18NString();
                 this.Description  = Description ?? new I18NString();
+
                 this.IsPublic     = IsPublic;
                 this.IsDisabled   = IsDisabled;
 
@@ -475,6 +490,8 @@ namespace org.GraphDefined.OpenData.Users
                 => new Organization(Id,
                                     Name,
                                     Description,
+                                    null,//ParentOrganization,
+
                                     IsPublic,
                                     IsDisabled);
 

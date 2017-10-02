@@ -155,9 +155,9 @@ namespace org.GraphDefined.OpenData.Users
         /// All organizations this user belongs to,
         /// filtered by the given edge label.
         /// </summary>
-        public IEnumerable<User2GroupEdges> InEdges(Group Group)
+        public IEnumerable<User2GroupEdges> InEdges(User User)
             => _User2GroupEdges.
-                   Where (edge => edge.Target == Group).
+                   Where (edge => edge.Source == User).
                    Select(edge => edge.EdgeLabel);
 
         #endregion
@@ -190,9 +190,9 @@ namespace org.GraphDefined.OpenData.Users
         /// All organizations this user belongs to,
         /// filtered by the given edge label.
         /// </summary>
-        public IEnumerable<Group2UserEdges> InEdges(User User)
+        public IEnumerable<Group2UserEdges> InEdges(Group Group)
             => _Group2UserEdges.
-                   Where (edge => edge.Target == User).
+                   Where (edge => edge.Source == Group).
                    Select(edge => edge.EdgeLabel);
 
         #endregion

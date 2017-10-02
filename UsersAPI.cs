@@ -690,6 +690,7 @@ namespace org.GraphDefined.OpenData.Users
             this._MinPasswordLenght           = MinPasswordLenght;
             this._SignInSessionLifetime       = SignInSessionLifetime ?? DefaultSignInSessionLifetime;
 
+            this._DataLicenses                = new Dictionary<DataLicense_Id,  DataLicense>();
             this._Users                       = new Dictionary<User_Id,         User>();
             this._Groups                      = new Dictionary<Group_Id,        Group>();
             this._Organizations               = new Dictionary<Organization_Id, Organization>();
@@ -709,6 +710,22 @@ namespace org.GraphDefined.OpenData.Users
             this.Admins  = CreateGroupIfNotExists(Group_Id.Parse("Admins"),
                                                   I18NString.Create(Languages.eng, "Admins"),
                                                   I18NString.Create(Languages.eng, "All admins of this API."));
+
+            #region Reflect data licenses
+
+            foreach (var dataLicense in typeof(DataLicense).GetFields(System.Reflection.BindingFlags.Public |
+                                                                      System.Reflection.BindingFlags.Static).
+                                                            Where (fieldinfo => fieldinfo.ReflectedType == typeof(DataLicense)).
+                                                            Select(fieldinfo => fieldinfo.GetValue(DataLicense.None)).
+                                                            Cast<DataLicense>())
+            {
+
+                _DataLicenses.Add(dataLicense.Id,
+                                  dataLicense);
+
+            }
+
+            #endregion
 
             ReadStoredData();
 
@@ -1974,7 +1991,8 @@ namespace org.GraphDefined.OpenData.Users
                                                       JSONParameters["isPublic"].   Value<Boolean>(),
                                                       JSONParameters["isDisabled"]. Value<Boolean>());
 
-                                _Groups.AddAndReturnValue(Group.Id, Group);
+                                if (Group.Id != Admins.Id)
+                                    _Groups.AddAndReturnValue(Group.Id, Group);
 
                                 break;
 
@@ -1987,7 +2005,9 @@ namespace org.GraphDefined.OpenData.Users
                                 var Organization = new Organization(Organization_Id.Parse(JSONParameters["@id"].Value<String>()),
                                                                     JSONParameters.ParseI18NString("name"),
                                                                     JSONParameters.ParseI18NString("description"),
-                                                                    JSONParameters["isPublic"].Value<Boolean>(),
+                                                                    null,
+
+                                                                    JSONParameters["isPublic"  ].Value<Boolean>(),
                                                                     JSONParameters["isDisabled"].Value<Boolean>());
 
                                 _Organizations.AddAndReturnValue(Organization.Id, Organization);
@@ -2164,6 +2184,8 @@ namespace org.GraphDefined.OpenData.Users
         #endregion
 
 
+        #region (protected) GetSecurityToken(Request)
+
         protected String GetSecurityToken(HTTPRequest Request)
         {
 
@@ -2176,6 +2198,63 @@ namespace org.GraphDefined.OpenData.Users
             return null;
 
         }
+
+        #endregion
+
+        #region (protected) TryGetHTTPUser(Request, out User)
+
+        protected Boolean TryGetHTTPUser(HTTPRequest Request, out User User)
+        {
+
+            if (Request.Cookie != null                                                    &&
+                Request.Cookie.TryGet(SecurityTokenCookieKey, out String Value)           &&
+                SecurityTokens.TryGetValue(Value, out Tuple<User_Id, DateTime> UserTuple) &&
+                DateTime.UtcNow < UserTuple.Item2                                         &&
+                TryGetUser(UserTuple.Item1, out User))
+            {
+                return true;
+            }
+
+            User = null;
+            return false;
+
+        }
+
+        #endregion
+
+        #region (protected) TryGetHTTPUser(Request, User, Organizations, Response, Recursive = false)
+
+        protected Boolean TryGetHTTPUser(HTTPRequest                    Request,
+                                         out User                       User,
+                                         out IEnumerable<Organization>  Organizations,
+                                         out HTTPResponse               Response,
+                                         Boolean                        Recursive = false)
+        {
+
+            if (!TryGetHTTPUser(Request, out User))
+            {
+
+                Organizations  = null;
+                Response       = new HTTPResponseBuilder(Request) {
+                                     HTTPStatusCode  = HTTPStatusCode.Unauthorized,
+                                     Location        = "/login",
+                                     Date            = DateTime.Now,
+                                     Server          = HTTPServer.DefaultServerName,
+                                     CacheControl    = "private, max-age=0, no-cache",
+                                     Connection      = "close"
+                                 }.AsImmutable();
+
+                return false;
+
+            }
+
+            Organizations = User.Organizations(Recursive);
+            Response      = null;
+            return true;
+
+        }
+
+        #endregion
 
 
         #region (private) WriteToLogfile(Command, JSON)
@@ -2212,6 +2291,137 @@ namespace org.GraphDefined.OpenData.Users
 
         #endregion
 
+
+        #region DataLicenses
+
+        #region DataLicenses
+
+        protected readonly Dictionary<DataLicense_Id, DataLicense> _DataLicenses;
+
+        public IEnumerable<DataLicense> DataLicenses
+            => _DataLicenses.Values;
+
+        #endregion
+
+        #region CreateDataLicense           (Id, Description, URIs)
+
+        /// <summary>
+        /// Create a new data license.
+        /// </summary>
+        /// <param name="Id">The unique identification of the data license.</param>
+        /// <param name="Description">The description of the data license.</param>
+        /// <param name="URIs">Optional URIs for more information.</param>
+        public DataLicense CreateDataLicense(DataLicense_Id   Id,
+                                             String           Description,
+                                             params String[]  URIs)
+        {
+
+            lock (_DataLicenses)
+            {
+
+                if (_DataLicenses.ContainsKey(Id))
+                    throw new ArgumentException("The given data license already exists!", nameof(Id));
+
+
+                var DataLicense = new DataLicense(Id,
+                                                  Description,
+                                                  URIs);
+
+                WriteToLogfile("CreateDataLicense", DataLicense.ToJSON());
+
+                return _DataLicenses.AddAndReturnValue(DataLicense.Id, DataLicense);
+
+            }
+
+        }
+
+        #endregion
+
+        #region CreateDataLicenseIfNotExists(Id, Description, URIs)
+
+        /// <summary>
+        /// Create a new data license.
+        /// </summary>
+        /// <param name="Id">The unique identification of the data license.</param>
+        /// <param name="Description">The description of the data license.</param>
+        /// <param name="URIs">Optional URIs for more information.</param>
+        public DataLicense CreateDataLicenseIfNotExists(DataLicense_Id   Id,
+                                                        String           Description,
+                                                        params String[]  URIs)
+        {
+
+            lock (_DataLicenses)
+            {
+
+                if (_DataLicenses.ContainsKey(Id))
+                    return _DataLicenses[Id];
+
+                return CreateDataLicense(Id,
+                                         Description,
+                                         URIs);
+
+            }
+
+        }
+
+        #endregion
+
+
+        #region GetDataLicense   (DataLicenseId)
+
+        /// <summary>
+        /// Get the data license having the given unique identification.
+        /// </summary>
+        /// <param name="DataLicenseId">The unique identification of the data license.</param>
+        public DataLicense GetDataLicense(DataLicense_Id  DataLicenseId)
+        {
+
+            lock (_DataLicenses)
+            {
+
+                if (_DataLicenses.TryGetValue(DataLicenseId, out DataLicense DataLicense))
+                    return DataLicense;
+
+                return null;
+
+            }
+
+        }
+
+        #endregion
+
+        #region TryGetDataLicense(DataLicenseId, out DataLicense)
+
+        /// <summary>
+        /// Try to get the data license having the given unique identification.
+        /// </summary>
+        /// <param name="DataLicenseId">The unique identification of the data license.</param>
+        /// <param name="DataLicense">The data license.</param>
+        public Boolean TryGetDataLicense(DataLicense_Id   DataLicenseId,
+                                         out DataLicense  DataLicense)
+        {
+
+            lock (_DataLicenses)
+            {
+                return _DataLicenses.TryGetValue(DataLicenseId, out DataLicense);
+            }
+
+        }
+
+        #endregion
+
+        #endregion
+
+        #region Users
+
+        #region Users
+
+        protected readonly Dictionary<User_Id, User> _Users;
+
+        public IEnumerable<User> Users
+            => _Users.Values;
+
+        #endregion
 
         #region CreateUser           (Id, EMail, Password, Name = null, PublicKeyRing = null, Telephone = null, Description = null, IsPublic = true, IsDisabled = false, IsAuthenticated = false)
 
@@ -2347,15 +2557,52 @@ namespace org.GraphDefined.OpenData.Users
 
         #endregion
 
-        #region Users
+        #region GetUser   (UserId)
 
-        protected readonly Dictionary<User_Id, User> _Users;
+        /// <summary>
+        /// Get the user having the given unique identification.
+        /// </summary>
+        /// <param name="UserId">The unique identification of the user.</param>
+        public User GetUser(User_Id  UserId)
+        {
 
-        public IEnumerable<User> Users
-            => _Users.Values;
+            lock (_Users)
+            {
+
+                if (_Users.TryGetValue(UserId, out User User))
+                    return User;
+
+                return null;
+
+            }
+
+        }
 
         #endregion
 
+        #region TryGetUser(UserId, out User)
+
+        /// <summary>
+        /// Try to get the user having the given unique identification.
+        /// </summary>
+        /// <param name="UserId">The unique identification of the user.</param>
+        /// <param name="User">The user.</param>
+        public Boolean TryGetUser(User_Id   UserId,
+                                          out User  User)
+        {
+
+            lock (_Users)
+            {
+                return _Users.TryGetValue(UserId, out User);
+            }
+
+        }
+
+        #endregion
+
+        #endregion
+
+        #region Groups
 
         #region CreateGroup           (Id, Name = null, Description = null)
 
@@ -2417,6 +2664,49 @@ namespace org.GraphDefined.OpenData.Users
 
         #endregion
 
+        #region GetGroup   (GroupId)
+
+        /// <summary>
+        /// Get the group having the given unique identification.
+        /// </summary>
+        /// <param name="GroupId">The unique identification of the group.</param>
+        public Group GetGroup(Group_Id  GroupId)
+        {
+
+            lock (_Groups)
+            {
+
+                if (_Groups.TryGetValue(GroupId, out Group Group))
+                    return Group;
+
+                return null;
+
+            }
+
+        }
+
+        #endregion
+
+        #region TryGetGroup(GroupId, out Group)
+
+        /// <summary>
+        /// Try to get the group having the given unique identification.
+        /// </summary>
+        /// <param name="GroupId">The unique identification of the group.</param>
+        /// <param name="Group">The group.</param>
+        public Boolean TryGetGroup(Group_Id   GroupId,
+                                          out Group  Group)
+        {
+
+            lock (_Groups)
+            {
+                return _Groups.TryGetValue(GroupId, out Group);
+            }
+
+        }
+
+        #endregion
+
         #region AddToGroup(User, Edge, Group, Privacy = Public)
 
         public Boolean AddToGroup(User             User,
@@ -2460,12 +2750,16 @@ namespace org.GraphDefined.OpenData.Users
 
         #endregion
 
+        #endregion
 
-        #region CreateOrganization           (Id, Name = null, Description = null)
+        #region Organizations
+
+        #region CreateOrganization           (Id, Name = null, Description = null, ParentOrganization = null)
 
         public Organization CreateOrganization(Organization_Id  Id,
-                                               I18NString       Name         = null,
-                                               I18NString       Description  = null)
+                                               I18NString       Name                = null,
+                                               I18NString       Description         = null,
+                                               Organization     ParentOrganization  = null)
         {
 
             lock (_Organizations)
@@ -2477,7 +2771,8 @@ namespace org.GraphDefined.OpenData.Users
 
                 var Organization = new Organization(Id,
                                                     Name,
-                                                    Description);
+                                                    Description,
+                                                    ParentOrganization);
 
                 WriteToLogfile("CreateOrganization", Organization.ToJSON());
 
@@ -2489,11 +2784,12 @@ namespace org.GraphDefined.OpenData.Users
 
         #endregion
 
-        #region CreateOrganizationIfNotExists(Id, Name = null, Description = null)
+        #region CreateOrganizationIfNotExists(Id, Name = null, Description = null, ParentOrganization = null)
 
         public Organization CreateOrganizationIfNotExists(Organization_Id  Id,
-                                                          I18NString       Name         = null,
-                                                          I18NString       Description  = null)
+                                                          I18NString       Name                = null,
+                                                          I18NString       Description         = null,
+                                                          Organization     ParentOrganization  = null)
         {
 
             lock (_Organizations)
@@ -2504,7 +2800,8 @@ namespace org.GraphDefined.OpenData.Users
 
                 return CreateOrganization(Id,
                                           Name,
-                                          Description);
+                                          Description,
+                                          ParentOrganization);
 
             }
 
@@ -2555,6 +2852,52 @@ namespace org.GraphDefined.OpenData.Users
 
         #endregion
 
+        #region GetOrganization   (OrganizationId)
+
+        /// <summary>
+        /// Get the organization having the given unique identification.
+        /// </summary>
+        /// <param name="OrganizationId">The unique identification of the organization.</param>
+        public Organization GetOrganization(Organization_Id  OrganizationId)
+        {
+
+            lock (_Organizations)
+            {
+
+                if (_Organizations.TryGetValue(OrganizationId, out Organization Organization))
+                    return Organization;
+
+                return null;
+
+            }
+
+        }
+
+        #endregion
+
+        #region TryGetOrganization(OrganizationId, out Organization)
+
+        /// <summary>
+        /// Try to get the organization having the given unique identification.
+        /// </summary>
+        /// <param name="OrganizationId">The unique identification of the organization.</param>
+        /// <param name="Organization">The organization.</param>
+        public Boolean TryGetOrganization(Organization_Id   OrganizationId,
+                                          out Organization  Organization)
+        {
+
+            lock (_Organizations)
+            {
+                return _Organizations.TryGetValue(OrganizationId, out Organization);
+            }
+
+        }
+
+        #endregion
+
+        #endregion
+
+        #region Messages
 
         #region CreateMessage(Id, Sender, Receivers, Headline = null, Text = null)
 
@@ -2592,6 +2935,8 @@ namespace org.GraphDefined.OpenData.Users
         #endregion
 
         // Create Mailinglist
+
+        #endregion
 
 
         #region Start()

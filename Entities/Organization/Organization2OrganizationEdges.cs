@@ -15,12 +15,21 @@
  * limitations under the License.
  */
 
+#region Usings
+
+using System;
+
+#endregion
+
 namespace org.GraphDefined.OpenData.Users
 {
 
+    [Flags]
     public enum Organization2OrganizationEdges
     {
-        IsSubsidary
+        IsSubsidary,
+        IsParent,
+        IsChild,
     }
 
 }
