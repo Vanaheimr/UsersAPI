@@ -22,6 +22,7 @@ namespace org.GraphDefined.OpenData.Users
     {
         IsAdmin,
         IsMember,
+        IsVisitor,
         IsFollower
     }
 

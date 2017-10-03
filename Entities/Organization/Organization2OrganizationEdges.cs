@@ -29,7 +29,7 @@ namespace org.GraphDefined.OpenData.Users
     {
         IsSubsidary,
         IsParent,
-        IsChild,
+        IsChildOf,
     }
 
 }

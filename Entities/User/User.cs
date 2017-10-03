@@ -187,7 +187,7 @@ namespace org.GraphDefined.OpenData.Users
         /// All groups this user belongs to,
         /// filtered by the given edge label.
         /// </summary>
-        public IEnumerable<User2GroupEdges> Edges(Group Group)
+        public IEnumerable<User2GroupEdges> OutEdges(Group Group)
             => _User2GroupEdges.
                    Where (edge => edge.Target == Group).
                    Select(edge => edge.EdgeLabel);
@@ -204,23 +204,6 @@ namespace org.GraphDefined.OpenData.Users
             => _User2OrganizationEdges.
                    Where (edge => edge.Target == Organization).
                    Select(edge => edge.EdgeLabel);
-
-        #endregion
-
-        #region FollowsGroups
-
-        /// <summary>
-        /// This user follows this other users.
-        /// </summary>
-        public IEnumerable<Group> FollowsGroups
-        {
-            get
-            {
-                return _User2GroupEdges.
-                           Where(edge => edge.EdgeLabel == User2GroupEdges.follows).
-                           Select(edge => edge.Target);
-            }
-        }
 
         #endregion
 
@@ -297,18 +280,6 @@ namespace org.GraphDefined.OpenData.Users
 
             => User.AddIncomingEdge(AddOutgoingEdge(User2UserEdges.follows, User, PrivacyLevel));
 
-        public MiniEdge<User, User2GroupEdges, Group>
-
-            Join(Group         Group,
-                 PrivacyLevel  PrivacyLevel = PrivacyLevel.Private)
-
-            => Group.AddIncomingEdge(AddOutgoingEdge(User2GroupEdges.join, Group, PrivacyLevel));
-
-
-
-
-
-
 
 
 
@@ -359,29 +330,107 @@ namespace org.GraphDefined.OpenData.Users
             => _User2GroupEdges.AddAndReturn(new MiniEdge<User, User2GroupEdges, Group>(this, EdgeLabel, Target, PrivacyLevel));
 
 
+        public IEnumerable<MiniEdge<User, User2GroupEdges, Group>> User2GroupOutEdges(Func<User2GroupEdges, Boolean> User2GroupEdgeFilter)
+            => _User2GroupEdges.Where(edge => User2GroupEdgeFilter(edge.EdgeLabel));
 
 
+        #region Organizations(RequireReadWriteAccess = false, Recursive = false)
 
-        public IEnumerable<Organization> Organizations(Boolean Recursive = false)
+        public IEnumerable<Organization> Organizations(Boolean RequireReadWriteAccess  = false,
+                                                       Boolean Recursive               = false)
         {
 
-            var Level1 = _User2OrganizationEdges.
-                             Where (edge => edge.EdgeLabel == User2OrganizationEdges.IsAdmin ||
-                                            edge.EdgeLabel == User2OrganizationEdges.IsMember).
-                             Select(edge => edge.Target);
+            var _Organizations = RequireReadWriteAccess
 
-            var Level2 = Level1.SelectMany(organization => organization.
-                                                               Org2Org().
-                                                               Where(edge => edge.EdgeLabel == Organization2OrganizationEdges.IsChild)).
-                                Select    (edge         => edge.Target);
+                                     ? _User2OrganizationEdges.
+                                           Where (edge => edge.EdgeLabel == User2OrganizationEdges.IsAdmin ||
+                                                          edge.EdgeLabel == User2OrganizationEdges.IsMember).
+                                           Select(edge => edge.Target).
+                                           ToHashSet()
 
-            return Recursive
-                       ? Level1
-                       : Level1.Concat(Level2);
+                                     : _User2OrganizationEdges.
+                                           Where (edge => edge.EdgeLabel == User2OrganizationEdges.IsAdmin  ||
+                                                          edge.EdgeLabel == User2OrganizationEdges.IsMember ||
+                                                          edge.EdgeLabel == User2OrganizationEdges.IsVisitor).
+                                           Select(edge => edge.Target).
+                                           ToHashSet();
+
+            if (Recursive)
+            {
+
+                Organization[] Level2 = null;
+
+                do
+                {
+
+                    Level2 = _Organizations.SelectMany(organization => organization.
+                                                                           Organization2OrganizationInEdges.
+                                                                           Where(edge => edge.EdgeLabel == Organization2OrganizationEdges.IsChildOf)).
+                                            Select    (edge         => edge.Target).
+                                            Where     (organization => !_Organizations.Contains(organization)).
+                                            ToArray();
+
+                    foreach (var organization in Level2)
+                        _Organizations.Add(organization);
+
+                } while (Level2.Length > 0);
+
+            }
+
+            return _Organizations;
 
         }
 
+        #endregion
 
+        #region Groups(RequireReadWriteAccess = false, Recursive = false)
+
+        public IEnumerable<Group> Groups(Boolean RequireReadWriteAccess  = false,
+                                         Boolean Recursive               = false)
+        {
+
+            var _Groups = RequireReadWriteAccess
+
+                                     ? _User2GroupEdges.
+                                           Where (edge => edge.EdgeLabel == User2GroupEdges.IsAdmin ||
+                                                          edge.EdgeLabel == User2GroupEdges.IsMember).
+                                           Select(edge => edge.Target).
+                                           ToHashSet()
+
+                                     : _User2GroupEdges.
+                                           Where (edge => edge.EdgeLabel == User2GroupEdges.IsAdmin  ||
+                                                          edge.EdgeLabel == User2GroupEdges.IsMember ||
+                                                          edge.EdgeLabel == User2GroupEdges.IsVisitor).
+                                           Select(edge => edge.Target).
+                                           ToHashSet();
+
+            //if (Recursive)
+            //{
+
+            //    Group[] Level2 = null;
+
+            //    do
+            //    {
+
+            //        Level2 = _Groups.SelectMany(group => group.
+            //                                                 Group2GroupInEdges.
+            //                                                 Where(edge => edge.EdgeLabel == Group2GroupEdges.IsChildOf)).
+            //                         Select    (edge  => edge.Target).
+            //                         Where     (group => !_Groups.Contains(group)).
+            //                         ToArray();
+
+            //        foreach (var organization in Level2)
+            //            _Groups.Add(organization);
+
+            //    } while (Level2.Length > 0);
+
+            //}
+
+            return _Groups;
+
+        }
+
+        #endregion
 
 
         #region IComparable<User> Members

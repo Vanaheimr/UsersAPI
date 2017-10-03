@@ -28,9 +28,8 @@ namespace org.GraphDefined.OpenData.Users
     public enum User2GroupEdges
     {
         IsAdmin,
-        join,
-        follows,
-        IsFollowedBy
+        IsMember,
+        IsVisitor
     }
 
 }

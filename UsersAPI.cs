@@ -118,6 +118,8 @@ namespace org.GraphDefined.OpenData.Users
         public  const             String                              DefaultSecurityTokenFile       = "UsersAPI_SecurityTokens.db";
         //public  const             String                              DefaultGroupDBFile             = "UsersAPI_Groups.db";
         //public  const             String                              DefaultUser2GroupDBFile        = "UsersAPI_User2Group.db";
+        public  const             String                              AdminGroupName                 = "Admins";
+
 
         protected readonly Dictionary<String, Tuple<User_Id, DateTime>> SecurityTokens;
 
@@ -707,8 +709,8 @@ namespace org.GraphDefined.OpenData.Users
 
             #endregion
 
-            this.Admins  = CreateGroupIfNotExists(Group_Id.Parse("Admins"),
-                                                  I18NString.Create(Languages.eng, "Admins"),
+            this.Admins  = CreateGroupIfNotExists(Group_Id.Parse(AdminGroupName),
+                                                  I18NString.Create(Languages.eng, AdminGroupName),
                                                   I18NString.Create(Languages.eng, "All admins of this API."));
 
             #region Reflect data licenses
@@ -2005,12 +2007,29 @@ namespace org.GraphDefined.OpenData.Users
                                 var Organization = new Organization(Organization_Id.Parse(JSONParameters["@id"].Value<String>()),
                                                                     JSONParameters.ParseI18NString("name"),
                                                                     JSONParameters.ParseI18NString("description"),
-                                                                    null,
-
                                                                     JSONParameters["isPublic"  ].Value<Boolean>(),
                                                                     JSONParameters["isDisabled"].Value<Boolean>());
 
                                 _Organizations.AddAndReturnValue(Organization.Id, Organization);
+
+                                break;
+
+                            #endregion
+
+                            #region CreateOrganization
+
+                            case "LinkOrganizations":
+
+                                var O2O_OrganizationOut  = _Organizations[Organization_Id.Parse(JSONParameters["organizationOut"].Value<String>())];
+                                var O2O_OrganizationIn   = _Organizations[Organization_Id.Parse(JSONParameters["organizationIn" ].Value<String>())];
+                                var O2O_EdgeLabel        = (Organization2OrganizationEdges) Enum.Parse(typeof(Organization2OrganizationEdges), JSONParameters["edge"].   Value<String>());
+                                var O2O_Privacy          = (PrivacyLevel)                   Enum.Parse(typeof(PrivacyLevel),                   JSONParameters["privacy"].Value<String>());
+
+                                if (!O2O_OrganizationOut.Organization2OrganizationOutEdges.Any(edge => edge.EdgeLabel == O2O_EdgeLabel && edge.Target == O2O_OrganizationIn))
+                                    O2O_OrganizationOut.AddOutEdge(O2O_EdgeLabel, O2O_OrganizationIn,  O2O_Privacy);
+
+                                if (!O2O_OrganizationIn. Organization2OrganizationInEdges. Any(edge => edge.EdgeLabel == O2O_EdgeLabel && edge.Source == O2O_OrganizationOut))
+                                    O2O_OrganizationIn. AddInEdge (O2O_EdgeLabel, O2O_OrganizationOut, O2O_Privacy);
 
                                 break;
 
@@ -2025,7 +2044,7 @@ namespace org.GraphDefined.OpenData.Users
                                 var U2G_Edge     = (User2GroupEdges) Enum.Parse(typeof(User2GroupEdges), JSONParameters["edge"].   Value<String>());
                                 var U2G_Privacy  = (PrivacyLevel)    Enum.Parse(typeof(PrivacyLevel),    JSONParameters["privacy"].Value<String>());
 
-                                if (!U2G_User.Edges(U2G_Group).Any(edge => edge == U2G_Edge))
+                                if (!U2G_User.OutEdges(U2G_Group).Any(edge => edge == U2G_Edge))
                                     U2G_User.AddOutgoingEdge(U2G_Edge, U2G_Group, U2G_Privacy);
 
                                 if (!U2G_Group.Edges(U2G_Group).Any(edge => edge == U2G_Edge))
@@ -2044,10 +2063,10 @@ namespace org.GraphDefined.OpenData.Users
                                 var U2O_Edge          = (User2OrganizationEdges) Enum.Parse(typeof(User2OrganizationEdges), JSONParameters["edge"].   Value<String>());
                                 var U2O_Privacy       = (PrivacyLevel)           Enum.Parse(typeof(PrivacyLevel),           JSONParameters["privacy"].Value<String>());
 
-                                if (!U2O_User.Edges(U2O_Organization).Any(edge => edge == U2O_Edge))
+                                if (!U2O_User.Edges(U2O_Organization).Any(edgelabel => edgelabel == U2O_Edge))
                                     U2O_User.AddOutgoingEdge(U2O_Edge, U2O_Organization, U2O_Privacy);
 
-                                if (!U2O_Organization.Edges(U2O_Organization).Any(edge => edge == U2O_Edge))
+                                if (!U2O_Organization.InEdges(U2O_Organization).Any(edgelabel => edgelabel == U2O_Edge))
                                     U2O_Organization.AddIncomingEdge(U2O_User, U2O_Edge, U2O_Privacy);
 
                                 break;
@@ -2222,17 +2241,27 @@ namespace org.GraphDefined.OpenData.Users
 
         #endregion
 
-        #region (protected) TryGetHTTPUser(Request, User, Organizations, Response, Recursive = false)
+        #region (protected) TryGetHTTPUser(Request, User, Organizations, Response, RequireReadWriteAccess = false, Recursive = false)
 
         protected Boolean TryGetHTTPUser(HTTPRequest                    Request,
                                          out User                       User,
                                          out IEnumerable<Organization>  Organizations,
                                          out HTTPResponse               Response,
-                                         Boolean                        Recursive = false)
+                                         Boolean                        RequireReadWriteAccess  = false,
+                                         Boolean                        Recursive               = false)
         {
 
             if (!TryGetHTTPUser(Request, out User))
             {
+
+                //if (Request.RemoteSocket.IPAddress is IPv4Address &&
+                //    Request.RemoteSocket.IPAddress as IPv4Address == IPv4Address.Localhost)
+                //{
+                //    User           = Admins.User2GroupInEdges(edgelabel => edgelabel == User2GroupEdges.IsAdmin).FirstOrDefault()?.Source;
+                //    Organizations  = null;
+                //    Response       = null;
+                //    return true;
+                //}
 
                 Organizations  = null;
                 Response       = new HTTPResponseBuilder(Request) {
@@ -2248,7 +2277,7 @@ namespace org.GraphDefined.OpenData.Users
 
             }
 
-            Organizations = User.Organizations(Recursive);
+            Organizations = User.Organizations(RequireReadWriteAccess, Recursive);
             Response      = null;
             return true;
 
@@ -2622,7 +2651,8 @@ namespace org.GraphDefined.OpenData.Users
                                       Name,
                                       Description);
 
-                WriteToLogfile("CreateGroup", Group.ToJSON());
+                if (Group.Id.ToString() != AdminGroupName)
+                    WriteToLogfile("CreateGroup", Group.ToJSON());
 
                 return _Groups.AddAndReturnValue(Group.Id, Group);
 
@@ -2715,10 +2745,10 @@ namespace org.GraphDefined.OpenData.Users
                                   PrivacyLevel     Privacy = PrivacyLevel.Public)
         {
 
-            if (!User.Edges(Group).Any(edge => edge == Edge))
+            if (!User.OutEdges(Group).Any(edge => edge == Edge))
             {
 
-                User. AddOutgoingEdge(Edge, Group, Privacy);
+                User.AddOutgoingEdge(Edge, Group, Privacy);
 
                 if (!Group.Edges(Group).Any(edge => edge == Edge))
                     Group.AddIncomingEdge(User, Edge,  Privacy);
@@ -2740,6 +2770,7 @@ namespace org.GraphDefined.OpenData.Users
         }
 
         #endregion
+
 
         #region IsAdmin(User)
 
@@ -2771,12 +2802,16 @@ namespace org.GraphDefined.OpenData.Users
 
                 var Organization = new Organization(Id,
                                                     Name,
-                                                    Description,
-                                                    ParentOrganization);
+                                                    Description);
 
                 WriteToLogfile("CreateOrganization", Organization.ToJSON());
 
-                return _Organizations.AddAndReturnValue(Organization.Id, Organization);
+                var NewOrg = _Organizations.AddAndReturnValue(Organization.Id, Organization);
+
+                if (ParentOrganization != null)
+                    LinkOrganizations(NewOrg, Organization2OrganizationEdges.IsChildOf, ParentOrganization);
+
+                return NewOrg;
 
             }
 
@@ -2818,40 +2853,6 @@ namespace org.GraphDefined.OpenData.Users
 
         #endregion
 
-        #region AddToOrganization(User, Edge, Organization, Privacy = Public)
-
-        public Boolean AddToOrganization(User                    User,
-                                         User2OrganizationEdges  Edge,
-                                         Organization            Organization,
-                                         PrivacyLevel            Privacy = PrivacyLevel.Public)
-        {
-
-            if (!User.Edges(Organization).Any(edge => edge == Edge))
-            {
-
-                User.AddOutgoingEdge(Edge, Organization, Privacy);
-
-                if (!Organization.Edges(Organization).Any(edge => edge == Edge))
-                    Organization.AddIncomingEdge(User, Edge,         Privacy);
-
-                WriteToLogfile("AddUserToOrganization",
-                               new JObject(
-                                   new JProperty("user",          User.Id.     ToString()),
-                                   new JProperty("edge",          Edge.        ToString()),
-                                   new JProperty("organization",  Organization.ToString()),
-                                   new JProperty("privacy",       Privacy.     ToString())
-                               ));
-
-                return true;
-
-            }
-
-            return false;
-
-        }
-
-        #endregion
-
         #region GetOrganization   (OrganizationId)
 
         /// <summary>
@@ -2890,6 +2891,83 @@ namespace org.GraphDefined.OpenData.Users
             {
                 return _Organizations.TryGetValue(OrganizationId, out Organization);
             }
+
+        }
+
+        #endregion
+
+
+        #region AddToOrganization(User, Edge, Organization, Privacy = Public)
+
+        public Boolean AddToOrganization(User                    User,
+                                         User2OrganizationEdges  Edge,
+                                         Organization            Organization,
+                                         PrivacyLevel            Privacy = PrivacyLevel.Public)
+        {
+
+            if (!User.Edges(Organization).Any(edge => edge == Edge))
+            {
+
+                User.AddOutgoingEdge(Edge, Organization, Privacy);
+
+                if (!Organization.InEdges(Organization).Any(edgelabel => edgelabel == Edge))
+                    Organization.AddIncomingEdge(User, Edge, Privacy);
+
+                WriteToLogfile("AddUserToOrganization",
+                               new JObject(
+                                   new JProperty("user",          User.        Id.ToString()),
+                                   new JProperty("edge",          Edge.           ToString()),
+                                   new JProperty("organization",  Organization.Id.ToString()),
+                                   new JProperty("privacy",       Privacy.        ToString())
+                               ));
+
+                return true;
+
+            }
+
+            return false;
+
+        }
+
+        #endregion
+
+        #region LinkOrganizations(OrganizationOut, EdgeLabel, OrganizationIn, Privacy = Public)
+
+        public Boolean LinkOrganizations(Organization                    OrganizationOut,
+                                         Organization2OrganizationEdges  EdgeLabel,
+                                         Organization                    OrganizationIn,
+                                         PrivacyLevel                    Privacy = PrivacyLevel.Public)
+        {
+
+            if (!OrganizationOut.
+                    Organization2OrganizationOutEdges.
+                    Where(edge => edge.Target    == OrganizationIn).
+                    Any  (edge => edge.EdgeLabel == EdgeLabel))
+            {
+
+                OrganizationOut.AddOutEdge(EdgeLabel, OrganizationIn, Privacy);
+
+                if (!OrganizationIn.
+                        Organization2OrganizationInEdges.
+                        Where(edge => edge.Source    == OrganizationOut).
+                        Any  (edge => edge.EdgeLabel == EdgeLabel))
+                {
+                    OrganizationIn.AddIncomingEdge(OrganizationOut, EdgeLabel, Privacy);
+                }
+
+                WriteToLogfile("LinkOrganizations",
+                               new JObject(
+                                   new JProperty("organizationOut", OrganizationOut.Id.ToString()),
+                                   new JProperty("edge",            EdgeLabel.         ToString()),
+                                   new JProperty("organizationIn",  OrganizationIn. Id.ToString()),
+                                   new JProperty("privacy",         Privacy.           ToString())
+                               ));
+
+                return true;
+
+            }
+
+            return false;
 
         }
 

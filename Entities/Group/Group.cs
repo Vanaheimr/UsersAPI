@@ -149,6 +149,10 @@ namespace org.GraphDefined.OpenData.Users
             => _User2GroupEdges.AddAndReturn(Edge);
 
 
+        public IEnumerable<MiniEdge<User, User2GroupEdges, Group>> User2GroupInEdges(Func<User2GroupEdges, Boolean> User2GroupEdgeFilter)
+            => _User2GroupEdges.Where(edge => User2GroupEdgeFilter(edge.EdgeLabel));
+
+
         #region Edges(Group)
 
         /// <summary>
