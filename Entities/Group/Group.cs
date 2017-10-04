@@ -95,13 +95,16 @@ namespace org.GraphDefined.OpenData.Users
         /// <param name="Description">An optional (multi-language) description of the user group.</param>
         /// <param name="IsPublic">The group will be shown in user listings.</param>
         /// <param name="IsDisabled">The group is disabled.</param>
+        /// <param name="DataSource">The source of all this data, e.g. an automatic importer.</param>
         internal Group(Group_Id    Id,
                        I18NString  Name          = null,
                        I18NString  Description   = null,
                        Boolean     IsPublic      = true,
-                       Boolean     IsDisabled    = false)
+                       Boolean     IsDisabled    = false,
+                       String      DataSource    = "")
 
-            : base(Id)
+            : base(Id,
+                   DataSource)
 
         {
 

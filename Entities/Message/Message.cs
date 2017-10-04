@@ -91,14 +91,17 @@ namespace org.GraphDefined.OpenData.Users
         /// <param name="Subject">The (multi-language) subject of the message.</param>
         /// <param name="Text">An optional (multi-language) text of the message.</param>
         /// <param name="InReplyTo">The message is a reply to another message.</param>
+        /// <param name="DataSource">The source of all this data, e.g. an automatic importer.</param>
         public Message(Message_Id            Id,
                        User_Id               Sender,
                        IEnumerable<User_Id>  Receivers,
                        I18NString            Subject,
                        I18NString            Text,
-                       Message_Id?           InReplyTo = null)
+                       Message_Id?           InReplyTo   = null,
+                       String                DataSource  = "")
 
-            : base(Id)
+            : base(Id,
+                   DataSource)
 
         {
 

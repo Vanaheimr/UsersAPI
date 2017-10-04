@@ -115,13 +115,16 @@ namespace org.GraphDefined.OpenData.Users
         /// <param name="Description">An optional (multi-language) description of the organization.</param>
         /// <param name="IsPublic">The organization will be shown in user listings.</param>
         /// <param name="IsDisabled">The organization is disabled.</param>
+        /// <param name="DataSource">The source of all this data, e.g. an automatic importer.</param>
         public Organization(Organization_Id  Id,
                             I18NString       Name          = null,
                             I18NString       Description   = null,
                             Boolean          IsPublic      = true,
-                            Boolean          IsDisabled    = false)
+                            Boolean          IsDisabled    = false,
+                            String           DataSource    = "")
 
-            : base(Id)
+            : base(Id,
+                   DataSource)
 
         {
 

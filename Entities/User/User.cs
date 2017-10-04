@@ -227,6 +227,7 @@ namespace org.GraphDefined.OpenData.Users
         /// <param name="IsAuthenticated">The user will not be shown in user listings, as its primary e-mail address is not yet authenticated.</param>
         /// <param name="IsPublic">The user will be shown in user listings.</param>
         /// <param name="IsDisabled">The user is disabled.</param>
+        /// <param name="DataSource">The source of all this data, e.g. an automatic importer.</param>
         internal User(User_Id             Id,
                       SimpleEMailAddress  EMail,
                       String              Name              = null,
@@ -235,9 +236,11 @@ namespace org.GraphDefined.OpenData.Users
                       I18NString          Description       = null,
                       Boolean             IsPublic          = true,
                       Boolean             IsDisabled        = false,
-                      Boolean             IsAuthenticated   = false)
+                      Boolean             IsAuthenticated   = false,
+                      String              DataSource        = "")
 
-            : base(Id)
+            : base(Id,
+                   DataSource)
 
         {
 

@@ -123,6 +123,8 @@ namespace org.GraphDefined.OpenData.Users
 
         protected readonly Dictionary<String, Tuple<User_Id, DateTime>> SecurityTokens;
 
+        public static readonly Regex JSONWhitespaceRegEx = new Regex(@"(\s)+", RegexOptions.IgnorePatternWhitespace);
+
         #endregion
 
         #region Events
@@ -2254,14 +2256,14 @@ namespace org.GraphDefined.OpenData.Users
             if (!TryGetHTTPUser(Request, out User))
             {
 
-                //if (Request.RemoteSocket.IPAddress is IPv4Address &&
-                //    Request.RemoteSocket.IPAddress as IPv4Address == IPv4Address.Localhost)
-                //{
-                //    User           = Admins.User2GroupInEdges(edgelabel => edgelabel == User2GroupEdges.IsAdmin).FirstOrDefault()?.Source;
-                //    Organizations  = null;
-                //    Response       = null;
-                //    return true;
-                //}
+                if (Request.RemoteSocket.IPAddress is IPv4Address &&
+                    Request.RemoteSocket.IPAddress as IPv4Address == IPv4Address.Localhost)
+                {
+                    User           = Admins.User2GroupInEdges(edgelabel => edgelabel == User2GroupEdges.IsAdmin).FirstOrDefault()?.Source;
+                    Organizations  = null;
+                    Response       = null;
+                    return true;
+                }
 
                 Organizations  = null;
                 Response       = new HTTPResponseBuilder(Request) {
@@ -2304,14 +2306,14 @@ namespace org.GraphDefined.OpenData.Users
                                  );
 
                 var SHA256     = new SHA256Managed();
-                CurrentHash    = SHA256.ComputeHash(Encoding.Unicode.GetBytes(Vanaheimr.Hermod.Distributed.Helpers.UserDB_RegEx.Replace(_JObject.ToString(), " "))).
+                CurrentHash    = SHA256.ComputeHash(Encoding.Unicode.GetBytes(JSONWhitespaceRegEx.Replace(_JObject.ToString(), " "))).
                                         Select(value => String.Format("{0:x2}", value)).
                                         Aggregate();
 
                 _JObject.Add(new JProperty("HashValue", CurrentHash));
 
                 File.AppendAllText(DefaultUsersAPIFile,
-                                   Vanaheimr.Hermod.Distributed.Helpers.UserDB_RegEx.Replace(_JObject.ToString(), " ") +
+                                   JSONWhitespaceRegEx.Replace(_JObject.ToString(), " ") +
                                    Environment.NewLine);
 
             }
