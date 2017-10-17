@@ -409,24 +409,32 @@ namespace org.GraphDefined.OpenData.Users
 
         #endregion
 
-        #region ToJSON(IncludeHash = true)
+        #region ToJSON(IncludeCryptoHash = true)
 
         /// <summary>
         /// Return a JSON representation of this object.
         /// </summary>
-        /// <param name="IncludeHash">Include the hash value of this object.</param>
-        public override JObject ToJSON(Boolean IncludeHash = true)
+        /// <param name="IncludeCryptoHash">Include the crypto hash value of this object.</param>
+        public override JObject ToJSON(Boolean IncludeCryptoHash = true)
 
             => JSONObject.Create(
 
                    new JProperty("@id",          Id.         ToString()),
                    new JProperty("name",         Name.       ToJSON()),
-                   new JProperty("description",  Description.ToJSON()),
+
+                   Description.IsNeitherNullNorEmpty()
+                       ? new JProperty("description",  Description.ToJSON())
+                       : null,
+
+                   Address != null
+                       ? new JProperty("address",      Address.    ToJSON())
+                       : null,
+
                    new JProperty("isPublic",     IsPublic),
                    new JProperty("isDisabled",   IsDisabled),
 
-                   IncludeHash
-                       ? new JProperty("Hash",   CurrentCryptoHash)
+                   IncludeCryptoHash
+                       ? new JProperty("cryptoHash",   CurrentCryptoHash)
                        : null
 
                );
@@ -470,10 +478,17 @@ namespace org.GraphDefined.OpenData.Users
             public I18NString       Name                 { get; set; }
 
             /// <summary>
-            /// An optional (multi-language) description of the organization.
+            /// The optional (multi-language) description of the organization.
             /// </summary>
             [Optional]
             public I18NString       Description          { get; set; }
+
+            /// <summary>
+            /// The optional address of the organization.
+            /// </summary>
+            [Optional]
+            public Address          Address              { get; set; }
+
 
             /// <summary>
             /// The organization will be shown in organization listings.
@@ -497,11 +512,13 @@ namespace org.GraphDefined.OpenData.Users
             /// <param name="Id">The unique identification of the organization.</param>
             /// <param name="Name">An offical (multi-language) name of the organization.</param>
             /// <param name="Description">An optional (multi-language) description of the organization.</param>
+            /// <param name="Address">An optional address of the organization.</param>
             /// <param name="IsPublic">The organization will be shown in organization listings.</param>
             /// <param name="IsDisabled">The organization is disabled.</param>
             public Builder(Organization_Id  Id,
                            I18NString       Name          = null,
                            I18NString       Description   = null,
+                           Address          Address       = null,
                            Boolean          IsPublic      = true,
                            Boolean          IsDisabled    = false)
             {
@@ -511,6 +528,7 @@ namespace org.GraphDefined.OpenData.Users
                 this.Id           = Id;
                 this.Name         = Name        ?? new I18NString();
                 this.Description  = Description ?? new I18NString();
+                this.Address      = Address;
 
                 this.IsPublic     = IsPublic;
                 this.IsDisabled   = IsDisabled;
@@ -540,6 +558,7 @@ namespace org.GraphDefined.OpenData.Users
                 => new Organization(Id,
                                     Name,
                                     Description,
+                                    Address,
 
                                     IsPublic,
                                     IsDisabled);

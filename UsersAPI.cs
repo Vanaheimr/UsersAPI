@@ -2009,6 +2009,7 @@ namespace org.GraphDefined.OpenData.Users
                                 var Organization = new Organization(Organization_Id.Parse(JSONParameters["@id"].Value<String>()),
                                                                     JSONParameters.ParseI18NString("name"),
                                                                     JSONParameters.ParseI18NString("description"),
+                                                                    JSONParameters.ParseAddress   ("address"),
                                                                     JSONParameters["isPublic"  ].Value<Boolean>(),
                                                                     JSONParameters["isDisabled"].Value<Boolean>());
 
