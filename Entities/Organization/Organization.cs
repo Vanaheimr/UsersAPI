@@ -81,10 +81,16 @@ namespace org.GraphDefined.OpenData.Users
         public I18NString  Name          { get; }
 
         /// <summary>
-        /// An optional (multi-language) description of the organization.
+        /// The optional (multi-language) description of the organization.
         /// </summary>
         [Optional]
         public I18NString  Description   { get; }
+
+        /// <summary>
+        /// The optional address of the organization.
+        /// </summary>
+        [Optional]
+        public Address     Address       { get; }
 
 
         /// <summary>
@@ -113,12 +119,14 @@ namespace org.GraphDefined.OpenData.Users
         /// <param name="Id">The unique identification of the organization.</param>
         /// <param name="Name">The offical (multi-language) name of the organization.</param>
         /// <param name="Description">An optional (multi-language) description of the organization.</param>
+        /// <param name="Address">An optional address of the organisation.</param>
         /// <param name="IsPublic">The organization will be shown in user listings.</param>
         /// <param name="IsDisabled">The organization is disabled.</param>
         /// <param name="DataSource">The source of all this data, e.g. an automatic importer.</param>
         public Organization(Organization_Id  Id,
                             I18NString       Name          = null,
                             I18NString       Description   = null,
+                            Address          Address       = null,
                             Boolean          IsPublic      = true,
                             Boolean          IsDisabled    = false,
                             String           DataSource    = "")
@@ -132,6 +140,7 @@ namespace org.GraphDefined.OpenData.Users
 
             this.Name          = Name        ?? new I18NString();
             this.Description   = Description ?? new I18NString();
+            this.Address       = Address;
 
             this.IsPublic      = IsPublic;
             this.IsDisabled    = IsDisabled;

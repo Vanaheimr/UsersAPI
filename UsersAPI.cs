@@ -2792,6 +2792,7 @@ namespace org.GraphDefined.OpenData.Users
         public Organization CreateOrganization(Organization_Id  Id,
                                                I18NString       Name                = null,
                                                I18NString       Description         = null,
+                                               Address          Address             = null,
                                                Organization     ParentOrganization  = null)
         {
 
@@ -2804,7 +2805,8 @@ namespace org.GraphDefined.OpenData.Users
 
                 var Organization = new Organization(Id,
                                                     Name,
-                                                    Description);
+                                                    Description,
+                                                    Address);
 
                 WriteToLogfile("CreateOrganization", Organization.ToJSON());
 
@@ -2826,6 +2828,7 @@ namespace org.GraphDefined.OpenData.Users
         public Organization CreateOrganizationIfNotExists(Organization_Id  Id,
                                                           I18NString       Name                = null,
                                                           I18NString       Description         = null,
+                                                          Address          Address             = null,
                                                           Organization     ParentOrganization  = null)
         {
 
@@ -2838,6 +2841,7 @@ namespace org.GraphDefined.OpenData.Users
                 return CreateOrganization(Id,
                                           Name,
                                           Description,
+                                          Address,
                                           ParentOrganization);
 
             }
