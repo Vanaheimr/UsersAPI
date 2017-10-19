@@ -1955,133 +1955,140 @@ namespace org.GraphDefined.OpenData.Users
 
                 File.ReadLines(DefaultUsersAPIFile).ForEachCounted((line, linenumber) => {
 
-                    try
+                    if (line.IsNeitherNullNorEmpty() &&
+                       !line.StartsWith("#")         &&
+                       !line.StartsWith("//"))
                     {
 
-                        var JSONCommand     = JObject.Parse(line);
-                        var JSONParameters  = (JSONCommand.First as JProperty).Value as JObject;
-                        CurrentHash         = JSONCommand["HashValue"].Value<String>();
-
-                        switch ((JSONCommand.First as JProperty).Name)
+                        try
                         {
 
-                            #region CreateUser
+                            var JSONCommand     = JObject.Parse(line);
+                            var JSONParameters  = (JSONCommand.First as JProperty)?.Value as JObject;
+                            CurrentHash         = JSONCommand["HashValue"].Value<String>();
 
-                            case "CreateUser":
+                            switch ((JSONCommand.First as JProperty)?.Name)
+                            {
 
-                                var User = new User(User_Id.           Parse(JSONParameters["@id"            ].Value<String>()),
-                                                    SimpleEMailAddress.Parse(JSONParameters["email"          ].Value<String>()),
-                                                                             JSONParameters["name"           ].Value<String>(),
-                                                                             JSONParameters["publicKey"      ]?.Value<String>(),
-                                                                             JSONParameters["telephone"      ]?.Value<String>(),
-                                                                             JSONParameters.ParseI18NString("description"),
-                                                                             JSONParameters["isAuthenticated"].Value<Boolean>(),
-                                                                             JSONParameters["isPublic"       ].Value<Boolean>(),
-                                                                             JSONParameters["isDisabled"     ].Value<Boolean>());
+                                #region CreateUser
 
-                                _Users.AddAndReturnValue(User.Id, User);
+                                case "CreateUser":
 
-                                break;
+                                    var User = new User(User_Id.           Parse(JSONParameters["@id"            ].Value<String>()),
+                                                        SimpleEMailAddress.Parse(JSONParameters["email"          ].Value<String>()),
+                                                                                 JSONParameters["name"           ].Value<String>(),
+                                                                                 JSONParameters["publicKey"      ]?.Value<String>(),
+                                                                                 JSONParameters["telephone"      ]?.Value<String>(),
+                                                                                 JSONParameters.ParseI18NString("description"),
+                                                                                 JSONParameters["isAuthenticated"].Value<Boolean>(),
+                                                                                 JSONParameters["isPublic"       ].Value<Boolean>(),
+                                                                                 JSONParameters["isDisabled"     ].Value<Boolean>());
 
-                            #endregion
+                                    _Users.AddAndReturnValue(User.Id, User);
 
-                            #region CreateGroup
+                                    break;
 
-                            case "CreateGroup":
+                                #endregion
 
-                                var Group = new Group(Group_Id.Parse(JSONParameters["@id"].Value<String>()),
-                                                      JSONParameters.ParseI18NString("name"),
-                                                      JSONParameters.ParseI18NString("description"),
-                                                      JSONParameters["isPublic"].   Value<Boolean>(),
-                                                      JSONParameters["isDisabled"]. Value<Boolean>());
+                                #region CreateGroup
 
-                                if (Group.Id != Admins.Id)
-                                    _Groups.AddAndReturnValue(Group.Id, Group);
+                                case "CreateGroup":
 
-                                break;
+                                    var Group = new Group(Group_Id.Parse(JSONParameters["@id"].Value<String>()),
+                                                          JSONParameters.ParseI18NString("name"),
+                                                          JSONParameters.ParseI18NString("description"),
+                                                          JSONParameters["isPublic"].   Value<Boolean>(),
+                                                          JSONParameters["isDisabled"]. Value<Boolean>());
 
-                            #endregion
+                                    if (Group.Id != Admins.Id)
+                                        _Groups.AddAndReturnValue(Group.Id, Group);
 
-                            #region CreateOrganization
+                                    break;
 
-                            case "CreateOrganization":
+                                #endregion
 
-                                var Organization = new Organization(Organization_Id.Parse(JSONParameters["@id"].Value<String>()),
-                                                                    JSONParameters.ParseI18NString("name"),
-                                                                    JSONParameters.ParseI18NString("description"),
-                                                                    JSONParameters.ParseAddress   ("address"),
-                                                                    JSONParameters["isPublic"  ].Value<Boolean>(),
-                                                                    JSONParameters["isDisabled"].Value<Boolean>());
+                                #region CreateOrganization
 
-                                _Organizations.AddAndReturnValue(Organization.Id, Organization);
+                                case "CreateOrganization":
 
-                                break;
+                                    var Organization = new Organization(Organization_Id.Parse(JSONParameters["@id"].Value<String>()),
+                                                                        JSONParameters.ParseI18NString("name"),
+                                                                        JSONParameters.ParseI18NString("description"),
+                                                                        JSONParameters.ParseAddress   ("address"),
+                                                                        JSONParameters["isPublic"  ].Value<Boolean>(),
+                                                                        JSONParameters["isDisabled"].Value<Boolean>());
 
-                            #endregion
+                                    _Organizations.AddAndReturnValue(Organization.Id, Organization);
 
-                            #region CreateOrganization
+                                    break;
 
-                            case "LinkOrganizations":
+                                #endregion
 
-                                var O2O_OrganizationOut  = _Organizations[Organization_Id.Parse(JSONParameters["organizationOut"].Value<String>())];
-                                var O2O_OrganizationIn   = _Organizations[Organization_Id.Parse(JSONParameters["organizationIn" ].Value<String>())];
-                                var O2O_EdgeLabel        = (Organization2OrganizationEdges) Enum.Parse(typeof(Organization2OrganizationEdges), JSONParameters["edge"].   Value<String>());
-                                var O2O_Privacy          = (PrivacyLevel)                   Enum.Parse(typeof(PrivacyLevel),                   JSONParameters["privacy"].Value<String>());
+                                #region LinkOrganizations
 
-                                if (!O2O_OrganizationOut.Organization2OrganizationOutEdges.Any(edge => edge.EdgeLabel == O2O_EdgeLabel && edge.Target == O2O_OrganizationIn))
-                                    O2O_OrganizationOut.AddOutEdge(O2O_EdgeLabel, O2O_OrganizationIn,  O2O_Privacy);
+                                case "LinkOrganizations":
 
-                                if (!O2O_OrganizationIn. Organization2OrganizationInEdges. Any(edge => edge.EdgeLabel == O2O_EdgeLabel && edge.Source == O2O_OrganizationOut))
-                                    O2O_OrganizationIn. AddInEdge (O2O_EdgeLabel, O2O_OrganizationOut, O2O_Privacy);
+                                    var O2O_OrganizationOut  = _Organizations[Organization_Id.Parse(JSONParameters["organizationOut"].Value<String>())];
+                                    var O2O_OrganizationIn   = _Organizations[Organization_Id.Parse(JSONParameters["organizationIn" ].Value<String>())];
+                                    var O2O_EdgeLabel        = (Organization2OrganizationEdges) Enum.Parse(typeof(Organization2OrganizationEdges), JSONParameters["edge"].   Value<String>());
+                                    var O2O_Privacy          = (PrivacyLevel)                   Enum.Parse(typeof(PrivacyLevel),                   JSONParameters["privacy"].Value<String>());
 
-                                break;
+                                    if (!O2O_OrganizationOut.Organization2OrganizationOutEdges.Any(edge => edge.EdgeLabel == O2O_EdgeLabel && edge.Target == O2O_OrganizationIn))
+                                        O2O_OrganizationOut.AddOutEdge(O2O_EdgeLabel, O2O_OrganizationIn,  O2O_Privacy);
 
-                            #endregion
+                                    if (!O2O_OrganizationIn. Organization2OrganizationInEdges. Any(edge => edge.EdgeLabel == O2O_EdgeLabel && edge.Source == O2O_OrganizationOut))
+                                        O2O_OrganizationIn. AddInEdge (O2O_EdgeLabel, O2O_OrganizationOut, O2O_Privacy);
 
-                            #region AddUserToGroup
+                                    break;
 
-                            case "AddUserToGroup":
+                                #endregion
 
-                                var U2G_User     = _Users [User_Id. Parse(JSONParameters["user" ].Value<String>())];
-                                var U2G_Group    = _Groups[Group_Id.Parse(JSONParameters["group"].Value<String>())];
-                                var U2G_Edge     = (User2GroupEdges) Enum.Parse(typeof(User2GroupEdges), JSONParameters["edge"].   Value<String>());
-                                var U2G_Privacy  = (PrivacyLevel)    Enum.Parse(typeof(PrivacyLevel),    JSONParameters["privacy"].Value<String>());
+                                #region AddUserToGroup
 
-                                if (!U2G_User.OutEdges(U2G_Group).Any(edge => edge == U2G_Edge))
-                                    U2G_User.AddOutgoingEdge(U2G_Edge, U2G_Group, U2G_Privacy);
+                                case "AddUserToGroup":
 
-                                if (!U2G_Group.Edges(U2G_Group).Any(edge => edge == U2G_Edge))
-                                    U2G_Group.AddIncomingEdge(U2G_User, U2G_Edge, U2G_Privacy);
+                                    var U2G_User     = _Users [User_Id. Parse(JSONParameters["user" ].Value<String>())];
+                                    var U2G_Group    = _Groups[Group_Id.Parse(JSONParameters["group"].Value<String>())];
+                                    var U2G_Edge     = (User2GroupEdges) Enum.Parse(typeof(User2GroupEdges), JSONParameters["edge"].   Value<String>());
+                                    var U2G_Privacy  = (PrivacyLevel)    Enum.Parse(typeof(PrivacyLevel),    JSONParameters["privacy"].Value<String>());
 
-                                break;
+                                    if (!U2G_User.OutEdges(U2G_Group).Any(edge => edge == U2G_Edge))
+                                        U2G_User.AddOutgoingEdge(U2G_Edge, U2G_Group, U2G_Privacy);
 
-                            #endregion
+                                    if (!U2G_Group.Edges(U2G_Group).Any(edge => edge == U2G_Edge))
+                                        U2G_Group.AddIncomingEdge(U2G_User, U2G_Edge, U2G_Privacy);
 
-                            #region AddUserToOrganization
+                                    break;
 
-                            case "AddUserToOrganization":
+                                #endregion
 
-                                var U2O_User          = _Users        [User_Id.        Parse(JSONParameters["user" ].Value<String>())];
-                                var U2O_Organization  = _Organizations[Organization_Id.Parse(JSONParameters["organization"].Value<String>())];
-                                var U2O_Edge          = (User2OrganizationEdges) Enum.Parse(typeof(User2OrganizationEdges), JSONParameters["edge"].   Value<String>());
-                                var U2O_Privacy       = (PrivacyLevel)           Enum.Parse(typeof(PrivacyLevel),           JSONParameters["privacy"].Value<String>());
+                                #region AddUserToOrganization
 
-                                if (!U2O_User.Edges(U2O_Organization).Any(edgelabel => edgelabel == U2O_Edge))
-                                    U2O_User.AddOutgoingEdge(U2O_Edge, U2O_Organization, U2O_Privacy);
+                                case "AddUserToOrganization":
 
-                                if (!U2O_Organization.InEdges(U2O_Organization).Any(edgelabel => edgelabel == U2O_Edge))
-                                    U2O_Organization.AddIncomingEdge(U2O_User, U2O_Edge, U2O_Privacy);
+                                    var U2O_User          = _Users        [User_Id.        Parse(JSONParameters["user" ].Value<String>())];
+                                    var U2O_Organization  = _Organizations[Organization_Id.Parse(JSONParameters["organization"].Value<String>())];
+                                    var U2O_Edge          = (User2OrganizationEdges) Enum.Parse(typeof(User2OrganizationEdges), JSONParameters["edge"].   Value<String>());
+                                    var U2O_Privacy       = (PrivacyLevel)           Enum.Parse(typeof(PrivacyLevel),           JSONParameters["privacy"].Value<String>());
 
-                                break;
+                                    if (!U2O_User.Edges(U2O_Organization).Any(edgelabel => edgelabel == U2O_Edge))
+                                        U2O_User.AddOutgoingEdge(U2O_Edge, U2O_Organization, U2O_Privacy);
 
-                             #endregion
+                                    if (!U2O_Organization.InEdges(U2O_Organization).Any(edgelabel => edgelabel == U2O_Edge))
+                                        U2O_Organization.AddIncomingEdge(U2O_User, U2O_Edge, U2O_Privacy);
+
+                                    break;
+
+                                 #endregion
+
+                            }
 
                         }
+                        catch (Exception e)
+                        {
+                            DebugX.Log(@"Could not read UserDB file """ + DefaultUsersAPIFile + @""" line " + linenumber + ": " + e.Message);
+                        }
 
-                    }
-                    catch (Exception e)
-                    {
-                        DebugX.Log(@"Could not read UserDB file """ + DefaultUsersAPIFile + @""" line " + linenumber + ": " + e.Message);
                     }
 
                 });
@@ -2261,7 +2268,7 @@ namespace org.GraphDefined.OpenData.Users
                     Request.RemoteSocket.IPAddress as IPv4Address == IPv4Address.Localhost)
                 {
                     User           = Admins.User2GroupInEdges(edgelabel => edgelabel == User2GroupEdges.IsAdmin).FirstOrDefault()?.Source;
-                    Organizations  = null;
+                    Organizations  = User.Organizations(RequireReadWriteAccess, Recursive);
                     Response       = null;
                     return true;
                 }
@@ -2298,26 +2305,41 @@ namespace org.GraphDefined.OpenData.Users
             lock (DefaultUsersAPIFile)
             {
 
-                var _JObject   = new JObject(
-                                     new JProperty(Command,       JSON),
-                                     new JProperty("Writer",      SystemId),
-                                     new JProperty("Timestamp",   DateTime.UtcNow.ToIso8601()),
-                                     new JProperty("Nonce",       Guid.NewGuid().ToString().Replace("-", "")),
-                                     new JProperty("ParentHash",  CurrentHash)
-                                 );
-
-                var SHA256     = new SHA256Managed();
-                CurrentHash    = SHA256.ComputeHash(Encoding.Unicode.GetBytes(JSONWhitespaceRegEx.Replace(_JObject.ToString(), " "))).
-                                        Select(value => String.Format("{0:x2}", value)).
-                                        Aggregate();
-
-                _JObject.Add(new JProperty("HashValue", CurrentHash));
-
-                File.AppendAllText(DefaultUsersAPIFile,
-                                   JSONWhitespaceRegEx.Replace(_JObject.ToString(), " ") +
-                                   Environment.NewLine);
+                WriteToLogfile(DefaultUsersAPIFile,
+                               Command,
+                               JSON);
 
             }
+
+        }
+
+        #endregion
+
+        #region WriteToLogfile(Logfilename, Command, JSON)
+
+        public void WriteToLogfile(String   Logfilename,
+                                   String   Command,
+                                   JObject  JSON)
+        {
+
+            var _JObject   = new JObject(
+                                 new JProperty(Command,       JSON),
+                                 new JProperty("Writer",      SystemId),
+                                 new JProperty("Timestamp",   DateTime.UtcNow.ToIso8601()),
+                                 new JProperty("Nonce",       Guid.NewGuid().ToString().Replace("-", "")),
+                                 new JProperty("ParentHash",  CurrentHash)
+                             );
+
+            var SHA256     = new SHA256Managed();
+            CurrentHash    = SHA256.ComputeHash(Encoding.Unicode.GetBytes(JSONWhitespaceRegEx.Replace(_JObject.ToString(), " "))).
+                                    Select(value => String.Format("{0:x2}", value)).
+                                    Aggregate();
+
+            _JObject.Add(new JProperty("HashValue", CurrentHash));
+
+            File.AppendAllText(Logfilename,
+                               JSONWhitespaceRegEx.Replace(_JObject.ToString(), " ") +
+                               Environment.NewLine);
 
         }
 
