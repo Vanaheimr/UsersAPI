@@ -1126,7 +1126,7 @@ namespace org.GraphDefined.OpenData.Users
                                   LoginData.TryGetValue("RedirectURI", out String RedirectURI);
 
                                   if (RedirectURI.IsNotNullOrEmpty())
-                                     RedirectURI = HTTPTools.URLDecode(Realm);
+                                     RedirectURI = HTTPTools.URLDecode(RedirectURI);
                                   else
                                      RedirectURI = "/";
 
