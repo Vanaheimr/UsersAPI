@@ -207,6 +207,10 @@ body {
             }
         }
 
+        li.active {
+            background-color:    $NavigationSubBackActive;
+        }
+
     }
 
 }
@@ -303,3 +307,8 @@ span.hidden {
     display:        none;
 }
 
+.admin {
+    display:        none;
+    color:          green;
+    background-color: yellowgreen;
+}

@@ -1,6 +1,7 @@
 var HTTPCookieId = "UsersAPI";
 var CurrentlyHighlightedMenuItem = "";
-// #region MenuHighlight(name)
+var CurrentlyHighlightedSubmenuItem = "";
+// #region MenuHighlight(name, NoURIupdate?)
 function MenuHighlight(name, NoURIupdate) {
     if (CurrentlyHighlightedMenuItem != "") {
         var OldItem = document.getElementById('Item' + CurrentlyHighlightedMenuItem);
@@ -20,6 +21,23 @@ function MenuHighlight(name, NoURIupdate) {
     if (history && history.pushState && !NoURIupdate) {
         history.pushState(null, null, '/' + name.toLowerCase() + '/index.shtml');
     }
+}
+// #endregion
+// #region SubmenuHighlight(name, subname, NoURIupdate?)
+function SubmenuHighlight(name, subname, NoURIupdate) {
+    MenuHighlight(name, true);
+    if (CurrentlyHighlightedSubmenuItem != "") {
+        var OldItem = document.getElementById('Item' + CurrentlyHighlightedSubmenuItem);
+        if (OldItem != null)
+            OldItem.classList.remove('active');
+    }
+    var NewItem = document.getElementById('Item' + name + "/" + subname);
+    if (NewItem != null)
+        NewItem.classList.add('active');
+    CurrentlyHighlightedSubmenuItem = name + "/" + subname;
+    //if (history && history.pushState && !NoURIupdate) {
+    //    history.pushState(null, null, '/' + name.toLowerCase() + '/index.shtml');
+    //}
 }
 // #endregion
 // #region SendJSON(HTTPVerb, URI, APIKey, Data, OnSuccess, OnError)

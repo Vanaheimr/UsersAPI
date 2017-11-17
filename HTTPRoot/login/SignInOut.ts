@@ -127,8 +127,10 @@ function checkSignedIn() {
                        if (crumb.indexOf("username") >= 0)
                            (<HTMLElement> document.querySelector('#username')).innerText = atob(crumb.split("=")[1]);
 
-                       if (crumb.indexOf("isAdmin")  >= 0)
+                       if (crumb.indexOf("isAdmin") >= 0) {
                            ShowElement('#admin');
+                           ShowElement('.admin');
+                       }
 
                    });
 
@@ -149,6 +151,7 @@ function checkAdminSignedIn() {
                cookie => {
 
                    ShowElement('#admin');
+                   ShowElement('.admin');
 
                    if (cookie.indexOf(":isAdmin") < 0)
                        location.href = "/";

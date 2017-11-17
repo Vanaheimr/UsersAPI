@@ -1,8 +1,9 @@
 ﻿
 var HTTPCookieId: string = "UsersAPI";
-var CurrentlyHighlightedMenuItem  = "";
+var CurrentlyHighlightedMenuItem     = "";
+var CurrentlyHighlightedSubmenuItem  = "";
 
-// #region MenuHighlight(name)
+// #region MenuHighlight(name, NoURIupdate?)
 
 function MenuHighlight(name: string, NoURIupdate?: boolean) {
 
@@ -31,6 +32,34 @@ function MenuHighlight(name: string, NoURIupdate?: boolean) {
     if (history && history.pushState && !NoURIupdate) {
         history.pushState(null, null, '/' + name.toLowerCase() + '/index.shtml');
     }
+
+}
+
+// #endregion
+
+// #region SubmenuHighlight(name, subname, NoURIupdate?)
+
+function SubmenuHighlight(name: string, subname: string, NoURIupdate?: boolean) {
+
+    MenuHighlight(name, true);
+
+    if (CurrentlyHighlightedSubmenuItem != "") {
+
+        var OldItem = <HTMLDivElement> document.getElementById('Item' + CurrentlyHighlightedSubmenuItem);
+        if (OldItem != null)
+            OldItem.classList.remove('active');
+
+    }
+
+    var NewItem = <HTMLDivElement> document.getElementById('Item' + name + "/" + subname);
+    if (NewItem != null)
+        NewItem.classList.add('active');
+
+    CurrentlyHighlightedSubmenuItem = name + "/" + subname;
+
+    //if (history && history.pushState && !NoURIupdate) {
+    //    history.pushState(null, null, '/' + name.toLowerCase() + '/index.shtml');
+    //}
 
 }
 

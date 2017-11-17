@@ -133,6 +133,8 @@ body {
     .subnavigation ul li.small a {
       font-size: 70%;
       color: #ff0000; }
+    .subnavigation ul li.active {
+      background-color: #abbbd4; }
 
 #text {
   position: absolute;
@@ -201,4 +203,9 @@ select[disabled] {
 
 span.hidden {
   display: none; }
+
+.admin {
+  display: none;
+  color: green;
+  background-color: yellowgreen; }
 

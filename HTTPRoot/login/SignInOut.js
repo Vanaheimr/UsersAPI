@@ -68,8 +68,10 @@ function checkSignedIn() {
                 SignInUser = atob(crumb.split("=")[1]);
             if (crumb.indexOf("username") >= 0)
                 document.querySelector('#username').innerText = atob(crumb.split("=")[1]);
-            if (crumb.indexOf("isAdmin") >= 0)
+            if (crumb.indexOf("isAdmin") >= 0) {
                 ShowElement('#admin');
+                ShowElement('.admin');
+            }
         });
     }, function () {
         location.href = "/login";
@@ -78,6 +80,7 @@ function checkSignedIn() {
 function checkAdminSignedIn() {
     WithCookie(HTTPCookieId, function (cookie) {
         ShowElement('#admin');
+        ShowElement('.admin');
         if (cookie.indexOf(":isAdmin") < 0)
             location.href = "/";
     }, function () {
