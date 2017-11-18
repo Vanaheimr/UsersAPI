@@ -43,11 +43,175 @@ using org.GraphDefined.Vanaheimr.BouncyCastle;
 using org.GraphDefined.Vanaheimr.Hermod.Sockets;
 using System.Text;
 using org.GraphDefined.Vanaheimr.Hermod.Distributed;
+using org.GraphDefined.Vanaheimr.Aegir;
 
 #endregion
 
 namespace org.GraphDefined.OpenData.Users
 {
+
+    /// <summary>
+    /// Extention method for the Users API.
+    /// </summary>
+    public static class UsersAPIExtentions
+    {
+
+        #region ParseUserId(this HTTPRequest, UsersAPI, out UserId,           out HTTPResponse)
+
+        /// <summary>
+        /// Parse the given HTTP request and return the user identification
+        /// for the given HTTP hostname and HTTP query parameter
+        /// or an HTTP error response.
+        /// </summary>
+        /// <param name="HTTPRequest">A HTTP request.</param>
+        /// <param name="UsersAPI">The Users API.</param>
+        /// <param name="UserId">The parsed unique user identification.</param>
+        /// <param name="HTTPResponse">A HTTP error response.</param>
+        /// <returns>True, when user identification was found; false else.</returns>
+        public static Boolean ParseUserId(this HTTPRequest  HTTPRequest,
+                                          UsersAPI          UsersAPI,
+                                          out User_Id?      UserId,
+                                          out HTTPResponse  HTTPResponse)
+        {
+
+            #region Initial checks
+
+            if (HTTPRequest == null)
+                throw new ArgumentNullException(nameof(HTTPRequest),  "The given HTTP request must not be null!");
+
+            if (UsersAPI    == null)
+                throw new ArgumentNullException(nameof(UsersAPI),     "The given Users API must not be null!");
+
+            #endregion
+
+            UserId        = null;
+            HTTPResponse  = null;
+
+            if (HTTPRequest.ParsedURIParameters.Length < 1)
+            {
+
+                HTTPResponse = new HTTPResponseBuilder(HTTPRequest) {
+                    HTTPStatusCode  = HTTPStatusCode.BadRequest,
+                    Server          = UsersAPI.HTTPServer.DefaultServerName,
+                    Date            = DateTime.UtcNow,
+                    Connection      = "close"
+                };
+
+                return false;
+
+            }
+
+            UserId = User_Id.TryParse(HTTPRequest.ParsedURIParameters[0], "");
+
+            if (!UserId.HasValue)
+            {
+
+                HTTPResponse = new HTTPResponseBuilder(HTTPRequest) {
+                    HTTPStatusCode  = HTTPStatusCode.BadRequest,
+                    Server          = UsersAPI.HTTPServer.DefaultServerName,
+                    Date            = DateTime.UtcNow,
+                    ContentType     = HTTPContentType.JSON_UTF8,
+                    Content         = @"{ ""description"": ""Invalid UserId!"" }".ToUTF8Bytes(),
+                    Connection      = "close"
+                };
+
+                return false;
+
+            }
+
+            return true;
+
+        }
+
+        #endregion
+
+        #region ParseUser  (this HTTPRequest, UsersAPI, out UserId, out User, out HTTPResponse)
+
+        /// <summary>
+        /// Parse the given HTTP request and return the user identification
+        /// for the given HTTP hostname and HTTP query parameter
+        /// or an HTTP error response.
+        /// </summary>
+        /// <param name="HTTPRequest">A HTTP request.</param>
+        /// <param name="UsersAPI">The Users API.</param>
+        /// <param name="UserId">The parsed unique user identification.</param>
+        /// <param name="User">The resolved user.</param>
+        /// <param name="HTTPResponse">A HTTP error response.</param>
+        /// <returns>True, when user identification was found; false else.</returns>
+        public static Boolean ParseUser(this HTTPRequest  HTTPRequest,
+                                        UsersAPI          UsersAPI,
+                                        out User_Id?      UserId,
+                                        out User          User,
+                                        out HTTPResponse  HTTPResponse)
+        {
+
+            #region Initial checks
+
+            if (HTTPRequest == null)
+                throw new ArgumentNullException(nameof(HTTPRequest),  "The given HTTP request must not be null!");
+
+            if (UsersAPI    == null)
+                throw new ArgumentNullException(nameof(UsersAPI),     "The given Users API must not be null!");
+
+            #endregion
+
+            UserId        = null;
+            User          = null;
+            HTTPResponse  = null;
+
+            if (HTTPRequest.ParsedURIParameters.Length < 1) {
+
+                HTTPResponse = new HTTPResponseBuilder(HTTPRequest) {
+                    HTTPStatusCode  = HTTPStatusCode.BadRequest,
+                    Server          = UsersAPI.HTTPServer.DefaultServerName,
+                    Date            = DateTime.UtcNow,
+                    Connection      = "close"
+                };
+
+                return false;
+
+            }
+
+            UserId = User_Id.TryParse(HTTPRequest.ParsedURIParameters[0], "");
+
+            if (!UserId.HasValue) {
+
+                HTTPResponse = new HTTPResponseBuilder(HTTPRequest) {
+                    HTTPStatusCode  = HTTPStatusCode.BadRequest,
+                    Server          = UsersAPI.HTTPServer.DefaultServerName,
+                    Date            = DateTime.UtcNow,
+                    ContentType     = HTTPContentType.JSON_UTF8,
+                    Content         = @"{ ""description"": ""Invalid UserId!"" }".ToUTF8Bytes(),
+                    Connection      = "close"
+                };
+
+                return false;
+
+            }
+
+            if (!UsersAPI.TryGetUser(UserId.Value, out User)) {
+
+                HTTPResponse = new HTTPResponseBuilder(HTTPRequest) {
+                    HTTPStatusCode  = HTTPStatusCode.NotFound,
+                    Server          = UsersAPI.HTTPServer.DefaultServerName,
+                    Date            = DateTime.UtcNow,
+                    ContentType     = HTTPContentType.JSON_UTF8,
+                    Content         = @"{ ""description"": ""Unknown UserId!"" }".ToUTF8Bytes(),
+                    Connection      = "close"
+                };
+
+                return false;
+
+            }
+
+            return true;
+
+        }
+
+        #endregion
+
+    }
+
 
     /// <summary>
     /// A library for managing users within and HTTP API or website.
@@ -1271,8 +1435,8 @@ namespace org.GraphDefined.OpenData.Users
             // -------------------------------------------------------------------
             HTTPServer.ITEMS_GET(UriTemplate: "/users",
                                   Dictionary: _Users,
-                                  Filter: user => user.IsPublic,
-                                  ToJSONDelegate: JSON.ToJSON);
+                                  Filter: user => user.PrivacyLevel == PrivacyLevel.World,
+                                  ToJSONDelegate: JSON_IO.ToJSON);
 
             #endregion
 
@@ -1606,7 +1770,7 @@ namespace org.GraphDefined.OpenData.Users
                                                    ParseIdDelegate: User_Id.TryParse,
                                                    ParseIdError: Text => "Invalid user identification '" + Text + "'!",
                                                    TryGetItemDelegate: _Users.TryGetValue,
-                                                   ItemFilterDelegate: user => user.IsPublic,
+                                                   ItemFilterDelegate: user => user.PrivacyLevel == PrivacyLevel.World,
                                                    TryGetItemError: userId => "Unknown user '" + userId + "'!");
 
             #endregion
@@ -1620,9 +1784,89 @@ namespace org.GraphDefined.OpenData.Users
                                                ParseIdDelegate:     User_Id.TryParse,
                                                ParseIdError:        Text => "Invalid user identification '" + Text + "'!",
                                                TryGetItemDelegate:  _Users.TryGetValue,
-                                               ItemFilterDelegate:  user   => user.IsPublic,
+                                               ItemFilterDelegate:  user   => user.PrivacyLevel == PrivacyLevel.World,
                                                TryGetItemError:     userId => "Unknown user '" + userId + "'!",
                                                ToJSONDelegate:      user   => user.ToJSON(IncludeHash: true));
+
+            //HTTPServer.AddMethodCallback(Hostname,
+            //                             HTTPMethod.GET,
+            //                             URIPrefix + "users/{UserId}",
+            //                             HTTPContentType.JSON_UTF8,
+            //                             HTTPDelegate: Request => {
+
+            //                                 #region Get HTTP user and its organizations
+
+            //                                 // Will return HTTP 401 Unauthorized, when the HTTP user is unknown!
+            //                                 TryGetHTTPUser(Request,
+            //                                                out User                       HTTPUser,
+            //                                                out IEnumerable<Organization>  HTTPOrganizations,
+            //                                                Recursive: true);
+
+            //                                 #endregion
+
+            //                                 #region Check DefibrillatorId URI parameter
+
+            //                                 if (!Request.ParseUser(this,
+            //                                                        out User_Id?      DefibrillatorId,
+            //                                                        out User          Defibrillator,
+            //                                                        out HTTPResponse  HTTPResponse))
+            //                                 {
+            //                                     return Task.FromResult(HTTPResponse);
+            //                                 }
+
+            //                                 #endregion
+
+            //                                 if (Organizations.Contains(Defibrillator.Owner) ||
+            //                                     Admins.InEdges(HTTPUser).Any(edgelabel => edgelabel == User2GroupEdges.IsAdmin))
+            //                                 {
+
+            //                                     return Task.FromResult(
+            //                                         new HTTPResponseBuilder(Request) {
+            //                                                          HTTPStatusCode             = HTTPStatusCode.OK,
+            //                                                          Server                     = HTTPServer.DefaultServerName,
+            //                                                          Date                       = DateTime.UtcNow,
+            //                                                          AccessControlAllowOrigin   = "*",
+            //                                                          AccessControlAllowMethods  = "GET, SET",
+            //                                                          AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
+            //                                                          ETag                       = "1",
+            //                                                          ContentType                = HTTPContentType.HTML_UTF8,
+            //                                                          Content                    = Template.Replace("<%= content %>",   _MemoryStream2.ToArray().ToUTF8String()).
+            //                                                                                                Replace("<%= logoimage %>", String.Concat(@"<img src=""", LogoImage, @""" /> ")).
+            //                                                                                                ToUTF8Bytes(),
+            //                                                          Connection                 = "close"
+            //                                                      }.AsImmutable());
+
+
+            //                                 }
+
+            //                                 else return Task.FromResult(
+            //                                                  new HTTPResponseBuilder(Request) {
+            //                                                            HTTPStatusCode             = HTTPStatusCode.Unauthorized,
+            //                                                            Server                     = HTTPServer.DefaultServerName,
+            //                                                            Date                       = DateTime.UtcNow,
+            //                                                            AccessControlAllowOrigin   = "*",
+            //                                                            AccessControlAllowMethods  = "GET, SET",
+            //                                                            AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
+            //                                                            Connection                 = "close"
+            //                                                        }.AsImmutable());
+
+            //                             });
+
+
+            #region Get HTTP user and its organizations
+
+            // Will return HTTP 401 Unauthorized, when the HTTP user is unknown!
+            //if (!TryGetHTTPUser(Request,
+            //                    out User                       HTTPUser,
+            //                    out IEnumerable<Organization>  HTTPOrganizations,
+            //                    out HTTPResponse               Response,
+            //                    Recursive: true))
+            //{
+            //    return Task.FromResult(Response);
+            //}
+
+            #endregion
+
 
             #endregion
 
@@ -1863,8 +2107,8 @@ namespace org.GraphDefined.OpenData.Users
             // ------------------------------------------------------------------
             HTTPServer.ITEMS_GET(UriTemplate: "/groups",
                                   Dictionary: _Groups,
-                                  Filter: group => group.IsPublic,
-                                  ToJSONDelegate: JSON.ToJSON);
+                                  Filter: group => group.PrivacyLevel == PrivacyLevel.World,
+                                  ToJSONDelegate: JSON_IO.ToJSON);
 
             #endregion
 
@@ -1877,7 +2121,7 @@ namespace org.GraphDefined.OpenData.Users
                                                              ParseIdDelegate: Group_Id.TryParse,
                                                              ParseIdError: Text => "Invalid group identification '" + Text + "'!",
                                                              TryGetItemDelegate: _Groups.TryGetValue,
-                                                             ItemFilterDelegate: group => group.IsPublic,
+                                                             ItemFilterDelegate: group => group.PrivacyLevel == PrivacyLevel.World,
                                                              TryGetItemError: groupId => "Unknown group '" + groupId + "'!");
 
             #endregion
@@ -1891,7 +2135,7 @@ namespace org.GraphDefined.OpenData.Users
                                                  ParseIdDelegate:     Group_Id.TryParse,
                                                  ParseIdError:        Text => "Invalid group identification '" + Text + "'!",
                                                  TryGetItemDelegate:  _Groups.TryGetValue,
-                                                 ItemFilterDelegate:  group => group.IsPublic,
+                                                 ItemFilterDelegate:  group => group.PrivacyLevel == PrivacyLevel.World,
                                                  TryGetItemError:     groupId => "Unknown group '" + groupId + "'!",
                                                  ToJSONDelegate:      _ => _.ToJSON());
 
@@ -1905,8 +2149,8 @@ namespace org.GraphDefined.OpenData.Users
             // ------------------------------------------------------------------
             HTTPServer.ITEMS_GET(UriTemplate:     "/orgs",
                                   Dictionary:      _Organizations,
-                                  Filter:          org => org.IsPublic,
-                                  ToJSONDelegate:  JSON.ToJSON);
+                                  Filter:          org => org.PrivacyLevel == PrivacyLevel.World,
+                                  ToJSONDelegate:  JSON_IO.ToJSON);
 
             #endregion
 
@@ -1919,7 +2163,7 @@ namespace org.GraphDefined.OpenData.Users
                                                                   ParseIdDelegate:           Organization_Id.TryParse,
                                                                   ParseIdError:              Text  => "Invalid organization identification '" + Text + "'!",
                                                                   TryGetItemDelegate:        _Organizations.TryGetValue,
-                                                                  ItemFilterDelegate:   org   => org.IsPublic,
+                                                                  ItemFilterDelegate:        org   => org.PrivacyLevel == PrivacyLevel.World,
                                                                   TryGetItemError:           orgId => "Unknown organization '" + orgId + "'!");
 
             #endregion
@@ -1933,7 +2177,7 @@ namespace org.GraphDefined.OpenData.Users
                                                                 ParseIdDelegate:     Organization_Id.TryParse,
                                                                 ParseIdError:        Text  => "Invalid organization identification '" + Text + "'!",
                                                                 TryGetItemDelegate:  _Organizations.TryGetValue,
-                                                                ItemFilterDelegate:  org   => org.IsPublic,
+                                                                ItemFilterDelegate:  org   => org.PrivacyLevel == PrivacyLevel.World,
                                                                 TryGetItemError:     orgId => "Unknown organization '" + orgId + "'!",
                                                                 ToJSONDelegate:      _ => _.ToJSON());
 
@@ -1974,17 +2218,12 @@ namespace org.GraphDefined.OpenData.Users
 
                                 case "CreateUser":
 
-                                    var User = new User(User_Id.           Parse(JSONParameters["@id"            ].Value<String>()),
-                                                        SimpleEMailAddress.Parse(JSONParameters["email"          ].Value<String>()),
-                                                                                 JSONParameters["name"           ].Value<String>(),
-                                                                                 JSONParameters["publicKey"      ]?.Value<String>(),
-                                                                                 JSONParameters["telephone"      ]?.Value<String>(),
-                                                                                 JSONParameters.ParseI18NString("description"),
-                                                                                 JSONParameters["isAuthenticated"].Value<Boolean>(),
-                                                                                 JSONParameters["isPublic"       ].Value<Boolean>(),
-                                                                                 JSONParameters["isDisabled"     ].Value<Boolean>());
-
-                                    _Users.AddAndReturnValue(User.Id, User);
+                                    if (User.TryParseJSON(JSONParameters,
+                                                          out User    _User,
+                                                          out String  CreateUser_ErrorResponse))
+                                    {
+                                        _Users.AddAndReturnValue(_User.Id, _User);
+                                    }
 
                                     break;
 
@@ -1994,14 +2233,13 @@ namespace org.GraphDefined.OpenData.Users
 
                                 case "CreateGroup":
 
-                                    var Group = new Group(Group_Id.Parse(JSONParameters["@id"].Value<String>()),
-                                                          JSONParameters.ParseI18NString("name"),
-                                                          JSONParameters.ParseI18NString("description"),
-                                                          JSONParameters["isPublic"].   Value<Boolean>(),
-                                                          JSONParameters["isDisabled"]. Value<Boolean>());
-
-                                    if (Group.Id != Admins.Id)
-                                        _Groups.AddAndReturnValue(Group.Id, Group);
+                                    if (Group.TryParseJSON(JSONParameters,
+                                                           out Group   _Group,
+                                                           out String  CreateGroup_ErrorResponse) &&
+                                        _Group.Id != Admins.Id)
+                                    {
+                                        _Groups.AddAndReturnValue(_Group.Id, _Group);
+                                    }
 
                                     break;
 
@@ -2011,14 +2249,12 @@ namespace org.GraphDefined.OpenData.Users
 
                                 case "CreateOrganization":
 
-                                    var Organization = new Organization(Organization_Id.Parse(JSONParameters["@id"].Value<String>()),
-                                                                        JSONParameters.ParseI18NString("name"),
-                                                                        JSONParameters.ParseI18NString("description"),
-                                                                        JSONParameters.ParseAddress   ("address"),
-                                                                        JSONParameters["isPublic"  ].Value<Boolean>(),
-                                                                        JSONParameters["isDisabled"].Value<Boolean>());
-
-                                    _Organizations.AddAndReturnValue(Organization.Id, Organization);
+                                    if (Organization.TryParseJSON(JSONParameters,
+                                                                  out Organization  _Organization,
+                                                                  out String        CreateOrganization_ErrorResponse))
+                                    {
+                                        _Organizations.AddAndReturnValue(_Organization.Id, _Organization);
+                                    }
 
                                     break;
 
@@ -2031,7 +2267,7 @@ namespace org.GraphDefined.OpenData.Users
                                     var O2O_OrganizationOut  = _Organizations[Organization_Id.Parse(JSONParameters["organizationOut"].Value<String>())];
                                     var O2O_OrganizationIn   = _Organizations[Organization_Id.Parse(JSONParameters["organizationIn" ].Value<String>())];
                                     var O2O_EdgeLabel        = (Organization2OrganizationEdges) Enum.Parse(typeof(Organization2OrganizationEdges), JSONParameters["edge"].   Value<String>());
-                                    var O2O_Privacy          = (PrivacyLevel)                   Enum.Parse(typeof(PrivacyLevel),                   JSONParameters["privacy"].Value<String>());
+                                    var O2O_Privacy          = JSONParameters.ParseMandatory_PrivacyLevel();
 
                                     if (!O2O_OrganizationOut.Organization2OrganizationOutEdges.Any(edge => edge.EdgeLabel == O2O_EdgeLabel && edge.Target == O2O_OrganizationIn))
                                         O2O_OrganizationOut.AddOutEdge(O2O_EdgeLabel, O2O_OrganizationIn,  O2O_Privacy);
@@ -2049,8 +2285,8 @@ namespace org.GraphDefined.OpenData.Users
 
                                     var U2G_User     = _Users [User_Id. Parse(JSONParameters["user" ].Value<String>())];
                                     var U2G_Group    = _Groups[Group_Id.Parse(JSONParameters["group"].Value<String>())];
-                                    var U2G_Edge     = (User2GroupEdges) Enum.Parse(typeof(User2GroupEdges), JSONParameters["edge"].   Value<String>());
-                                    var U2G_Privacy  = (PrivacyLevel)    Enum.Parse(typeof(PrivacyLevel),    JSONParameters["privacy"].Value<String>());
+                                    var U2G_Edge     = (User2GroupEdges) Enum.Parse(typeof(User2GroupEdges), JSONParameters["edge"].        Value<String>());
+                                    var U2G_Privacy  = JSONParameters.ParseMandatory_PrivacyLevel();
 
                                     if (!U2G_User.OutEdges(U2G_Group).Any(edge => edge == U2G_Edge))
                                         U2G_User.AddOutgoingEdge(U2G_Edge, U2G_Group, U2G_Privacy);
@@ -2068,8 +2304,8 @@ namespace org.GraphDefined.OpenData.Users
 
                                     var U2O_User          = _Users        [User_Id.        Parse(JSONParameters["user" ].Value<String>())];
                                     var U2O_Organization  = _Organizations[Organization_Id.Parse(JSONParameters["organization"].Value<String>())];
-                                    var U2O_Edge          = (User2OrganizationEdges) Enum.Parse(typeof(User2OrganizationEdges), JSONParameters["edge"].   Value<String>());
-                                    var U2O_Privacy       = (PrivacyLevel)           Enum.Parse(typeof(PrivacyLevel),           JSONParameters["privacy"].Value<String>());
+                                    var U2O_Edge          = (User2OrganizationEdges) Enum.Parse(typeof(User2OrganizationEdges), JSONParameters["edge"].        Value<String>());
+                                    var U2O_Privacy       = JSONParameters.ParseMandatory_PrivacyLevel();
 
                                     if (!U2O_User.Edges(U2O_Organization).Any(edgelabel => edgelabel == U2O_Edge))
                                         U2O_User.AddOutgoingEdge(U2O_Edge, U2O_Organization, U2O_Privacy);
@@ -2287,9 +2523,40 @@ namespace org.GraphDefined.OpenData.Users
 
             }
 
-            Organizations = User.Organizations(RequireReadWriteAccess, Recursive);
+            Organizations = User?.Organizations(RequireReadWriteAccess, Recursive);
             Response      = null;
             return true;
+
+        }
+
+        #endregion
+
+        #region (protected) TryGetHTTPUser(Request, User, Organizations,           RequireReadWriteAccess = false, Recursive = false)
+
+        protected void TryGetHTTPUser(HTTPRequest                    Request,
+                                      out User                       User,
+                                      out IEnumerable<Organization>  Organizations,
+                                      Boolean                        RequireReadWriteAccess  = false,
+                                      Boolean                        Recursive               = false)
+        {
+
+            if (!TryGetHTTPUser(Request, out User))
+            {
+
+                if (Request.RemoteSocket.IPAddress is IPv4Address &&
+                    Request.RemoteSocket.IPAddress as IPv4Address == IPv4Address.Localhost)
+                {
+                    User           = Admins.User2GroupInEdges(edgelabel => edgelabel == User2GroupEdges.IsAdmin).FirstOrDefault()?.Source;
+                    Organizations  = User.Organizations(RequireReadWriteAccess, Recursive);
+                    return;
+                }
+
+                Organizations  = null;
+                return;
+
+            }
+
+            Organizations = User?.Organizations(RequireReadWriteAccess, Recursive);
 
         }
 
@@ -2489,8 +2756,10 @@ namespace org.GraphDefined.OpenData.Users
         /// <param name="PublicKeyRing">An optional PGP/GPG public keyring of the user.</param>
         /// <param name="Telephone">An optional telephone number of the user.</param>
         /// <param name="Description">An optional (multi-language) description of the user.</param>
+        /// <param name="GeoLocation">An optional geographical location of the user.</param>
+        /// <param name="Address">An optional address of the user.</param>
+        /// <param name="PrivacyLevel">Whether the user will be shown in user listings, or not.</param>
         /// <param name="IsAuthenticated">The user will not be shown in user listings, as its primary e-mail address is not yet authenticated.</param>
-        /// <param name="IsPublic">The user will be shown in user listings.</param>
         /// <param name="IsDisabled">The user will be shown in user listings.</param>
         public User CreateUser(User_Id             Id,
                                SimpleEMailAddress  EMail,
@@ -2499,9 +2768,11 @@ namespace org.GraphDefined.OpenData.Users
                                String              PublicKeyRing     = null,
                                String              Telephone         = null,
                                I18NString          Description       = null,
-                               Boolean             IsPublic          = true,
-                               Boolean             IsDisabled        = false,
-                               Boolean             IsAuthenticated   = false)
+                               GeoCoordinate?      GeoLocation       = null,
+                               Address             Address           = null,
+                               PrivacyLevel        PrivacyLevel      = PrivacyLevel.World,
+                               Boolean             IsAuthenticated   = false,
+                               Boolean             IsDisabled        = false)
         {
 
             lock (_Users)
@@ -2517,9 +2788,11 @@ namespace org.GraphDefined.OpenData.Users
                                     PublicKeyRing,
                                     Telephone,
                                     Description,
-                                    IsPublic,
-                                    IsDisabled,
-                                    IsAuthenticated);
+                                    GeoLocation,
+                                    Address,
+                                    PrivacyLevel,
+                                    IsAuthenticated,
+                                    IsDisabled);
 
                 WriteToLogfile("CreateUser", User.ToJSON());
 
@@ -2545,9 +2818,11 @@ namespace org.GraphDefined.OpenData.Users
         /// <param name="PublicKeyRing">An optional PGP/GPG public keyring of the user.</param>
         /// <param name="Telephone">An optional telephone number of the user.</param>
         /// <param name="Description">An optional (multi-language) description of the user.</param>
-        /// <param name="IsPublic">The user will be shown in user listings.</param>
-        /// <param name="IsDisabled">The user will be shown in user listings.</param>
+        /// <param name="GeoLocation">An optional geographical location of the user.</param>
+        /// <param name="Address">An optional address of the user.</param>
+        /// <param name="PrivacyLevel">Whether the user will be shown in user listings, or not.</param>
         /// <param name="IsAuthenticated">The user will not be shown in user listings, as its primary e-mail address is not yet authenticated.</param>
+        /// <param name="IsDisabled">The user will be shown in user listings.</param>
         public User CreateUserIfNotExists(User_Id             Id,
                                           SimpleEMailAddress  EMail,
                                           Password            Password,
@@ -2555,9 +2830,11 @@ namespace org.GraphDefined.OpenData.Users
                                           String              PublicKeyRing     = null,
                                           String              Telephone         = null,
                                           I18NString          Description       = null,
-                                          Boolean             IsPublic          = true,
-                                          Boolean             IsDisabled        = false,
-                                          Boolean             IsAuthenticated   = false)
+                                          GeoCoordinate?      GeoLocation       = null,
+                                          Address             Address           = null,
+                                          PrivacyLevel        PrivacyLevel      = PrivacyLevel.World,
+                                          Boolean             IsAuthenticated   = false,
+                                          Boolean             IsDisabled        = false)
         {
 
             lock (_Users)
@@ -2573,9 +2850,11 @@ namespace org.GraphDefined.OpenData.Users
                                   PublicKeyRing,
                                   Telephone,
                                   Description,
-                                  IsPublic,
-                                  IsDisabled,
-                                  IsAuthenticated);
+                                  GeoLocation,
+                                  Address,
+                                  PrivacyLevel,
+                                  IsAuthenticated,
+                                  IsDisabled);
 
             }
 
@@ -2762,28 +3041,28 @@ namespace org.GraphDefined.OpenData.Users
 
         #endregion
 
-        #region AddToGroup(User, Edge, Group, Privacy = Public)
+        #region AddToGroup(User, Edge, Group, PrivacyLevel = World)
 
         public Boolean AddToGroup(User             User,
                                   User2GroupEdges  Edge,
                                   Group            Group,
-                                  PrivacyLevel     Privacy = PrivacyLevel.Public)
+                                  PrivacyLevel     PrivacyLevel = PrivacyLevel.World)
         {
 
             if (!User.OutEdges(Group).Any(edge => edge == Edge))
             {
 
-                User.AddOutgoingEdge(Edge, Group, Privacy);
+                User.AddOutgoingEdge(Edge, Group, PrivacyLevel);
 
                 if (!Group.Edges(Group).Any(edge => edge == Edge))
-                    Group.AddIncomingEdge(User, Edge,  Privacy);
+                    Group.AddIncomingEdge(User, Edge,  PrivacyLevel);
 
                 WriteToLogfile("AddUserToGroup",
                                new JObject(
                                    new JProperty("user",     User.Id.ToString()),
                                    new JProperty("edge",     Edge.   ToString()),
                                    new JProperty("group",    Group.  ToString()),
-                                   new JProperty("privacy",  Privacy.ToString())
+                                   PrivacyLevel.ToJSON()
                                ));
 
                 return true;
@@ -2812,11 +3091,18 @@ namespace org.GraphDefined.OpenData.Users
 
         #region CreateOrganization           (Id, Name = null, Description = null, ParentOrganization = null)
 
-        public Organization CreateOrganization(Organization_Id  Id,
-                                               I18NString       Name                = null,
-                                               I18NString       Description         = null,
-                                               Address          Address             = null,
-                                               Organization     ParentOrganization  = null)
+        public Organization CreateOrganization(Organization_Id      Id,
+                                               I18NString           Name                = null,
+                                               I18NString           Description         = null,
+                                               SimpleEMailAddress?  EMail               = null,
+                                               String               PublicKeyRing       = null,
+                                               String               Telephone           = null,
+                                               GeoCoordinate?       GeoLocation         = null,
+                                               Address              Address             = null,
+                                               PrivacyLevel         PrivacyLevel        = PrivacyLevel.World,
+                                               Boolean              IsDisabled          = false,
+                                               String               DataSource          = "",
+                                               Organization         ParentOrganization  = null)
         {
 
             lock (_Organizations)
@@ -2829,7 +3115,14 @@ namespace org.GraphDefined.OpenData.Users
                 var Organization = new Organization(Id,
                                                     Name,
                                                     Description,
-                                                    Address);
+                                                    EMail,
+                                                    PublicKeyRing,
+                                                    Telephone,
+                                                    GeoLocation,
+                                                    Address,
+                                                    PrivacyLevel,
+                                                    IsDisabled,
+                                                    DataSource);
 
                 WriteToLogfile("CreateOrganization", Organization.ToJSON());
 
@@ -2848,11 +3141,18 @@ namespace org.GraphDefined.OpenData.Users
 
         #region CreateOrganizationIfNotExists(Id, Name = null, Description = null, ParentOrganization = null)
 
-        public Organization CreateOrganizationIfNotExists(Organization_Id  Id,
-                                                          I18NString       Name                = null,
-                                                          I18NString       Description         = null,
-                                                          Address          Address             = null,
-                                                          Organization     ParentOrganization  = null)
+        public Organization CreateOrganizationIfNotExists(Organization_Id      Id,
+                                                          I18NString           Name                = null,
+                                                          I18NString           Description         = null,
+                                                          SimpleEMailAddress?  EMail               = null,
+                                                          String               PublicKeyRing       = null,
+                                                          String               Telephone           = null,
+                                                          GeoCoordinate?       GeoLocation         = null,
+                                                          Address              Address             = null,
+                                                          PrivacyLevel         PrivacyLevel        = PrivacyLevel.World,
+                                                          Boolean              IsDisabled          = false,
+                                                          String               DataSource          = "",
+                                                          Organization         ParentOrganization  = null)
         {
 
             lock (_Organizations)
@@ -2864,7 +3164,14 @@ namespace org.GraphDefined.OpenData.Users
                 return CreateOrganization(Id,
                                           Name,
                                           Description,
+                                          EMail,
+                                          PublicKeyRing,
+                                          Telephone,
+                                          GeoLocation,
                                           Address,
+                                          PrivacyLevel,
+                                          IsDisabled,
+                                          DataSource,
                                           ParentOrganization);
 
             }
@@ -2926,28 +3233,28 @@ namespace org.GraphDefined.OpenData.Users
         #endregion
 
 
-        #region AddToOrganization(User, Edge, Organization, Privacy = Public)
+        #region AddToOrganization(User, Edge, Organization, PrivacyLevel = World)
 
         public Boolean AddToOrganization(User                    User,
                                          User2OrganizationEdges  Edge,
                                          Organization            Organization,
-                                         PrivacyLevel            Privacy = PrivacyLevel.Public)
+                                         PrivacyLevel            PrivacyLevel = PrivacyLevel.World)
         {
 
             if (!User.Edges(Organization).Any(edge => edge == Edge))
             {
 
-                User.AddOutgoingEdge(Edge, Organization, Privacy);
+                User.AddOutgoingEdge(Edge, Organization, PrivacyLevel);
 
                 if (!Organization.InEdges(Organization).Any(edgelabel => edgelabel == Edge))
-                    Organization.AddIncomingEdge(User, Edge, Privacy);
+                    Organization.AddIncomingEdge(User, Edge, PrivacyLevel);
 
                 WriteToLogfile("AddUserToOrganization",
                                new JObject(
                                    new JProperty("user",          User.        Id.ToString()),
                                    new JProperty("edge",          Edge.           ToString()),
                                    new JProperty("organization",  Organization.Id.ToString()),
-                                   new JProperty("privacy",       Privacy.        ToString())
+                                   PrivacyLevel.ToJSON()
                                ));
 
                 return true;
@@ -2965,7 +3272,7 @@ namespace org.GraphDefined.OpenData.Users
         public Boolean LinkOrganizations(Organization                    OrganizationOut,
                                          Organization2OrganizationEdges  EdgeLabel,
                                          Organization                    OrganizationIn,
-                                         PrivacyLevel                    Privacy = PrivacyLevel.Public)
+                                         PrivacyLevel                    Privacy = PrivacyLevel.World)
         {
 
             if (!OrganizationOut.

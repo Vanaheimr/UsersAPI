@@ -23,7 +23,7 @@ namespace org.GraphDefined.OpenData.Users
         Private,
         Internal,
         Friends,
-        Public
+        World
     }
 
 }

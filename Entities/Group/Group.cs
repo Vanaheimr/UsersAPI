@@ -27,6 +27,7 @@ using org.GraphDefined.Vanaheimr.Illias;
 using org.GraphDefined.Vanaheimr.Styx.Arrows;
 using org.GraphDefined.Vanaheimr.Hermod;
 using org.GraphDefined.Vanaheimr.Hermod.Distributed;
+using org.GraphDefined.Vanaheimr.Hermod.HTTP;
 
 #endregion
 
@@ -47,6 +48,11 @@ namespace org.GraphDefined.OpenData.Users
         /// </summary>
         public const UInt16 DefaultGroupStatusHistorySize = 50;
 
+        /// <summary>
+        /// The JSON-LD context of the object.
+        /// </summary>
+        public const String JSONLDContext = "https://opendata.social/contexts/UsersAPI+json/group";
+
         private readonly ReactiveSet<MiniEdge<User,  User2GroupEdges,  Group>> _User2GroupEdges;
         private readonly ReactiveSet<MiniEdge<Group, Group2UserEdges,  User>>  _Group2UserEdges;
         private readonly ReactiveSet<MiniEdge<Group, Group2GroupEdges, Group>> _Group2GroupEdges;
@@ -59,25 +65,25 @@ namespace org.GraphDefined.OpenData.Users
         /// The offical (multi-language) name of the group.
         /// </summary>
         [Mandatory]
-        public I18NString  Name          { get; }
+        public I18NString    Name            { get; }
 
         /// <summary>
         /// An optional (multi-language) description of the group.
         /// </summary>
         [Optional]
-        public I18NString  Description   { get; }
+        public I18NString    Description     { get; }
+
+        /// <summary>
+        /// Whether the group will be shown in group listings, or not.
+        /// </summary>
+        [Mandatory]
+        public PrivacyLevel  PrivacyLevel    { get; }
 
         /// <summary>
         /// The user will be shown in group listings.
         /// </summary>
         [Mandatory]
-        public Boolean     IsPublic      { get; }
-
-        /// <summary>
-        /// The user will be shown in group listings.
-        /// </summary>
-        [Mandatory]
-        public Boolean     IsDisabled    { get; }
+        public Boolean       IsDisabled      { get; }
 
         #endregion
 
@@ -93,15 +99,15 @@ namespace org.GraphDefined.OpenData.Users
         /// <param name="Id">The unique identification of the user group.</param>
         /// <param name="Name">The offical (multi-language) name of the user group.</param>
         /// <param name="Description">An optional (multi-language) description of the user group.</param>
-        /// <param name="IsPublic">The group will be shown in user listings.</param>
+        /// <param name="PrivacyLevel">Whether the group will be shown in group listings, or not.</param>
         /// <param name="IsDisabled">The group is disabled.</param>
         /// <param name="DataSource">The source of all this data, e.g. an automatic importer.</param>
-        internal Group(Group_Id    Id,
-                       I18NString  Name          = null,
-                       I18NString  Description   = null,
-                       Boolean     IsPublic      = true,
-                       Boolean     IsDisabled    = false,
-                       String      DataSource    = "")
+        internal Group(Group_Id      Id,
+                       I18NString    Name           = null,
+                       I18NString    Description    = null,
+                       PrivacyLevel  PrivacyLevel   = PrivacyLevel.World,
+                       Boolean       IsDisabled     = false,
+                       String        DataSource     = "")
 
             : base(Id,
                    DataSource)
@@ -110,10 +116,10 @@ namespace org.GraphDefined.OpenData.Users
 
             #region Init properties
 
-            this.Name               = Name        ?? new I18NString();
-            this.Description        = Description ?? new I18NString();
-            this.IsPublic           = IsPublic;
-            this.IsDisabled         = IsDisabled;
+            this.Name          = Name        ?? new I18NString();
+            this.Description   = Description ?? new I18NString();
+            this.PrivacyLevel  = PrivacyLevel;
+            this.IsDisabled    = IsDisabled;
 
             #endregion
 
@@ -242,6 +248,161 @@ namespace org.GraphDefined.OpenData.Users
         #endregion
 
 
+        #region ToJSON(IncludeHash = true)
+
+        /// <summary>
+        /// Return a JSON representation of this object.
+        /// </summary>
+        /// <param name="IncludeHash">Include the hash value of this object.</param>
+        public override JObject ToJSON(Boolean IncludeHash = true)
+
+            => JSONObject.Create(
+
+                   new JProperty("@id",               Id.         ToString()),
+                   new JProperty("@context",          JSONLDContext),
+                   new JProperty("name",              Name.       ToJSON()),
+                   new JProperty("description",       Description.ToJSON()),
+                   PrivacyLevel.ToJSON(),
+                   new JProperty("isDisabled",        IsDisabled),
+
+                   IncludeHash
+                       ? new JProperty("cryptoHash",  CurrentCryptoHash)
+                       : null
+
+               );
+
+        #endregion
+
+        #region (static) TryParseJSON(JSONObject, ..., out Group, out ErrorResponse)
+
+        public static Boolean TryParseJSON(JObject     JSONObject,
+                                           out Group   Group,
+                                           out String  ErrorResponse,
+                                           Group_Id?   GroupIdURI = null)
+        {
+
+            try
+            {
+
+                Group = null;
+
+                #region Parse GroupId   [optional]
+
+                // Verify that a given group identification
+                //   is at least valid.
+                if (!JSONObject.ParseOptionalN("@id",
+                                               "group identification",
+                                               Group_Id.TryParse,
+                                               out Group_Id? GroupIdBody,
+                                               out ErrorResponse))
+                {
+                    return false;
+                }
+
+                if (!GroupIdURI.HasValue && !GroupIdBody.HasValue)
+                {
+                    ErrorResponse = "The group identification is missing!";
+                    return false;
+                }
+
+                if (GroupIdURI.HasValue && GroupIdBody.HasValue && GroupIdURI.Value != GroupIdBody.Value)
+                {
+                    ErrorResponse = "The optional group identification given within the JSON body does not match the one given in the URI!";
+                    return false;
+                }
+
+                #endregion
+
+                #region Parse Context          [mandatory]
+
+                if (!JSONObject.GetMandatory("@context", out String Context))
+                {
+                    ErrorResponse = @"The JSON-LD ""@context"" information is missing!";
+                    return false;
+                }
+
+                if (Context != JSONLDContext)
+                {
+                    ErrorResponse = @"The given JSON-LD ""@context"" information '" + Context + "' is not supported!";
+                    return false;
+                }
+
+                #endregion
+
+                #region Parse Name             [optional]
+
+                if (!JSONObject.ParseOptional("name",
+                                              "name",
+                                              out I18NString Name,
+                                              out ErrorResponse))
+                {
+                    return false;
+                }
+
+                #endregion
+
+                #region Parse Description      [optional]
+
+                if (!JSONObject.ParseOptional("description",
+                                              "description",
+                                              out I18NString Description,
+                                              out ErrorResponse))
+                {
+                    return false;
+                }
+
+                #endregion
+
+                #region Parse PrivacyLevel     [optional]
+
+                if (!JSONObject.ParseOptional("privacyLevel",
+                                              "privacy level",
+                                              out PrivacyLevel PrivacyLevel,
+                                              out ErrorResponse))
+                {
+                    return false;
+                }
+
+                #endregion
+
+                var IsDisabled       = JSONObject["isDisabled"]?.     Value<Boolean>();
+
+                #region Get   DataSource       [optional]
+
+                var DataSource = JSONObject.GetOptional("dataSource");
+
+                #endregion
+
+                #region Parse CryptoHash       [optional]
+
+                var CryptoHash    = JSONObject.GetOptional("cryptoHash");
+
+                #endregion
+
+
+                Group = new Group(GroupIdBody ?? GroupIdURI.Value,
+                                  Name,
+                                  Description,
+                                  PrivacyLevel,
+                                  IsDisabled ?? false,
+                                  DataSource);
+
+                ErrorResponse = null;
+                return true;
+
+            }
+            catch (Exception e)
+            {
+                ErrorResponse  = e.Message;
+                Group  = null;
+                return false;
+            }
+
+        }
+
+        #endregion
+
+
         #region IComparable<Group> Members
 
         #region CompareTo(Object)
@@ -352,30 +513,6 @@ namespace org.GraphDefined.OpenData.Users
 
         #endregion
 
-        #region ToJSON(IncludeHash = true)
-
-        /// <summary>
-        /// Return a JSON representation of this object.
-        /// </summary>
-        /// <param name="IncludeHash">Include the hash value of this object.</param>
-        public override JObject ToJSON(Boolean IncludeHash = true)
-
-            => JSONObject.Create(
-
-                   new JProperty("@id",          Id.         ToString()),
-                   new JProperty("name",         Name.       ToJSON()),
-                   new JProperty("description",  Description.ToJSON()),
-                   new JProperty("isPublic",     IsPublic),
-                   new JProperty("isDisabled",   IsDisabled),
-
-                   IncludeHash
-                       ? new JProperty("Hash",   CurrentCryptoHash)
-                       : null
-
-               );
-
-        #endregion
-
 
         #region ToBuilder(NewGroupId = null)
 
@@ -402,33 +539,33 @@ namespace org.GraphDefined.OpenData.Users
             #region Properties
 
             /// <summary>
-            /// The group identification.
+            /// The unique identification of the group.
             /// </summary>
-            public Group_Id    Id               { get; set; }
+            public Group_Id      Id               { get; set; }
 
             /// <summary>
             /// The offical public name of the group.
             /// </summary>
             [Optional]
-            public I18NString  Name             { get; set; }
+            public I18NString    Name             { get; set; }
 
             /// <summary>
             /// An optional (multi-language) description of the group.
             /// </summary>
             [Optional]
-            public I18NString  Description      { get; set; }
+            public I18NString    Description      { get; set; }
 
             /// <summary>
-            /// The group will be shown in group listings.
+            /// Whether the group will be shown in group listings, or not.
             /// </summary>
             [Mandatory]
-            public Boolean     IsPublic         { get; set; }
+            public PrivacyLevel  PrivacyLevel     { get; set; }
 
             /// <summary>
             /// The group is disabled.
             /// </summary>
             [Mandatory]
-            public Boolean     IsDisabled       { get; set; }
+            public Boolean       IsDisabled       { get; set; }
 
             #endregion
 
@@ -440,22 +577,22 @@ namespace org.GraphDefined.OpenData.Users
             /// <param name="Id">The unique identification of the group.</param>
             /// <param name="Name">An offical (multi-language) name of the group.</param>
             /// <param name="Description">An optional (multi-language) description of the group.</param>
-            /// <param name="IsPublic">The group will be shown in group listings.</param>
+            /// <param name="PrivacyLevel">Whether the group will be shown in group listings, or not.</param>
             /// <param name="IsDisabled">The group is disabled.</param>
-            public Builder(Group_Id    Id,
-                           I18NString  Name          = null,
-                           I18NString  Description   = null,
-                           Boolean     IsPublic      = true,
-                           Boolean     IsDisabled    = false)
+            public Builder(Group_Id      Id,
+                           I18NString    Name           = null,
+                           I18NString    Description    = null,
+                           PrivacyLevel  PrivacyLevel   = PrivacyLevel.World,
+                           Boolean       IsDisabled     = false)
             {
 
                 #region Init properties
 
-                this.Id           = Id;
-                this.Name         = Name        ?? new I18NString();
-                this.Description  = Description ?? new I18NString();
-                this.IsPublic     = IsPublic;
-                this.IsDisabled   = IsDisabled;
+                this.Id            = Id;
+                this.Name          = Name        ?? new I18NString();
+                this.Description   = Description ?? new I18NString();
+                this.PrivacyLevel  = PrivacyLevel;
+                this.IsDisabled    = IsDisabled;
 
                 #endregion
 
@@ -482,7 +619,7 @@ namespace org.GraphDefined.OpenData.Users
                 => new Group(Id,
                              Name,
                              Description,
-                             IsPublic,
+                             PrivacyLevel,
                              IsDisabled);
 
             #endregion

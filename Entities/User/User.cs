@@ -23,11 +23,13 @@ using System.Collections.Generic;
 
 using Newtonsoft.Json.Linq;
 
+using org.GraphDefined.Vanaheimr.Aegir;
 using org.GraphDefined.Vanaheimr.Illias;
-using org.GraphDefined.Vanaheimr.Styx.Arrows;
 using org.GraphDefined.Vanaheimr.Hermod;
 using org.GraphDefined.Vanaheimr.Hermod.Mail;
 using org.GraphDefined.Vanaheimr.Hermod.Distributed;
+using org.GraphDefined.Vanaheimr.Hermod.HTTP;
+using org.GraphDefined.Vanaheimr.Styx.Arrows;
 
 #endregion
 
@@ -52,6 +54,11 @@ namespace org.GraphDefined.OpenData.Users
         private readonly ReactiveSet<MiniEdge<User, User2UserEdges,         User>>          _User2UserEdges;
         private readonly ReactiveSet<MiniEdge<User, User2GroupEdges,        Group>>         _User2GroupEdges;
         private readonly ReactiveSet<MiniEdge<User, User2OrganizationEdges, Organization>>  _User2OrganizationEdges;
+
+        /// <summary>
+        /// The JSON-LD context of the object.
+        /// </summary>
+        public const String JSONLDContext  = "https://opendata.social/contexts/UsersAPI+json/user";
 
         #endregion
 
@@ -88,17 +95,28 @@ namespace org.GraphDefined.OpenData.Users
         public I18NString          Description          { get; }
 
         /// <summary>
+        /// The geographical location of this organization.
+        /// </summary>
+        public GeoCoordinate?      GeoLocation          { get; }
+
+        /// <summary>
+        /// The optional address of the organization.
+        /// </summary>
+        [Optional]
+        public Address             Address              { get; }
+
+        /// <summary>
+        /// Whether the user will be shown in user listings, or not.
+        /// </summary>
+        [Mandatory]
+        public PrivacyLevel        PrivacyLevel         { get; }
+
+        /// <summary>
         /// The user will not be shown in user listings, as its
         /// primary e-mail address is not yet authenticated.
         /// </summary>
         [Mandatory]
         public Boolean             IsAuthenticated      { get; }
-
-        /// <summary>
-        /// The user will be shown in user listings.
-        /// </summary>
-        [Mandatory]
-        public Boolean             IsPublic             { get; }
 
         /// <summary>
         /// The user is disabled.
@@ -224,8 +242,10 @@ namespace org.GraphDefined.OpenData.Users
         /// <param name="PublicKeyRing">An optional PGP/GPG public keyring of the user.</param>
         /// <param name="Telephone">An optional telephone number of the user.</param>
         /// <param name="Description">An optional (multi-language) description of the user.</param>
+        /// <param name="GeoLocation">An optional geographical location of the user.</param>
+        /// <param name="Address">An optional address of the user.</param>
+        /// <param name="PrivacyLevel">Whether the user will be shown in user listings, or not.</param>
         /// <param name="IsAuthenticated">The user will not be shown in user listings, as its primary e-mail address is not yet authenticated.</param>
-        /// <param name="IsPublic">The user will be shown in user listings.</param>
         /// <param name="IsDisabled">The user is disabled.</param>
         /// <param name="DataSource">The source of all this data, e.g. an automatic importer.</param>
         internal User(User_Id             Id,
@@ -234,7 +254,9 @@ namespace org.GraphDefined.OpenData.Users
                       String              PublicKeyRing     = null,
                       String              Telephone         = null,
                       I18NString          Description       = null,
-                      Boolean             IsPublic          = true,
+                      GeoCoordinate?      GeoLocation       = null,
+                      Address             Address           = null,
+                      PrivacyLevel        PrivacyLevel      = PrivacyLevel.World,
                       Boolean             IsDisabled        = false,
                       Boolean             IsAuthenticated   = false,
                       String              DataSource        = "")
@@ -251,8 +273,10 @@ namespace org.GraphDefined.OpenData.Users
             this.PublicKeyRing            = PublicKeyRing;
             this.Telephone                = Telephone;
             this.Description              = Description ?? new I18NString();
+            this.GeoLocation              = GeoLocation;
+            this.Address                  = Address;
+            this.PrivacyLevel             = PrivacyLevel;
             this.IsAuthenticated          = IsAuthenticated;
-            this.IsPublic                 = IsPublic;
             this.IsDisabled               = IsDisabled;
 
             #endregion
@@ -270,10 +294,6 @@ namespace org.GraphDefined.OpenData.Users
         }
 
         #endregion
-
-
-
-
 
 
         public MiniEdge<User, User2UserEdges, User>
@@ -296,11 +316,9 @@ namespace org.GraphDefined.OpenData.Users
 
             AddIncomingEdge(User            Source,
                             User2UserEdges  EdgeLabel,
-                            PrivacyLevel    PrivacyLevel = PrivacyLevel.Public)
+                            PrivacyLevel    PrivacyLevel = PrivacyLevel.World)
 
             => _User2UserEdges.AddAndReturn(new MiniEdge<User, User2UserEdges, User>(Source, EdgeLabel, this, PrivacyLevel));
-
-
 
 
 
@@ -308,7 +326,7 @@ namespace org.GraphDefined.OpenData.Users
 
             AddOutgoingEdge(User2UserEdges  EdgeLabel,
                             User            Target,
-                            PrivacyLevel    PrivacyLevel = PrivacyLevel.Public)
+                            PrivacyLevel    PrivacyLevel = PrivacyLevel.World)
 
             => _User2UserEdges.AddAndReturn(new MiniEdge<User, User2UserEdges, User>(this, EdgeLabel, Target, PrivacyLevel));
 
@@ -316,11 +334,9 @@ namespace org.GraphDefined.OpenData.Users
 
             AddOutgoingEdge(User2OrganizationEdges  EdgeLabel,
                             Organization            Target,
-                            PrivacyLevel            PrivacyLevel = PrivacyLevel.Public)
+                            PrivacyLevel            PrivacyLevel = PrivacyLevel.World)
 
             => _User2OrganizationEdges.AddAndReturn(new MiniEdge<User, User2OrganizationEdges, Organization>(this, EdgeLabel, Target, PrivacyLevel));
-
-
 
 
 
@@ -328,7 +344,7 @@ namespace org.GraphDefined.OpenData.Users
 
             AddOutgoingEdge(User2GroupEdges EdgeLabel,
                             Group           Target,
-                            PrivacyLevel    PrivacyLevel = PrivacyLevel.Public)
+                            PrivacyLevel    PrivacyLevel = PrivacyLevel.World)
 
             => _User2GroupEdges.AddAndReturn(new MiniEdge<User, User2GroupEdges, Group>(this, EdgeLabel, Target, PrivacyLevel));
 
@@ -430,6 +446,240 @@ namespace org.GraphDefined.OpenData.Users
             //}
 
             return _Groups;
+
+        }
+
+        #endregion
+
+
+        #region ToJSON(IncludeHash = true)
+
+        /// <summary>
+        /// Return a JSON representation of this object.
+        /// </summary>
+        /// <param name="IncludeHash">Include the hash value of this object.</param>
+        public override JObject ToJSON(Boolean IncludeHash = true)
+
+            => JSONObject.Create(
+
+                   new JProperty("@id",                 Id.   ToString()),
+                   new JProperty("@context",            JSONLDContext),
+                   new JProperty("name",                Name),
+                   new JProperty("email",               EMail.ToString()),
+
+                   PublicKeyRing != null
+                       ? new JProperty("publickey",     PublicKeyRing)
+                       : null,
+
+                   Telephone != null
+                       ? new JProperty("telephone",     Telephone)
+                       : null,
+
+                   IEnumerableExtensions.IsNeitherNullNorEmpty(Description)
+                       ? new JProperty("description",   Description.ToJSON())
+                       : null,
+
+                   PrivacyLevel.ToJSON(),
+                   new JProperty("isAuthenticated",     IsAuthenticated),
+                   new JProperty("isDisabled",          IsDisabled),
+
+                   new JProperty("signatures",          new JArray()),
+
+                   IncludeHash
+                       ? new JProperty("hash", CurrentCryptoHash)
+                       : null
+
+               );
+
+        #endregion
+
+        #region (static) TryParseJSON(JSONObject, ..., out User, out ErrorResponse)
+
+        public static Boolean TryParseJSON(JObject     JSONObject,
+                                           out User    User,
+                                           out String  ErrorResponse,
+                                           User_Id?    UserIdURI = null)
+        {
+
+            try
+            {
+
+                User = null;
+
+                #region Parse UserId           [optional]
+
+                // Verify that a given user identification
+                //   is at least valid.
+                if (!JSONObject.ParseOptionalN("@id",
+                                               "user identification",
+                                               User_Id.TryParse,
+                                               out User_Id? UserIdBody,
+                                               out ErrorResponse))
+                {
+                    return false;
+                }
+
+                if (!UserIdURI.HasValue && !UserIdBody.HasValue)
+                {
+                    ErrorResponse = "The user identification is missing!";
+                    return false;
+                }
+
+                if (UserIdURI.HasValue && UserIdBody.HasValue && UserIdURI.Value != UserIdBody.Value)
+                {
+                    ErrorResponse = "The optional user identification given within the JSON body does not match the one given in the URI!";
+                    return false;
+                }
+
+                #endregion
+
+                #region Parse Context          [mandatory]
+
+                if (!JSONObject.GetMandatory("@context", out String Context))
+                {
+                    ErrorResponse = @"The JSON-LD ""@context"" information is missing!";
+                    return false;
+                }
+
+                if (Context != JSONLDContext)
+                {
+                    ErrorResponse = @"The given JSON-LD ""@context"" information '" + Context + "' is not supported!";
+                    return false;
+                }
+
+                #endregion
+
+                #region Parse E-Mail           [mandatory]
+
+                if (!JSONObject.ParseMandatory("email",
+                                               SimpleEMailAddress.Parse,
+                                               out SimpleEMailAddress EMail))
+                {
+                    return false;
+                }
+
+                #endregion
+
+                #region Parse Name             [mandatory]
+
+                if (!JSONObject.ParseMandatory("name",
+                                               out String Name))
+                {
+                    return false;
+                }
+
+                #endregion
+
+                #region Parse PublicKey        [optional]
+
+                if (!JSONObject.ParseOptional("publicKey",
+                                              out String PublicKey))
+                {
+                    return false;
+                }
+
+                #endregion
+
+                #region Parse Telephone        [optional]
+
+                if (!JSONObject.ParseOptional("telephone",
+                                              out String Telephone))
+                {
+                    return false;
+                }
+
+                #endregion
+
+                #region Parse Description      [optional]
+
+                if (!JSONObject.ParseOptional("description",
+                                              "description",
+                                              out I18NString Description,
+                                              out ErrorResponse))
+                {
+                    return false;
+                }
+
+                #endregion
+
+                #region Parse GeoLocation      [optional]
+
+                if (!JSONObject.ParseOptionalN("geoLocation",
+                                               "geo location",
+                                               Vanaheimr.Aegir.JSON_IO.TryParseGeoCoordinate,
+                                               out GeoCoordinate? GeoLocation,
+                                               out ErrorResponse))
+                {
+                    return false;
+                }
+
+                #endregion
+
+                #region Parse Address          [optional]
+
+                if (!JSONObject.ParseOptional("address",
+                                              "address",
+                                              Vanaheimr.Hermod.JSON_IO.TryParseAddress,
+                                              out Address Address,
+                                              out ErrorResponse))
+                {
+                    return false;
+                }
+
+                #endregion
+
+                #region Parse PrivacyLevel     [optional]
+
+                if (!JSONObject.ParseOptional("privacyLevel",
+                                              "privacy level",
+                                              out PrivacyLevel PrivacyLevel,
+                                              out ErrorResponse))
+                {
+                    return false;
+                }
+
+                #endregion
+
+                var IsAuthenticated  = JSONObject["isAuthenticated"]?.Value<Boolean>();
+
+                var IsDisabled       = JSONObject["isDisabled"]?.     Value<Boolean>();
+
+                #region Get   DataSource       [optional]
+
+                var DataSource = JSONObject.GetOptional("dataSource");
+
+                #endregion
+
+                #region Parse CryptoHash       [optional]
+
+                var CryptoHash    = JSONObject.GetOptional("cryptoHash");
+
+                #endregion
+
+
+                User = new User(UserIdBody ?? UserIdURI.Value,
+                                EMail,
+                                Name,
+                                PublicKey,
+                                Telephone,
+                                Description,
+                                GeoLocation,
+                                Address,
+                                PrivacyLevel,
+                                IsAuthenticated ?? false,
+                                IsDisabled      ?? false,
+                                DataSource);
+
+                ErrorResponse = null;
+                return true;
+
+            }
+            catch (Exception e)
+            {
+                ErrorResponse  = e.Message;
+                User  = null;
+                return false;
+            }
 
         }
 
@@ -546,47 +796,6 @@ namespace org.GraphDefined.OpenData.Users
 
         #endregion
 
-        #region ToJSON(IncludeHash = true)
-
-        /// <summary>
-        /// Return a JSON representation of this object.
-        /// </summary>
-        /// <param name="IncludeHash">Include the hash value of this object.</param>
-        public override JObject ToJSON(Boolean IncludeHash = true)
-
-            => JSONObject.Create(
-
-                   new JProperty("@context",            "https://api.opendata.social/context/user"),
-                   new JProperty("@id", Id.   ToString()),
-                   new JProperty("name", Name),
-                   new JProperty("email", EMail.ToString()),
-
-                   PublicKeyRing != null
-                       ? new JProperty("publickey", PublicKeyRing)
-                       : null,
-
-                   Telephone != null
-                       ? new JProperty("telephone", Telephone)
-                       : null,
-
-                   IEnumerableExtensions.IsNeitherNullNorEmpty(Description)
-                       ? new JProperty("description", Description.ToJSON())
-                       : null,
-
-                   new JProperty("isAuthenticated", IsAuthenticated),
-                   new JProperty("isPublic", IsPublic),
-                   new JProperty("isDisabled", IsDisabled),
-
-                   new JProperty("signatures",          new JArray()),
-
-                   IncludeHash
-                       ? new JProperty("hash", CurrentCryptoHash)
-                       : null
-
-               );
-
-        #endregion
-
 
         #region ToBuilder(NewUserId = null)
 
@@ -602,7 +811,9 @@ namespace org.GraphDefined.OpenData.Users
                            PublicKeyRing,
                            Telephone,
                            Description,
-                           IsPublic,
+                           GeoLocation,
+                           Address,
+                           PrivacyLevel,
                            IsDisabled,
                            IsAuthenticated);
 
@@ -619,7 +830,7 @@ namespace org.GraphDefined.OpenData.Users
             #region Properties
 
             /// <summary>
-            /// The user identification.
+            /// The unique identification of the user.
             /// </summary>
             public User_Id             Id                   { get; set; }
 
@@ -654,10 +865,21 @@ namespace org.GraphDefined.OpenData.Users
             public I18NString          Description          { get; set; }
 
             /// <summary>
-            /// The user will be shown in user listings.
+            /// The geographical location of this organization.
+            /// </summary>
+            public GeoCoordinate?      GeoLocation          { get; set; }
+
+            /// <summary>
+            /// The optional address of the organization.
+            /// </summary>
+            [Optional]
+            public Address             Address              { get; set; }
+
+            /// <summary>
+            /// Whether the user will be shown in user listings, or not.
             /// </summary>
             [Mandatory]
-            public Boolean             IsPublic             { get; set; }
+            public PrivacyLevel        PrivacyLevel         { get; set; }
 
             /// <summary>
             /// The user is disabled.
@@ -685,7 +907,9 @@ namespace org.GraphDefined.OpenData.Users
             /// <param name="PublicKeyRing">An optional PGP/GPG public keyring of the user.</param>
             /// <param name="Telephone">An optional telephone number of the user.</param>
             /// <param name="Description">An optional (multi-language) description of the user.</param>
-            /// <param name="IsPublic">The user will be shown in user listings.</param>
+            /// <param name="GeoLocation">An optional geographical location of the user.</param>
+            /// <param name="Address">An optional address of the user.</param>
+            /// <param name="PrivacyLevel">Whether the user will be shown in user listings, or not.</param>
             /// <param name="IsDisabled">The user is disabled.</param>
             /// <param name="IsAuthenticated">The user will not be shown in user listings, as its primary e-mail address is not yet authenticated.</param>
             public Builder(User_Id             Id,
@@ -694,7 +918,9 @@ namespace org.GraphDefined.OpenData.Users
                            String              PublicKeyRing     = null,
                            String              Telephone         = null,
                            I18NString          Description       = null,
-                           Boolean             IsPublic          = true,
+                           GeoCoordinate?      GeoLocation       = null,
+                           Address             Address           = null,
+                           PrivacyLevel        PrivacyLevel      = PrivacyLevel.World,
                            Boolean             IsDisabled        = false,
                            Boolean             IsAuthenticated   = false)
             {
@@ -707,7 +933,9 @@ namespace org.GraphDefined.OpenData.Users
                 this.PublicKeyRing            = PublicKeyRing;
                 this.Telephone                = Telephone;
                 this.Description              = Description ?? new I18NString();
-                this.IsPublic                 = IsPublic;
+                this.GeoLocation              = GeoLocation;
+                this.Address                  = Address;
+                this.PrivacyLevel             = PrivacyLevel;
                 this.IsDisabled               = IsDisabled;
                 this.IsAuthenticated          = IsAuthenticated;
 
@@ -739,8 +967,10 @@ namespace org.GraphDefined.OpenData.Users
                             PublicKeyRing,
                             Telephone,
                             Description,
+                            GeoLocation,
+                            Address,
+                            PrivacyLevel,
                             IsAuthenticated,
-                            IsPublic,
                             IsDisabled);
 
             #endregion

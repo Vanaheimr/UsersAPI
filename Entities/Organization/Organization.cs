@@ -27,6 +27,9 @@ using org.GraphDefined.Vanaheimr.Illias;
 using org.GraphDefined.Vanaheimr.Hermod;
 using org.GraphDefined.Vanaheimr.Styx.Arrows;
 using org.GraphDefined.Vanaheimr.Hermod.Distributed;
+using org.GraphDefined.Vanaheimr.Hermod.HTTP;
+using org.GraphDefined.Vanaheimr.Hermod.Mail;
+using org.GraphDefined.Vanaheimr.Aegir;
 
 #endregion
 
@@ -46,6 +49,12 @@ namespace org.GraphDefined.OpenData.Users
         /// The default max size of the aggregated user organizations status history.
         /// </summary>
         public const UInt16 DefaultOrganizationStatusHistorySize = 50;
+
+        /// <summary>
+        /// The JSON-LD context of the object.
+        /// </summary>
+        public const String JSONLDContext = "https://opendata.social/contexts/UsersAPI+json/organization";
+
 
         private readonly ReactiveSet<MiniEdge<User,         User2OrganizationEdges,         Organization>>  _User2OrganizationEdges;
 
@@ -78,32 +87,54 @@ namespace org.GraphDefined.OpenData.Users
         /// The offical (multi-language) name of the organization.
         /// </summary>
         [Mandatory]
-        public I18NString  Name          { get; }
+        public I18NString           Name                 { get; }
 
         /// <summary>
         /// The optional (multi-language) description of the organization.
         /// </summary>
         [Optional]
-        public I18NString  Description   { get; }
+        public I18NString           Description          { get; }
+
+        /// <summary>
+        /// The primary E-Mail address of the organization.
+        /// </summary>
+        [Mandatory]
+        public SimpleEMailAddress?  EMail                { get; }
+
+        /// <summary>
+        /// The PGP/GPG public keyring of the organization.
+        /// </summary>
+        [Optional]
+        public String               PublicKeyRing        { get; }
+
+        /// <summary>
+        /// The telephone number of the organization.
+        /// </summary>
+        [Optional]
+        public String               Telephone            { get; }
+
+        /// <summary>
+        /// The geographical location of this organization.
+        /// </summary>
+        public GeoCoordinate?       GeoLocation          { get; }
 
         /// <summary>
         /// The optional address of the organization.
         /// </summary>
         [Optional]
-        public Address     Address       { get; }
+        public Address              Address              { get; }
 
+        /// <summary>
+        /// Whether the organization will be shown in organization listings, or not.
+        /// </summary>
+        [Mandatory]
+        public PrivacyLevel         PrivacyLevel         { get; }
 
         /// <summary>
         /// The user will be shown in organization listings.
         /// </summary>
         [Mandatory]
-        public Boolean     IsPublic      { get; }
-
-        /// <summary>
-        /// The user will be shown in organization listings.
-        /// </summary>
-        [Mandatory]
-        public Boolean     IsDisabled    { get; }
+        public Boolean              IsDisabled           { get; }
 
         #endregion
 
@@ -119,17 +150,25 @@ namespace org.GraphDefined.OpenData.Users
         /// <param name="Id">The unique identification of the organization.</param>
         /// <param name="Name">The offical (multi-language) name of the organization.</param>
         /// <param name="Description">An optional (multi-language) description of the organization.</param>
+        /// <param name="EMail">The primary e-mail of the organisation.</param>
+        /// <param name="PublicKeyRing">An optional PGP/GPG public keyring of the organisation.</param>
+        /// <param name="Telephone">An optional telephone number of the organisation.</param>
+        /// <param name="GeoLocation">An optional geographical location of the organisation.</param>
         /// <param name="Address">An optional address of the organisation.</param>
-        /// <param name="IsPublic">The organization will be shown in user listings.</param>
+        /// <param name="PrivacyLevel">Whether the organization will be shown in organization listings, or not.</param>
         /// <param name="IsDisabled">The organization is disabled.</param>
         /// <param name="DataSource">The source of all this data, e.g. an automatic importer.</param>
-        public Organization(Organization_Id  Id,
-                            I18NString       Name          = null,
-                            I18NString       Description   = null,
-                            Address          Address       = null,
-                            Boolean          IsPublic      = true,
-                            Boolean          IsDisabled    = false,
-                            String           DataSource    = "")
+        public Organization(Organization_Id      Id,
+                            I18NString           Name            = null,
+                            I18NString           Description     = null,
+                            SimpleEMailAddress?  EMail           = null,
+                            String               PublicKeyRing   = null,
+                            String               Telephone       = null,
+                            GeoCoordinate?       GeoLocation     = null,
+                            Address              Address         = null,
+                            PrivacyLevel         PrivacyLevel    = PrivacyLevel.World,
+                            Boolean              IsDisabled      = false,
+                            String               DataSource      = "")
 
             : base(Id,
                    DataSource)
@@ -138,12 +177,16 @@ namespace org.GraphDefined.OpenData.Users
 
             #region Init properties
 
-            this.Name          = Name        ?? new I18NString();
-            this.Description   = Description ?? new I18NString();
-            this.Address       = Address;
-
-            this.IsPublic      = IsPublic;
-            this.IsDisabled    = IsDisabled;
+            this.Name           = Name        ?? new I18NString();
+            this.Description    = Description ?? new I18NString();
+            this.EMail          = EMail;
+            this.Address        = Address;
+            this.PublicKeyRing  = PublicKeyRing;
+            this.Telephone      = Telephone;
+            this.GeoLocation    = GeoLocation;
+            this.Address        = Address;
+            this.PrivacyLevel   = PrivacyLevel;
+            this.IsDisabled     = IsDisabled;
 
             #endregion
 
@@ -299,6 +342,234 @@ namespace org.GraphDefined.OpenData.Users
         #endregion
 
 
+        #region ToJSON(IncludeCryptoHash = true)
+
+        /// <summary>
+        /// Return a JSON representation of this object.
+        /// </summary>
+        /// <param name="IncludeCryptoHash">Include the crypto hash value of this object.</param>
+        public override JObject ToJSON(Boolean IncludeCryptoHash = true)
+
+            => JSONObject.Create(
+
+                   new JProperty("@id",                 Id.           ToString()),
+                   new JProperty("@context",            JSONLDContext),
+                   new JProperty("name",                Name.         ToJSON()),
+
+                   Description.IsNeitherNullNorEmpty()
+                       ? new JProperty("description",   Description.  ToJSON())
+                       : null,
+
+                   Address != null
+                       ? new JProperty("address",       Address.      ToJSON())
+                       : null,
+
+                   PrivacyLevel.ToJSON(),
+                   new JProperty("isDisabled",          IsDisabled),
+
+                   IncludeCryptoHash
+                       ? new JProperty("cryptoHash",    CurrentCryptoHash)
+                       : null
+
+               );
+
+        #endregion
+
+        #region (static) TryParseJSON(JSONObject, ..., out Organization, out ErrorResponse)
+
+        public static Boolean TryParseJSON(JObject           JSONObject,
+                                           out Organization  Organization,
+                                           out String        ErrorResponse,
+                                           Organization_Id?  OrganizationIdURI = null)
+        {
+
+            try
+            {
+
+                Organization = null;
+
+                #region Parse OrganizationId   [optional]
+
+                // Verify that a given organization identification
+                //   is at least valid.
+                if (!JSONObject.ParseOptionalN("@id",
+                                               "organization identification",
+                                               Organization_Id.TryParse,
+                                               out Organization_Id? OrganizationIdBody,
+                                               out ErrorResponse))
+                {
+                    return false;
+                }
+
+                if (!OrganizationIdURI.HasValue && !OrganizationIdBody.HasValue)
+                {
+                    ErrorResponse = "The organization identification is missing!";
+                    return false;
+                }
+
+                if (OrganizationIdURI.HasValue && OrganizationIdBody.HasValue && OrganizationIdURI.Value != OrganizationIdBody.Value)
+                {
+                    ErrorResponse = "The optional organization identification given within the JSON body does not match the one given in the URI!";
+                    return false;
+                }
+
+                #endregion
+
+                #region Parse Context          [mandatory]
+
+                if (!JSONObject.GetMandatory("@context", out String Context))
+                {
+                    ErrorResponse = @"The JSON-LD ""@context"" information is missing!";
+                    return false;
+                }
+
+                if (Context != JSONLDContext)
+                {
+                    ErrorResponse = @"The given JSON-LD ""@context"" information '" + Context + "' is not supported!";
+                    return false;
+                }
+
+                #endregion
+
+                #region Parse Name             [optional]
+
+                if (!JSONObject.ParseOptional("name",
+                                              "name",
+                                              out I18NString Name,
+                                              out ErrorResponse))
+                {
+                    return false;
+                }
+
+                #endregion
+
+                #region Parse Description      [optional]
+
+                if (!JSONObject.ParseOptional("description",
+                                              "description",
+                                              out I18NString Description,
+                                              out ErrorResponse))
+                {
+                    return false;
+                }
+
+                #endregion
+
+                #region Parse E-Mail           [optional]
+
+                if (!JSONObject.ParseOptionalN("email",
+                                               "e-mail",
+                                               SimpleEMailAddress.TryParse,
+                                               out SimpleEMailAddress?  EMail,
+                                               out String               EMail_ErrorResponse))
+                {
+                    return false;
+                }
+
+                #endregion
+
+                #region Parse PublicKey        [optional]
+
+                if (!JSONObject.ParseOptional("publicKey",
+                                              out String PublicKey))
+                {
+                    return false;
+                }
+
+                #endregion
+
+                #region Parse Telephone        [optional]
+
+                if (!JSONObject.ParseOptional("telephone",
+                                              out String Telephone))
+                {
+                    return false;
+                }
+
+                #endregion
+
+                #region Parse GeoLocation      [optional]
+
+                if (!JSONObject.ParseOptionalN("geoLocation",
+                                               "geo location",
+                                               Vanaheimr.Aegir.JSON_IO.TryParseGeoCoordinate,
+                                               out GeoCoordinate? GeoLocation,
+                                               out ErrorResponse))
+                {
+                    return false;
+                }
+
+                #endregion
+
+                #region Parse Address          [optional]
+
+                if (!JSONObject.ParseOptional("address",
+                                              "address",
+                                              Vanaheimr.Hermod.JSON_IO.TryParseAddress,
+                                              out Address Address,
+                                              out ErrorResponse))
+                {
+                    return false;
+                }
+
+                #endregion
+
+                #region Parse PrivacyLevel     [optional]
+
+                if (!JSONObject.ParseOptional("privacyLevel",
+                                              "privacy level",
+                                              out PrivacyLevel PrivacyLevel,
+                                              out ErrorResponse))
+                {
+                    return false;
+                }
+
+                #endregion
+
+                var IsDisabled       = JSONObject["isDisabled"]?.     Value<Boolean>();
+
+                #region Get   DataSource       [optional]
+
+                var DataSource = JSONObject.GetOptional("dataSource");
+
+                #endregion
+
+                #region Parse CryptoHash       [optional]
+
+                var CryptoHash    = JSONObject.GetOptional("cryptoHash");
+
+                #endregion
+
+
+                Organization = new Organization(OrganizationIdBody ?? OrganizationIdURI.Value,
+                                                Name,
+                                                Description,
+                                                EMail,
+                                                PublicKey,
+                                                Telephone,
+                                                GeoLocation,
+                                                Address,
+                                                PrivacyLevel,
+                                                IsDisabled ?? false,
+                                                DataSource);
+
+                ErrorResponse = null;
+                return true;
+
+            }
+            catch (Exception e)
+            {
+                ErrorResponse  = e.Message;
+                Organization  = null;
+                return false;
+            }
+
+        }
+
+        #endregion
+
+
+
         #region IComparable<Organization> Members
 
         #region CompareTo(Object)
@@ -409,38 +680,6 @@ namespace org.GraphDefined.OpenData.Users
 
         #endregion
 
-        #region ToJSON(IncludeCryptoHash = true)
-
-        /// <summary>
-        /// Return a JSON representation of this object.
-        /// </summary>
-        /// <param name="IncludeCryptoHash">Include the crypto hash value of this object.</param>
-        public override JObject ToJSON(Boolean IncludeCryptoHash = true)
-
-            => JSONObject.Create(
-
-                   new JProperty("@id",          Id.         ToString()),
-                   new JProperty("name",         Name.       ToJSON()),
-
-                   Description.IsNeitherNullNorEmpty()
-                       ? new JProperty("description",  Description.ToJSON())
-                       : null,
-
-                   Address != null
-                       ? new JProperty("address",      Address.    ToJSON())
-                       : null,
-
-                   new JProperty("isPublic",     IsPublic),
-                   new JProperty("isDisabled",   IsDisabled),
-
-                   IncludeCryptoHash
-                       ? new JProperty("cryptoHash",   CurrentCryptoHash)
-                       : null
-
-               );
-
-        #endregion
-
 
         #region ToBuilder(NewOrganizationId = null)
 
@@ -467,40 +706,69 @@ namespace org.GraphDefined.OpenData.Users
             #region Properties
 
             /// <summary>
-            /// The organization identification.
+            /// The unique identification of the organization.
             /// </summary>
-            public Organization_Id  Id                   { get; set; }
+            public Organization_Id      Id                   { get; set; }
 
             /// <summary>
-            /// The offical public name of the organization.
+            /// The offical (multi-language) name of the organization.
             /// </summary>
-            [Optional]
-            public I18NString       Name                 { get; set; }
+            [Mandatory]
+            public I18NString           Name                 { get; set; }
 
             /// <summary>
             /// The optional (multi-language) description of the organization.
             /// </summary>
             [Optional]
-            public I18NString       Description          { get; set; }
+            public I18NString           Description          { get; set; }
+
+            /// <summary>
+            /// The primary E-Mail address of the organization.
+            /// </summary>
+            [Mandatory]
+            public SimpleEMailAddress?  EMail                { get; set; }
+
+            /// <summary>
+            /// The PGP/GPG public keyring of the organization.
+            /// </summary>
+            [Optional]
+            public String               PublicKeyRing        { get; set; }
+
+            /// <summary>
+            /// The telephone number of the organization.
+            /// </summary>
+            [Optional]
+            public String               Telephone            { get; set; }
+
+            /// <summary>
+            /// The geographical location of this organization.
+            /// </summary>
+            public GeoCoordinate?       GeoLocation          { get; set; }
 
             /// <summary>
             /// The optional address of the organization.
             /// </summary>
             [Optional]
-            public Address          Address              { get; set; }
+            public Address              Address              { get; set; }
+
+            /// <summary>
+            /// Whether the organization will be shown in organization listings, or not.
+            /// </summary>
+            [Mandatory]
+            public PrivacyLevel         PrivacyLevel         { get; set; }
+
+            /// <summary>
+            /// The user will be shown in organization listings.
+            /// </summary>
+            [Mandatory]
+            public Boolean              IsDisabled           { get; set; }
 
 
             /// <summary>
-            /// The organization will be shown in organization listings.
+            /// The source of this information, e.g. an automatic importer.
             /// </summary>
-            [Mandatory]
-            public Boolean          IsPublic             { get; set; }
-
-            /// <summary>
-            /// The organization is disabled.
-            /// </summary>
-            [Mandatory]
-            public Boolean          IsDisabled           { get; set; }
+            [Optional]
+            public String               DataSource           { get; set; }
 
             #endregion
 
@@ -510,28 +778,43 @@ namespace org.GraphDefined.OpenData.Users
             /// Create a new organization builder.
             /// </summary>
             /// <param name="Id">The unique identification of the organization.</param>
-            /// <param name="Name">An offical (multi-language) name of the organization.</param>
+            /// <param name="Name">The offical (multi-language) name of the organization.</param>
             /// <param name="Description">An optional (multi-language) description of the organization.</param>
-            /// <param name="Address">An optional address of the organization.</param>
-            /// <param name="IsPublic">The organization will be shown in organization listings.</param>
+            /// <param name="EMail">The primary e-mail of the organisation.</param>
+            /// <param name="PublicKeyRing">An optional PGP/GPG public keyring of the organisation.</param>
+            /// <param name="Telephone">An optional telephone number of the organisation.</param>
+            /// <param name="GeoLocation">An optional geographical location of the organisation.</param>
+            /// <param name="Address">An optional address of the organisation.</param>
+            /// <param name="PrivacyLevel">Whether the organization will be shown in organization listings, or not.</param>
             /// <param name="IsDisabled">The organization is disabled.</param>
-            public Builder(Organization_Id  Id,
-                           I18NString       Name          = null,
-                           I18NString       Description   = null,
-                           Address          Address       = null,
-                           Boolean          IsPublic      = true,
-                           Boolean          IsDisabled    = false)
+            /// <param name="DataSource">The source of all this data, e.g. an automatic importer.</param>
+            public Builder(Organization_Id      Id,
+                           I18NString           Name            = null,
+                           I18NString           Description     = null,
+                           SimpleEMailAddress?  EMail           = null,
+                           String               PublicKeyRing   = null,
+                           String               Telephone       = null,
+                           GeoCoordinate?       GeoLocation     = null,
+                           Address              Address         = null,
+                           PrivacyLevel         PrivacyLevel    = PrivacyLevel.World,
+                           Boolean              IsDisabled      = false,
+                           String               DataSource      = "")
             {
 
                 #region Init properties
 
-                this.Id           = Id;
-                this.Name         = Name        ?? new I18NString();
-                this.Description  = Description ?? new I18NString();
-                this.Address      = Address;
-
-                this.IsPublic     = IsPublic;
-                this.IsDisabled   = IsDisabled;
+                this.Id             = Id;
+                this.Name           = Name        ?? new I18NString();
+                this.Description    = Description ?? new I18NString();
+                this.EMail          = EMail;
+                this.Address        = Address;
+                this.PublicKeyRing  = PublicKeyRing;
+                this.Telephone      = Telephone;
+                this.GeoLocation    = GeoLocation;
+                this.Address        = Address;
+                this.PrivacyLevel   = PrivacyLevel;
+                this.IsDisabled     = IsDisabled;
+                this.DataSource     = DataSource;
 
                 #endregion
 
@@ -558,10 +841,14 @@ namespace org.GraphDefined.OpenData.Users
                 => new Organization(Id,
                                     Name,
                                     Description,
+                                    EMail,
+                                    PublicKeyRing,
+                                    Telephone,
+                                    GeoLocation,
                                     Address,
-
-                                    IsPublic,
-                                    IsDisabled);
+                                    PrivacyLevel,
+                                    IsDisabled,
+                                    DataSource);
 
             #endregion
 

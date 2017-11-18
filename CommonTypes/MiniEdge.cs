@@ -314,7 +314,7 @@ namespace org.GraphDefined.OpenData.Users
         public override String ToString()
         {
 
-            var IsNotPublic = _PrivacyLevel != PrivacyLevel.Public ? String.Concat(" [", _PrivacyLevel.ToString(), "]") : "";
+            var IsNotPublic = _PrivacyLevel != PrivacyLevel.World ? String.Concat(" [", _PrivacyLevel.ToString(), "]") : "";
 
             return String.Concat(_Source, " --", EdgeLabel, IsNotPublic, "->", _Target);
 
