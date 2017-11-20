@@ -37,7 +37,9 @@ namespace org.GraphDefined.OpenData.Users
     /// <summary>
     /// An Open Data user group.
     /// </summary>
-    public class VerificationToken : IEquatable<VerificationToken>, IComparable<VerificationToken>, IComparable
+    public class VerificationToken : IEquatable<VerificationToken>,
+                                     IComparable<VerificationToken>,
+                                     IComparable
     {
 
         #region Data

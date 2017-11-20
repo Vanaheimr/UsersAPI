@@ -1975,7 +1975,7 @@ namespace org.GraphDefined.OpenData.Users
                                                         }.AsImmutable());
 
 
-                                             AddOrUpdate(_User);
+                                             //AddOrUpdate(_User);
 
 
                                              return SetUserResponse(
@@ -3100,6 +3100,63 @@ namespace org.GraphDefined.OpenData.Users
         }
 
         #endregion
+
+        #endregion
+
+        #region API Keys
+
+        #region API Keys
+
+        protected readonly Dictionary<APIKey, APIKeyInfo> _APIKeys;
+
+        public IEnumerable<APIKeyInfo> APIKeys
+            => _APIKeys.Values;
+
+        #endregion
+
+        #region GetAPIKeyInfo   (APIKey)
+
+        /// <summary>
+        /// Get the APIKeyInfo for the given API key.
+        /// </summary>
+        /// <param name="APIKeyInfoId">The unique APIKey.</param>
+        public APIKeyInfo GetAPIKeyInfo(APIKey  APIKeyInfoId)
+        {
+
+            lock (_APIKeys)
+            {
+
+                if (_APIKeys.TryGetValue(APIKeyInfoId, out APIKeyInfo APIKeyInfo))
+                    return APIKeyInfo;
+
+                return null;
+
+            }
+
+        }
+
+        #endregion
+
+        #region TryGetAPIKeyInfo(APIKey, out APIKeyInfo)
+
+        /// <summary>
+        /// Try to get the APIKeyInfo having the given unique identification.
+        /// </summary>
+        /// <param name="APIKey">The unique API key.</param>
+        /// <param name="APIKeyInfo">The APIKeyInfo.</param>
+        public Boolean TryGetAPIKeyInfo(APIKey          APIKey,
+                                        out APIKeyInfo  APIKeyInfo)
+        {
+
+            lock (_APIKeys)
+            {
+                return _APIKeys.TryGetValue(APIKey, out APIKeyInfo);
+            }
+
+        }
+
+        #endregion
+
 
         #endregion
 
