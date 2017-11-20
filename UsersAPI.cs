@@ -1870,6 +1870,132 @@ namespace org.GraphDefined.OpenData.Users
 
             #endregion
 
+            #region SET         ~/users/{UserId}
+
+            // ---------------------------------------------------------------------------------------------
+            // curl -v -X SET \
+            //      -H "Accept:       application/json; charset=utf-8" \
+            //      -H "Content-Type: application/json; charset=utf-8" \
+            //      -d "{ \
+            //              \"@id\" :             \"214080158\", \
+            //              \"@context\" :        \"https://cardi-link.cloud/contexts/cardidb+json/user\", \
+            //              \"description\" :     { \"deu\" : \"Test AED in Erlangen Raum Yavin 4\" },\
+            //              \"dataLicenseIds\" :  [ \"ODbL\" ],\
+            //              \"ownerId\" :         \"CardiLink\", \
+            //              \"address\" :         { \
+            //                                      \"country\" :      \"Germany\",
+            //                                      \"postalCode\" :   \"91052\",
+            //                                      \"city\" :         { \"deu\": \"Erlangen\" },
+            //                                      \"street\" :       \"Henkestraße\",
+            //                                      \"houseNumber\" :  \"91\",
+            //                                      \"floorLevel\" :   \"1\"
+            //                                    }, \
+            //              \"geoLocation\" :     { \"lat\": 49.594760, \"lng\": 11.019356 }, \
+            //              \"privacyLevel\" :    \"Public\" \
+            //          }" \
+            //      http://127.0.0.1:2000/users/214080158
+            // ---------------------------------------------------------------------------------------------
+            HTTPServer.AddMethodCallback(Hostname,
+                                         HTTPMethod.SET,
+                                         URIPrefix + "/users/{UserId}",
+                                         HTTPContentType.JSON_UTF8,
+                                         HTTPDelegate: async Request => {
+
+                                             SetUserRequest(Request);
+
+                                             #region Get HTTP user and its organizations
+
+                                             // Will return HTTP 401 Unauthorized, when the HTTP user is unknown!
+                                             if (!TryGetHTTPUser(Request,
+                                                                 out User                       HTTPUser,
+                                                                 out IEnumerable<Organization>  HTTPOrganizations,
+                                                                 out HTTPResponse               Response,
+                                                                 RequireReadWriteAccess:        true,
+                                                                 Recursive:                     true))
+                                             {
+                                                 return SetUserResponse(Response);
+                                             }
+
+                                             #endregion
+
+                                             #region Check UserId URI parameter
+
+                                             if (!Request.ParseUserId(this,
+                                                                      out User_Id?      UserIdURI,
+                                                                      out HTTPResponse  HTTPResponse))
+                                             {
+                                                 return SetUserResponse(HTTPResponse);
+                                             }
+
+                                             #endregion
+
+                                             #region Parse JSON
+
+                                             if (!Request.TryParseJObjectRequestBody(out JObject JSONObj, out HTTPResponse))
+                                                 return SetUserResponse(HTTPResponse);
+
+                                             if (!User.TryParseJSON(JSONObj,
+                                                                    out User    _User,
+                                                                    out String  ErrorResponse,
+                                                                    UserIdURI))
+                                             {
+
+                                                 return SetUserResponse(
+                                                            new HTTPResponseBuilder(Request) {
+                                                                HTTPStatusCode             = HTTPStatusCode.BadRequest,
+                                                                Server                     = HTTPServer.DefaultServerName,
+                                                                Date                       = DateTime.UtcNow,
+                                                                AccessControlAllowOrigin   = "*",
+                                                                AccessControlAllowMethods  = "GET, SET",
+                                                                AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
+                                                                ETag                       = "1",
+                                                                ContentType                = HTTPContentType.JSON_UTF8,
+                                                                Content                    = JSONObject.Create(
+                                                                                                 new JProperty("description",  ErrorResponse)
+                                                                                             ).ToUTF8Bytes()
+                                                            }.AsImmutable());
+
+                                             }
+
+                                             #endregion
+
+
+                                             // Has the current HTTP user the required
+                                             // access rights to update?
+                                             if (HTTPUser.Id != _User.Id)
+                                                 return SetUserResponse(
+                                                        new HTTPResponseBuilder(Request) {
+                                                            HTTPStatusCode              = HTTPStatusCode.Forbidden,
+                                                            Server                      = HTTPServer.DefaultServerName,
+                                                            Date                        = DateTime.UtcNow,
+                                                            AccessControlAllowOrigin    = "*",
+                                                            AccessControlAllowMethods   = "GET, SET, CHOWN",
+                                                            AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
+                                                            Connection                  = "close"
+                                                        }.AsImmutable());
+
+
+                                             AddOrUpdate(_User);
+
+
+                                             return SetUserResponse(
+                                                        new HTTPResponseBuilder(Request) {
+                                                            HTTPStatusCode              = HTTPStatusCode.OK,
+                                                            Server                      = HTTPServer.DefaultServerName,
+                                                            Date                        = DateTime.UtcNow,
+                                                            AccessControlAllowOrigin    = "*",
+                                                            AccessControlAllowMethods   = "GET, SET",
+                                                            AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
+                                                            ETag                        = _User.CurrentCryptoHash,
+                                                            ContentType                 = HTTPContentType.JSON_UTF8,
+                                                            Content                     = _User.ToJSON().ToUTF8Bytes(),
+                                                            Connection                  = "close"
+                                                        }.AsImmutable());
+
+                                         });
+
+            #endregion
+
             #region AUTH        ~/users/{UserId}
 
             HTTPServer.AddMethodCallback(HTTPHostname.Any,
@@ -2561,6 +2687,48 @@ namespace org.GraphDefined.OpenData.Users
         }
 
         #endregion
+
+        #region (protected internal) SetUserRequest (Request)
+
+        /// <summary>
+        /// An event sent whenever set user request was received.
+        /// </summary>
+        public event RequestLogHandler OnSetUserRequest;
+
+        protected internal HTTPRequest SetUserRequest(HTTPRequest Request)
+        {
+
+            OnSetUserRequest?.Invoke(Request.Timestamp,
+                                              HTTPServer,
+                                              Request);
+
+            return Request;
+
+        }
+
+        #endregion
+
+        #region (protected internal) SetUserResponse(Response)
+
+        /// <summary>
+        /// An event sent whenever a response on a set user request was sent.
+        /// </summary>
+        public event AccessLogHandler OnSetUserResponse;
+
+        protected internal HTTPResponse SetUserResponse(HTTPResponse Response)
+        {
+
+            OnSetUserResponse?.Invoke(Response.Timestamp,
+                                               HTTPServer,
+                                               Response.HTTPRequest,
+                                               Response);
+
+            return Response;
+
+        }
+
+        #endregion
+
 
 
         #region (private) WriteToLogfile(Command, JSON)
