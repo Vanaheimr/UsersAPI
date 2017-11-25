@@ -20,7 +20,8 @@ function ShowElement2(DivName, displaymode) {
         displaymode = "flex";
 
     var div = document.querySelector(DivName);
-    div.style.display = displaymode;
+    if (div != null)
+        div.style.display = displaymode;
 
     return div;
 
