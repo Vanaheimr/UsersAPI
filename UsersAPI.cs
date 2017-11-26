@@ -1786,7 +1786,7 @@ namespace org.GraphDefined.OpenData.Users
                                                TryGetItemDelegate:  _Users.TryGetValue,
                                                ItemFilterDelegate:  user   => user.PrivacyLevel == PrivacyLevel.World,
                                                TryGetItemError:     userId => "Unknown user '" + userId + "'!",
-                                               ToJSONDelegate:      user   => user.ToJSON(IncludeHash: true));
+                                               ToJSONDelegate:      user   => user.ToJSON(IncludeCryptoHash: true));
 
             //HTTPServer.AddMethodCallback(Hostname,
             //                             HTTPMethod.GET,
@@ -3521,7 +3521,7 @@ namespace org.GraphDefined.OpenData.Users
                                    new JProperty("organizationOut", OrganizationOut.Id.ToString()),
                                    new JProperty("edge",            EdgeLabel.         ToString()),
                                    new JProperty("organizationIn",  OrganizationIn. Id.ToString()),
-                                   new JProperty("privacy",         Privacy.           ToString())
+                                   Privacy.ToJSON()
                                ));
 
                 return true;

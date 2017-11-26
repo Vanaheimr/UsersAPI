@@ -452,13 +452,13 @@ namespace org.GraphDefined.OpenData.Users
         #endregion
 
 
-        #region ToJSON(IncludeHash = true)
+        #region ToJSON(IncludeCryptoHash = true)
 
         /// <summary>
         /// Return a JSON representation of this object.
         /// </summary>
-        /// <param name="IncludeHash">Include the hash value of this object.</param>
-        public override JObject ToJSON(Boolean IncludeHash = true)
+        /// <param name="IncludeCryptoHash">Include the hash value of this object.</param>
+        public override JObject ToJSON(Boolean IncludeCryptoHash = true)
 
             => JSONObject.Create(
 
@@ -485,7 +485,7 @@ namespace org.GraphDefined.OpenData.Users
 
                    new JProperty("signatures",          new JArray()),
 
-                   IncludeHash
+                   IncludeCryptoHash
                        ? new JProperty("hash", CurrentCryptoHash)
                        : null
 
