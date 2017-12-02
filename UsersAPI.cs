@@ -2626,8 +2626,8 @@ namespace org.GraphDefined.OpenData.Users
             if (!TryGetHTTPUser(Request, out User))
             {
 
-                if (Request.RemoteSocket.IPAddress is IPv4Address &&
-                    Request.RemoteSocket.IPAddress as IPv4Address == IPv4Address.Localhost)
+                if (Request.RemoteSocket.IPAddress.IsIPv4 &&
+                    Request.RemoteSocket.IPAddress.IsLocalhost)
                 {
                     User           = Admins.User2GroupInEdges(edgelabel => edgelabel == User2GroupEdges.IsAdmin).FirstOrDefault()?.Source;
                     Organizations  = User.Organizations(RequireReadWriteAccess, Recursive);
@@ -2669,8 +2669,8 @@ namespace org.GraphDefined.OpenData.Users
             if (!TryGetHTTPUser(Request, out User))
             {
 
-                if (Request.RemoteSocket.IPAddress is IPv4Address &&
-                    Request.RemoteSocket.IPAddress as IPv4Address == IPv4Address.Localhost)
+                if (Request.RemoteSocket.IPAddress.IsIPv4 &&
+                    Request.RemoteSocket.IPAddress.IsLocalhost)
                 {
                     User           = Admins.User2GroupInEdges(edgelabel => edgelabel == User2GroupEdges.IsAdmin).FirstOrDefault()?.Source;
                     Organizations  = User.Organizations(RequireReadWriteAccess, Recursive);
