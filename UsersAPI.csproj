@@ -225,6 +225,18 @@
     <EmbeddedResource Include="HTTPRoot\defaults\defaults.js.map">
       <DependentUpon>defaults.ts</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="HTTPRoot\webfonts\fa-brands-400.eot" />
+    <EmbeddedResource Include="HTTPRoot\webfonts\fa-brands-400.ttf" />
+    <EmbeddedResource Include="HTTPRoot\webfonts\fa-brands-400.woff" />
+    <EmbeddedResource Include="HTTPRoot\webfonts\fa-brands-400.woff2" />
+    <EmbeddedResource Include="HTTPRoot\webfonts\fa-regular-400.eot" />
+    <EmbeddedResource Include="HTTPRoot\webfonts\fa-regular-400.ttf" />
+    <EmbeddedResource Include="HTTPRoot\webfonts\fa-regular-400.woff" />
+    <EmbeddedResource Include="HTTPRoot\webfonts\fa-regular-400.woff2" />
+    <EmbeddedResource Include="HTTPRoot\webfonts\fa-solid-900.eot" />
+    <EmbeddedResource Include="HTTPRoot\webfonts\fa-solid-900.ttf" />
+    <EmbeddedResource Include="HTTPRoot\webfonts\fa-solid-900.woff" />
+    <EmbeddedResource Include="HTTPRoot\webfonts\fa-solid-900.woff2" />
     <None Include="HTTPRoot\libs\EventSource.js.map">
       <DependentUpon>EventSource.ts</DependentUpon>
     </None>
@@ -265,6 +277,10 @@
     <EmbeddedResource Include="HTTPRoot\defaults\defaults.js">
       <DependentUpon>defaults.ts</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="HTTPRoot\css\fontawesome-all.min.css" />
+    <EmbeddedResource Include="HTTPRoot\webfonts\fa-brands-400.svg" />
+    <EmbeddedResource Include="HTTPRoot\webfonts\fa-regular-400.svg" />
+    <EmbeddedResource Include="HTTPRoot\webfonts\fa-solid-900.svg" />
     <Content Include="HTTPRoot\libs\EventSource.js">
       <DependentUpon>EventSource.ts</DependentUpon>
     </Content>
