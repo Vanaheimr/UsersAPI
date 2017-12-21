@@ -503,13 +503,16 @@ namespace org.GraphDefined.OpenData.Users
 
                 #region Parse Address          [optional]
 
-                if (!JSONObject.ParseOptional("address",
-                                              "address",
-                                              Vanaheimr.Hermod.JSON_IO.TryParseAddress,
-                                              out Address Address,
-                                              out ErrorResponse))
+                if (JSONObject.ParseOptional("address",
+                                             "address",
+                                             Vanaheimr.Hermod.JSON_IO.TryParseAddress,
+                                             out Address Address,
+                                             out ErrorResponse))
                 {
-                    return false;
+
+                    if (ErrorResponse != null)
+                        return false;
+
                 }
 
                 #endregion
