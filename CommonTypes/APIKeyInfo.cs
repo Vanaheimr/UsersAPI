@@ -203,7 +203,10 @@ namespace org.GraphDefined.OpenData.Users
 
                 #region Parse Context          [mandatory]
 
-                if (!JSONObject.GetMandatory("@context", out String Context))
+                if (!JSONObject.ParseMandatory("@context",
+                                               "JSON-LinkedData context information",
+                                               out String Context,
+                                               out ErrorResponse))
                 {
                     ErrorResponse = @"The JSON-LD ""@context"" information is missing!";
                     return false;
@@ -256,8 +259,10 @@ namespace org.GraphDefined.OpenData.Users
                 #region Parse AccessRights     [mandatory]
 
                 if (!JSONObject.ParseMandatory("accessRights",
+                                               "Access Rights",
                                                s => s.ParseMandatory_APIKeyRights(),
-                                               out APIKeyRights AccessRights))
+                                               out APIKeyRights AccessRights,
+                                               out ErrorResponse))
                 {
                     return false;
                 }
@@ -268,7 +273,6 @@ namespace org.GraphDefined.OpenData.Users
 
                 if (!JSONObject.ParseMandatory("created",
                                                "creation timestamp",
-                                               DateTime.TryParse,
                                                out DateTime Created,
                                                out ErrorResponse))
                 {

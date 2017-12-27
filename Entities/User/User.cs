@@ -535,7 +535,10 @@ namespace org.GraphDefined.OpenData.Users
 
                 #region Parse Context          [mandatory]
 
-                if (!JSONObject.GetMandatory("@context", out String Context))
+                if (!JSONObject.ParseMandatory("@context",
+                                               "JSON-LinkedData context information",
+                                               out String Context,
+                                               out ErrorResponse))
                 {
                     ErrorResponse = @"The JSON-LD ""@context"" information is missing!";
                     return false;
@@ -552,8 +555,10 @@ namespace org.GraphDefined.OpenData.Users
                 #region Parse E-Mail           [mandatory]
 
                 if (!JSONObject.ParseMandatory("email",
+                                               "E-Mail",
                                                SimpleEMailAddress.Parse,
-                                               out SimpleEMailAddress EMail))
+                                               out SimpleEMailAddress EMail,
+                                               out ErrorResponse))
                 {
                     return false;
                 }
@@ -563,7 +568,9 @@ namespace org.GraphDefined.OpenData.Users
                 #region Parse Name             [mandatory]
 
                 if (!JSONObject.ParseMandatory("name",
-                                               out String Name))
+                                               "Username",
+                                               out String Name,
+                                               out ErrorResponse))
                 {
                     return false;
                 }
@@ -593,7 +600,7 @@ namespace org.GraphDefined.OpenData.Users
                 #region Parse Description      [optional]
 
                 if (!JSONObject.ParseOptional("description",
-                                              "description",
+                                              "Description",
                                               out I18NString Description,
                                               out ErrorResponse))
                 {
@@ -605,7 +612,7 @@ namespace org.GraphDefined.OpenData.Users
                 #region Parse GeoLocation      [optional]
 
                 if (!JSONObject.ParseOptionalN("geoLocation",
-                                               "geo location",
+                                               "Geo location",
                                                Vanaheimr.Aegir.JSON_IO.TryParseGeoCoordinate,
                                                out GeoCoordinate? GeoLocation,
                                                out ErrorResponse))

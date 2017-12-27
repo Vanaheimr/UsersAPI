@@ -417,7 +417,10 @@ namespace org.GraphDefined.OpenData.Users
 
                 #region Parse Context          [mandatory]
 
-                if (!JSONObject.GetMandatory("@context", out String Context))
+                if (!JSONObject.ParseMandatory("@context",
+                                               "JSON-LinkedData context information",
+                                               out String Context,
+                                               out ErrorResponse))
                 {
                     ErrorResponse = @"The JSON-LD ""@context"" information is missing!";
                     return false;
