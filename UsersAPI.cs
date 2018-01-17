@@ -1074,7 +1074,7 @@ namespace org.GraphDefined.OpenData.Users
                                                           Content         = ("VerificationToken not found!").ToUTF8Bytes(),
                                                           CacheControl    = "public",
                                                           Connection      = "close"
-                                                      }.AsImmutable());
+                                                      }.AsImmutable);
 
                                               User _User = null;
                                               if (!_Users.TryGetValue(VerificationToken.Login, out _User))
@@ -1086,7 +1086,7 @@ namespace org.GraphDefined.OpenData.Users
                                                           Content         = ("Login not found!").ToUTF8Bytes(),
                                                           CacheControl    = "public",
                                                           Connection      = "close"
-                                                      }.AsImmutable());
+                                                      }.AsImmutable);
 
                                               _VerificationTokens.Remove(VerificationToken);
 
@@ -1151,7 +1151,7 @@ namespace org.GraphDefined.OpenData.Users
                                                           CacheControl    = "public",
                                                           //Expires         = "Mon, 25 Jun 2015 21:31:12 GMT",
                                                           Connection      = "close"
-                                                      }.AsImmutable());
+                                                      }.AsImmutable);
 
                                               }
 
@@ -1167,7 +1167,7 @@ namespace org.GraphDefined.OpenData.Users
                                                       ETag            = "1",
                                                       //Expires         = "Mon, 25 Jun 2015 21:31:12 GMT",
                                                       Connection      = "close"
-                                                  }.AsImmutable());
+                                                  }.AsImmutable);
 
                                           }, AllowReplacement: URIReplacement.Allow);
 
@@ -1215,7 +1215,7 @@ namespace org.GraphDefined.OpenData.Users
                                                                 ).ToString().ToUTF8Bytes(),
                                               CacheControl     = "private",
                                               Connection       = "close"
-                                          }.AsImmutable());
+                                          }.AsImmutable);
 
                                   Login = HTTPTools.URLDecode(Login);
 
@@ -1233,7 +1233,7 @@ namespace org.GraphDefined.OpenData.Users
                                                                 ).ToString().ToUTF8Bytes(),
                                               CacheControl    = "private",
                                               Connection      = "close"
-                                          }.AsImmutable());
+                                          }.AsImmutable);
 
                                   #endregion
 
@@ -1263,7 +1263,7 @@ namespace org.GraphDefined.OpenData.Users
                                                                ).ToString().ToUTF8Bytes(),
                                               CacheControl    = "private",
                                               Connection      = "close"
-                                          }.AsImmutable());
+                                          }.AsImmutable);
 
                                   Password = HTTPTools.URLDecode(Password);
 
@@ -1281,7 +1281,7 @@ namespace org.GraphDefined.OpenData.Users
                                                                ).ToString().ToUTF8Bytes(),
                                               CacheControl    = "private",
                                               Connection      = "close"
-                                          }.AsImmutable());
+                                          }.AsImmutable);
 
                                   #endregion
 
@@ -1318,7 +1318,7 @@ namespace org.GraphDefined.OpenData.Users
                                                                 ).ToString().ToUTF8Bytes(),
                                               CacheControl    = "private",
                                               Connection      = "close"
-                                          }.AsImmutable());
+                                          }.AsImmutable);
 
 
                                   if (!_LoginPassword.VerifyPassword(Password))
@@ -1335,7 +1335,7 @@ namespace org.GraphDefined.OpenData.Users
                                                                 ).ToString().ToUTF8Bytes(),
                                               CacheControl    = "private",
                                               Connection      = "close"
-                                          }.AsImmutable());
+                                          }.AsImmutable);
 
                                   #endregion
 
@@ -1386,7 +1386,7 @@ namespace org.GraphDefined.OpenData.Users
                                           // _gitlab_session=653i45j69051238907520q1350275575; path=/; secure; HttpOnly
                                           Connection      = "close",
                                           X_FrameOptions  = "DENY"
-                                      }.AsImmutable());
+                                      }.AsImmutable);
 
                               });
 
@@ -1458,7 +1458,7 @@ namespace org.GraphDefined.OpenData.Users
                                                                                 : "") +
                                                                             "; Path=/",
                                                       Connection      = "close"
-                                                  }.AsImmutable()));
+                                                  }.AsImmutable));
 
             #endregion
 
@@ -1834,7 +1834,7 @@ namespace org.GraphDefined.OpenData.Users
             //                                                                                                Replace("<%= logoimage %>", String.Concat(@"<img src=""", LogoImage, @""" /> ")).
             //                                                                                                ToUTF8Bytes(),
             //                                                          Connection                 = "close"
-            //                                                      }.AsImmutable());
+            //                                                      }.AsImmutable);
 
 
             //                                 }
@@ -1848,7 +1848,7 @@ namespace org.GraphDefined.OpenData.Users
             //                                                            AccessControlAllowMethods  = "GET, SET",
             //                                                            AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
             //                                                            Connection                 = "close"
-            //                                                        }.AsImmutable());
+            //                                                        }.AsImmutable);
 
             //                             });
 
@@ -1953,7 +1953,7 @@ namespace org.GraphDefined.OpenData.Users
                                                                 Content                    = JSONObject.Create(
                                                                                                  new JProperty("description",  ErrorResponse)
                                                                                              ).ToUTF8Bytes()
-                                                            }.AsImmutable());
+                                                            }.AsImmutable);
 
                                              }
 
@@ -1972,7 +1972,7 @@ namespace org.GraphDefined.OpenData.Users
                                                             AccessControlAllowMethods   = "GET, SET, CHOWN",
                                                             AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
                                                             Connection                  = "close"
-                                                        }.AsImmutable());
+                                                        }.AsImmutable);
 
 
                                              //AddOrUpdate(_User);
@@ -1990,7 +1990,7 @@ namespace org.GraphDefined.OpenData.Users
                                                             ContentType                 = HTTPContentType.JSON_UTF8,
                                                             Content                     = _User.ToJSON().ToUTF8Bytes(),
                                                             Connection                  = "close"
-                                                        }.AsImmutable());
+                                                        }.AsImmutable);
 
                                          });
 
@@ -2029,7 +2029,7 @@ namespace org.GraphDefined.OpenData.Users
                                                                            ).ToUTF8Bytes(),
                                                           CacheControl    = "private",
                                                           Connection      = "close"
-                                                      }.AsImmutable());
+                                                      }.AsImmutable);
 
                                               #endregion
 
@@ -2052,7 +2052,7 @@ namespace org.GraphDefined.OpenData.Users
                                                                             ).ToString().ToUTF8Bytes(),
                                                           CacheControl    = "private",
                                                           Connection      = "close"
-                                                      }.AsImmutable());
+                                                      }.AsImmutable);
 
                                               #endregion
 
@@ -2074,7 +2074,7 @@ namespace org.GraphDefined.OpenData.Users
                                                                             ).ToString().ToUTF8Bytes(),
                                                           CacheControl    = "private",
                                                           Connection      = "close"
-                                                      }.AsImmutable());
+                                                      }.AsImmutable);
 
                                               #endregion
 
@@ -2094,7 +2094,7 @@ namespace org.GraphDefined.OpenData.Users
                                                                            ).ToString().ToUTF8Bytes(),
                                                           CacheControl    = "private",
                                                           Connection      = "close"
-                                                      }.AsImmutable());
+                                                      }.AsImmutable);
 
                                               if (LoginData.GetString("password").Length < MinPasswordLenght)
                                                   return Task.FromResult(
@@ -2110,7 +2110,7 @@ namespace org.GraphDefined.OpenData.Users
                                                                            ).ToString().ToUTF8Bytes(),
                                                           CacheControl    = "private",
                                                           Connection      = "close"
-                                                      }.AsImmutable());
+                                                      }.AsImmutable);
 
                                               #endregion
 
@@ -2139,7 +2139,7 @@ namespace org.GraphDefined.OpenData.Users
                                                                             ).ToString().ToUTF8Bytes(),
                                                           CacheControl    = "private",
                                                           Connection      = "close"
-                                                      }.AsImmutable());
+                                                      }.AsImmutable);
 
 
                                               if (!_LoginPassword.VerifyPassword(LoginData.GetString("password")))
@@ -2159,7 +2159,7 @@ namespace org.GraphDefined.OpenData.Users
                                                           //                          "; Path=/",
                                                           CacheControl    = "private",
                                                           Connection      = "close"
-                                                      }.AsImmutable());
+                                                      }.AsImmutable);
 
                                               #endregion
 
@@ -2188,7 +2188,7 @@ namespace org.GraphDefined.OpenData.Users
                                                                                      "; Path=/",
                                                       // secure;"
                                                       Connection = "close"
-                                                  }.AsImmutable());
+                                                  }.AsImmutable);
 
                                           });
 
@@ -2212,7 +2212,7 @@ namespace org.GraphDefined.OpenData.Users
                                                                                 : "") +
                                                                             "; Path=/",
                                                       Connection      = "close"
-                                                  }.AsImmutable()));
+                                                  }.AsImmutable));
 
             #endregion
 
@@ -2643,7 +2643,7 @@ namespace org.GraphDefined.OpenData.Users
                                      Server          = HTTPServer.DefaultServerName,
                                      CacheControl    = "private, max-age=0, no-cache",
                                      Connection      = "close"
-                                 }.AsImmutable();
+                                 };
 
                 return false;
 
