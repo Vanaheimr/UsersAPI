@@ -234,7 +234,7 @@ namespace org.GraphDefined.OpenData.Users
         /// <summary>
         /// The default HTTP server port.
         /// </summary>
-        public  static readonly   IPPort                              DefaultHTTPServerPort          = new IPPort(2002);
+        public  static readonly   IPPort                              DefaultHTTPServerPort          = IPPort.Parse(2002);
 
         /// <summary>
         /// The HTTP root for embedded ressources.
@@ -670,7 +670,7 @@ namespace org.GraphDefined.OpenData.Users
         /// <param name="DNSClient">The DNS client of the API.</param>
         /// <param name="Autostart">Whether to start the API automatically.</param>
         public UsersAPI(String                              HTTPServerName                     = DefaultHTTPServerName,
-                        IPPort                              HTTPServerPort                     = null,
+                        IPPort?                             HTTPServerPort                     = null,
                         HTTPHostname                        HTTPHostname                       = null,
                         String                              URIPrefix                          = "/",
 
