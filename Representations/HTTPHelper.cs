@@ -60,7 +60,7 @@ namespace org.GraphDefined.OpenData.Users
         #region ITEMS_GET(...)
 
         public static void ITEMS_GET<TId, TItem>(this HTTPServer             HTTPServer,
-                                                 String                      UriTemplate,
+                                                 HTTPURI                     UriTemplate,
                                                  Dictionary<TId, TItem>      Dictionary,
                                                  ItemFilterDelegate<TItem>   Filter,
                                                  ItemsToJSONDelegate<TItem>  ToJSONDelegate)
@@ -75,7 +75,7 @@ namespace org.GraphDefined.OpenData.Users
         }
 
         public static void GET_ITEMS<TItem>(this HTTPServer             HTTPServer,
-                                            String                      UriTemplate,
+                                            HTTPURI                     UriTemplate,
                                             IEnumerable<TItem>          Enumeration,
                                             ItemFilterDelegate<TItem>   Filter,
                                             ItemsToJSONDelegate<TItem>  ToJSONDelegate)
@@ -119,7 +119,7 @@ namespace org.GraphDefined.OpenData.Users
         #region ITEM_EXISTS(...)
 
         public static void ITEM_EXISTS<TId, TItem>(this HTTPServer                 HTTPServer,
-                                                   String                          UriTemplate,
+                                                   HTTPURI                         UriTemplate,
                                                    ParseIdDelegate<TId>            ParseIdDelegate,
                                                    Func<String, String>            ParseIdError,
                                                    TryGetItemDelegate<TId, TItem>  TryGetItemDelegate,
@@ -180,7 +180,7 @@ namespace org.GraphDefined.OpenData.Users
         #region ITEM_GET(...)
 
         public static void ITEM_GET<TId, TItem>(this HTTPServer                 HTTPServer,
-                                                String                          UriTemplate,
+                                                HTTPURI                         UriTemplate,
                                                 ParseIdDelegate<TId>            ParseIdDelegate,
                                                 Func<String, String>            ParseIdError,
                                                 TryGetItemDelegate<TId, TItem>  TryGetItemDelegate,

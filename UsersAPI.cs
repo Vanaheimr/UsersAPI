@@ -378,7 +378,7 @@ namespace org.GraphDefined.OpenData.Users
         /// <summary>
         /// The URI prefix of this HTTP API.
         /// </summary>
-        public String        URIPrefix    { get; }
+        public HTTPURI       URIPrefix    { get; }
 
 
         #region ServiceName
@@ -674,7 +674,7 @@ namespace org.GraphDefined.OpenData.Users
         public UsersAPI(String                              HTTPServerName                     = DefaultHTTPServerName,
                         IPPort?                             HTTPServerPort                     = null,
                         HTTPHostname                        HTTPHostname                       = null,
-                        String                              URIPrefix                          = "/",
+                        HTTPURI?                            URIPrefix                          = null,
 
                         String                              ServiceName                        = DefaultServiceName,
                         EMailAddress                        APIEMailAddress                    = null,
@@ -791,7 +791,7 @@ namespace org.GraphDefined.OpenData.Users
         /// <param name="LogfileName">The name of the logfile for this API.</param>
         protected UsersAPI(HTTPServer                          HTTPServer,
                            HTTPHostname                        HTTPHostname                 = null,
-                           String                              URIPrefix                    = "/",
+                           HTTPURI?                            URIPrefix                    = null,
 
                            String                              ServiceName                  = DefaultServiceName,
                            EMailAddress                        APIEMailAddress              = null,
@@ -837,9 +837,7 @@ namespace org.GraphDefined.OpenData.Users
 
             this.HTTPServer                   = HTTPServer;
             this.Hostname                     = HTTPHostname ?? HTTPHostname.Parse("*");
-            this.URIPrefix                    = (URIPrefix ?? "/").StartsWith("/", StringComparison.Ordinal)
-                                                    ? URIPrefix
-                                                    : URIPrefix = "/" + URIPrefix;
+            this.URIPrefix                    = URIPrefix    ?? HTTPURI.Parse("/");
 
             this.ServiceName                  = ServiceName. IsNotNullOrEmpty() ? ServiceName  : "UsersAPI";
             this.APIEMailAddress              = APIEMailAddress;
@@ -946,7 +944,7 @@ namespace org.GraphDefined.OpenData.Users
         /// <param name="LogfileName">The name of the logfile for this API.</param>
         public static UsersAPI AttachToHTTPAPI(HTTPServer                          HTTPServer,
                                                HTTPHostname                        HTTPHostname                 = null,
-                                               String                              URIPrefix                    = "/",
+                                               HTTPURI?                            URIPrefix                    = null,
 
                                                String                              ServiceName                  = DefaultServiceName,
                                                EMailAddress                        APIEMailAddress              = null,
@@ -1007,7 +1005,7 @@ namespace org.GraphDefined.OpenData.Users
 
             #region /shared/UsersAPI
 
-            HTTPServer.RegisterResourcesFolder(HTTPHostname.Any, "/shared/UsersAPI", HTTPRoot.Substring(0, HTTPRoot.Length - 1));
+            HTTPServer.RegisterResourcesFolder(HTTPHostname.Any, URIPrefix + "/shared/UsersAPI", HTTPRoot.Substring(0, HTTPRoot.Length - 1));
 
             #endregion
 
@@ -1021,7 +1019,7 @@ namespace org.GraphDefined.OpenData.Users
             // -------------------------------------------------------------
             HTTPServer.AddMethodCallback(HTTPHostname.Any,
                                           HTTPMethod.GET,
-                                          new String[] { URIPrefix + "signup" },
+                                          new HTTPURI[] { URIPrefix + "signup" },
                                           HTTPContentType.HTML_UTF8,
                                           HTTPDelegate: async Request => {
 
@@ -1058,10 +1056,10 @@ namespace org.GraphDefined.OpenData.Users
             // curl -v -H "Accept: text/html" http://127.0.0.1:2100/verificationtokens/0vu04w2hgf0w2h4bv08w
             // ----------------------------------------------------------------------------------------------
             HTTPServer.AddMethodCallback(HTTPHostname.Any,
-                                          HTTPMethod.GET,
-                                          "/verificationtokens/{VerificationToken}",
-                                          HTTPContentType.HTML_UTF8,
-                                          HTTPDelegate: Request => {
+                                         HTTPMethod.GET,
+                                         HTTPURI.Parse("/verificationtokens/{VerificationToken}"),
+                                         HTTPContentType.HTML_UTF8,
+                                         HTTPDelegate: Request => {
 
                                               VerificationToken VerificationToken = null;
 
@@ -1186,7 +1184,7 @@ namespace org.GraphDefined.OpenData.Users
 
             HTTPServer.AddMethodCallback(HTTPHostname.Any,
                                          HTTPMethod.POST,
-                                         "/login",
+                                         HTTPURI.Parse("/login"),
                                          HTTPContentType.XWWWFormUrlEncoded,
                                          HTTPDelegate: Request => {
 
@@ -1408,7 +1406,7 @@ namespace org.GraphDefined.OpenData.Users
             // -------------------------------------------------------------------
             HTTPServer.AddMethodCallback(HTTPHostname.Any,
                                           HTTPMethod.GET,
-                                          new String[] { URIPrefix + "lostpassword" },
+                                          new HTTPURI[] { URIPrefix + "lostpassword" },
                                           HTTPContentType.HTML_UTF8,
                                           HTTPDelegate: async Request => {
 
@@ -1440,10 +1438,10 @@ namespace org.GraphDefined.OpenData.Users
             // -------------------------------------------------------------------
             // curl -v -H "Accept: application/json" http://127.0.0.1:2100/users
             // -------------------------------------------------------------------
-            HTTPServer.ITEMS_GET(UriTemplate: "/users",
-                                  Dictionary: _Users,
-                                  Filter: user => user.PrivacyLevel == PrivacyLevel.World,
-                                  ToJSONDelegate: JSON_IO.ToJSON);
+            HTTPServer.ITEMS_GET(UriTemplate: URIPrefix + "/users",
+                                 Dictionary: _Users,
+                                 Filter: user => user.PrivacyLevel == PrivacyLevel.World,
+                                 ToJSONDelegate: JSON_IO.ToJSON);
 
             #endregion
 
@@ -1451,7 +1449,7 @@ namespace org.GraphDefined.OpenData.Users
 
             HTTPServer.AddMethodCallback(HTTPHostname.Any,
                                           HTTPMethod.DEAUTH,
-                                          "/users",
+                                          HTTPURI.Parse("/users"),
                                           HTTPContentType.JSON_UTF8,
                                           HTTPDelegate: Request =>
 
@@ -1476,7 +1474,7 @@ namespace org.GraphDefined.OpenData.Users
             // -------------------------------------------------------------------------------
             HTTPServer.AddMethodCallback(HTTPHostname.Any,
                                           HTTPMethod.ADD,
-                                          "/users/{UserId}",
+                                          HTTPURI.Parse("/users/{UserId}"),
                                           HTTPContentType.JSON_UTF8,
                                           HTTPDelegate: async Request => {
 
@@ -1773,12 +1771,12 @@ namespace org.GraphDefined.OpenData.Users
             // ---------------------------------------------------------------------------------
             // curl -v -X EXITS -H "Accept: application/json" http://127.0.0.1:2100/users/ahzf
             // ---------------------------------------------------------------------------------
-            HTTPServer.ITEM_EXISTS<User_Id, User>(UriTemplate: "/users/{UserId}",
-                                                   ParseIdDelegate: User_Id.TryParse,
-                                                   ParseIdError: Text => "Invalid user identification '" + Text + "'!",
-                                                   TryGetItemDelegate: _Users.TryGetValue,
-                                                   ItemFilterDelegate: user => user.PrivacyLevel == PrivacyLevel.World,
-                                                   TryGetItemError: userId => "Unknown user '" + userId + "'!");
+            HTTPServer.ITEM_EXISTS<User_Id, User>(UriTemplate: URIPrefix + "/users/{UserId}",
+                                                  ParseIdDelegate: User_Id.TryParse,
+                                                  ParseIdError: Text => "Invalid user identification '" + Text + "'!",
+                                                  TryGetItemDelegate: _Users.TryGetValue,
+                                                  ItemFilterDelegate: user => user.PrivacyLevel == PrivacyLevel.World,
+                                                  TryGetItemError: userId => "Unknown user '" + userId + "'!");
 
             #endregion
 
@@ -1787,7 +1785,7 @@ namespace org.GraphDefined.OpenData.Users
             // ------------------------------------------------------------------------
             // curl -v -H "Accept: application/json" http://127.0.0.1:2100/users/ahzf
             // ------------------------------------------------------------------------
-            HTTPServer.ITEM_GET<User_Id, User>(UriTemplate:         "/users/{UserId}",
+            HTTPServer.ITEM_GET<User_Id, User>(UriTemplate:         URIPrefix + "/users/{UserId}",
                                                ParseIdDelegate:     User_Id.TryParse,
                                                ParseIdError:        Text => "Invalid user identification '" + Text + "'!",
                                                TryGetItemDelegate:  _Users.TryGetValue,
@@ -2007,7 +2005,7 @@ namespace org.GraphDefined.OpenData.Users
 
             HTTPServer.AddMethodCallback(HTTPHostname.Any,
                                           HTTPMethod.AUTH,
-                                          "/users/{UserId}",
+                                          HTTPURI.Parse("/users/{UserId}"),
                                           HTTPContentType.JSON_UTF8,
                                           HTTPDelegate: Request => {
 
@@ -2205,7 +2203,7 @@ namespace org.GraphDefined.OpenData.Users
 
             HTTPServer.AddMethodCallback(HTTPHostname.Any,
                                           HTTPMethod.DEAUTH,
-                                          "/users/{UserId}",
+                                          HTTPURI.Parse("/users/{UserId}"),
                                           HTTPContentType.JSON_UTF8,
                                           HTTPDelegate: Request =>
 
@@ -2226,9 +2224,9 @@ namespace org.GraphDefined.OpenData.Users
             #region GET         ~/users/{UserId}/profilephoto
 
             HTTPServer.RegisterFilesystemFile(HTTPHostname.Any,
-                                               "/users/{UserId}/profilephoto",
-                                               URIParams => "LocalHTTPRoot/data/Users/" + URIParams[0] + ".png",
-                                               DefaultFile: "HTTPRoot/images/defaults/DefaultUser.png");
+                                              URIPrefix + "/users/{UserId}/profilephoto",
+                                              URIParams => "LocalHTTPRoot/data/Users/" + URIParams[0] + ".png",
+                                              DefaultFile: "HTTPRoot/images/defaults/DefaultUser.png");
 
             #endregion
 
@@ -2238,10 +2236,10 @@ namespace org.GraphDefined.OpenData.Users
             // ------------------------------------------------------------------
             // curl -v -H "Accept: application/json" http://127.0.0.1:2100/groups
             // ------------------------------------------------------------------
-            HTTPServer.ITEMS_GET(UriTemplate: "/groups",
-                                  Dictionary: _Groups,
-                                  Filter: group => group.PrivacyLevel == PrivacyLevel.World,
-                                  ToJSONDelegate: JSON_IO.ToJSON);
+            HTTPServer.ITEMS_GET(UriTemplate: URIPrefix + "/groups",
+                                 Dictionary: _Groups,
+                                 Filter: group => group.PrivacyLevel == PrivacyLevel.World,
+                                 ToJSONDelegate: JSON_IO.ToJSON);
 
             #endregion
 
@@ -2250,12 +2248,12 @@ namespace org.GraphDefined.OpenData.Users
             // -------------------------------------------------------------------------------------------
             // curl -v -X EXITS -H "Accept: application/json" http://127.0.0.1:2100/groups/OK-Lab%20Jena
             // -------------------------------------------------------------------------------------------
-            HTTPServer.ITEM_EXISTS<Group_Id, Group>(UriTemplate: "/groups/{GroupId}",
-                                                             ParseIdDelegate: Group_Id.TryParse,
-                                                             ParseIdError: Text => "Invalid group identification '" + Text + "'!",
-                                                             TryGetItemDelegate: _Groups.TryGetValue,
-                                                             ItemFilterDelegate: group => group.PrivacyLevel == PrivacyLevel.World,
-                                                             TryGetItemError: groupId => "Unknown group '" + groupId + "'!");
+            HTTPServer.ITEM_EXISTS<Group_Id, Group>(UriTemplate: URIPrefix + "/groups/{GroupId}",
+                                                    ParseIdDelegate: Group_Id.TryParse,
+                                                    ParseIdError: Text => "Invalid group identification '" + Text + "'!",
+                                                    TryGetItemDelegate: _Groups.TryGetValue,
+                                                    ItemFilterDelegate: group => group.PrivacyLevel == PrivacyLevel.World,
+                                                    TryGetItemError: groupId => "Unknown group '" + groupId + "'!");
 
             #endregion
 
@@ -2264,7 +2262,7 @@ namespace org.GraphDefined.OpenData.Users
             // ----------------------------------------------------------------------------------
             // curl -v -H "Accept: application/json" http://127.0.0.1:2100/groups/OK-Lab%20Jena
             // ----------------------------------------------------------------------------------
-            HTTPServer.ITEM_GET<Group_Id, Group>(UriTemplate:         "/groups/{GroupId}",
+            HTTPServer.ITEM_GET<Group_Id, Group>(UriTemplate:         URIPrefix + "/groups/{GroupId}",
                                                  ParseIdDelegate:     Group_Id.TryParse,
                                                  ParseIdError:        Text => "Invalid group identification '" + Text + "'!",
                                                  TryGetItemDelegate:  _Groups.TryGetValue,
@@ -2280,10 +2278,10 @@ namespace org.GraphDefined.OpenData.Users
             // ------------------------------------------------------------------
             // curl -v -H "Accept: application/json" http://127.0.0.1:2100/orgs
             // ------------------------------------------------------------------
-            HTTPServer.ITEMS_GET(UriTemplate:     "/orgs",
-                                  Dictionary:      _Organizations,
-                                  Filter:          org => org.PrivacyLevel == PrivacyLevel.World,
-                                  ToJSONDelegate:  JSON_IO.ToJSON);
+            HTTPServer.ITEMS_GET(UriTemplate:     URIPrefix + "/orgs",
+                                 Dictionary:      _Organizations,
+                                 Filter:          org => org.PrivacyLevel == PrivacyLevel.World,
+                                 ToJSONDelegate:  JSON_IO.ToJSON);
 
             #endregion
 
@@ -2292,7 +2290,7 @@ namespace org.GraphDefined.OpenData.Users
             // ------------------------------------------------------------------------------------
             // curl -v -X EXITS -H "Accept: application/json" http://127.0.0.1:2100/orgs/Stadtrat
             // ------------------------------------------------------------------------------------
-            HTTPServer.ITEM_EXISTS<Organization_Id, Organization>(UriTemplate:               "/orgs/{OrgId}",
+            HTTPServer.ITEM_EXISTS<Organization_Id, Organization>(UriTemplate:               URIPrefix + "/orgs/{OrgId}",
                                                                   ParseIdDelegate:           Organization_Id.TryParse,
                                                                   ParseIdError:              Text  => "Invalid organization identification '" + Text + "'!",
                                                                   TryGetItemDelegate:        _Organizations.TryGetValue,
@@ -2306,13 +2304,13 @@ namespace org.GraphDefined.OpenData.Users
             // ---------------------------------------------------------------------------
             // curl -v -H "Accept: application/json" http://127.0.0.1:2100/orgs/Stadtrat
             // ---------------------------------------------------------------------------
-            HTTPServer.ITEM_GET<Organization_Id, Organization>(UriTemplate:          "/orgs/{OrgId}",
-                                                                ParseIdDelegate:     Organization_Id.TryParse,
-                                                                ParseIdError:        Text  => "Invalid organization identification '" + Text + "'!",
-                                                                TryGetItemDelegate:  _Organizations.TryGetValue,
-                                                                ItemFilterDelegate:  org   => org.PrivacyLevel == PrivacyLevel.World,
-                                                                TryGetItemError:     orgId => "Unknown organization '" + orgId + "'!",
-                                                                ToJSONDelegate:      _ => _.ToJSON());
+            HTTPServer.ITEM_GET<Organization_Id, Organization>(UriTemplate:          URIPrefix + "/orgs/{OrgId}",
+                                                               ParseIdDelegate:     Organization_Id.TryParse,
+                                                               ParseIdError:        Text  => "Invalid organization identification '" + Text + "'!",
+                                                               TryGetItemDelegate:  _Organizations.TryGetValue,
+                                                               ItemFilterDelegate:  org   => org.PrivacyLevel == PrivacyLevel.World,
+                                                               TryGetItemError:     orgId => "Unknown organization '" + orgId + "'!",
+                                                               ToJSONDelegate:      _ => _.ToJSON());
 
             #endregion
 
@@ -2750,7 +2748,7 @@ namespace org.GraphDefined.OpenData.Users
                 Organizations  = null;
                 Response       = new HTTPResponseBuilder(Request) {
                                      HTTPStatusCode  = HTTPStatusCode.Unauthorized,
-                                     Location        = "/login",
+                                     Location        = URIPrefix + "/login",
                                      Date            = DateTime.Now,
                                      Server          = HTTPServer.DefaultServerName,
                                      CacheControl    = "private, max-age=0, no-cache",

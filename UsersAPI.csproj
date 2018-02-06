@@ -56,6 +56,7 @@
     <Compile Include="CommonTypes\VerificationToken.cs" />
     <Compile Include="Entities\Group\UserGroup2GroupEdges.cs" />
     <Compile Include="Entities\Notification\ANotificationType.cs" />
+    <Compile Include="Entities\Notification\HTTPNotification.cs" />
     <Compile Include="Entities\Notification\EMailNotification.cs" />
     <Compile Include="Entities\Notification\SMSNotification.cs" />
     <Compile Include="Entities\Notification\Notifications.cs" />
