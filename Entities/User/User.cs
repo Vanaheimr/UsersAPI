@@ -68,7 +68,7 @@ namespace org.GraphDefined.OpenData.Users
         /// The primary E-Mail address of the user.
         /// </summary>
         [Mandatory]
-        public SimpleEMailAddress  EMail                { get; }
+        public EMailAddress        EMail                { get; }
 
         /// <summary>
         /// The offical public name of the user.
@@ -248,18 +248,18 @@ namespace org.GraphDefined.OpenData.Users
         /// <param name="IsAuthenticated">The user will not be shown in user listings, as its primary e-mail address is not yet authenticated.</param>
         /// <param name="IsDisabled">The user is disabled.</param>
         /// <param name="DataSource">The source of all this data, e.g. an automatic importer.</param>
-        internal User(User_Id             Id,
-                      SimpleEMailAddress  EMail,
-                      String              Name              = null,
-                      String              PublicKeyRing     = null,
-                      String              Telephone         = null,
-                      I18NString          Description       = null,
-                      GeoCoordinate?      GeoLocation       = null,
-                      Address             Address           = null,
-                      PrivacyLevel        PrivacyLevel      = PrivacyLevel.World,
-                      Boolean             IsDisabled        = false,
-                      Boolean             IsAuthenticated   = false,
-                      String              DataSource        = "")
+        internal User(User_Id         Id,
+                      EMailAddress    EMail,
+                      String          Name              = null,
+                      String          PublicKeyRing     = null,
+                      String          Telephone         = null,
+                      I18NString      Description       = null,
+                      GeoCoordinate?  GeoLocation       = null,
+                      Address         Address           = null,
+                      PrivacyLevel    PrivacyLevel      = PrivacyLevel.World,
+                      Boolean         IsDisabled        = false,
+                      Boolean         IsAuthenticated   = false,
+                      String          DataSource        = "")
 
             : base(Id,
                    DataSource)
@@ -848,7 +848,7 @@ namespace org.GraphDefined.OpenData.Users
             /// The primary E-Mail address of the user.
             /// </summary>
             [Mandatory]
-            public SimpleEMailAddress  EMail                { get; set; }
+            public EMailAddress        EMail                { get; set; }
 
             /// <summary>
             /// The offical public name of the user.
@@ -922,17 +922,17 @@ namespace org.GraphDefined.OpenData.Users
             /// <param name="PrivacyLevel">Whether the user will be shown in user listings, or not.</param>
             /// <param name="IsDisabled">The user is disabled.</param>
             /// <param name="IsAuthenticated">The user will not be shown in user listings, as its primary e-mail address is not yet authenticated.</param>
-            public Builder(User_Id             Id,
-                           SimpleEMailAddress  EMail,
-                           String              Name              = null,
-                           String              PublicKeyRing     = null,
-                           String              Telephone         = null,
-                           I18NString          Description       = null,
-                           GeoCoordinate?      GeoLocation       = null,
-                           Address             Address           = null,
-                           PrivacyLevel        PrivacyLevel      = PrivacyLevel.World,
-                           Boolean             IsDisabled        = false,
-                           Boolean             IsAuthenticated   = false)
+            public Builder(User_Id         Id,
+                           EMailAddress    EMail,
+                           String          Name              = null,
+                           String          PublicKeyRing     = null,
+                           String          Telephone         = null,
+                           I18NString      Description       = null,
+                           GeoCoordinate?  GeoLocation       = null,
+                           Address         Address           = null,
+                           PrivacyLevel    PrivacyLevel      = PrivacyLevel.World,
+                           Boolean         IsDisabled        = false,
+                           Boolean         IsAuthenticated   = false)
             {
 
                 #region Init properties

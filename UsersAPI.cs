@@ -289,6 +289,8 @@ namespace org.GraphDefined.OpenData.Users
 
         public static readonly Regex JSONWhitespaceRegEx = new Regex(@"(\s)+", RegexOptions.IgnorePatternWhitespace);
 
+        protected readonly Notifications _Notifications;
+
         #endregion
 
         #region Events
@@ -873,6 +875,8 @@ namespace org.GraphDefined.OpenData.Users
 
             this.LogfileName                  = LogfileName ?? DefaultLogfileName;
 
+            this._Notifications               = new Notifications();
+
             #endregion
 
             this.Admins  = CreateGroupIfNotExists(Group_Id.Parse(AdminGroupName),
@@ -896,6 +900,9 @@ namespace org.GraphDefined.OpenData.Users
             #endregion
 
             ReadStoredData();
+
+            _Notifications.OnAdded   += (Timestamp, User, NotificationId, NotificationType) => WriteToLogfile("AddNotification",    NotificationType.ToJSON(User, NotificationId));
+            _Notifications.OnRemoved += (Timestamp, User, NotificationId, NotificationType) => WriteToLogfile("RemoveNotification", NotificationType.ToJSON(User, NotificationId));
 
             if (!SkipURITemplates)
                 RegisterURITemplates();
@@ -2441,7 +2448,112 @@ namespace org.GraphDefined.OpenData.Users
 
                                     break;
 
-                                 #endregion
+                                #endregion
+
+                                #region AddNotification
+
+                                case "AddNotification":
+
+                                    if (JSONParameters["userId"]?.Value<String>().IsNotNullOrEmpty() == true &&
+                                        JSONParameters["type"  ]?.Value<String>().IsNotNullOrEmpty() == true)
+                                    {
+
+                                        var UserId  = User_Id.Parse(JSONParameters["userId"]?.Value<String>());
+
+                                        if (JSONParameters["notificationId"]?.Value<String>().IsNotNullOrEmpty() == true)
+                                            switch (JSONParameters["type"]?.Value<String>())
+                                            {
+
+                                                case "EMailNotification":
+                                                    RegisterNotification(UserId,
+                                                                         Notification_Id.Parse(JSONParameters["notificationId"]?.Value<String>()),
+                                                                         EMailNotification.Parse(JSONParameters),
+                                                                         (a, b) => a.EMailAddress == b.EMailAddress);
+                                                    break;
+
+                                                case "SMSNotification":
+                                                    RegisterNotification(UserId,
+                                                                         Notification_Id.Parse(JSONParameters["notificationId"]?.Value<String>()),
+                                                                         SMSNotification.Parse(JSONParameters),
+                                                                         (a, b) => a.Phonenumber == b.Phonenumber);
+                                                    break;
+
+                                            }
+
+                                        else
+                                            switch (JSONParameters["type"]?.Value<String>())
+                                            {
+
+                                                case "EMailNotification":
+                                                    RegisterNotification(UserId,
+                                                                         EMailNotification.Parse(JSONParameters),
+                                                                         (a, b) => a.EMailAddress == b.EMailAddress);
+                                                    break;
+
+                                                case "SMSNotification":
+                                                    RegisterNotification(UserId,
+                                                                         SMSNotification.Parse(JSONParameters),
+                                                                         (a, b) => a.Phonenumber == b.Phonenumber);
+                                                    break;
+
+                                            }
+
+                                    }
+
+                                    break;
+
+                                #endregion
+
+                                #region RemoveNotification
+
+                                case "RemoveNotification":
+
+                                    if (JSONParameters["userId"]?.Value<String>().IsNotNullOrEmpty() == true &&
+                                        JSONParameters["type"  ]?.Value<String>().IsNotNullOrEmpty() == true)
+                                    {
+
+                                        var UserId  = User_Id.Parse(JSONParameters["userId"]?.Value<String>());
+
+                                        if (JSONParameters["notificationId"]?.Value<String>().IsNotNullOrEmpty() == true)
+                                            switch (JSONParameters["type"]?.Value<String>())
+                                            {
+
+                                                case "EMailNotification":
+                                                    UnregisterNotification<EMailNotification>(UserId,
+                                                                                              Notification_Id.Parse(JSONParameters["notificationId"]?.Value<String>()),
+                                                                                              a => a.EMailAddress == EMailNotification.Parse(JSONParameters).EMailAddress);
+                                                    break;
+
+                                                case "SMSNotification":
+                                                    UnregisterNotification<SMSNotification>  (UserId,
+                                                                                              Notification_Id.Parse(JSONParameters["notificationId"]?.Value<String>()),
+                                                                                              a => a.Phonenumber  == SMSNotification.  Parse(JSONParameters).Phonenumber);
+                                                    break;
+
+                                            }
+
+                                        else
+                                            switch (JSONParameters["type"]?.Value<String>())
+                                            {
+
+                                                case "EMailNotification":
+                                                    UnregisterNotification<EMailNotification>(UserId,
+                                                                                              a => a.EMailAddress == EMailNotification.Parse(JSONParameters).EMailAddress);
+                                                    break;
+
+                                                case "SMSNotification":
+                                                    UnregisterNotification<SMSNotification>  (UserId,
+                                                                                              a => a.Phonenumber  == SMSNotification.  Parse(JSONParameters).Phonenumber);
+                                                    break;
+
+                                            }
+
+
+                                    }
+
+                                    break;
+
+                                #endregion
 
                             }
 
@@ -3574,6 +3686,112 @@ namespace org.GraphDefined.OpenData.Users
         #endregion
 
         // Create Mailinglist
+
+        #endregion
+
+        #region Notifications
+
+        public Notifications RegisterNotification<T>(User                 User,
+                                                     T                    NotificationType,
+                                                     Func<T, T, Boolean>  EqualityComparer)
+
+            where T : ANotificationType
+
+            => _Notifications.Add(User,
+                                  NotificationType,
+                                  EqualityComparer);
+
+        public Notifications RegisterNotification<T>(User_Id              User,
+                                                     T                    NotificationType,
+                                                     Func<T, T, Boolean>  EqualityComparer)
+
+            where T : ANotificationType
+
+            => _Notifications.Add(User,
+                                  NotificationType,
+                                  EqualityComparer);
+
+
+        public Notifications RegisterNotification<T>(User                 User,
+                                                     Notification_Id      NotificationId,
+                                                     T                    NotificationType,
+                                                     Func<T, T, Boolean>  EqualityComparer)
+
+            where T : ANotificationType
+
+            => _Notifications.Add(User,
+                                  NotificationId,
+                                  NotificationType,
+                                  EqualityComparer);
+
+        public Notifications RegisterNotification<T>(User_Id              User,
+                                                     Notification_Id      NotificationId,
+                                                     T                    NotificationType,
+                                                     Func<T, T, Boolean>  EqualityComparer)
+
+            where T : ANotificationType
+
+            => _Notifications.Add(User,
+                                  NotificationId,
+                                  NotificationType,
+                                  EqualityComparer);
+
+
+
+        public IEnumerable<T> GetNotifications<T>(User             User,
+                                                  Notification_Id  NotificationId)
+
+            where T : ANotificationType
+
+            => _Notifications.GetNotifications<T>(User,
+                                                  NotificationId);
+
+        public IEnumerable<T> GetNotifications<T>(User_Id          User,
+                                                  Notification_Id  NotificationId)
+
+            where T : ANotificationType
+
+            => _Notifications.GetNotifications<T>(User,
+                                                  NotificationId);
+
+
+
+        public Notifications UnregisterNotification<T>(User              User,
+                                                       Func<T, Boolean>  EqualityComparer)
+
+            where T : ANotificationType
+
+            => _Notifications.Remove(User,
+                                     EqualityComparer);
+
+        public Notifications UnregisterNotification<T>(User_Id           User,
+                                                       Func<T, Boolean>  EqualityComparer)
+
+            where T : ANotificationType
+
+            => _Notifications.Remove(User,
+                                     EqualityComparer);
+
+
+        public Notifications UnregisterNotification<T>(User              User,
+                                                       Notification_Id   NotificationId,
+                                                       Func<T, Boolean>  EqualityComparer)
+
+            where T : ANotificationType
+
+            => _Notifications.Remove(User,
+                                     NotificationId,
+                                     EqualityComparer);
+
+        public Notifications UnregisterNotification<T>(User_Id           User,
+                                                       Notification_Id   NotificationId,
+                                                       Func<T, Boolean>  EqualityComparer)
+
+            where T : ANotificationType
+
+            => _Notifications.Remove(User,
+                                     NotificationId,
+                                     EqualityComparer);
 
         #endregion
 

@@ -55,6 +55,11 @@
     <Compile Include="CommonTypes\PrivacyLevel.cs" />
     <Compile Include="CommonTypes\VerificationToken.cs" />
     <Compile Include="Entities\Group\UserGroup2GroupEdges.cs" />
+    <Compile Include="Entities\Notification\ANotificationType.cs" />
+    <Compile Include="Entities\Notification\EMailNotification.cs" />
+    <Compile Include="Entities\Notification\SMSNotification.cs" />
+    <Compile Include="Entities\Notification\Notifications.cs" />
+    <Compile Include="Entities\Notification\Notification_Id.cs" />
     <Compile Include="Entities\Organization\Organization.cs" />
     <Compile Include="Entities\Organization\Organization2OrganizationEdges.cs" />
     <Compile Include="Entities\Organization\Organization_Id.cs" />
