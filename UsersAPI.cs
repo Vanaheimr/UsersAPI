@@ -673,7 +673,7 @@ namespace org.GraphDefined.OpenData.Users
         /// <param name="Autostart">Whether to start the API automatically.</param>
         public UsersAPI(String                              HTTPServerName                     = DefaultHTTPServerName,
                         IPPort?                             HTTPServerPort                     = null,
-                        HTTPHostname                        HTTPHostname                       = null,
+                        HTTPHostname?                       HTTPHostname                       = null,
                         HTTPURI?                            URIPrefix                          = null,
 
                         String                              ServiceName                        = DefaultServiceName,
@@ -790,7 +790,7 @@ namespace org.GraphDefined.OpenData.Users
         /// <param name="SkipURITemplates">Skip URI templates.</param>
         /// <param name="LogfileName">The name of the logfile for this API.</param>
         protected UsersAPI(HTTPServer                          HTTPServer,
-                           HTTPHostname                        HTTPHostname                 = null,
+                           HTTPHostname?                       HTTPHostname                 = null,
                            HTTPURI?                            URIPrefix                    = null,
 
                            String                              ServiceName                  = DefaultServiceName,
@@ -836,7 +836,7 @@ namespace org.GraphDefined.OpenData.Users
             #region Init data
 
             this.HTTPServer                   = HTTPServer;
-            this.Hostname                     = HTTPHostname ?? HTTPHostname.Parse("*");
+            this.Hostname                     = HTTPHostname ?? Vanaheimr.Hermod.HTTP.HTTPHostname.Any;
             this.URIPrefix                    = URIPrefix    ?? HTTPURI.Parse("/");
 
             this.ServiceName                  = ServiceName. IsNotNullOrEmpty() ? ServiceName  : "UsersAPI";
@@ -943,7 +943,7 @@ namespace org.GraphDefined.OpenData.Users
         /// <param name="SkipURITemplates">Skip URI templates.</param>
         /// <param name="LogfileName">The name of the logfile for this API.</param>
         public static UsersAPI AttachToHTTPAPI(HTTPServer                          HTTPServer,
-                                               HTTPHostname                        HTTPHostname                 = null,
+                                               HTTPHostname?                       HTTPHostname                 = null,
                                                HTTPURI?                            URIPrefix                    = null,
 
                                                String                              ServiceName                  = DefaultServiceName,
