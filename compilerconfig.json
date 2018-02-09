@@ -14,5 +14,9 @@
   {
     "outputFile": "HTTPRoot/admin/admin.css",
     "inputFile": "HTTPRoot/admin/admin.scss"
+  },
+  {
+    "outputFile": "HTTPRoot/profile/notifications.css",
+    "inputFile": "HTTPRoot/profile/notifications.scss"
   }
 ]
