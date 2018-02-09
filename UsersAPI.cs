@@ -1704,7 +1704,10 @@ namespace org.GraphDefined.OpenData.Users
                                               {
 
                                                   var NewUserMail = NewUserSignUpEMailCreatorLocal(Login:              _Login,
-                                                                                                   EMail:              new EMailAddress(matches.Groups[0].Value, null, PublicKeyRing),
+                                                                                                   EMail:              new EMailAddress(OwnerName:                 _Login.ToString(),
+                                                                                                                                        SimpleEMailAddressString:  matches.Groups[0].Value,
+                                                                                                                                        SecretKeyRing:             null,
+                                                                                                                                        PublicKeyRing:             PublicKeyRing),
                                                                                                    Language:           DefaultLanguage,
                                                                                                    VerificationToken:  VerificationToken);
 

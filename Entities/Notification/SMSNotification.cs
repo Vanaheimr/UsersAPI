@@ -34,7 +34,7 @@ namespace org.GraphDefined.OpenData.Users
 
         public static Notifications RegisterSMSNotification(this UsersAPI  UsersAPI,
                                                             User_Id        User,
-                                                            Phonenumber    Phonenumber,
+                                                            PhoneNumber    Phonenumber,
                                                             String         Subject = null)
 
             => UsersAPI.RegisterNotification(User,
@@ -43,7 +43,7 @@ namespace org.GraphDefined.OpenData.Users
 
         public static Notifications RegisterSMSNotification(this UsersAPI  UsersAPI,
                                                             User           User,
-                                                            Phonenumber    Phonenumber,
+                                                            PhoneNumber    Phonenumber,
                                                             String         Subject = null)
 
             => UsersAPI.RegisterNotification(User.Id,
@@ -54,7 +54,7 @@ namespace org.GraphDefined.OpenData.Users
         public static Notifications RegisterSMSNotification(this UsersAPI    UsersAPI,
                                                             User_Id          User,
                                                             Notification_Id  NotificationId,
-                                                            Phonenumber      Phonenumber,
+                                                            PhoneNumber      Phonenumber,
                                                             String           Subject = null)
 
             => UsersAPI.RegisterNotification(User,
@@ -65,7 +65,7 @@ namespace org.GraphDefined.OpenData.Users
         public static Notifications RegisterSMSNotification(this UsersAPI    UsersAPI,
                                                             User             User,
                                                             Notification_Id  NotificationId,
-                                                            Phonenumber      Phonenumber,
+                                                            PhoneNumber      Phonenumber,
                                                             String           Subject = null)
 
             => UsersAPI.RegisterNotification(User.Id,
@@ -97,14 +97,14 @@ namespace org.GraphDefined.OpenData.Users
 
         public static Notifications UnregisterSMSNotification(this UsersAPI  UsersAPI,
                                                               User           User,
-                                                              Phonenumber   Phonenumber)
+                                                              PhoneNumber   Phonenumber)
 
             => UsersAPI.UnregisterNotification<SMSNotification>(User,
                                                                 a => a.Phonenumber == Phonenumber);
 
         public static Notifications UnregisterSMSNotification(this UsersAPI  UsersAPI,
                                                               User_Id        User,
-                                                              Phonenumber   Phonenumber)
+                                                              PhoneNumber   Phonenumber)
 
             => UsersAPI.UnregisterNotification<SMSNotification>(User,
                                                                 a => a.Phonenumber == Phonenumber);
@@ -113,7 +113,7 @@ namespace org.GraphDefined.OpenData.Users
         public static Notifications UnregisterSMSNotification(this UsersAPI    UsersAPI,
                                                               User             User,
                                                               Notification_Id  NotificationId,
-                                                              Phonenumber     Phonenumber)
+                                                              PhoneNumber     Phonenumber)
 
             => UsersAPI.UnregisterNotification<SMSNotification>(User,
                                                                 NotificationId,
@@ -122,7 +122,7 @@ namespace org.GraphDefined.OpenData.Users
         public static Notifications UnregisterSMSNotification(this UsersAPI    UsersAPI,
                                                               User_Id          User,
                                                               Notification_Id  NotificationId,
-                                                              Phonenumber     Phonenumber)
+                                                              PhoneNumber     Phonenumber)
 
             => UsersAPI.UnregisterNotification<SMSNotification>(User,
                                                                 NotificationId,
@@ -133,11 +133,11 @@ namespace org.GraphDefined.OpenData.Users
     public class SMSNotification : ANotificationType
     {
 
-        public Phonenumber Phonenumber   { get; }
+        public PhoneNumber Phonenumber   { get; }
         public String      Text          { get; }
 
 
-        public SMSNotification(Phonenumber Phonenumber,
+        public SMSNotification(PhoneNumber Phonenumber,
                                String      Text = null)
         {
 
@@ -152,7 +152,7 @@ namespace org.GraphDefined.OpenData.Users
             if (JSON["type"]?.Value<String>() != typeof(SMSNotification).Name)
                 throw new ArgumentException();
 
-            return new SMSNotification(Phonenumber.Parse(JSON["phonenumber"]?.Value<String>()),
+            return new SMSNotification(PhoneNumber.Parse(JSON["phonenumber"]?.Value<String>()),
                                        JSON["text"]?.Value<String>());
 
         }
