@@ -45,8 +45,8 @@ function GetCookie(CookieName: String): String {
 }
 
 function WithCookie(CookieName: String,
-                           OnSucess:   CookieEater,
-                           OnFailure) {
+                    OnSucess:   CookieEater,
+                    OnFailure) {
 
     var Cookie = GetCookie(CookieName);
 

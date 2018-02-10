@@ -154,16 +154,22 @@ namespace org.GraphDefined.OpenData.Users
             if (JSON["type"]?.Value<String>() != typeof(EMailNotification).Name)
                 throw new ArgumentException();
 
-            return new EMailNotification(EMailAddress.Parse(JSON["email"]?.Value<String>()),
+            return new EMailNotification(new EMailAddress(
+                                             OwnerName:                 JSON["username"]?.Value<String>(),
+                                             SimpleEMailAddressString:  JSON["email"]?.   Value<String>(),
+                                             SecretKeyRing:             null,
+                                             PublicKeyRing:             null
+                                         ),
                                          JSON["subject"]?.Value<String>());
 
         }
 
-        protected override JObject GetAsJSON(JObject JSON)
+        public override JObject GetAsJSON(JObject JSON)
         {
 
-            JSON.Add(new JProperty("type",   GetType().Name));
-            JSON.Add(new JProperty("email",  EMailAddress.ToString()));
+            JSON.Add(new JProperty("type",     GetType().Name));
+            JSON.Add(new JProperty("username", EMailAddress.OwnerName.ToString()));
+            JSON.Add(new JProperty("email",    EMailAddress.Address.  ToString()));
 
             if (Subject.IsNotNullOrEmpty())
                 JSON.Add(new JProperty("subject", Subject));

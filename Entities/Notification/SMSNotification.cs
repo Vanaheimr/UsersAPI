@@ -35,19 +35,19 @@ namespace org.GraphDefined.OpenData.Users
         public static Notifications RegisterSMSNotification(this UsersAPI  UsersAPI,
                                                             User_Id        User,
                                                             PhoneNumber    Phonenumber,
-                                                            String         Subject = null)
+                                                            String         TextTemplate = null)
 
             => UsersAPI.RegisterNotification(User,
-                                             new SMSNotification(Phonenumber, Subject),
+                                             new SMSNotification(Phonenumber, TextTemplate),
                                              (a, b) => a.Phonenumber == b.Phonenumber);
 
         public static Notifications RegisterSMSNotification(this UsersAPI  UsersAPI,
                                                             User           User,
                                                             PhoneNumber    Phonenumber,
-                                                            String         Subject = null)
+                                                            String         TextTemplate = null)
 
             => UsersAPI.RegisterNotification(User.Id,
-                                             new SMSNotification(Phonenumber, Subject),
+                                             new SMSNotification(Phonenumber, TextTemplate),
                                              (a, b) => a.Phonenumber == b.Phonenumber);
 
 
@@ -55,22 +55,22 @@ namespace org.GraphDefined.OpenData.Users
                                                             User_Id          User,
                                                             Notification_Id  NotificationId,
                                                             PhoneNumber      Phonenumber,
-                                                            String           Subject = null)
+                                                            String           TextTemplate = null)
 
             => UsersAPI.RegisterNotification(User,
                                              NotificationId,
-                                             new SMSNotification(Phonenumber, Subject),
+                                             new SMSNotification(Phonenumber, TextTemplate),
                                              (a, b) => a.Phonenumber == b.Phonenumber);
 
         public static Notifications RegisterSMSNotification(this UsersAPI    UsersAPI,
                                                             User             User,
                                                             Notification_Id  NotificationId,
                                                             PhoneNumber      Phonenumber,
-                                                            String           Subject = null)
+                                                            String           TextTemplate = null)
 
             => UsersAPI.RegisterNotification(User.Id,
                                              NotificationId,
-                                             new SMSNotification(Phonenumber, Subject),
+                                             new SMSNotification(Phonenumber, TextTemplate),
                                              (a, b) => a.Phonenumber == b.Phonenumber);
 
 
@@ -133,16 +133,16 @@ namespace org.GraphDefined.OpenData.Users
     public class SMSNotification : ANotificationType
     {
 
-        public PhoneNumber Phonenumber   { get; }
-        public String      Text          { get; }
+        public PhoneNumber Phonenumber    { get; }
+        public String      TextTemplate   { get; }
 
 
         public SMSNotification(PhoneNumber Phonenumber,
-                               String      Text = null)
+                               String      TextTemplate = null)
         {
 
-            this.Phonenumber  = Phonenumber;
-            this.Text         = Text;
+            this.Phonenumber   = Phonenumber;
+            this.TextTemplate  = TextTemplate;
 
         }
 
@@ -152,19 +152,19 @@ namespace org.GraphDefined.OpenData.Users
             if (JSON["type"]?.Value<String>() != typeof(SMSNotification).Name)
                 throw new ArgumentException();
 
-            return new SMSNotification(PhoneNumber.Parse(JSON["phonenumber"]?.Value<String>()),
+            return new SMSNotification(PhoneNumber.Parse(JSON["phoneNumber"]?.Value<String>()),
                                        JSON["text"]?.Value<String>());
 
         }
 
-        protected override JObject GetAsJSON(JObject JSON)
+        public override JObject GetAsJSON(JObject JSON)
         {
 
             JSON.Add(new JProperty("type",         GetType().Name));
-            JSON.Add(new JProperty("phonenumber",  Phonenumber.ToString()));
+            JSON.Add(new JProperty("phoneNumber",  Phonenumber.ToString()));
 
-            if (Text.IsNotNullOrEmpty())
-                JSON.Add(new JProperty("text",  Text));
+            if (TextTemplate.IsNotNullOrEmpty())
+                JSON.Add(new JProperty("textTemplate",  TextTemplate));
 
             return JSON;
 

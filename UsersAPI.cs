@@ -285,7 +285,7 @@ namespace org.GraphDefined.OpenData.Users
         public  const             String                              AdminGroupName                 = "Admins";
 
 
-        protected readonly Dictionary<String, Tuple<User_Id, DateTime>> SecurityTokens;
+        protected readonly Dictionary<SecurityToken_Id, SecurityToken> SecurityTokens;
 
         public static readonly Regex JSONWhitespaceRegEx = new Regex(@"(\s)+", RegexOptions.IgnorePatternWhitespace);
 
@@ -869,7 +869,7 @@ namespace org.GraphDefined.OpenData.Users
 
             this._DNSClient                   = HTTPServer.DNSClient;
             this.SystemId                     = Environment.MachineName.Replace("/", "") + "/" + HTTPServer.DefaultHTTPServerPort;
-            this.SecurityTokens               = new Dictionary<String, Tuple<User_Id, DateTime>>();
+            this.SecurityTokens               = new Dictionary<SecurityToken_Id, SecurityToken>();
 
             this.LogfileName                  = LogfileName ?? DefaultLogfileName;
 
@@ -1303,13 +1303,12 @@ namespace org.GraphDefined.OpenData.Users
 
                                   #region Check login and password
 
-                                  User_Id  _UserId;
-
                                   if (!(Realm.IsNotNullOrEmpty()
-                                            ? User_Id.TryParse(Login, Realm, out _UserId)
-                                            : User_Id.TryParse(Login,        out _UserId)) ||
-                                      !_LoginPasswords.TryGetValue(_UserId, out LoginPassword _LoginPassword) ||
-                                      !_Users.         TryGetValue(_UserId, out User          _User))
+                                            ? User_Id.TryParse(Login, Realm, out User_Id       _UserId)
+                                            : User_Id.TryParse(Login,        out               _UserId)) ||
+                                      !_LoginPasswords.TryGetValue(_UserId,  out LoginPassword _LoginPassword) ||
+                                      !_Users.         TryGetValue(_UserId,  out User          _User))
+                                  {
 
                                       return Task.FromResult(
                                           new HTTPResponseBuilder(Request) {
@@ -1325,8 +1324,10 @@ namespace org.GraphDefined.OpenData.Users
                                               Connection      = "close"
                                           }.AsImmutable);
 
+                                  }
 
                                   if (!_LoginPassword.VerifyPassword(Password))
+                                  {
 
                                       return Task.FromResult(
                                           new HTTPResponseBuilder(Request) {
@@ -1342,34 +1343,40 @@ namespace org.GraphDefined.OpenData.Users
                                               Connection      = "close"
                                           }.AsImmutable);
 
+                                  }
+
                                   #endregion
 
+
+                                  #region Register security token
+
                                   var SHA256Hash     = new SHA256Managed();
-                                  var SecurityToken  = SHA256Hash.ComputeHash(
-                                                           String.Concat(
-                                                               Guid.NewGuid().ToString(),
-                                                               _LoginPassword.Login).
-                                                           ToUTF8Bytes()).
-                                                       ToHexString();
+                                  var SecurityToken  = SecurityToken_Id.Parse(SHA256Hash.ComputeHash(
+                                                                                  String.Concat(Guid.NewGuid().ToString(),
+                                                                                                _LoginPassword.Login).
+                                                                                  ToUTF8Bytes()
+                                                                              ).ToHexString());
+
                                   var Expires        = DateTime.UtcNow.Add(_SignInSessionLifetime);
 
                                   lock (SecurityTokens)
                                   {
 
                                       SecurityTokens.Add(SecurityToken,
-                                                         new Tuple<User_Id, DateTime>(_LoginPassword.Login,
-                                                                                      Expires));
+                                                         new SecurityToken(_LoginPassword.Login,
+                                                                                 Expires));
 
                                       File.AppendAllText(DefaultSecurityTokenFile,
                                                          SecurityToken + ";" + _LoginPassword.Login + ";" + Expires.ToIso8601() + Environment.NewLine);
 
-                                 }
+                                  }
+
+                                  #endregion
 
 
+                                  //Note: Add LoginResponse event!
 
-                                 //Note: Add LoginResponse event!
-
-                                 return Task.FromResult(
+                                  return Task.FromResult(
                                       new HTTPResponseBuilder(Request) {
                                           HTTPStatusCode  = HTTPStatusCode.Created,
                                           ContentType     = HTTPContentType.HTML_UTF8,
@@ -2233,6 +2240,83 @@ namespace org.GraphDefined.OpenData.Users
 
             #endregion
 
+            #region GET         ~/users/{UserId}/notifications
+
+            // --------------------------------------------------------------------------------------
+            // curl -v -H "Accept: application/json" http://127.0.0.1:2100/users/ahzf/notifications
+            // --------------------------------------------------------------------------------------
+            HTTPServer.AddMethodCallback(Hostname,
+                                         HTTPMethod.GET,
+                                         URIPrefix + "/users/{UserId}/notifications",
+                                         HTTPContentType.JSON_UTF8,
+                                         HTTPDelegate: Request => {
+
+                                             #region Get HTTP user and its organizations
+
+                                             // Will return HTTP 401 Unauthorized, when the HTTP user is unknown!
+                                             if (!TryGetHTTPUser(Request,
+                                                                 out User                       HTTPUser,
+                                                                 out IEnumerable<Organization>  HTTPOrganizations,
+                                                                 out HTTPResponse               Response,
+                                                                 Recursive: true))
+                                             {
+                                                 return Task.FromResult(Response);
+                                             }
+
+                                             #endregion
+
+                                             var __Notifications = _Notifications.GetNotifications(HTTPUser);
+                                             //var __Types         = __Notifications.NotificationTypes;
+
+
+                                             return Task.FromResult(__Notifications != null
+
+                                                                        ? new HTTPResponseBuilder(Request) {
+                                                                                  HTTPStatusCode             = HTTPStatusCode.OK,
+                                                                                  Server                     = HTTPServer.DefaultServerName,
+                                                                                  Date                       = DateTime.UtcNow,
+                                                                                  AccessControlAllowOrigin   = "*",
+                                                                                  AccessControlAllowMethods  = "GET, SET",
+                                                                                  AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
+                                                                                  ETag                       = "1",
+                                                                                  ContentType                = HTTPContentType.JSON_UTF8,
+                                                                                  Content                    = JSONObject.Create(
+
+                                                                                                                   new JProperty("general",  JSONArray.Create(
+                                                                                                                       __Notifications.NotificationTypes.Select(_ => _.GetAsJSON(new JObject())).ToArray()
+                                                                                                                   )),
+
+                                                                                                                   new JProperty("messages", JSONArray.Create(
+
+                                                                                                                       __Notifications.NotificationIds.Select(_ => new JObject(
+                                                                                                                                                                       new JProperty("message",        _.Key.ToString()),
+                                                                                                                                                                       new JProperty("notifications",  new JArray(
+                                                                                                                                                                           _.Value.Select(__ => __.GetAsJSON(new JObject()))
+                                                                                                                                                                       ))
+                                                                                                                                                                   )).ToArray()
+
+                                                                                                                   ))
+
+                                                                                                               ).ToUTF8Bytes(),
+                                                                                  Connection                 = "close"
+                                                                              }.AsImmutable
+
+                                                                        : new HTTPResponseBuilder(Request) {
+                                                                                  HTTPStatusCode             = HTTPStatusCode.NotFound,
+                                                                                  Server                     = HTTPServer.DefaultServerName,
+                                                                                  Date                       = DateTime.UtcNow,
+                                                                                  AccessControlAllowOrigin   = "*",
+                                                                                  AccessControlAllowMethods  = "GET, SET",
+                                                                                  AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
+                                                                                  Connection                 = "close"
+                                                                              }.AsImmutable);
+
+
+
+            });
+
+            #endregion
+
 
             #region GET         ~/groups
 
@@ -2479,6 +2563,13 @@ namespace org.GraphDefined.OpenData.Users
                                                                          (a, b) => a.Phonenumber == b.Phonenumber);
                                                     break;
 
+                                                case "HTTPSNotification":
+                                                    RegisterNotification(UserId,
+                                                                         Notification_Id.Parse(JSONParameters["notificationId"]?.Value<String>()),
+                                                                         HTTPSNotification.Parse(JSONParameters),
+                                                                         (a, b) => a.URL == b.URL);
+                                                    break;
+
                                             }
 
                                         else
@@ -2495,6 +2586,12 @@ namespace org.GraphDefined.OpenData.Users
                                                     RegisterNotification(UserId,
                                                                          SMSNotification.Parse(JSONParameters),
                                                                          (a, b) => a.Phonenumber == b.Phonenumber);
+                                                    break;
+
+                                                case "HTTPSNotification":
+                                                    RegisterNotification(UserId,
+                                                                         HTTPSNotification.Parse(JSONParameters),
+                                                                         (a, b) => a.URL == b.URL);
                                                     break;
 
                                             }
@@ -2633,38 +2730,45 @@ namespace org.GraphDefined.OpenData.Users
                 lock (SecurityTokens)
                 {
 
-                    File.ReadLines(DefaultSecurityTokenFile).ForEachCounted((line, linenumber) => {
+                    try
+                    {
 
-                        try
-                        {
+                        File.ReadLines(DefaultSecurityTokenFile).ForEachCounted((line, linenumber) => {
 
-                            var Tokens         = line.Split(new Char[] { ';' }, StringSplitOptions.None);
+                            try
+                            {
 
-                            var SecurityToken  = Tokens[0];
-                            var Login          = User_Id. Parse(Tokens[1]);
-                            var Expires        = DateTime.Parse(Tokens[2]);
+                                var Tokens         = line.Split(new Char[] { ';' }, StringSplitOptions.None);
 
-                            if (!SecurityTokens.ContainsKey(SecurityToken) &&
-                                _LoginPasswords.ContainsKey(Login) &&
-                                Expires > DateTime.UtcNow)
+                                var SecurityToken  = SecurityToken_Id.Parse(Tokens[0]);
+                                var Login          = User_Id.         Parse(Tokens[1]);
+                                var Expires        = DateTime.        Parse(Tokens[2]);
 
-                                SecurityTokens.Add(SecurityToken,
-                                                   new Tuple<User_Id, DateTime>(Login,
-                                                                                Expires));
+                                if (!SecurityTokens.ContainsKey(SecurityToken) &&
+                                    _LoginPasswords.ContainsKey(Login) &&
+                                    Expires > DateTime.UtcNow)
+                                {
+                                    SecurityTokens.Add(SecurityToken,
+                                                       new SecurityToken(Login, Expires));
+                                }
 
+                            }
+                            catch (Exception e)
+                            {
+                                DebugX.Log(@"Could not read security token file """ + DefaultSecurityTokenFile + @""" line " + linenumber + ": " + e.Message);
+                            }
 
-                        }
-                        catch (Exception e)
-                        {
-                            DebugX.Log(@"Could not read security token file """ + DefaultSecurityTokenFile + @""" line " + linenumber + ": " + e.Message);
-                        }
+                        });
 
-                    });
-
+                    }
+                    catch (Exception e)
+                    {
+                        DebugX.Log(@"Could not read security token file """ + DefaultSecurityTokenFile + @""": " + e.Message);
+                    }
 
                     // Write filtered (no invalid users, no expired tokens) tokens back to file...
                     File.WriteAllLines(DefaultSecurityTokenFile,
-                                       SecurityTokens.Select(token => token.Key + ";" + token.Value.Item1 + ";" + token.Value.Item2.ToIso8601()));
+                                       SecurityTokens.Select(token => token.Key + ";" + token.Value.UserId + ";" + token.Value.Expires.ToIso8601()));
 
                 }
 
@@ -2688,18 +2792,40 @@ namespace org.GraphDefined.OpenData.Users
         #endregion
 
 
-        #region (protected) GetSecurityToken(Request)
+        #region (protected) TryGetSecurityTokenFromCookie(Request)
 
-        protected String GetSecurityToken(HTTPRequest Request)
+        protected SecurityToken_Id? TryGetSecurityTokenFromCookie(HTTPRequest Request)
         {
 
             if (Request.Cookie == null)
                 return null;
 
-            if (Request.Cookie.TryGet(SecurityTokenCookieKey, out String Value))
-                return Value;
+            if (Request.Cookie.  TryGet  (SecurityTokenCookieKey, out String           Value) &&
+                SecurityToken_Id.TryParse(Value,                  out SecurityToken_Id SecurityTokenId))
+            {
+                return SecurityTokenId;
+            }
 
             return null;
+
+        }
+
+        #endregion
+
+        #region (protected) TryGetSecurityTokenFromCookie(Request, SecurityTokenId)
+
+        protected Boolean TryGetSecurityTokenFromCookie(HTTPRequest Request, out SecurityToken_Id SecurityTokenId)
+        {
+
+            if (Request.Cookie   != null &&
+                Request.Cookie.  TryGet  (SecurityTokenCookieKey, out String Value) &&
+                SecurityToken_Id.TryParse(Value,                  out SecurityTokenId))
+            {
+                return true;
+            }
+
+            SecurityTokenId = default(SecurityToken_Id);
+            return false;
 
         }
 
@@ -2710,11 +2836,12 @@ namespace org.GraphDefined.OpenData.Users
         protected Boolean TryGetHTTPUser(HTTPRequest Request, out User User)
         {
 
-            if (Request.Cookie != null                                                    &&
-                Request.Cookie.TryGet(SecurityTokenCookieKey, out String Value)           &&
-                SecurityTokens.TryGetValue(Value, out Tuple<User_Id, DateTime> UserTuple) &&
-                DateTime.UtcNow < UserTuple.Item2                                         &&
-                TryGetUser(UserTuple.Item1, out User))
+            if (Request.Cookie != null                                                                          &&
+                Request.Cookie.  TryGet     (SecurityTokenCookieKey, out String            Value)               &&
+                SecurityToken_Id.TryParse   (Value,                  out SecurityToken_Id  SecurityTokenId)     &&
+                SecurityTokens.  TryGetValue(SecurityTokenId,        out SecurityToken     SecurityInformation) &&
+                DateTime.UtcNow < SecurityInformation.Expires                                                   &&
+                TryGetUser(SecurityInformation.UserId, out User))
             {
                 return true;
             }
@@ -3416,10 +3543,27 @@ namespace org.GraphDefined.OpenData.Users
 
         #region IsAdmin(User)
 
+        /// <summary>
+        /// Check if the given user is an API admin.
+        /// </summary>
+        /// <param name="User">A user.</param>
         public Boolean IsAdmin(User User)
 
             => User.Groups(User2GroupEdges.IsAdmin).
                     Contains(Admins);
+
+        #endregion
+
+        #region IsAdmin(UserId)
+
+        /// <summary>
+        /// Check if the given user is an API admin.
+        /// </summary>
+        /// <param name="UserId">A user identification.</param>
+        public Boolean IsAdmin(User_Id UserId)
+
+            => TryGetUser(UserId, out User User) &&
+               IsAdmin(User);
 
         #endregion
 

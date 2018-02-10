@@ -18,33 +18,29 @@
 #region Usings
 
 using System;
-using System.Collections.Generic;
-using Newtonsoft.Json.Linq;
-using org.GraphDefined.Vanaheimr.Hermod;
-using org.GraphDefined.Vanaheimr.Hermod.Mail;
+
 using org.GraphDefined.Vanaheimr.Illias;
+using org.GraphDefined.OpenData;
 
 #endregion
 
 namespace org.GraphDefined.OpenData.Users
 {
 
-    public abstract class ANotificationType
+    public class SecurityToken
     {
 
-        public abstract JObject GetAsJSON(JObject JSON);
+        public User_Id  UserId    { get; }
+        public DateTime Expires   { get; }
 
-        public JObject ToJSON(User_Id UserId, Notification_Id? NotificationId)
+        public SecurityToken(User_Id   UserId,
+                             DateTime  Expires)
+        {
 
-            => GetAsJSON(JSONObject.Create(
+            this.UserId   = UserId;
+            this.Expires  = Expires;
 
-                   new JProperty("userId", UserId.ToString()),
-
-                   NotificationId.HasValue
-                       ? new JProperty("notificationId", NotificationId.ToString())
-                       : null
-
-               ));
+        }
 
     }
 

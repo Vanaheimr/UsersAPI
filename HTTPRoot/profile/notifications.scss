@@ -15,8 +15,8 @@
     #notifications {
 
         display:                table;
-        width:                  calc(100% - 10px);
-        padding-left:           10px;
+        padding:                15px 0px 5px 20px;
+        font-size:              90%;
 
         .row {
 
@@ -24,13 +24,10 @@
             width:                  100%;
 
             .key {
-
                 display:                table-cell;
-                padding:                8px 42px 8px 0px;
+                padding:                2px 42px 2px 0px;
                 white-space:            nowrap;
                 color:                  #666;
-                vertical-align:         top;
-
             }
 
             .value {
@@ -49,13 +46,6 @@
                 }
 
                 textarea {
-                    /*background-color:   rgba(255, 255, 255, 0.7);
-                    width:              calc(100% - 16px);
-                    padding:            6px 8px;
-                    border:             0px;
-                    border-radius:      4px;
-                    color:              #777;
-                    font-size:          100%;*/
                     resize:             vertical;
                     min-height:         100px;
                 }
@@ -85,16 +75,51 @@
 
     }
 
-}
+    #messages {
 
-#avatar {
+        padding-left:           20px;
+        padding-bottom:         40px;
+        font-size:              90%;
 
-    .key {
-        padding-top: 20px !important;
-    }
+        .message {
 
-    .value {
-        padding-bottom: 10px !important;
+            margin-top:             23px;
+
+            .messageType {
+                padding:                2px 42px 2px 0px;
+                white-space:            nowrap;
+                color:                  #d27c40;
+            }
+
+            .notifications {
+
+                display:                table;
+                padding-left:           15px;
+                padding-top:            5px;
+
+                .row {
+
+                    display:             table-row;
+
+                    .key {
+                        display:                table-cell;
+                        min-width:              10vw;
+                        padding:                2px 10px 2px 0px;
+                        white-space:            nowrap;
+                        color:                  #666;
+                    }
+
+                    .value {
+                        display:                table-cell;
+                        width:                  inherit;
+                    }
+
+                }
+
+            }
+
+        }
+
     }
 
 }

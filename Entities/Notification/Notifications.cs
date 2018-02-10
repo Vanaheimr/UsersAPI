@@ -29,16 +29,32 @@ namespace org.GraphDefined.OpenData.Users
     public class Notifications
     {
 
-        private class Multiplexer
+        public class Multiplexer
         {
 
-            public List<ANotificationType>                               NotificationTypes   { get; }
+            private List<ANotificationType> _NotificationTypes;
+            public IEnumerable<ANotificationType> NotificationTypes
+                => _NotificationTypes;
+
             public Dictionary<Notification_Id, List<ANotificationType>>  NotificationIds     { get; }
 
             public Multiplexer()
             {
-                this.NotificationTypes  = new List<ANotificationType>();
-                this.NotificationIds    = new Dictionary<Notification_Id, List<ANotificationType>>();
+                this._NotificationTypes  = new List<ANotificationType>();
+                this.NotificationIds     = new Dictionary<Notification_Id, List<ANotificationType>>();
+            }
+
+
+            public Multiplexer Add(ANotificationType NotificationType)
+            {
+                _NotificationTypes.Add(NotificationType);
+                return this;
+            }
+
+            public Multiplexer Remove(ANotificationType NotificationType)
+            {
+                _NotificationTypes.Remove(NotificationType);
+                return this;
             }
 
         }
@@ -120,7 +136,7 @@ namespace org.GraphDefined.OpenData.Users
                 if (!Found)
                 {
 
-                    Multiplexer.NotificationTypes.Add(NotificationType);
+                    Multiplexer.Add(NotificationType);
 
                     OnAdded?.Invoke(DateTime.UtcNow,
                                     User,
@@ -202,6 +218,43 @@ namespace org.GraphDefined.OpenData.Users
                 }
 
                 return this;
+
+            }
+
+        }
+
+
+        public Multiplexer GetNotifications(User User)
+        {
+
+            if (User == null)
+                throw new ArgumentNullException(nameof(User), "The given user must not be null!");
+
+            lock (NotificationLookup)
+            {
+
+                if (NotificationLookup.TryGetValue(User.Id, out Multiplexer Multiplexer))
+                    return Multiplexer;
+
+                return null;
+
+            }
+
+        }
+
+        public Multiplexer GetNotifications(User_Id User)
+        {
+
+            if (User == null)
+                throw new ArgumentNullException(nameof(User), "The given user identification must not be null!");
+
+            lock (NotificationLookup)
+            {
+
+                if (NotificationLookup.TryGetValue(User, out Multiplexer Multiplexer))
+                    return Multiplexer;
+
+                return null;
 
             }
 
@@ -290,7 +343,7 @@ namespace org.GraphDefined.OpenData.Users
                             EqualityComparer(mailnotification))
                         {
 
-                            Multiplexer.NotificationTypes.Remove(notificationtype);
+                            Multiplexer.Remove(notificationtype);
 
                             OnRemoved?.Invoke(DateTime.UtcNow,
                                               User,
