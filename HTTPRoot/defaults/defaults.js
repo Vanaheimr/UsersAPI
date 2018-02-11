@@ -70,4 +70,28 @@ function SendJSON(HTTPVerb, URI, APIKey, Data, OnSuccess, OnError) {
         ajax.send();
 }
 // #endregion
+function ParseJSON_LD(Text, Context) {
+    if (Context === void 0) { Context = null; }
+    var JObject = JSON.parse(Text);
+    JObject["id"] = JObject["@id"];
+    return JObject;
+}
+function firstKey(obj) {
+    for (var a in obj)
+        return a;
+}
+function firstValue(obj) {
+    for (var a in obj)
+        return obj[a];
+}
+function UpdateI18NDescription(DescriptionDiv, JSON) {
+    if (firstValue(JSON["description"]) != null) {
+        var opt = document.createElement('option');
+        opt.value = firstKey(JSON["description"]);
+        opt.innerHTML = firstKey(JSON["description"]);
+        opt.selected = true;
+        DescriptionDiv.querySelector("#language").appendChild(opt);
+        DescriptionDiv.querySelector("#description").value = firstValue(JSON["description"]);
+    }
+}
 //# sourceMappingURL=defaults.js.map

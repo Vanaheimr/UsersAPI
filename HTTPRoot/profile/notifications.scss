@@ -8,7 +8,7 @@
 
     .headline {
         font-size:          180%;
-        padding-bottom:     15px;
+        padding-bottom:     25px;
         color:              #999;
     }
 
@@ -17,6 +17,8 @@
         display:                table;
         padding:                15px 0px 5px 20px;
         font-size:              90%;
+        border-collapse:        separate;
+        border-spacing:         4px;
 
         .row {
 
@@ -25,7 +27,7 @@
 
             .key {
                 display:                table-cell;
-                padding:                2px 42px 2px 0px;
+                padding:                0px 42px 0px 0px;
                 white-space:            nowrap;
                 color:                  #666;
             }
@@ -34,8 +36,18 @@
 
                 display:                table-cell;
                 width:                  inherit;
+                background-color:       #fafafa;
+                padding:                6px 10px;
+                border-radius:          5px;
+                color:                  #777;
 
-                input, textarea {
+                .info {
+                    color:              #AAA;
+                    font-size:          85%;
+                    display:            block;
+                }
+
+                input, textarea, select {
                     background-color:   rgba(255, 255, 255, 0.7);
                     width:              calc(100% - 16px);
                     padding:            6px 8px;
@@ -48,6 +60,7 @@
                 textarea {
                     resize:             vertical;
                     min-height:         100px;
+                    display:            block;
                 }
 
                 input[type=checkbox] {
@@ -96,10 +109,13 @@
                 display:                table;
                 padding-left:           15px;
                 padding-top:            5px;
+                border-collapse:        separate;
+                border-spacing:         3px;
 
                 .row {
 
-                    display:             table-row;
+                    display:            table-row;
+                    width:              100%;
 
                     .key {
                         display:                table-cell;
@@ -110,8 +126,20 @@
                     }
 
                     .value {
+
                         display:                table-cell;
                         width:                  inherit;
+                        background-color:       #fafafa;
+                        padding:                6px 10px;
+                        border-radius:          5px;
+                        color:                  #777;
+
+                        .info {
+                            color:              #AAA;
+                            font-size:          85%;
+                            display:            block;
+                        }
+
                     }
 
                 }

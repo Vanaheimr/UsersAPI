@@ -3,6 +3,18 @@ var HTTPCookieId: string = "UsersAPI";
 var CurrentlyHighlightedMenuItem     = "";
 var CurrentlyHighlightedSubmenuItem  = "";
 
+interface IUserProfile {
+    id:               string;
+    name:             string;
+    email:            string;
+    description:      Object;
+    privacyLevel:     string;
+    isAuthenticated:  boolean;
+    isDisabled:       boolean;
+    //signatures:       Array<string>,
+    hash:             string;
+}
+
 // #region MenuHighlight(name, NoURIupdate?)
 
 function MenuHighlight(name: string, NoURIupdate?: boolean) {
@@ -111,3 +123,42 @@ function SendJSON(HTTPVerb, URI, APIKey, Data, OnSuccess, OnError) {
 }
 
 // #endregion
+
+
+
+function ParseJSON_LD<T>(Text:    string,
+                         Context: string = null): T {
+
+    var JObject = JSON.parse(Text);
+
+    JObject["id"] = JObject["@id"];
+
+    return JObject as T;
+
+}
+
+function firstKey(obj) {
+    for (var a in obj) return a;
+}
+
+function firstValue(obj) {
+    for (var a in obj) return obj[a];
+}
+
+function UpdateI18NDescription(DescriptionDiv: HTMLDivElement,
+                               JSON:           Object) {
+
+    if (firstValue(JSON["description"]) != null)
+    {
+
+        var opt = document.createElement('option') as HTMLOptionElement;
+        opt.value     = firstKey(JSON["description"]);
+        opt.innerHTML = firstKey(JSON["description"]);
+        opt.selected  = true;
+        (DescriptionDiv.querySelector("#language")    as HTMLSelectElement).appendChild(opt);
+
+        (DescriptionDiv.querySelector("#description") as HTMLTextAreaElement).value = firstValue(JSON["description"]);
+
+    }
+
+}

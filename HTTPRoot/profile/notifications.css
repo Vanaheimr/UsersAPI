@@ -7,24 +7,34 @@
   font-size: 140%; }
   #notificationinfos .headline {
     font-size: 180%;
-    padding-bottom: 15px;
+    padding-bottom: 25px;
     color: #999; }
   #notificationinfos #notifications {
     display: table;
     padding: 15px 0px 5px 20px;
-    font-size: 90%; }
+    font-size: 90%;
+    border-collapse: separate;
+    border-spacing: 4px; }
     #notificationinfos #notifications .row {
       display: table-row;
       width: 100%; }
       #notificationinfos #notifications .row .key {
         display: table-cell;
-        padding: 2px 42px 2px 0px;
+        padding: 0px 42px 0px 0px;
         white-space: nowrap;
         color: #666; }
       #notificationinfos #notifications .row .value {
         display: table-cell;
-        width: inherit; }
-        #notificationinfos #notifications .row .value input, #notificationinfos #notifications .row .value textarea {
+        width: inherit;
+        background-color: #fafafa;
+        padding: 6px 10px;
+        border-radius: 5px;
+        color: #777; }
+        #notificationinfos #notifications .row .value .info {
+          color: #AAA;
+          font-size: 85%;
+          display: block; }
+        #notificationinfos #notifications .row .value input, #notificationinfos #notifications .row .value textarea, #notificationinfos #notifications .row .value select {
           background-color: rgba(255, 255, 255, 0.7);
           width: calc(100% - 16px);
           padding: 6px 8px;
@@ -34,7 +44,8 @@
           font-size: 100%; }
         #notificationinfos #notifications .row .value textarea {
           resize: vertical;
-          min-height: 100px; }
+          min-height: 100px;
+          display: block; }
         #notificationinfos #notifications .row .value input[type=checkbox] {
           width: 30px;
           height: 18px;
@@ -59,9 +70,12 @@
       #notificationinfos #messages .message .notifications {
         display: table;
         padding-left: 15px;
-        padding-top: 5px; }
+        padding-top: 5px;
+        border-collapse: separate;
+        border-spacing: 3px; }
         #notificationinfos #messages .message .notifications .row {
-          display: table-row; }
+          display: table-row;
+          width: 100%; }
           #notificationinfos #messages .message .notifications .row .key {
             display: table-cell;
             min-width: 10vw;
@@ -70,5 +84,13 @@
             color: #666; }
           #notificationinfos #messages .message .notifications .row .value {
             display: table-cell;
-            width: inherit; }
+            width: inherit;
+            background-color: #fafafa;
+            padding: 6px 10px;
+            border-radius: 5px;
+            color: #777; }
+            #notificationinfos #messages .message .notifications .row .value .info {
+              color: #AAA;
+              font-size: 85%;
+              display: block; }
 

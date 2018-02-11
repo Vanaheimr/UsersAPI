@@ -34,40 +34,64 @@ namespace org.GraphDefined.OpenData.Users
 
         public static Notifications RegisterHTTPSNotification(this UsersAPI  UsersAPI,
                                                               User_Id        User,
-                                                              String         URL)
+                                                              String         URL,
+                                                              String         BasicAuth_Login     = null,
+                                                              String         BasicAuth_Password  = null)
 
             => UsersAPI.RegisterNotification(User,
-                                             new HTTPSNotification(URL),
-                                             (a, b) => a.URL == b.URL);
+                                             new HTTPSNotification(URL,
+                                                                   BasicAuth_Login,
+                                                                   BasicAuth_Password),
+                                             (a, b) => a.URL                == b.URL &&
+                                                       a.BasicAuth_Login    == b.BasicAuth_Login &&
+                                                       a.BasicAuth_Password == b.BasicAuth_Password);
 
         public static Notifications RegisterHTTPSNotification(this UsersAPI  UsersAPI,
                                                               User           User,
-                                                              String         URL)
+                                                              String         URL,
+                                                              String         BasicAuth_Login     = null,
+                                                              String         BasicAuth_Password  = null)
 
             => UsersAPI.RegisterNotification(User.Id,
-                                             new HTTPSNotification(URL),
-                                             (a, b) => a.URL == b.URL);
+                                             new HTTPSNotification(URL,
+                                                                   BasicAuth_Login,
+                                                                   BasicAuth_Password),
+                                             (a, b) => a.URL                == b.URL &&
+                                                       a.BasicAuth_Login    == b.BasicAuth_Login &&
+                                                       a.BasicAuth_Password == b.BasicAuth_Password);
 
 
         public static Notifications RegisterHTTPSNotification(this UsersAPI    UsersAPI,
                                                               User_Id          User,
                                                               Notification_Id  NotificationId,
-                                                              String           URL)
+                                                              String           URL,
+                                                              String           BasicAuth_Login     = null,
+                                                              String           BasicAuth_Password  = null)
 
             => UsersAPI.RegisterNotification(User,
                                              NotificationId,
-                                             new HTTPSNotification(URL),
-                                             (a, b) => a.URL == b.URL);
+                                             new HTTPSNotification(URL,
+                                                                   BasicAuth_Login,
+                                                                   BasicAuth_Password),
+                                             (a, b) => a.URL                == b.URL &&
+                                                       a.BasicAuth_Login    == b.BasicAuth_Login &&
+                                                       a.BasicAuth_Password == b.BasicAuth_Password);
 
         public static Notifications RegisterHTTPSNotification(this UsersAPI    UsersAPI,
                                                               User             User,
                                                               Notification_Id  NotificationId,
-                                                              String           URL)
+                                                              String           URL,
+                                                              String           BasicAuth_Login     = null,
+                                                              String           BasicAuth_Password  = null)
 
             => UsersAPI.RegisterNotification(User.Id,
                                              NotificationId,
-                                             new HTTPSNotification(URL),
-                                             (a, b) => a.URL == b.URL);
+                                             new HTTPSNotification(URL,
+                                                                   BasicAuth_Login,
+                                                                   BasicAuth_Password),
+                                             (a, b) => a.URL                == b.URL &&
+                                                       a.BasicAuth_Login    == b.BasicAuth_Login &&
+                                                       a.BasicAuth_Password == b.BasicAuth_Password);
 
 
 
@@ -93,36 +117,53 @@ namespace org.GraphDefined.OpenData.Users
 
         public static Notifications UnregisterHTTPSNotification(this UsersAPI  UsersAPI,
                                                                 User           User,
-                                                                String         URL)
+                                                                String         URL,
+                                                                String         BasicAuth_Login     = null,
+                                                                String         BasicAuth_Password  = null)
 
             => UsersAPI.UnregisterNotification<HTTPSNotification>(User,
-                                                                  a => a.URL == URL);
+                                                                  a => a.URL                == URL &&
+                                                                       a.BasicAuth_Login    == BasicAuth_Login &&
+                                                                       a.BasicAuth_Password == BasicAuth_Password);
+
 
         public static Notifications UnregisterHTTPSNotification(this UsersAPI  UsersAPI,
                                                                 User_Id        User,
-                                                                String         URL)
+                                                                String         URL,
+                                                                String         BasicAuth_Login     = null,
+                                                                String         BasicAuth_Password  = null)
 
             => UsersAPI.UnregisterNotification<HTTPSNotification>(User,
-                                                                  a => a.URL == URL);
+                                                                  a => a.URL                == URL &&
+                                                                       a.BasicAuth_Login    == BasicAuth_Login &&
+                                                                       a.BasicAuth_Password == BasicAuth_Password);
 
 
         public static Notifications UnregisterHTTPSNotification(this UsersAPI    UsersAPI,
                                                                 User             User,
                                                                 Notification_Id  NotificationId,
-                                                                String           URL)
+                                                                String           URL,
+                                                                String           BasicAuth_Login     = null,
+                                                                String           BasicAuth_Password  = null)
 
             => UsersAPI.UnregisterNotification<HTTPSNotification>(User,
                                                                   NotificationId,
-                                                                  a => a.URL == URL);
+                                                                  a => a.URL                == URL &&
+                                                                       a.BasicAuth_Login    == BasicAuth_Login &&
+                                                                       a.BasicAuth_Password == BasicAuth_Password);
 
         public static Notifications UnregisterHTTPSNotification(this UsersAPI    UsersAPI,
                                                                 User_Id          User,
                                                                 Notification_Id  NotificationId,
-                                                                String           URL)
+                                                                String           URL,
+                                                                String           BasicAuth_Login     = null,
+                                                                String           BasicAuth_Password  = null)
 
             => UsersAPI.UnregisterNotification<HTTPSNotification>(User,
                                                                   NotificationId,
-                                                                  a => a.URL == URL);
+                                                                  a => a.URL                == URL &&
+                                                                       a.BasicAuth_Login    == BasicAuth_Login &&
+                                                                       a.BasicAuth_Password == BasicAuth_Password);
 
     }
 
@@ -130,12 +171,20 @@ namespace org.GraphDefined.OpenData.Users
     public class HTTPSNotification : ANotificationType
     {
 
-        public String URL { get; }
+        public String URL                  { get; }
+        public String BasicAuth_Login      { get; }
+        public String BasicAuth_Password   { get; }
 
 
-        public HTTPSNotification(String URL)
+        public HTTPSNotification(String URL,
+                                 String BasicAuth_Login     = null,
+                                 String BasicAuth_Password  = null)
         {
-            this.URL = URL;
+
+            this.URL                 = URL;
+            this.BasicAuth_Login     = BasicAuth_Login;
+            this.BasicAuth_Password  = BasicAuth_Password;
+
         }
 
 
@@ -145,7 +194,11 @@ namespace org.GraphDefined.OpenData.Users
             if (JSON["type"]?.Value<String>() != typeof(HTTPSNotification).Name)
                 throw new ArgumentException();
 
-            return new HTTPSNotification(JSON["URL"]?.Value<String>());
+            return new HTTPSNotification(
+                       JSON["URL"]?.Value<String>(),
+                       JSON["basicAuth"]?["login"]?.   Value<String>(),
+                       JSON["basicAuth"]?["password"]?.Value<String>()
+                   );
 
         }
 
@@ -154,6 +207,17 @@ namespace org.GraphDefined.OpenData.Users
 
             JSON.Add(new JProperty("type",  GetType().Name));
             JSON.Add(new JProperty("URL",   URL));
+
+            if (BasicAuth_Login.IsNotNullOrEmpty() &&
+                BasicAuth_Password.IsNotNullOrEmpty())
+            {
+                JSON.Add(new JProperty("basicAuth",
+                             new JObject(
+                                 new JProperty("login",    BasicAuth_Login),
+                                 new JProperty("password", BasicAuth_Password)
+                             )
+                        ));
+            }
 
             return JSON;
 
