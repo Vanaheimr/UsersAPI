@@ -122,24 +122,6 @@
     <EmbeddedResource Include="HTTPRoot\css\verticeslist.css" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="HTTPRoot\fonts\fontawesome-webfont.eot" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="HTTPRoot\fonts\fontawesome-webfont.svg" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="HTTPRoot\fonts\fontawesome-webfont.ttf" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="HTTPRoot\fonts\fontawesome-webfont.woff" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="HTTPRoot\fonts\fontawesome-webfont.woff2" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="HTTPRoot\fonts\FontAwesome.otf" />
-  </ItemGroup>
-  <ItemGroup>
     <EmbeddedResource Include="HTTPRoot\SignInOut\SignInOut.js" />
   </ItemGroup>
   <ItemGroup>
@@ -171,10 +153,6 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="HTTPRoot\js\LoadThings.js" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="HTTPRoot\css\font-awesome.css" />
-    <EmbeddedResource Include="HTTPRoot\css\font-awesome.min.css" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="HTTPRoot\less\animated.less" />
@@ -284,7 +262,7 @@
     <EmbeddedResource Include="HTTPRoot\defaults\defaults.js">
       <DependentUpon>defaults.ts</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="HTTPRoot\css\fontawesome-all.min.css" />
+    <EmbeddedResource Include="HTTPRoot\defaults\fontawesome-all.min.css" />
     <EmbeddedResource Include="HTTPRoot\webfonts\fa-brands-400.svg" />
     <EmbeddedResource Include="HTTPRoot\webfonts\fa-regular-400.svg" />
     <EmbeddedResource Include="HTTPRoot\webfonts\fa-solid-900.svg" />
