@@ -2818,9 +2818,9 @@ namespace org.GraphDefined.OpenData.Users
         protected Boolean TryGetSecurityTokenFromCookie(HTTPRequest Request, out SecurityToken_Id SecurityTokenId)
         {
 
-            if (Request.Cookies   != null &&
-                Request. Cookies.TryGet  (CookieName,             out HTTPCookie  Cookie) &&
-                         Cookie. TryGet  (SecurityTokenCookieKey, out String      Value)  &&
+            if (Request.Cookies  != null &&
+                Request.Cookies. TryGet  (CookieName,             out HTTPCookie  Cookie) &&
+                        Cookie.  TryGet  (SecurityTokenCookieKey, out String      Value)  &&
                 SecurityToken_Id.TryParse(Value,                  out             SecurityTokenId))
             {
                 return true;
