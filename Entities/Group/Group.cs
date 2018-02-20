@@ -102,12 +102,12 @@ namespace org.GraphDefined.OpenData.Users
         /// <param name="PrivacyLevel">Whether the group will be shown in group listings, or not.</param>
         /// <param name="IsDisabled">The group is disabled.</param>
         /// <param name="DataSource">The source of all this data, e.g. an automatic importer.</param>
-        internal Group(Group_Id      Id,
-                       I18NString    Name           = null,
-                       I18NString    Description    = null,
-                       PrivacyLevel  PrivacyLevel   = PrivacyLevel.World,
-                       Boolean       IsDisabled     = false,
-                       String        DataSource     = "")
+        public Group(Group_Id       Id,
+                     I18NString     Name           = null,
+                     I18NString     Description    = null,
+                     PrivacyLevel?  PrivacyLevel   = null,
+                     Boolean        IsDisabled     = false,
+                     String         DataSource     = "")
 
             : base(Id,
                    DataSource)
@@ -116,9 +116,9 @@ namespace org.GraphDefined.OpenData.Users
 
             #region Init properties
 
-            this.Name          = Name        ?? new I18NString();
-            this.Description   = Description ?? new I18NString();
-            this.PrivacyLevel  = PrivacyLevel;
+            this.Name          = Name         ?? new I18NString();
+            this.Description   = Description  ?? new I18NString();
+            this.PrivacyLevel  = PrivacyLevel ?? Users.PrivacyLevel.World;
             this.IsDisabled    = IsDisabled;
 
             #endregion
@@ -360,7 +360,7 @@ namespace org.GraphDefined.OpenData.Users
 
                 if (!JSONObject.ParseOptional("privacyLevel",
                                               "privacy level",
-                                              out PrivacyLevel PrivacyLevel,
+                                              out PrivacyLevel? PrivacyLevel,
                                               out ErrorResponse))
                 {
                     return false;

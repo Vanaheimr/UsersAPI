@@ -166,7 +166,7 @@ namespace org.GraphDefined.OpenData.Users
                             String               Telephone       = null,
                             GeoCoordinate?       GeoLocation     = null,
                             Address              Address         = null,
-                            PrivacyLevel         PrivacyLevel    = PrivacyLevel.World,
+                            PrivacyLevel?        PrivacyLevel    = null,
                             Boolean              IsDisabled      = false,
                             String               DataSource      = "")
 
@@ -177,15 +177,15 @@ namespace org.GraphDefined.OpenData.Users
 
             #region Init properties
 
-            this.Name           = Name        ?? new I18NString();
-            this.Description    = Description ?? new I18NString();
+            this.Name           = Name         ?? new I18NString();
+            this.Description    = Description  ?? new I18NString();
             this.EMail          = EMail;
             this.Address        = Address;
             this.PublicKeyRing  = PublicKeyRing;
             this.Telephone      = Telephone;
             this.GeoLocation    = GeoLocation;
             this.Address        = Address;
-            this.PrivacyLevel   = PrivacyLevel;
+            this.PrivacyLevel   = PrivacyLevel ?? Users.PrivacyLevel.World;
             this.IsDisabled     = IsDisabled;
 
             #endregion
@@ -524,7 +524,7 @@ namespace org.GraphDefined.OpenData.Users
 
                 if (!JSONObject.ParseOptional("privacyLevel",
                                               "privacy level",
-                                              out PrivacyLevel PrivacyLevel,
+                                              out PrivacyLevel? PrivacyLevel,
                                               out ErrorResponse))
                 {
                     return false;
