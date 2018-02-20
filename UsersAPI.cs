@@ -1487,12 +1487,10 @@ namespace org.GraphDefined.OpenData.Users
 
                                               #region Check JSON body...
 
-                                              HTTPResponse _HTTPResponse = null;
-                                              JSONWrapper NewUserData = null;
-                                              if (!Request.TryParseJObjectRequestBody(out NewUserData, out _HTTPResponse))
+                                              if (!Request.TryParseJObjectRequestBody(out JObject NewUserData, out HTTPResponse _HTTPResponse))
                                                   return _HTTPResponse;
 
-                                              if (!NewUserData.HasProperties)
+                                              if (!NewUserData.HasValues)
                                                   return new HTTPResponseBuilder(Request) {
                                                       HTTPStatusCode = HTTPStatusCode.BadRequest,
                                                       Server = HTTPServer.DefaultServerName,
@@ -1551,7 +1549,7 @@ namespace org.GraphDefined.OpenData.Users
 
                                               #region Verify email
 
-                                              if (!NewUserData.ContainsKey("email"))
+                                              if (NewUserData["email"] == null)
                                                   return new HTTPResponseBuilder(Request) {
                                                       HTTPStatusCode = HTTPStatusCode.BadRequest,
                                                       Server = HTTPServer.DefaultServerName,
@@ -1571,7 +1569,7 @@ namespace org.GraphDefined.OpenData.Users
                                               //                 @
                                               // (?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+
                                               //    [a-z0-9](?:[a-z0-9-]*[a-z0-9])?
-                                              var matches = Regex.Match(NewUserData.GetString("email").Trim(), @"([^\@]+)\@([^\@]+\.[^\@]{2,})");
+                                              var matches = Regex.Match(NewUserData.GetOptional("email").Trim(), @"([^\@]+)\@([^\@]+\.[^\@]{2,})");
 
                                               if (!matches.Success)
                                                   return new HTTPResponseBuilder(Request) {
@@ -1621,8 +1619,8 @@ namespace org.GraphDefined.OpenData.Users
 
                                               PgpPublicKeyRing PublicKeyRing = null;
 
-                                              if (NewUserData.ContainsKey("GPGPublicKeyRing") &&
-                                                  !OpenPGP.TryReadPublicKeyRing(NewUserData.GetString("GPGPublicKeyRing"), out PublicKeyRing))
+                                              if (NewUserData["GPGPublicKeyRing"] != null &&
+                                                  !OpenPGP.TryReadPublicKeyRing(NewUserData["GPGPublicKeyRing"].Value<String>(), out PublicKeyRing))
                                                   return new HTTPResponseBuilder(Request) {
                                                       HTTPStatusCode = HTTPStatusCode.BadRequest,
                                                       Server = HTTPServer.DefaultServerName,
@@ -1640,7 +1638,7 @@ namespace org.GraphDefined.OpenData.Users
 
                                               #region Verify password
 
-                                              if (!NewUserData.ContainsKey("password"))
+                                              if (!NewUserData.Contains("password"))
                                                   return new HTTPResponseBuilder(Request) {
                                                       HTTPStatusCode = HTTPStatusCode.BadRequest,
                                                       Server = HTTPServer.DefaultServerName,
@@ -2025,13 +2023,11 @@ namespace org.GraphDefined.OpenData.Users
                                               //if (Body.HasErrors)
                                               //    return Body.Error;
 
-                                              HTTPResponse _HTTPResponse = null;
-                                              JSONWrapper LoginData = null;
-                                              if (!Request.TryParseJObjectRequestBody(out LoginData, out _HTTPResponse))
+                                              if (!Request.TryParseJObjectRequestBody(out JObject LoginData, out HTTPResponse _HTTPResponse))
                                                   return Task.FromResult(_HTTPResponse);
 
 
-                                              if (!LoginData.HasProperties)
+                                              if (!LoginData.HasValues)
                                                   return Task.FromResult(
                                                       new HTTPResponseBuilder(Request) {
                                                           HTTPStatusCode  = HTTPStatusCode.BadRequest,
@@ -2049,7 +2045,7 @@ namespace org.GraphDefined.OpenData.Users
                                               #endregion
 
                                               // The login is taken from the URI, not from the JSON!
-                                              LoginData.SetProperty("username", Request.ParsedURIParameters[0]);
+                                              LoginData["username"] = Request.ParsedURIParameters[0];
 
                                               #region Verify username
 
@@ -2073,7 +2069,7 @@ namespace org.GraphDefined.OpenData.Users
 
                                               #region Verify realm
 
-                                              if (LoginData.ContainsKey("realm") &&
+                                              if (LoginData.Contains("realm") &&
                                                   LoginData.GetString("realm").IsNotNullOrEmpty() &&
                                                   LoginData.GetString("realm").Length < MinRealmLenght)
                                                   return Task.FromResult(
@@ -2095,7 +2091,7 @@ namespace org.GraphDefined.OpenData.Users
 
                                               #region Verify password
 
-                                              if (!LoginData.ContainsKey("password"))
+                                              if (!LoginData.Contains("password"))
                                                   return Task.FromResult(
                                                       new HTTPResponseBuilder(Request) {
                                                           HTTPStatusCode  = HTTPStatusCode.BadRequest,
@@ -2131,16 +2127,14 @@ namespace org.GraphDefined.OpenData.Users
 
                                               #region Check login and password
 
-                                              String        _Realm          = LoginData.GetString("realm");
-                                              User_Id       _UserId;
-                                              LoginPassword _LoginPassword  = null;
-                                              User          _User           = null;
+                                              String _Realm = LoginData.GetString("realm");
 
                                               if (!(_Realm.IsNotNullOrEmpty()
-                                                   ? User_Id.TryParse(LoginData.GetString("username"), _Realm, out _UserId)
-                                                   : User_Id.TryParse(LoginData.GetString("username"),         out _UserId)) ||
-                                                  !_LoginPasswords.TryGetValue(_UserId, out _LoginPassword) ||
-                                                  !_Users.TryGetValue(_UserId, out _User))
+                                                     ? User_Id.TryParse(LoginData.GetString("username"), _Realm, out User_Id _UserId)
+                                                     : User_Id.TryParse(LoginData.GetString("username"),         out         _UserId)) ||
+                                                  !_LoginPasswords.TryGetValue(_UserId, out LoginPassword _LoginPassword)              ||
+                                                  !_Users.         TryGetValue(_UserId, out User          _User))
+                                              {
 
                                                   return Task.FromResult(
                                                       new HTTPResponseBuilder(Request) {
@@ -2156,8 +2150,10 @@ namespace org.GraphDefined.OpenData.Users
                                                           Connection      = "close"
                                                       }.AsImmutable);
 
+                                              }
 
                                               if (!_LoginPassword.VerifyPassword(LoginData.GetString("password")))
+                                              {
 
                                                   return Task.FromResult(
                                                       new HTTPResponseBuilder(Request) {
@@ -2169,12 +2165,11 @@ namespace org.GraphDefined.OpenData.Users
                                                                                 new JProperty("property",     "username"),
                                                                                 new JProperty("description",  "Invalid username or password!")
                                                                             ).ToString().ToUTF8Bytes(),
-                                                          //SetCookie       = "SocialOpenData=" +
-                                                          //                       "; Expires=" + DateTime.UtcNow.AddMinutes(-5).ToRfc1123() +
-                                                          //                          "; Path=/",
                                                           CacheControl    = "private",
                                                           Connection      = "close"
                                                       }.AsImmutable);
+
+                                              }
 
                                               #endregion
 
