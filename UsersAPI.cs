@@ -44,6 +44,8 @@ using org.GraphDefined.Vanaheimr.Hermod.Sockets;
 using System.Text;
 using org.GraphDefined.Vanaheimr.Hermod.Distributed;
 using org.GraphDefined.Vanaheimr.Aegir;
+using System.Net.Security;
+using System.Security.Authentication;
 
 #endregion
 
@@ -648,6 +650,11 @@ namespace org.GraphDefined.OpenData.Users
         /// <param name="HTTPHostname">The HTTP hostname for all URIs within this API.</param>
         /// <param name="URIPrefix">A common prefix for all URIs.</param>
         /// 
+        /// <param name="ServerCertificateSelector">An optional delegate to select a SSL/TLS server certificate.</param>
+        /// <param name="ClientCertificateValidator">An optional delegate to verify the SSL/TLS client certificate used for authentication.</param>
+        /// <param name="ClientCertificateSelector">An optional delegate to select the SSL/TLS client certificate used for authentication.</param>
+        /// <param name="AllowedTLSProtocols">The SSL/TLS protocol(s) allowed for this connection.</param>
+        /// 
         /// <param name="ServiceName">The name of the service.</param>
         /// <param name="APIEMailAddress">An e-mail address for this API.</param>
         /// <param name="APIPublicKeyRing">A GPG public key for this API.</param>
@@ -671,47 +678,58 @@ namespace org.GraphDefined.OpenData.Users
         /// <param name="LogfileName">The name of the logfile for this API.</param>
         /// <param name="DNSClient">The DNS client of the API.</param>
         /// <param name="Autostart">Whether to start the API automatically.</param>
-        public UsersAPI(String                              HTTPServerName                     = DefaultHTTPServerName,
-                        IPPort?                             HTTPServerPort                     = null,
-                        HTTPHostname?                       HTTPHostname                       = null,
-                        HTTPURI?                            URIPrefix                          = null,
+        public UsersAPI(String                               HTTPServerName                     = DefaultHTTPServerName,
+                        IPPort?                              HTTPServerPort                     = null,
+                        HTTPHostname?                        HTTPHostname                       = null,
+                        HTTPURI?                             URIPrefix                          = null,
 
-                        String                              ServiceName                        = DefaultServiceName,
-                        EMailAddress                        APIEMailAddress                    = null,
-                        PgpPublicKeyRing                    APIPublicKeyRing                   = null,
-                        PgpSecretKeyRing                    APISecretKeyRing                   = null,
-                        String                              APIPassphrase                      = null,
-                        EMailAddressList                    APIAdminEMails                     = null,
-                        SMTPClient                          APISMTPClient                      = null,
+                        ServerCertificateSelectorDelegate    ServerCertificateSelector          = null,
+                        RemoteCertificateValidationCallback  ClientCertificateValidator         = null,
+                        LocalCertificateSelectionCallback    ClientCertificateSelector          = null,
+                        SslProtocols                         AllowedTLSProtocols                = SslProtocols.Tls12,
 
-                        HTTPCookieName?                     CookieName                         = null,
-                        Languages                           Language                           = DefaultLanguage,
-                        String                              LogoImage                          = null,
-                        NewUserSignUpEMailCreatorDelegate   NewUserSignUpEMailCreator          = null,
-                        NewUserWelcomeEMailCreatorDelegate  NewUserWelcomeEMailCreator         = null,
-                        ResetPasswordEMailCreatorDelegate   ResetPasswordEMailCreator          = null,
-                        Byte                                MinUserNameLenght                  = DefaultMinUserNameLenght,
-                        Byte                                MinRealmLenght                     = DefaultMinRealmLenght,
-                        Byte                                MinPasswordLenght                  = DefaultMinPasswordLenght,
-                        TimeSpan?                           SignInSessionLifetime              = null,
+                        String                               ServiceName                        = DefaultServiceName,
+                        EMailAddress                         APIEMailAddress                    = null,
+                        PgpPublicKeyRing                     APIPublicKeyRing                   = null,
+                        PgpSecretKeyRing                     APISecretKeyRing                   = null,
+                        String                               APIPassphrase                      = null,
+                        EMailAddressList                     APIAdminEMails                     = null,
+                        SMTPClient                           APISMTPClient                      = null,
 
-                        String                              ServerThreadName                   = null,
-                        ThreadPriority                      ServerThreadPriority               = ThreadPriority.AboveNormal,
-                        Boolean                             ServerThreadIsBackground           = true,
-                        ConnectionIdBuilder                 ConnectionIdBuilder                = null,
-                        ConnectionThreadsNameBuilder        ConnectionThreadsNameBuilder       = null,
-                        ConnectionThreadsPriorityBuilder    ConnectionThreadsPriorityBuilder   = null,
-                        Boolean                             ConnectionThreadsAreBackground     = true,
-                        TimeSpan?                           ConnectionTimeout                  = null,
-                        UInt32                              MaxClientConnections               = TCPServer.__DefaultMaxClientConnections,
+                        HTTPCookieName?                      CookieName                         = null,
+                        Languages                            Language                           = DefaultLanguage,
+                        String                               LogoImage                          = null,
+                        NewUserSignUpEMailCreatorDelegate    NewUserSignUpEMailCreator          = null,
+                        NewUserWelcomeEMailCreatorDelegate   NewUserWelcomeEMailCreator         = null,
+                        ResetPasswordEMailCreatorDelegate    ResetPasswordEMailCreator          = null,
+                        Byte                                 MinUserNameLenght                  = DefaultMinUserNameLenght,
+                        Byte                                 MinRealmLenght                     = DefaultMinRealmLenght,
+                        Byte                                 MinPasswordLenght                  = DefaultMinPasswordLenght,
+                        TimeSpan?                            SignInSessionLifetime              = null,
 
-                        Boolean                             SkipURITemplates                   = false,
-                        String                              LogfileName                        = DefaultLogfileName,
-                        DNSClient                           DNSClient                          = null,
-                        Boolean                             Autostart                          = false)
+                        String                               ServerThreadName                   = null,
+                        ThreadPriority                       ServerThreadPriority               = ThreadPriority.AboveNormal,
+                        Boolean                              ServerThreadIsBackground           = true,
+                        ConnectionIdBuilder                  ConnectionIdBuilder                = null,
+                        ConnectionThreadsNameBuilder         ConnectionThreadsNameBuilder       = null,
+                        ConnectionThreadsPriorityBuilder     ConnectionThreadsPriorityBuilder   = null,
+                        Boolean                              ConnectionThreadsAreBackground     = true,
+                        TimeSpan?                            ConnectionTimeout                  = null,
+                        UInt32                               MaxClientConnections               = TCPServer.__DefaultMaxClientConnections,
+
+                        Boolean                              SkipURITemplates                   = false,
+                        String                               LogfileName                        = DefaultLogfileName,
+                        DNSClient                            DNSClient                          = null,
+                        Boolean                              Autostart                          = false)
 
             : this(new HTTPServer(TCPPort:                           HTTPServerPort ?? DefaultHTTPServerPort,
                                   DefaultServerName:                 HTTPServerName,
+
+                                  ServerCertificateSelector:         ServerCertificateSelector,
+                                  ClientCertificateValidator:        ClientCertificateValidator,
+                                  ClientCertificateSelector:         ClientCertificateSelector,
+                                  AllowedTLSProtocols:               AllowedTLSProtocols,
+
                                   ServerThreadName:                  ServerThreadName,
                                   ServerThreadPriority:              ServerThreadPriority,
                                   ServerThreadIsBackground:          ServerThreadIsBackground,
@@ -721,8 +739,10 @@ namespace org.GraphDefined.OpenData.Users
                                   ConnectionThreadsAreBackground:    ConnectionThreadsAreBackground,
                                   ConnectionTimeout:                 ConnectionTimeout,
                                   MaxClientConnections:              MaxClientConnections,
+
                                   DNSClient:                         DNSClient,
                                   Autostart:                         false),
+
                    HTTPHostname,
                    URIPrefix,
 
