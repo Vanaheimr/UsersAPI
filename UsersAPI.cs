@@ -272,7 +272,7 @@ namespace org.GraphDefined.OpenData.Users
         /// <summary>
         /// The name of the default HTTP cookie.
         /// </summary>
-        public  const             String                              DefaultCookieName              = "UsersAPI";
+        public  static readonly   HTTPCookieName                      DefaultCookieName              = HTTPCookieName.Parse("UsersAPI");
 
         public  const             String                              HTTPCookieDomain               = "";
 
@@ -484,7 +484,7 @@ namespace org.GraphDefined.OpenData.Users
 
         #region CookieName
 
-        public String CookieName { get; }
+        public HTTPCookieName CookieName { get; }
 
         #endregion
 
@@ -684,7 +684,7 @@ namespace org.GraphDefined.OpenData.Users
                         EMailAddressList                    APIAdminEMails                     = null,
                         SMTPClient                          APISMTPClient                      = null,
 
-                        String                              CookieName                         = DefaultCookieName,
+                        HTTPCookieName?                     CookieName                         = null,
                         Languages                           Language                           = DefaultLanguage,
                         String                              LogoImage                          = null,
                         NewUserSignUpEMailCreatorDelegate   NewUserSignUpEMailCreator          = null,
@@ -801,7 +801,7 @@ namespace org.GraphDefined.OpenData.Users
                            EMailAddressList                    APIAdminEMails               = null,
                            SMTPClient                          APISMTPClient                = null,
 
-                           String                              CookieName                   = DefaultCookieName,
+                           HTTPCookieName?                     CookieName                   = null,
                            Languages                           Language                     = DefaultLanguage,
                            String                              LogoImage                    = null,
                            NewUserSignUpEMailCreatorDelegate   NewUserSignUpEMailCreator    = null,
@@ -847,7 +847,7 @@ namespace org.GraphDefined.OpenData.Users
             this.APIAdminEMails               = APIAdminEMails;
             this.APISMTPClient                = APISMTPClient;
 
-            this.CookieName                   = CookieName.IsNotNullOrEmpty() ? CookieName : DefaultCookieName;
+            this.CookieName                   = CookieName ?? DefaultCookieName;
             this.Language                     = Language;
             this._LogoImage                   = LogoImage;
             this.NewUserSignUpEMailCreator    = NewUserSignUpEMailCreator;
@@ -954,7 +954,7 @@ namespace org.GraphDefined.OpenData.Users
                                                EMailAddressList                    APIAdminEMails               = null,
                                                SMTPClient                          APISMTPClient                = null,
 
-                                               String                              CookieName                   = DefaultCookieName,
+                                               HTTPCookieName?                     CookieName                   = null,
                                                Languages                           DefaultLanguage              = Languages.eng,
                                                String                              LogoImage                    = null,
                                                NewUserSignUpEMailCreatorDelegate   NewUserSignUpEMailCreator    = null,
@@ -2797,10 +2797,11 @@ namespace org.GraphDefined.OpenData.Users
         protected SecurityToken_Id? TryGetSecurityTokenFromCookie(HTTPRequest Request)
         {
 
-            if (Request.Cookie == null)
+            if (Request.Cookies == null)
                 return null;
 
-            if (Request.Cookie.  TryGet  (SecurityTokenCookieKey, out String           Value) &&
+            if (Request. Cookies.TryGet  (CookieName,             out HTTPCookie       Cookie) &&
+                         Cookie. TryGet  (SecurityTokenCookieKey, out String           Value)  &&
                 SecurityToken_Id.TryParse(Value,                  out SecurityToken_Id SecurityTokenId))
             {
                 return SecurityTokenId;
@@ -2817,9 +2818,10 @@ namespace org.GraphDefined.OpenData.Users
         protected Boolean TryGetSecurityTokenFromCookie(HTTPRequest Request, out SecurityToken_Id SecurityTokenId)
         {
 
-            if (Request.Cookie   != null &&
-                Request.Cookie.  TryGet  (SecurityTokenCookieKey, out String Value) &&
-                SecurityToken_Id.TryParse(Value,                  out SecurityTokenId))
+            if (Request.Cookies   != null &&
+                Request. Cookies.TryGet  (CookieName,             out HTTPCookie  Cookie) &&
+                         Cookie. TryGet  (SecurityTokenCookieKey, out String      Value)  &&
+                SecurityToken_Id.TryParse(Value,                  out             SecurityTokenId))
             {
                 return true;
             }
@@ -2836,8 +2838,9 @@ namespace org.GraphDefined.OpenData.Users
         protected Boolean TryGetHTTPUser(HTTPRequest Request, out User User)
         {
 
-            if (Request.Cookie != null                                                                          &&
-                Request.Cookie.  TryGet     (SecurityTokenCookieKey, out String            Value)               &&
+            if (Request.Cookies != null                                                                         &&
+                Request. Cookies.TryGet     (CookieName,             out HTTPCookie        Cookie)              &&
+                         Cookie. TryGet     (SecurityTokenCookieKey, out String            Value)               &&
                 SecurityToken_Id.TryParse   (Value,                  out SecurityToken_Id  SecurityTokenId)     &&
                 SecurityTokens.  TryGetValue(SecurityTokenId,        out SecurityToken     SecurityInformation) &&
                 DateTime.UtcNow < SecurityInformation.Expires                                                   &&
