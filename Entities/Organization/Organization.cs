@@ -522,12 +522,15 @@ namespace org.GraphDefined.OpenData.Users
 
                 #region Parse PrivacyLevel     [optional]
 
-                if (!JSONObject.ParseOptional("privacyLevel",
-                                              "privacy level",
-                                              out PrivacyLevel? PrivacyLevel,
-                                              out ErrorResponse))
+                if (JSONObject.ParseOptional("privacyLevel",
+                                             "privacy level",
+                                             out PrivacyLevel? PrivacyLevel,
+                                             out ErrorResponse))
                 {
-                    return false;
+
+                    if (ErrorResponse != null)
+                        return false;
+
                 }
 
                 #endregion

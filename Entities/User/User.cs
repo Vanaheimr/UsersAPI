@@ -86,7 +86,7 @@ namespace org.GraphDefined.OpenData.Users
         /// The telephone number of the user.
         /// </summary>
         [Optional]
-        public String              Telephone            { get; }
+        public PhoneNumber?        Telephone            { get; }
 
         /// <summary>
         /// An optional (multi-language) description of the user.
@@ -252,7 +252,7 @@ namespace org.GraphDefined.OpenData.Users
                       SimpleEMailAddress  EMail,
                       String              Name              = null,
                       String              PublicKeyRing     = null,
-                      String              Telephone         = null,
+                      PhoneNumber?        Telephone         = null,
                       I18NString          Description       = null,
                       GeoCoordinate?      GeoLocation       = null,
                       Address             Address           = null,
@@ -593,10 +593,16 @@ namespace org.GraphDefined.OpenData.Users
 
                 #region Parse Telephone        [optional]
 
-                if (!JSONObject.ParseOptional("telephone",
-                                              out String Telephone))
+                if (JSONObject.ParseOptional("telephone",
+                                             "user phone number",
+                                             PhoneNumber.TryParse,
+                                             out PhoneNumber? Telephone,
+                                             out ErrorResponse))
                 {
-                    return false;
+
+                    if (ErrorResponse != null)
+                        return false;
+
                 }
 
                 #endregion
@@ -644,12 +650,15 @@ namespace org.GraphDefined.OpenData.Users
 
                 #region Parse PrivacyLevel     [optional]
 
-                if (!JSONObject.ParseOptional("privacyLevel",
-                                              "privacy level",
-                                              out PrivacyLevel? PrivacyLevel,
-                                              out ErrorResponse))
+                if (JSONObject.ParseOptional("privacyLevel",
+                                             "privacy level",
+                                             out PrivacyLevel? PrivacyLevel,
+                                             out ErrorResponse))
                 {
-                    return false;
+
+                    if (ErrorResponse != null)
+                        return false;
+
                 }
 
                 #endregion
@@ -870,7 +879,7 @@ namespace org.GraphDefined.OpenData.Users
             /// The telephone number of the user.
             /// </summary>
             [Optional]
-            public String              Telephone            { get; set; }
+            public PhoneNumber?        Telephone            { get; set; }
 
             /// <summary>
             /// An optional (multi-language) description of the user.
@@ -930,7 +939,7 @@ namespace org.GraphDefined.OpenData.Users
                            SimpleEMailAddress  EMail,
                            String              Name              = null,
                            String              PublicKeyRing     = null,
-                           String              Telephone         = null,
+                           PhoneNumber?        Telephone         = null,
                            I18NString          Description       = null,
                            GeoCoordinate?      GeoLocation       = null,
                            Address             Address           = null,

@@ -625,7 +625,7 @@ namespace org.GraphDefined.OpenData.Users
         /// <summary>
         /// The current hash value of the API.
         /// </summary>
-        public String CurrentHash { get; private set; }
+        public String CurrentDatabaseHashValue { get; private set; }
 
         public String SystemId { get; }
 
@@ -897,7 +897,7 @@ namespace org.GraphDefined.OpenData.Users
 
             #endregion
 
-            ReadStoredData();
+            ReadDatabaseFiles();
 
             _Notifications.OnAdded   += (Timestamp, User, NotificationId, NotificationType) => WriteToLogfile("AddNotification",    NotificationType.ToJSON(User, NotificationId));
             _Notifications.OnRemoved += (Timestamp, User, NotificationId, NotificationType) => WriteToLogfile("RemoveNotification", NotificationType.ToJSON(User, NotificationId));
@@ -2400,266 +2400,57 @@ namespace org.GraphDefined.OpenData.Users
 
         #endregion
 
-        #region (private) ReadStoredData()
+        #region (private) ReadDatabaseFiles()
 
-        private void ReadStoredData()
+        private void ReadDatabaseFiles()
         {
 
-            #region Read UsersAPI file...
+            #region Read DefaultUsersAPIFile
 
-            if (File.Exists(DefaultUsersAPIFile))
+            try
             {
 
-                File.ReadLines(DefaultUsersAPIFile).ForEachCounted((line, linenumber) => {
+                if (File.Exists(DefaultUsersAPIFile))
+                {
 
-                    if (line.IsNeitherNullNorEmpty() &&
-                       !line.StartsWith("#")         &&
-                       !line.StartsWith("//"))
-                    {
+                    JObject JSONLine;
+                    String  JSONCommand;
+                    JObject JSONObject;
 
-                        try
+                    File.ReadLines(DefaultUsersAPIFile).ForEachCounted((line, linenumber) => {
+
+                        if (line.IsNeitherNullNorEmpty() &&
+                           !line.StartsWith("#")         &&
+                           !line.StartsWith("//"))
                         {
 
-                            var JSONCommand     = JObject.Parse(line);
-                            var JSONParameters  = (JSONCommand.First as JProperty)?.Value as JObject;
-                            CurrentHash         = JSONCommand["HashValue"].Value<String>();
-
-                            switch ((JSONCommand.First as JProperty)?.Name)
+                            try
                             {
 
-                                #region CreateUser
-
-                                case "CreateUser":
-
-                                    if (User.TryParseJSON(JSONParameters,
-                                                          out User    _User,
-                                                          out String  CreateUser_ErrorResponse))
-                                    {
-                                        _Users.AddAndReturnValue(_User.Id, _User);
-                                    }
-
-                                    break;
-
-                                #endregion
-
-                                #region CreateGroup
-
-                                case "CreateGroup":
-
-                                    if (Group.TryParseJSON(JSONParameters,
-                                                           out Group   _Group,
-                                                           out String  CreateGroup_ErrorResponse) &&
-                                        _Group.Id != Admins.Id)
-                                    {
-                                        _Groups.AddAndReturnValue(_Group.Id, _Group);
-                                    }
-
-                                    break;
-
-                                #endregion
-
-                                #region CreateOrganization
-
-                                case "CreateOrganization":
-
-                                    if (Organization.TryParseJSON(JSONParameters,
-                                                                  out Organization  _Organization,
-                                                                  out String        CreateOrganization_ErrorResponse))
-                                    {
-                                        _Organizations.AddAndReturnValue(_Organization.Id, _Organization);
-                                    }
-
-                                    break;
-
-                                #endregion
-
-                                #region LinkOrganizations
-
-                                case "LinkOrganizations":
-
-                                    var O2O_OrganizationOut  = _Organizations[Organization_Id.Parse(JSONParameters["organizationOut"].Value<String>())];
-                                    var O2O_OrganizationIn   = _Organizations[Organization_Id.Parse(JSONParameters["organizationIn" ].Value<String>())];
-                                    var O2O_EdgeLabel        = (Organization2OrganizationEdges) Enum.Parse(typeof(Organization2OrganizationEdges), JSONParameters["edge"].   Value<String>());
-                                    var O2O_Privacy          = JSONParameters.ParseMandatory_PrivacyLevel();
-
-                                    if (!O2O_OrganizationOut.Organization2OrganizationOutEdges.Any(edge => edge.EdgeLabel == O2O_EdgeLabel && edge.Target == O2O_OrganizationIn))
-                                        O2O_OrganizationOut.AddOutEdge(O2O_EdgeLabel, O2O_OrganizationIn,  O2O_Privacy);
-
-                                    if (!O2O_OrganizationIn. Organization2OrganizationInEdges. Any(edge => edge.EdgeLabel == O2O_EdgeLabel && edge.Source == O2O_OrganizationOut))
-                                        O2O_OrganizationIn. AddInEdge (O2O_EdgeLabel, O2O_OrganizationOut, O2O_Privacy);
-
-                                    break;
-
-                                #endregion
-
-                                #region AddUserToGroup
-
-                                case "AddUserToGroup":
-
-                                    var U2G_User     = _Users [User_Id. Parse(JSONParameters["user" ].Value<String>())];
-                                    var U2G_Group    = _Groups[Group_Id.Parse(JSONParameters["group"].Value<String>())];
-                                    var U2G_Edge     = (User2GroupEdges) Enum.Parse(typeof(User2GroupEdges), JSONParameters["edge"].        Value<String>());
-                                    var U2G_Privacy  = JSONParameters.ParseMandatory_PrivacyLevel();
-
-                                    if (!U2G_User.OutEdges(U2G_Group).Any(edge => edge == U2G_Edge))
-                                        U2G_User.AddOutgoingEdge(U2G_Edge, U2G_Group, U2G_Privacy);
-
-                                    if (!U2G_Group.Edges(U2G_Group).Any(edge => edge == U2G_Edge))
-                                        U2G_Group.AddIncomingEdge(U2G_User, U2G_Edge, U2G_Privacy);
-
-                                    break;
-
-                                #endregion
-
-                                #region AddUserToOrganization
-
-                                case "AddUserToOrganization":
-
-                                    var U2O_User          = _Users        [User_Id.        Parse(JSONParameters["user" ].Value<String>())];
-                                    var U2O_Organization  = _Organizations[Organization_Id.Parse(JSONParameters["organization"].Value<String>())];
-                                    var U2O_Edge          = (User2OrganizationEdges) Enum.Parse(typeof(User2OrganizationEdges), JSONParameters["edge"].        Value<String>());
-                                    var U2O_Privacy       = JSONParameters.ParseMandatory_PrivacyLevel();
-
-                                    if (!U2O_User.Edges(U2O_Organization).Any(edgelabel => edgelabel == U2O_Edge))
-                                        U2O_User.AddOutgoingEdge(U2O_Edge, U2O_Organization, U2O_Privacy);
-
-                                    if (!U2O_Organization.InEdges(U2O_Organization).Any(edgelabel => edgelabel == U2O_Edge))
-                                        U2O_Organization.AddIncomingEdge(U2O_User, U2O_Edge, U2O_Privacy);
-
-                                    break;
-
-                                #endregion
-
-                                #region AddNotification
-
-                                case "AddNotification":
-
-                                    if (JSONParameters["userId"]?.Value<String>().IsNotNullOrEmpty() == true &&
-                                        JSONParameters["type"  ]?.Value<String>().IsNotNullOrEmpty() == true)
-                                    {
-
-                                        var UserId  = User_Id.Parse(JSONParameters["userId"]?.Value<String>());
-
-                                        if (JSONParameters["notificationId"]?.Value<String>().IsNotNullOrEmpty() == true)
-                                            switch (JSONParameters["type"]?.Value<String>())
-                                            {
-
-                                                case "EMailNotification":
-                                                    RegisterNotification(UserId,
-                                                                         Notification_Id.Parse(JSONParameters["notificationId"]?.Value<String>()),
-                                                                         EMailNotification.Parse(JSONParameters),
-                                                                         (a, b) => a.EMailAddress == b.EMailAddress);
-                                                    break;
-
-                                                case "SMSNotification":
-                                                    RegisterNotification(UserId,
-                                                                         Notification_Id.Parse(JSONParameters["notificationId"]?.Value<String>()),
-                                                                         SMSNotification.Parse(JSONParameters),
-                                                                         (a, b) => a.Phonenumber == b.Phonenumber);
-                                                    break;
-
-                                                case "HTTPSNotification":
-                                                    RegisterNotification(UserId,
-                                                                         Notification_Id.Parse(JSONParameters["notificationId"]?.Value<String>()),
-                                                                         HTTPSNotification.Parse(JSONParameters),
-                                                                         (a, b) => a.URL == b.URL);
-                                                    break;
-
-                                            }
-
-                                        else
-                                            switch (JSONParameters["type"]?.Value<String>())
-                                            {
-
-                                                case "EMailNotification":
-                                                    RegisterNotification(UserId,
-                                                                         EMailNotification.Parse(JSONParameters),
-                                                                         (a, b) => a.EMailAddress == b.EMailAddress);
-                                                    break;
-
-                                                case "SMSNotification":
-                                                    RegisterNotification(UserId,
-                                                                         SMSNotification.Parse(JSONParameters),
-                                                                         (a, b) => a.Phonenumber == b.Phonenumber);
-                                                    break;
-
-                                                case "HTTPSNotification":
-                                                    RegisterNotification(UserId,
-                                                                         HTTPSNotification.Parse(JSONParameters),
-                                                                         (a, b) => a.URL == b.URL);
-                                                    break;
-
-                                            }
-
-                                    }
-
-                                    break;
-
-                                #endregion
-
-                                #region RemoveNotification
-
-                                case "RemoveNotification":
-
-                                    if (JSONParameters["userId"]?.Value<String>().IsNotNullOrEmpty() == true &&
-                                        JSONParameters["type"  ]?.Value<String>().IsNotNullOrEmpty() == true)
-                                    {
-
-                                        var UserId  = User_Id.Parse(JSONParameters["userId"]?.Value<String>());
-
-                                        if (JSONParameters["notificationId"]?.Value<String>().IsNotNullOrEmpty() == true)
-                                            switch (JSONParameters["type"]?.Value<String>())
-                                            {
-
-                                                case "EMailNotification":
-                                                    UnregisterNotification<EMailNotification>(UserId,
-                                                                                              Notification_Id.Parse(JSONParameters["notificationId"]?.Value<String>()),
-                                                                                              a => a.EMailAddress == EMailNotification.Parse(JSONParameters).EMailAddress);
-                                                    break;
-
-                                                case "SMSNotification":
-                                                    UnregisterNotification<SMSNotification>  (UserId,
-                                                                                              Notification_Id.Parse(JSONParameters["notificationId"]?.Value<String>()),
-                                                                                              a => a.Phonenumber  == SMSNotification.  Parse(JSONParameters).Phonenumber);
-                                                    break;
-
-                                            }
-
-                                        else
-                                            switch (JSONParameters["type"]?.Value<String>())
-                                            {
-
-                                                case "EMailNotification":
-                                                    UnregisterNotification<EMailNotification>(UserId,
-                                                                                              a => a.EMailAddress == EMailNotification.Parse(JSONParameters).EMailAddress);
-                                                    break;
-
-                                                case "SMSNotification":
-                                                    UnregisterNotification<SMSNotification>  (UserId,
-                                                                                              a => a.Phonenumber  == SMSNotification.  Parse(JSONParameters).Phonenumber);
-                                                    break;
-
-                                            }
-
-
-                                    }
-
-                                    break;
-
-                                #endregion
-
+                                JSONLine                  = JObject.Parse(line);
+                                JSONCommand               = (JSONLine.First as JProperty)?.Name;
+                                JSONObject                = (JSONLine.First as JProperty)?.Value as JObject;
+                                CurrentDatabaseHashValue  =  JSONLine["HashValue"]?.Value<String>();
+
+                                if (JSONCommand.IsNotNullOrEmpty() && JSONObject != null)
+                                    ProcessCommand(JSONCommand, JSONObject);
+
+                            }
+                            catch (Exception e)
+                            {
+                                DebugX.Log(@"Could not read database file """ + DefaultUsersAPIFile + @""" line " + linenumber + ": " + e.Message);
                             }
 
                         }
-                        catch (Exception e)
-                        {
-                            DebugX.Log(@"Could not read UserDB file """ + DefaultUsersAPIFile + @""" line " + linenumber + ": " + e.Message);
-                        }
 
-                    }
+                    });
 
-                });
+                }
 
+            }
+            catch (Exception e)
+            {
+                DebugX.LogT("ReadStoredData() failed: " + e.Message);
             }
 
             #endregion
@@ -2770,6 +2561,253 @@ namespace org.GraphDefined.OpenData.Users
             }
 
             #endregion
+
+        }
+
+        #endregion
+
+        //ToDo: Receive Network Database Commands
+
+        #region (private) ProcessCommand(Command, Parameters)
+
+        private void ProcessCommand(String   Command,
+                                    JObject  JSONObject)
+        {
+
+            switch (Command)
+            {
+
+                #region CreateUser
+
+                case "CreateUser":
+
+                    if (User.TryParseJSON(JSONObject,
+                                          out User    _User,
+                                          out String  ErrorResponse))
+                    {
+                        _Users.AddAndReturnValue(_User.Id, _User);
+                    }
+
+                    else
+                        DebugX.Log(String.Concat(nameof(UsersAPI), " ", Command, ": ", ErrorResponse));
+
+                    break;
+
+                #endregion
+
+                #region CreateGroup
+
+                case "CreateGroup":
+
+                    if (Group.TryParseJSON(JSONObject,
+                                           out Group  _Group,
+                                           out ErrorResponse) &&
+                        _Group.Id != Admins.Id)
+                    {
+                        _Groups.AddAndReturnValue(_Group.Id, _Group);
+                    }
+
+                    else
+                        DebugX.Log(String.Concat(nameof(UsersAPI), " ", Command, ": ", ErrorResponse));
+
+                    break;
+
+                #endregion
+
+                #region CreateOrganization
+
+                case "CreateOrganization":
+
+                    if (Organization.TryParseJSON(JSONObject,
+                                                  out Organization  _Organization,
+                                                  out ErrorResponse))
+                    {
+                        _Organizations.AddAndReturnValue(_Organization.Id, _Organization);
+                    }
+
+                    else
+                        DebugX.Log(String.Concat(nameof(UsersAPI), " ", Command, ": ", ErrorResponse));
+
+                    break;
+
+                #endregion
+
+                #region LinkOrganizations
+
+                case "LinkOrganizations":
+
+                    var O2O_OrganizationOut  = _Organizations[Organization_Id.Parse(JSONObject["organizationOut"].Value<String>())];
+                    var O2O_OrganizationIn   = _Organizations[Organization_Id.Parse(JSONObject["organizationIn" ].Value<String>())];
+                    var O2O_EdgeLabel        = (Organization2OrganizationEdges) Enum.Parse(typeof(Organization2OrganizationEdges), JSONObject["edge"].   Value<String>());
+                    var O2O_Privacy          = JSONObject.ParseMandatory_PrivacyLevel();
+
+                    if (!O2O_OrganizationOut.Organization2OrganizationOutEdges.Any(edge => edge.EdgeLabel == O2O_EdgeLabel && edge.Target == O2O_OrganizationIn))
+                        O2O_OrganizationOut.AddOutEdge(O2O_EdgeLabel, O2O_OrganizationIn,  O2O_Privacy);
+
+                    if (!O2O_OrganizationIn. Organization2OrganizationInEdges. Any(edge => edge.EdgeLabel == O2O_EdgeLabel && edge.Source == O2O_OrganizationOut))
+                        O2O_OrganizationIn. AddInEdge (O2O_EdgeLabel, O2O_OrganizationOut, O2O_Privacy);
+
+                    break;
+
+                #endregion
+
+                #region AddUserToGroup
+
+                case "AddUserToGroup":
+
+                    var U2G_User     = _Users [User_Id. Parse(JSONObject["user" ].Value<String>())];
+                    var U2G_Group    = _Groups[Group_Id.Parse(JSONObject["group"].Value<String>())];
+                    var U2G_Edge     = (User2GroupEdges) Enum.Parse(typeof(User2GroupEdges), JSONObject["edge"].        Value<String>());
+                    var U2G_Privacy  = JSONObject.ParseMandatory_PrivacyLevel();
+
+                    if (!U2G_User.OutEdges(U2G_Group).Any(edge => edge == U2G_Edge))
+                        U2G_User.AddOutgoingEdge(U2G_Edge, U2G_Group, U2G_Privacy);
+
+                    if (!U2G_Group.Edges(U2G_Group).Any(edge => edge == U2G_Edge))
+                        U2G_Group.AddIncomingEdge(U2G_User, U2G_Edge, U2G_Privacy);
+
+                    break;
+
+                #endregion
+
+                #region AddUserToOrganization
+
+                case "AddUserToOrganization":
+
+                    var U2O_User          = _Users        [User_Id.        Parse(JSONObject["user" ].Value<String>())];
+                    var U2O_Organization  = _Organizations[Organization_Id.Parse(JSONObject["organization"].Value<String>())];
+                    var U2O_Edge          = (User2OrganizationEdges) Enum.Parse(typeof(User2OrganizationEdges), JSONObject["edge"].        Value<String>());
+                    var U2O_Privacy       = JSONObject.ParseMandatory_PrivacyLevel();
+
+                    if (!U2O_User.Edges(U2O_Organization).Any(edgelabel => edgelabel == U2O_Edge))
+                        U2O_User.AddOutgoingEdge(U2O_Edge, U2O_Organization, U2O_Privacy);
+
+                    if (!U2O_Organization.InEdges(U2O_Organization).Any(edgelabel => edgelabel == U2O_Edge))
+                        U2O_Organization.AddIncomingEdge(U2O_User, U2O_Edge, U2O_Privacy);
+
+                    break;
+
+                #endregion
+
+                #region AddNotification
+
+                case "AddNotification":
+
+                    if (JSONObject["userId"]?.Value<String>().IsNotNullOrEmpty() == true &&
+                        JSONObject["type"  ]?.Value<String>().IsNotNullOrEmpty() == true)
+                    {
+
+                        var UserId  = User_Id.Parse(JSONObject["userId"]?.Value<String>());
+
+                        if (JSONObject["notificationId"]?.Value<String>().IsNotNullOrEmpty() == true)
+                            switch (JSONObject["type"]?.Value<String>())
+                            {
+
+                                case "EMailNotification":
+                                    RegisterNotification(UserId,
+                                                         Notification_Id.Parse(JSONObject["notificationId"]?.Value<String>()),
+                                                         EMailNotification.Parse(JSONObject),
+                                                         (a, b) => a.EMailAddress == b.EMailAddress);
+                                    break;
+
+                                case "SMSNotification":
+                                    RegisterNotification(UserId,
+                                                         Notification_Id.Parse(JSONObject["notificationId"]?.Value<String>()),
+                                                         SMSNotification.Parse(JSONObject),
+                                                         (a, b) => a.Phonenumber == b.Phonenumber);
+                                    break;
+
+                                case "HTTPSNotification":
+                                    RegisterNotification(UserId,
+                                                         Notification_Id.Parse(JSONObject["notificationId"]?.Value<String>()),
+                                                         HTTPSNotification.Parse(JSONObject),
+                                                         (a, b) => a.URL == b.URL);
+                                    break;
+
+                            }
+
+                        else
+                            switch (JSONObject["type"]?.Value<String>())
+                            {
+
+                                case "EMailNotification":
+                                    RegisterNotification(UserId,
+                                                         EMailNotification.Parse(JSONObject),
+                                                         (a, b) => a.EMailAddress == b.EMailAddress);
+                                    break;
+
+                                case "SMSNotification":
+                                    RegisterNotification(UserId,
+                                                         SMSNotification.Parse(JSONObject),
+                                                         (a, b) => a.Phonenumber == b.Phonenumber);
+                                    break;
+
+                                case "HTTPSNotification":
+                                    RegisterNotification(UserId,
+                                                         HTTPSNotification.Parse(JSONObject),
+                                                         (a, b) => a.URL == b.URL);
+                                    break;
+
+                            }
+
+                    }
+
+                    break;
+
+                #endregion
+
+                #region RemoveNotification
+
+                case "RemoveNotification":
+
+                    if (JSONObject["userId"]?.Value<String>().IsNotNullOrEmpty() == true &&
+                        JSONObject["type"  ]?.Value<String>().IsNotNullOrEmpty() == true)
+                    {
+
+                        var UserId  = User_Id.Parse(JSONObject["userId"]?.Value<String>());
+
+                        if (JSONObject["notificationId"]?.Value<String>().IsNotNullOrEmpty() == true)
+                            switch (JSONObject["type"]?.Value<String>())
+                            {
+
+                                case "EMailNotification":
+                                    UnregisterNotification<EMailNotification>(UserId,
+                                                                              Notification_Id.Parse(JSONObject["notificationId"]?.Value<String>()),
+                                                                              a => a.EMailAddress == EMailNotification.Parse(JSONObject).EMailAddress);
+                                    break;
+
+                                case "SMSNotification":
+                                    UnregisterNotification<SMSNotification>  (UserId,
+                                                                              Notification_Id.Parse(JSONObject["notificationId"]?.Value<String>()),
+                                                                              a => a.Phonenumber  == SMSNotification.  Parse(JSONObject).Phonenumber);
+                                    break;
+
+                            }
+
+                        else
+                            switch (JSONObject["type"]?.Value<String>())
+                            {
+
+                                case "EMailNotification":
+                                    UnregisterNotification<EMailNotification>(UserId,
+                                                                              a => a.EMailAddress == EMailNotification.Parse(JSONObject).EMailAddress);
+                                    break;
+
+                                case "SMSNotification":
+                                    UnregisterNotification<SMSNotification>  (UserId,
+                                                                              a => a.Phonenumber  == SMSNotification.  Parse(JSONObject).Phonenumber);
+                                    break;
+
+                            }
+
+
+                    }
+
+                    break;
+
+                #endregion
+
+            }
 
         }
 
@@ -3000,15 +3038,15 @@ namespace org.GraphDefined.OpenData.Users
                                  new JProperty("Writer",      SystemId),
                                  new JProperty("Timestamp",   DateTime.UtcNow.ToIso8601()),
                                  new JProperty("Nonce",       Guid.NewGuid().ToString().Replace("-", "")),
-                                 new JProperty("ParentHash",  CurrentHash)
+                                 new JProperty("ParentHash",  CurrentDatabaseHashValue)
                              );
 
             var SHA256     = new SHA256Managed();
-            CurrentHash    = SHA256.ComputeHash(Encoding.Unicode.GetBytes(JSONWhitespaceRegEx.Replace(_JObject.ToString(), " "))).
+            CurrentDatabaseHashValue    = SHA256.ComputeHash(Encoding.Unicode.GetBytes(JSONWhitespaceRegEx.Replace(_JObject.ToString(), " "))).
                                     Select(value => String.Format("{0:x2}", value)).
                                     Aggregate();
 
-            _JObject.Add(new JProperty("HashValue", CurrentHash));
+            _JObject.Add(new JProperty("HashValue", CurrentDatabaseHashValue));
 
             File.AppendAllText(Logfilename,
                                JSONWhitespaceRegEx.Replace(_JObject.ToString(), " ") +
@@ -3172,7 +3210,7 @@ namespace org.GraphDefined.OpenData.Users
                                Password            Password,
                                String              Name              = null,
                                String              PublicKeyRing     = null,
-                               String              Telephone         = null,
+                               PhoneNumber?        Telephone         = null,
                                I18NString          Description       = null,
                                GeoCoordinate?      GeoLocation       = null,
                                Address             Address           = null,
@@ -3234,7 +3272,7 @@ namespace org.GraphDefined.OpenData.Users
                                           Password            Password,
                                           String              Name              = null,
                                           String              PublicKeyRing     = null,
-                                          String              Telephone         = null,
+                                          PhoneNumber?        Telephone         = null,
                                           I18NString          Description       = null,
                                           GeoCoordinate?      GeoLocation       = null,
                                           Address             Address           = null,
