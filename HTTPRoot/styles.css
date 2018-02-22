@@ -93,9 +93,11 @@ body {
     #navigation ul li:hover {
       color: #f7e3b9;
       background-color: #f7ba3d;
-      background-color: #5f8cd2;
-      border-top: 1px solid #7599d0;
-      border-bottom: 1px solid #3e5984; }
+      /*background-color:    #5f8cd2;
+            border-top:          1px solid #7599d0;
+            border-bottom:       1px solid #3e5984;
+            margin-top:          -1px;
+            margin-bottom:       -1px;*/ }
       #navigation ul li:hover a {
         color: #f7e3b9; }
     #navigation ul li.active {

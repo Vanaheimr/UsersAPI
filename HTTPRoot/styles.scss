@@ -138,9 +138,11 @@ body {
 
             color:               $NavigationTextHover;
             background-color:    $NavigationBackHover;
-            background-color:    #5f8cd2;
+            /*background-color:    #5f8cd2;
             border-top:          1px solid #7599d0;
             border-bottom:       1px solid #3e5984;
+            margin-top:          -1px;
+            margin-bottom:       -1px;*/
 
             a {
                 color: $NavigationTextHover;
