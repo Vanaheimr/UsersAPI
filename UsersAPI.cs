@@ -20,7 +20,9 @@
 using System;
 using System.IO;
 using System.Linq;
-using System.Security;
+using System.Text;
+using System.Net.Security;
+using System.Security.Authentication;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Collections.Generic;
@@ -41,11 +43,7 @@ using org.GraphDefined.Vanaheimr.Hermod.SMTP;
 using org.GraphDefined.Vanaheimr.Hermod.Sockets.TCP;
 using org.GraphDefined.Vanaheimr.BouncyCastle;
 using org.GraphDefined.Vanaheimr.Hermod.Sockets;
-using System.Text;
-using org.GraphDefined.Vanaheimr.Hermod.Distributed;
 using org.GraphDefined.Vanaheimr.Aegir;
-using System.Net.Security;
-using System.Security.Authentication;
 
 #endregion
 
@@ -560,66 +558,34 @@ namespace org.GraphDefined.OpenData.Users
 
         #region SignInSessionLifetime
 
-        private readonly TimeSpan _SignInSessionLifetime;
-
-        public TimeSpan SignInSessionLifetime
-        {
-            get
-            {
-                return _SignInSessionLifetime;
-            }
-        }
+        public TimeSpan SignInSessionLifetime { get; }
 
         #endregion
 
         #region MinUserNameLenght
 
-        private readonly Byte _MinUserNameLenght;
-
         /// <summary>
         /// The minimal user name length.
         /// </summary>
-        public Byte MinLoginLenght
-        {
-            get
-            {
-                return _MinUserNameLenght;
-            }
-        }
+        public Byte MinLoginLenght { get; }
 
         #endregion
 
         #region MinRealmLenght
 
-        private readonly Byte _MinRealmLenght;
-
         /// <summary>
         /// The minimal realm length.
         /// </summary>
-        public Byte MinRealmLenght
-        {
-            get
-            {
-                return _MinRealmLenght;
-            }
-        }
+        public Byte MinRealmLenght { get; }
 
         #endregion
 
         #region MinPasswordLenght
 
-        private readonly Byte _MinPasswordLenght;
-
         /// <summary>
         /// The minimal password length.
         /// </summary>
-        public Byte MinPasswordLenght
-        {
-            get
-            {
-                return _MinPasswordLenght;
-            }
-        }
+        public Byte MinPasswordLenght { get; }
 
         #endregion
 
@@ -873,10 +839,10 @@ namespace org.GraphDefined.OpenData.Users
             this.NewUserSignUpEMailCreator    = NewUserSignUpEMailCreator;
             this.NewUserWelcomeEMailCreator   = NewUserWelcomeEMailCreator;
             this.ResetPasswordEMailCreator    = ResetPasswordEMailCreator;
-            this._MinUserNameLenght           = MinUserNameLenght;
-            this._MinRealmLenght              = MinRealmLenght;
-            this._MinPasswordLenght           = MinPasswordLenght;
-            this._SignInSessionLifetime       = SignInSessionLifetime ?? DefaultSignInSessionLifetime;
+            this.MinLoginLenght               = MinUserNameLenght;
+            this.MinRealmLenght               = MinRealmLenght;
+            this.MinPasswordLenght            = MinPasswordLenght;
+            this.SignInSessionLifetime        = SignInSessionLifetime ?? DefaultSignInSessionLifetime;
 
             this._DataLicenses                = new Dictionary<DataLicense_Id,  DataLicense>();
             this._Users                       = new Dictionary<User_Id,         User>();
@@ -1101,8 +1067,7 @@ namespace org.GraphDefined.OpenData.Users
                                                           Connection      = "close"
                                                       }.AsImmutable);
 
-                                              User _User = null;
-                                              if (!_Users.TryGetValue(VerificationToken.Login, out _User))
+                                              if (!_Users.TryGetValue(VerificationToken.Login, out User _User))
                                                   return Task.FromResult(
                                                       new HTTPResponseBuilder(Request) {
                                                           HTTPStatusCode  = HTTPStatusCode.NotFound,
@@ -1377,7 +1342,7 @@ namespace org.GraphDefined.OpenData.Users
                                                                                   ToUTF8Bytes()
                                                                               ).ToHexString());
 
-                                  var Expires        = DateTime.UtcNow.Add(_SignInSessionLifetime);
+                                  var Expires        = DateTime.UtcNow.Add(SignInSessionLifetime);
 
                                   lock (SecurityTokens)
                                   {
@@ -2211,7 +2176,7 @@ namespace org.GraphDefined.OpenData.Users
                                                                                   ":username=" + _User.Name.ToBase64() +
                                                                                 (IsAdmin(_User) ? ":isAdmin" : "") +
                                                                              ":securitytoken=" + SecurityToken +
-                                                                                  "; Expires=" + DateTime.UtcNow.Add(_SignInSessionLifetime).ToRfc1123() +
+                                                                                  "; Expires=" + DateTime.UtcNow.Add(SignInSessionLifetime).ToRfc1123() +
                                                                                    (HTTPCookieDomain.IsNotNullOrEmpty()
                                                                                        ? "; Domain=" + HTTPCookieDomain
                                                                                        : "") +
