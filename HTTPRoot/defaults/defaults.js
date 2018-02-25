@@ -94,8 +94,8 @@ function UpdateI18NDescription(DescriptionDiv, JSON) {
         DescriptionDiv.querySelector("#description").value = firstValue(JSON["description"]);
     }
 }
-var View = (function () {
-    function View(Parent, Prefix, HeadlineText) {
+var BoxView = (function () {
+    function BoxView(Parent, Prefix, HeadlineText) {
         this.myself = Parent.appendChild(document.createElement('div'));
         this.myself.id = Prefix + "View";
         this.HeadlineDiv = this.myself.appendChild(document.createElement('div'));
@@ -107,7 +107,7 @@ var View = (function () {
         this.ButtonDiv.id = "buttons";
         this.CurrentGroupDiv = this.ContentDiv;
     }
-    View.prototype.CreateGroup = function (Prefix, Visible) {
+    BoxView.prototype.CreateGroup = function (Prefix, Visible) {
         if (Visible === void 0) { Visible = true; }
         var GroupDiv = this.ContentDiv.appendChild(document.createElement('div'));
         GroupDiv.id = Prefix + "Group";
@@ -117,12 +117,12 @@ var View = (function () {
         this.CurrentGroupDiv = GroupDiv;
         return GroupDiv;
     };
-    View.prototype.CreateRow = function (Prefix, KeyText, greeter) {
+    BoxView.prototype.CreateRow = function (Prefix, KeyText, greeter) {
         if (greeter === void 0) { greeter = null; }
         return this.CreateRow2(Prefix, KeyText, false, greeter);
     };
     ;
-    View.prototype.CreateRow2 = function (Prefix, KeyText, keyTop, greeter) {
+    BoxView.prototype.CreateRow2 = function (Prefix, KeyText, keyTop, greeter) {
         if (keyTop === void 0) { keyTop = false; }
         if (greeter === void 0) { greeter = null; }
         var DivRow = this.CurrentGroupDiv.appendChild(document.createElement('div'));
@@ -139,13 +139,13 @@ var View = (function () {
             greeter(DivValue);
         return DivValue;
     };
-    View.prototype.CreateButton = function (Prefix, Name) {
+    BoxView.prototype.CreateButton = function (Prefix, Name) {
         var ButtonDiv = this.ButtonDiv.appendChild(document.createElement('button'));
         ButtonDiv.id = Prefix + "Button";
         ButtonDiv.className = "button";
         ButtonDiv.innerHTML = Name;
     };
-    View.prototype.CancelButton = function (Prefix, Name) {
+    BoxView.prototype.CancelButton = function (Prefix, Name) {
         var aa = this;
         var ButtonDiv = this.ButtonDiv.appendChild(document.createElement('button'));
         ButtonDiv.id = Prefix + "Button";
@@ -155,6 +155,6 @@ var View = (function () {
             aa.myself.remove();
         };
     };
-    return View;
+    return BoxView;
 }());
 //# sourceMappingURL=defaults.js.map

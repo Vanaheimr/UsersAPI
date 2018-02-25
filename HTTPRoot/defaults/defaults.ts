@@ -171,7 +171,7 @@ interface DivElementAction {
     (DoWith: HTMLDivElement): void;
 }
 
-class View {
+class BoxView {
 
     myself:           HTMLDivElement;
     HeadlineDiv:      HTMLDivElement;
