@@ -215,6 +215,9 @@
     <EmbeddedResource Include="HTTPRoot\webfonts\fa-solid-900.ttf" />
     <EmbeddedResource Include="HTTPRoot\webfonts\fa-solid-900.woff" />
     <EmbeddedResource Include="HTTPRoot\webfonts\fa-solid-900.woff2" />
+    <EmbeddedResource Include="HTTPRoot\defaults\views.js.map">
+      <DependentUpon>views.ts</DependentUpon>
+    </EmbeddedResource>
     <None Include="HTTPRoot\libs\EventSource.js.map">
       <DependentUpon>EventSource.ts</DependentUpon>
     </None>
@@ -266,6 +269,9 @@
     <EmbeddedResource Include="HTTPRoot\webfonts\fa-brands-400.svg" />
     <EmbeddedResource Include="HTTPRoot\webfonts\fa-regular-400.svg" />
     <EmbeddedResource Include="HTTPRoot\webfonts\fa-solid-900.svg" />
+    <EmbeddedResource Include="HTTPRoot\defaults\views.js">
+      <DependentUpon>views.ts</DependentUpon>
+    </EmbeddedResource>
     <Content Include="HTTPRoot\libs\EventSource.js">
       <DependentUpon>EventSource.ts</DependentUpon>
     </Content>
@@ -285,6 +291,7 @@
     <EmbeddedResource Include="HTTPRoot\libs\date.format.ts" />
     <EmbeddedResource Include="HTTPRoot\libs\EventSource.ts" />
     <EmbeddedResource Include="HTTPRoot\defaults\defaults.ts" />
+    <EmbeddedResource Include="HTTPRoot\defaults\views.ts" />
     <TypeScriptCompile Include="HTTPRoot\libs\sse.d.ts" />
     <EmbeddedResource Include="HTTPRoot\login\SignInOut.ts" />
   </ItemGroup>
