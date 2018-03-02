@@ -273,3 +273,414 @@ function HTTPCount(RessourceURI: string,
 }
 
 // #endregion
+
+// #region Exists (RessourceURI, APIKey, OnSuccess, OnError)
+
+function Exists(RessourceURI: string,
+                APIKey:       string,
+                OnSuccess,
+                OnError) {
+
+    // #region Make HTTP call
+
+    let ajax = new XMLHttpRequest();
+    ajax.open("GET", RessourceURI, true); // , user, password);
+    ajax.setRequestHeader("Accept",       "application/json; charset=UTF-8");
+    //ajax.setRequestHeader("Content-Type", "application/json; charset=UTF-8");
+
+    if (APIKey != null)
+        ajax.setRequestHeader("APIKey", APIKey);
+
+    ajax.onreadystatechange = function () {
+
+        // 0 UNSENT | 1 OPENED | 2 HEADERS_RECEIVED | 3 LOADING | 4 DONE
+        if (this.readyState == 4) {
+
+            // Ok
+            if (this.status >= 100 && this.status < 300) {
+
+                //alert(ajax.getAllResponseHeaders());
+                //alert(ajax.getResponseHeader("Date"));
+                //alert(ajax.getResponseHeader("Cache-control"));
+                //alert(ajax.getResponseHeader("ETag"));
+
+                if (OnSuccess && typeof OnSuccess === 'function')
+                    OnSuccess(this.status);
+
+            }
+
+            else
+                if (OnError && typeof OnError === 'function')
+                    OnError(this.status, this.statusText);
+
+        }
+
+    }
+
+    ajax.send();
+
+    // #endregion
+
+}
+
+// #endregion
+
+// #region HTTPSet(RessourceURI, APIKey, Data, OnSuccess, OnError)
+
+function HTTPSet(RessourceURI: string,
+                 APIKey:       string,
+                 Data,
+                 OnSuccess,
+                 OnError) {
+
+    // #region Make HTTP call
+
+    let ajax = new XMLHttpRequest();
+    ajax.open("SET", RessourceURI, true); // , user, password);
+    ajax.setRequestHeader("Accept",       "application/json; charset=UTF-8");
+    ajax.setRequestHeader("Content-Type", "application/json; charset=UTF-8");
+
+    if (APIKey != null)
+        ajax.setRequestHeader("APIKey", APIKey);
+
+    ajax.onreadystatechange = function () {
+
+        // 0 UNSENT | 1 OPENED | 2 HEADERS_RECEIVED | 3 LOADING | 4 DONE
+        if (this.readyState == 4) {
+
+            // Ok
+            if (this.status >= 100 && this.status < 300) {
+
+                //alert(ajax.getAllResponseHeaders());
+                //alert(ajax.getResponseHeader("Date"));
+                //alert(ajax.getResponseHeader("Cache-control"));
+                //alert(ajax.getResponseHeader("ETag"));
+
+                if (OnSuccess && typeof OnSuccess === 'function')
+                    OnSuccess(this.status, ajax.responseText);
+
+            }
+
+            else
+                if (OnError && typeof OnError === 'function')
+                    OnError(this.status, this.statusText, ajax.responseText);
+
+        }
+
+    }
+
+    if (Data != null)
+        ajax.send(JSON.stringify(Data));
+    else
+        ajax.send();
+
+    // #endregion
+
+}
+
+// #endregion
+
+// #region HTTPAdd(RessourceURI, APIKey, Data, OnSuccess, OnError)
+
+function HTTPAdd(RessourceURI: string,
+                 APIKey:       string,
+                 Data,
+                 OnSuccess,
+                 OnError) {
+
+    // #region Make HTTP call
+
+    let ajax = new XMLHttpRequest();
+    ajax.open("ADD", RessourceURI, true); // , user, password);
+    ajax.setRequestHeader("Accept",       "application/json; charset=UTF-8");
+    ajax.setRequestHeader("Content-Type", "application/json; charset=UTF-8");
+
+    if (APIKey != null)
+        ajax.setRequestHeader("APIKey", APIKey);
+
+    ajax.onreadystatechange = function () {
+
+        // 0 UNSENT | 1 OPENED | 2 HEADERS_RECEIVED | 3 LOADING | 4 DONE
+        if (this.readyState == 4) {
+
+            // Ok
+            if (this.status >= 100 && this.status < 300) {
+
+                //alert(ajax.getAllResponseHeaders());
+                //alert(ajax.getResponseHeader("Date"));
+                //alert(ajax.getResponseHeader("Cache-control"));
+                //alert(ajax.getResponseHeader("ETag"));
+
+                if (OnSuccess && typeof OnSuccess === 'function')
+                    OnSuccess(this.status, ajax.responseText);
+
+            }
+
+            else
+                if (OnError && typeof OnError === 'function')
+                    OnError(this.status, this.statusText, ajax.responseText);
+
+        }
+
+    }
+
+    if (Data != null)
+        ajax.send(JSON.stringify(Data));
+    else
+        ajax.send();
+
+    // #endregion
+
+}
+
+// #endregion
+
+// #region HTTPAddIfNotExists(RessourceURI, APIKey, Data, OnSuccess, OnError)
+
+function HTTPAddIfNotExists(RessourceURI: string,
+                            APIKey:       string,
+                            Data,
+                            OnSuccess,
+                            OnError) {
+
+    // #region Make HTTP call
+
+    let ajax = new XMLHttpRequest();
+    ajax.open("ADDIFNOTEXISTS", RessourceURI, true); // , user, password);
+    ajax.setRequestHeader("Accept",       "application/json; charset=UTF-8");
+    ajax.setRequestHeader("Content-Type", "application/json; charset=UTF-8");
+
+    if (APIKey != null)
+        ajax.setRequestHeader("APIKey", APIKey);
+
+    ajax.onreadystatechange = function () {
+
+        // 0 UNSENT | 1 OPENED | 2 HEADERS_RECEIVED | 3 LOADING | 4 DONE
+        if (this.readyState == 4) {
+
+            // Ok
+            if (this.status >= 100 && this.status < 300) {
+
+                //alert(ajax.getAllResponseHeaders());
+                //alert(ajax.getResponseHeader("Date"));
+                //alert(ajax.getResponseHeader("Cache-control"));
+                //alert(ajax.getResponseHeader("ETag"));
+
+                if (OnSuccess && typeof OnSuccess === 'function')
+                    OnSuccess(this.status, ajax.responseText);
+
+            }
+
+            else
+                if (OnError && typeof OnError === 'function')
+                    OnError(this.status, this.statusText, ajax.responseText);
+
+        }
+
+    }
+
+    if (Data != null)
+        ajax.send(JSON.stringify(Data));
+    else
+        ajax.send();
+
+    // #endregion
+
+}
+
+// #endregion
+
+// #region HTTPChown(RessourceURI, APIKey, Data, OnSuccess, OnError)
+
+function HTTPChown(RessourceURI: string,
+                   APIKey:       string,
+                   Data,
+                   OnSuccess,
+                   OnError) {
+
+    // #region Make HTTP call
+
+    let ajax = new XMLHttpRequest();
+    ajax.open("CHOWN", RessourceURI, true); // , user, password);
+    ajax.setRequestHeader("Accept",       "application/json; charset=UTF-8");
+    ajax.setRequestHeader("Content-Type", "application/json; charset=UTF-8");
+
+    if (APIKey != null)
+        ajax.setRequestHeader("APIKey", APIKey);
+
+    ajax.onreadystatechange = function () {
+
+        // 0 UNSENT | 1 OPENED | 2 HEADERS_RECEIVED | 3 LOADING | 4 DONE
+        if (this.readyState == 4) {
+
+            // Ok
+            if (this.status >= 100 && this.status < 300) {
+
+                //alert(ajax.getAllResponseHeaders());
+                //alert(ajax.getResponseHeader("Date"));
+                //alert(ajax.getResponseHeader("Cache-control"));
+                //alert(ajax.getResponseHeader("ETag"));
+
+                if (OnSuccess && typeof OnSuccess === 'function')
+                    OnSuccess(this.status, ajax.responseText);
+
+            }
+
+            else
+                if (OnError && typeof OnError === 'function')
+                    OnError(this.status, this.statusText, ajax.responseText);
+
+        }
+
+    }
+
+    if (Data != null)
+        ajax.send(JSON.stringify(Data));
+    else
+        ajax.send();
+
+    // #endregion
+
+}
+
+// #endregion
+
+
+// #region PrintArray(aArray, recursionLevel, CSSClassNames?)
+
+function PrintArray(array:           any,
+                    recursionLevel:  number,
+                    CSSClassNames?:  string) : HTMLDivElement {
+
+    let listDiv        = <HTMLDivElement> document.createElement('div');
+    listDiv.className  = "List" + (CSSClassNames ? " " + CSSClassNames : "");
+
+    for (var number in array) {
+
+        let item = array[number];
+
+        if (typeof item === "string" || typeof item === "number")
+        {
+
+            let propertyValueDiv = <HTMLDivElement> listDiv.appendChild(document.createElement('div'));
+
+            if (typeof item === "string")
+                propertyValueDiv.innerHTML = '<p>' + item + '</p>';
+            else
+                propertyValueDiv.innerHTML = '<p>' + item.toString() + '</p>';
+
+        }
+
+        else if (item instanceof Array)
+            listDiv.appendChild(PrintArray(item, recursionLevel));
+
+        else
+            listDiv.appendChild(PrintProperties(null,
+                                                item,
+                                                recursionLevel,
+                                                "PropertyValue ListItem"));
+
+    }
+
+    return listDiv;
+
+}
+
+// #endregion
+
+// #region PrintProperties(id, properties, recursionLevel, CSSClassNames?)
+
+function PrintProperties(id:              string,
+                         properties:      any,
+                         recursionLevel:  number,
+                         CSSClassNames?:  string) : HTMLDivElement {
+
+    let propertiesDiv        = <HTMLDivElement> document.createElement('div');
+
+    if (id != undefined)
+        propertiesDiv.id     = id;
+
+    propertiesDiv.className  = "Properties" + (CSSClassNames ? " " + CSSClassNames : "");
+
+    for (var propertyKey in properties) {
+
+        // #region Omit @id and @context at the top-level...
+
+        if ((propertyKey == "@id" && recursionLevel == 0) ||
+             propertyKey == "@context")
+        {
+            continue;
+        }
+
+        // #endregion
+
+        let propertyValue = properties[propertyKey];
+
+        let propertyDiv             = <HTMLDivElement> propertiesDiv.appendChild(document.createElement('div'));
+        propertyDiv.className       = "Property";
+
+        let propertyKeyDiv          = <HTMLDivElement> propertyDiv.  appendChild(document.createElement('div'));
+        propertyKeyDiv.className    = "PropertyKey";
+        propertyKeyDiv.innerText    = propertyKey;
+
+        if (typeof propertyValue === "string"  ||
+            typeof propertyValue === "number"  ||
+            typeof propertyValue === "boolean" ||
+            propertyValue instanceof HTMLDivElement)
+        {
+
+            let propertyValueDiv        = <HTMLDivElement> propertyDiv.appendChild(document.createElement('div'));
+            propertyValueDiv.className  = "PropertyValue";
+
+            if (typeof propertyValue === "string")
+                propertyValueDiv.innerHTML = '<p>' + propertyValue + '</p>';
+
+            else if (typeof propertyValue === "number" || typeof propertyValue === "boolean")
+                propertyValueDiv.innerHTML = '<p>' + propertyValue.toString() + '</p>';
+
+            else if (propertyValue instanceof HTMLDivElement)
+                propertyDiv.appendChild(propertyValueDiv).appendChild(propertyValue);
+
+        }
+
+        else if (propertyValue instanceof Array)
+            propertyDiv.appendChild(PrintArray(propertyValue, recursionLevel + 1));
+
+        else
+            propertyDiv.appendChild(PrintProperties(null,
+                                                    propertyValue,
+                                                    recursionLevel + 1,
+                                                    "PropertyValue"));
+
+    }
+
+    return propertiesDiv;
+
+}
+
+// #endregion
+
+// #region GetI18N(I18NString, CSSClassNames?)
+
+function GetI18N(I18NString: object, CSSClassNames?: string) : HTMLDivElement {
+
+    let I18NDiv = <HTMLDivElement> document.createElement('div');
+    I18NDiv.className = "I18N" + (CSSClassNames ? " " + CSSClassNames : "");
+
+    for (var I18NKey in I18NString) {
+
+        let propertyKeyDiv          = <HTMLDivElement> I18NDiv.appendChild(document.createElement('div'));
+        propertyKeyDiv.className    = "I18NLanguage";
+        propertyKeyDiv.innerText    = I18NKey;
+
+        let propertyValueDiv        = <HTMLDivElement> I18NDiv.appendChild(document.createElement('div'));
+        propertyValueDiv.className  = "I18NValue";
+        propertyValueDiv.innerText  = I18NString[I18NKey];
+
+    }
+
+    return I18NDiv;
+
+}
+
+// #endregion
