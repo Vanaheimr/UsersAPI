@@ -77,7 +77,7 @@ namespace org.GraphDefined.OpenData.Users
                          SecureString  Password)
         {
 
-            this.Salt            = Salt;
+            this.Salt              = Salt;
             this.InternalPassword  = Password;
 
         }

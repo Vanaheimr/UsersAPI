@@ -49,7 +49,6 @@
   <ItemGroup>
     <Compile Include="CommonTypes\APIKeyRights.cs" />
     <Compile Include="CommonTypes\APIKeyInfo.cs" />
-    <Compile Include="CommonTypes\APIKey.cs" />
     <Compile Include="CommonTypes\LoginPassword.cs" />
     <Compile Include="CommonTypes\MiniEdge.cs" />
     <Compile Include="CommonTypes\PrivacyLevel.cs" />
