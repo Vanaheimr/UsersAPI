@@ -859,6 +859,7 @@ namespace org.GraphDefined.OpenData.Users
 
             this.LogfileName                  = LogfileName ?? DefaultLogfileName;
 
+            this._APIKeys                     = new Dictionary<APIKey, APIKeyInfo>();
             this._Notifications               = new Notifications();
 
             #endregion
