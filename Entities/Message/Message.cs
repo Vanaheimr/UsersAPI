@@ -141,11 +141,11 @@ namespace org.GraphDefined.OpenData.Users
             if (Object == null)
                 throw new ArgumentNullException(nameof(Object), "The given object must not be null!");
 
-            var EVSE_Operator = Object as Message;
-            if ((Object) EVSE_Operator == null)
+            var Message = Object as Message;
+            if ((Object) Message == null)
                 throw new ArgumentException("The given object is not an message!");
 
-            return CompareTo(EVSE_Operator);
+            return CompareTo(Message);
 
         }
 

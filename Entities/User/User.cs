@@ -723,11 +723,11 @@ namespace org.GraphDefined.OpenData.Users
             if (Object == null)
                 throw new ArgumentNullException(nameof(Object), "The given object must not be null!");
 
-            var EVSE_User = Object as User;
-            if ((Object) EVSE_User == null)
+            var User = Object as User;
+            if ((Object) User == null)
                 throw new ArgumentException("The given object is not an user!");
 
-            return CompareTo(EVSE_User);
+            return CompareTo(User);
 
         }
 
