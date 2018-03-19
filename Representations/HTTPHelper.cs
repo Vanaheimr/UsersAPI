@@ -50,7 +50,7 @@ namespace org.GraphDefined.OpenData.Users
                                            String  Context  = null)
 
             => new JObject(
-                   new JProperty("@context",     Context ?? "https://api.opendata.social/context/errors"),
+                   new JProperty("@context",     Context ?? "https://opendata.social/contexts/UsersAPI+json/errors"),
                    new JProperty("description",  Message)
                );
 

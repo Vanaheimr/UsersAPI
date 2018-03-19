@@ -495,11 +495,14 @@ namespace org.GraphDefined.OpenData.Users
 
                 if (!JSONObject.ParseOptionalN("geoLocation",
                                                "geo location",
-                                               Vanaheimr.Aegir.JSON_IO.TryParseGeoCoordinate,
+                                               GeoCoordinate.ParseGeoCoordinate,
                                                out GeoCoordinate? GeoLocation,
                                                out ErrorResponse))
                 {
-                    return false;
+
+                    if (ErrorResponse != null)
+                        return false;
+
                 }
 
                 #endregion
@@ -508,7 +511,7 @@ namespace org.GraphDefined.OpenData.Users
 
                 if (JSONObject.ParseOptional("address",
                                              "address",
-                                             Vanaheimr.Hermod.JSON_IO.TryParseAddress,
+                                             Vanaheimr.Hermod.Address.Parse,
                                              out Address Address,
                                              out ErrorResponse))
                 {

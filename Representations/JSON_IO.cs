@@ -41,7 +41,7 @@ namespace org.GraphDefined.OpenData.Users
         public static JObject ToJSON(this IEnumerable<User> Users)
 
             => JSONObject.Create(
-                   new JProperty("@context",  "https://api.opendata.social/context/users"),
+                   new JProperty("@context", "https://opendata.social/contexts/UsersAPI+json/users"),
                    new JProperty("users",     new JArray(Users.SafeSelect(user => user.ToJSON())))
                );
 
@@ -52,7 +52,7 @@ namespace org.GraphDefined.OpenData.Users
         public static JObject ToJSON(this IEnumerable<Group> Groups)
         {
 
-            return new JObject(new JProperty("@context",  "https://api.opendata.social/context/groups"),
+            return new JObject(new JProperty("@context", "https://opendata.social/contexts/UsersAPI+json/groups"),
                                new JProperty("groups",    new JArray(Groups.SafeSelect(group => group.ToJSON()))));
 
         }
@@ -64,7 +64,7 @@ namespace org.GraphDefined.OpenData.Users
         public static JObject ToJSON(this IEnumerable<Organization> Organizations)
         {
 
-            return new JObject(new JProperty("@context",  "http://api.opendata.social/context/organizations"),
+            return new JObject(new JProperty("@context", "https://opendata.social/contexts/UsersAPI+json/organizations"),
                                new JProperty("orgs",      new JArray(Organizations.SafeSelect(organization => organization.ToJSON()))));
 
         }
