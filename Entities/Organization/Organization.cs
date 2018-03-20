@@ -98,7 +98,7 @@ namespace org.GraphDefined.OpenData.Users
         /// <summary>
         /// The primary E-Mail address of the organization.
         /// </summary>
-        [Mandatory]
+        [Optional]
         public SimpleEMailAddress?  EMail                { get; }
 
         /// <summary>
@@ -111,7 +111,7 @@ namespace org.GraphDefined.OpenData.Users
         /// The telephone number of the organization.
         /// </summary>
         [Optional]
-        public String               Telephone            { get; }
+        public PhoneNumber?         Telephone            { get; }
 
         /// <summary>
         /// The geographical location of this organization.
@@ -163,7 +163,7 @@ namespace org.GraphDefined.OpenData.Users
                             I18NString           Description     = null,
                             SimpleEMailAddress?  EMail           = null,
                             String               PublicKeyRing   = null,
-                            String               Telephone       = null,
+                            PhoneNumber?         Telephone       = null,
                             GeoCoordinate?       GeoLocation     = null,
                             Address              Address         = null,
                             PrivacyLevel?        PrivacyLevel    = null,
@@ -352,19 +352,28 @@ namespace org.GraphDefined.OpenData.Users
 
             => JSONObject.Create(
 
-                   new JProperty("@id",                 Id.           ToString()),
+                   new JProperty("@id",                 Id.             ToString()),
                    new JProperty("@context",            JSONLDContext),
-                   new JProperty("name",                Name.         ToJSON()),
+                   new JProperty("name",                Name.           ToJSON()),
 
                    Description.IsNeitherNullNorEmpty()
-                       ? new JProperty("description",   Description.  ToJSON())
+                       ? new JProperty("description",   Description.    ToJSON())
                        : null,
 
-                   Address != null
-                       ? new JProperty("address",       Address.      ToJSON())
+                   EMail.HasValue
+                       ? new JProperty("email",         EMail.Value.    ToString())
                        : null,
 
+                   // PublicKeyRing
+
+                   Telephone.HasValue
+                       ? new JProperty("telephone",     Telephone.Value.ToString())
+                       : null,
+
+                   GeoLocation?.ToJSON("geoLocation"),
+                   Address?.    ToJSON("address"),
                    PrivacyLevel.ToJSON(),
+
                    new JProperty("isDisabled",          IsDisabled),
 
                    IncludeCryptoHash
@@ -434,12 +443,12 @@ namespace org.GraphDefined.OpenData.Users
 
                 #endregion
 
-                #region Parse Name             [optional]
+                #region Parse Name             [mandatory]
 
-                if (!JSONObject.ParseOptional("name",
-                                              "name",
-                                              out I18NString Name,
-                                              out ErrorResponse))
+                if (!JSONObject.ParseMandatory("name",
+                                               "name",
+                                               out I18NString Name,
+                                               out ErrorResponse))
                 {
                     return false;
                 }
@@ -453,7 +462,10 @@ namespace org.GraphDefined.OpenData.Users
                                               out I18NString Description,
                                               out ErrorResponse))
                 {
-                    return false;
+
+                    if (ErrorResponse != null)
+                        return false;
+
                 }
 
                 #endregion
@@ -461,12 +473,15 @@ namespace org.GraphDefined.OpenData.Users
                 #region Parse E-Mail           [optional]
 
                 if (!JSONObject.ParseOptionalN("email",
-                                               "e-mail",
+                                               "e-mail address",
                                                SimpleEMailAddress.TryParse,
-                                               out SimpleEMailAddress?  EMail,
-                                               out String               EMail_ErrorResponse))
+                                               out SimpleEMailAddress? EMail,
+                                               out ErrorResponse))
                 {
-                    return false;
+
+                    if (ErrorResponse != null)
+                        return false;
+
                 }
 
                 #endregion
@@ -484,9 +499,15 @@ namespace org.GraphDefined.OpenData.Users
                 #region Parse Telephone        [optional]
 
                 if (!JSONObject.ParseOptional("telephone",
-                                              out String Telephone))
+                                              "phone number",
+                                              PhoneNumber.TryParse,
+                                              out PhoneNumber? Telephone,
+                                              out ErrorResponse))
                 {
-                    return false;
+
+                    if (ErrorResponse != null)
+                        return false;
+
                 }
 
                 #endregion
@@ -495,7 +516,7 @@ namespace org.GraphDefined.OpenData.Users
 
                 if (!JSONObject.ParseOptionalN("geoLocation",
                                                "geo location",
-                                               GeoCoordinate.ParseGeoCoordinate,
+                                               GeoCoordinate.TryParseJSON,
                                                out GeoCoordinate? GeoLocation,
                                                out ErrorResponse))
                 {
@@ -750,7 +771,7 @@ namespace org.GraphDefined.OpenData.Users
             /// The telephone number of the organization.
             /// </summary>
             [Optional]
-            public String               Telephone            { get; set; }
+            public PhoneNumber?         Telephone            { get; set; }
 
             /// <summary>
             /// The geographical location of this organization.
@@ -805,7 +826,7 @@ namespace org.GraphDefined.OpenData.Users
                            I18NString           Description     = null,
                            SimpleEMailAddress?  EMail           = null,
                            String               PublicKeyRing   = null,
-                           String               Telephone       = null,
+                           PhoneNumber?         Telephone       = null,
                            GeoCoordinate?       GeoLocation     = null,
                            Address              Address         = null,
                            PrivacyLevel         PrivacyLevel    = PrivacyLevel.World,

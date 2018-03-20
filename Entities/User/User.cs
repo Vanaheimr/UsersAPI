@@ -594,7 +594,7 @@ namespace org.GraphDefined.OpenData.Users
                 #region Parse Telephone        [optional]
 
                 if (JSONObject.ParseOptional("telephone",
-                                             "user phone number",
+                                             "phone number",
                                              PhoneNumber.TryParse,
                                              out PhoneNumber? Telephone,
                                              out ErrorResponse))
@@ -623,7 +623,7 @@ namespace org.GraphDefined.OpenData.Users
 
                 if (!JSONObject.ParseOptionalN("geoLocation",
                                                "Geo location",
-                                               GeoCoordinate.ParseGeoCoordinate,
+                                               GeoCoordinate.TryParseJSON,
                                                out GeoCoordinate? GeoLocation,
                                                out ErrorResponse))
                 {
