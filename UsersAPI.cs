@@ -598,6 +598,11 @@ namespace org.GraphDefined.OpenData.Users
         public String SystemId { get; }
 
         /// <summary>
+        /// Disable the log file.
+        /// </summary>
+        public Boolean DisableLogfile { get; }
+
+        /// <summary>
         /// The logfile of this API.
         /// </summary>
         public String LogfileName { get; }
@@ -641,6 +646,7 @@ namespace org.GraphDefined.OpenData.Users
         /// <param name="SignInSessionLifetime">The sign-in session lifetime.</param>
         /// 
         /// <param name="SkipURITemplates">Skip URI templates.</param>
+        /// <param name="DisableLogfile">Disable the log file.</param>
         /// <param name="LogfileName">The name of the logfile for this API.</param>
         /// <param name="DNSClient">The DNS client of the API.</param>
         /// <param name="Autostart">Whether to start the API automatically.</param>
@@ -684,6 +690,7 @@ namespace org.GraphDefined.OpenData.Users
                         UInt32                               MaxClientConnections               = TCPServer.__DefaultMaxClientConnections,
 
                         Boolean                              SkipURITemplates                   = false,
+                        Boolean                              DisableLogfile                     = false,
                         String                               LogfileName                        = DefaultLogfileName,
                         DNSClient                            DNSClient                          = null,
                         Boolean                              Autostart                          = false)
@@ -732,6 +739,7 @@ namespace org.GraphDefined.OpenData.Users
                    SignInSessionLifetime,
 
                    SkipURITemplates,
+                   DisableLogfile,
                    LogfileName)
 
         {
@@ -774,6 +782,7 @@ namespace org.GraphDefined.OpenData.Users
         /// <param name="SignInSessionLifetime">The sign-in session lifetime.</param>
         /// 
         /// <param name="SkipURITemplates">Skip URI templates.</param>
+        /// <param name="DisableLogfile">Disable the log file.</param>
         /// <param name="LogfileName">The name of the logfile for this API.</param>
         protected UsersAPI(HTTPServer                          HTTPServer,
                            HTTPHostname?                       HTTPHostname                 = null,
@@ -799,6 +808,7 @@ namespace org.GraphDefined.OpenData.Users
                            TimeSpan?                           SignInSessionLifetime        = null,
 
                            Boolean                             SkipURITemplates             = false,
+                           Boolean                             DisableLogfile               = false,
                            String                              LogfileName                  = DefaultLogfileName)
 
         {
@@ -857,6 +867,7 @@ namespace org.GraphDefined.OpenData.Users
             this.SystemId                     = Environment.MachineName.Replace("/", "") + "/" + HTTPServer.DefaultHTTPServerPort;
             this.SecurityTokens               = new Dictionary<SecurityToken_Id, SecurityToken>();
 
+            this.DisableLogfile               = DisableLogfile;
             this.LogfileName                  = LogfileName ?? DefaultLogfileName;
 
             this._APIKeys                     = new Dictionary<APIKey, APIKeyInfo>();
@@ -928,6 +939,7 @@ namespace org.GraphDefined.OpenData.Users
         /// <param name="SignInSessionLifetime">The sign-in session lifetime.</param>
         /// 
         /// <param name="SkipURITemplates">Skip URI templates.</param>
+        /// <param name="DisableLogfile">Disable the log file.</param>
         /// <param name="LogfileName">The name of the logfile for this API.</param>
         public static UsersAPI AttachToHTTPAPI(HTTPServer                          HTTPServer,
                                                HTTPHostname?                       HTTPHostname                 = null,
@@ -953,6 +965,7 @@ namespace org.GraphDefined.OpenData.Users
                                                TimeSpan?                           SignInSessionLifetime        = null,
 
                                                Boolean                             SkipURITemplates             = false,
+                                               Boolean                             DisableLogfile               = false,
                                                String                              LogfileName                  = DefaultLogfileName)
 
 
@@ -981,6 +994,7 @@ namespace org.GraphDefined.OpenData.Users
 
                             SkipURITemplates,
 
+                            DisableLogfile,
                             LogfileName);
 
         #endregion
@@ -3067,24 +3081,29 @@ namespace org.GraphDefined.OpenData.Users
                                    JObject  JSON)
         {
 
-            var _JObject   = new JObject(
-                                 new JProperty(Command,       JSON),
-                                 new JProperty("Writer",      SystemId),
-                                 new JProperty("Timestamp",   DateTime.UtcNow.ToIso8601()),
-                                 new JProperty("Nonce",       Guid.NewGuid().ToString().Replace("-", "")),
-                                 new JProperty("ParentHash",  CurrentDatabaseHashValue)
-                             );
+            if (!DisableLogfile)
+            {
 
-            var SHA256     = new SHA256Managed();
-            CurrentDatabaseHashValue    = SHA256.ComputeHash(Encoding.Unicode.GetBytes(JSONWhitespaceRegEx.Replace(_JObject.ToString(), " "))).
-                                    Select(value => String.Format("{0:x2}", value)).
-                                    Aggregate();
+                var _JObject   = new JObject(
+                                     new JProperty(Command,       JSON),
+                                     new JProperty("Writer",      SystemId),
+                                     new JProperty("Timestamp",   DateTime.UtcNow.ToIso8601()),
+                                     new JProperty("Nonce",       Guid.NewGuid().ToString().Replace("-", "")),
+                                     new JProperty("ParentHash",  CurrentDatabaseHashValue)
+                                 );
 
-            _JObject.Add(new JProperty("HashValue", CurrentDatabaseHashValue));
+                var SHA256     = new SHA256Managed();
+                CurrentDatabaseHashValue    = SHA256.ComputeHash(Encoding.Unicode.GetBytes(JSONWhitespaceRegEx.Replace(_JObject.ToString(), " "))).
+                                        Select(value => String.Format("{0:x2}", value)).
+                                        Aggregate();
 
-            File.AppendAllText(Logfilename,
-                               JSONWhitespaceRegEx.Replace(_JObject.ToString(), " ") +
-                               Environment.NewLine);
+                _JObject.Add(new JProperty("HashValue", CurrentDatabaseHashValue));
+
+                File.AppendAllText(Logfilename,
+                                   JSONWhitespaceRegEx.Replace(_JObject.ToString(), " ") +
+                                   Environment.NewLine);
+
+            }
 
         }
 
