@@ -3068,10 +3068,9 @@ namespace org.GraphDefined.OpenData.Users
         #endregion
 
 
+        #region (private) WriteToLogfile(Message, JSONData)
 
-        #region (private) WriteToLogfile(Command, JSONData)
-
-        private void WriteToLogfile(String   Command,
+        private void WriteToLogfile(String   Message,
                                     JObject  JSONData)
         {
 
@@ -3081,7 +3080,7 @@ namespace org.GraphDefined.OpenData.Users
                 {
 
                     WriteToLogfile(DefaultUsersAPIFile,
-                                   Command,
+                                   Message,
                                    JSONData);
 
                 }
@@ -3091,10 +3090,10 @@ namespace org.GraphDefined.OpenData.Users
 
         #endregion
 
-        #region WriteToLogfile(Logfilename, Command, JSONData)
+        #region WriteToLogfile(Logfilename, Message, JSONData)
 
         public void WriteToLogfile(String   Logfilename,
-                                   String   Command,
+                                   String   Message,
                                    JObject  JSONData)
         {
 
@@ -3104,7 +3103,7 @@ namespace org.GraphDefined.OpenData.Users
                 {
 
                     var _JObject   = new JObject(
-                                         new JProperty(Command,       JSONData),
+                                         new JProperty(Message,       JSONData),
                                          new JProperty("Writer",      SystemId),
                                          new JProperty("Timestamp",   DateTime.UtcNow.ToIso8601()),
                                          new JProperty("Nonce",       Guid.NewGuid().ToString().Replace("-", "")),
@@ -3192,35 +3191,35 @@ namespace org.GraphDefined.OpenData.Users
 
         #endregion
 
-        #region WriteToLogfileAndNotify(Command, JSONData)
+        #region WriteToLogfileAndNotify(Message, JSONData)
 
-        public void WriteToLogfileAndNotify(String   Command,
+        public void WriteToLogfileAndNotify(String   Message,
                                             JObject  JSONData)
         {
 
             WriteToLogfile  (DefaultUsersAPIFile,
-                             Command,
+                             Message,
                              JSONData);
 
-            SendNotification(Command,
+            SendNotification(Message,
                              JSONData);
 
         }
 
         #endregion
 
-        #region WriteToLogfileAndNotify(Logfilename, Command, JSONData)
+        #region WriteToLogfileAndNotify(Logfilename, Message, JSONData)
 
         public void WriteToLogfileAndNotify(String   Logfilename,
-                                            String   Command,
+                                            String   Message,
                                             JObject  JSONData)
         {
 
             WriteToLogfile  (Logfilename,
-                             Command,
+                             Message,
                              JSONData);
 
-            SendNotification(Command,
+            SendNotification(Message,
                              JSONData);
 
         }
@@ -3228,12 +3227,31 @@ namespace org.GraphDefined.OpenData.Users
         #endregion
 
 
-        private ConcurrentBag<JObject> _NotificationMessages = new ConcurrentBag<JObject>();
+        #region NotificationMessages
 
-        public IEnumerable<JObject> NotificationMessages
-            => _NotificationMessages;
+        private readonly List<Timestamped<JObject>> _NotificationMessages = new List<Timestamped<JObject>>();
 
-        public void SendNotification(String   Command,
+        public IEnumerable<Timestamped<JObject>> NotificationMessages
+        {
+            get
+            {
+
+                if (DisableNotifications)
+                    return new Timestamped<JObject>[0];
+
+                lock (_NotificationMessages)
+                {
+                    return _NotificationMessages.ToArray();
+                }
+
+            }
+        }
+
+        #endregion
+
+        #region SendNotification(Message, JSONData)
+
+        public void SendNotification(String   Message,
                                      JObject  JSONData)
         {
 
@@ -3242,28 +3260,43 @@ namespace org.GraphDefined.OpenData.Users
                 lock (_NotificationMessages)
                 {
 
-                    var _JObject   = new JObject(
-                                         new JProperty(Command,       JSONData),
-                                         new JProperty("writer",      SystemId),
-                                         new JProperty("timestamp",   DateTime.UtcNow.ToIso8601()),
-                                         new JProperty("nonce",       Guid.NewGuid().ToString().Replace("-", "")),
-                                         new JProperty("parentHash",  CurrentDatabaseHashValue)
-                                     );
+                    var Now = DateTime.UtcNow;
 
-                    var SHA256                = new SHA256Managed();
-                    CurrentDatabaseHashValue  = SHA256.ComputeHash(Encoding.Unicode.GetBytes(JSONWhitespaceRegEx.Replace(_JObject.ToString(), " "))).
-                                                       Select(value => String.Format("{0:x2}", value)).
-                                                       Aggregate();
-
-                    _JObject.Add(new JProperty("HashValue", CurrentDatabaseHashValue));
-
-
-                    _NotificationMessages.Add(_JObject);
+                    _NotificationMessages.Add(new Timestamped<JObject>(
+                                                  Now,
+                                                  new JObject(
+                                                      new JProperty(Message,      JSONData),
+                                                      new JProperty("timestamp",  Now.ToIso8601())
+                                                  )));
 
                 }
             }
 
         }
+
+        #endregion
+
+        #region GetAndClearNotifications()
+
+        //public IEnumerable<JObject> GetAndClearNotifications()
+        //{
+
+        //    if (DisableNotifications)
+        //        return new JObject[0];
+
+        //    lock (_NotificationMessages)
+        //    {
+
+        //        var _Notifications = _NotificationMessages.ToArray();
+        //        _NotificationMessages.Clear();
+
+        //        return _Notifications;
+
+        //    }
+
+        //}
+
+        #endregion
 
 
         #region DataLicenses
