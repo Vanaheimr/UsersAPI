@@ -44,6 +44,7 @@ using org.GraphDefined.Vanaheimr.Hermod.Sockets.TCP;
 using org.GraphDefined.Vanaheimr.BouncyCastle;
 using org.GraphDefined.Vanaheimr.Hermod.Sockets;
 using org.GraphDefined.Vanaheimr.Aegir;
+using System.Collections.Concurrent;
 
 #endregion
 
@@ -3068,10 +3069,10 @@ namespace org.GraphDefined.OpenData.Users
 
 
 
-        #region (private) WriteToLogfile(Command, JSON)
+        #region (private) WriteToLogfile(Command, JSONData)
 
         private void WriteToLogfile(String   Command,
-                                    JObject  JSON)
+                                    JObject  JSONData)
         {
 
             if (!DisableLogfile)
@@ -3081,7 +3082,7 @@ namespace org.GraphDefined.OpenData.Users
 
                     WriteToLogfile(DefaultUsersAPIFile,
                                    Command,
-                                   JSON);
+                                   JSONData);
 
                 }
             }
@@ -3090,11 +3091,11 @@ namespace org.GraphDefined.OpenData.Users
 
         #endregion
 
-        #region WriteToLogfile(Logfilename, Command, JSON)
+        #region WriteToLogfile(Logfilename, Command, JSONData)
 
         public void WriteToLogfile(String   Logfilename,
                                    String   Command,
-                                   JObject  JSON)
+                                   JObject  JSONData)
         {
 
             if (!DisableLogfile)
@@ -3103,7 +3104,7 @@ namespace org.GraphDefined.OpenData.Users
                 {
 
                     var _JObject   = new JObject(
-                                         new JProperty(Command,       JSON),
+                                         new JProperty(Command,       JSONData),
                                          new JProperty("Writer",      SystemId),
                                          new JProperty("Timestamp",   DateTime.UtcNow.ToIso8601()),
                                          new JProperty("Nonce",       Guid.NewGuid().ToString().Replace("-", "")),
@@ -3191,10 +3192,77 @@ namespace org.GraphDefined.OpenData.Users
 
         #endregion
 
+        #region WriteToLogfileAndNotify(Command, JSONData)
+
+        public void WriteToLogfileAndNotify(String   Command,
+                                            JObject  JSONData)
+        {
+
+            WriteToLogfile  (DefaultUsersAPIFile,
+                             Command,
+                             JSONData);
+
+            SendNotification(Command,
+                             JSONData);
+
+        }
+
+        #endregion
+
+        #region WriteToLogfileAndNotify(Logfilename, Command, JSONData)
+
+        public void WriteToLogfileAndNotify(String   Logfilename,
+                                            String   Command,
+                                            JObject  JSONData)
+        {
+
+            WriteToLogfile  (Logfilename,
+                             Command,
+                             JSONData);
+
+            SendNotification(Command,
+                             JSONData);
+
+        }
+
+        #endregion
+
+
+        private ConcurrentBag<JObject> _NotificationMessages = new ConcurrentBag<JObject>();
+
+        public IEnumerable<JObject> NotificationMessages
+            => _NotificationMessages;
 
         public void SendNotification(String   Command,
-                                     JObject  Data)
+                                     JObject  JSONData)
         {
+
+            if (!DisableNotifications)
+            {
+                lock (_NotificationMessages)
+                {
+
+                    var _JObject   = new JObject(
+                                         new JProperty(Command,       JSONData),
+                                         new JProperty("writer",      SystemId),
+                                         new JProperty("timestamp",   DateTime.UtcNow.ToIso8601()),
+                                         new JProperty("nonce",       Guid.NewGuid().ToString().Replace("-", "")),
+                                         new JProperty("parentHash",  CurrentDatabaseHashValue)
+                                     );
+
+                    var SHA256                = new SHA256Managed();
+                    CurrentDatabaseHashValue  = SHA256.ComputeHash(Encoding.Unicode.GetBytes(JSONWhitespaceRegEx.Replace(_JObject.ToString(), " "))).
+                                                       Select(value => String.Format("{0:x2}", value)).
+                                                       Aggregate();
+
+                    _JObject.Add(new JProperty("HashValue", CurrentDatabaseHashValue));
+
+
+                    _NotificationMessages.Add(_JObject);
+
+                }
+            }
+
         }
 
 
@@ -3379,7 +3447,8 @@ namespace org.GraphDefined.OpenData.Users
                                     IsAuthenticated,
                                     IsDisabled);
 
-                WriteToLogfile("CreateUser", User.ToJSON());
+                WriteToLogfileAndNotify("CreateUser",
+                                        User.ToJSON());
 
                 SetPassword(Id, Password);
 
@@ -3818,7 +3887,8 @@ namespace org.GraphDefined.OpenData.Users
                                                     IsDisabled,
                                                     DataSource);
 
-                WriteToLogfile("CreateOrganization", Organization.ToJSON());
+                WriteToLogfileAndNotify("CreateOrganization",
+                                        Organization.ToJSON());
 
                 var NewOrg = _Organizations.AddAndReturnValue(Organization.Id, Organization);
 
@@ -3943,13 +4013,13 @@ namespace org.GraphDefined.OpenData.Users
                 if (!Organization.InEdges(Organization).Any(edgelabel => edgelabel == Edge))
                     Organization.AddIncomingEdge(User, Edge, PrivacyLevel);
 
-                WriteToLogfile("AddUserToOrganization",
-                               new JObject(
-                                   new JProperty("user",          User.        Id.ToString()),
-                                   new JProperty("edge",          Edge.           ToString()),
-                                   new JProperty("organization",  Organization.Id.ToString()),
-                                   PrivacyLevel.ToJSON()
-                               ));
+                WriteToLogfileAndNotify("AddUserToOrganization",
+                                        new JObject(
+                                            new JProperty("user",          User.        Id.ToString()),
+                                            new JProperty("edge",          Edge.           ToString()),
+                                            new JProperty("organization",  Organization.Id.ToString()),
+                                            PrivacyLevel.ToJSON()
+                                        ));
 
                 return true;
 
@@ -3985,13 +4055,13 @@ namespace org.GraphDefined.OpenData.Users
                     OrganizationIn.AddIncomingEdge(OrganizationOut, EdgeLabel, Privacy);
                 }
 
-                WriteToLogfile("LinkOrganizations",
-                               new JObject(
-                                   new JProperty("organizationOut", OrganizationOut.Id.ToString()),
-                                   new JProperty("edge",            EdgeLabel.         ToString()),
-                                   new JProperty("organizationIn",  OrganizationIn. Id.ToString()),
-                                   Privacy.ToJSON()
-                               ));
+                WriteToLogfileAndNotify("LinkOrganizations",
+                                        new JObject(
+                                            new JProperty("organizationOut", OrganizationOut.Id.ToString()),
+                                            new JProperty("edge",            EdgeLabel.         ToString()),
+                                            new JProperty("organizationIn",  OrganizationIn. Id.ToString()),
+                                            Privacy.ToJSON()
+                                        ));
 
                 return true;
 
