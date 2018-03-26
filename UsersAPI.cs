@@ -3117,7 +3117,7 @@ namespace org.GraphDefined.OpenData.Users
 
                     _JObject.Add(new JProperty("HashValue", CurrentDatabaseHashValue));
 
-                    var retry = true;
+                    var retry = false;
 
                     do
                     {
@@ -3160,7 +3160,7 @@ namespace org.GraphDefined.OpenData.Users
                 lock (Lock)
                 {
 
-                    var retry = true;
+                    var retry = false;
 
                     do
                     {
