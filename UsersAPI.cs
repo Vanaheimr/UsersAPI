@@ -2964,14 +2964,14 @@ namespace org.GraphDefined.OpenData.Users
             if (!TryGetHTTPUser(Request, out User))
             {
 
-                if (Request.RemoteSocket.IPAddress.IsIPv4 &&
-                    Request.RemoteSocket.IPAddress.IsLocalhost)
-                {
-                    User           = Admins.User2GroupInEdges(edgelabel => edgelabel == User2GroupEdges.IsAdmin).FirstOrDefault()?.Source;
-                    Organizations  = User.Organizations(RequireReadWriteAccess, Recursive);
-                    Response       = null;
-                    return true;
-                }
+                //if (Request.RemoteSocket.IPAddress.IsIPv4 &&
+                //    Request.RemoteSocket.IPAddress.IsLocalhost)
+                //{
+                //    User           = Admins.User2GroupInEdges(edgelabel => edgelabel == User2GroupEdges.IsAdmin).FirstOrDefault()?.Source;
+                //    Organizations  = User.Organizations(RequireReadWriteAccess, Recursive);
+                //    Response       = null;
+                //    return true;
+                //}
 
                 Organizations  = null;
                 Response       = new HTTPResponseBuilder(Request) {
