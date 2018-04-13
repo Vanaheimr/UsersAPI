@@ -1020,7 +1020,10 @@ namespace org.GraphDefined.OpenData.Users
 
             #region /shared/UsersAPI
 
-            HTTPServer.RegisterResourcesFolder(HTTPHostname.Any, URIPrefix + "/shared/UsersAPI", HTTPRoot.Substring(0, HTTPRoot.Length - 1));
+            HTTPServer.RegisterResourcesFolder(HTTPHostname.Any,
+                                               URIPrefix + "/shared/UsersAPI",
+                                               HTTPRoot.Substring(0, HTTPRoot.Length - 1),
+                                               typeof(UsersAPI).Assembly);
 
             #endregion
 
