@@ -24,8 +24,20 @@ namespace org.GraphDefined.OpenData.Users
     public enum APIKeyRights
     {
 
+        /// <summary>
+        /// Read-only access.
+        /// </summary>
         ReadOnly,
-        ReadWrite
+
+        /// <summary>
+        /// Read & write access.
+        /// </summary>
+        ReadWrite,
+
+        /// <summary>
+        /// Read & write access and can create new API keys.
+        /// </summary>
+        ReadWriteNew
 
     }
 

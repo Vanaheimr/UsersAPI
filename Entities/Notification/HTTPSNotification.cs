@@ -19,9 +19,10 @@
 
 using System;
 using System.Collections.Generic;
+
 using Newtonsoft.Json.Linq;
 using org.GraphDefined.Vanaheimr.Hermod;
-using org.GraphDefined.Vanaheimr.Hermod.Mail;
+using org.GraphDefined.Vanaheimr.Hermod.HTTP;
 using org.GraphDefined.Vanaheimr.Illias;
 
 #endregion
@@ -29,88 +30,264 @@ using org.GraphDefined.Vanaheimr.Illias;
 namespace org.GraphDefined.OpenData.Users
 {
 
-    public static class HTTPNotificationExtentions
+    /// <summary>
+    /// Extention methods for HTTPS Notifications.
+    /// </summary>
+    public static class HTTPSNotificationExtentions
     {
 
-        public static Notifications RegisterHTTPSNotification(this UsersAPI  UsersAPI,
-                                                              User_Id        User,
-                                                              String         URL,
-                                                              String         BasicAuth_Login     = null,
-                                                              String         BasicAuth_Password  = null)
-
-            => UsersAPI.RegisterNotification(User,
-                                             new HTTPSNotification(URL,
-                                                                   BasicAuth_Login,
-                                                                   BasicAuth_Password),
-                                             (a, b) => a.URL                == b.URL &&
-                                                       a.BasicAuth_Login    == b.BasicAuth_Login &&
-                                                       a.BasicAuth_Password == b.BasicAuth_Password);
+        #region RegisterHTTPSNotification(this UsersAPI, User,                   URL,         BasicAuth_Login = null, BasicAuth_Password = null)
 
         public static Notifications RegisterHTTPSNotification(this UsersAPI  UsersAPI,
                                                               User           User,
                                                               String         URL,
+                                                              IPPort?        TCPPort             = null,
+                                                              String         BasicAuth_Login     = null,
+                                                              String         BasicAuth_Password  = null)
+        {
+
+            if (User == null)
+                throw new ArgumentNullException(nameof(User), "The given user must not be null!");
+
+            return UsersAPI.RegisterHTTPSNotification(User.Id,
+                                                      URL,
+                                                      TCPPort,
+                                                      BasicAuth_Login,
+                                                      BasicAuth_Password);
+
+        }
+
+        #endregion
+
+        #region RegisterHTTPSNotification(this UsersAPI, UserId,                 URL,         BasicAuth_Login = null, BasicAuth_Password = null)
+
+        public static Notifications RegisterHTTPSNotification(this UsersAPI  UsersAPI,
+                                                              User_Id        UserId,
+                                                              String         URL,
+                                                              IPPort?        TCPPort             = null,
                                                               String         BasicAuth_Login     = null,
                                                               String         BasicAuth_Password  = null)
 
-            => UsersAPI.RegisterNotification(User.Id,
-                                             new HTTPSNotification(URL,
+            => UsersAPI.RegisterNotification(UserId,
+                                             new HTTPSNotification(HTTPMethod.POST,
+                                                                   URL,
+                                                                   TCPPort,
                                                                    BasicAuth_Login,
                                                                    BasicAuth_Password),
                                              (a, b) => a.URL                == b.URL &&
                                                        a.BasicAuth_Login    == b.BasicAuth_Login &&
                                                        a.BasicAuth_Password == b.BasicAuth_Password);
 
+        #endregion
 
-        public static Notifications RegisterHTTPSNotification(this UsersAPI    UsersAPI,
-                                                              User_Id          User,
-                                                              Notification_Id  NotificationId,
-                                                              String           URL,
-                                                              String           BasicAuth_Login     = null,
-                                                              String           BasicAuth_Password  = null)
+        #region RegisterHTTPSNotification(this UsersAPI, User,                   Method, URL, BasicAuth_Login = null, BasicAuth_Password = null)
 
-            => UsersAPI.RegisterNotification(User,
-                                             NotificationId,
-                                             new HTTPSNotification(URL,
+        public static Notifications RegisterHTTPSNotification(this UsersAPI  UsersAPI,
+                                                              User           User,
+                                                              HTTPMethod     Method,
+                                                              String         URL,
+                                                              IPPort?        TCPPort             = null,
+                                                              String         BasicAuth_Login     = null,
+                                                              String         BasicAuth_Password  = null)
+        {
+
+            if (User == null)
+                throw new ArgumentNullException(nameof(User), "The given user must not be null!");
+
+            return UsersAPI.RegisterHTTPSNotification(User.Id,
+                                                      Method,
+                                                      URL,
+                                                      TCPPort,
+                                                      BasicAuth_Login,
+                                                      BasicAuth_Password);
+
+        }
+
+        #endregion
+
+        #region RegisterHTTPSNotification(this UsersAPI, UserId,                 Method, URL, BasicAuth_Login = null, BasicAuth_Password = null)
+
+        public static Notifications RegisterHTTPSNotification(this UsersAPI  UsersAPI,
+                                                              User_Id        UserId,
+                                                              HTTPMethod     Method,
+                                                              String         URL,
+                                                              IPPort?        TCPPort             = null,
+                                                              String         BasicAuth_Login     = null,
+                                                              String         BasicAuth_Password  = null)
+
+            => UsersAPI.RegisterNotification(UserId,
+                                             new HTTPSNotification(Method,
+                                                                   URL,
+                                                                   TCPPort,
                                                                    BasicAuth_Login,
                                                                    BasicAuth_Password),
                                              (a, b) => a.URL                == b.URL &&
                                                        a.BasicAuth_Login    == b.BasicAuth_Login &&
                                                        a.BasicAuth_Password == b.BasicAuth_Password);
+
+        #endregion
+
+
+        #region RegisterHTTPSNotification(this UsersAPI, User,   NotificationId, URL,         BasicAuth_Login = null, BasicAuth_Password = null)
 
         public static Notifications RegisterHTTPSNotification(this UsersAPI    UsersAPI,
                                                               User             User,
                                                               Notification_Id  NotificationId,
                                                               String           URL,
+                                                              IPPort?          TCPPort             = null,
+                                                              String           BasicAuth_Login     = null,
+                                                              String           BasicAuth_Password  = null)
+        {
+
+            if (User == null)
+                throw new ArgumentNullException(nameof(User), "The given user must not be null!");
+
+            return UsersAPI.RegisterHTTPSNotification(User.Id,
+                                                      NotificationId,
+                                                      URL,
+                                                      TCPPort,
+                                                      BasicAuth_Login,
+                                                      BasicAuth_Password);
+
+        }
+
+        #endregion
+
+        #region RegisterHTTPSNotification(this UsersAPI, UserId, NotificationId, URL,         BasicAuth_Login = null, BasicAuth_Password = null)
+
+        public static Notifications RegisterHTTPSNotification(this UsersAPI    UsersAPI,
+                                                              User_Id          UserId,
+                                                              Notification_Id  NotificationId,
+                                                              String           URL,
+                                                              IPPort?          TCPPort             = null,
                                                               String           BasicAuth_Login     = null,
                                                               String           BasicAuth_Password  = null)
 
-            => UsersAPI.RegisterNotification(User.Id,
+            => UsersAPI.RegisterNotification(UserId,
                                              NotificationId,
-                                             new HTTPSNotification(URL,
+                                             new HTTPSNotification(HTTPMethod.POST,
+                                                                   URL,
+                                                                   TCPPort,
                                                                    BasicAuth_Login,
                                                                    BasicAuth_Password),
                                              (a, b) => a.URL                == b.URL &&
                                                        a.BasicAuth_Login    == b.BasicAuth_Login &&
                                                        a.BasicAuth_Password == b.BasicAuth_Password);
 
+        #endregion
+
+        #region RegisterHTTPSNotification(this UsersAPI, User,   NotificationId, Method, URL, BasicAuth_Login = null, BasicAuth_Password = null)
+
+        public static Notifications RegisterHTTPSNotification(this UsersAPI    UsersAPI,
+                                                              User             User,
+                                                              Notification_Id  NotificationId,
+                                                              HTTPMethod       Method,
+                                                              String           URL,
+                                                              IPPort?          TCPPort             = null,
+                                                              String           BasicAuth_Login     = null,
+                                                              String           BasicAuth_Password  = null)
+        {
+
+            if (User == null)
+                throw new ArgumentNullException(nameof(User), "The given user must not be null!");
+
+            return UsersAPI.RegisterHTTPSNotification(User.Id,
+                                                      NotificationId,
+                                                      Method,
+                                                      URL,
+                                                      TCPPort,
+                                                      BasicAuth_Login,
+                                                      BasicAuth_Password);
+
+        }
+
+        #endregion
+
+        #region RegisterHTTPSNotification(this UsersAPI, UserId, NotificationId, Method, URL, BasicAuth_Login = null, BasicAuth_Password = null)
+
+        public static Notifications RegisterHTTPSNotification(this UsersAPI    UsersAPI,
+                                                              User_Id          UserId,
+                                                              Notification_Id  NotificationId,
+                                                              HTTPMethod       Method,
+                                                              String           URL,
+                                                              IPPort?          TCPPort             = null,
+                                                              String           BasicAuth_Login     = null,
+                                                              String           BasicAuth_Password  = null)
+
+            => UsersAPI.RegisterNotification(UserId,
+                                             NotificationId,
+                                             new HTTPSNotification(Method,
+                                                                   URL,
+                                                                   TCPPort,
+                                                                   BasicAuth_Login,
+                                                                   BasicAuth_Password),
+                                             (a, b) => a.URL                == b.URL &&
+                                                       a.BasicAuth_Login    == b.BasicAuth_Login &&
+                                                       a.BasicAuth_Password == b.BasicAuth_Password);
+
+        #endregion
 
 
-
-        public static IEnumerable<HTTPSNotification> GetHTTPNotifications(this UsersAPI    UsersAPI,
-                                                                          User             User,
-                                                                          Notification_Id  NotificationId)
+        public static IEnumerable<HTTPSNotification> GetHTTPSNotifications(this UsersAPI    UsersAPI,
+                                                                           User             User,
+                                                                           Notification_Id  NotificationId)
 
 
             => UsersAPI.GetNotifications<HTTPSNotification>(User,
                                                             NotificationId);
 
-        public static IEnumerable<HTTPSNotification> GetHTTPNotifications(this UsersAPI    UsersAPI,
+        public static IEnumerable<HTTPSNotification> GetHTTPSNotifications(this UsersAPI    UsersAPI,
                                                                            User_Id          User,
                                                                            Notification_Id  NotificationId)
 
 
             => UsersAPI.GetNotifications<HTTPSNotification>(User,
                                                             NotificationId);
+
+
+
+
+
+        #region Upstream HTTP request...
+
+        //var httpresult = await new HTTPSClient(Hostname,
+        //                                       RemoteCertificateValidator,
+        //                                       RemotePort:  HTTPPort,
+        //                                       DNSClient:   DNSClient ?? this.DNSClient).
+
+        //                           Execute(client => client.REMOTESTART(HTTPURI.Parse("/ps/rest/hubject/RNs/" + RoamingNetworkId + "/EVSEs/" + EVSEId.ToString().Replace("+", "")),
+
+        //                                                                requestbuilder => {
+        //                                                                    requestbuilder.Host         = VirtualHostname;
+        //                                                                    requestbuilder.ContentType  = HTTPContentType.JSON_UTF8;
+        //                                                                    requestbuilder.Content      = new JObject(
+        //                                                                                                      new JProperty("@context",           "http://ld.graphdefined.org/wwcp/RemoteStartRequest"),
+        //                                                                                                      new JProperty("@id",                SessionId.ToString()),
+        //                                                                                                      new JProperty("ProviderId",         ProviderId.ToString()),
+        //                                                                                                      new JProperty("eMAId",              eMAId.ToString())
+        //                                                                                                      //new JProperty("ChargingProductId",  ChargingProductId != null ? ChargingProductId.ToString() : "")
+        //                                                                                                  ).ToString().
+        //                                                                                                    ToUTF8Bytes();
+        //                                                                    requestbuilder.Accept.Add(HTTPContentType.JSON_UTF8);
+        //                                                                }),
+
+        //                                   RequestLogDelegate:   OnRemoteStartRequest,
+        //                                   ResponseLogDelegate:  OnRemoteStartResponse,
+        //                                   CancellationToken:    CancellationToken,
+        //                                   EventTrackingId:      EventTrackingId,
+        //                                   RequestTimeout:       RequestTimeout ?? TimeSpan.FromSeconds(60)).
+
+        //                           ConfigureAwait(false);
+
+        #endregion
+
+
+
+
+
+
+
+
 
 
 
@@ -165,23 +342,33 @@ namespace org.GraphDefined.OpenData.Users
                                                                        a.BasicAuth_Login    == BasicAuth_Login &&
                                                                        a.BasicAuth_Password == BasicAuth_Password);
 
+
+
+
+
     }
 
 
     public class HTTPSNotification : ANotificationType
     {
 
-        public String URL                  { get; }
-        public String BasicAuth_Login      { get; }
-        public String BasicAuth_Password   { get; }
+        public HTTPMethod Method               { get; }
+        public String     URL                  { get; }
+        public IPPort     TCPPort              { get; }
+        public String     BasicAuth_Login      { get; }
+        public String     BasicAuth_Password   { get; }
 
 
-        public HTTPSNotification(String URL,
-                                 String BasicAuth_Login     = null,
-                                 String BasicAuth_Password  = null)
+        public HTTPSNotification(HTTPMethod Method,
+                                 String     URL,
+                                 IPPort?    TCPPort             = null,
+                                 String     BasicAuth_Login     = null,
+                                 String     BasicAuth_Password  = null)
         {
 
+            this.Method              = Method;
             this.URL                 = URL;
+            this.TCPPort             = TCPPort ?? IPPort.HTTPS;
             this.BasicAuth_Login     = BasicAuth_Login;
             this.BasicAuth_Password  = BasicAuth_Password;
 
@@ -195,7 +382,9 @@ namespace org.GraphDefined.OpenData.Users
                 throw new ArgumentException();
 
             return new HTTPSNotification(
+                       JSON["method"] != null ? HTTPMethod.ParseString(JSON["method"].Value<String>()) : HTTPMethod.POST,
                        JSON["URL"]?.Value<String>(),
+                       JSON["TCPPort"] != null ? IPPort.Parse(JSON["TCPPort"].Value<String>()) : IPPort.HTTPS,
                        JSON["basicAuth"]?["login"]?.   Value<String>(),
                        JSON["basicAuth"]?["password"]?.Value<String>()
                    );
@@ -205,8 +394,10 @@ namespace org.GraphDefined.OpenData.Users
         public override JObject GetAsJSON(JObject JSON)
         {
 
-            JSON.Add(new JProperty("type",  GetType().Name));
-            JSON.Add(new JProperty("URL",   URL));
+            JSON.Add(new JProperty("type",     GetType().Name));
+            JSON.Add(new JProperty("method",   Method.ToString()));
+            JSON.Add(new JProperty("URL",      URL));
+            JSON.Add(new JProperty("TCPPort",  TCPPort.ToUInt16()));
 
             if (BasicAuth_Login.IsNotNullOrEmpty() &&
                 BasicAuth_Password.IsNotNullOrEmpty())

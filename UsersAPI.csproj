@@ -226,6 +226,7 @@
       <DependentUpon>SignInOut.ts</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="HTTPRoot\profile\notifications.scss" />
+    <EmbeddedResource Include="HTTPRoot\profile\APIKeys.scss" />
     <None Include="README.md" />
     <None Include="tsconfig.json" />
   </ItemGroup>
@@ -257,6 +258,12 @@
     <Content Include="HTTPRoot\admin\admin.css">
       <DependentUpon>admin.scss</DependentUpon>
     </Content>
+    <EmbeddedResource Include="HTTPRoot\profile\profile - Copy.min.css">
+      <DependentUpon>profile - Copy.css</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="HTTPRoot\profile\profile - Copy.css">
+      <DependentUpon>APIKeys.scss</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="HTTPRoot\profile\notifications.css">
       <DependentUpon>notifications.scss</DependentUpon>
     </EmbeddedResource>

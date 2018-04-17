@@ -150,11 +150,16 @@ namespace org.GraphDefined.OpenData.Users
                    new JProperty("@context",            JSONLDContext),
 
                    new JProperty("userId",              User.Id.ToString()),
+                   new JProperty("description",         Description.ToJSON()),
                    AccessRights.ToJSON(),
                    new JProperty("created",             Created.ToIso8601()),
 
                    Expires.HasValue
                        ? new JProperty("expires",       Expires.Value.ToIso8601())
+                       : null,
+
+                   IsDisabled
+                       ? new JProperty("isDisabled",    IsDisabled)
                        : null
 
                );
@@ -242,7 +247,6 @@ namespace org.GraphDefined.OpenData.Users
                 }
 
                 #endregion
-
 
                 #region Parse Description      [optional]
 
@@ -495,10 +499,10 @@ namespace org.GraphDefined.OpenData.Users
         /// </summary>
         public override String ToString()
 
-            => String.Concat("'", APIKey, "' ",
+            => String.Concat("'", APIKey, "' for ",
                              User.Id.ToString(), ", [",
-                             AccessRights.ToString(), ", ",
-                             Expires != null ? Expires.Value.ToIso8601() + ", " : "",
+                             AccessRights.ToString(),
+                             Expires != null ? ", expires at " + Expires.Value.ToIso8601() : "",
                              IsDisabled ? ", disabled]" : "]");
 
         #endregion

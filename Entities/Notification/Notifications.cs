@@ -87,6 +87,7 @@ namespace org.GraphDefined.OpenData.Users
         #endregion
 
 
+        #region Add(User,   NotificationType, EqualityComparer)
 
         public Notifications Add<T>(User                 User,
                                     T                    NotificationType,
@@ -105,7 +106,11 @@ namespace org.GraphDefined.OpenData.Users
 
         }
 
-        public Notifications Add<T>(User_Id              User,
+        #endregion
+
+        #region Add(UserId, NotificationType, EqualityComparer)
+
+        public Notifications Add<T>(User_Id              UserId,
                                     T                    NotificationType,
                                     Func<T, T, Boolean>  EqualityComparer)
 
@@ -116,10 +121,10 @@ namespace org.GraphDefined.OpenData.Users
             lock (NotificationLookup)
             {
 
-                if (!NotificationLookup.TryGetValue(User, out Multiplexer Multiplexer))
+                if (!NotificationLookup.TryGetValue(UserId, out Multiplexer Multiplexer))
                 {
                     Multiplexer = new Multiplexer();
-                    NotificationLookup.Add(User, Multiplexer);
+                    NotificationLookup.Add(UserId, Multiplexer);
                 }
 
                 var Found = false;
@@ -139,7 +144,7 @@ namespace org.GraphDefined.OpenData.Users
                     Multiplexer.Add(NotificationType);
 
                     OnAdded?.Invoke(DateTime.UtcNow,
-                                    User,
+                                    UserId,
                                     null,
                                     NotificationType);
 
@@ -150,6 +155,10 @@ namespace org.GraphDefined.OpenData.Users
             }
 
         }
+
+        #endregion
+
+        #region Add(User,   NotificationId, NotificationType, EqualityComparer)
 
         public Notifications Add<T>(User                 User,
                                     Notification_Id      NotificationId,
@@ -169,6 +178,10 @@ namespace org.GraphDefined.OpenData.Users
                        EqualityComparer);
 
         }
+
+        #endregion
+
+        #region Add(UserId, NotificationId, NotificationType, EqualityComparer)
 
         public Notifications Add<T>(User_Id              User,
                                     Notification_Id      NotificationId,
@@ -223,6 +236,10 @@ namespace org.GraphDefined.OpenData.Users
 
         }
 
+        #endregion
+
+
+        #region GetNotifications(User)
 
         public Multiplexer GetNotifications(User User)
         {
@@ -230,28 +247,21 @@ namespace org.GraphDefined.OpenData.Users
             if (User == null)
                 throw new ArgumentNullException(nameof(User), "The given user must not be null!");
 
-            lock (NotificationLookup)
-            {
-
-                if (NotificationLookup.TryGetValue(User.Id, out Multiplexer Multiplexer))
-                    return Multiplexer;
-
-                return null;
-
-            }
+            return GetNotifications(User.Id);
 
         }
 
-        public Multiplexer GetNotifications(User_Id User)
+        #endregion
+
+        #region GetNotifications(UserId)
+
+        public Multiplexer GetNotifications(User_Id UserId)
         {
 
-            if (User == null)
-                throw new ArgumentNullException(nameof(User), "The given user identification must not be null!");
-
             lock (NotificationLookup)
             {
 
-                if (NotificationLookup.TryGetValue(User, out Multiplexer Multiplexer))
+                if (NotificationLookup.TryGetValue(UserId, out Multiplexer Multiplexer))
                     return Multiplexer;
 
                 return null;
@@ -260,7 +270,9 @@ namespace org.GraphDefined.OpenData.Users
 
         }
 
+        #endregion
 
+        #region GetNotifications(User,   NotificationId)
 
         public IEnumerable<T> GetNotifications<T>(User             User,
                                                   Notification_Id  NotificationId)
@@ -277,7 +289,11 @@ namespace org.GraphDefined.OpenData.Users
 
         }
 
-        public IEnumerable<T> GetNotifications<T>(User_Id          User,
+        #endregion
+
+        #region GetNotifications(UserId, NotificationId)
+
+        public IEnumerable<T> GetNotifications<T>(User_Id          UserId,
                                                   Notification_Id  NotificationId)
 
             where T : ANotificationType
@@ -287,7 +303,7 @@ namespace org.GraphDefined.OpenData.Users
             lock (NotificationLookup)
             {
 
-                if (NotificationLookup.TryGetValue(User, out Multiplexer Multiplexer))
+                if (NotificationLookup.TryGetValue(UserId, out Multiplexer Multiplexer))
                 {
 
                     if (Multiplexer.NotificationIds.TryGetValue(NotificationId, out List<ANotificationType>  NotificationTypes))
@@ -308,6 +324,10 @@ namespace org.GraphDefined.OpenData.Users
 
         }
 
+        #endregion
+
+
+        #region Remove(User,   EqualityComparer)
 
         public Notifications Remove<T>(User              User,
                                        Func<T, Boolean>  EqualityComparer)
@@ -324,7 +344,11 @@ namespace org.GraphDefined.OpenData.Users
 
         }
 
-        public Notifications Remove<T>(User_Id           User,
+        #endregion
+
+        #region Remove(UserId, EqualityComparer)
+
+        public Notifications Remove<T>(User_Id           UserId,
                                        Func<T, Boolean>  EqualityComparer)
 
             where T : ANotificationType
@@ -334,7 +358,7 @@ namespace org.GraphDefined.OpenData.Users
             lock (NotificationLookup)
             {
 
-                if (NotificationLookup.TryGetValue(User, out Multiplexer Multiplexer))
+                if (NotificationLookup.TryGetValue(UserId, out Multiplexer Multiplexer))
                 {
 
                     foreach (var notificationtype in Multiplexer.NotificationTypes.ToArray())
@@ -346,7 +370,7 @@ namespace org.GraphDefined.OpenData.Users
                             Multiplexer.Remove(notificationtype);
 
                             OnRemoved?.Invoke(DateTime.UtcNow,
-                                              User,
+                                              UserId,
                                               null,
                                               notificationtype);
 
@@ -360,6 +384,10 @@ namespace org.GraphDefined.OpenData.Users
             return this;
 
         }
+
+        #endregion
+
+        #region Remove(User,   NotificationId, EqualityComparer)
 
         public Notifications Remove<T>(User              User,
                                        Notification_Id   NotificationId,
@@ -378,7 +406,11 @@ namespace org.GraphDefined.OpenData.Users
 
         }
 
-        public Notifications Remove<T>(User_Id           User,
+        #endregion
+
+        #region Remove(UserId, NotificationId, EqualityComparer)
+
+        public Notifications Remove<T>(User_Id           UserId,
                                        Notification_Id   NotificationId,
                                        Func<T, Boolean>  EqualityComparer)
 
@@ -389,7 +421,7 @@ namespace org.GraphDefined.OpenData.Users
             lock (NotificationLookup)
             {
 
-                if (NotificationLookup.         TryGetValue(User,           out Multiplexer              Multiplexer) &&
+                if (NotificationLookup.         TryGetValue(UserId,           out Multiplexer              Multiplexer) &&
                     Multiplexer.NotificationIds.TryGetValue(NotificationId, out List<ANotificationType>  NotificationTypes))
                 {
 
@@ -402,7 +434,7 @@ namespace org.GraphDefined.OpenData.Users
                             NotificationTypes.Remove(notificationtype);
 
                             OnRemoved?.Invoke(DateTime.UtcNow,
-                                              User,
+                                              UserId,
                                               NotificationId,
                                               notificationtype);
 
@@ -416,6 +448,9 @@ namespace org.GraphDefined.OpenData.Users
             return this;
 
         }
+
+        #endregion
+
 
     }
 

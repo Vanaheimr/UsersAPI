@@ -2344,6 +2344,68 @@ namespace org.GraphDefined.OpenData.Users
 
             #endregion
 
+            #region GET         ~/users/{UserId}/APIKeys
+
+            // --------------------------------------------------------------------------------
+            // curl -v -H "Accept: application/json" http://127.0.0.1:2100/users/ahzf/APIKeys
+            // --------------------------------------------------------------------------------
+            HTTPServer.AddMethodCallback(Hostname,
+                                         HTTPMethod.GET,
+                                         URIPrefix + "/users/{UserId}/APIKeys",
+                                         HTTPContentType.JSON_UTF8,
+                                         HTTPDelegate: Request => {
+
+                                             #region Get HTTP user and its organizations
+
+                                             // Will return HTTP 401 Unauthorized, when the HTTP user is unknown!
+                                             if (!TryGetHTTPUser(Request,
+                                                                 out User                       HTTPUser,
+                                                                 out IEnumerable<Organization>  HTTPOrganizations,
+                                                                 out HTTPResponse               Response,
+                                                                 Recursive: true))
+                                             {
+                                                 return Task.FromResult(Response);
+                                             }
+
+                                             #endregion
+
+                                             var __APIKeys = _APIKeys.Values.Where(apikey => apikey.User == HTTPUser).ToArray();
+
+                                             return Task.FromResult(__APIKeys != null
+
+                                                                        ? new HTTPResponseBuilder(Request) {
+                                                                                  HTTPStatusCode             = HTTPStatusCode.OK,
+                                                                                  Server                     = HTTPServer.DefaultServerName,
+                                                                                  Date                       = DateTime.UtcNow,
+                                                                                  AccessControlAllowOrigin   = "*",
+                                                                                  AccessControlAllowMethods  = "GET, SET",
+                                                                                  AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
+                                                                                  ETag                       = "1",
+                                                                                  ContentType                = HTTPContentType.JSON_UTF8,
+                                                                                  Content                    = JSONArray.Create(
+
+                                                                                                                   __APIKeys.Select(_ => _.ToJSON(true))
+
+                                                                                                               ).ToUTF8Bytes(),
+                                                                                  Connection                 = "close"
+                                                                              }.AsImmutable
+
+                                                                        : new HTTPResponseBuilder(Request) {
+                                                                                  HTTPStatusCode             = HTTPStatusCode.NotFound,
+                                                                                  Server                     = HTTPServer.DefaultServerName,
+                                                                                  Date                       = DateTime.UtcNow,
+                                                                                  AccessControlAllowOrigin   = "*",
+                                                                                  AccessControlAllowMethods  = "GET, SET",
+                                                                                  AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
+                                                                                  Connection                 = "close"
+                                                                              }.AsImmutable);
+
+
+
+            });
+
+            #endregion
+
 
             #region GET         ~/groups
 
@@ -2646,6 +2708,7 @@ namespace org.GraphDefined.OpenData.Users
 
                 #endregion
 
+
                 #region CreateOrganization
 
                 case "CreateOrganization":
@@ -2682,6 +2745,7 @@ namespace org.GraphDefined.OpenData.Users
                     break;
 
                 #endregion
+
 
                 #region AddUserToGroup
 
@@ -2720,6 +2784,7 @@ namespace org.GraphDefined.OpenData.Users
                     break;
 
                 #endregion
+
 
                 #region AddNotification
 
@@ -2839,6 +2904,26 @@ namespace org.GraphDefined.OpenData.Users
 
                 #endregion
 
+
+                #region AddAPIKey
+
+                case "AddAPIKey":
+
+                    if (APIKeyInfo.TryParseJSON(JSONObject,
+                                                out APIKeyInfo _APIKey,
+                                                userid => _Users[userid],
+                                                out ErrorResponse))
+                    {
+                        _APIKeys.AddAndReturnValue(_APIKey.APIKey, _APIKey);
+                    }
+
+                    else
+                        DebugX.Log(String.Concat(nameof(UsersAPI), " ", Command, ": ", ErrorResponse));
+
+                    break;
+
+                    #endregion
+
             }
 
         }
@@ -2933,10 +3018,10 @@ namespace org.GraphDefined.OpenData.Users
 
             #region Get user from API Key...
 
-            if (Request.X_API_Key.HasValue &&
-                TryGetAPIKeyInfo(Request.X_API_Key.Value, out APIKeyInfo apiKeyInfo) &&
-                !apiKeyInfo.IsDisabled &&
-                DateTime.UtcNow < apiKeyInfo.Expires)
+            if (Request.API_Key.HasValue &&
+                TryGetAPIKeyInfo(Request.API_Key.Value, out APIKeyInfo apiKeyInfo) &&
+                (!apiKeyInfo.Expires.HasValue || DateTime.UtcNow < apiKeyInfo.Expires) &&
+                 !apiKeyInfo.IsDisabled)
             {
                 User = apiKeyInfo.User;
                 return true;
@@ -3706,6 +3791,46 @@ namespace org.GraphDefined.OpenData.Users
             lock (_APIKeys)
             {
                 return _APIKeys.TryGetValue(APIKey, out APIKeyInfo);
+            }
+
+        }
+
+        #endregion
+
+        #region GetAPIKeysFor   (User)
+
+        /// <summary>
+        /// Return all API keys for the given user.
+        /// </summary>
+        /// <param name="User">An user.</param>
+        public IEnumerable<APIKeyInfo> GetAPIKeysFor(User User)
+        {
+
+            lock (_APIKeys)
+            {
+                return _APIKeys.Values.Where(apikey => apikey.User == User);
+            }
+
+        }
+
+        #endregion
+
+        #region AddAPIKey       (...)
+
+        public APIKeyInfo AddAPIKey(APIKeyInfo APIKey)
+        {
+
+            lock (_APIKeys)
+            {
+
+                if (_APIKeys.ContainsKey(APIKey.APIKey))
+                    return _APIKeys[APIKey.APIKey];
+
+                WriteToLogfileAndNotify("AddAPIKey",
+                                        APIKey.ToJSON(true));
+
+                return _APIKeys.AddAndReturnValue(APIKey.APIKey, APIKey);
+
             }
 
         }
