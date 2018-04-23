@@ -3,6 +3,8 @@ var HTTPCookieId: string = "UsersAPI";
 var CurrentlyHighlightedMenuItem     = "";
 var CurrentlyHighlightedSubmenuItem  = "";
 
+let UserProfileJSON: IUserProfile;
+
 interface IUserProfile {
     id:               string;
     name:             string;
@@ -13,6 +15,16 @@ interface IUserProfile {
     isDisabled:       boolean;
     //signatures:       Array<string>,
     hash:             string;
+}
+
+interface IAddress {
+    city:             any;
+    street:           string;
+    houseNumber:      string;
+    floorLevel:       string;
+    postalCode:       string;
+    country:          string;
+    comment:          any;
 }
 
 // #region MenuHighlight(name, NoURIupdate?)

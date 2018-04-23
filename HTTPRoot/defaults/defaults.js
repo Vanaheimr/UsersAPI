@@ -1,6 +1,7 @@
 var HTTPCookieId = "UsersAPI";
 var CurrentlyHighlightedMenuItem = "";
 var CurrentlyHighlightedSubmenuItem = "";
+var UserProfileJSON;
 // #region MenuHighlight(name, NoURIupdate?)
 function MenuHighlight(name, NoURIupdate) {
     if (CurrentlyHighlightedMenuItem != "") {
