@@ -532,7 +532,7 @@ namespace org.GraphDefined.OpenData.Users
 
                 if (JSONObject.ParseOptional("address",
                                              "address",
-                                             Vanaheimr.Hermod.Address.Parse,
+                                             Vanaheimr.Illias.Address.Parse,
                                              out Address Address,
                                              out ErrorResponse))
                 {
