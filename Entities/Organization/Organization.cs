@@ -185,7 +185,7 @@ namespace org.GraphDefined.OpenData.Users
             this.Telephone      = Telephone;
             this.GeoLocation    = GeoLocation;
             this.Address        = Address;
-            this.PrivacyLevel   = PrivacyLevel ?? Users.PrivacyLevel.World;
+            this.PrivacyLevel   = PrivacyLevel ?? OpenData.PrivacyLevel.World;
             this.IsDisabled     = IsDisabled;
 
             #endregion

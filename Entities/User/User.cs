@@ -279,7 +279,7 @@ namespace org.GraphDefined.OpenData.Users
             this.Description              = Description  ?? new I18NString();
             this.GeoLocation              = GeoLocation;
             this.Address                  = Address;
-            this.PrivacyLevel             = PrivacyLevel ?? Users.PrivacyLevel.World;
+            this.PrivacyLevel             = PrivacyLevel ?? OpenData.PrivacyLevel.World;
             this.IsAuthenticated          = IsAuthenticated;
             this.IsDisabled               = IsDisabled;
 

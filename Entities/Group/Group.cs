@@ -118,7 +118,7 @@ namespace org.GraphDefined.OpenData.Users
 
             this.Name          = Name         ?? new I18NString();
             this.Description   = Description  ?? new I18NString();
-            this.PrivacyLevel  = PrivacyLevel ?? Users.PrivacyLevel.World;
+            this.PrivacyLevel  = PrivacyLevel ?? OpenData.PrivacyLevel.World;
             this.IsDisabled    = IsDisabled;
 
             #endregion
