@@ -61,7 +61,7 @@ function SignIn() {
         SignInErrors.innerText = JSON.parse(ResponseText).description;
     });
 }
-function checkSignedIn() {
+function checkSignedIn(RedirectUnkownUsers) {
     WithCookie(HTTPCookieId, function (cookie) {
         // Crumbs are base64 encoded!
         cookie.split(":").forEach(function (crumb) {
@@ -75,10 +75,11 @@ function checkSignedIn() {
             }
         });
     }, function () {
-        location.href = "/login";
+        if (RedirectUnkownUsers)
+            location.href = "/login";
     });
 }
-function checkAdminSignedIn() {
+function checkAdminSignedIn(RedirectUnkownUsers) {
     WithCookie(HTTPCookieId, function (cookie) {
         ShowElement('#admin');
         ShowElement('.admin');
@@ -87,7 +88,7 @@ function checkAdminSignedIn() {
     }, function () {
         location.href = "/login";
     });
-    checkSignedIn();
+    checkSignedIn(RedirectUnkownUsers);
 }
 function checkNotSignedIn() {
     WithCookie(HTTPCookieId, function (cookie) {

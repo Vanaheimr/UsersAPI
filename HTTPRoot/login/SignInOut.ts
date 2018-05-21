@@ -113,7 +113,7 @@ function SignIn() {
 
 }
 
-function checkSignedIn() {
+function checkSignedIn(RedirectUnkownUsers: Boolean) {
 
     WithCookie(HTTPCookieId,
 
@@ -138,14 +138,17 @@ function checkSignedIn() {
                },
 
                () => {
-                   location.href = "/login";
+
+                   if (RedirectUnkownUsers)
+                       location.href = "/login";
+
                }
 
     );
 
 }
 
-function checkAdminSignedIn() {
+function checkAdminSignedIn(RedirectUnkownUsers: Boolean) {
 
     WithCookie(HTTPCookieId,
 
@@ -165,7 +168,7 @@ function checkAdminSignedIn() {
 
     );
 
-    checkSignedIn();
+    checkSignedIn(RedirectUnkownUsers);
 
 }
 
