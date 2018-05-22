@@ -1,7 +1,8 @@
 var SignInUser = "";
 function HideElement(DivName) {
     var div = document.querySelector(DivName);
-    div.style.display = "none";
+    if (div != null)
+        div.style.display = "none";
     return div;
 }
 function ShowElement(DivName) {
@@ -67,14 +68,32 @@ function checkSignedIn(RedirectUnkownUsers) {
         cookie.split(":").forEach(function (crumb) {
             if (crumb.indexOf("login") >= 0)
                 SignInUser = atob(crumb.split("=")[1]);
-            if (crumb.indexOf("username") >= 0)
-                document.querySelector('#username').innerText = atob(crumb.split("=")[1]);
+            var usernameDiv = document.querySelector('#username');
+            if (usernameDiv != null && crumb.indexOf("username") >= 0)
+                usernameDiv.innerText = atob(crumb.split("=")[1]);
             if (crumb.indexOf("isAdmin") >= 0) {
                 ShowElement('#admin');
                 ShowElement('.admin');
             }
+            ShowElement('#username');
+            ShowElement('.username');
+            ShowElement('#profile');
+            ShowElement('.profile');
+            ShowElement('#SignOut');
+            ShowElement('.SignOut');
+            HideElement('#SignIn');
+            HideElement('.SignIn');
         });
     }, function () {
+        HideElement('#SignOut');
+        HideElement('.SignOut');
+        HideElement('#profile');
+        HideElement('.profile');
+        ShowElement('#SignIn');
+        ShowElement('.SignIn');
+        var usernameDiv = document.querySelector('#username');
+        if (usernameDiv != null)
+            usernameDiv.innerText = "anonymous";
         if (RedirectUnkownUsers)
             location.href = "/login";
     });
@@ -86,7 +105,8 @@ function checkAdminSignedIn(RedirectUnkownUsers) {
         if (cookie.indexOf(":isAdmin") < 0)
             location.href = "/";
     }, function () {
-        location.href = "/login";
+        if (RedirectUnkownUsers)
+            location.href = "/login";
     });
     checkSignedIn(RedirectUnkownUsers);
 }

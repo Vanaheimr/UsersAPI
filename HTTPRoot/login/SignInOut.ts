@@ -4,7 +4,9 @@ var SignInUser = "";
 function HideElement(DivName) {
 
     var div = document.querySelector(DivName);
-    div.style.display = "none";
+
+    if (div != null)
+        div.style.display = "none";
 
     return div;
 
@@ -125,19 +127,47 @@ function checkSignedIn(RedirectUnkownUsers: Boolean) {
                        if (crumb.indexOf("login")    >= 0)
                            SignInUser = atob(crumb.split("=")[1]);
 
-                       if (crumb.indexOf("username") >= 0)
-                           (<HTMLElement> document.querySelector('#username')).innerText = atob(crumb.split("=")[1]);
+                       var usernameDiv = <HTMLElement> document.querySelector('#username');
+
+                       if (usernameDiv != null && crumb.indexOf("username") >= 0)
+                           usernameDiv.innerText = atob(crumb.split("=")[1]);
 
                        if (crumb.indexOf("isAdmin") >= 0) {
                            ShowElement('#admin');
                            ShowElement('.admin');
                        }
 
+                       ShowElement('#username');
+                       ShowElement('.username');
+
+                       ShowElement('#profile');
+                       ShowElement('.profile');
+
+                       ShowElement('#SignOut');
+                       ShowElement('.SignOut');
+
+                       HideElement('#SignIn');
+                       HideElement('.SignIn');
+
                    });
 
                },
 
                () => {
+
+                   HideElement('#SignOut');
+                   HideElement('.SignOut');
+
+                   HideElement('#profile');
+                   HideElement('.profile');
+
+                   ShowElement('#SignIn');
+                   ShowElement('.SignIn');
+
+                   var usernameDiv = <HTMLElement> document.querySelector('#username');
+
+                   if (usernameDiv != null)
+                       usernameDiv.innerText = "anonymous";
 
                    if (RedirectUnkownUsers)
                        location.href = "/login";
@@ -163,7 +193,10 @@ function checkAdminSignedIn(RedirectUnkownUsers: Boolean) {
                },
 
                () => {
-                   location.href = "/login";
+
+                   if (RedirectUnkownUsers)
+                       location.href = "/login";
+
                }
 
     );
