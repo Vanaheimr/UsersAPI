@@ -381,7 +381,7 @@ namespace org.GraphDefined.OpenData.Users
         #region ToString()
 
         /// <summary>
-        /// Return a string represtentation of this object.
+        /// Return a string representation of this object.
         /// </summary>
         public override String ToString()
             => InternalId;

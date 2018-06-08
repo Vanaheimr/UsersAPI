@@ -296,71 +296,20 @@ namespace org.GraphDefined.OpenData.Users
 
         #region Events
 
-        #region RequestLog
-
         /// <summary>
         /// An event called whenever a request came in.
         /// </summary>
-        public event RequestLogHandler RequestLog
-        {
-
-            add
-            {
-                HTTPServer.RequestLog += value;
-            }
-
-            remove
-            {
-                HTTPServer.RequestLog -= value;
-            }
-
-        }
-
-        #endregion
-
-        #region AccessLog
+        public RequestLogEvent RequestLog  = new RequestLogEvent();
 
         /// <summary>
         /// An event called whenever a request could successfully be processed.
         /// </summary>
-        public event AccessLogHandler AccessLog
-        {
-
-            add
-            {
-                HTTPServer.AccessLog += value;
-            }
-
-            remove
-            {
-                HTTPServer.AccessLog -= value;
-            }
-
-        }
-
-        #endregion
-
-        #region ErrorLog
+        public AccessLogEvent  AccessLog   = new AccessLogEvent();
 
         /// <summary>
         /// An event called whenever a request resulted in an error.
         /// </summary>
-        public event ErrorLogHandler ErrorLog
-        {
-
-            add
-            {
-                HTTPServer.ErrorLog += value;
-            }
-
-            remove
-            {
-                HTTPServer.ErrorLog -= value;
-            }
-
-        }
-
-        #endregion
+        public ErrorLogEvent   ErrorLog    = new ErrorLogEvent();
 
         #endregion
 
@@ -911,6 +860,10 @@ namespace org.GraphDefined.OpenData.Users
 
             _Notifications.OnAdded   += (Timestamp, User, NotificationId, NotificationType) => WriteToLogfile("AddNotification",    NotificationType.ToJSON(User, NotificationId));
             _Notifications.OnRemoved += (Timestamp, User, NotificationId, NotificationType) => WriteToLogfile("RemoveNotification", NotificationType.ToJSON(User, NotificationId));
+
+            HTTPServer.RequestLog2 += (HTTPProcessor, ServerTimestamp, Request)                                 => RequestLog.WhenAll(HTTPProcessor, ServerTimestamp, Request);
+            HTTPServer.AccessLog2  += (HTTPProcessor, ServerTimestamp, Request, Response)                       => AccessLog. WhenAll(HTTPProcessor, ServerTimestamp, Request, Response);
+            HTTPServer.ErrorLog2   += (HTTPProcessor, ServerTimestamp, Request, Response, Error, LastException) => ErrorLog.  WhenAll(HTTPProcessor, ServerTimestamp, Request, Response, Error, LastException);
 
             if (!SkipURITemplates)
                 RegisterURITemplates();
