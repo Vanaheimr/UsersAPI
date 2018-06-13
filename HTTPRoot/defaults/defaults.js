@@ -424,4 +424,31 @@ function GetI18N(I18NString, CSSClassNames) {
     return I18NDiv;
 }
 // #endregion
+var months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+function parseLocalDate(DateString) {
+    console.log("initial locale: " + moment.locale());
+    console.log("initial date format:= " + moment.localeData().longDateFormat('L'));
+    //var locale = window.navigator.language.userLanguage || window.navigator.language;
+    var locale = window.navigator.language;
+    console.log("changing locale to: " + locale);
+    moment.locale(locale);
+    console.log("updated locale: " + moment.locale());
+    console.log("updated date format = " + moment.localeData().longDateFormat('L'));
+    var _date = moment(DateString, moment.localeData().longDateFormat('l'));
+    if (_date.isValid())
+        return _date.toISOString();
+    _date = moment(DateString, moment.localeData().longDateFormat('L'));
+    if (_date.isValid())
+        return _date.toISOString();
+    _date = moment(DateString, moment.localeData().longDateFormat('ll'));
+    if (_date.isValid())
+        return _date.toISOString();
+    _date = moment(DateString, moment.localeData().longDateFormat('LL'));
+    if (_date.isValid())
+        return _date.toISOString();
+}
+function parseUTCDate(UTCString) {
+    moment.locale(window.navigator.language);
+    return moment.utc(UTCString).local().format('ll');
+}
 //# sourceMappingURL=defaults.js.map
