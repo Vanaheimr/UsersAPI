@@ -4280,7 +4280,7 @@ namespace org.GraphDefined.OpenData.Users
 
                 User.AddOutgoingEdge(Edge, Organization, PrivacyLevel);
 
-                if (!Organization.InEdges(Organization).Any(edgelabel => edgelabel == Edge))
+                if (!Organization.InEdges(User).Any(edgelabel => edgelabel == Edge))
                     Organization.AddIncomingEdge(User, Edge, PrivacyLevel);
 
                 WriteToLogfileAndNotify("AddUserToOrganization",
