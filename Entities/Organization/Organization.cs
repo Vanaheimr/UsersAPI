@@ -273,15 +273,15 @@ namespace org.GraphDefined.OpenData.Users
             => _Organization2UserEdges.AddAndReturn(Edge);
 
 
-        #region Edges(User)
+        #region InEdges(User)
 
         /// <summary>
         /// All organizations this user belongs to,
         /// filtered by the given edge label.
         /// </summary>
-        public IEnumerable<Organization2UserEdges> InEdges(User User)
-            => _Organization2UserEdges.
-                   Where (edge => edge.Target == User).
+        public IEnumerable<User2OrganizationEdges> InEdges(User User)
+            => _User2OrganizationEdges.
+                   Where (edge => edge.Source == User).
                    Select(edge => edge.EdgeLabel);
 
         #endregion
@@ -359,6 +359,10 @@ namespace org.GraphDefined.OpenData.Users
                    Description.IsNeitherNullNorEmpty()
                        ? new JProperty("description",   Description.    ToJSON())
                        : null,
+
+                   new JProperty("parent",              Organization2OrganizationOutEdges.
+                                                            Where     (edge => edge.EdgeLabel == Organization2OrganizationEdges.IsChildOf).
+                                                            SafeSelect(edge => edge.Target.Id.ToString())),
 
                    EMail.HasValue
                        ? new JProperty("email",         EMail.Value.    ToString())

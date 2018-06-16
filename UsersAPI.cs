@@ -211,8 +211,46 @@ namespace org.GraphDefined.OpenData.Users
 
         #endregion
 
+
+        public static JArray ToJSON(this IEnumerable<HelpMe> HelpMes)
+        {
+
+            if (HelpMes?.Any() == false)
+                return new JArray();
+
+            return JSONArray.Create(HelpMes.Select(_ => _.ToJSON()));
+
+        }
+
     }
 
+    public class HelpMe
+    {
+
+        public Organization Me             { get; set; }
+        public List<HelpMe> Childs         { get; set; }
+        public Boolean      Member         { get; set; }
+        public Boolean      MemberOfChild  { get; set; }
+
+
+        public JObject ToJSON()
+            => JSONObject.Create(
+
+                   new JProperty("me",            Me.ToJSON()),
+                   new JProperty("childs",        new JArray(Childs.SafeSelect(child => child.ToJSON()))),
+                   new JProperty("youAreMember",  Member),
+                   new JProperty("admins",        JSONArray.Create(Me.User2OrganizationEdges.Where(_ => _.EdgeLabel == User2OrganizationEdges.IsAdmin). SafeSelect(_ => _.Source.ToJSON()))),
+
+                   Member
+                      ? new JProperty("members",  JSONArray.Create(Me.User2OrganizationEdges.Where(_ => _.EdgeLabel == User2OrganizationEdges.IsMember).SafeSelect(_ => _.Source.ToJSON())))
+                      : null
+
+               );
+
+        public override string ToString()
+            => Me.ToString();
+
+    }
 
     /// <summary>
     /// A library for managing users within and HTTP API or website.
@@ -562,6 +600,9 @@ namespace org.GraphDefined.OpenData.Users
         /// </summary>
         public String LogfileName { get; }
 
+
+        public Organization NoOwner { get; }
+
         #endregion
 
         #region Constructor(s)
@@ -864,6 +905,8 @@ namespace org.GraphDefined.OpenData.Users
             HTTPServer.RequestLog2 += (HTTPProcessor, ServerTimestamp, Request)                                 => RequestLog.WhenAll(HTTPProcessor, ServerTimestamp, Request);
             HTTPServer.AccessLog2  += (HTTPProcessor, ServerTimestamp, Request, Response)                       => AccessLog. WhenAll(HTTPProcessor, ServerTimestamp, Request, Response);
             HTTPServer.ErrorLog2   += (HTTPProcessor, ServerTimestamp, Request, Response, Error, LastException) => ErrorLog.  WhenAll(HTTPProcessor, ServerTimestamp, Request, Response, Error, LastException);
+
+            NoOwner = CreateOrganizationIfNotExists(Organization_Id.Parse("NoOwner"));
 
             if (!SkipURITemplates)
                 RegisterURITemplates();
@@ -2300,6 +2343,119 @@ namespace org.GraphDefined.OpenData.Users
 
             #endregion
 
+            #region GET         ~/users/{UserId}/organizations
+
+            // ------------------------------------------------------------------------------------------
+            // curl -v -H "Accept: application/json" http://127.0.0.1:2000/users/{UserId}/organizations
+            // ------------------------------------------------------------------------------------------
+            HTTPServer.AddMethodCallback(Hostname,
+                                         HTTPMethod.GET,
+                                         URIPrefix + "/users/{UserId}/organizations",
+                                         HTTPContentType.JSON_UTF8,
+                                         HTTPDelegate: Request => {
+
+                                             #region Get HTTP user and its organizations
+
+                                             // Will return HTTP 401 Unauthorized, when the HTTP user is unknown!
+                                             if (!TryGetHTTPUser(Request,
+                                                                 out User                       HTTPUser,
+                                                                 out IEnumerable<Organization>  HTTPOrganizations,
+                                                                 out HTTPResponse               Response,
+                                                                 Recursive: true))
+                                             {
+                                                 return Task.FromResult(Response);
+                                             }
+
+                                             #endregion
+
+                                             var skip            = Request.QueryString.GetUInt64 ("skip");
+                                             var take            = Request.QueryString.GetUInt64 ("take");
+                                             var expand          = Request.QueryString.GetStrings("expand", true);
+
+                                             //ToDo: Getting the expected total count might be very expensive!
+                                             var _ExpectedCount  = HTTPOrganizations.ULongCount();
+
+
+                                             HelpMe GetChilds(Organization Org)
+                                             {
+
+                                                 var Childs = Org.Organization2OrganizationInEdges.
+                                                                  Where     (edge => edge.EdgeLabel == Organization2OrganizationEdges.IsChildOf).
+                                                                  SafeSelect(edge => edge.Target).
+                                                                  ToArray();
+
+                                                 if (Childs.Length == 0)
+                                                 {
+
+                                                     if (HTTPOrganizations.Contains(Org))
+                                                         return new HelpMe() { Me     = Org,
+                                                                               Member = HTTPOrganizations.Contains(Org) };
+
+                                                     return null;
+
+                                                 }
+
+                                                 return new HelpMe() { Me     = Org,
+                                                                       Childs = Childs.Select(GetChilds).Where(org2 => org2 != null).ToList(),
+                                                                       Member = HTTPOrganizations.Contains(Org)
+                                                 };
+
+                                             }
+
+                                             var All = GetChilds(NoOwner).Childs.Where(_ => _ != null).ToList();
+
+                                             Boolean Check(HelpMe help)
+                                             {
+
+                                                 if (help.Childs == null || help.Childs.Count == 0)
+                                                     return help.Member;
+
+                                                 var res = help.Member;
+
+                                                 foreach (var child in help.Childs.ToArray())
+                                                 {
+
+                                                     var resOfChild = Check(child);
+
+                                                     if (!resOfChild)
+                                                         help.Childs.Remove(child);
+
+                                                     res |= resOfChild;
+
+                                                 }
+
+                                                 return res;
+
+                                             }
+
+                                             foreach (var helpme in All)
+                                                 Check(helpme);
+
+
+                                             return Task.FromResult(
+                                                 new HTTPResponseBuilder(Request) {
+                                                     HTTPStatusCode                 = HTTPStatusCode.OK,
+                                                     Server                         = HTTPServer.DefaultServerName,
+                                                     Date                           = DateTime.UtcNow,
+                                                     AccessControlAllowOrigin       = "*",
+                                                     AccessControlAllowMethods      = "GET, COUNT, OPTIONS",
+                                                     AccessControlAllowHeaders      = "Content-Type, Accept, Authorization",
+                                                     ETag                           = "1",
+                                                     ContentType                    = HTTPContentType.JSON_UTF8,
+                                                     Content                        = //JSONArray.Create(HTTPOrganizations.
+                                                                                      //                     OrderBy(organization => organization.Id).
+                                                                                      //                     Skip(skip).
+                                                                                      //                     Take(take).
+                                                                                      //                     Select(organization => organization.ToJSON())
+                                                                                      //                ).ToUTF8Bytes(),
+                                                                                      All.ToJSON().ToUTF8Bytes(),
+                                                     X_ExpectedTotalNumberOfItems   = _ExpectedCount
+                                                 }.AsImmutable);
+
+                                         });
+
+            #endregion
+
             #region GET         ~/users/{UserId}/APIKeys
 
             // --------------------------------------------------------------------------------
@@ -2734,7 +2890,7 @@ namespace org.GraphDefined.OpenData.Users
                     if (!U2O_User.Edges(U2O_Organization).Any(edgelabel => edgelabel == U2O_Edge))
                         U2O_User.AddOutgoingEdge(U2O_Edge, U2O_Organization, U2O_Privacy);
 
-                    if (!U2O_Organization.InEdges(U2O_Organization).Any(edgelabel => edgelabel == U2O_Edge))
+                    if (!U2O_Organization.InEdges(U2O_User).Any(edgelabel => edgelabel == U2O_Edge))
                         U2O_Organization.AddIncomingEdge(U2O_User, U2O_Edge, U2O_Privacy);
 
                     break;
