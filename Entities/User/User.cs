@@ -357,10 +357,11 @@ namespace org.GraphDefined.OpenData.Users
             => _User2GroupEdges.Where(edge => User2GroupEdgeFilter(edge.EdgeLabel));
 
 
-        #region Organizations(RequireReadWriteAccess = false, Recursive = false)
+        #region Organizations(RequireAdminAccess, RequireReadWriteAccess, Recursive)
 
-        public IEnumerable<Organization> Organizations(Boolean RequireReadWriteAccess  = false,
-                                                       Boolean Recursive               = false)
+        public IEnumerable<Organization> Organizations(Boolean RequireAdminAccess,
+                                                       Boolean RequireReadWriteAccess,
+                                                       Boolean Recursive)
         {
 
             var _Organizations = RequireReadWriteAccess

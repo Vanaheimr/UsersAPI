@@ -211,46 +211,8 @@ namespace org.GraphDefined.OpenData.Users
 
         #endregion
 
-
-        public static JArray ToJSON(this IEnumerable<HelpMe> HelpMes)
-        {
-
-            if (HelpMes?.Any() == false)
-                return new JArray();
-
-            return JSONArray.Create(HelpMes.Select(_ => _.ToJSON()));
-
-        }
-
     }
 
-    public class HelpMe
-    {
-
-        public Organization Me             { get; set; }
-        public List<HelpMe> Childs         { get; set; }
-        public Boolean      Member         { get; set; }
-        public Boolean      MemberOfChild  { get; set; }
-
-
-        public JObject ToJSON()
-            => JSONObject.Create(
-
-                   new JProperty("me",            Me.ToJSON()),
-                   new JProperty("childs",        new JArray(Childs.SafeSelect(child => child.ToJSON()))),
-                   new JProperty("youAreMember",  Member),
-                   new JProperty("admins",        JSONArray.Create(Me.User2OrganizationEdges.Where(_ => _.EdgeLabel == User2OrganizationEdges.IsAdmin). SafeSelect(_ => _.Source.ToJSON()))),
-
-                   Member
-                      ? new JProperty("members",  JSONArray.Create(Me.User2OrganizationEdges.Where(_ => _.EdgeLabel == User2OrganizationEdges.IsMember).SafeSelect(_ => _.Source.ToJSON())))
-                      : null
-
-               );
-
-        public override string ToString()
-            => Me.ToString();
-
-    }
 
     /// <summary>
     /// A library for managing users within and HTTP API or website.
@@ -2368,88 +2330,19 @@ namespace org.GraphDefined.OpenData.Users
 
                                              #endregion
 
-                                             var skip            = Request.QueryString.GetUInt64 ("skip");
-                                             var take            = Request.QueryString.GetUInt64 ("take");
-                                             var expand          = Request.QueryString.GetStrings("expand", true);
-
-                                             //ToDo: Getting the expected total count might be very expensive!
-                                             var _ExpectedCount  = HTTPOrganizations.ULongCount();
-
-
-                                             HelpMe GetChilds(Organization Org)
-                                             {
-
-                                                 var Childs = Org.Organization2OrganizationInEdges.
-                                                                  Where     (edge => edge.EdgeLabel == Organization2OrganizationEdges.IsChildOf).
-                                                                  SafeSelect(edge => edge.Target).
-                                                                  ToArray();
-
-                                                 if (Childs.Length == 0)
-                                                 {
-
-                                                     if (HTTPOrganizations.Contains(Org))
-                                                         return new HelpMe() { Me     = Org,
-                                                                               Member = HTTPOrganizations.Contains(Org) };
-
-                                                     return null;
-
-                                                 }
-
-                                                 return new HelpMe() { Me     = Org,
-                                                                       Childs = Childs.Select(GetChilds).Where(org2 => org2 != null).ToList(),
-                                                                       Member = HTTPOrganizations.Contains(Org)
-                                                 };
-
-                                             }
-
-                                             var All = GetChilds(NoOwner).Childs.Where(_ => _ != null).ToList();
-
-                                             Boolean Check(HelpMe help)
-                                             {
-
-                                                 if (help.Childs == null || help.Childs.Count == 0)
-                                                     return help.Member;
-
-                                                 var res = help.Member;
-
-                                                 foreach (var child in help.Childs.ToArray())
-                                                 {
-
-                                                     var resOfChild = Check(child);
-
-                                                     if (!resOfChild)
-                                                         help.Childs.Remove(child);
-
-                                                     res |= resOfChild;
-
-                                                 }
-
-                                                 return res;
-
-                                             }
-
-                                             foreach (var helpme in All)
-                                                 Check(helpme);
-
+                                             var AllMyOrganizations = new OrganizationInfo(NoOwner, HTTPUser).Childs;
 
                                              return Task.FromResult(
                                                  new HTTPResponseBuilder(Request) {
-                                                     HTTPStatusCode                 = HTTPStatusCode.OK,
-                                                     Server                         = HTTPServer.DefaultServerName,
-                                                     Date                           = DateTime.UtcNow,
-                                                     AccessControlAllowOrigin       = "*",
-                                                     AccessControlAllowMethods      = "GET, COUNT, OPTIONS",
-                                                     AccessControlAllowHeaders      = "Content-Type, Accept, Authorization",
-                                                     ETag                           = "1",
-                                                     ContentType                    = HTTPContentType.JSON_UTF8,
-                                                     Content                        = //JSONArray.Create(HTTPOrganizations.
-                                                                                      //                     OrderBy(organization => organization.Id).
-                                                                                      //                     Skip(skip).
-                                                                                      //                     Take(take).
-                                                                                      //                     Select(organization => organization.ToJSON())
-                                                                                      //                ).ToUTF8Bytes(),
-                                                                                      All.ToJSON().ToUTF8Bytes(),
-                                                     X_ExpectedTotalNumberOfItems   = _ExpectedCount
+                                                     HTTPStatusCode             = HTTPStatusCode.OK,
+                                                     Server                     = HTTPServer.DefaultServerName,
+                                                     Date                       = DateTime.UtcNow,
+                                                     AccessControlAllowOrigin   = "*",
+                                                     AccessControlAllowMethods  = "GET, COUNT, OPTIONS",
+                                                     AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
+                                                     ETag                       = "1",
+                                                     ContentType                = HTTPContentType.JSON_UTF8,
+                                                     Content                    = AllMyOrganizations.ToJSON().ToUTF8Bytes()
                                                  }.AsImmutable);
 
                                          });
@@ -3148,12 +3041,13 @@ namespace org.GraphDefined.OpenData.Users
 
         #endregion
 
-        #region (protected) TryGetHTTPUser(Request, User, Organizations, Response, RequireReadWriteAccess = false, Recursive = false)
+        #region (protected) TryGetHTTPUser(Request, User, Organizations, Response, RequireAdminAccess = false, RequireReadWriteAccess = false, Recursive = false)
 
         protected Boolean TryGetHTTPUser(HTTPRequest                    Request,
                                          out User                       User,
                                          out IEnumerable<Organization>  Organizations,
                                          out HTTPResponse               Response,
+                                         Boolean                        RequireAdminAccess      = false,
                                          Boolean                        RequireReadWriteAccess  = false,
                                          Boolean                        Recursive               = false)
         {
@@ -3184,7 +3078,7 @@ namespace org.GraphDefined.OpenData.Users
 
             }
 
-            Organizations = User?.Organizations(RequireReadWriteAccess, Recursive);
+            Organizations = User?.Organizations(RequireAdminAccess, RequireReadWriteAccess, Recursive);
             Response      = null;
             return true;
 
@@ -3192,11 +3086,12 @@ namespace org.GraphDefined.OpenData.Users
 
         #endregion
 
-        #region (protected) TryGetHTTPUser(Request, User, Organizations,           RequireReadWriteAccess = false, Recursive = false)
+        #region (protected) TryGetHTTPUser(Request, User, Organizations,           RequireAdminAccess = false, RequireReadWriteAccess = false, Recursive = false)
 
         protected void TryGetHTTPUser(HTTPRequest                    Request,
                                       out User                       User,
                                       out IEnumerable<Organization>  Organizations,
+                                      Boolean                        RequireAdminAccess      = false,
                                       Boolean                        RequireReadWriteAccess  = false,
                                       Boolean                        Recursive               = false)
         {
@@ -3208,7 +3103,7 @@ namespace org.GraphDefined.OpenData.Users
                     Request.HTTPSource.IPAddress.IsLocalhost)
                 {
                     User           = Admins.User2GroupInEdges(edgelabel => edgelabel == User2GroupEdges.IsAdmin).FirstOrDefault()?.Source;
-                    Organizations  = User.Organizations(RequireReadWriteAccess, Recursive);
+                    Organizations  = User.Organizations(RequireAdminAccess, RequireReadWriteAccess, Recursive);
                     return;
                 }
 
@@ -3217,7 +3112,7 @@ namespace org.GraphDefined.OpenData.Users
 
             }
 
-            Organizations = User?.Organizations(RequireReadWriteAccess, Recursive);
+            Organizations = User?.Organizations(RequireAdminAccess, RequireReadWriteAccess, Recursive);
 
         }
 
