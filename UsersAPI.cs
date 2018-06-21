@@ -2459,7 +2459,7 @@ namespace org.GraphDefined.OpenData.Users
             // ------------------------------------------------------------------
             // curl -v -H "Accept: application/json" http://127.0.0.1:2100/orgs
             // ------------------------------------------------------------------
-            HTTPServer.ITEMS_GET(UriTemplate:     URIPrefix + "/orgs",
+            HTTPServer.ITEMS_GET(UriTemplate:     URIPrefix + "/organizations",
                                  Dictionary:      _Organizations,
                                  Filter:          org => org.PrivacyLevel == PrivacyLevel.World,
                                  ToJSONDelegate:  JSON_IO.ToJSON);
@@ -2471,7 +2471,7 @@ namespace org.GraphDefined.OpenData.Users
             // ------------------------------------------------------------------------------------
             // curl -v -X EXITS -H "Accept: application/json" http://127.0.0.1:2100/orgs/Stadtrat
             // ------------------------------------------------------------------------------------
-            HTTPServer.ITEM_EXISTS<Organization_Id, Organization>(UriTemplate:               URIPrefix + "/orgs/{OrgId}",
+            HTTPServer.ITEM_EXISTS<Organization_Id, Organization>(UriTemplate:               URIPrefix + "/organizations/{OrgId}",
                                                                   ParseIdDelegate:           Organization_Id.TryParse,
                                                                   ParseIdError:              Text  => "Invalid organization identification '" + Text + "'!",
                                                                   TryGetItemDelegate:        _Organizations.TryGetValue,
@@ -2485,12 +2485,15 @@ namespace org.GraphDefined.OpenData.Users
             // ---------------------------------------------------------------------------
             // curl -v -H "Accept: application/json" http://127.0.0.1:2100/orgs/Stadtrat
             // ---------------------------------------------------------------------------
-            HTTPServer.ITEM_GET<Organization_Id, Organization>(UriTemplate:          URIPrefix + "/orgs/{OrgId}",
+            HTTPServer.ITEM_GET<Organization_Id, Organization>(UriTemplate:          URIPrefix + "/organizations/{OrgId}",
                                                                ParseIdDelegate:     Organization_Id.TryParse,
                                                                ParseIdError:        Text  => "Invalid organization identification '" + Text + "'!",
                                                                TryGetItemDelegate:  _Organizations.TryGetValue,
                                                                ItemFilterDelegate:  org   => org.PrivacyLevel == PrivacyLevel.World,
-                                                               TryGetItemError:     orgId => "Unknown organization '" + orgId + "'!",
+                                                               TryGetItemError:     orgId => {
+                                                                   var x = _Organizations.TryGetValue(orgId, out Organization org);
+                                                                   return "Unknown organization '" + orgId + "'!" + x;
+                                                               },
                                                                ToJSONDelegate:      _ => _.ToJSON());
 
             #endregion

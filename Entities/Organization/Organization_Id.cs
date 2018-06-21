@@ -301,7 +301,7 @@ namespace org.GraphDefined.OpenData.Users
             if ((Object) OrganizationId == null)
                 throw new ArgumentNullException(nameof(OrganizationId),  "The given organization identification must not be null!");
 
-            return String.Compare(InternalId, OrganizationId.InternalId, StringComparison.Ordinal);
+            return String.Compare(InternalId, OrganizationId.InternalId, StringComparison.OrdinalIgnoreCase);
 
         }
 
@@ -346,7 +346,7 @@ namespace org.GraphDefined.OpenData.Users
             if ((Object) OrganizationId == null)
                 return false;
 
-            return InternalId.Equals(OrganizationId.InternalId);
+            return InternalId.ToLower().Equals(OrganizationId.InternalId?.ToLower());
 
         }
 
@@ -361,7 +361,7 @@ namespace org.GraphDefined.OpenData.Users
         /// </summary>
         /// <returns>The HashCode of this object.</returns>
         public override Int32 GetHashCode()
-            => InternalId.GetHashCode();
+            => InternalId.ToLower().GetHashCode();
 
         #endregion
 
