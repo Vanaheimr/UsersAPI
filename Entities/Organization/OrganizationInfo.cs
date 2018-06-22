@@ -127,7 +127,7 @@ namespace org.GraphDefined.OpenData.Users
 
                 => Org.Organization2OrganizationInEdges.
                        Where     (edge => edge.EdgeLabel == Organization2OrganizationEdges.IsChildOf).
-                       SafeSelect(edge => new OrganizationInfo(edge.Target,
+                       SafeSelect(edge => new OrganizationInfo(edge.Source,
                                                                You,
                                                                YouAreMemberRecursion,
                                                                YouCanAddMembersRecursion,

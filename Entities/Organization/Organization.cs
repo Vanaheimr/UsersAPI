@@ -298,12 +298,12 @@ namespace org.GraphDefined.OpenData.Users
         public MiniEdge<Organization, Organization2OrganizationEdges, Organization>
 
             AddInEdge(Organization2OrganizationEdges  EdgeLabel,
-                      Organization                    Target,
+                      Organization                    Source,
                       PrivacyLevel                    PrivacyLevel = PrivacyLevel.Private)
 
-            => _Organization2OrganizationInEdges.AddAndReturn(new MiniEdge<Organization, Organization2OrganizationEdges, Organization>(this,
+            => _Organization2OrganizationInEdges.AddAndReturn(new MiniEdge<Organization, Organization2OrganizationEdges, Organization>(Source,
                                                                                                                                        EdgeLabel,
-                                                                                                                                       Target,
+                                                                                                                                       this,
                                                                                                                                        PrivacyLevel));
 
         public MiniEdge<Organization, Organization2OrganizationEdges, Organization>
