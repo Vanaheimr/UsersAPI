@@ -36,6 +36,13 @@ using org.GraphDefined.Vanaheimr.Styx.Arrows;
 namespace org.GraphDefined.OpenData.Users
 {
 
+    public enum Access_Level
+    {
+        ReadOnly,
+        ReadWrite,
+        Admin
+    }
+
     /// <summary>
     /// A user.
     /// </summary>
@@ -359,25 +366,47 @@ namespace org.GraphDefined.OpenData.Users
 
         #region Organizations(RequireAdminAccess, RequireReadWriteAccess, Recursive)
 
-        public IEnumerable<Organization> Organizations(Boolean RequireAdminAccess,
-                                                       Boolean RequireReadWriteAccess,
-                                                       Boolean Recursive)
+        public IEnumerable<Organization> Organizations(Access_Level  AccessLevel,
+                                                       Boolean       Recursive)
         {
 
-            var _Organizations = RequireReadWriteAccess
+            var AllMyOrganizations = new HashSet<Organization>();
 
-                                     ? _User2OrganizationEdges.
-                                           Where (edge => edge.EdgeLabel == User2OrganizationEdges.IsAdmin ||
-                                                          edge.EdgeLabel == User2OrganizationEdges.IsMember).
-                                           Select(edge => edge.Target).
-                                           ToHashSet()
+            switch (AccessLevel)
+            {
 
-                                     : _User2OrganizationEdges.
-                                           Where (edge => edge.EdgeLabel == User2OrganizationEdges.IsAdmin  ||
-                                                          edge.EdgeLabel == User2OrganizationEdges.IsMember ||
-                                                          edge.EdgeLabel == User2OrganizationEdges.IsVisitor).
-                                           Select(edge => edge.Target).
-                                           ToHashSet();
+                case Access_Level.Admin:
+                    foreach (var organization in _User2OrganizationEdges.
+                                                     Where (edge => edge.EdgeLabel == User2OrganizationEdges.IsAdmin).
+                                                     Select(edge => edge.Target))
+                    {
+                        AllMyOrganizations.Add(organization);
+                    }
+                    break;
+
+                case Access_Level.ReadWrite:
+                    foreach (var organization in _User2OrganizationEdges.
+                                                     Where (edge => edge.EdgeLabel == User2OrganizationEdges.IsAdmin ||
+                                                                    edge.EdgeLabel == User2OrganizationEdges.IsMember).
+                                                     Select(edge => edge.Target))
+                    {
+                        AllMyOrganizations.Add(organization);
+                    }
+                    break;
+
+                default:
+                    foreach (var organization in _User2OrganizationEdges.
+                                                     Where (edge => edge.EdgeLabel == User2OrganizationEdges.IsAdmin  ||
+                                                                    edge.EdgeLabel == User2OrganizationEdges.IsMember ||
+                                                                    edge.EdgeLabel == User2OrganizationEdges.IsVisitor).
+                                                     Select(edge => edge.Target))
+                    {
+                        AllMyOrganizations.Add(organization);
+                    }
+                    break;
+
+            }
+
 
             if (Recursive)
             {
@@ -387,21 +416,21 @@ namespace org.GraphDefined.OpenData.Users
                 do
                 {
 
-                    Level2 = _Organizations.SelectMany(organization => organization.
-                                                                           Organization2OrganizationInEdges.
-                                                                           Where(edge => edge.EdgeLabel == Organization2OrganizationEdges.IsChildOf)).
-                                            Select    (edge         => edge.Target).
-                                            Where     (organization => !_Organizations.Contains(organization)).
-                                            ToArray();
+                    Level2 = AllMyOrganizations.SelectMany(organization => organization.
+                                                                               Organization2OrganizationInEdges.
+                                                                               Where(edge => edge.EdgeLabel == Organization2OrganizationEdges.IsChildOf)).
+                                                Select    (edge         => edge.Source).
+                                                Where     (organization => !AllMyOrganizations.Contains(organization)).
+                                                ToArray();
 
                     foreach (var organization in Level2)
-                        _Organizations.Add(organization);
+                        AllMyOrganizations.Add(organization);
 
                 } while (Level2.Length > 0);
 
             }
 
-            return _Organizations;
+            return AllMyOrganizations;
 
         }
 

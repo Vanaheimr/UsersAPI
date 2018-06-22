@@ -1916,7 +1916,7 @@ namespace org.GraphDefined.OpenData.Users
                                                                  out User                       HTTPUser,
                                                                  out IEnumerable<Organization>  HTTPOrganizations,
                                                                  out HTTPResponse               Response,
-                                                                 RequireReadWriteAccess:        true,
+                                                                 AccessLevel:                   Access_Level.ReadWrite,
                                                                  Recursive:                     true))
                                              {
                                                  return SetUserResponse(Response);
@@ -3044,15 +3044,14 @@ namespace org.GraphDefined.OpenData.Users
 
         #endregion
 
-        #region (protected) TryGetHTTPUser(Request, User, Organizations, Response, RequireAdminAccess = false, RequireReadWriteAccess = false, Recursive = false)
+        #region (protected) TryGetHTTPUser(Request, User, Organizations, Response, AccessLevel = ReadOnly, Recursive = false)
 
         protected Boolean TryGetHTTPUser(HTTPRequest                    Request,
                                          out User                       User,
                                          out IEnumerable<Organization>  Organizations,
                                          out HTTPResponse               Response,
-                                         Boolean                        RequireAdminAccess      = false,
-                                         Boolean                        RequireReadWriteAccess  = false,
-                                         Boolean                        Recursive               = false)
+                                         Access_Level                    AccessLevel  = Access_Level.ReadOnly,
+                                         Boolean                        Recursive    = false)
         {
 
             if (!TryGetHTTPUser(Request, out User))
@@ -3081,7 +3080,7 @@ namespace org.GraphDefined.OpenData.Users
 
             }
 
-            Organizations = User?.Organizations(RequireAdminAccess, RequireReadWriteAccess, Recursive);
+            Organizations = User?.Organizations(AccessLevel, Recursive);
             Response      = null;
             return true;
 
@@ -3089,14 +3088,13 @@ namespace org.GraphDefined.OpenData.Users
 
         #endregion
 
-        #region (protected) TryGetHTTPUser(Request, User, Organizations,           RequireAdminAccess = false, RequireReadWriteAccess = false, Recursive = false)
+        #region (protected) TryGetHTTPUser(Request, User, Organizations,           AccessLevel = ReadOnly, Recursive = false)
 
         protected void TryGetHTTPUser(HTTPRequest                    Request,
                                       out User                       User,
                                       out IEnumerable<Organization>  Organizations,
-                                      Boolean                        RequireAdminAccess      = false,
-                                      Boolean                        RequireReadWriteAccess  = false,
-                                      Boolean                        Recursive               = false)
+                                      Access_Level                    AccessLevel  = Access_Level.ReadOnly,
+                                      Boolean                        Recursive    = false)
         {
 
             if (!TryGetHTTPUser(Request, out User))
@@ -3106,7 +3104,7 @@ namespace org.GraphDefined.OpenData.Users
                     Request.HTTPSource.IPAddress.IsLocalhost)
                 {
                     User           = Admins.User2GroupInEdges(edgelabel => edgelabel == User2GroupEdges.IsAdmin).FirstOrDefault()?.Source;
-                    Organizations  = User.Organizations(RequireAdminAccess, RequireReadWriteAccess, Recursive);
+                    Organizations  = User.Organizations(AccessLevel, Recursive);
                     return;
                 }
 
@@ -3115,7 +3113,7 @@ namespace org.GraphDefined.OpenData.Users
 
             }
 
-            Organizations = User?.Organizations(RequireAdminAccess, RequireReadWriteAccess, Recursive);
+            Organizations = User?.Organizations(AccessLevel, Recursive);
 
         }
 
