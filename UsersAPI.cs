@@ -1379,8 +1379,9 @@ namespace org.GraphDefined.OpenData.Users
                                                                             Environment.NewLine
                                                                         ).ToUTF8Bytes(),
                                                       CacheControl    = "private",
-                                                      SetCookie       = CookieName + "=login="    + _LoginPassword.Login.ToString().ToBase64() +
+                                                      SetCookie       = CookieName + "=login=" + _LoginPassword.Login.ToString().ToBase64() +
                                                                                   ":username=" + _User.Name.ToBase64() +
+                                                                                  ":email="    + _User.EMail.Address.ToString().ToBase64() +
                                                                                 (IsAdmin(_User) ? ":isAdmin" : "") +
                                                                              ":securitytoken=" + SecurityToken +
                                                                                   "; Expires=" + Expires.ToRfc1123() +

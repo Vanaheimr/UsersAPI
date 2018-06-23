@@ -1,5 +1,8 @@
 ﻿
-var SignInUser = "";
+var SignInUser    = "";
+var Username      = "";
+var UserEMail     = "";
+var isAdmin       = false;
 
 function HideElement(DivName) {
 
@@ -127,29 +130,33 @@ function checkSignedIn(RedirectUnkownUsers: Boolean) {
                        if (crumb.indexOf("login")    >= 0)
                            SignInUser = atob(crumb.split("=")[1]);
 
-                       var usernameDiv = <HTMLElement> document.querySelector('#username');
+                       if (crumb.indexOf("username") >= 0)
+                           Username  = atob(crumb.split("=")[1]);
 
-                       if (usernameDiv != null && crumb.indexOf("username") >= 0)
-                           usernameDiv.innerText = atob(crumb.split("=")[1]);
+                       if (crumb.indexOf("email") >= 0)
+                           UserEMail   = atob(crumb.split("=")[1]);
 
                        if (crumb.indexOf("isAdmin") >= 0) {
+                           isAdmin = true;
                            ShowElement('#admin');
                            ShowElement('.admin');
                        }
 
-                       ShowElement('#username');
-                       ShowElement('.username');
-
-                       ShowElement('#profile');
-                       ShowElement('.profile');
-
-                       ShowElement('#SignOut');
-                       ShowElement('.SignOut');
-
-                       HideElement('#SignIn');
-                       HideElement('.SignIn');
-
                    });
+
+                   (document.querySelector('#username') as HTMLDivElement).innerText = Username;
+
+                   ShowElement('#username');
+                   ShowElement('.username');
+
+                   ShowElement('#profile');
+                   ShowElement('.profile');
+
+                   ShowElement('#SignOut');
+                   ShowElement('.SignOut');
+
+                   HideElement('#SignIn');
+                   HideElement('.SignIn');
 
                },
 

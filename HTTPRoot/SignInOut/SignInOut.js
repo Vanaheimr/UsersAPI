@@ -1,7 +1,9 @@
 //@ sourceURL=/shared/UsersAPI/SignInOut.js
 
-var SignInUser   = "";
-var HTTPCookieId = "OpenDataSocial";
+var HTTPCookieId  = "OpenDataSocial";
+var SignInUser    = "";
+var Username      = "";
+var UserEMail     = "";
 
 function ToggleLoginPanel() {
 
@@ -89,18 +91,21 @@ function checkSignedIn() {
         HideElement('#SignInLink');
         ShowElement('#SignOutLink');
 
-        var UsernameDiv = ShowElement('#UserControls').querySelector("#username");
-
         // Crumbs are base64 encoded!
         var crumbs = cookie.split(":").forEach(function (crumbs) {
 
             if (crumbs.startsWith("username"))
-                SignInUser            = atob(crumbs.split("=")[1]);
+                SignInUser  = atob(crumbs.split("=")[1]);
 
             if (crumbs.startsWith("name"))
-                UsernameDiv.innerText = atob(crumbs.split("=")[1]);
+                Username    = atob(crumbs.split("=")[1]);
+
+            if (crumbs.startsWith("email"))
+                UserEMail   = atob(crumbs.split("=")[1]);
 
         });
+
+        ShowElement('#UserControls').querySelector("#username").innerText = Username;
 
     });
 
