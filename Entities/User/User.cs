@@ -283,21 +283,29 @@ namespace org.GraphDefined.OpenData.Users
 
         {
 
+            #region Initial checks
+
+            if (Name != null)
+                Name = Name.Trim();
+
+            if (Name.IsNullOrEmpty())
+                throw new ArgumentNullException(nameof(Name), "The givven username must not be null or empty!");
+
+            #endregion
+
             #region Init properties
 
             this.EMail                    = Name.IsNotNullOrEmpty()
-                                                ? new EMailAddress(Name, EMail, null, null)
-                                                : new EMailAddress(      EMail, null, null);
-            this.Name                     = Name.IsNotNullOrEmpty()
-                                                ? Name
-                                                : "";
+                                                ? new EMailAddress(Name, EMail, SecretKeyRing, PublicKeyRing)
+                                                : new EMailAddress(      EMail, SecretKeyRing, PublicKeyRing);
+            this.Name                     = Name;
             this.PublicKeyRing            = PublicKeyRing;
             this.SecretKeyRing            = SecretKeyRing;
             this.Telephone                = Telephone;
             this.Description              = Description  ?? new I18NString();
             this.GeoLocation              = GeoLocation;
             this.Address                  = Address;
-            this.PrivacyLevel             = PrivacyLevel ?? OpenData.PrivacyLevel.World;
+            this.PrivacyLevel             = PrivacyLevel ?? OpenData.PrivacyLevel.Private;
             this.IsAuthenticated          = IsAuthenticated;
             this.IsDisabled               = IsDisabled;
 

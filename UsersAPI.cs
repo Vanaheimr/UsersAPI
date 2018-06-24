@@ -44,6 +44,7 @@ using org.GraphDefined.Vanaheimr.Hermod.Sockets.TCP;
 using org.GraphDefined.Vanaheimr.BouncyCastle;
 using org.GraphDefined.Vanaheimr.Hermod.Sockets;
 using org.GraphDefined.Vanaheimr.Aegir;
+using org.GraphDefined.Vanaheimr.Warden;
 
 #endregion
 
@@ -543,6 +544,9 @@ namespace org.GraphDefined.OpenData.Users
         public String        LogfileName                { get; }
 
 
+        public Warden Warden { get; }
+
+
         public Organization  NoOwner                    { get; }
 
         #endregion
@@ -566,8 +570,6 @@ namespace org.GraphDefined.OpenData.Users
         /// 
         /// <param name="ServiceName">The name of the service.</param>
         /// <param name="APIEMailAddress">An e-mail address for this API.</param>
-        /// <param name="APIPublicKeyRing">A GPG public key for this API.</param>
-        /// <param name="APISecretKeyRing">A GPG secret key for this API.</param>
         /// <param name="APIPassphrase">A GPG passphrase for this API.</param>
         /// <param name="APIAdminEMails">A list of admin e-mail addresses.</param>
         /// <param name="APISMTPClient">A SMTP client for sending e-mails.</param>
@@ -701,8 +703,6 @@ namespace org.GraphDefined.OpenData.Users
         /// 
         /// <param name="ServiceName">The name of the service.</param>
         /// <param name="APIEMailAddress">An e-mail address for this API.</param>
-        /// <param name="APIPublicKeyRing">A GPG public key for this API.</param>
-        /// <param name="APISecretKeyRing">A GPG secret key for this API.</param>
         /// <param name="APIPassphrase">A GPG passphrase for this API.</param>
         /// <param name="APIAdminEMails">A list of admin e-mail addresses.</param>
         /// <param name="APISMTPClient">A SMTP client for sending e-mails.</param>
@@ -781,8 +781,7 @@ namespace org.GraphDefined.OpenData.Users
                                                          SecretKeyRing:    APIEMailAddress.SecretKeyRing,
                                                          Description:      I18NString.Create(Languages.eng, "Cardi-Link API Robot"),
                                                          PrivacyLevel:     PrivacyLevel.World,
-                                                         IsAuthenticated:  true
-                                                         );
+                                                         IsAuthenticated:  true);
 
             this.APIPassphrase                = APIPassphrase;
             this.APIAdminEMails               = APIAdminEMails;
@@ -853,6 +852,8 @@ namespace org.GraphDefined.OpenData.Users
 
             NoOwner = CreateOrganizationIfNotExists(Organization_Id.Parse("NoOwner"), Robot.Id);
 
+            this.Warden = new Warden(InitialDelay: TimeSpan.FromMinutes(3));
+
             if (!SkipURITemplates)
                 RegisterURITemplates();
 
@@ -874,8 +875,6 @@ namespace org.GraphDefined.OpenData.Users
         /// 
         /// <param name="ServiceName">The name of the service.</param>
         /// <param name="APIEMailAddress">An e-mail address for this API.</param>
-        /// <param name="APIPublicKeyRing">A GPG public key for this API.</param>
-        /// <param name="APISecretKeyRing">A GPG secret key for this API.</param>
         /// <param name="APIPassphrase">A GPG passphrase for this API.</param>
         /// <param name="APIAdminEMails">A list of admin e-mail addresses.</param>
         /// <param name="APISMTPClient">A SMTP client for sending e-mails.</param>
@@ -901,8 +900,6 @@ namespace org.GraphDefined.OpenData.Users
 
                                                String                              ServiceName                  = DefaultServiceName,
                                                EMailAddress                        APIEMailAddress              = null,
-                                               PgpPublicKeyRing                    APIPublicKeyRing             = null,
-                                               PgpSecretKeyRing                    APISecretKeyRing             = null,
                                                String                              APIPassphrase                = null,
                                                EMailAddressList                    APIAdminEMails               = null,
                                                SMTPClient                          APISMTPClient                = null,
@@ -3166,9 +3163,6 @@ namespace org.GraphDefined.OpenData.Users
             {
                 lock (DefaultUsersAPIFile)
                 {
-
-                    //if (!UserId.HasValue)
-                    //    UserId = Robot.Id;
 
                     var Now          = DateTime.UtcNow;
 
