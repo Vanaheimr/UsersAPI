@@ -213,6 +213,29 @@ namespace org.GraphDefined.OpenData.Users
 
     }
 
+    public class UserContext : IDisposable
+    {
+
+        public User_Id  Current    { get; }
+        public User_Id? Previous   { get; }
+
+
+        public UserContext(User_Id UserId)
+        {
+
+            this.Previous                           = UsersAPI.CurrentAsyncLocalUserId.Value;
+            this.Current                            = UserId;
+            UsersAPI.CurrentAsyncLocalUserId.Value  = UserId;
+
+        }
+
+        public void Dispose()
+        {
+            UsersAPI.CurrentAsyncLocalUserId.Value = Previous;
+        }
+
+    }
+
 
     /// <summary>
     /// A library for managing users within and HTTP API or website.
@@ -316,6 +339,11 @@ namespace org.GraphDefined.OpenData.Users
         #endregion
 
         #region Properties
+
+        /// <summary>
+        /// The current async local user identification to simplify API usage.
+        /// </summary>
+        internal static AsyncLocal<User_Id?> CurrentAsyncLocalUserId = new AsyncLocal<User_Id?>();
 
         /// <summary>
         /// The HTTP server of the API.
@@ -577,9 +605,9 @@ namespace org.GraphDefined.OpenData.Users
         /// <param name="CookieName">The name of the HTTP Cookie for authentication.</param>
         /// <param name="Language">The main language of the API.</param>
         /// <param name="LogoImage">The logo of the website.</param>
-        /// <param name="NewUserSignUpEMailCreator">A delegate for sending a sign-up e-mail to a new user.</param>
-        /// <param name="NewUserWelcomeEMailCreator">A delegate for sending a welcome e-mail to a new user.</param>
-        /// <param name="ResetPasswordEMailCreator">A delegate for sending a reset password e-mail to a user.</param>
+        /// <param name="NewUserSignUpEMailCurrentUserId">A delegate for sending a sign-up e-mail to a new user.</param>
+        /// <param name="NewUserWelcomeEMailCurrentUserId">A delegate for sending a welcome e-mail to a new user.</param>
+        /// <param name="ResetPasswordEMailCurrentUserId">A delegate for sending a reset password e-mail to a user.</param>
         /// <param name="MinUserNameLenght">The minimal user name length.</param>
         /// <param name="MinRealmLenght">The minimal realm length.</param>
         /// <param name="MinPasswordLenght">The minimal password length.</param>
@@ -710,9 +738,9 @@ namespace org.GraphDefined.OpenData.Users
         /// <param name="CookieName">The name of the HTTP Cookie for authentication.</param>
         /// <param name="Language">The main language of the API.</param>
         /// <param name="LogoImage">The logo of the website.</param>
-        /// <param name="NewUserSignUpEMailCreator">A delegate for sending a sign-up e-mail to a new user.</param>
-        /// <param name="NewUserWelcomeEMailCreator">A delegate for sending a welcome e-mail to a new user.</param>
-        /// <param name="ResetPasswordEMailCreator">A delegate for sending a reset password e-mail to a user.</param>
+        /// <param name="NewUserSignUpEMailCurrentUserId">A delegate for sending a sign-up e-mail to a new user.</param>
+        /// <param name="NewUserWelcomeEMailCurrentUserId">A delegate for sending a welcome e-mail to a new user.</param>
+        /// <param name="ResetPasswordEMailCurrentUserId">A delegate for sending a reset password e-mail to a user.</param>
         /// <param name="MinUserNameLenght">The minimal user name length.</param>
         /// <param name="MinRealmLenght">The minimal realm length.</param>
         /// <param name="MinPasswordLenght">The minimal password length.</param>
@@ -783,6 +811,8 @@ namespace org.GraphDefined.OpenData.Users
                                                          PrivacyLevel:     PrivacyLevel.World,
                                                          IsAuthenticated:  true);
 
+            CurrentAsyncLocalUserId.Value     = Robot.Id;
+
             this.APIPassphrase                = APIPassphrase;
             this.APIAdminEMails               = APIAdminEMails;
             this.APISMTPClient                = APISMTPClient;
@@ -843,14 +873,14 @@ namespace org.GraphDefined.OpenData.Users
 
             ReadDatabaseFiles();
 
-            _Notifications.OnAdded   += (Timestamp, User, NotificationId, NotificationType) => WriteToLogfileAndNotify("AddNotification",    NotificationType.ToJSON(User, NotificationId), Robot.Id);
-            _Notifications.OnRemoved += (Timestamp, User, NotificationId, NotificationType) => WriteToLogfileAndNotify("RemoveNotification", NotificationType.ToJSON(User, NotificationId), Robot.Id);
+            _Notifications.OnAdded   += (Timestamp, User, NotificationId, NotificationType) => WriteToLogfileAndNotify("AddNotification",    NotificationType.ToJSON(User, NotificationId), CurrentUserId: Robot.Id);
+            _Notifications.OnRemoved += (Timestamp, User, NotificationId, NotificationType) => WriteToLogfileAndNotify("RemoveNotification", NotificationType.ToJSON(User, NotificationId), CurrentUserId: Robot.Id);
 
             HTTPServer.RequestLog2 += (HTTPProcessor, ServerTimestamp, Request)                                 => RequestLog.WhenAll(HTTPProcessor, ServerTimestamp, Request);
             HTTPServer.AccessLog2  += (HTTPProcessor, ServerTimestamp, Request, Response)                       => AccessLog. WhenAll(HTTPProcessor, ServerTimestamp, Request, Response);
             HTTPServer.ErrorLog2   += (HTTPProcessor, ServerTimestamp, Request, Response, Error, LastException) => ErrorLog.  WhenAll(HTTPProcessor, ServerTimestamp, Request, Response, Error, LastException);
 
-            NoOwner = CreateOrganizationIfNotExists(Organization_Id.Parse("NoOwner"), Robot.Id);
+            NoOwner = CreateOrganizationIfNotExists(Organization_Id.Parse("NoOwner"), CurrentUserId: Robot.Id);
 
             this.Warden = new Warden(InitialDelay: TimeSpan.FromMinutes(3));
 
@@ -882,9 +912,9 @@ namespace org.GraphDefined.OpenData.Users
         /// <param name="CookieName">The name of the HTTP Cookie for authentication.</param>
         /// <param name="DefaultLanguage">The default language of the API.</param>
         /// <param name="LogoImage">The logo of the website.</param>
-        /// <param name="NewUserSignUpEMailCreator">A delegate for sending a sign-up e-mail to a new user.</param>
-        /// <param name="NewUserWelcomeEMailCreator">A delegate for sending a welcome e-mail to a new user.</param>
-        /// <param name="ResetPasswordEMailCreator">A delegate for sending a reset password e-mail to a user.</param>
+        /// <param name="NewUserSignUpEMailCurrentUserId">A delegate for sending a sign-up e-mail to a new user.</param>
+        /// <param name="NewUserWelcomeEMailCurrentUserId">A delegate for sending a welcome e-mail to a new user.</param>
+        /// <param name="ResetPasswordEMailCurrentUserId">A delegate for sending a reset password e-mail to a user.</param>
         /// <param name="MinUserNameLenght">The minimal user name length.</param>
         /// <param name="MinRealmLenght">The minimal realm length.</param>
         /// <param name="MinPasswordLenght">The minimal password length.</param>
@@ -1666,7 +1696,7 @@ namespace org.GraphDefined.OpenData.Users
                                                                        Password:       Password.Parse(NewUserData.GetString("password")),
                                                                        EMail:          SimpleEMailAddress.Parse(NewUserData.GetString("email")),
                                                                        //PublicKeyRing:  NewUserData.GetString("gpgpublickeyring")
-                                                                       CreatorId:      Robot.Id);
+                                                                       CurrentUserId:      Robot.Id);
 
                                               var VerificationToken = _VerificationTokens.AddAndReturnElement(new VerificationToken(Seed: _Login.ToString() + NewUserData.GetString("password") + NewUserData.GetString("email"),
                                                                                                               UserId: _Login));
@@ -1677,11 +1707,11 @@ namespace org.GraphDefined.OpenData.Users
 
                                               var MailSentResult = MailSentStatus.failed;
 
-                                              var NewUserSignUpEMailCreatorLocal = NewUserSignUpEMailCreator;
-                                              if (NewUserSignUpEMailCreatorLocal != null)
+                                              var NewUserSignUpEMailCurrentUserIdLocal = NewUserSignUpEMailCreator;
+                                              if (NewUserSignUpEMailCurrentUserIdLocal != null)
                                               {
 
-                                                  var NewUserMail = NewUserSignUpEMailCreatorLocal(Login:              _Login,
+                                                  var NewUserMail = NewUserSignUpEMailCurrentUserIdLocal(Login:              _Login,
                                                                                                    EMail:              new EMailAddress(OwnerName:                 _Login.ToString(),
                                                                                                                                         SimpleEMailAddressString:  matches.Groups[0].Value,
                                                                                                                                         SecretKeyRing:             null,
@@ -3141,12 +3171,24 @@ namespace org.GraphDefined.OpenData.Users
         #endregion
 
 
-        #region WriteToLogfileAndNotify(MessageId, JSONData, UserId, Logfilename = DefaultUsersAPIFile)
+        #region WriteToLogfileAndNotify(MessageId, JSONData, Logfilename = DefaultUsersAPIFile)
 
         public void WriteToLogfileAndNotify(String    MessageId,
                                             JObject   JSONData,
-                                            User_Id   UserId,
-                                            String    Logfilename  = DefaultUsersAPIFile)
+                                            User_Id?  CurrentUserId)
+        {
+
+            WriteToLogfileAndNotify(MessageId,
+                                    JSONData,
+                                    DefaultUsersAPIFile,
+                                    CurrentUserId);
+
+        }
+
+        public void WriteToLogfileAndNotify(String    MessageId,
+                                            JObject   JSONData,
+                                            String    Logfilename    = DefaultUsersAPIFile,
+                                            User_Id?  CurrentUserId  = null)
         {
 
             #region Initial checks
@@ -3168,7 +3210,7 @@ namespace org.GraphDefined.OpenData.Users
 
                     var JSONMessage  = new JObject(
                                            new JProperty(MessageId,     JSONData),
-                                           new JProperty("userId",      UserId.  ToString()),
+                                           new JProperty("userId",      (CurrentUserId ?? CurrentAsyncLocalUserId.Value ?? Robot.Id).ToString()),
                                            new JProperty("systemId",    SystemId.ToString()),
                                            new JProperty("timestamp",   Now.ToIso8601()),
                                            new JProperty("sha256hash",  new JObject(
@@ -3474,9 +3516,6 @@ namespace org.GraphDefined.OpenData.Users
         public User CreateUser(User_Id             Id,
                                SimpleEMailAddress  EMail,
                                Password            Password,
-
-                               User_Id             CreatorId,
-
                                String              Name              = null,
                                I18NString          Description       = null,
                                PgpPublicKeyRing    PublicKeyRing     = null,
@@ -3486,7 +3525,8 @@ namespace org.GraphDefined.OpenData.Users
                                Address             Address           = null,
                                PrivacyLevel        PrivacyLevel      = PrivacyLevel.World,
                                Boolean             IsAuthenticated   = false,
-                               Boolean             IsDisabled        = false)
+                               Boolean             IsDisabled        = false,
+                               User_Id?            CurrentUserId     = null)
         {
 
             lock (_Users)
@@ -3511,7 +3551,7 @@ namespace org.GraphDefined.OpenData.Users
 
                 WriteToLogfileAndNotify("CreateUser",
                                         User.ToJSON(),
-                                        CreatorId);
+                                        CurrentUserId);
 
                 SetPassword(Id, Password);
 
@@ -3544,9 +3584,6 @@ namespace org.GraphDefined.OpenData.Users
         public User CreateUserIfNotExists(User_Id             Id,
                                           SimpleEMailAddress  EMail,
                                           Password            Password,
-
-                                          User_Id             CreatorId,
-
                                           String              Name              = null,
                                           I18NString          Description       = null,
                                           PgpPublicKeyRing    PublicKeyRing     = null,
@@ -3556,7 +3593,8 @@ namespace org.GraphDefined.OpenData.Users
                                           Address             Address           = null,
                                           PrivacyLevel        PrivacyLevel      = PrivacyLevel.World,
                                           Boolean             IsAuthenticated   = false,
-                                          Boolean             IsDisabled        = false)
+                                          Boolean             IsDisabled        = false,
+                                          User_Id?            CurrentUserId     = null)
         {
 
             lock (_Users)
@@ -3568,7 +3606,6 @@ namespace org.GraphDefined.OpenData.Users
                 return CreateUser(Id,
                                   EMail,
                                   Password,
-                                  CreatorId,
                                   Name,
                                   Description,
                                   PublicKeyRing,
@@ -3578,7 +3615,8 @@ namespace org.GraphDefined.OpenData.Users
                                   Address,
                                   PrivacyLevel,
                                   IsAuthenticated,
-                                  IsDisabled);
+                                  IsDisabled,
+                                  CurrentUserId);
 
             }
 
@@ -3693,6 +3731,13 @@ namespace org.GraphDefined.OpenData.Users
 
         #endregion
 
+
+        public UserContext SetUserContext(User User)
+            => new UserContext(User.Id);
+
+        public UserContext SetUserContext(User_Id UserId)
+            => new UserContext(UserId);
+
         #endregion
 
         #region API Keys
@@ -3798,7 +3843,7 @@ namespace org.GraphDefined.OpenData.Users
         #region CreateGroup           (Id, Name = null, Description = null)
 
         public Group CreateGroup(Group_Id   Id,
-                                 User_Id    CreatorId,
+                                 User_Id    CurrentUserId,
                                  I18NString Name         = null,
                                  I18NString Description  = null)
         {
@@ -3817,7 +3862,7 @@ namespace org.GraphDefined.OpenData.Users
                 if (Group.Id.ToString() != AdminGroupName)
                     WriteToLogfileAndNotify("CreateGroup",
                                             Group.ToJSON(),
-                                            CreatorId);
+                                            CurrentUserId);
 
                 return _Groups.AddAndReturnValue(Group.Id, Group);
 
@@ -3830,7 +3875,7 @@ namespace org.GraphDefined.OpenData.Users
         #region CreateGroupIfNotExists(Id, Name = null, Description = null)
 
         public Group CreateGroupIfNotExists(Group_Id    Id,
-                                            User_Id     CreatorId,
+                                            User_Id     CurrentUserId,
                                             I18NString  Name         = null,
                                             I18NString  Description  = null)
         {
@@ -3842,7 +3887,7 @@ namespace org.GraphDefined.OpenData.Users
                     return _Groups[Id];
 
                 return CreateGroup(Id,
-                                   CreatorId,
+                                   CurrentUserId,
                                    Name,
                                    Description);
 
@@ -3904,13 +3949,14 @@ namespace org.GraphDefined.OpenData.Users
 
         #endregion
 
-        #region AddToGroup(User, Edge, Group, PrivacyLevel = World)
+        #region AddToGroup(User, Edge, Group, PrivacyLevel = Private)
 
         public Boolean AddToGroup(User             User,
                                   User2GroupEdges  Edge,
                                   Group            Group,
-                                  User_Id          Creator,
-                                  PrivacyLevel     PrivacyLevel = PrivacyLevel.World)
+                                  PrivacyLevel     PrivacyLevel   = PrivacyLevel.Private,
+                                  User_Id?         CurrentUserId  = null)
+
         {
 
             if (!User.OutEdges(Group).Any(edge => edge == Edge))
@@ -3928,7 +3974,7 @@ namespace org.GraphDefined.OpenData.Users
                                             new JProperty("group",    Group.  ToString()),
                                             PrivacyLevel.ToJSON()
                                         ),
-                                        Creator);
+                                        CurrentUserId);
 
                 return true;
 
@@ -3974,7 +4020,6 @@ namespace org.GraphDefined.OpenData.Users
         #region CreateOrganization           (Id, Name = null, Description = null, ParentOrganization = null)
 
         public Organization CreateOrganization(Organization_Id      Id,
-                                               User_Id              CreatorId,
                                                I18NString           Name                = null,
                                                I18NString           Description         = null,
                                                SimpleEMailAddress?  EMail               = null,
@@ -3985,7 +4030,8 @@ namespace org.GraphDefined.OpenData.Users
                                                PrivacyLevel         PrivacyLevel        = PrivacyLevel.World,
                                                Boolean              IsDisabled          = false,
                                                String               DataSource          = "",
-                                               Organization         ParentOrganization  = null)
+                                               Organization         ParentOrganization  = null,
+                                               User_Id?             CurrentUserId       = null)
         {
 
             lock (_Organizations)
@@ -4009,12 +4055,12 @@ namespace org.GraphDefined.OpenData.Users
 
                 WriteToLogfileAndNotify("CreateOrganization",
                                         Organization.ToJSON(),
-                                        CreatorId);
+                                        CurrentUserId);
 
                 var NewOrg = _Organizations.AddAndReturnValue(Organization.Id, Organization);
 
                 if (ParentOrganization != null)
-                    LinkOrganizations(NewOrg, Organization2OrganizationEdges.IsChildOf, ParentOrganization, CreatorId);
+                    LinkOrganizations(NewOrg, Organization2OrganizationEdges.IsChildOf, ParentOrganization, CurrentUserId: CurrentUserId);
 
                 return NewOrg;
 
@@ -4027,7 +4073,6 @@ namespace org.GraphDefined.OpenData.Users
         #region CreateOrganizationIfNotExists(Id, Name = null, Description = null, ParentOrganization = null)
 
         public Organization CreateOrganizationIfNotExists(Organization_Id      Id,
-                                                          User_Id              CreatorId,
                                                           I18NString           Name                = null,
                                                           I18NString           Description         = null,
                                                           SimpleEMailAddress?  EMail               = null,
@@ -4038,7 +4083,8 @@ namespace org.GraphDefined.OpenData.Users
                                                           PrivacyLevel         PrivacyLevel        = PrivacyLevel.World,
                                                           Boolean              IsDisabled          = false,
                                                           String               DataSource          = "",
-                                                          Organization         ParentOrganization  = null)
+                                                          Organization         ParentOrganization  = null,
+                                                          User_Id?             CurrentUserId       = null)
         {
 
             lock (_Organizations)
@@ -4048,7 +4094,6 @@ namespace org.GraphDefined.OpenData.Users
                     return _Organizations[Id];
 
                 return CreateOrganization(Id,
-                                          CreatorId,
                                           Name,
                                           Description,
                                           EMail,
@@ -4059,7 +4104,8 @@ namespace org.GraphDefined.OpenData.Users
                                           PrivacyLevel,
                                           IsDisabled,
                                           DataSource,
-                                          ParentOrganization);
+                                          ParentOrganization,
+                                          CurrentUserId);
 
             }
 
@@ -4120,13 +4166,13 @@ namespace org.GraphDefined.OpenData.Users
         #endregion
 
 
-        #region AddToOrganization(User, Edge, Organization, PrivacyLevel = World)
+        #region AddToOrganization(User, Edge, Organization, PrivacyLevel = Private)
 
         public Boolean AddToOrganization(User                    User,
                                          User2OrganizationEdges  Edge,
                                          Organization            Organization,
-                                         User_Id                 Creator,
-                                         PrivacyLevel            PrivacyLevel = PrivacyLevel.World)
+                                         PrivacyLevel            PrivacyLevel   = PrivacyLevel.Private,
+                                         User_Id?                CurrentUserId  = null)
         {
 
             if (!User.Edges(Organization).Any(edge => edge == Edge))
@@ -4144,7 +4190,7 @@ namespace org.GraphDefined.OpenData.Users
                                             new JProperty("organization",  Organization.Id.ToString()),
                                             PrivacyLevel.ToJSON()
                                         ),
-                                        Creator);
+                                        CurrentUserId);
 
                 return true;
 
@@ -4161,8 +4207,8 @@ namespace org.GraphDefined.OpenData.Users
         public Boolean LinkOrganizations(Organization                    OrganizationOut,
                                          Organization2OrganizationEdges  EdgeLabel,
                                          Organization                    OrganizationIn,
-                                         User_Id                         CreatorId,
-                                         PrivacyLevel                    Privacy = PrivacyLevel.World)
+                                         PrivacyLevel                    Privacy        = PrivacyLevel.World,
+                                         User_Id?                        CurrentUserId  = null)
         {
 
             if (!OrganizationOut.
@@ -4188,7 +4234,7 @@ namespace org.GraphDefined.OpenData.Users
                                             new JProperty("organizationIn",  OrganizationIn. Id.ToString()),
                                             Privacy.ToJSON()
                                         ),
-                                        CreatorId);
+                                        CurrentUserId);
 
                 return true;
 
