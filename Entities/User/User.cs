@@ -30,6 +30,8 @@ using org.GraphDefined.Vanaheimr.Hermod.Mail;
 using org.GraphDefined.Vanaheimr.Hermod.Distributed;
 using org.GraphDefined.Vanaheimr.Hermod.HTTP;
 using org.GraphDefined.Vanaheimr.Styx.Arrows;
+using Org.BouncyCastle.Bcpg.OpenPgp;
+using org.GraphDefined.Vanaheimr.BouncyCastle;
 
 #endregion
 
@@ -87,7 +89,13 @@ namespace org.GraphDefined.OpenData.Users
         /// The PGP/GPG public keyring of the user.
         /// </summary>
         [Optional]
-        public String              PublicKeyRing        { get; }
+        public PgpPublicKeyRing    PublicKeyRing        { get; }
+
+        /// <summary>
+        /// The PGP/GPG secret keyring of the user.
+        /// </summary>
+        [Optional]
+        public PgpSecretKeyRing    SecretKeyRing        { get; }
 
         /// <summary>
         /// The telephone number of the user.
@@ -246,9 +254,10 @@ namespace org.GraphDefined.OpenData.Users
         /// <param name="Id">The unique identification of the user.</param>
         /// <param name="EMail">The primary e-mail of the user.</param>
         /// <param name="Name">An offical (multi-language) name of the user.</param>
-        /// <param name="PublicKeyRing">An optional PGP/GPG public keyring of the user.</param>
-        /// <param name="Telephone">An optional telephone number of the user.</param>
         /// <param name="Description">An optional (multi-language) description of the user.</param>
+        /// <param name="PublicKeyRing">An optional PGP/GPG public keyring of the user.</param>
+        /// <param name="SecretKeyRing">An optional PGP/GPG secret keyring of the user.</param>
+        /// <param name="Telephone">An optional telephone number of the user.</param>
         /// <param name="GeoLocation">An optional geographical location of the user.</param>
         /// <param name="Address">An optional address of the user.</param>
         /// <param name="PrivacyLevel">Whether the user will be shown in user listings, or not.</param>
@@ -258,9 +267,10 @@ namespace org.GraphDefined.OpenData.Users
         internal User(User_Id             Id,
                       SimpleEMailAddress  EMail,
                       String              Name              = null,
-                      String              PublicKeyRing     = null,
-                      PhoneNumber?        Telephone         = null,
                       I18NString          Description       = null,
+                      PgpPublicKeyRing    PublicKeyRing     = null,
+                      PgpSecretKeyRing    SecretKeyRing     = null,
+                      PhoneNumber?        Telephone         = null,
                       GeoCoordinate?      GeoLocation       = null,
                       Address             Address           = null,
                       PrivacyLevel?       PrivacyLevel      = null,
@@ -282,6 +292,7 @@ namespace org.GraphDefined.OpenData.Users
                                                 ? Name
                                                 : "";
             this.PublicKeyRing            = PublicKeyRing;
+            this.SecretKeyRing            = SecretKeyRing;
             this.Telephone                = Telephone;
             this.Description              = Description  ?? new I18NString();
             this.GeoLocation              = GeoLocation;
@@ -496,28 +507,32 @@ namespace org.GraphDefined.OpenData.Users
 
             => JSONObject.Create(
 
-                   new JProperty("@id",                 Id.ToString()),
-                   new JProperty("@context",            JSONLDContext),
-                   new JProperty("name",                Name),
-                   new JProperty("email",               EMail.Address.ToString()),
+                   new JProperty("@id",                  Id.ToString()),
+                   new JProperty("@context",             JSONLDContext),
+                   new JProperty("name",                 Name),
+                   new JProperty("email",                EMail.Address.ToString()),
+
+                   Description.IsNeitherNullNorEmpty()
+                       ? new JProperty("description",    Description.ToJSON())
+                       : null,
 
                    PublicKeyRing != null
-                       ? new JProperty("publickey",     PublicKeyRing)
+                       ? new JProperty("publicKeyRing",  PublicKeyRing.GetEncoded().ToHexString())
+                       : null,
+
+                   SecretKeyRing != null
+                       ? new JProperty("secretKeyRing",  SecretKeyRing.GetEncoded().ToHexString())
                        : null,
 
                    Telephone != null
-                       ? new JProperty("telephone",     Telephone)
-                       : null,
-
-                   IEnumerableExtensions.IsNeitherNullNorEmpty(Description)
-                       ? new JProperty("description",   Description.ToJSON())
+                       ? new JProperty("telephone",      Telephone)
                        : null,
 
                    PrivacyLevel.ToJSON(),
-                   new JProperty("isAuthenticated",     IsAuthenticated),
-                   new JProperty("isDisabled",          IsDisabled),
+                   new JProperty("isAuthenticated",      IsAuthenticated),
+                   new JProperty("isDisabled",           IsDisabled),
 
-                   new JProperty("signatures",          new JArray()),
+                   new JProperty("signatures",           new JArray()),
 
                    IncludeCryptoHash
                        ? new JProperty("hash", CurrentCryptoHash)
@@ -611,12 +626,46 @@ namespace org.GraphDefined.OpenData.Users
 
                 #endregion
 
-                #region Parse PublicKey        [optional]
+                #region Parse Description      [optional]
 
-                if (!JSONObject.ParseOptional("publicKey",
-                                              out String PublicKey))
+                if (!JSONObject.ParseOptional("description",
+                                              "Description",
+                                              out I18NString Description,
+                                              out ErrorResponse))
                 {
                     return false;
+                }
+
+                #endregion
+
+                #region Parse PublicKeyRing    [optional]
+
+                if (JSONObject.ParseOptional("publicKeyRing",
+                                             "GPG/PGP public key ring",
+                                             txt => OpenPGP.ReadPublicKeyRing(txt.HexStringToByteArray()),
+                                             out PgpPublicKeyRing PublicKeyRing,
+                                             out ErrorResponse))
+                {
+
+                    if (ErrorResponse != null)
+                        return false;
+
+                }
+
+                #endregion
+
+                #region Parse SecretKeyRing    [optional]
+
+                if (JSONObject.ParseOptional("secretKeyRing",
+                                             "GPG/PGP secret key ring",
+                                             txt => OpenPGP.ReadSecretKeyRing(txt.HexStringToByteArray()),
+                                             out PgpSecretKeyRing SecretKeyRing,
+                                             out ErrorResponse))
+                {
+
+                    if (ErrorResponse != null)
+                        return false;
+
                 }
 
                 #endregion
@@ -633,18 +682,6 @@ namespace org.GraphDefined.OpenData.Users
                     if (ErrorResponse != null)
                         return false;
 
-                }
-
-                #endregion
-
-                #region Parse Description      [optional]
-
-                if (!JSONObject.ParseOptional("description",
-                                              "Description",
-                                              out I18NString Description,
-                                              out ErrorResponse))
-                {
-                    return false;
                 }
 
                 #endregion
@@ -716,9 +753,10 @@ namespace org.GraphDefined.OpenData.Users
                 User = new User(UserIdBody ?? UserIdURI.Value,
                                 EMail,
                                 Name,
-                                PublicKey,
-                                Telephone,
                                 Description,
+                                PublicKeyRing,
+                                SecretKeyRing,
+                                Telephone,
                                 GeoLocation,
                                 Address,
                                 PrivacyLevel,
@@ -864,9 +902,10 @@ namespace org.GraphDefined.OpenData.Users
             => new Builder(NewUserId ?? Id,
                            EMail.Address,
                            Name,
-                           PublicKeyRing,
-                           Telephone,
                            Description,
+                           PublicKeyRing,
+                           SecretKeyRing,
+                           Telephone,
                            GeoLocation,
                            Address,
                            PrivacyLevel,
@@ -903,22 +942,28 @@ namespace org.GraphDefined.OpenData.Users
             public String              Name                 { get; set; }
 
             /// <summary>
+            /// An optional (multi-language) description of the user.
+            /// </summary>
+            [Optional]
+            public I18NString          Description          { get; set; }
+
+            /// <summary>
             /// The PGP/GPG public keyring of the user.
             /// </summary>
             [Optional]
-            public String              PublicKeyRing        { get; set; }
+            public PgpPublicKeyRing    PublicKeyRing        { get; set; }
+
+            /// <summary>
+            /// The PGP/GPG secret keyring of the user.
+            /// </summary>
+            [Optional]
+            public PgpSecretKeyRing    SecretKeyRing        { get; set; }
 
             /// <summary>
             /// The telephone number of the user.
             /// </summary>
             [Optional]
             public PhoneNumber?        Telephone            { get; set; }
-
-            /// <summary>
-            /// An optional (multi-language) description of the user.
-            /// </summary>
-            [Optional]
-            public I18NString          Description          { get; set; }
 
             /// <summary>
             /// The geographical location of this organization.
@@ -960,9 +1005,10 @@ namespace org.GraphDefined.OpenData.Users
             /// <param name="Id">The unique identification of the user.</param>
             /// <param name="EMail">The primary e-mail of the user.</param>
             /// <param name="Name">An offical (multi-language) name of the user.</param>
-            /// <param name="PublicKeyRing">An optional PGP/GPG public keyring of the user.</param>
-            /// <param name="Telephone">An optional telephone number of the user.</param>
             /// <param name="Description">An optional (multi-language) description of the user.</param>
+            /// <param name="PublicKeyRing">An optional PGP/GPG public keyring of the user.</param>
+            /// <param name="SecretKeyRing">An optional PGP/GPG secret keyring of the user.</param>
+            /// <param name="Telephone">An optional telephone number of the user.</param>
             /// <param name="GeoLocation">An optional geographical location of the user.</param>
             /// <param name="Address">An optional address of the user.</param>
             /// <param name="PrivacyLevel">Whether the user will be shown in user listings, or not.</param>
@@ -971,9 +1017,10 @@ namespace org.GraphDefined.OpenData.Users
             public Builder(User_Id             Id,
                            SimpleEMailAddress  EMail,
                            String              Name              = null,
-                           String              PublicKeyRing     = null,
-                           PhoneNumber?        Telephone         = null,
                            I18NString          Description       = null,
+                           PgpPublicKeyRing    PublicKeyRing     = null,
+                           PgpSecretKeyRing    SecretKeyRing     = null,
+                           PhoneNumber?        Telephone         = null,
                            GeoCoordinate?      GeoLocation       = null,
                            Address             Address           = null,
                            PrivacyLevel        PrivacyLevel      = PrivacyLevel.World,
@@ -990,9 +1037,10 @@ namespace org.GraphDefined.OpenData.Users
                 this.Name                     = Name.IsNotNullOrEmpty()
                                                     ? Name
                                                     : "";
-                this.PublicKeyRing            = PublicKeyRing;
-                this.Telephone                = Telephone;
                 this.Description              = Description ?? new I18NString();
+                this.PublicKeyRing            = PublicKeyRing;
+                this.SecretKeyRing            = SecretKeyRing;
+                this.Telephone                = Telephone;
                 this.GeoLocation              = GeoLocation;
                 this.Address                  = Address;
                 this.PrivacyLevel             = PrivacyLevel;
@@ -1024,9 +1072,10 @@ namespace org.GraphDefined.OpenData.Users
                 => new User(Id,
                             EMail.Address,
                             Name,
-                            PublicKeyRing,
-                            Telephone,
                             Description,
+                            PublicKeyRing,
+                            SecretKeyRing,
+                            Telephone,
                             GeoLocation,
                             Address,
                             PrivacyLevel,

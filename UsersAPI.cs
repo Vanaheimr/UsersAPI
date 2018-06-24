@@ -44,7 +44,6 @@ using org.GraphDefined.Vanaheimr.Hermod.Sockets.TCP;
 using org.GraphDefined.Vanaheimr.BouncyCastle;
 using org.GraphDefined.Vanaheimr.Hermod.Sockets;
 using org.GraphDefined.Vanaheimr.Aegir;
-using System.Collections.Concurrent;
 
 #endregion
 
@@ -222,6 +221,8 @@ namespace org.GraphDefined.OpenData.Users
 
         #region Data
 
+        private static readonly SemaphoreSlim LogFileSemaphore = new SemaphoreSlim(1, 1);
+
         /// <summary>
         /// Internal non-cryptographic random number generator.
         /// </summary>
@@ -340,32 +341,8 @@ namespace org.GraphDefined.OpenData.Users
 
         #endregion
 
-        #region APIEMailAddress
 
-        /// <summary>
-        /// A sender e-mail address for the Open Data API.
-        /// </summary>
-        public EMailAddress APIEMailAddress { get; }
-
-        #endregion
-
-        #region APIPublicKeyRing
-
-        /// <summary>
-        /// The PGP/GPG public key ring of the Open Data API.
-        /// </summary>
-        public PgpPublicKeyRing APIPublicKeyRing { get; }
-
-        #endregion
-
-        #region APISecretKeyRing
-
-        /// <summary>
-        /// The PGP/GPG secret key ring of the Open Data API.
-        /// </summary>
-        public PgpSecretKeyRing APISecretKeyRing { get; }
-
-        #endregion
+        public User          Robot        { get; }
 
         #region APIPassphrase
 
@@ -543,27 +520,30 @@ namespace org.GraphDefined.OpenData.Users
         /// <summary>
         /// The current hash value of the API.
         /// </summary>
-        public String CurrentDatabaseHashValue { get; private set; }
+        public String        CurrentDatabaseHashValue   { get; private set; }
 
-        public String SystemId { get; }
+        /// <summary>
+        /// The unqiue identification of this system instance.
+        /// </summary>
+        public System_Id     SystemId                   { get; }
 
         /// <summary>
         /// Disable the log file.
         /// </summary>
-        public Boolean DisableLogfile { get; }
+        public Boolean       DisableLogfile             { get; }
 
         /// <summary>
         /// Disable external notifications.
         /// </summary>
-        public Boolean DisableNotifications { get; }
+        public Boolean       DisableNotifications       { get; }
 
         /// <summary>
         /// The logfile of this API.
         /// </summary>
-        public String LogfileName { get; }
+        public String        LogfileName                { get; }
 
 
-        public Organization NoOwner { get; }
+        public Organization  NoOwner                    { get; }
 
         #endregion
 
@@ -621,8 +601,6 @@ namespace org.GraphDefined.OpenData.Users
 
                         String                               ServiceName                        = DefaultServiceName,
                         EMailAddress                         APIEMailAddress                    = null,
-                        PgpPublicKeyRing                     APIPublicKeyRing                   = null,
-                        PgpSecretKeyRing                     APISecretKeyRing                   = null,
                         String                               APIPassphrase                      = null,
                         EMailAddressList                     APIAdminEMails                     = null,
                         SMTPClient                           APISMTPClient                      = null,
@@ -681,8 +659,6 @@ namespace org.GraphDefined.OpenData.Users
 
                    ServiceName,
                    APIEMailAddress,
-                   APIPublicKeyRing,
-                   APISecretKeyRing,
                    APIPassphrase,
                    APIAdminEMails,
                    APISMTPClient,
@@ -752,8 +728,6 @@ namespace org.GraphDefined.OpenData.Users
 
                            String                              ServiceName                  = DefaultServiceName,
                            EMailAddress                        APIEMailAddress              = null,
-                           PgpPublicKeyRing                    APIPublicKeyRing             = null,
-                           PgpSecretKeyRing                    APISecretKeyRing             = null,
                            String                              APIPassphrase                = null,
                            EMailAddressList                    APIAdminEMails               = null,
                            SMTPClient                          APISMTPClient                = null,
@@ -799,9 +773,17 @@ namespace org.GraphDefined.OpenData.Users
             this.URIPrefix                    = URIPrefix    ?? HTTPURI.Parse("/");
 
             this.ServiceName                  = ServiceName. IsNotNullOrEmpty() ? ServiceName  : "UsersAPI";
-            this.APIEMailAddress              = APIEMailAddress;
-            this.APIPublicKeyRing             = APIPublicKeyRing;
-            this.APISecretKeyRing             = APISecretKeyRing;
+
+            this.Robot                        = new User(Id:               User_Id.Parse("robot"),
+                                                         EMail:            APIEMailAddress.Address,
+                                                         Name:             APIEMailAddress.OwnerName,
+                                                         PublicKeyRing:    APIEMailAddress.PublicKeyRing,
+                                                         SecretKeyRing:    APIEMailAddress.SecretKeyRing,
+                                                         Description:      I18NString.Create(Languages.eng, "Cardi-Link API Robot"),
+                                                         PrivacyLevel:     PrivacyLevel.World,
+                                                         IsAuthenticated:  true
+                                                         );
+
             this.APIPassphrase                = APIPassphrase;
             this.APIAdminEMails               = APIAdminEMails;
             this.APISMTPClient                = APISMTPClient;
@@ -827,7 +809,7 @@ namespace org.GraphDefined.OpenData.Users
             this._VerificationTokens          = new List<VerificationToken>();
 
             this._DNSClient                   = HTTPServer.DNSClient;
-            this.SystemId                     = Environment.MachineName.Replace("/", "") + "/" + HTTPServer.DefaultHTTPServerPort;
+            this.SystemId                     = System_Id.Parse(Environment.MachineName.Replace("/", "") + "/" + HTTPServer.DefaultHTTPServerPort);
             this.SecurityTokens               = new Dictionary<SecurityToken_Id, SecurityToken>();
 
             this.DisableNotifications         = DisableNotifications;
@@ -840,6 +822,7 @@ namespace org.GraphDefined.OpenData.Users
             #endregion
 
             this.Admins  = CreateGroupIfNotExists(Group_Id.Parse(AdminGroupName),
+                                                  Robot.Id,
                                                   I18NString.Create(Languages.eng, AdminGroupName),
                                                   I18NString.Create(Languages.eng, "All admins of this API."));
 
@@ -861,14 +844,14 @@ namespace org.GraphDefined.OpenData.Users
 
             ReadDatabaseFiles();
 
-            _Notifications.OnAdded   += (Timestamp, User, NotificationId, NotificationType) => WriteToLogfile("AddNotification",    NotificationType.ToJSON(User, NotificationId));
-            _Notifications.OnRemoved += (Timestamp, User, NotificationId, NotificationType) => WriteToLogfile("RemoveNotification", NotificationType.ToJSON(User, NotificationId));
+            _Notifications.OnAdded   += (Timestamp, User, NotificationId, NotificationType) => WriteToLogfileAndNotify("AddNotification",    NotificationType.ToJSON(User, NotificationId), Robot.Id);
+            _Notifications.OnRemoved += (Timestamp, User, NotificationId, NotificationType) => WriteToLogfileAndNotify("RemoveNotification", NotificationType.ToJSON(User, NotificationId), Robot.Id);
 
             HTTPServer.RequestLog2 += (HTTPProcessor, ServerTimestamp, Request)                                 => RequestLog.WhenAll(HTTPProcessor, ServerTimestamp, Request);
             HTTPServer.AccessLog2  += (HTTPProcessor, ServerTimestamp, Request, Response)                       => AccessLog. WhenAll(HTTPProcessor, ServerTimestamp, Request, Response);
             HTTPServer.ErrorLog2   += (HTTPProcessor, ServerTimestamp, Request, Response, Error, LastException) => ErrorLog.  WhenAll(HTTPProcessor, ServerTimestamp, Request, Response, Error, LastException);
 
-            NoOwner = CreateOrganizationIfNotExists(Organization_Id.Parse("NoOwner"));
+            NoOwner = CreateOrganizationIfNotExists(Organization_Id.Parse("NoOwner"), Robot.Id);
 
             if (!SkipURITemplates)
                 RegisterURITemplates();
@@ -947,8 +930,6 @@ namespace org.GraphDefined.OpenData.Users
 
                             ServiceName,
                             APIEMailAddress,
-                            APIPublicKeyRing,
-                            APISecretKeyRing,
                             APIPassphrase,
                             APIAdminEMails,
                             APISMTPClient,
@@ -1107,7 +1088,7 @@ namespace org.GraphDefined.OpenData.Users
                                                   #region Send Admin-Mail...
 
                                                   var AdminMail = new TextEMailBuilder() {
-                                                      From        = APIEMailAddress,
+                                                      From        = Robot.EMail,
                                                       To          = APIAdminEMails,
                                                       Subject     = "New user activated: " + _User.Id.ToString() + " at " + DateTime.UtcNow.ToString(),
                                                       Text        = "New user activated: " + _User.Id.ToString() + " at " + DateTime.UtcNow.ToString(),
@@ -1486,16 +1467,16 @@ namespace org.GraphDefined.OpenData.Users
 
                                               if (!NewUserData.HasValues)
                                                   return new HTTPResponseBuilder(Request) {
-                                                      HTTPStatusCode = HTTPStatusCode.BadRequest,
-                                                      Server = HTTPServer.DefaultServerName,
-                                                      ContentType = HTTPContentType.JSON_UTF8,
-                                                      Content = new JObject(
-                                                                             new JProperty("@context", ""),
-                                                                             new JProperty("statuscode", 400),
-                                                                             new JProperty("description", "Invalid JSON!")
+                                                      HTTPStatusCode  = HTTPStatusCode.BadRequest,
+                                                      Server          = HTTPServer.DefaultServerName,
+                                                      ContentType     = HTTPContentType.JSON_UTF8,
+                                                      Content         = new JObject(
+                                                                            new JProperty("@context",     ""),
+                                                                            new JProperty("statuscode",   400),
+                                                                            new JProperty("description",  "Invalid JSON!")
                                                                         ).ToUTF8Bytes(),
-                                                      CacheControl = "public",
-                                                      Connection = "close"
+                                                      CacheControl    = "public",
+                                                      Connection      = "close"
                                                   };
 
                                               #endregion
@@ -1687,7 +1668,8 @@ namespace org.GraphDefined.OpenData.Users
                                               var NewUser = CreateUser(Id:             _Login,
                                                                        Password:       Password.Parse(NewUserData.GetString("password")),
                                                                        EMail:          SimpleEMailAddress.Parse(NewUserData.GetString("email")),
-                                                                       PublicKeyRing:  NewUserData.GetString("gpgpublickeyring"));
+                                                                       //PublicKeyRing:  NewUserData.GetString("gpgpublickeyring")
+                                                                       CreatorId:      Robot.Id);
 
                                               var VerificationToken = _VerificationTokens.AddAndReturnElement(new VerificationToken(Seed: _Login.ToString() + NewUserData.GetString("password") + NewUserData.GetString("email"),
                                                                                                               UserId: _Login));
@@ -1723,7 +1705,7 @@ namespace org.GraphDefined.OpenData.Users
                                                   #region Send Admin-Mail...
 
                                                   var AdminMail = new TextEMailBuilder() {
-                                                      From        = APIEMailAddress,
+                                                      From        = Robot.EMail,
                                                       To          = APIAdminEMails,
                                                       Subject     = "New user registered: " + _Login + " <" + matches.Groups[0].Value + "> at " + DateTime.UtcNow.ToString(),
                                                       Text        = "New user registered: " + _Login + " <" + matches.Groups[0].Value + "> at " + DateTime.UtcNow.ToString(),
@@ -3029,7 +3011,7 @@ namespace org.GraphDefined.OpenData.Users
 
             if (Request.API_Key.HasValue &&
                 TryGetAPIKeyInfo(Request.API_Key.Value, out APIKeyInfo apiKeyInfo) &&
-                (!apiKeyInfo.Expires.HasValue || DateTime.UtcNow < apiKeyInfo.Expires) &&
+                (!apiKeyInfo.NotAfter.HasValue || DateTime.UtcNow < apiKeyInfo.NotAfter) &&
                  !apiKeyInfo.IsDisabled)
             {
                 User = apiKeyInfo.User;
@@ -3162,54 +3144,53 @@ namespace org.GraphDefined.OpenData.Users
         #endregion
 
 
-        #region (private) WriteToLogfile(Message, JSONData)
+        #region WriteToLogfileAndNotify(MessageId, JSONData, UserId, Logfilename = DefaultUsersAPIFile)
 
-        private void WriteToLogfile(String   Message,
-                                    JObject  JSONData)
+        public void WriteToLogfileAndNotify(String    MessageId,
+                                            JObject   JSONData,
+                                            User_Id   UserId,
+                                            String    Logfilename  = DefaultUsersAPIFile)
         {
+
+            #region Initial checks
+
+            if (MessageId != null)
+                MessageId = MessageId.Trim();
+
+            if (MessageId.IsNullOrEmpty())
+                throw new ArgumentNullException(nameof(MessageId), "The given logfile message identification must not be null or empty!");
+
+            #endregion
 
             if (!DisableLogfile)
             {
                 lock (DefaultUsersAPIFile)
                 {
 
-                    WriteToLogfile(DefaultUsersAPIFile,
-                                   Message,
-                                   JSONData);
+                    //if (!UserId.HasValue)
+                    //    UserId = Robot.Id;
 
-                }
-            }
+                    var Now          = DateTime.UtcNow;
 
-        }
-
-        #endregion
-
-        #region WriteToLogfile(Logfilename, Message, JSONData)
-
-        public void WriteToLogfile(String   Logfilename,
-                                   String   Message,
-                                   JObject  JSONData)
-        {
-
-            if (!DisableLogfile)
-            {
-                lock (DefaultUsersAPIFile)
-                {
-
-                    var _JObject   = new JObject(
-                                         new JProperty(Message,       JSONData),
-                                         new JProperty("Writer",      SystemId),
-                                         new JProperty("Timestamp",   DateTime.UtcNow.ToIso8601()),
-                                         new JProperty("Nonce",       Guid.NewGuid().ToString().Replace("-", "")),
-                                         new JProperty("ParentHash",  CurrentDatabaseHashValue)
-                                     );
+                    var JSONMessage  = new JObject(
+                                           new JProperty(MessageId,     JSONData),
+                                           new JProperty("userId",      UserId.  ToString()),
+                                           new JProperty("systemId",    SystemId.ToString()),
+                                           new JProperty("timestamp",   Now.ToIso8601()),
+                                           new JProperty("sha256hash",  new JObject(
+                                               new JProperty("nonce",       Guid.NewGuid().ToString().Replace("-", "")),
+                                               new JProperty("parentHash",  CurrentDatabaseHashValue)
+                                           ))
+                                       );
 
                     var SHA256                = new SHA256Managed();
-                    CurrentDatabaseHashValue  = SHA256.ComputeHash(Encoding.Unicode.GetBytes(JSONWhitespaceRegEx.Replace(_JObject.ToString(), " "))).
+                    CurrentDatabaseHashValue  = SHA256.ComputeHash(Encoding.Unicode.GetBytes(JSONWhitespaceRegEx.Replace(JSONMessage.ToString(), " "))).
                                                        Select(value => String.Format("{0:x2}", value)).
                                                        Aggregate();
 
-                    _JObject.Add(new JProperty("HashValue", CurrentDatabaseHashValue));
+                    (JSONMessage["sha256hash"] as JObject)?.Add(new JProperty("hashValue",  CurrentDatabaseHashValue));
+
+                    #region Write to logfile
 
                     var retry = false;
 
@@ -3220,7 +3201,7 @@ namespace org.GraphDefined.OpenData.Users
                         {
 
                             File.AppendAllText(Logfilename,
-                                               JSONWhitespaceRegEx.Replace(_JObject.ToString(), " ") +
+                                               JSONWhitespaceRegEx.Replace(JSONMessage.ToString(), " ") +
                                                Environment.NewLine);
 
                         }
@@ -3235,7 +3216,22 @@ namespace org.GraphDefined.OpenData.Users
 
                     } while(retry);
 
+                    #endregion
+
+                    #region Send notifications
+
+                    if (!DisableNotifications)
+                    {
+                        lock (_NotificationMessages)
+                        {
+                            _NotificationMessages.Add(new Timestamped<JObject>(Now, JSONMessage));
+                        }
+                    }
+
+                    #endregion
+
                 }
+
             }
 
         }
@@ -3285,42 +3281,6 @@ namespace org.GraphDefined.OpenData.Users
 
         #endregion
 
-        #region WriteToLogfileAndNotify(Message, JSONData)
-
-        public void WriteToLogfileAndNotify(String   Message,
-                                            JObject  JSONData)
-        {
-
-            WriteToLogfile  (DefaultUsersAPIFile,
-                             Message,
-                             JSONData);
-
-            SendNotification(Message,
-                             JSONData);
-
-        }
-
-        #endregion
-
-        #region WriteToLogfileAndNotify(Logfilename, Message, JSONData)
-
-        public void WriteToLogfileAndNotify(String   Logfilename,
-                                            String   Message,
-                                            JObject  JSONData)
-        {
-
-            WriteToLogfile  (Logfilename,
-                             Message,
-                             JSONData);
-
-            SendNotification(Message,
-                             JSONData);
-
-        }
-
-        #endregion
-
-
         #region NotificationMessages
 
         private readonly List<Timestamped<JObject>> _NotificationMessages = new List<Timestamped<JObject>>();
@@ -3339,33 +3299,6 @@ namespace org.GraphDefined.OpenData.Users
                 }
 
             }
-        }
-
-        #endregion
-
-        #region SendNotification(Message, JSONData)
-
-        public void SendNotification(String   Message,
-                                     JObject  JSONData)
-        {
-
-            if (!DisableNotifications)
-            {
-                lock (_NotificationMessages)
-                {
-
-                    var Now = DateTime.UtcNow;
-
-                    _NotificationMessages.Add(new Timestamped<JObject>(
-                                                  Now,
-                                                  new JObject(
-                                                      new JProperty(Message,      JSONData),
-                                                      new JProperty("timestamp",  Now.ToIso8601())
-                                                  )));
-
-                }
-            }
-
         }
 
         #endregion
@@ -3428,7 +3361,9 @@ namespace org.GraphDefined.OpenData.Users
                                                   Description,
                                                   URIs);
 
-                WriteToLogfile("CreateDataLicense", DataLicense.ToJSON());
+                WriteToLogfileAndNotify("CreateDataLicense",
+                                        DataLicense.ToJSON(),
+                                        Robot.Id);
 
                 return _DataLicenses.AddAndReturnValue(DataLicense.Id, DataLicense);
 
@@ -3524,7 +3459,7 @@ namespace org.GraphDefined.OpenData.Users
 
         #endregion
 
-        #region CreateUser           (Id, EMail, Password, Name = null, PublicKeyRing = null, Telephone = null, Description = null, IsPublic = true, IsDisabled = false, IsAuthenticated = false)
+        #region CreateUser           (Id, EMail, Password, Name = null, Description = null, PublicKeyRing = null, SecretKeyRing = null, Telephone = null, IsPublic = true, IsDisabled = false, IsAuthenticated = false)
 
         /// <summary>
         /// Create a new user.
@@ -3533,9 +3468,10 @@ namespace org.GraphDefined.OpenData.Users
         /// <param name="EMail">The primary e-mail of the user.</param>
         /// <param name="Password">The password of the user.</param>
         /// <param name="Name">An offical (multi-language) name of the user.</param>
-        /// <param name="PublicKeyRing">An optional PGP/GPG public keyring of the user.</param>
-        /// <param name="Telephone">An optional telephone number of the user.</param>
         /// <param name="Description">An optional (multi-language) description of the user.</param>
+        /// <param name="PublicKeyRing">An optional PGP/GPG public keyring of the user.</param>
+        /// <param name="SecretKeyRing">An optional PGP/GPG secret keyring of the user.</param>
+        /// <param name="Telephone">An optional telephone number of the user.</param>
         /// <param name="GeoLocation">An optional geographical location of the user.</param>
         /// <param name="Address">An optional address of the user.</param>
         /// <param name="PrivacyLevel">Whether the user will be shown in user listings, or not.</param>
@@ -3544,10 +3480,14 @@ namespace org.GraphDefined.OpenData.Users
         public User CreateUser(User_Id             Id,
                                SimpleEMailAddress  EMail,
                                Password            Password,
+
+                               User_Id             CreatorId,
+
                                String              Name              = null,
-                               String              PublicKeyRing     = null,
-                               PhoneNumber?        Telephone         = null,
                                I18NString          Description       = null,
+                               PgpPublicKeyRing    PublicKeyRing     = null,
+                               PgpSecretKeyRing    SecretKeyRing     = null,
+                               PhoneNumber?        Telephone         = null,
                                GeoCoordinate?      GeoLocation       = null,
                                Address             Address           = null,
                                PrivacyLevel        PrivacyLevel      = PrivacyLevel.World,
@@ -3565,9 +3505,10 @@ namespace org.GraphDefined.OpenData.Users
                 var User = new User(Id,
                                     EMail,
                                     Name,
-                                    PublicKeyRing,
-                                    Telephone,
                                     Description,
+                                    PublicKeyRing,
+                                    SecretKeyRing,
+                                    Telephone,
                                     GeoLocation,
                                     Address,
                                     PrivacyLevel,
@@ -3575,7 +3516,8 @@ namespace org.GraphDefined.OpenData.Users
                                     IsDisabled);
 
                 WriteToLogfileAndNotify("CreateUser",
-                                        User.ToJSON());
+                                        User.ToJSON(),
+                                        CreatorId);
 
                 SetPassword(Id, Password);
 
@@ -3587,7 +3529,7 @@ namespace org.GraphDefined.OpenData.Users
 
         #endregion
 
-        #region CreateUserIfNotExists(Id, EMail, Password, Name = null, PublicKeyRing = null, Telephone = null, Description = null, IsPublic = true, IsDisabled = false, IsAuthenticated = false)
+        #region CreateUserIfNotExists(Id, EMail, Password, Name = null, Description = null, PublicKeyRing = null, SecretKeyRing = null, Telephone = null, IsPublic = true, IsDisabled = false, IsAuthenticated = false)
 
         /// <summary>
         /// Create a new user.
@@ -3596,9 +3538,10 @@ namespace org.GraphDefined.OpenData.Users
         /// <param name="EMail">The primary e-mail of the user.</param>
         /// <param name="Password">The password of the user.</param>
         /// <param name="Name">An offical (multi-language) name of the user.</param>
-        /// <param name="PublicKeyRing">An optional PGP/GPG public keyring of the user.</param>
-        /// <param name="Telephone">An optional telephone number of the user.</param>
         /// <param name="Description">An optional (multi-language) description of the user.</param>
+        /// <param name="PublicKeyRing">An optional PGP/GPG public keyring of the user.</param>
+        /// <param name="SecretKeyRing">An optional PGP/GPG secret keyring of the user.</param>
+        /// <param name="Telephone">An optional telephone number of the user.</param>
         /// <param name="GeoLocation">An optional geographical location of the user.</param>
         /// <param name="Address">An optional address of the user.</param>
         /// <param name="PrivacyLevel">Whether the user will be shown in user listings, or not.</param>
@@ -3607,10 +3550,14 @@ namespace org.GraphDefined.OpenData.Users
         public User CreateUserIfNotExists(User_Id             Id,
                                           SimpleEMailAddress  EMail,
                                           Password            Password,
+
+                                          User_Id             CreatorId,
+
                                           String              Name              = null,
-                                          String              PublicKeyRing     = null,
-                                          PhoneNumber?        Telephone         = null,
                                           I18NString          Description       = null,
+                                          PgpPublicKeyRing    PublicKeyRing     = null,
+                                          PgpSecretKeyRing    SecretKeyRing     = null,
+                                          PhoneNumber?        Telephone         = null,
                                           GeoCoordinate?      GeoLocation       = null,
                                           Address             Address           = null,
                                           PrivacyLevel        PrivacyLevel      = PrivacyLevel.World,
@@ -3627,10 +3574,12 @@ namespace org.GraphDefined.OpenData.Users
                 return CreateUser(Id,
                                   EMail,
                                   Password,
+                                  CreatorId,
                                   Name,
-                                  PublicKeyRing,
-                                  Telephone,
                                   Description,
+                                  PublicKeyRing,
+                                  SecretKeyRing,
+                                  Telephone,
                                   GeoLocation,
                                   Address,
                                   PrivacyLevel,
@@ -3824,9 +3773,10 @@ namespace org.GraphDefined.OpenData.Users
 
         #endregion
 
-        #region AddAPIKey       (...)
+        #region AddAPIKey       (APIKey, UserId)
 
-        public APIKeyInfo AddAPIKey(APIKeyInfo APIKey)
+        public APIKeyInfo AddAPIKey(APIKeyInfo  APIKey,
+                                    User_Id     UserId)
         {
 
             lock (_APIKeys)
@@ -3836,7 +3786,8 @@ namespace org.GraphDefined.OpenData.Users
                     return _APIKeys[APIKey.APIKey];
 
                 WriteToLogfileAndNotify("AddAPIKey",
-                                        APIKey.ToJSON(true));
+                                        APIKey.ToJSON(true),
+                                        UserId);
 
                 return _APIKeys.AddAndReturnValue(APIKey.APIKey, APIKey);
 
@@ -3853,6 +3804,7 @@ namespace org.GraphDefined.OpenData.Users
         #region CreateGroup           (Id, Name = null, Description = null)
 
         public Group CreateGroup(Group_Id   Id,
+                                 User_Id    CreatorId,
                                  I18NString Name         = null,
                                  I18NString Description  = null)
         {
@@ -3869,7 +3821,9 @@ namespace org.GraphDefined.OpenData.Users
                                       Description);
 
                 if (Group.Id.ToString() != AdminGroupName)
-                    WriteToLogfile("CreateGroup", Group.ToJSON());
+                    WriteToLogfileAndNotify("CreateGroup",
+                                            Group.ToJSON(),
+                                            CreatorId);
 
                 return _Groups.AddAndReturnValue(Group.Id, Group);
 
@@ -3882,6 +3836,7 @@ namespace org.GraphDefined.OpenData.Users
         #region CreateGroupIfNotExists(Id, Name = null, Description = null)
 
         public Group CreateGroupIfNotExists(Group_Id    Id,
+                                            User_Id     CreatorId,
                                             I18NString  Name         = null,
                                             I18NString  Description  = null)
         {
@@ -3893,6 +3848,7 @@ namespace org.GraphDefined.OpenData.Users
                     return _Groups[Id];
 
                 return CreateGroup(Id,
+                                   CreatorId,
                                    Name,
                                    Description);
 
@@ -3959,6 +3915,7 @@ namespace org.GraphDefined.OpenData.Users
         public Boolean AddToGroup(User             User,
                                   User2GroupEdges  Edge,
                                   Group            Group,
+                                  User_Id          Creator,
                                   PrivacyLevel     PrivacyLevel = PrivacyLevel.World)
         {
 
@@ -3970,13 +3927,14 @@ namespace org.GraphDefined.OpenData.Users
                 if (!Group.Edges(Group).Any(edge => edge == Edge))
                     Group.AddIncomingEdge(User, Edge,  PrivacyLevel);
 
-                WriteToLogfile("AddUserToGroup",
-                               new JObject(
-                                   new JProperty("user",     User.Id.ToString()),
-                                   new JProperty("edge",     Edge.   ToString()),
-                                   new JProperty("group",    Group.  ToString()),
-                                   PrivacyLevel.ToJSON()
-                               ));
+                WriteToLogfileAndNotify("AddUserToGroup",
+                                        new JObject(
+                                            new JProperty("user",     User.Id.ToString()),
+                                            new JProperty("edge",     Edge.   ToString()),
+                                            new JProperty("group",    Group.  ToString()),
+                                            PrivacyLevel.ToJSON()
+                                        ),
+                                        Creator);
 
                 return true;
 
@@ -4022,6 +3980,7 @@ namespace org.GraphDefined.OpenData.Users
         #region CreateOrganization           (Id, Name = null, Description = null, ParentOrganization = null)
 
         public Organization CreateOrganization(Organization_Id      Id,
+                                               User_Id              CreatorId,
                                                I18NString           Name                = null,
                                                I18NString           Description         = null,
                                                SimpleEMailAddress?  EMail               = null,
@@ -4055,12 +4014,13 @@ namespace org.GraphDefined.OpenData.Users
                                                     DataSource);
 
                 WriteToLogfileAndNotify("CreateOrganization",
-                                        Organization.ToJSON());
+                                        Organization.ToJSON(),
+                                        CreatorId);
 
                 var NewOrg = _Organizations.AddAndReturnValue(Organization.Id, Organization);
 
                 if (ParentOrganization != null)
-                    LinkOrganizations(NewOrg, Organization2OrganizationEdges.IsChildOf, ParentOrganization);
+                    LinkOrganizations(NewOrg, Organization2OrganizationEdges.IsChildOf, ParentOrganization, CreatorId);
 
                 return NewOrg;
 
@@ -4073,6 +4033,7 @@ namespace org.GraphDefined.OpenData.Users
         #region CreateOrganizationIfNotExists(Id, Name = null, Description = null, ParentOrganization = null)
 
         public Organization CreateOrganizationIfNotExists(Organization_Id      Id,
+                                                          User_Id              CreatorId,
                                                           I18NString           Name                = null,
                                                           I18NString           Description         = null,
                                                           SimpleEMailAddress?  EMail               = null,
@@ -4093,6 +4054,7 @@ namespace org.GraphDefined.OpenData.Users
                     return _Organizations[Id];
 
                 return CreateOrganization(Id,
+                                          CreatorId,
                                           Name,
                                           Description,
                                           EMail,
@@ -4169,6 +4131,7 @@ namespace org.GraphDefined.OpenData.Users
         public Boolean AddToOrganization(User                    User,
                                          User2OrganizationEdges  Edge,
                                          Organization            Organization,
+                                         User_Id                 Creator,
                                          PrivacyLevel            PrivacyLevel = PrivacyLevel.World)
         {
 
@@ -4186,7 +4149,8 @@ namespace org.GraphDefined.OpenData.Users
                                             new JProperty("edge",          Edge.           ToString()),
                                             new JProperty("organization",  Organization.Id.ToString()),
                                             PrivacyLevel.ToJSON()
-                                        ));
+                                        ),
+                                        Creator);
 
                 return true;
 
@@ -4203,6 +4167,7 @@ namespace org.GraphDefined.OpenData.Users
         public Boolean LinkOrganizations(Organization                    OrganizationOut,
                                          Organization2OrganizationEdges  EdgeLabel,
                                          Organization                    OrganizationIn,
+                                         User_Id                         CreatorId,
                                          PrivacyLevel                    Privacy = PrivacyLevel.World)
         {
 
@@ -4228,7 +4193,8 @@ namespace org.GraphDefined.OpenData.Users
                                             new JProperty("edge",            EdgeLabel.         ToString()),
                                             new JProperty("organizationIn",  OrganizationIn. Id.ToString()),
                                             Privacy.ToJSON()
-                                        ));
+                                        ),
+                                        CreatorId);
 
                 return true;
 

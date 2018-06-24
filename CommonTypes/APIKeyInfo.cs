@@ -18,16 +18,16 @@
 #region Usings
 
 using System;
-
-using org.GraphDefined.Vanaheimr.Illias;
-using org.GraphDefined.OpenData;
-using Newtonsoft.Json.Linq;
-using org.GraphDefined.Vanaheimr.Hermod;
-using org.GraphDefined.Vanaheimr.Hermod.HTTP;
+using System.Linq;
 using System.Text;
 using System.Security.Cryptography;
+
+using Newtonsoft.Json.Linq;
+
+using org.GraphDefined.Vanaheimr.Illias;
+using org.GraphDefined.Vanaheimr.Hermod;
+using org.GraphDefined.Vanaheimr.Hermod.HTTP;
 using org.GraphDefined.Vanaheimr.Hermod.Distributed;
-using System.Linq;
 
 #endregion
 
@@ -78,9 +78,14 @@ namespace org.GraphDefined.OpenData.Users
         public DateTime      Created             { get; }
 
         /// <summary>
-        /// An optional timestamp when the API key expires.
+        /// The API key is not valid before this optional timestamp.
         /// </summary>
-        public DateTime?     Expires             { get; }
+        public DateTime?     NotBefore           { get; }
+
+        /// <summary>
+        /// The API key is not valid after this optional timestamp.
+        /// </summary>
+        public DateTime?     NotAfter            { get; }
 
         /// <summary>
         /// The API key is currently disabled.
@@ -105,14 +110,16 @@ namespace org.GraphDefined.OpenData.Users
         /// <param name="Description">An optional internationalized description of the API key.</param>
         /// <param name="AccessRights">The access rights of the API key.</param>
         /// <param name="Created">The creation timestamp.</param>
-        /// <param name="Expires">An optional timestamp when the API key expires.</param>
+        /// <param name="NotBefore">The API key is not valid before this optional timestamp.</param>
+        /// <param name="NotAfter">The API key is not valid after this optional timestamp.</param>
         /// <param name="IsDisabled">The API key is currently disabled.</param>
         public APIKeyInfo(APIKey        APIKey,
                           User          User,
                           I18NString    Description    = null,
                           APIKeyRights  AccessRights   = APIKeyRights.ReadOnly,
                           DateTime?     Created        = null,
-                          DateTime?     Expires        = null,
+                          DateTime?     NotBefore      = null,
+                          DateTime?     NotAfter       = null,
                           Boolean?      IsDisabled     = false)
         {
 
@@ -128,8 +135,9 @@ namespace org.GraphDefined.OpenData.Users
             this.Description   = Description ?? I18NString.Empty;
             this.AccessRights  = AccessRights;
             this.Created       = Created     ?? DateTime.UtcNow;
-            this.Expires       = Expires;
-            this.IsDisabled    = IsDisabled    ?? false;
+            this.NotBefore     = NotBefore;
+            this.NotAfter      = NotAfter;
+            this.IsDisabled    = IsDisabled  ?? false;
 
         }
 
@@ -154,8 +162,12 @@ namespace org.GraphDefined.OpenData.Users
                    AccessRights.ToJSON(),
                    new JProperty("created",             Created.ToIso8601()),
 
-                   Expires.HasValue
-                       ? new JProperty("expires",       Expires.Value.ToIso8601())
+                   NotBefore.HasValue
+                       ? new JProperty("notBefore",     NotAfter.Value.ToIso8601())
+                       : null,
+
+                   NotAfter.HasValue
+                       ? new JProperty("notAfter",      NotAfter.Value.ToIso8601())
                        : null,
 
                    IsDisabled
@@ -285,11 +297,23 @@ namespace org.GraphDefined.OpenData.Users
 
                 #endregion
 
-                #region Parse Expires          [optional]
+                #region Parse NotBefore        [optional]
 
-                if (!JSONObject.ParseOptional("expires",
-                                              "expire timestamp",
-                                              out DateTime? Expires,
+                if (!JSONObject.ParseOptional("NotBefore",
+                                              "'not-valid-before'-timestamp",
+                                              out DateTime? NotBefore,
+                                              out ErrorResponse))
+                {
+                    return false;
+                }
+
+                #endregion
+
+                #region Parse NotAfter         [optional]
+
+                if (!JSONObject.ParseOptional("NotAfter",
+                                              "'not-valid-after'-timestamp",
+                                              out DateTime? NotAfter,
                                               out ErrorResponse))
                 {
                     return false;
@@ -311,7 +335,8 @@ namespace org.GraphDefined.OpenData.Users
                                             Description,
                                             AccessRights,
                                             Created,
-                                            Expires,
+                                            NotBefore,
+                                            NotAfter,
                                             IsDisabled);
 
                 ErrorResponse = null;
@@ -501,7 +526,7 @@ namespace org.GraphDefined.OpenData.Users
             => String.Concat("'", APIKey, "' for ",
                              User.Id.ToString(), ", [",
                              AccessRights.ToString(),
-                             Expires != null ? ", expires at " + Expires.Value.ToIso8601() : "",
+                             NotAfter != null ? ", expires at " + NotAfter.Value.ToIso8601() : "",
                              IsDisabled ? ", disabled]" : "]");
 
         #endregion
