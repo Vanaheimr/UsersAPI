@@ -807,7 +807,7 @@ namespace org.GraphDefined.OpenData.Users
                                                          Name:             APIEMailAddress.OwnerName,
                                                          PublicKeyRing:    APIEMailAddress.PublicKeyRing,
                                                          SecretKeyRing:    APIEMailAddress.SecretKeyRing,
-                                                         Description:      I18NString.Create(Languages.eng, "Cardi-Link API Robot"),
+                                                         Description:      I18NString.Create(Languages.eng, "API robot"),
                                                          PrivacyLevel:     PrivacyLevel.World,
                                                          IsAuthenticated:  true);
 
