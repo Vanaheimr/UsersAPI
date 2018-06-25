@@ -3794,6 +3794,17 @@ namespace org.GraphDefined.OpenData.Users
 
         #endregion
 
+        #region IsValidAPIKey(APIKey)
+
+        public Boolean IsValidAPIKey(APIKey APIKey)
+
+            => TryGetAPIKeyInfo(APIKey, out APIKeyInfo apiKeyInfo) &&
+                   (!apiKeyInfo.NotBefore.HasValue || DateTime.UtcNow >= apiKeyInfo.NotBefore) &&
+                   (!apiKeyInfo.NotAfter. HasValue || DateTime.UtcNow <  apiKeyInfo.NotAfter)  &&
+                    !apiKeyInfo.IsDisabled);
+
+        #endregion
+
         #region GetAPIKeysFor   (User)
 
         /// <summary>
