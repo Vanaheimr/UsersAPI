@@ -25,7 +25,6 @@ namespace org.GraphDefined.OpenData
         Friends,
         City,
         Country,
-        Europe,
         GDPR,
         World
     }

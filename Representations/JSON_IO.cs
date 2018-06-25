@@ -106,14 +106,23 @@ namespace org.GraphDefined.OpenData.Users
             switch (Text)
             {
 
-                case "internal":
-                    return PrivacyLevel.Internal;
+                case "world":
+                    return PrivacyLevel.World;
+
+                case "gdpr":
+                    return PrivacyLevel.GDPR;
+
+                case "country":
+                    return PrivacyLevel.Country;
+
+                case "city":
+                    return PrivacyLevel.City;
 
                 case "friends":
                     return PrivacyLevel.Friends;
 
-                case "world":
-                    return PrivacyLevel.World;
+                case "internal":
+                    return PrivacyLevel.Internal;
 
                 default:
                     return PrivacyLevel.Private;
@@ -130,23 +139,29 @@ namespace org.GraphDefined.OpenData.Users
             if (Value.IsNullOrEmpty())
                 throw new Exception("Missing JSON property 'privacyLevel'!");
 
-            switch (Value)
+            switch (Value.Trim().ToLower())
             {
-
-                case "internal":
-                    return PrivacyLevel.Internal;
-
-                case "friends":
-                    return PrivacyLevel.Friends;
 
                 case "world":
                     return PrivacyLevel.World;
 
-                case "privat":
-                    return PrivacyLevel.Private;
+                case "gdpr":
+                    return PrivacyLevel.GDPR;
+
+                case "country":
+                    return PrivacyLevel.Country;
+
+                case "city":
+                    return PrivacyLevel.City;
+
+                case "friends":
+                    return PrivacyLevel.Friends;
+
+                case "internal":
+                    return PrivacyLevel.Internal;
 
                 default:
-                    throw new Exception("Invalid value '" + Value + "' for JSON property 'privacyLevel'!");
+                    return PrivacyLevel.Private;
 
             }
 
@@ -166,11 +181,26 @@ namespace org.GraphDefined.OpenData.Users
                 return false;
             }
 
-            switch (Value)
+            switch (Value.Trim().ToLower())
             {
 
-                case "internal":
-                    PrivacyLevel   = PrivacyLevel.Internal;
+                case "world":
+                    PrivacyLevel   = PrivacyLevel.World;
+                    ErrorResponse  = String.Empty;
+                    return true;
+
+                case "gdpr":
+                    PrivacyLevel   = PrivacyLevel.GDPR;
+                    ErrorResponse  = String.Empty;
+                    return true;
+
+                case "country":
+                    PrivacyLevel   = PrivacyLevel.Country;
+                    ErrorResponse  = String.Empty;
+                    return true;
+
+                case "city":
+                    PrivacyLevel   = PrivacyLevel.City;
                     ErrorResponse  = String.Empty;
                     return true;
 
@@ -179,12 +209,12 @@ namespace org.GraphDefined.OpenData.Users
                     ErrorResponse  = String.Empty;
                     return true;
 
-                case "world":
-                    PrivacyLevel   = PrivacyLevel.World;
+                case "internal":
+                    PrivacyLevel   = PrivacyLevel.Internal;
                     ErrorResponse  = String.Empty;
                     return true;
 
-                case "privat":
+                case "private":
                     PrivacyLevel   = PrivacyLevel.Private;
                     ErrorResponse  = String.Empty;
                     return true;
@@ -209,14 +239,23 @@ namespace org.GraphDefined.OpenData.Users
             switch (Value)
             {
 
-                case "internal":
-                    return PrivacyLevel.Internal;
+                case "world":
+                    return PrivacyLevel.World;
+
+                case "gdpr":
+                    return PrivacyLevel.GDPR;
+
+                case "country":
+                    return PrivacyLevel.Country;
+
+                case "city":
+                    return PrivacyLevel.City;
 
                 case "friends":
                     return PrivacyLevel.Friends;
 
-                case "world":
-                    return PrivacyLevel.World;
+                case "internal":
+                    return PrivacyLevel.Internal;
 
                 default:
                     return PrivacyLevel.Private;
