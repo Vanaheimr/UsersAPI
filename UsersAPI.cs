@@ -3801,7 +3801,7 @@ namespace org.GraphDefined.OpenData.Users
             => TryGetAPIKeyInfo(APIKey, out APIKeyInfo apiKeyInfo) &&
                    (!apiKeyInfo.NotBefore.HasValue || DateTime.UtcNow >= apiKeyInfo.NotBefore) &&
                    (!apiKeyInfo.NotAfter. HasValue || DateTime.UtcNow <  apiKeyInfo.NotAfter)  &&
-                    !apiKeyInfo.IsDisabled);
+                    !apiKeyInfo.IsDisabled;
 
         #endregion
 
