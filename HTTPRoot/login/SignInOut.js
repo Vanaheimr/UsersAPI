@@ -44,7 +44,7 @@ function DeleteCookie2(CookieName, Path) {
         Path = "/";
     document.cookie = CookieName += "=; expires=" + CookieDateTime.toUTCString() + "; Path=" + Path;
 }
-function DoLogin() {
+function VerifyLogin() {
     function VerifyPassword() {
         var ResponseText = HTTPAuth("/users/" + _login.value, "APIKey", {
             "login": _login.value,
@@ -52,22 +52,22 @@ function DoLogin() {
         }, null, null);
         if (ResponseText == "") {
             responseDiv.style.display = 'block';
-            responseDiv.innerHTML = "Login failed!";
+            responseDiv.innerHTML = "<i class='fas fa-exclamation-triangle  fa-2x menuicons'></i> Login failed!";
             return false;
         }
         var responseJSON = JSON.parse(ResponseText);
         if (responseJSON.username == null || responseJSON.email == null) {
             if (responseJSON.error != null) {
                 responseDiv.style.display = 'block';
-                responseDiv.innerHTML = responseJSON.error;
+                responseDiv.innerHTML = "<i class='fas fa-exclamation-triangle  fa-2x menuicons'></i> " + responseJSON.error;
             }
             if (responseJSON.description != null) {
                 responseDiv.style.display = 'block';
-                responseDiv.innerHTML = responseJSON.description;
+                responseDiv.innerHTML = "<i class='fas fa-exclamation-triangle  fa-2x menuicons'></i> " + responseJSON.description;
             }
             else {
                 responseDiv.style.display = 'block';
-                responseDiv.innerHTML = "Login failed!";
+                responseDiv.innerHTML = "<i class='fas fa-exclamation-triangle  fa-2x menuicons'></i> Login failed!";
             }
             return false;
         }

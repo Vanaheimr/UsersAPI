@@ -82,7 +82,7 @@ function DeleteCookie2(CookieName: String, Path) {
 }
 
 
-function DoLogin() {
+function VerifyLogin() {
 
     function VerifyPassword() : boolean {
 
@@ -97,7 +97,7 @@ function DoLogin() {
 
         if (ResponseText == "") {
             responseDiv.style.display = 'block';
-            responseDiv.innerHTML     = "Login failed!";
+            responseDiv.innerHTML     = "<i class='fas fa-exclamation-triangle  fa-2x menuicons'></i> Login failed!";
             return false;
         }
 
@@ -107,17 +107,17 @@ function DoLogin() {
 
             if (responseJSON.error != null) {
                 responseDiv.style.display = 'block';
-                responseDiv.innerHTML     = responseJSON.error;
+                responseDiv.innerHTML     = "<i class='fas fa-exclamation-triangle  fa-2x menuicons'></i> " + responseJSON.error;
             }
 
             if (responseJSON.description != null) {
                 responseDiv.style.display = 'block';
-                responseDiv.innerHTML     = responseJSON.description;
+                responseDiv.innerHTML     = "<i class='fas fa-exclamation-triangle  fa-2x menuicons'></i> " + responseJSON.description;
             }
 
             else {
                 responseDiv.style.display = 'block';
-                responseDiv.innerHTML     = "Login failed!";
+                responseDiv.innerHTML     = "<i class='fas fa-exclamation-triangle  fa-2x menuicons'></i> Login failed!";
             }
 
             return false;
