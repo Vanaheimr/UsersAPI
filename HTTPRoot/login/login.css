@@ -121,14 +121,13 @@ body {
       float: right; }
     #logindiv #checks a:hover {
       color: #777777; }
-  #logindiv #errors {
-    display: none;
-    background-color: #e6b7b7;
-    color: #bf1a1a;
+  #logindiv #response {
+    margin: 40px 20px -20px 20px;
     border: 1px solid #d88a8a;
     border-radius: 6px;
-    margin: 10px 20px;
-    padding: 10px 15px;
+    padding: 15px 10px;
+    background-color: #e6b7b7;
+    color: #bf1a1a;
     font-size: 90%; }
   #logindiv #button input {
     width: 100%;

@@ -1,131 +1,131 @@
-//@ sourceURL=/shared/UsersAPI/SignInOut.js
+////@ sourceURL=/shared/UsersAPI/SignInOut.js
 
-var HTTPCookieId  = "OpenDataSocial";
-var SignInUser    = "";
-var Username      = "";
-var UserEMail     = "";
+//var HTTPCookieId  = "OpenDataSocial";
+//var SignInUser    = "";
+//var Username      = "";
+//var UserEMail     = "";
 
-function ToggleLoginPanel() {
+//function ToggleLoginPanel() {
 
-    var SignInPanel = document.querySelector('#SignInPanel');
+//    var SignInPanel = document.querySelector('#SignInPanel');
 
-    // Hide...
-    if (SignInPanel.style.display == "block")
-        SignInPanel.style.display = "none";
+//    // Hide...
+//    if (SignInPanel.style.display == "block")
+//        SignInPanel.style.display = "none";
 
-    // ...or show and focus login input field
-    else
-    {
-        SignInPanel.style.display = "block";
-        SignInPanel.querySelector('#username').focus();
-    }
+//    // ...or show and focus login input field
+//    else
+//    {
+//        SignInPanel.style.display = "block";
+//        SignInPanel.querySelector('#username').focus();
+//    }
 
-}
+//}
 
-function showLoginPanelSmall_Realm() {
-    ShowElement("#SignInPanelRealm", "block");
-    HideElement("#SignInPanelShowRealmButton");
-}
+//function showLoginPanelSmall_Realm() {
+//    ShowElement("#SignInPanelRealm", "block");
+//    HideElement("#SignInPanelShowRealmButton");
+//}
 
-function hideLoginPanelSmall_Realm() {
+//function hideLoginPanelSmall_Realm() {
 
-    HideElement("#SignInPanelRealm");
-    ShowElement("#SignInPanelShowRealmButton");
+//    HideElement("#SignInPanelRealm");
+//    ShowElement("#SignInPanelShowRealmButton");
 
-    document.querySelector('#SignInPanel').
-             querySelector('#realm').
-             value = "";
+//    document.querySelector('#SignInPanel').
+//             querySelector('#realm').
+//             value = "";
 
-}
+//}
 
-function SignIn() {
+//function SignIn() {
 
-    var SignInPanel  = document.   querySelector('#SignInPanel');
-    var Realm        = SignInPanel.querySelector('#realm').value;
-    var SignInErrors = SignInPanel.querySelector('#errors');
+//    var SignInPanel  = document.   querySelector('#SignInPanel');
+//    var Realm        = SignInPanel.querySelector('#realm').value;
+//    var SignInErrors = SignInPanel.querySelector('#errors');
 
-    var SubmitData = {
-        "password":  SignInPanel.
-                         querySelector('#password').
-                         value,
-    };
+//    var SubmitData = {
+//        "password":  SignInPanel.
+//                         querySelector('#password').
+//                         value,
+//    };
 
-    if (Realm !== "")
-        SubmitData["realm"] = Realm;
+//    if (Realm !== "")
+//        SubmitData["realm"] = Realm;
 
-    SignInErrors.style.display = "none";
-    SignInErrors.innerText     = "";
+//    SignInErrors.style.display = "none";
+//    SignInErrors.innerText     = "";
 
-    SendJSON("AUTH",
-             "/users/" + SignInPanel.querySelector('#username').value,
-             SubmitData,
+//    SendJSON("AUTH",
+//             "/users/" + SignInPanel.querySelector('#username').value,
+//             SubmitData,
 
-        function (HTTPStatus, ResponseText) {
+//        function (HTTPStatus, ResponseText) {
 
-            var JSONResponse = JSON.parse(ResponseText);
+//            var JSONResponse = JSON.parse(ResponseText);
 
-            HideElement('#SignInPanel');
-            HideElement('#SignInLink');
-            ShowElement('#SignOutLink');
+//            HideElement('#SignInPanel');
+//            HideElement('#SignInLink');
+//            ShowElement('#SignOutLink');
 
-            var UsernameDiv = ShowElement('#UserControls').
-                              querySelector("#username").
-                              innerText = JSONResponse.username;
+//            var UsernameDiv = ShowElement('#UserControls').
+//                              querySelector("#username").
+//                              innerText = JSONResponse.username;
 
-        },
+//        },
 
-        function (HTTPStatus, StatusText, ResponseText) {
+//        function (HTTPStatus, StatusText, ResponseText) {
 
-            SignInErrors.style.display  = "block";
-            SignInErrors.innerText      = JSON.parse(ResponseText).description;
+//            SignInErrors.style.display  = "block";
+//            SignInErrors.innerText      = JSON.parse(ResponseText).description;
 
-        });
+//        });
 
-}
+//}
 
-function checkSignedIn() {
+//function checkSignedIn() {
 
-    var SocialOpenDataCookie = GetCookie(HTTPCookieId, function (cookie) {
+//    var SocialOpenDataCookie = GetCookie(HTTPCookieId, function (cookie) {
 
-        HideElement('#SignInPanel');
-        HideElement('#SignInLink');
-        ShowElement('#SignOutLink');
+//        HideElement('#SignInPanel');
+//        HideElement('#SignInLink');
+//        ShowElement('#SignOutLink');
 
-        // Crumbs are base64 encoded!
-        var crumbs = cookie.split(":").forEach(function (crumbs) {
+//        // Crumbs are base64 encoded!
+//        var crumbs = cookie.split(":").forEach(function (crumbs) {
 
-            if (crumbs.startsWith("username"))
-                SignInUser  = atob(crumbs.split("=")[1]);
+//            if (crumbs.startsWith("username"))
+//                SignInUser  = atob(crumbs.split("=")[1]);
 
-            if (crumbs.startsWith("name"))
-                Username    = atob(crumbs.split("=")[1]);
+//            if (crumbs.startsWith("name"))
+//                Username    = atob(crumbs.split("=")[1]);
 
-            if (crumbs.startsWith("email"))
-                UserEMail   = atob(crumbs.split("=")[1]);
+//            if (crumbs.startsWith("email"))
+//                UserEMail   = atob(crumbs.split("=")[1]);
 
-        });
+//        });
 
-        ShowElement('#UserControls').querySelector("#username").innerText = Username;
+//        ShowElement('#UserControls').querySelector("#username").innerText = Username;
 
-    });
+//    });
 
-}
+//}
 
-function SignOut() {
+//function SignOut() {
 
-    HideElement("#UserControls");
-    ShowElement('#SignInLink');
-    HideElement('#SignOutLink');
+//    HideElement("#UserControls");
+//    ShowElement('#SignInLink');
+//    HideElement('#SignOutLink');
 
-    SendJSON("DEAUTH",
-             "/users",
+//    SendJSON("DEAUTH",
+//             "/users",
 
-        function (HTTPStatus, ResponseText) {
-        },
+//        function (HTTPStatus, ResponseText) {
+//        },
 
-        function (HTTPStatus, StatusText, ResponseText) {
-        });
+//        function (HTTPStatus, StatusText, ResponseText) {
+//        });
 
-    DeleteCookie(HTTPCookieId);
+//    DeleteCookie(HTTPCookieId);
 
-}
+//}

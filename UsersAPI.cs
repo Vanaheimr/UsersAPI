@@ -2187,8 +2187,9 @@ namespace org.GraphDefined.OpenData.Users
                                                       ContentType     = HTTPContentType.TEXT_UTF8,
                                                       Content         = new JObject(
                                                                             new JProperty("@context",  SignInOutContext),
-                                                                            new JProperty("username",  _LoginPassword.Login.ToString()),
-                                                                            new JProperty("name",      _User.Name)
+                                                                            new JProperty("login",     _LoginPassword.Login.ToString()),
+                                                                            new JProperty("username",  _User.Name),
+                                                                            new JProperty("email",     _User.EMail.Address.ToString())
                                                                         ).ToUTF8Bytes(),
                                                       CacheControl    = "private",
                                                       SetCookie       = CookieName + "=login="    + _LoginPassword.Login.ToString().ToBase64() +

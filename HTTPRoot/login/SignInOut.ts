@@ -82,6 +82,66 @@ function DeleteCookie2(CookieName: String, Path) {
 }
 
 
+function DoLogin() {
+
+    function VerifyPassword() : boolean {
+
+        var ResponseText = HTTPAuth("/users/" + _login.value,
+                                    "APIKey",
+                                    {
+                                        "login":    _login.value,
+                                        "password": _password.value
+                                    },
+                                    null,
+                                    null);
+
+        if (ResponseText == "") {
+            responseDiv.style.display = 'block';
+            responseDiv.innerHTML     = "Login failed!";
+            return false;
+        }
+
+        var responseJSON = JSON.parse(ResponseText);
+
+        if (responseJSON.username == null || responseJSON.email == null) {
+
+            if (responseJSON.error != null) {
+                responseDiv.style.display = 'block';
+                responseDiv.innerHTML     = responseJSON.error;
+            }
+
+            if (responseJSON.description != null) {
+                responseDiv.style.display = 'block';
+                responseDiv.innerHTML     = responseJSON.description;
+            }
+
+            else {
+                responseDiv.style.display = 'block';
+                responseDiv.innerHTML     = "Login failed!";
+            }
+
+            return false;
+
+        }
+
+        return true;
+
+    }
+
+    let loginform    = document.getElementById("loginform") as HTMLFormElement;
+    let _login       = document.getElementById("_login")    as HTMLButtonElement;
+    let _password    = document.getElementById("_password") as HTMLInputElement;
+    let responseDiv  = document.getElementById("response")  as HTMLDivElement;
+    let saveButton   = document.getElementById("button")    as HTMLButtonElement;
+
+    loginform.onsubmit = function (this: HTMLElement, ev: Event) {
+        return VerifyPassword();
+    }
+
+    checkNotSignedIn();
+
+}
+
 
 function SignIn() {
 
@@ -214,16 +274,20 @@ function checkAdminSignedIn(RedirectUnkownUsers: Boolean) {
 
 function checkNotSignedIn() {
 
-    WithCookie(HTTPCookieId,
+    if (HTTPCookieId != null && HTTPCookieId != "") {
 
-               cookie => {
-                   location.href = "/index.html";
-               },
+        WithCookie(HTTPCookieId,
 
-               () => {
-               }
+                   cookie => {
+                       location.href = "/index.html";
+                   },
 
-    );
+                   () => {
+                   }
+
+            );
+
+    }
 
 }
 

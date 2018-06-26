@@ -44,6 +44,45 @@ function DeleteCookie2(CookieName, Path) {
         Path = "/";
     document.cookie = CookieName += "=; expires=" + CookieDateTime.toUTCString() + "; Path=" + Path;
 }
+function DoLogin() {
+    function VerifyPassword() {
+        var ResponseText = HTTPAuth("/users/" + _login.value, "APIKey", {
+            "login": _login.value,
+            "password": _password.value
+        }, null, null);
+        if (ResponseText == "") {
+            responseDiv.style.display = 'block';
+            responseDiv.innerHTML = "Login failed!";
+            return false;
+        }
+        var responseJSON = JSON.parse(ResponseText);
+        if (responseJSON.username == null || responseJSON.email == null) {
+            if (responseJSON.error != null) {
+                responseDiv.style.display = 'block';
+                responseDiv.innerHTML = responseJSON.error;
+            }
+            if (responseJSON.description != null) {
+                responseDiv.style.display = 'block';
+                responseDiv.innerHTML = responseJSON.description;
+            }
+            else {
+                responseDiv.style.display = 'block';
+                responseDiv.innerHTML = "Login failed!";
+            }
+            return false;
+        }
+        return true;
+    }
+    var loginform = document.getElementById("loginform");
+    var _login = document.getElementById("_login");
+    var _password = document.getElementById("_password");
+    var responseDiv = document.getElementById("response");
+    var saveButton = document.getElementById("button");
+    loginform.onsubmit = function (ev) {
+        return VerifyPassword();
+    };
+    checkNotSignedIn();
+}
 function SignIn() {
     var SignInPanel = document.querySelector('#login');
     var Username = SignInPanel.querySelector('#_login').value;
@@ -117,10 +156,12 @@ function checkAdminSignedIn(RedirectUnkownUsers) {
     checkSignedIn(RedirectUnkownUsers);
 }
 function checkNotSignedIn() {
-    WithCookie(HTTPCookieId, function (cookie) {
-        location.href = "/index.html";
-    }, function () {
-    });
+    if (HTTPCookieId != null && HTTPCookieId != "") {
+        WithCookie(HTTPCookieId, function (cookie) {
+            location.href = "/index.html";
+        }, function () {
+        });
+    }
 }
 function GetLogin() {
     var Cookie = GetCookie(HTTPCookieId);
