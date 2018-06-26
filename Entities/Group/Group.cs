@@ -409,6 +409,114 @@ namespace org.GraphDefined.OpenData.Users
         #endregion
 
 
+        #region Operator overloading
+
+        #region Operator == (GroupId1, GroupId2)
+
+        /// <summary>
+        /// Compares two instances of this object.
+        /// </summary>
+        /// <param name="GroupId1">A group identification.</param>
+        /// <param name="GroupId2">Another group identification.</param>
+        /// <returns>true|false</returns>
+        public static Boolean operator == (Group GroupId1, Group GroupId2)
+        {
+
+            // If both are null, or both are same instance, return true.
+            if (Object.ReferenceEquals(GroupId1, GroupId2))
+                return true;
+
+            // If one is null, but not both, return false.
+            if (((Object) GroupId1 == null) || ((Object) GroupId2 == null))
+                return false;
+
+            return GroupId1.Equals(GroupId2);
+
+        }
+
+        #endregion
+
+        #region Operator != (GroupId1, GroupId2)
+
+        /// <summary>
+        /// Compares two instances of this object.
+        /// </summary>
+        /// <param name="GroupId1">A group identification.</param>
+        /// <param name="GroupId2">Another group identification.</param>
+        /// <returns>true|false</returns>
+        public static Boolean operator != (Group GroupId1, Group GroupId2)
+            => !(GroupId1 == GroupId2);
+
+        #endregion
+
+        #region Operator <  (GroupId1, GroupId2)
+
+        /// <summary>
+        /// Compares two instances of this object.
+        /// </summary>
+        /// <param name="GroupId1">A group identification.</param>
+        /// <param name="GroupId2">Another group identification.</param>
+        /// <returns>true|false</returns>
+        public static Boolean operator < (Group GroupId1, Group GroupId2)
+        {
+
+            if ((Object) GroupId1 == null)
+                throw new ArgumentNullException(nameof(GroupId1), "The given GroupId1 must not be null!");
+
+            return GroupId1.CompareTo(GroupId2) < 0;
+
+        }
+
+        #endregion
+
+        #region Operator <= (GroupId1, GroupId2)
+
+        /// <summary>
+        /// Compares two instances of this object.
+        /// </summary>
+        /// <param name="GroupId1">A group identification.</param>
+        /// <param name="GroupId2">Another group identification.</param>
+        /// <returns>true|false</returns>
+        public static Boolean operator <= (Group GroupId1, Group GroupId2)
+            => !(GroupId1 > GroupId2);
+
+        #endregion
+
+        #region Operator >  (GroupId1, GroupId2)
+
+        /// <summary>
+        /// Compares two instances of this object.
+        /// </summary>
+        /// <param name="GroupId1">A group identification.</param>
+        /// <param name="GroupId2">Another group identification.</param>
+        /// <returns>true|false</returns>
+        public static Boolean operator > (Group GroupId1, Group GroupId2)
+        {
+
+            if ((Object) GroupId1 == null)
+                throw new ArgumentNullException(nameof(GroupId1), "The given GroupId1 must not be null!");
+
+            return GroupId1.CompareTo(GroupId2) > 0;
+
+        }
+
+        #endregion
+
+        #region Operator >= (GroupId1, GroupId2)
+
+        /// <summary>
+        /// Compares two instances of this object.
+        /// </summary>
+        /// <param name="GroupId1">A group identification.</param>
+        /// <param name="GroupId2">Another group identification.</param>
+        /// <returns>true|false</returns>
+        public static Boolean operator >= (Group GroupId1, Group GroupId2)
+            => !(GroupId1 < GroupId2);
+
+        #endregion
+
+        #endregion
+
         #region IComparable<Group> Members
 
         #region CompareTo(Object)

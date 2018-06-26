@@ -611,6 +611,113 @@ namespace org.GraphDefined.OpenData.Users
         #endregion
 
 
+        #region Operator overloading
+
+        #region Operator == (OrganizationId1, OrganizationId2)
+
+        /// <summary>
+        /// Compares two instances of this object.
+        /// </summary>
+        /// <param name="OrganizationId1">A organization identification.</param>
+        /// <param name="OrganizationId2">Another organization identification.</param>
+        /// <returns>true|false</returns>
+        public static Boolean operator == (Organization OrganizationId1, Organization OrganizationId2)
+        {
+
+            // If both are null, or both are same instance, return true.
+            if (Object.ReferenceEquals(OrganizationId1, OrganizationId2))
+                return true;
+
+            // If one is null, but not both, return false.
+            if (((Object) OrganizationId1 == null) || ((Object) OrganizationId2 == null))
+                return false;
+
+            return OrganizationId1.Equals(OrganizationId2);
+
+        }
+
+        #endregion
+
+        #region Operator != (OrganizationId1, OrganizationId2)
+
+        /// <summary>
+        /// Compares two instances of this object.
+        /// </summary>
+        /// <param name="OrganizationId1">A organization identification.</param>
+        /// <param name="OrganizationId2">Another organization identification.</param>
+        /// <returns>true|false</returns>
+        public static Boolean operator != (Organization OrganizationId1, Organization OrganizationId2)
+            => !(OrganizationId1 == OrganizationId2);
+
+        #endregion
+
+        #region Operator <  (OrganizationId1, OrganizationId2)
+
+        /// <summary>
+        /// Compares two instances of this object.
+        /// </summary>
+        /// <param name="OrganizationId1">A organization identification.</param>
+        /// <param name="OrganizationId2">Another organization identification.</param>
+        /// <returns>true|false</returns>
+        public static Boolean operator < (Organization OrganizationId1, Organization OrganizationId2)
+        {
+
+            if ((Object) OrganizationId1 == null)
+                throw new ArgumentNullException(nameof(OrganizationId1), "The given OrganizationId1 must not be null!");
+
+            return OrganizationId1.CompareTo(OrganizationId2) < 0;
+
+        }
+
+        #endregion
+
+        #region Operator <= (OrganizationId1, OrganizationId2)
+
+        /// <summary>
+        /// Compares two instances of this object.
+        /// </summary>
+        /// <param name="OrganizationId1">A organization identification.</param>
+        /// <param name="OrganizationId2">Another organization identification.</param>
+        /// <returns>true|false</returns>
+        public static Boolean operator <= (Organization OrganizationId1, Organization OrganizationId2)
+            => !(OrganizationId1 > OrganizationId2);
+
+        #endregion
+
+        #region Operator >  (OrganizationId1, OrganizationId2)
+
+        /// <summary>
+        /// Compares two instances of this object.
+        /// </summary>
+        /// <param name="OrganizationId1">A organization identification.</param>
+        /// <param name="OrganizationId2">Another organization identification.</param>
+        /// <returns>true|false</returns>
+        public static Boolean operator > (Organization OrganizationId1, Organization OrganizationId2)
+        {
+
+            if ((Object) OrganizationId1 == null)
+                throw new ArgumentNullException(nameof(OrganizationId1), "The given OrganizationId1 must not be null!");
+
+            return OrganizationId1.CompareTo(OrganizationId2) > 0;
+
+        }
+
+        #endregion
+
+        #region Operator >= (OrganizationId1, OrganizationId2)
+
+        /// <summary>
+        /// Compares two instances of this object.
+        /// </summary>
+        /// <param name="OrganizationId1">A organization identification.</param>
+        /// <param name="OrganizationId2">Another organization identification.</param>
+        /// <returns>true|false</returns>
+        public static Boolean operator >= (Organization OrganizationId1, Organization OrganizationId2)
+            => !(OrganizationId1 < OrganizationId2);
+
+        #endregion
+
+        #endregion
 
         #region IComparable<Organization> Members
 

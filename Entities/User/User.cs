@@ -948,6 +948,114 @@ namespace org.GraphDefined.OpenData.Users
         #endregion
 
 
+        #region Operator overloading
+
+        #region Operator == (UserId1, UserId2)
+
+        /// <summary>
+        /// Compares two instances of this object.
+        /// </summary>
+        /// <param name="UserId1">A user identification.</param>
+        /// <param name="UserId2">Another user identification.</param>
+        /// <returns>true|false</returns>
+        public static Boolean operator == (User UserId1, User UserId2)
+        {
+
+            // If both are null, or both are same instance, return true.
+            if (Object.ReferenceEquals(UserId1, UserId2))
+                return true;
+
+            // If one is null, but not both, return false.
+            if (((Object) UserId1 == null) || ((Object) UserId2 == null))
+                return false;
+
+            return UserId1.Equals(UserId2);
+
+        }
+
+        #endregion
+
+        #region Operator != (UserId1, UserId2)
+
+        /// <summary>
+        /// Compares two instances of this object.
+        /// </summary>
+        /// <param name="UserId1">A user identification.</param>
+        /// <param name="UserId2">Another user identification.</param>
+        /// <returns>true|false</returns>
+        public static Boolean operator != (User UserId1, User UserId2)
+            => !(UserId1 == UserId2);
+
+        #endregion
+
+        #region Operator <  (UserId1, UserId2)
+
+        /// <summary>
+        /// Compares two instances of this object.
+        /// </summary>
+        /// <param name="UserId1">A user identification.</param>
+        /// <param name="UserId2">Another user identification.</param>
+        /// <returns>true|false</returns>
+        public static Boolean operator < (User UserId1, User UserId2)
+        {
+
+            if ((Object) UserId1 == null)
+                throw new ArgumentNullException(nameof(UserId1), "The given UserId1 must not be null!");
+
+            return UserId1.CompareTo(UserId2) < 0;
+
+        }
+
+        #endregion
+
+        #region Operator <= (UserId1, UserId2)
+
+        /// <summary>
+        /// Compares two instances of this object.
+        /// </summary>
+        /// <param name="UserId1">A user identification.</param>
+        /// <param name="UserId2">Another user identification.</param>
+        /// <returns>true|false</returns>
+        public static Boolean operator <= (User UserId1, User UserId2)
+            => !(UserId1 > UserId2);
+
+        #endregion
+
+        #region Operator >  (UserId1, UserId2)
+
+        /// <summary>
+        /// Compares two instances of this object.
+        /// </summary>
+        /// <param name="UserId1">A user identification.</param>
+        /// <param name="UserId2">Another user identification.</param>
+        /// <returns>true|false</returns>
+        public static Boolean operator > (User UserId1, User UserId2)
+        {
+
+            if ((Object) UserId1 == null)
+                throw new ArgumentNullException(nameof(UserId1), "The given UserId1 must not be null!");
+
+            return UserId1.CompareTo(UserId2) > 0;
+
+        }
+
+        #endregion
+
+        #region Operator >= (UserId1, UserId2)
+
+        /// <summary>
+        /// Compares two instances of this object.
+        /// </summary>
+        /// <param name="UserId1">A user identification.</param>
+        /// <param name="UserId2">Another user identification.</param>
+        /// <returns>true|false</returns>
+        public static Boolean operator >= (User UserId1, User UserId2)
+            => !(UserId1 < UserId2);
+
+        #endregion
+
+        #endregion
+
         #region IComparable<User> Members
 
         #region CompareTo(Object)
