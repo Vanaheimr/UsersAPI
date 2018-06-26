@@ -269,6 +269,27 @@ function GetUsername(): string {
 
 }
 
+function GetEMail(): string {
+
+    var Cookie    = GetCookie( HTTPCookieId);
+    var Username  = "";
+
+    if (Cookie != null) {
+
+        // Crumbs are base64 encoded!
+        Cookie.split(":").forEach(crumb => {
+
+            if (crumb.indexOf("email") >= 0)
+                Username = atob(crumb.split("=")[1]);
+
+        });
+
+    }
+
+    return Username;
+
+}
+
 function SignOut() {
 
     SendJSON("DEAUTH",

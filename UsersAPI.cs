@@ -1991,7 +1991,8 @@ namespace org.GraphDefined.OpenData.Users
                                                         }.AsImmutable);
 
 
-                                             //AddOrUpdate(_User);
+                                             AddOrUpdate(_User,
+                                                         HTTPUser.Id);
 
 
                                              return SetUserResponse(
@@ -2873,10 +2874,10 @@ namespace org.GraphDefined.OpenData.Users
                 case "CreateUser":
 
                     if (User.TryParseJSON(JSONObject,
-                                          out User    _User,
+                                          out User    NewUser,
                                           out String  ErrorResponse))
                     {
-                        _Users.AddAndReturnValue(_User.Id, _User);
+                        _Users.AddAndReturnValue(NewUser.Id, NewUser);
                     }
 
                     else
@@ -2885,6 +2886,36 @@ namespace org.GraphDefined.OpenData.Users
                     break;
 
                 #endregion
+
+                #region AddOrUpdateUser
+
+                case "addOrUpdateUser":
+
+                    if (User.TryParseJSON(JSONObject,
+                                          //ownerId         => GetOrganization(ownerId) ?? NoOwner,
+                                          //defibrillatorId => _Defibrillators.TryGet(defibrillatorId),
+                                          out NewUser,
+                                          out ErrorResponse))
+                    {
+
+                        if (_Users.TryGetValue(NewUser.Id, out User OldUser))
+                        {
+                            _Users.Remove(OldUser.Id);
+                            OldUser.CopyAllEdgesTo(NewUser);
+                        }
+
+                        _Users.Add(NewUser.Id, NewUser);
+
+                    }
+
+                    else
+                        DebugX.Log(String.Concat(nameof(UsersAPI), " ", Command, ": ", ErrorResponse));
+
+                    break;
+
+                #endregion
+
+
 
                 #region CreateGroup
 
@@ -3119,7 +3150,12 @@ namespace org.GraphDefined.OpenData.Users
 
                     break;
 
-                    #endregion
+                #endregion
+
+
+                default:
+                    DebugX.Log(String.Concat(nameof(UsersAPI), " I don't know what to do with database command '", Command, "'!"));
+                    break;
 
             }
 
@@ -3843,6 +3879,45 @@ namespace org.GraphDefined.OpenData.Users
         }
 
         #endregion
+
+        #region AddOrUpdate   (User, CurrentUserId = null)
+
+        /// <summary>
+        /// Add or update the given user to/within the API.
+        /// </summary>
+        /// <param name="User">A user.</param>
+        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
+        public User AddOrUpdate(User      User,
+                                User_Id?  CurrentUserId  = null)
+        {
+
+            lock (_Users)
+            {
+
+                if (User.API != null && User.API != this)
+                    throw new ArgumentException(nameof(User), "The given user is already attached to another API!");
+
+                WriteToLogfileAndNotify("addOrUpdateUser",
+                                        User.ToJSON(),
+                                        CurrentUserId);
+
+                User.API = this;
+
+                if (_Users.TryGetValue(User.Id, out User OldUser))
+                {
+                    _Users.Remove(OldUser.Id);
+                    OldUser.CopyAllEdgesTo(User);
+                }
+
+                return _Users.AddAndReturnValue(User.Id, User);
+
+            }
+
+        }
+
+        #endregion
+
+
 
         #region ChangePassword   (Login, NewPassword, CurrentPassword = null, CurrentUserId = null)
 

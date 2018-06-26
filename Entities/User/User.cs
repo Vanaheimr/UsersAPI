@@ -46,6 +46,54 @@ namespace org.GraphDefined.OpenData.Users
     }
 
     /// <summary>
+    /// Extention methods for the User.
+    /// </summary>
+    public static class UserExtentions
+    {
+
+        #region CopyAllEdgesTo(this OldUser, NewUser)
+
+        public static void CopyAllEdgesTo(this User  OldUser,
+                                          User       NewUser)
+        {
+
+            if (OldUser.__User2UserEdges.Any())
+            {
+
+                NewUser.Add(OldUser.__User2UserEdges);
+
+                foreach (var edge in NewUser.__User2UserEdges)
+                    edge.Source = NewUser;
+
+            }
+
+            if (OldUser.__User2OrganizationEdges.Any())
+            {
+
+                NewUser.Add(OldUser.__User2OrganizationEdges);
+
+                foreach (var edge in NewUser.__User2OrganizationEdges)
+                    edge.Source = NewUser;
+
+            }
+
+            if (OldUser.__User2GroupEdges.Any())
+            {
+
+                NewUser.Add(OldUser.__User2GroupEdges);
+
+                foreach (var edge in NewUser.__User2GroupEdges)
+                    edge.Source = NewUser;
+
+            }
+
+        }
+
+        #endregion
+
+    }
+
+    /// <summary>
     /// A user.
     /// </summary>
     public class User : ADistributedEntity<User_Id>,
@@ -60,9 +108,85 @@ namespace org.GraphDefined.OpenData.Users
         public const UInt16 DefaultUserStatusHistorySize = 50;
 
 
-        private readonly ReactiveSet<MiniEdge<User, User2UserEdges,         User>>          _User2UserEdges;
-        private readonly ReactiveSet<MiniEdge<User, User2GroupEdges,        Group>>         _User2GroupEdges;
-        private readonly ReactiveSet<MiniEdge<User, User2OrganizationEdges, Organization>>  _User2OrganizationEdges;
+        #region PairedMessages messages
+
+        private readonly List<MiniEdge<User, User2UserEdges, User>> _User2UserEdges;
+
+        /// <summary>
+        /// All PAIRED messages.
+        /// </summary>
+        public IEnumerable<MiniEdge<User, User2UserEdges, User>> __User2UserEdges
+            => _User2UserEdges;
+
+        /// <summary>
+        /// Add a new PAIRED message.
+        /// </summary>
+        /// <param name="PairedMessage">A PAIRED message.</param>
+        public MiniEdge<User, User2UserEdges, User> Add(MiniEdge<User, User2UserEdges, User> PairedMessage)
+            => _User2UserEdges.AddAndReturnElement(PairedMessage);
+
+        /// <summary>
+        /// Add new PAIRED messages.
+        /// </summary>
+        /// <param name="PairedMessages">An enumeration of PAIRED messages.</param>
+        public IEnumerable<MiniEdge<User, User2UserEdges, User>> Add(IEnumerable<MiniEdge<User, User2UserEdges, User>> PairedMessages)
+            => _User2UserEdges.AddRangeAndReturnEnumeration(PairedMessages);
+
+        #endregion
+
+        #region PairedMessages messages
+
+        private readonly List<MiniEdge<User, User2GroupEdges, Group>> _User2GroupEdges;
+
+        /// <summary>
+        /// All PAIRED messages.
+        /// </summary>
+        public IEnumerable<MiniEdge<User, User2GroupEdges, Group>> __User2GroupEdges
+            => _User2GroupEdges;
+
+        /// <summary>
+        /// Add a new PAIRED message.
+        /// </summary>
+        /// <param name="PairedMessage">A PAIRED message.</param>
+        public MiniEdge<User, User2GroupEdges, Group> Add(MiniEdge<User, User2GroupEdges, Group> PairedMessage)
+            => _User2GroupEdges.AddAndReturnElement(PairedMessage);
+
+        /// <summary>
+        /// Add new PAIRED messages.
+        /// </summary>
+        /// <param name="PairedMessages">An enumeration of PAIRED messages.</param>
+        public IEnumerable<MiniEdge<User, User2GroupEdges, Group>> Add(IEnumerable<MiniEdge<User, User2GroupEdges, Group>> PairedMessages)
+            => _User2GroupEdges.AddRangeAndReturnEnumeration(PairedMessages);
+
+        #endregion
+
+        #region PairedMessages messages
+
+        private readonly List<MiniEdge<User, User2OrganizationEdges, Organization>> _User2OrganizationEdges;
+
+        /// <summary>
+        /// All PAIRED messages.
+        /// </summary>
+        public IEnumerable<MiniEdge<User, User2OrganizationEdges, Organization>> __User2OrganizationEdges
+            => _User2OrganizationEdges;
+
+        /// <summary>
+        /// Add a new PAIRED message.
+        /// </summary>
+        /// <param name="PairedMessage">A PAIRED message.</param>
+        public MiniEdge<User, User2OrganizationEdges, Organization> Add(MiniEdge<User, User2OrganizationEdges, Organization> PairedMessage)
+            => _User2OrganizationEdges.AddAndReturnElement(PairedMessage);
+
+        /// <summary>
+        /// Add new PAIRED messages.
+        /// </summary>
+        /// <param name="PairedMessages">An enumeration of PAIRED messages.</param>
+        public IEnumerable<MiniEdge<User, User2OrganizationEdges, Organization>> Add(IEnumerable<MiniEdge<User, User2OrganizationEdges, Organization>> PairedMessages)
+            => _User2OrganizationEdges.AddRangeAndReturnEnumeration(PairedMessages);
+
+        #endregion
+
+
 
         /// <summary>
         /// The JSON-LD context of the object.
@@ -72,6 +196,38 @@ namespace org.GraphDefined.OpenData.Users
         #endregion
 
         #region Properties
+
+        #region API
+
+        private Object _API;
+
+        /// <summary>
+        /// The UsersAPI of this user.
+        /// </summary>
+        internal Object API
+        {
+
+            get
+            {
+                return _API;
+            }
+
+            set
+            {
+
+                if (_API != null)
+                    throw new ArgumentException("Illegal attempt to change the API of this communicator!");
+
+                if (value == null)
+                    throw new ArgumentException("Illegal attempt to delete the API reference of this communicator!");
+
+                _API = value;
+
+            }
+
+        }
+
+        #endregion
 
         /// <summary>
         /// The primary E-Mail address of the user.
@@ -264,19 +420,23 @@ namespace org.GraphDefined.OpenData.Users
         /// <param name="IsAuthenticated">The user will not be shown in user listings, as its primary e-mail address is not yet authenticated.</param>
         /// <param name="IsDisabled">The user is disabled.</param>
         /// <param name="DataSource">The source of all this data, e.g. an automatic importer.</param>
-        internal User(User_Id             Id,
-                      SimpleEMailAddress  EMail,
-                      String              Name              = null,
-                      I18NString          Description       = null,
-                      PgpPublicKeyRing    PublicKeyRing     = null,
-                      PgpSecretKeyRing    SecretKeyRing     = null,
-                      PhoneNumber?        Telephone         = null,
-                      GeoCoordinate?      GeoLocation       = null,
-                      Address             Address           = null,
-                      PrivacyLevel?       PrivacyLevel      = null,
-                      Boolean             IsDisabled        = false,
-                      Boolean             IsAuthenticated   = false,
-                      String              DataSource        = "")
+        internal User(User_Id                                                            Id,
+                      SimpleEMailAddress                                                 EMail,
+                      String                                                             Name                     = null,
+                      I18NString                                                         Description              = null,
+                      PgpPublicKeyRing                                                   PublicKeyRing            = null,
+                      PgpSecretKeyRing                                                   SecretKeyRing            = null,
+                      PhoneNumber?                                                       Telephone                = null,
+                      GeoCoordinate?                                                     GeoLocation              = null,
+                      Address                                                            Address                  = null,
+                      PrivacyLevel?                                                      PrivacyLevel             = null,
+                      Boolean                                                            IsDisabled               = false,
+                      Boolean                                                            IsAuthenticated          = false,
+                      String                                                             DataSource               = "",
+
+                      IEnumerable<MiniEdge<User, User2UserEdges,         User>>          User2UserEdges           = null,
+                      IEnumerable<MiniEdge<User, User2GroupEdges,        Group>>         User2GroupEdges          = null,
+                      IEnumerable<MiniEdge<User, User2OrganizationEdges, Organization>>  User2OrganizationEdges   = null)
 
             : base(Id,
                    DataSource)
@@ -313,9 +473,9 @@ namespace org.GraphDefined.OpenData.Users
 
             #region Init edges
 
-            this._User2UserEdges          = new ReactiveSet<MiniEdge<User, User2UserEdges,         User>>();
-            this._User2GroupEdges         = new ReactiveSet<MiniEdge<User, User2GroupEdges,        Group>>();
-            this._User2OrganizationEdges  = new ReactiveSet<MiniEdge<User, User2OrganizationEdges, Organization>>();
+            this._User2UserEdges          = User2UserEdges.        IsNeitherNullNorEmpty() ? new List<MiniEdge<User, User2UserEdges,         User>>        (User2UserEdges)         : new List<MiniEdge<User, User2UserEdges,         User>>();
+            this._User2GroupEdges         = User2GroupEdges.       IsNeitherNullNorEmpty() ? new List<MiniEdge<User, User2GroupEdges,        Group>>       (User2GroupEdges)        : new List<MiniEdge<User, User2GroupEdges,        Group>>();
+            this._User2OrganizationEdges  = User2OrganizationEdges.IsNeitherNullNorEmpty() ? new List<MiniEdge<User, User2OrganizationEdges, Organization>>(User2OrganizationEdges) : new List<MiniEdge<User, User2OrganizationEdges, Organization>>();
 
             #endregion
 
@@ -340,7 +500,7 @@ namespace org.GraphDefined.OpenData.Users
 
             AddIncomingEdge(MiniEdge<User, User2UserEdges, User>  Edge)
 
-            => _User2UserEdges.AddAndReturn(Edge);
+            => _User2UserEdges.AddAndReturnElement(Edge);
 
         public MiniEdge<User, User2UserEdges, User>
 
@@ -348,7 +508,7 @@ namespace org.GraphDefined.OpenData.Users
                             User2UserEdges  EdgeLabel,
                             PrivacyLevel    PrivacyLevel = PrivacyLevel.World)
 
-            => _User2UserEdges.AddAndReturn(new MiniEdge<User, User2UserEdges, User>(Source, EdgeLabel, this, PrivacyLevel));
+            => _User2UserEdges.AddAndReturnElement(new MiniEdge<User, User2UserEdges, User>(Source, EdgeLabel, this, PrivacyLevel));
 
 
 
@@ -358,7 +518,7 @@ namespace org.GraphDefined.OpenData.Users
                             User            Target,
                             PrivacyLevel    PrivacyLevel = PrivacyLevel.World)
 
-            => _User2UserEdges.AddAndReturn(new MiniEdge<User, User2UserEdges, User>(this, EdgeLabel, Target, PrivacyLevel));
+            => _User2UserEdges.AddAndReturnElement(new MiniEdge<User, User2UserEdges, User>(this, EdgeLabel, Target, PrivacyLevel));
 
         public MiniEdge<User, User2OrganizationEdges, Organization>
 
@@ -366,7 +526,7 @@ namespace org.GraphDefined.OpenData.Users
                             Organization            Target,
                             PrivacyLevel            PrivacyLevel = PrivacyLevel.World)
 
-            => _User2OrganizationEdges.AddAndReturn(new MiniEdge<User, User2OrganizationEdges, Organization>(this, EdgeLabel, Target, PrivacyLevel));
+            => _User2OrganizationEdges.AddAndReturnElement(new MiniEdge<User, User2OrganizationEdges, Organization>(this, EdgeLabel, Target, PrivacyLevel));
 
 
 
@@ -376,7 +536,7 @@ namespace org.GraphDefined.OpenData.Users
                             Group           Target,
                             PrivacyLevel    PrivacyLevel = PrivacyLevel.World)
 
-            => _User2GroupEdges.AddAndReturn(new MiniEdge<User, User2GroupEdges, Group>(this, EdgeLabel, Target, PrivacyLevel));
+            => _User2GroupEdges.AddAndReturnElement(new MiniEdge<User, User2GroupEdges, Group>(this, EdgeLabel, Target, PrivacyLevel));
 
 
         public IEnumerable<MiniEdge<User, User2GroupEdges, Group>> User2GroupOutEdges(Func<User2GroupEdges, Boolean> User2GroupEdgeFilter)

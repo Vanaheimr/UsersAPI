@@ -10,6 +10,7 @@ interface IUserProfile {
     name:             string;
     email:            string;
     description:      Object;
+    publicKeyRing:    string;
     privacyLevel:     string;
     isAuthenticated:  boolean;
     isDisabled:       boolean;

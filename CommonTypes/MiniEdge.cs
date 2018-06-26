@@ -36,77 +36,18 @@ namespace org.GraphDefined.OpenData.Users
 
     {
 
-        #region Data
+        #region Properties
 
-        #region Source
+        public TSource       Source         { get; internal set; }
 
-        private readonly TSource _Source;
+        public TEdge         EdgeLabel      { get; }
 
-        public TSource Source
-        {
-            get
-            {
-                return _Source;
-            }
-        }
+        public TTarget       Target         { get; internal set; }
 
-        #endregion
 
-        #region EdgeLabel
+        public PrivacyLevel  PrivacyLevel   { get; }
 
-        private readonly TEdge _EdgeLabel;
-
-        public TEdge EdgeLabel
-        {
-            get
-            {
-                return _EdgeLabel;
-            }
-        }
-
-        #endregion
-
-        #region Target
-
-        private readonly TTarget _Target;
-
-        public TTarget Target
-        {
-            get
-            {
-                return _Target;
-            }
-        }
-
-        #endregion
-
-        #region PrivacyLevel
-
-        private readonly PrivacyLevel _PrivacyLevel;
-
-        public PrivacyLevel PrivacyLevel
-        {
-            get
-            {
-                return _PrivacyLevel;
-            }
-        }
-
-        #endregion
-
-        #region Created
-
-        private readonly DateTime _Created;
-
-        public DateTime Created
-        {
-            get
-            {
-                return _Created;
-            }
-        }
-
-        #endregion
+        public DateTime      Created        { get; }
 
         #region UserDefined
 
@@ -146,19 +87,19 @@ namespace org.GraphDefined.OpenData.Users
 
             #region Initial checks
 
-            if (Source == null)
+            if (System.Collections.Generic.EqualityComparer<TSource>.Default.Equals(Source, default(TSource)))
                 throw new ArgumentNullException(nameof(Source), "The given source must not be null!");
 
-            if (Target == null)
+            if (System.Collections.Generic.EqualityComparer<TTarget>.Default.Equals(Target, default(TTarget)))
                 throw new ArgumentNullException(nameof(Target), "The given target must not be null!");
 
             #endregion
 
-            this._Source        = Source;
-            this._Target        = Target;
-            this._EdgeLabel     = EdgeLabel;
-            this._PrivacyLevel  = PrivacyLevel;
-            this._Created       = Created ?? DateTime.UtcNow;
+            this.Source        = Source;
+            this.Target        = Target;
+            this.EdgeLabel     = EdgeLabel;
+            this.PrivacyLevel  = PrivacyLevel;
+            this.Created       = Created ?? DateTime.UtcNow;
          //   this._UserDefined   = new Dictionary<String, Object>();
 
         }
@@ -201,9 +142,9 @@ namespace org.GraphDefined.OpenData.Users
             if ((Object) MiniEdge == null)
                 throw new ArgumentNullException("The given miniedge must not be null!");
 
-            var source  = _Source.   CompareTo(MiniEdge._Source);
-            var type    = _EdgeLabel.CompareTo(MiniEdge._EdgeLabel);
-            var target  = _Target.   CompareTo(MiniEdge._Target);
+            var source  = Source.   CompareTo(MiniEdge.Source);
+            var type    = EdgeLabel.CompareTo(MiniEdge.EdgeLabel);
+            var target  = Target.   CompareTo(MiniEdge.Target);
 
             if (type != 0)
                 return type;
@@ -259,13 +200,13 @@ namespace org.GraphDefined.OpenData.Users
             if ((Object) MiniEdge == null)
                 return false;
 
-            if (!_Source.Equals(MiniEdge._Source))
+            if (!Source.Equals(MiniEdge.Source))
                 return false;
 
-            if (!_EdgeLabel.Equals(MiniEdge._EdgeLabel))
+            if (!EdgeLabel.Equals(MiniEdge.EdgeLabel))
                 return false;
 
-            if (!_Target.Equals(MiniEdge._Target))
+            if (!Target.Equals(MiniEdge.Target))
                 return false;
 
             return true;
@@ -292,11 +233,11 @@ namespace org.GraphDefined.OpenData.Users
 
                 var hash = 17;
 
-                hash = hash * 23 + _Source.      GetHashCode();
-                hash = hash * 23 + _EdgeLabel.   GetHashCode();
-                hash = hash * 23 + _Target.      GetHashCode();
-                hash = hash * 23 + _PrivacyLevel.GetHashCode();
-                hash = hash * 23 + _Created.     GetHashCode();
+                hash = hash * 23 + Source.      GetHashCode();
+                hash = hash * 23 + EdgeLabel.   GetHashCode();
+                hash = hash * 23 + Target.      GetHashCode();
+                hash = hash * 23 + PrivacyLevel.GetHashCode();
+                hash = hash * 23 + Created.     GetHashCode();
 
                 return hash;
 
@@ -314,9 +255,9 @@ namespace org.GraphDefined.OpenData.Users
         public override String ToString()
         {
 
-            var IsNotPublic = _PrivacyLevel != PrivacyLevel.World ? String.Concat(" [", _PrivacyLevel.ToString(), "]") : "";
+            var IsNotPublic = PrivacyLevel != PrivacyLevel.World ? String.Concat(" [", PrivacyLevel.ToString(), "]") : "";
 
-            return String.Concat(_Source, " --", EdgeLabel, IsNotPublic, "->", _Target);
+            return String.Concat(Source, " --", EdgeLabel, IsNotPublic, "->", Target);
 
         }
 
