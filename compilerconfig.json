@@ -12,6 +12,10 @@
     "inputFile": "HTTPRoot/profile/profile.scss"
   },
   {
+    "outputFile": "HTTPRoot/profile/password.css",
+    "inputFile": "HTTPRoot/profile/password.scss"
+  },
+  {
     "outputFile": "HTTPRoot/admin/admin.css",
     "inputFile": "HTTPRoot/admin/admin.scss"
   },

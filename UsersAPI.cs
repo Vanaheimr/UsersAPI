@@ -2421,6 +2421,129 @@ namespace org.GraphDefined.OpenData.Users
 
             #endregion
 
+            #region SET         ~/users/{UserId}/password
+
+
+            HTTPServer.AddMethodCallback(Hostname,
+                                         HTTPMethod.SET,
+                                         URIPrefix + "/users/{UserId}/password",
+                                         HTTPContentType.JSON_UTF8,
+                                         HTTPDelegate: async Request => {
+
+                                             ChangePasswordRequest(Request);
+
+                                             #region Get HTTP user and its organizations
+
+                                             // Will return HTTP 401 Unauthorized, when the HTTP user is unknown!
+                                             if (!TryGetHTTPUser(Request,
+                                                                 out User                       HTTPUser,
+                                                                 out IEnumerable<Organization>  HTTPOrganizations,
+                                                                 out HTTPResponse               Response,
+                                                                 AccessLevel:                   Access_Level.ReadWrite,
+                                                                 Recursive:                     true))
+                                             {
+                                                 return ChangePasswordResponse(Response);
+                                             }
+
+                                             #endregion
+
+                                             #region Check UserId URI parameter
+
+                                             if (!Request.ParseUserId(this,
+                                                                      out User_Id?      UserIdURI,
+                                                                      out HTTPResponse  HTTPResponse))
+                                             {
+                                                 return ChangePasswordResponse(HTTPResponse);
+                                             }
+
+                                             #endregion
+
+                                             #region Parse JSON
+
+                                             if (!Request.TryParseJObjectRequestBody(out JObject JSONObj, out HTTPResponse))
+                                                 return ChangePasswordResponse(HTTPResponse);
+
+                                             var ErrorResponse    = "";
+                                             var CurrentPassword  = JSONObj.GetString("currentPassword");
+                                             var NewPassword      = JSONObj.GetString("newPassword");
+
+                                             if (CurrentPassword.IsNullOrEmpty() || NewPassword.IsNullOrEmpty())
+                                             {
+
+                                                 return ChangePasswordResponse(
+                                                            new HTTPResponseBuilder(Request) {
+                                                                HTTPStatusCode             = HTTPStatusCode.BadRequest,
+                                                                Server                     = HTTPServer.DefaultServerName,
+                                                                Date                       = DateTime.UtcNow,
+                                                                AccessControlAllowOrigin   = "*",
+                                                                AccessControlAllowMethods  = "GET, SET",
+                                                                AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
+                                                                ETag                       = "1",
+                                                                ContentType                = HTTPContentType.JSON_UTF8,
+                                                                Content                    = JSONObject.Create(
+                                                                                                 new JProperty("description",  ErrorResponse)
+                                                                                             ).ToUTF8Bytes()
+                                                            }.AsImmutable);
+
+                                             }
+
+                                             #endregion
+
+
+                                             // Has the current HTTP user the required
+                                             // access rights to update?
+                                             if (HTTPUser.Id != UserIdURI.Value)
+                                                 return ChangePasswordResponse(
+                                                        new HTTPResponseBuilder(Request) {
+                                                            HTTPStatusCode              = HTTPStatusCode.Forbidden,
+                                                            Server                      = HTTPServer.DefaultServerName,
+                                                            Date                        = DateTime.UtcNow,
+                                                            AccessControlAllowOrigin    = "*",
+                                                            AccessControlAllowMethods   = "GET, SET, CHOWN",
+                                                            AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
+                                                            Connection                  = "close"
+                                                        }.AsImmutable);
+
+
+                                             if (TryChangePassword(UserIdURI.Value,
+                                                                   Password.Parse(NewPassword),
+                                                                   CurrentPassword,
+                                                                   HTTPUser.Id))
+                                             {
+
+                                                 return ChangePasswordResponse(
+                                                            new HTTPResponseBuilder(Request) {
+                                                                HTTPStatusCode              = HTTPStatusCode.OK,
+                                                                Server                      = HTTPServer.DefaultServerName,
+                                                                Date                        = DateTime.UtcNow,
+                                                                AccessControlAllowOrigin    = "*",
+                                                                AccessControlAllowMethods   = "SET",
+                                                                AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
+                                                                Connection                  = "close"
+                                                            }.AsImmutable);
+                                             }
+
+                                             else
+                                             {
+
+                                                 return ChangePasswordResponse(
+                                                            new HTTPResponseBuilder(Request) {
+                                                                HTTPStatusCode              = HTTPStatusCode.Forbidden,
+                                                                Server                      = HTTPServer.DefaultServerName,
+                                                                Date                        = DateTime.UtcNow,
+                                                                AccessControlAllowOrigin    = "*",
+                                                                AccessControlAllowMethods   = "SET",
+                                                                AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
+                                                                Connection                  = "close"
+                                                            }.AsImmutable);
+
+                                             }
+
+
+                                         });
+
+            #endregion
+
 
             #region GET         ~/groups
 
@@ -2542,7 +2665,7 @@ namespace org.GraphDefined.OpenData.Users
                                 JSONLine                  = JObject.Parse(line);
                                 JSONCommand               = (JSONLine.First as JProperty)?.Name;
                                 JSONObject                = (JSONLine.First as JProperty)?.Value as JObject;
-                                CurrentDatabaseHashValue  =  JSONLine["HashValue"]?.Value<String>();
+                                CurrentDatabaseHashValue  =  JSONLine["sha256hash"]["hashValue"]?.Value<String>();
 
                                 if (JSONCommand.IsNotNullOrEmpty() && JSONObject != null)
                                     ProcessCommand(JSONCommand, JSONObject);
@@ -2550,7 +2673,7 @@ namespace org.GraphDefined.OpenData.Users
                             }
                             catch (Exception e)
                             {
-                                DebugX.Log(@"Could not read database file """ + DefaultUsersAPIFile + @""" line " + linenumber + ": " + e.Message);
+                                DebugX.Log("Could not read database file '" + DefaultUsersAPIFile + "' line " + linenumber + ": " + e.Message);
                             }
 
                         }
@@ -2562,60 +2685,116 @@ namespace org.GraphDefined.OpenData.Users
             }
             catch (Exception e)
             {
-                DebugX.LogT("ReadStoredData() failed: " + e.Message);
+                DebugX.LogT("ReadDatabaseFiles() -> DefaultUsersAPIFile failed: " + e.Message);
             }
 
             #endregion
 
             #region Read Password file...
 
-            if (File.Exists(DefaultPasswordFile))
+            try
             {
 
-                String[] elements;
+                if (File.Exists(DefaultPasswordFile))
+                {
 
-                File.ReadLines(DefaultPasswordFile).ForEachCounted((line, linenumber) => {
+                    JObject JSONLine;
+                    String  JSONCommand;
+                    JObject JSONObject;
 
-                    try
-                    {
+                    File.ReadLines(DefaultPasswordFile).ForEachCounted((line, linenumber) => {
 
-                        elements = line.Split(new Char[] { ':' }, StringSplitOptions.None);
-
-                        if (elements.Length == 3)
+                        if (line.IsNeitherNullNorEmpty() &&
+                           !line.StartsWith("#")         &&
+                           !line.StartsWith("//"))
                         {
 
-                            var Login = User_Id.Parse(elements[0]);
-
-                            if (elements[1].IsNotNullOrEmpty() &&
-                                elements[2].IsNotNullOrEmpty())
+                            try
                             {
 
-                                if (!_LoginPasswords.ContainsKey(Login))
-                                    _LoginPasswords.Add(Login,
-                                                        new LoginPassword(Login,
-                                                                          Password.ParseHash(elements[1],
-                                                                                             elements[2])));
+                                JSONLine                  = JObject.Parse(line);
+                                JSONCommand               = (JSONLine.First as JProperty)?.Name;
+                                JSONObject                = (JSONLine.First as JProperty)?.Value as JObject;
+                                CurrentDatabaseHashValue  =  JSONLine["sha256hash"]["hashValue"]?.Value<String>();
+
+                                if (JSONCommand.IsNotNullOrEmpty() &&
+                                    JSONObject  != null            &&
+                                    User_Id.TryParse(JSONObject["login"].Value<String>(), out User_Id Login))
+                                {
+
+                                    switch (JSONCommand)
+                                    {
+
+                                        #region AddPassword
+
+                                        case "AddPassword":
+
+                                            if (!_LoginPasswords.ContainsKey(Login))
+                                            {
+
+                                                _LoginPasswords.Add(Login,
+                                                                    new LoginPassword(Login,
+                                                                                      Password.ParseHash(JSONObject["newPassword"]["salt"].        Value<String>(),
+                                                                                                         JSONObject["newPassword"]["passwordHash"].Value<String>())));
+
+                                            }
+
+                                            else
+                                                DebugX.Log("Invalid 'AddPassword' command in '" + DefaultPasswordFile + "' line " + linenumber + "!");
+
+                                            break;
+
+                                        #endregion
+
+                                        #region ChangePassword
+
+                                        case "ChangePassword":
+
+                                            if (_LoginPasswords.TryGetValue(Login, out LoginPassword _LoginPassword) &&
+                                                _LoginPassword.Password.     UnsecureString   == JSONObject["currentPassword"]["passwordHash"].Value<String>() &&
+                                                _LoginPassword.Password.Salt.UnsecureString() == JSONObject["currentPassword"]["salt"].        Value<String>())
+                                            {
+
+                                                _LoginPasswords[Login] = new LoginPassword(Login,
+                                                                                           Password.ParseHash(JSONObject["newPassword"]["salt"].        Value<String>(),
+                                                                                                              JSONObject["newPassword"]["passwordHash"].Value<String>()));
+
+                                            }
+
+                                            else
+                                                DebugX.Log("Invalid 'ChangePassword' command in '" + DefaultPasswordFile + "' line " + linenumber + "!");
+
+                                            break;
+
+                                        #endregion
+
+                                        default:
+                                            DebugX.Log("Unknown command '" + JSONCommand + "' in password file '" + DefaultPasswordFile + "' line " + linenumber + "!");
+                                            break;
+
+                                    }
+
+                                }
 
                                 else
-                                    _LoginPasswords[Login] = new LoginPassword(Login,
-                                                                               Password.ParseHash(elements[1],
-                                                                                                  elements[2]));
+                                    DebugX.Log("Could not read password file '" + DefaultPasswordFile + "' line " + linenumber + "!");
 
+                            }
+                            catch (Exception e)
+                            {
+                                DebugX.Log("Could not read password file '" + DefaultPasswordFile + "' line " + linenumber + ": " + e.Message);
                             }
 
                         }
 
-                        else
-                            DebugX.Log(@"Could not read password file """ + DefaultPasswordFile + @""" line " + linenumber);
+                    });
 
-                    }
-                    catch (Exception e)
-                    {
-                        DebugX.Log(@"Could not read password file """ + DefaultPasswordFile + @""" line " + linenumber + ": " + e.Message);
-                    }
+                }
 
-                });
-
+            }
+            catch (Exception e)
+            {
+                DebugX.LogT("ReadDatabaseFiles() -> DefaultPasswordFile failed: " + e.Message);
             }
 
             #endregion
@@ -2653,7 +2832,7 @@ namespace org.GraphDefined.OpenData.Users
                             }
                             catch (Exception e)
                             {
-                                DebugX.Log(@"Could not read security token file """ + DefaultSecurityTokenFile + @""" line " + linenumber + ": " + e.Message);
+                                DebugX.Log("Could not read security token file '" + DefaultSecurityTokenFile + "' line " + linenumber + ": " + e.Message);
                             }
 
                         });
@@ -2661,7 +2840,7 @@ namespace org.GraphDefined.OpenData.Users
                     }
                     catch (Exception e)
                     {
-                        DebugX.Log(@"Could not read security token file """ + DefaultSecurityTokenFile + @""": " + e.Message);
+                        DebugX.Log("Could not read security token file '" + DefaultSecurityTokenFile + "': " + e.Message);
                     }
 
                     // Write filtered (no invalid users, no expired tokens) tokens back to file...
@@ -3170,6 +3349,47 @@ namespace org.GraphDefined.OpenData.Users
 
         #endregion
 
+        #region (protected internal) ChangePasswordRequest (Request)
+
+        /// <summary>
+        /// An event sent whenever set user request was received.
+        /// </summary>
+        public event RequestLogHandler OnChangePasswordRequest;
+
+        protected internal HTTPRequest ChangePasswordRequest(HTTPRequest Request)
+        {
+
+            OnChangePasswordRequest?.Invoke(Request.Timestamp,
+                                            HTTPServer,
+                                            Request);
+
+            return Request;
+
+        }
+
+        #endregion
+
+        #region (protected internal) ChangePasswordResponse(Response)
+
+        /// <summary>
+        /// An event sent whenever a response on a set user request was sent.
+        /// </summary>
+        public event AccessLogHandler OnChangePasswordResponse;
+
+        protected internal HTTPResponse ChangePasswordResponse(HTTPResponse Response)
+        {
+
+            OnChangePasswordResponse?.Invoke(Response.Timestamp,
+                                             HTTPServer,
+                                             Response.HTTPRequest,
+                                             Response);
+
+            return Response;
+
+        }
+
+        #endregion
+
 
         #region WriteToLogfileAndNotify(MessageId, JSONData, Logfilename = DefaultUsersAPIFile)
 
@@ -3553,7 +3773,7 @@ namespace org.GraphDefined.OpenData.Users
                                         User.ToJSON(),
                                         CurrentUserId);
 
-                SetPassword(Id, Password);
+                ChangePassword(Id, Password, null, CurrentUserId);
 
                 return _Users.AddAndReturnValue(User.Id, User);
 
@@ -3624,27 +3844,96 @@ namespace org.GraphDefined.OpenData.Users
 
         #endregion
 
-        #region SetPassword(Login, Password)
+        #region ChangePassword   (Login, NewPassword, CurrentPassword = null, CurrentUserId = null)
 
-        public void SetPassword(User_Id   Login,
-                                Password  Password)
+        public void ChangePassword(User_Id   Login,
+                                   Password  NewPassword,
+                                   String    CurrentPassword  = null,
+                                   User_Id?  CurrentUserId    = null)
         {
 
             lock (_Users)
             {
 
-                if (!_LoginPasswords.ContainsKey(Login))
-                    _LoginPasswords.Add(Login, new LoginPassword(Login, Password));
-                else
-                    _LoginPasswords[Login]   = new LoginPassword(Login, Password);
+                if (!TryChangePassword(Login,
+                                       NewPassword,
+                                       CurrentPassword,
+                                       CurrentUserId))
+                {
+                    throw new ApplicationException("The password could not be changed, as the current password does not match!");
+                }
 
-                File.AppendAllText(DefaultPasswordFile,
-                                   String.Concat(Login,
-                                                 ":",
-                                                 Password.Salt.UnsecureString(),
-                                                 ":",
-                                                 Password.UnsecureString,
-                                                 Environment.NewLine));
+            }
+
+        }
+
+        #endregion
+
+        #region TryChangePassword(Login, NewPassword, CurrentPassword = null, CurrentUserId = null)
+
+        public Boolean TryChangePassword(User_Id   Login,
+                                         Password  NewPassword,
+                                         String    CurrentPassword  = null,
+                                         User_Id?  CurrentUserId    = null)
+        {
+
+            lock (_Users)
+            {
+
+                #region AddPassword
+
+                if (!_LoginPasswords.TryGetValue(Login, out LoginPassword _LoginPassword))
+                {
+
+                    WriteToLogfileAndNotify("AddPassword",
+                                            new JObject(
+                                                new JProperty("login",         Login.ToString()),
+                                                new JProperty("newPassword", new JObject(
+                                                    new JProperty("salt",          NewPassword.Salt.UnsecureString()),
+                                                    new JProperty("passwordHash",  NewPassword.UnsecureString)
+                                                ))
+                                            ),
+                                            DefaultPasswordFile,
+                                            CurrentUserId);
+
+                    _LoginPasswords.Add(Login, new LoginPassword(Login, NewPassword));
+
+                    return true;
+
+                }
+
+                #endregion
+
+                #region ChangePassword
+
+                else if (CurrentPassword.IsNotNullOrEmpty() && _LoginPassword.VerifyPassword(CurrentPassword))
+                {
+
+                    WriteToLogfileAndNotify("ChangePassword",
+                                            new JObject(
+                                                new JProperty("login",         Login.ToString()),
+                                                new JProperty("currentPassword", new JObject(
+                                                    new JProperty("salt",          _LoginPassword.Password.Salt.UnsecureString()),
+                                                    new JProperty("passwordHash",  _LoginPassword.Password.UnsecureString)
+                                                )),
+                                                new JProperty("newPassword",     new JObject(
+                                                    new JProperty("salt",          NewPassword.Salt.UnsecureString()),
+                                                    new JProperty("passwordHash",  NewPassword.UnsecureString)
+                                                ))
+                                            ),
+                                            DefaultPasswordFile,
+                                            CurrentUserId);
+
+                    _LoginPasswords[Login] = new LoginPassword(Login, NewPassword);
+
+                    return true;
+
+                }
+
+                #endregion
+
+                else
+                    return false;
 
             }
 
