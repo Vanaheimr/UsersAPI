@@ -2667,7 +2667,7 @@ namespace org.GraphDefined.OpenData.Users
                                 JSONLine                  = JObject.Parse(line);
                                 JSONCommand               = (JSONLine.First as JProperty)?.Name;
                                 JSONObject                = (JSONLine.First as JProperty)?.Value as JObject;
-                                CurrentDatabaseHashValue  =  JSONLine["sha256hash"]["hashValue"]?.Value<String>();
+                                CurrentDatabaseHashValue  =  JSONLine["sha256hash"]?["hashValue"]?.Value<String>();
 
                                 if (JSONCommand.IsNotNullOrEmpty() && JSONObject != null)
                                     ProcessCommand(JSONCommand, JSONObject);
@@ -2717,7 +2717,7 @@ namespace org.GraphDefined.OpenData.Users
                                 JSONLine                  = JObject.Parse(line);
                                 JSONCommand               = (JSONLine.First as JProperty)?.Name;
                                 JSONObject                = (JSONLine.First as JProperty)?.Value as JObject;
-                                CurrentDatabaseHashValue  =  JSONLine["sha256hash"]["hashValue"]?.Value<String>();
+                                CurrentDatabaseHashValue  =  JSONLine["sha256hash"]?["hashValue"]?.Value<String>();
 
                                 if (JSONCommand.IsNotNullOrEmpty() &&
                                     JSONObject  != null            &&
