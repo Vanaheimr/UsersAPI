@@ -484,4 +484,8 @@ function parseUTCDate(UTCString) {
     moment.locale(window.navigator.language);
     return moment.utc(UTCString).local().format('ll');
 }
+function parseUTCTimestamp(UTCString) {
+    moment.locale(window.navigator.language);
+    return moment.utc(UTCString).local().format('LLLL');
+}
 //# sourceMappingURL=defaults.js.map

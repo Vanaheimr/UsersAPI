@@ -857,3 +857,11 @@ function parseUTCDate(UTCString: string): string {
     return moment.utc(UTCString).local().format('ll');
 
 }
+
+function parseUTCTimestamp(UTCString: string): string {
+
+    moment.locale(window.navigator.language);
+
+    return moment.utc(UTCString).local().format('LLLL');
+
+}
