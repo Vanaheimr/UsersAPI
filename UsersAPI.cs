@@ -45,6 +45,7 @@ using org.GraphDefined.Vanaheimr.BouncyCastle;
 using org.GraphDefined.Vanaheimr.Hermod.Sockets;
 using org.GraphDefined.Vanaheimr.Aegir;
 using org.GraphDefined.Vanaheimr.Warden;
+using SMSApi.Api;
 
 #endregion
 
@@ -311,6 +312,8 @@ namespace org.GraphDefined.OpenData.Users
         public  const             String                              AdminGroupName                 = "Admins";
 
 
+        private readonly          SMSAPI                              _SMSAPI;
+
         protected readonly Dictionary<SecurityToken_Id, SecurityToken> SecurityTokens;
 
         public static readonly Regex JSONWhitespaceRegEx = new Regex(@"(\s)+", RegexOptions.IgnorePatternWhitespace);
@@ -399,6 +402,18 @@ namespace org.GraphDefined.OpenData.Users
         public SMTPClient APISMTPClient { get; }
 
         #endregion
+
+
+        /// <summary>
+        /// The credentials used for the SMS API.
+        /// </summary>
+        public Credentials               SMSAPICredentials          { get; }
+
+        /// <summary>
+        /// A list of admin SMS phonenumbers.
+        /// </summary>
+        public IEnumerable<PhoneNumber>  APIAdminSMS                { get; }
+
 
         #region DNSClient
 
@@ -498,12 +513,11 @@ namespace org.GraphDefined.OpenData.Users
         /// <summary>
         /// A delegate for sending a reset password e-mail to a user.
         /// </summary>
-        /// <param name="Login"></param>
-        /// <param name="EMail"></param>
-        /// <param name="Language"></param>
         public delegate EMail ResetPasswordEMailCreatorDelegate(User_Id       Login,
                                                                 EMailAddress  EMail,
-                                                                String        Language);
+                                                                String        SecurityToken,
+                                                                Boolean       Use2FactorAuth,
+                                                                Languages     Language);
 
         /// <summary>
         /// A delegate for sending a reset password e-mail to a user.
@@ -572,7 +586,7 @@ namespace org.GraphDefined.OpenData.Users
         public String        LogfileName                { get; }
 
 
-        public Warden Warden { get; }
+        public Warden        Warden                     { get; }
 
 
         public Organization  NoOwner                    { get; }
@@ -601,6 +615,9 @@ namespace org.GraphDefined.OpenData.Users
         /// <param name="APIPassphrase">A GPG passphrase for this API.</param>
         /// <param name="APIAdminEMails">A list of admin e-mail addresses.</param>
         /// <param name="APISMTPClient">A SMTP client for sending e-mails.</param>
+        /// 
+        /// <param name="SMSAPICredentials">The credentials for the SMS API.</param>
+        /// <param name="APIAdminSMS">A list of admin SMS phonenumbers.</param>
         /// 
         /// <param name="CookieName">The name of the HTTP Cookie for authentication.</param>
         /// <param name="Language">The main language of the API.</param>
@@ -634,6 +651,9 @@ namespace org.GraphDefined.OpenData.Users
                         String                               APIPassphrase                      = null,
                         EMailAddressList                     APIAdminEMails                     = null,
                         SMTPClient                           APISMTPClient                      = null,
+
+                        Credentials                          SMSAPICredentials                  = null,
+                        IEnumerable<PhoneNumber>             APIAdminSMS                        = null,
 
                         HTTPCookieName?                      CookieName                         = null,
                         Languages                            Language                           = DefaultLanguage,
@@ -693,6 +713,9 @@ namespace org.GraphDefined.OpenData.Users
                    APIAdminEMails,
                    APISMTPClient,
 
+                   SMSAPICredentials,
+                   APIAdminSMS,
+
                    CookieName,
                    Language,
                    LogoImage,
@@ -735,6 +758,9 @@ namespace org.GraphDefined.OpenData.Users
         /// <param name="APIAdminEMails">A list of admin e-mail addresses.</param>
         /// <param name="APISMTPClient">A SMTP client for sending e-mails.</param>
         /// 
+        /// <param name="SMSAPICredentials">The credentials for the SMS API.</param>
+        /// <param name="APIAdminSMS">A list of admin SMS phonenumbers.</param>
+        /// 
         /// <param name="CookieName">The name of the HTTP Cookie for authentication.</param>
         /// <param name="Language">The main language of the API.</param>
         /// <param name="LogoImage">The logo of the website.</param>
@@ -759,6 +785,9 @@ namespace org.GraphDefined.OpenData.Users
                            String                              APIPassphrase                = null,
                            EMailAddressList                    APIAdminEMails               = null,
                            SMTPClient                          APISMTPClient                = null,
+
+                           Credentials                         SMSAPICredentials            = null,
+                           IEnumerable<PhoneNumber>            APIAdminSMS                  = null,
 
                            HTTPCookieName?                     CookieName                   = null,
                            Languages                           Language                     = DefaultLanguage,
@@ -882,6 +911,12 @@ namespace org.GraphDefined.OpenData.Users
 
             NoOwner = CreateOrganizationIfNotExists(Organization_Id.Parse("NoOwner"), CurrentUserId: Robot.Id);
 
+            if (SMSAPICredentials != null)
+            {
+                this.SMSAPICredentials  = SMSAPICredentials;
+                this._SMSAPI            = new SMSAPI(this.SMSAPICredentials);
+            }
+
             this.Warden = new Warden(InitialDelay: TimeSpan.FromMinutes(3));
 
             if (!SkipURITemplates)
@@ -909,6 +944,9 @@ namespace org.GraphDefined.OpenData.Users
         /// <param name="APIAdminEMails">A list of admin e-mail addresses.</param>
         /// <param name="APISMTPClient">A SMTP client for sending e-mails.</param>
         /// 
+        /// <param name="SMSAPICredentials">The credentials for the SMS API.</param>
+        /// <param name="APIAdminSMS">A list of admin SMS phonenumbers.</param>
+        /// 
         /// <param name="CookieName">The name of the HTTP Cookie for authentication.</param>
         /// <param name="DefaultLanguage">The default language of the API.</param>
         /// <param name="LogoImage">The logo of the website.</param>
@@ -933,6 +971,9 @@ namespace org.GraphDefined.OpenData.Users
                                                String                              APIPassphrase                = null,
                                                EMailAddressList                    APIAdminEMails               = null,
                                                SMTPClient                          APISMTPClient                = null,
+
+                                               Credentials                         SMSAPICredentials            = null,
+                                               IEnumerable<PhoneNumber>            APIAdminSMS                  = null,
 
                                                HTTPCookieName?                     CookieName                   = null,
                                                Languages                           DefaultLanguage              = Languages.eng,
@@ -961,6 +1002,9 @@ namespace org.GraphDefined.OpenData.Users
                             APIAdminEMails,
                             APISMTPClient,
 
+                            SMSAPICredentials,
+                            APIAdminSMS,
+
                             CookieName,
                             DefaultLanguage,
                             LogoImage,
@@ -976,6 +1020,40 @@ namespace org.GraphDefined.OpenData.Users
                             DisableNotifications,
                             DisableLogfile,
                             LogfileName);
+
+        #endregion
+
+        #region (private) GetResourceStream[...](ResourceName)
+
+        private Stream GetResourceStream(String ResourceName)
+            => GetType().Assembly.GetManifestResourceStream(HTTPRoot + ResourceName);
+
+
+        private MemoryStream GetResourceMemoryStream(String ResourceName)
+        {
+
+            var OutputStream    = new MemoryStream();
+            var ResourceStream  = GetType().Assembly.GetManifestResourceStream(HTTPRoot + ResourceName);
+
+            ResourceStream.CopyTo(OutputStream);
+            OutputStream.  Seek(0, SeekOrigin.Begin);
+
+            return OutputStream;
+
+        }
+
+        private String GetResourceString(String ResourceName)
+        {
+
+            var OutputStream    = new MemoryStream();
+            var ResourceStream  = GetType().Assembly.GetManifestResourceStream(HTTPRoot + ResourceName);
+
+            ResourceStream.Seek(0, SeekOrigin.Begin);
+            ResourceStream.CopyTo(OutputStream);
+
+            return OutputStream.ToArray().ToUTF8String();
+
+        }
 
         #endregion
 
@@ -1406,36 +1484,320 @@ namespace org.GraphDefined.OpenData.Users
 
             #endregion
 
-            #region GET         ~/lostpassword
+            #region GET         ~/lostPassword
 
             #region HTML_UTF8
 
             // -------------------------------------------------------------------
-            // curl -v -H "Accept: text/html" http://127.0.0.1:2100/lostpassword
+            // curl -v -H "Accept: text/html" http://127.0.0.1:2100/lostPassword
             // -------------------------------------------------------------------
             HTTPServer.AddMethodCallback(HTTPHostname.Any,
-                                          HTTPMethod.GET,
-                                          new HTTPURI[] { URIPrefix + "lostpassword" },
-                                          HTTPContentType.HTML_UTF8,
-                                          HTTPDelegate: async Request => {
+                                         HTTPMethod.GET,
+                                         URIPrefix + "lostpassword",
+                                         HTTPContentType.HTML_UTF8,
+                                         HTTPDelegate: Request =>
 
-                                              var _MemoryStream1 = new MemoryStream();
-                                              GetUsersAPIRessource("template.html").SeekAndCopyTo(_MemoryStream1, 0);
-                                              var Template = _MemoryStream1.ToArray().ToUTF8String();
+                                            Task.FromResult(
+                                                new HTTPResponseBuilder(Request) {
+                                                    HTTPStatusCode             = HTTPStatusCode.OK,
+                                                    Server                     = HTTPServer.DefaultServerName,
+                                                    Date                       = DateTime.UtcNow,
+                                                    AccessControlAllowOrigin   = "*",
+                                                    AccessControlAllowMethods  = "GET",
+                                                    AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
+                                                    ContentType                = HTTPContentType.HTML_UTF8,
+                                                    ContentStream              = GetResourceStream("SignInOut.LostPassword-" + DefaultLanguage.ToString() + ".html"),
+                                                    Connection                 = "close"
+                                                }.AsImmutable),
 
-                                              var _MemoryStream2 = new MemoryStream();
-                                              typeof(UsersAPI).Assembly.GetManifestResourceStream(HTTPRoot + "SignInOut.LostPassword-" + DefaultLanguage.ToString() + ".html").SeekAndCopyTo(_MemoryStream2, 0);
-                                              var HTML     = Template.Replace("<%= content %>", _MemoryStream2.ToArray().ToUTF8String());
+                                         AllowReplacement: URIReplacement.Allow);
 
-                                              return new HTTPResponseBuilder(Request) {
-                                                  HTTPStatusCode  = HTTPStatusCode.OK,
-                                                  ContentType     = HTTPContentType.HTML_UTF8,
-                                                  Content         = HTML.ToUTF8Bytes(),
-                                                  Connection      = "close"
-                                              };
+            #endregion
 
-                                          }, AllowReplacement: URIReplacement.Allow);
+            #endregion
 
+            #region SET         ~/resetPassword
+
+            #region JSON_UTF8
+
+            // --------------------------------------------------------------------
+            // curl -v -H "Accept: text/html" http://127.0.0.1:2100/resetPassword
+            // --------------------------------------------------------------------
+            HTTPServer.AddMethodCallback(HTTPHostname.Any,
+                                         HTTPMethod.SET,
+                                         URIPrefix + "/resetPassword",
+                                         HTTPContentType.JSON_UTF8,
+                                         HTTPDelegate: Request => {
+
+                                             #region Parse JSON
+
+                                             if (!Request.TryParseJObjectRequestBody(out JObject JSONObj, out HTTPResponse HTTPResponse))
+                                             {
+
+                                                 // Slow down attackers!
+                                                 Thread.Sleep(5000);
+
+                                                 return Task.FromResult(HTTPResponse);
+
+                                             }
+
+                                             var idJSON = JSONObj["id"].Value<String>();
+
+                                             if (idJSON != null)
+                                                 idJSON = idJSON.Trim();
+
+                                             if (idJSON.IsNullOrEmpty() || idJSON.Length < 4)
+                                             {
+
+                                                 // Slow down attackers!
+                                                 Thread.Sleep(5000);
+
+                                                 return Task.FromResult(
+                                                            new HTTPResponseBuilder(Request) {
+                                                                HTTPStatusCode             = HTTPStatusCode.BadRequest,
+                                                                Server                     = HTTPServer.DefaultServerName,
+                                                                Date                       = DateTime.UtcNow,
+                                                                AccessControlAllowOrigin   = "*",
+                                                                AccessControlAllowMethods  = "SET",
+                                                                AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
+                                                                Connection                 = "close"
+                                                            }.AsImmutable);
+
+                                             }
+
+                                             #endregion
+
+                                             #region Find user(s)...
+
+                                             var Users = new HashSet<User>();
+
+                                             if (User_Id.TryParse(idJSON, out User_Id UserId) &&
+                                                 TryGetUser(UserId, out User User))
+                                             {
+                                                 Users.Add(User);
+                                             }
+
+                                             if (SimpleEMailAddress.TryParse(idJSON, out SimpleEMailAddress EMailAddress))
+                                             {
+                                                 foreach (var user in Users)
+                                                 {
+                                                     if (user.EMail.Address == EMailAddress)
+                                                         Users.Add(user);
+                                                 }
+                                             }
+
+                                             #endregion
+
+                                             if (Users.Count == 0)
+                                             {
+
+                                                 // Slow down attackers!
+                                                 Thread.Sleep(5000);
+
+                                                 return Task.FromResult(
+                                                            new HTTPResponseBuilder(Request) {
+                                                                HTTPStatusCode             = HTTPStatusCode.NotFound,
+                                                                Server                     = HTTPServer.DefaultServerName,
+                                                                Date                       = DateTime.UtcNow,
+                                                                AccessControlAllowOrigin   = "*",
+                                                                AccessControlAllowMethods  = "SET",
+                                                                AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
+                                                                Connection                 = "close"
+                                                            }.AsImmutable);
+
+                                             }
+
+                                             var securityToken1       = _Random.RandomString(40);
+
+                                             var smsTelephoneNumbers  = Users.Where(user => user.MobilePhone.HasValue).
+                                                                              SafeSelect(user => user.MobilePhone.ToString()).
+                                                                              ToHashSet();
+
+
+                                             MailSentStatus MailSentResult;
+
+                                             foreach (var user in Users)
+                                             {
+
+                                                 var MailResultTask = APISMTPClient.Send(ResetPasswordEMailCreator(user.Id,
+                                                                                                                   user.EMail,
+                                                                                                                   securityToken1,
+                                                                                                                   smsTelephoneNumbers.Count > 0,
+                                                                                                                   DefaultLanguage));
+
+                                                 if (MailResultTask.Wait(60000))
+                                                     MailSentResult = MailResultTask.Result;
+
+                                             }
+
+
+                                             if (_SMSAPI != null)
+                                             {
+
+                                                 var securityToken2 = String.Concat(_Random.RandomString(5), "-", _Random.RandomString(5));
+
+                                                 foreach (var smsTelephoneNumber in Users.Where     (user => user.MobilePhone.HasValue).
+                                                                                          SafeSelect(user => user.MobilePhone.ToString()).
+                                                                                          ToHashSet())
+                                                 {
+
+                                                     var result = _SMSAPI.Send("Your 2nd security token is '" + securityToken2 + "'!",
+                                                                               smsTelephoneNumber).
+                                                                          SetSender("CardiCloud").
+                                                                          Execute();
+
+                                                 }
+
+                                             }
+
+
+                                             return Task.FromResult(
+                                                        new HTTPResponseBuilder(Request) {
+                                                            HTTPStatusCode             = HTTPStatusCode.OK,
+                                                            Server                     = HTTPServer.DefaultServerName,
+                                                            Date                       = DateTime.UtcNow,
+                                                            AccessControlAllowOrigin   = "*",
+                                                            AccessControlAllowMethods  = "SET",
+                                                            AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
+                                                            ContentType                = HTTPContentType.JSON_UTF8,
+                                                            Content                    = JSONObject.Create(
+                                                                                             new JProperty("numberOfAccountsFound", Users.Count)
+                                                                                         ).ToUTF8Bytes(),
+                                                            Connection                 = "close"
+                                                        }.AsImmutable);
+
+                                             },
+
+                                             AllowReplacement: URIReplacement.Allow);
+
+            #endregion
+
+            #endregion
+
+            #region SET         ~/setPassword
+
+            #region JSON_UTF8
+
+            // ------------------------------------------------------------------
+            // curl -v -H "Accept: text/html" http://127.0.0.1:2100/setPassword
+            // ------------------------------------------------------------------
+            HTTPServer.AddMethodCallback(HTTPHostname.Any,
+                                         HTTPMethod.SET,
+                                         URIPrefix + "/setPassword",
+                                         HTTPContentType.JSON_UTF8,
+                                         HTTPDelegate: Request => {
+
+                                             #region Parse JSON
+
+                                             if (!Request.TryParseJObjectRequestBody(out JObject JSONObj, out HTTPResponse HTTPResponse))
+                                             {
+
+                                                 // Slow down attackers!
+                                                 Thread.Sleep(5000);
+
+                                                 return Task.FromResult(HTTPResponse);
+
+                                             }
+
+                                             var securityToken1JSON = JSONObj["securityToken1"].Value<String>();
+
+                                             if (securityToken1JSON != null)
+                                                 securityToken1JSON = securityToken1JSON.Trim();
+
+
+                                             var securityToken2JSON = JSONObj["securityToken2"].Value<String>();
+
+                                             if (securityToken2JSON != null)
+                                                 securityToken2JSON = securityToken2JSON.Trim();
+
+
+                                             var newPasswordJSON = JSONObj["newPassword"].Value<String>();
+
+                                             if (newPasswordJSON != null)
+                                                 newPasswordJSON = newPasswordJSON.Trim();
+
+
+
+                                             if (securityToken1JSON.IsNullOrEmpty() || securityToken1JSON.Length != 40 ||
+                                                 newPasswordJSON.IsNullOrEmpty() || newPasswordJSON.Length < 6)
+                                             {
+
+                                                 // Slow down attackers!
+                                                 Thread.Sleep(5000);
+
+                                                 return Task.FromResult(
+                                                            new HTTPResponseBuilder(Request) {
+                                                                HTTPStatusCode             = HTTPStatusCode.BadRequest,
+                                                                Server                     = HTTPServer.DefaultServerName,
+                                                                Date                       = DateTime.UtcNow,
+                                                                AccessControlAllowOrigin   = "*",
+                                                                AccessControlAllowMethods  = "SET",
+                                                                AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
+                                                                Connection                 = "close"
+                                                            }.AsImmutable);
+
+                                             }
+
+                                             #endregion
+
+                                             #region Find user(s)...
+
+                                             var Users = new List<User>();
+
+                                             if (User_Id.TryParse(securityToken1JSON, out User_Id UserId) &&
+                                                 TryGetUser(UserId, out User User))
+                                             {
+                                                 Users.Add(User);
+                                             }
+
+                                             if (SimpleEMailAddress.TryParse(securityToken1JSON, out SimpleEMailAddress EMailAddress))
+                                             {
+                                                 foreach (var user in Users)
+                                                 {
+                                                     if (user.EMail.Address == EMailAddress)
+                                                         Users.Add(user);
+                                                 }
+                                             }
+
+                                             #endregion
+
+                                             if (Users.Count == 0)
+                                             {
+
+                                                 // Slow down attackers!
+                                                 Thread.Sleep(5000);
+
+                                                 return Task.FromResult(
+                                                            new HTTPResponseBuilder(Request) {
+                                                                HTTPStatusCode             = HTTPStatusCode.NotFound,
+                                                                Server                     = HTTPServer.DefaultServerName,
+                                                                Date                       = DateTime.UtcNow,
+                                                                AccessControlAllowOrigin   = "*",
+                                                                AccessControlAllowMethods  = "SET",
+                                                                AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
+                                                                Connection                 = "close"
+                                                            }.AsImmutable);
+
+                                             }
+
+                                             return Task.FromResult(
+                                                        new HTTPResponseBuilder(Request) {
+                                                            HTTPStatusCode             = HTTPStatusCode.OK,
+                                                            Server                     = HTTPServer.DefaultServerName,
+                                                            Date                       = DateTime.UtcNow,
+                                                            AccessControlAllowOrigin   = "*",
+                                                            AccessControlAllowMethods  = "SET",
+                                                            AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
+                                                            ContentType                = HTTPContentType.JSON_UTF8,
+                                                            Content                    = JSONObject.Create(
+                                                                                             new JProperty("numberOfAccountsFound", Users.Count)
+                                                                                         ).ToUTF8Bytes(),
+                                                            Connection                 = "close"
+                                                        }.AsImmutable);
+
+                                             },
+
+                                             AllowReplacement: URIReplacement.Allow);
 
             #endregion
 
@@ -1588,23 +1950,23 @@ namespace org.GraphDefined.OpenData.Users
                                                   };
 
                                               //ToDo: CNAMEs are also okay according to rfc5321#section-5
-                                              var MailServerA = DNSClient.Query<A>(matches.Groups[2].Value);
-                                              var MailServerAAAA = DNSClient.Query<AAAA>(matches.Groups[2].Value);
-                                              var MailServerMX = DNSClient.Query<MX>(matches.Groups[2].Value);
+                                              var MailServerA     = DNSClient.Query<A>(matches.Groups[2].Value);
+                                              var MailServerAAAA  = DNSClient.Query<AAAA>(matches.Groups[2].Value);
+                                              var MailServerMX    = DNSClient.Query<MX>(matches.Groups[2].Value);
 
                                               Task.WaitAll(MailServerA, MailServerAAAA, MailServerMX);
 
-                                              if (MailServerA.Result.Count() == 0 &
+                                              if (MailServerA.   Result.Count() == 0 &
                                                   MailServerAAAA.Result.Count() == 0 &
-                                                  MailServerMX.Result.Count() == 0)
+                                                  MailServerMX.  Result.Count() == 0)
                                               {
                                                   return new HTTPResponseBuilder(Request) {
                                                       HTTPStatusCode = HTTPStatusCode.BadRequest,
                                                       Server = HTTPServer.DefaultServerName,
                                                       ContentType = HTTPContentType.JSON_UTF8,
                                                       Content = new JObject(
-                                                                            new JProperty("@context", ""),
-                                                                            new JProperty("property", "email"),
+                                                                            new JProperty("@context",    ""),
+                                                                            new JProperty("property",    "email"),
                                                                             new JProperty("description", "Unknown or invalid domain name!")
                                                                         ).ToString().ToUTF8Bytes(),
                                                       CacheControl = "public",
@@ -1712,12 +2074,12 @@ namespace org.GraphDefined.OpenData.Users
                                               {
 
                                                   var NewUserMail = NewUserSignUpEMailCurrentUserIdLocal(Login:              _Login,
-                                                                                                   EMail:              new EMailAddress(OwnerName:                 _Login.ToString(),
-                                                                                                                                        SimpleEMailAddressString:  matches.Groups[0].Value,
-                                                                                                                                        SecretKeyRing:             null,
-                                                                                                                                        PublicKeyRing:             PublicKeyRing),
-                                                                                                   Language:           DefaultLanguage,
-                                                                                                   VerificationToken:  VerificationToken);
+                                                                                                         EMail:              new EMailAddress(OwnerName:                 _Login.ToString(),
+                                                                                                                                              SimpleEMailAddressString:  matches.Groups[0].Value,
+                                                                                                                                              SecretKeyRing:             null,
+                                                                                                                                              PublicKeyRing:             PublicKeyRing),
+                                                                                                         Language:           DefaultLanguage,
+                                                                                                         VerificationToken:  VerificationToken);
 
                                                   var MailResultTask = APISMTPClient.Send(NewUserMail);
 
@@ -2589,7 +2951,7 @@ namespace org.GraphDefined.OpenData.Users
             #endregion
 
 
-            #region GET         ~/orgs
+            #region GET         ~/organizations
 
             // ------------------------------------------------------------------
             // curl -v -H "Accept: application/json" http://127.0.0.1:2100/orgs

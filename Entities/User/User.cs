@@ -254,10 +254,10 @@ namespace org.GraphDefined.OpenData.Users
         public PgpSecretKeyRing    SecretKeyRing        { get; }
 
         /// <summary>
-        /// The telephone number of the user.
+        /// The mobile telephone number of the user.
         /// </summary>
         [Optional]
-        public PhoneNumber?        Telephone            { get; }
+        public PhoneNumber?        MobilePhone          { get; }
 
         /// <summary>
         /// An optional (multi-language) description of the user.
@@ -461,7 +461,7 @@ namespace org.GraphDefined.OpenData.Users
             this.Name                     = Name;
             this.PublicKeyRing            = PublicKeyRing;
             this.SecretKeyRing            = SecretKeyRing;
-            this.Telephone                = Telephone;
+            this.MobilePhone                = Telephone;
             this.Description              = Description  ?? new I18NString();
             this.GeoLocation              = GeoLocation;
             this.Address                  = Address;
@@ -680,6 +680,10 @@ namespace org.GraphDefined.OpenData.Users
                    new JProperty("name",                 Name),
                    new JProperty("email",                EMail.Address.ToString()),
 
+                   MobilePhone.HasValue
+                       ? new JProperty("mobilePhone",    MobilePhone.ToString())
+                       : null,
+
                    Description.IsNeitherNullNorEmpty()
                        ? new JProperty("description",    Description.ToJSON())
                        : null,
@@ -690,10 +694,6 @@ namespace org.GraphDefined.OpenData.Users
 
                    SecretKeyRing != null
                        ? new JProperty("secretKeyRing",  SecretKeyRing.GetEncoded().ToHexString())
-                       : null,
-
-                   Telephone != null
-                       ? new JProperty("telephone",      Telephone)
                        : null,
 
                    PrivacyLevel.ToJSON(),
@@ -769,6 +769,18 @@ namespace org.GraphDefined.OpenData.Users
 
                 #endregion
 
+                #region Parse Name             [mandatory]
+
+                if (!JSONObject.ParseMandatory("name",
+                                               "Username",
+                                               out String Name,
+                                               out ErrorResponse))
+                {
+                    return false;
+                }
+
+                #endregion
+
                 #region Parse E-Mail           [mandatory]
 
                 if (!JSONObject.ParseMandatory("email",
@@ -782,14 +794,18 @@ namespace org.GraphDefined.OpenData.Users
 
                 #endregion
 
-                #region Parse Name             [mandatory]
+                #region Parse mobilePhone      [optional]
 
-                if (!JSONObject.ParseMandatory("name",
-                                               "Username",
-                                               out String Name,
-                                               out ErrorResponse))
+                if (JSONObject.ParseOptional("mobilePhone",
+                                             "mobile phone number",
+                                             PhoneNumber.TryParse,
+                                             out PhoneNumber? Telephone,
+                                             out ErrorResponse))
                 {
-                    return false;
+
+                    if (ErrorResponse != null)
+                        return false;
+
                 }
 
                 #endregion
@@ -828,22 +844,6 @@ namespace org.GraphDefined.OpenData.Users
                                              "GPG/PGP secret key ring",
                                              txt => OpenPGP.ReadSecretKeyRing(txt.HexStringToByteArray()),
                                              out PgpSecretKeyRing SecretKeyRing,
-                                             out ErrorResponse))
-                {
-
-                    if (ErrorResponse != null)
-                        return false;
-
-                }
-
-                #endregion
-
-                #region Parse Telephone        [optional]
-
-                if (JSONObject.ParseOptional("telephone",
-                                             "phone number",
-                                             PhoneNumber.TryParse,
-                                             out PhoneNumber? Telephone,
                                              out ErrorResponse))
                 {
 
@@ -1181,7 +1181,7 @@ namespace org.GraphDefined.OpenData.Users
                            Description,
                            PublicKeyRing,
                            SecretKeyRing,
-                           Telephone,
+                           MobilePhone,
                            GeoLocation,
                            Address,
                            PrivacyLevel,
@@ -1236,10 +1236,10 @@ namespace org.GraphDefined.OpenData.Users
             public PgpSecretKeyRing    SecretKeyRing        { get; set; }
 
             /// <summary>
-            /// The telephone number of the user.
+            /// The mobile telephone number of the user.
             /// </summary>
             [Optional]
-            public PhoneNumber?        Telephone            { get; set; }
+            public PhoneNumber?        MobilePhone          { get; set; }
 
             /// <summary>
             /// The geographical location of this organization.
@@ -1316,7 +1316,7 @@ namespace org.GraphDefined.OpenData.Users
                 this.Description              = Description ?? new I18NString();
                 this.PublicKeyRing            = PublicKeyRing;
                 this.SecretKeyRing            = SecretKeyRing;
-                this.Telephone                = Telephone;
+                this.MobilePhone                = Telephone;
                 this.GeoLocation              = GeoLocation;
                 this.Address                  = Address;
                 this.PrivacyLevel             = PrivacyLevel;
@@ -1351,7 +1351,7 @@ namespace org.GraphDefined.OpenData.Users
                             Description,
                             PublicKeyRing,
                             SecretKeyRing,
-                            Telephone,
+                            MobilePhone,
                             GeoLocation,
                             Address,
                             PrivacyLevel,

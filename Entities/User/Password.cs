@@ -107,7 +107,7 @@ namespace org.GraphDefined.OpenData.Users
             #endregion
 
             // Salt...
-            var Salt            = _Random.GetString(LengthOfSalt);
+            var Salt            = _Random.RandomString(LengthOfSalt);
             var SecureSalt      = new SecureString();
 
             foreach (var character in Salt)

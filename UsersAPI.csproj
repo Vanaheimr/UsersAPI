@@ -97,6 +97,10 @@
       <Project>{477efd16-3627-4473-957d-44ca9a9dfb79}</Project>
       <Name>Hermod</Name>
     </ProjectReference>
+    <ProjectReference Include="..\SMSAPI\smsapi\SMSAPI.csproj">
+      <Project>{05c2a720-2cd1-401b-a832-9ce85313c248}</Project>
+      <Name>SMSAPI</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Styx\Styx\Styx.csproj">
       <Project>{af76ecc0-2ca5-4cff-9e1e-ff5478c4b6e4}</Project>
       <Name>Styx</Name>
@@ -145,13 +149,13 @@
     <EmbeddedResource Include="HTTPRoot\SignInOut\SignInOut.css" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="HTTPRoot\SignInOut\LostPassword-en.html" />
+    <EmbeddedResource Include="HTTPRoot\login\LostPassword-en.html" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="HTTPRoot\SignUp\SignUp-en.html" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="HTTPRoot\SignInOut\LostPassword-de.html" />
+    <EmbeddedResource Include="HTTPRoot\login\LostPassword-de.html" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="HTTPRoot\js\LoadThings.js" />
