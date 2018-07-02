@@ -214,6 +214,217 @@ namespace org.GraphDefined.OpenData.Users
 
     }
 
+    public class PasswordReset
+    {
+
+        #region Data
+
+        /// <summary>
+        /// The JSON-LD context of the object.
+        /// </summary>
+        public const String JSONLDContext = "https://cardi-link.cloud/contexts/cardidb+json/passwordReset";
+
+        #endregion
+
+        #region Properties
+
+        public DateTime           Timestamp        { get; }
+        public IEnumerable<User>  Users            { get; }
+        public SecurityToken_Id   SecurityToken1   { get; }
+        public SecurityToken_Id?  SecurityToken2   { get; }
+
+        #endregion
+
+        #region Constructor(s)
+
+        public PasswordReset(IEnumerable<User>  Users,
+                             SecurityToken_Id   SecurityToken1,
+                             SecurityToken_Id?  SecurityToken2)
+
+            : this(DateTime.UtcNow,
+                   Users,
+                   SecurityToken1,
+                   SecurityToken2)
+
+        { }
+
+        public PasswordReset(DateTime           Timestamp,
+                             IEnumerable<User>  Users,
+                             SecurityToken_Id   SecurityToken1,
+                             SecurityToken_Id?  SecurityToken2)
+        {
+
+            this.Timestamp       = Timestamp;
+            this.Users           = Users;
+            this.SecurityToken1  = SecurityToken1;
+            this.SecurityToken2  = SecurityToken2;
+
+        }
+
+        #endregion
+
+
+        #region ToJSON(Embedded = true)
+
+        /// <summary>
+        /// Return a JSON representation of this object.
+        /// </summary>
+        /// <param name="Embedded">Whether this data is embedded into another data structure.</param>
+        public JObject ToJSON(Boolean Embedded = true)
+
+            => JSONObject.Create(
+
+                   Embedded
+                       ? null
+                       : new JProperty("@context",  JSONLDContext),
+
+                   new JProperty("timestamp",       Timestamp.ToIso8601()),
+                   new JProperty("userIds",         new JArray(Users.Select(user => user.Id.ToString()))),
+                   new JProperty("securityToken1",  SecurityToken1.ToString()),
+
+                   SecurityToken2.HasValue
+                       ? new JProperty("securityToken2",  SecurityToken2.ToString())
+                       : null
+
+               );
+
+        #endregion
+
+        #region (static) TryParseJSON(JSONObject, ..., out Communicator, out ErrorResponse, IgnoreContextMismatches = true)
+
+        public static Boolean TryParseJSON(JObject              JSONObject,
+                                           Func<User_Id, User>  UserProvider,
+                                           out PasswordReset    PasswordReset,
+                                           out String           ErrorResponse,
+                                           Boolean              IgnoreContextMismatches = true)
+
+        {
+
+            try
+            {
+
+                PasswordReset = null;
+
+                if (JSONObject == null)
+                {
+                    ErrorResponse = "The given JSON object must not be null!";
+                    return false;
+                }
+
+                #region Parse Context          [mandatory]
+
+                if (!IgnoreContextMismatches)
+                {
+
+                    if (!JSONObject.ParseMandatory("@context",
+                                                   "JSON-LD context",
+                                                   out String Context,
+                                                   out ErrorResponse))
+                    {
+                        ErrorResponse = @"The JSON-LD ""@context"" information is missing!";
+                        return false;
+                    }
+
+                    if (Context != JSONLDContext)
+                    {
+                        ErrorResponse = @"The given JSON-LD ""@context"" information '" + Context + "' is not supported!";
+                        return false;
+                    }
+
+                }
+
+                #endregion
+
+                #region Parse Timestamp        [mandatory]
+
+                if (!JSONObject.ParseMandatory("timestamp",
+                                               "timestamp",
+                                               out DateTime Timestamp,
+                                               out          ErrorResponse))
+                {
+                    return false;
+                }
+
+                #endregion
+
+                #region Parse Users            [mandatory]
+
+                if (!JSONObject.ParseMandatory("userIds",
+                                               "user identifications",
+                                               out JArray UserIdArray,
+                                               out ErrorResponse))
+                {
+                    return false;
+                }
+
+                var Users = new User[0];
+
+                try
+                {
+                    Users = UserIdArray.Select(jsonvalue => UserProvider(User_Id.Parse(jsonvalue.Value<String>()))).ToArray();
+                }
+                catch (Exception e)
+                {
+                    ErrorResponse = "The given array of users '" + UserIdArray + "' is invalid!";
+                    return false;
+                }
+
+                if (Users.Length == 0)
+                {
+                    ErrorResponse = "The given array of users '" + UserIdArray + "' is invalid!";
+                    return false;
+                }
+
+                #endregion
+
+                #region Parse SecurityToken1   [mandatory]
+
+                if (!JSONObject.ParseMandatory("securityToken1",
+                                               "security token #1",
+                                               SecurityToken_Id.TryParse,
+                                               out SecurityToken_Id SecurityToken1,
+                                               out ErrorResponse))
+                {
+                    return false;
+                }
+
+                #endregion
+
+                #region Parse SecurityToken2   [optional]
+
+                if (!JSONObject.ParseOptionalN("securityToken2",
+                                               "security token #2",
+                                               SecurityToken_Id.TryParse,
+                                               out SecurityToken_Id? SecurityToken2,
+                                               out ErrorResponse))
+                {
+                    return false;
+                }
+
+                #endregion
+
+
+                PasswordReset = new PasswordReset(Timestamp,
+                                                  Users,
+                                                  SecurityToken1,
+                                                  SecurityToken2);
+
+                return true;
+
+            }
+            catch (Exception e)
+            {
+                ErrorResponse = e.Message;
+                PasswordReset = null;
+                return false;
+            }
+
+        }
+
+        #endregion
+
+    }
+
     public class UserContext : IDisposable
     {
 
@@ -306,7 +517,8 @@ namespace org.GraphDefined.OpenData.Users
         public  const             String                              DefaultUsersAPIFile            = "UsersAPI_Users.db";
         public  const             String                              DefaultPasswordFile            = "UsersAPI_Passwords.db";
         public  const             String                              SecurityTokenCookieKey         = "securitytoken";
-        public  const             String                              DefaultSecurityTokenFile       = "UsersAPI_SecurityTokens.db";
+        public  const             String                              DefaultHTTPCookiesFile         = "UsersAPI_HTTPCookies.db";
+        public  const             String                              DefaultPasswordResetsFile      = "UsersAPI_PasswordResets.db";
         //public  const             String                              DefaultGroupDBFile             = "UsersAPI_Groups.db";
         //public  const             String                              DefaultUser2GroupDBFile        = "UsersAPI_User2Group.db";
         public  const             String                              AdminGroupName                 = "Admins";
@@ -314,7 +526,8 @@ namespace org.GraphDefined.OpenData.Users
 
         private readonly          SMSAPI                              _SMSAPI;
 
-        protected readonly Dictionary<SecurityToken_Id, SecurityToken> SecurityTokens;
+        protected readonly Dictionary<SecurityToken_Id, SecurityToken> HTTPCookies;
+        protected readonly Dictionary<SecurityToken_Id, PasswordReset> PasswordResets;
 
         public static readonly Regex JSONWhitespaceRegEx = new Regex(@"(\s)+", RegexOptions.IgnorePatternWhitespace);
 
@@ -513,11 +726,11 @@ namespace org.GraphDefined.OpenData.Users
         /// <summary>
         /// A delegate for sending a reset password e-mail to a user.
         /// </summary>
-        public delegate EMail ResetPasswordEMailCreatorDelegate(User_Id       Login,
-                                                                EMailAddress  EMail,
-                                                                String        SecurityToken,
-                                                                Boolean       Use2FactorAuth,
-                                                                Languages     Language);
+        public delegate EMail ResetPasswordEMailCreatorDelegate(User_Id           Login,
+                                                                EMailAddress      EMail,
+                                                                SecurityToken_Id  SecurityToken,
+                                                                Boolean           Use2FactorAuth,
+                                                                Languages         Language);
 
         /// <summary>
         /// A delegate for sending a reset password e-mail to a user.
@@ -868,7 +1081,8 @@ namespace org.GraphDefined.OpenData.Users
 
             this._DNSClient                   = HTTPServer.DNSClient;
             this.SystemId                     = System_Id.Parse(Environment.MachineName.Replace("/", "") + "/" + HTTPServer.DefaultHTTPServerPort);
-            this.SecurityTokens               = new Dictionary<SecurityToken_Id, SecurityToken>();
+            this.HTTPCookies                  = new Dictionary<SecurityToken_Id, SecurityToken>();
+            this.PasswordResets               = new Dictionary<SecurityToken_Id, PasswordReset>();
 
             this.DisableNotifications         = DisableNotifications;
             this.DisableLogfile               = DisableLogfile;
@@ -921,6 +1135,8 @@ namespace org.GraphDefined.OpenData.Users
 
             if (!SkipURITemplates)
                 RegisterURITemplates();
+
+            DebugX.Log("UsersAPI started...");
 
         }
 
@@ -1438,14 +1654,14 @@ namespace org.GraphDefined.OpenData.Users
 
                                               var Expires        = DateTime.UtcNow.Add(SignInSessionLifetime);
 
-                                              lock (SecurityTokens)
+                                              lock (HTTPCookies)
                                               {
 
-                                                  SecurityTokens.Add(SecurityToken,
+                                                  HTTPCookies.Add(SecurityToken,
                                                                      new SecurityToken(_LoginPassword.Login,
                                                                                              Expires));
 
-                                                  File.AppendAllText(DefaultSecurityTokenFile,
+                                                  File.AppendAllText(DefaultHTTPCookiesFile,
                                                                      SecurityToken + ";" + _LoginPassword.Login + ";" + Expires.ToIso8601() + Environment.NewLine);
 
                                               }
@@ -1486,8 +1702,6 @@ namespace org.GraphDefined.OpenData.Users
 
             #region GET         ~/lostPassword
 
-            #region HTML_UTF8
-
             // -------------------------------------------------------------------
             // curl -v -H "Accept: text/html" http://127.0.0.1:2100/lostPassword
             // -------------------------------------------------------------------
@@ -1514,11 +1728,7 @@ namespace org.GraphDefined.OpenData.Users
 
             #endregion
 
-            #endregion
-
             #region SET         ~/resetPassword
-
-            #region JSON_UTF8
 
             // --------------------------------------------------------------------
             // curl -v -H "Accept: text/html" http://127.0.0.1:2100/resetPassword
@@ -1607,12 +1817,13 @@ namespace org.GraphDefined.OpenData.Users
 
                                              }
 
-                                             var securityToken1       = _Random.RandomString(40);
-
-                                             var smsTelephoneNumbers  = Users.Where(user => user.MobilePhone.HasValue).
+                                             var smsTelephoneNumbers  = Users.Where     (user => user.MobilePhone.HasValue).
                                                                               SafeSelect(user => user.MobilePhone.ToString()).
                                                                               ToHashSet();
 
+                                             var PasswordReset        = ResetPassword(Users,
+                                                                                      SecurityToken_Id.Random(40, _Random),
+                                                                                      SecurityToken_Id.Parse(_Random.RandomString(5) + "-" + _Random.RandomString(5)));
 
                                              MailSentStatus MailSentResult;
 
@@ -1621,7 +1832,7 @@ namespace org.GraphDefined.OpenData.Users
 
                                                  var MailResultTask = APISMTPClient.Send(ResetPasswordEMailCreator(user.Id,
                                                                                                                    user.EMail,
-                                                                                                                   securityToken1,
+                                                                                                                   PasswordReset.SecurityToken1,
                                                                                                                    smsTelephoneNumbers.Count > 0,
                                                                                                                    DefaultLanguage));
 
@@ -1634,14 +1845,12 @@ namespace org.GraphDefined.OpenData.Users
                                              if (_SMSAPI != null)
                                              {
 
-                                                 var securityToken2 = String.Concat(_Random.RandomString(5), "-", _Random.RandomString(5));
-
                                                  foreach (var smsTelephoneNumber in Users.Where     (user => user.MobilePhone.HasValue).
                                                                                           SafeSelect(user => user.MobilePhone.ToString()).
                                                                                           ToHashSet())
                                                  {
 
-                                                     var result = _SMSAPI.Send("Your 2nd security token is '" + securityToken2 + "'!",
+                                                     var result = _SMSAPI.Send("Your 2nd security token is '" + PasswordReset.SecurityToken2 + "'!",
                                                                                smsTelephoneNumber).
                                                                           SetSender("CardiCloud").
                                                                           Execute();
@@ -1672,11 +1881,7 @@ namespace org.GraphDefined.OpenData.Users
 
             #endregion
 
-            #endregion
-
             #region SET         ~/setPassword
-
-            #region JSON_UTF8
 
             // ------------------------------------------------------------------
             // curl -v -H "Accept: text/html" http://127.0.0.1:2100/setPassword
@@ -1699,27 +1904,53 @@ namespace org.GraphDefined.OpenData.Users
 
                                              }
 
-                                             var securityToken1JSON = JSONObj["securityToken1"].Value<String>();
+                                             #region Parse SecurityToken1   [mandatory]
 
-                                             if (securityToken1JSON != null)
-                                                 securityToken1JSON = securityToken1JSON.Trim();
+                                             if (!JSONObj.ParseMandatory("securityToken1",
+                                                                         "security token #1",
+                                                                         HTTPServer.DefaultServerName,
+                                                                         SecurityToken_Id.TryParse,
+                                                                         out SecurityToken_Id SecurityToken1,
+                                                                         Request,
+                                                                         out HTTPResponse ErrorResponse))
+                                             {
+                                                 return Task.FromResult(HTTPResponse);
+                                             }
 
+                                             #endregion
 
-                                             var securityToken2JSON = JSONObj["securityToken2"].Value<String>();
+                                             #region Parse SecurityToken2   [optional]
 
-                                             if (securityToken2JSON != null)
-                                                 securityToken2JSON = securityToken2JSON.Trim();
+                                             if (!JSONObj.ParseOptionalN("securityToken2",
+                                                                         "security token #2",
+                                                                         HTTPServer.DefaultServerName,
+                                                                         SecurityToken_Id.TryParse,
+                                                                         out SecurityToken_Id? SecurityToken2,
+                                                                         Request,
+                                                                         out ErrorResponse))
+                                             {
+                                                 return Task.FromResult(HTTPResponse);
+                                             }
 
+                                             #endregion
 
-                                             var newPasswordJSON = JSONObj["newPassword"].Value<String>();
+                                             #region Parse NewPassword      [mandatory]
 
-                                             if (newPasswordJSON != null)
-                                                 newPasswordJSON = newPasswordJSON.Trim();
+                                             if (!JSONObj.ParseMandatory("newPassword",
+                                                                         "new password",
+                                                                         HTTPServer.DefaultServerName,
+                                                                         Password.TryParse,
+                                                                         out Password NewPassword,
+                                                                         Request,
+                                                                         out ErrorResponse))
+                                             {
+                                                 return Task.FromResult(HTTPResponse);
+                                             }
 
+                                             #endregion
 
-
-                                             if (securityToken1JSON.IsNullOrEmpty() || securityToken1JSON.Length != 40 ||
-                                                 newPasswordJSON.IsNullOrEmpty() || newPasswordJSON.Length < 6)
+                                             if (SecurityToken1.Length != 40 ||
+                                                 NewPassword.Length < 6)
                                              {
 
                                                  // Slow down attackers!
@@ -1740,36 +1971,12 @@ namespace org.GraphDefined.OpenData.Users
 
                                              #endregion
 
-                                             #region Find user(s)...
-
-                                             var Users = new List<User>();
-
-                                             if (User_Id.TryParse(securityToken1JSON, out User_Id UserId) &&
-                                                 TryGetUser(UserId, out User User))
+                                             if (!PasswordResets.TryGetValue(SecurityToken1, out PasswordReset _PasswordReset))
                                              {
-                                                 Users.Add(User);
-                                             }
-
-                                             if (SimpleEMailAddress.TryParse(securityToken1JSON, out SimpleEMailAddress EMailAddress))
-                                             {
-                                                 foreach (var user in Users)
-                                                 {
-                                                     if (user.EMail.Address == EMailAddress)
-                                                         Users.Add(user);
-                                                 }
-                                             }
-
-                                             #endregion
-
-                                             if (Users.Count == 0)
-                                             {
-
-                                                 // Slow down attackers!
-                                                 Thread.Sleep(5000);
 
                                                  return Task.FromResult(
                                                             new HTTPResponseBuilder(Request) {
-                                                                HTTPStatusCode             = HTTPStatusCode.NotFound,
+                                                                HTTPStatusCode             = HTTPStatusCode.Forbidden,
                                                                 Server                     = HTTPServer.DefaultServerName,
                                                                 Date                       = DateTime.UtcNow,
                                                                 AccessControlAllowOrigin   = "*",
@@ -1777,6 +1984,54 @@ namespace org.GraphDefined.OpenData.Users
                                                                 AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
                                                                 Connection                 = "close"
                                                             }.AsImmutable);
+
+                                             }
+
+                                             if (SecurityToken2.HasValue &&
+                                                 SecurityToken2 != _PasswordReset.SecurityToken2)
+                                             {
+
+                                                 return Task.FromResult(
+                                                        new HTTPResponseBuilder(Request) {
+                                                            HTTPStatusCode             = HTTPStatusCode.Forbidden,
+                                                            Server                     = HTTPServer.DefaultServerName,
+                                                            Date                       = DateTime.UtcNow,
+                                                            AccessControlAllowOrigin   = "*",
+                                                            AccessControlAllowMethods  = "SET",
+                                                            AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
+                                                            Connection                 = "close"
+                                                        }.AsImmutable);
+
+                                             }
+
+                                             foreach (var user in _PasswordReset.Users)
+                                             {
+
+                                                  WriteToLogfileAndNotify("ResetPassword",
+                                                                          JSONObject.Create(
+
+                                                                              new JProperty("login",                 user.Id.ToString()),
+
+                                                                              new JProperty("newPassword", new JObject(
+                                                                                  new JProperty("salt",              NewPassword.Salt.UnsecureString()),
+                                                                                  new JProperty("passwordHash",      NewPassword.UnsecureString)
+                                                                              )),
+
+                                                                              new JProperty("securityToken1",        SecurityToken1.ToString()),
+
+                                                                              SecurityToken2.HasValue
+                                                                                  ? new JProperty("securityToken2",  SecurityToken2.ToString())
+                                                                                  : null
+
+                                                                          ),
+                                                                          DefaultPasswordFile,
+                                                                          Robot.Id);
+
+                                                  _LoginPasswords.Remove(user.Id);
+
+                                                  _LoginPasswords.Add(user.Id, new LoginPassword(user.Id, NewPassword));
+
+                                                  Remove(_PasswordReset);
 
                                              }
 
@@ -1790,7 +2045,7 @@ namespace org.GraphDefined.OpenData.Users
                                                             AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
                                                             ContentType                = HTTPContentType.JSON_UTF8,
                                                             Content                    = JSONObject.Create(
-                                                                                             new JProperty("numberOfAccountsFound", Users.Count)
+                                                                                             new JProperty("numberOfAccountsFound", Users.Count())
                                                                                          ).ToUTF8Bytes(),
                                                             Connection                 = "close"
                                                         }.AsImmutable);
@@ -1798,8 +2053,6 @@ namespace org.GraphDefined.OpenData.Users
                                              },
 
                                              AllowReplacement: URIReplacement.Allow);
-
-            #endregion
 
             #endregion
 
@@ -3004,6 +3257,8 @@ namespace org.GraphDefined.OpenData.Users
         private void ReadDatabaseFiles()
         {
 
+            DebugX.Log("Reading all UsersAPI database files...");
+
             #region Read DefaultUsersAPIFile
 
             try
@@ -3132,6 +3387,29 @@ namespace org.GraphDefined.OpenData.Users
 
                                         #endregion
 
+                                        #region ResetPassword
+
+                                        case "ResetPassword":
+
+                                            if (_LoginPasswords.ContainsKey(Login))
+                                            {
+
+                                                _LoginPasswords.Remove(Login);
+
+                                                _LoginPasswords.Add(Login,
+                                                                    new LoginPassword(Login,
+                                                                                      Password.ParseHash(JSONObject["newPassword"]["salt"].        Value<String>(),
+                                                                                                         JSONObject["newPassword"]["passwordHash"].Value<String>())));
+
+                                            }
+
+                                            else
+                                                DebugX.Log("Invalid 'ResetPassword' command in '" + DefaultPasswordFile + "' line " + linenumber + "!");
+
+                                            break;
+
+                                        #endregion
+
                                         default:
                                             DebugX.Log("Unknown command '" + JSONCommand + "' in password file '" + DefaultPasswordFile + "' line " + linenumber + "!");
                                             break;
@@ -3163,18 +3441,18 @@ namespace org.GraphDefined.OpenData.Users
 
             #endregion
 
-            #region Read SecurityToken file...
+            #region Read HTTPCookiesFile file...
 
-            if (File.Exists(DefaultSecurityTokenFile))
+            if (File.Exists(DefaultHTTPCookiesFile))
             {
 
-                lock (SecurityTokens)
+                lock (HTTPCookies)
                 {
 
                     try
                     {
 
-                        File.ReadLines(DefaultSecurityTokenFile).ForEachCounted((line, linenumber) => {
+                        File.ReadLines(DefaultHTTPCookiesFile).ForEachCounted((line, linenumber) => {
 
                             try
                             {
@@ -3185,18 +3463,18 @@ namespace org.GraphDefined.OpenData.Users
                                 var Login          = User_Id.         Parse(Tokens[1]);
                                 var Expires        = DateTime.        Parse(Tokens[2]);
 
-                                if (!SecurityTokens.ContainsKey(SecurityToken) &&
+                                if (!HTTPCookies.ContainsKey(SecurityToken) &&
                                     _LoginPasswords.ContainsKey(Login) &&
                                     Expires > DateTime.UtcNow)
                                 {
-                                    SecurityTokens.Add(SecurityToken,
+                                    HTTPCookies.Add(SecurityToken,
                                                        new SecurityToken(Login, Expires));
                                 }
 
                             }
                             catch (Exception e)
                             {
-                                DebugX.Log("Could not read security token file '" + DefaultSecurityTokenFile + "' line " + linenumber + ": " + e.Message);
+                                DebugX.Log("Could not read security token file '" + DefaultHTTPCookiesFile + "' line " + linenumber + ": " + e.Message);
                             }
 
                         });
@@ -3204,18 +3482,123 @@ namespace org.GraphDefined.OpenData.Users
                     }
                     catch (Exception e)
                     {
-                        DebugX.Log("Could not read security token file '" + DefaultSecurityTokenFile + "': " + e.Message);
+                        DebugX.Log("Could not read security token file '" + DefaultHTTPCookiesFile + "': " + e.Message);
                     }
 
                     // Write filtered (no invalid users, no expired tokens) tokens back to file...
-                    File.WriteAllLines(DefaultSecurityTokenFile,
-                                       SecurityTokens.Select(token => token.Key + ";" + token.Value.UserId + ";" + token.Value.Expires.ToIso8601()));
+                    File.WriteAllLines(DefaultHTTPCookiesFile,
+                                       HTTPCookies.Select(token => token.Key + ";" + token.Value.UserId + ";" + token.Value.Expires.ToIso8601()));
 
                 }
 
             }
 
             #endregion
+
+            #region Read PasswordResets file...
+
+            try
+            {
+
+                if (File.Exists(DefaultPasswordResetsFile))
+                {
+
+                    JObject  JSONLine;
+                    String   JSONCommand;
+                    JObject  JSONObject;
+
+                    var Now     = DateTime.UtcNow;
+                    var MaxAge  = TimeSpan.FromDays(7);
+
+                    File.ReadLines(DefaultPasswordResetsFile).ForEachCounted((line, linenumber) => {
+
+                        if (line.IsNeitherNullNorEmpty() &&
+                           !line.StartsWith("#")         &&
+                           !line.StartsWith("//"))
+                        {
+
+                            try
+                            {
+
+                                JSONLine                  = JObject.Parse(line);
+                                JSONCommand               = (JSONLine.First as JProperty)?.Name;
+                                JSONObject                = (JSONLine.First as JProperty)?.Value as JObject;
+                                //CurrentDatabaseHashValue  =  JSONLine["sha256hash"]?["hashValue"]?.Value<String>();
+
+                                if (JSONCommand.IsNotNullOrEmpty() &&
+                                    JSONObject  != null &&
+                                    PasswordReset.TryParseJSON(JSONObject,
+                                                               userid => _Users[userid],
+                                                               out PasswordReset _PasswordReset,
+                                                               out String        ErrorResponse))
+                                {
+
+                                    if (ErrorResponse == null)
+                                    {
+
+                                        switch (JSONCommand)
+                                        {
+
+                                            #region Add
+
+                                            case "Add":
+
+                                                if (!PasswordResets.ContainsKey(_PasswordReset.SecurityToken1) &&
+                                                    Now - _PasswordReset.Timestamp <= MaxAge)
+                                                {
+                                                    PasswordResets.Add(_PasswordReset.SecurityToken1,
+                                                                       _PasswordReset);
+                                                }
+
+                                                else
+                                                    DebugX.Log("Invalid 'Add' command in '" + DefaultPasswordResetsFile + "' line " + linenumber + "!");
+
+                                                break;
+
+                                            #endregion
+
+                                            #region Remove
+
+                                            case "Remove":
+                                                PasswordResets.Remove(_PasswordReset.SecurityToken1);
+                                                break;
+
+                                            #endregion
+
+                                            default:
+                                                DebugX.Log("Unknown command '" + JSONCommand + "' in password file '" + DefaultPasswordResetsFile + "' line " + linenumber + "!");
+                                                break;
+
+                                        }
+
+                                    }
+
+                                }
+
+                                else
+                                    DebugX.Log("Could not read password file '" + DefaultPasswordResetsFile + "' line " + linenumber + "!");
+
+                            }
+                            catch (Exception e)
+                            {
+                                DebugX.Log("Could not read password file '" + DefaultPasswordResetsFile + "' line " + linenumber + ": " + e.Message);
+                            }
+
+                        }
+
+                    });
+
+                }
+
+            }
+            catch (Exception e)
+            {
+                DebugX.LogT("ReadDatabaseFiles() -> DefaultPasswordResetsFile failed: " + e.Message);
+            }
+
+            #endregion
+
+            DebugX.Log("Read all UsersAPI database files...");
 
         }
 
@@ -3590,7 +3973,7 @@ namespace org.GraphDefined.OpenData.Users
                 Request. Cookies.TryGet     (CookieName,             out HTTPCookie        Cookie)              &&
                          Cookie. TryGet     (SecurityTokenCookieKey, out String            Value)               &&
                 SecurityToken_Id.TryParse   (Value,                  out SecurityToken_Id  SecurityTokenId)     &&
-                SecurityTokens.  TryGetValue(SecurityTokenId,        out SecurityToken     SecurityInformation) &&
+                HTTPCookies.  TryGetValue(SecurityTokenId,        out SecurityToken     SecurityInformation) &&
                 DateTime.UtcNow < SecurityInformation.Expires                                                   &&
                 TryGetUser(SecurityInformation.UserId, out User))
             {
@@ -4464,6 +4847,56 @@ namespace org.GraphDefined.OpenData.Users
 
         public UserContext SetUserContext(User_Id UserId)
             => new UserContext(UserId);
+
+        #endregion
+
+        #region Reset user password
+
+        #region ResetPassword(Users, SecurityToken1, SecurityToken2 = null)
+
+        public PasswordReset ResetPassword(IEnumerable<User>  Users,
+                                           SecurityToken_Id   SecurityToken1,
+                                           SecurityToken_Id?  SecurityToken2 = null)
+
+            => Add(new PasswordReset(Users,
+                                     SecurityToken1,
+                                     SecurityToken2));
+
+        #endregion
+
+        #region Add   (passwordReset)
+
+        public PasswordReset Add(PasswordReset passwordReset)
+        {
+
+            WriteToLogfileAndNotify("Add",
+                                    passwordReset.ToJSON(),
+                                    DefaultPasswordResetsFile);
+
+            this.PasswordResets.Add(passwordReset.SecurityToken1, passwordReset);
+
+            return passwordReset;
+
+        }
+
+        #endregion
+
+        #region Remove(passwordReset)
+
+        public PasswordReset Remove(PasswordReset passwordReset)
+        {
+
+            WriteToLogfileAndNotify("Remove",
+                                    passwordReset.ToJSON(),
+                                    DefaultPasswordResetsFile);
+
+            this.PasswordResets.Remove(passwordReset.SecurityToken1);
+
+            return passwordReset;
+
+        }
+
+        #endregion
 
         #endregion
 

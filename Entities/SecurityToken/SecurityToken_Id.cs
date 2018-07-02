@@ -42,6 +42,8 @@ namespace org.GraphDefined.OpenData.Users
         /// </summary>
         private readonly String  InternalId;
 
+        private static readonly Random _Random = new Random();
+
         #endregion
 
         #region Properties
@@ -67,6 +69,20 @@ namespace org.GraphDefined.OpenData.Users
 
         #endregion
 
+
+        #region (static) Random  (Length = 40, SourceOfRandomness = null)
+
+        /// <summary>
+        /// Generate a new random security token identification.
+        /// </summary>
+        /// <param name="Length">The expected length of the random string.</param>
+        /// <param name="SourceOfRandomness">The source of randomness.</param>
+        public static SecurityToken_Id Random(UInt16  Length              = 40,
+                                              Random  SourceOfRandomness  = null)
+
+            => new SecurityToken_Id((SourceOfRandomness ?? _Random).RandomString(Length));
+
+        #endregion
 
         #region (static) Parse   (Text)
 

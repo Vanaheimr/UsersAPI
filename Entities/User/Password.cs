@@ -64,6 +64,12 @@ namespace org.GraphDefined.OpenData.Users
         internal String UnsecureString
             => InternalPassword.UnsecureString();
 
+        /// <summary>
+        /// The length of the password.
+        /// </summary>
+        public UInt16 Length
+            => (UInt16) InternalPassword.UnsecureString().Length;
+
         #endregion
 
         #region Constructor(s)
@@ -159,10 +165,22 @@ namespace org.GraphDefined.OpenData.Users
         /// </summary>
         /// <param name="Text">A text representation of a password.</param>
         /// <param name="Password">The parsed password.</param>
+        public static Boolean TryParse(String        Text,
+                                       out Password  Password)
+
+            => TryParse(Text,
+                        out Password,
+                        16);
+
+        /// <summary>
+        /// Try to parse the given string as a password.
+        /// </summary>
+        /// <param name="Text">A text representation of a password.</param>
+        /// <param name="Password">The parsed password.</param>
         /// <param name="LengthOfSalt">The optional length of the random salt.</param>
         public static Boolean TryParse(String        Text,
                                        out Password  Password,
-                                       Byte          LengthOfSalt = 16)
+                                       Byte          LengthOfSalt)
         {
 
             #region Initial checks

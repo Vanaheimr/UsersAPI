@@ -240,9 +240,12 @@ function SetPassword() {
                 var responseJSON = JSON.parse(ResponseText);
                 if (responseJSON.numberOfAccountsFound != null) {
                     responseDiv.style.display = 'block';
-                    responseDiv.innerHTML = "<i class='fas fa-user-check  fa-2x menuicons'></i> Succssfully (re-)setted your password!";
+                    responseDiv.innerHTML = "<i class='fas fa-user-check  fa-2x menuicons'></i> Succssfully resetted your password!";
                     responseDiv.classList.remove("responseError");
                     responseDiv.classList.add("responseOk");
+                    setPasswordInput.disabled = true;
+                    setPasswordButton.style.display = 'none';
+                    gotoLoginButton.style.display = 'block';
                     return;
                 }
             }
@@ -267,6 +270,8 @@ function SetPassword() {
     var responseDiv = document.getElementById("response");
     var setPasswordButton = document.getElementById("setPasswordButton");
     var setPasswordInput = document.getElementById("setPasswordInput");
+    var gotoLoginButton = document.getElementById("gotoLoginButton");
+    var gotoLoginInput = document.getElementById("gotoLoginInput");
     if (window.location.search.length > 1) {
         var elements = window.location.search.substring(1).trim().split("&");
         securityToken1.value = elements[0].trim();
@@ -301,6 +306,9 @@ function SetPassword() {
     };
     loginform.onsubmit = function (ev) {
         return SetPassword();
+    };
+    gotoLoginButton.onclick = function (ev) {
+        window.location.href = "/login";
     };
     checkNotSignedIn();
     ToogleSaveButton();

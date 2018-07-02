@@ -377,9 +377,12 @@ function SetPassword() {
 
                         if (responseJSON.numberOfAccountsFound != null) {
                             responseDiv.style.display = 'block';
-                            responseDiv.innerHTML     = "<i class='fas fa-user-check  fa-2x menuicons'></i> Succssfully (re-)setted your password!";
+                            responseDiv.innerHTML     = "<i class='fas fa-user-check  fa-2x menuicons'></i> Succssfully resetted your password!";
                             responseDiv.classList.remove("responseError");
                             responseDiv.classList.add   ("responseOk");
+                            setPasswordInput.disabled = true;
+                            setPasswordButton.style.display = 'none';
+                            gotoLoginButton.style.display   = 'block';
                             return;
                         }
 
@@ -413,6 +416,8 @@ function SetPassword() {
     let responseDiv        = document.getElementById("response")          as HTMLDivElement;
     let setPasswordButton  = document.getElementById("setPasswordButton") as HTMLDivElement;
     let setPasswordInput   = document.getElementById("setPasswordInput")  as HTMLInputElement;
+    let gotoLoginButton    = document.getElementById("gotoLoginButton")   as HTMLDivElement;
+    let gotoLoginInput     = document.getElementById("gotoLoginInput")    as HTMLInputElement;
 
     if (window.location.search.length > 1) {
 
@@ -462,8 +467,13 @@ function SetPassword() {
         ToogleSaveButton();
     }
 
+
     loginform.onsubmit = function (this: HTMLElement, ev: Event) {
         return SetPassword();
+    }
+
+    gotoLoginButton.onclick = function (this: HTMLElement, ev: Event) {
+        window.location.href = "/login";
     }
 
     checkNotSignedIn();
