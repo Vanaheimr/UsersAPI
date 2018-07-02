@@ -686,11 +686,11 @@ namespace org.GraphDefined.OpenData.Users
         /// <summary>
         /// A delegate for sending a sign-up e-mail to a new user.
         /// </summary>
-        /// <param name="Login"></param>
+        /// <param name="UserId"></param>
         /// <param name="EMail"></param>
         /// <param name="Language"></param>
         /// <param name="VerificationToken"></param>
-        public delegate EMail NewUserSignUpEMailCreatorDelegate(User_Id            Login,
+        public delegate EMail NewUserSignUpEMailCreatorDelegate(User_Id            UserId,
                                                                 EMailAddress       EMail,
                                                                 Languages          Language,
                                                                 VerificationToken  VerificationToken);
@@ -707,10 +707,10 @@ namespace org.GraphDefined.OpenData.Users
         /// <summary>
         /// A delegate for sending a welcome e-mail to a new user.
         /// </summary>
-        /// <param name="Login"></param>
+        /// <param name="UserId"></param>
         /// <param name="EMail"></param>
         /// <param name="Language"></param>
-        public delegate EMail NewUserWelcomeEMailCreatorDelegate(User_Id       Login,
+        public delegate EMail NewUserWelcomeEMailCreatorDelegate(User_Id       UserId,
                                                                  EMailAddress  EMail,
                                                                  Languages     Language);
 
@@ -726,16 +726,36 @@ namespace org.GraphDefined.OpenData.Users
         /// <summary>
         /// A delegate for sending a reset password e-mail to a user.
         /// </summary>
-        public delegate EMail ResetPasswordEMailCreatorDelegate(User_Id           Login,
+        public delegate EMail ResetPasswordEMailCreatorDelegate(User_Id           UserId,
                                                                 EMailAddress      EMail,
+                                                                String            Username,
                                                                 SecurityToken_Id  SecurityToken,
                                                                 Boolean           Use2FactorAuth,
+                                                                String            DNSHostname,
                                                                 Languages         Language);
 
         /// <summary>
         /// A delegate for sending a reset password e-mail to a user.
         /// </summary>
         public ResetPasswordEMailCreatorDelegate ResetPasswordEMailCreator { get; }
+
+        #endregion
+
+        #region PasswordChangedEMailCreator
+
+        /// <summary>
+        /// A delegate for sending a password changed e-mail to a user.
+        /// </summary>
+        public delegate EMail PasswordChangedEMailCreatorDelegate(User_Id       UserId,
+                                                                  EMailAddress  EMail,
+                                                                  String        Username,
+                                                                  String        DNSHostname,
+                                                                  Languages     Language);
+
+        /// <summary>
+        /// A delegate for sending a password changed e-mail to a user.
+        /// </summary>
+        public PasswordChangedEMailCreatorDelegate PasswordChangedEMailCreator { get; }
 
         #endregion
 
@@ -874,6 +894,7 @@ namespace org.GraphDefined.OpenData.Users
                         NewUserSignUpEMailCreatorDelegate    NewUserSignUpEMailCreator          = null,
                         NewUserWelcomeEMailCreatorDelegate   NewUserWelcomeEMailCreator         = null,
                         ResetPasswordEMailCreatorDelegate    ResetPasswordEMailCreator          = null,
+                        PasswordChangedEMailCreatorDelegate  PasswordChangedEMailCreator        = null,
                         Byte                                 MinUserNameLenght                  = DefaultMinUserNameLenght,
                         Byte                                 MinRealmLenght                     = DefaultMinRealmLenght,
                         Byte                                 MinPasswordLenght                  = DefaultMinPasswordLenght,
@@ -935,6 +956,7 @@ namespace org.GraphDefined.OpenData.Users
                    NewUserSignUpEMailCreator,
                    NewUserWelcomeEMailCreator,
                    ResetPasswordEMailCreator,
+                   PasswordChangedEMailCreator,
                    MinUserNameLenght,
                    MinRealmLenght,
                    MinPasswordLenght,
@@ -989,34 +1011,35 @@ namespace org.GraphDefined.OpenData.Users
         /// <param name="DisableNotifications">Disable external notifications.</param>
         /// <param name="DisableLogfile">Disable the log file.</param>
         /// <param name="LogfileName">The name of the logfile for this API.</param>
-        protected UsersAPI(HTTPServer                          HTTPServer,
-                           HTTPHostname?                       HTTPHostname                 = null,
-                           HTTPURI?                            URIPrefix                    = null,
+        protected UsersAPI(HTTPServer                           HTTPServer,
+                           HTTPHostname?                        HTTPHostname                  = null,
+                           HTTPURI?                             URIPrefix                     = null,
 
-                           String                              ServiceName                  = DefaultServiceName,
-                           EMailAddress                        APIEMailAddress              = null,
-                           String                              APIPassphrase                = null,
-                           EMailAddressList                    APIAdminEMails               = null,
-                           SMTPClient                          APISMTPClient                = null,
+                           String                               ServiceName                   = DefaultServiceName,
+                           EMailAddress                         APIEMailAddress               = null,
+                           String                               APIPassphrase                 = null,
+                           EMailAddressList                     APIAdminEMails                = null,
+                           SMTPClient                           APISMTPClient                 = null,
 
-                           Credentials                         SMSAPICredentials            = null,
-                           IEnumerable<PhoneNumber>            APIAdminSMS                  = null,
+                           Credentials                          SMSAPICredentials             = null,
+                           IEnumerable<PhoneNumber>             APIAdminSMS                   = null,
 
-                           HTTPCookieName?                     CookieName                   = null,
-                           Languages                           Language                     = DefaultLanguage,
-                           String                              LogoImage                    = null,
-                           NewUserSignUpEMailCreatorDelegate   NewUserSignUpEMailCreator    = null,
-                           NewUserWelcomeEMailCreatorDelegate  NewUserWelcomeEMailCreator   = null,
-                           ResetPasswordEMailCreatorDelegate   ResetPasswordEMailCreator    = null,
-                           Byte                                MinUserNameLenght            = DefaultMinUserNameLenght,
-                           Byte                                MinRealmLenght               = DefaultMinRealmLenght,
-                           Byte                                MinPasswordLenght            = DefaultMinPasswordLenght,
-                           TimeSpan?                           SignInSessionLifetime        = null,
+                           HTTPCookieName?                      CookieName                    = null,
+                           Languages                            Language                      = DefaultLanguage,
+                           String                               LogoImage                     = null,
+                           NewUserSignUpEMailCreatorDelegate    NewUserSignUpEMailCreator     = null,
+                           NewUserWelcomeEMailCreatorDelegate   NewUserWelcomeEMailCreator    = null,
+                           ResetPasswordEMailCreatorDelegate    ResetPasswordEMailCreator     = null,
+                           PasswordChangedEMailCreatorDelegate  PasswordChangedEMailCreator   = null,
+                           Byte                                 MinUserNameLenght             = DefaultMinUserNameLenght,
+                           Byte                                 MinRealmLenght                = DefaultMinRealmLenght,
+                           Byte                                 MinPasswordLenght             = DefaultMinPasswordLenght,
+                           TimeSpan?                            SignInSessionLifetime         = null,
 
-                           Boolean                             SkipURITemplates             = false,
-                           Boolean                             DisableNotifications         = false,
-                           Boolean                             DisableLogfile               = false,
-                           String                              LogfileName                  = DefaultLogfileName)
+                           Boolean                              SkipURITemplates              = false,
+                           Boolean                              DisableNotifications          = false,
+                           Boolean                              DisableLogfile                = false,
+                           String                               LogfileName                   = DefaultLogfileName)
 
         {
 
@@ -1065,6 +1088,7 @@ namespace org.GraphDefined.OpenData.Users
             this.NewUserSignUpEMailCreator    = NewUserSignUpEMailCreator;
             this.NewUserWelcomeEMailCreator   = NewUserWelcomeEMailCreator;
             this.ResetPasswordEMailCreator    = ResetPasswordEMailCreator;
+            this.PasswordChangedEMailCreator  = PasswordChangedEMailCreator;
             this.MinLoginLenght               = MinUserNameLenght;
             this.MinRealmLenght               = MinRealmLenght;
             this.MinPasswordLenght            = MinPasswordLenght;
@@ -1119,9 +1143,9 @@ namespace org.GraphDefined.OpenData.Users
             _Notifications.OnAdded   += (Timestamp, User, NotificationId, NotificationType) => WriteToLogfileAndNotify("AddNotification",    NotificationType.ToJSON(User, NotificationId), CurrentUserId: Robot.Id);
             _Notifications.OnRemoved += (Timestamp, User, NotificationId, NotificationType) => WriteToLogfileAndNotify("RemoveNotification", NotificationType.ToJSON(User, NotificationId), CurrentUserId: Robot.Id);
 
-            HTTPServer.RequestLog2 += (HTTPProcessor, ServerTimestamp, Request)                                 => RequestLog.WhenAll(HTTPProcessor, ServerTimestamp, Request);
-            HTTPServer.AccessLog2  += (HTTPProcessor, ServerTimestamp, Request, Response)                       => AccessLog. WhenAll(HTTPProcessor, ServerTimestamp, Request, Response);
-            HTTPServer.ErrorLog2   += (HTTPProcessor, ServerTimestamp, Request, Response, Error, LastException) => ErrorLog.  WhenAll(HTTPProcessor, ServerTimestamp, Request, Response, Error, LastException);
+            HTTPServer.RequestLog2   += (HTTPProcessor, ServerTimestamp, Request)                                 => RequestLog.WhenAll(HTTPProcessor, ServerTimestamp, Request);
+            HTTPServer.AccessLog2    += (HTTPProcessor, ServerTimestamp, Request, Response)                       => AccessLog. WhenAll(HTTPProcessor, ServerTimestamp, Request, Response);
+            HTTPServer.ErrorLog2     += (HTTPProcessor, ServerTimestamp, Request, Response, Error, LastException) => ErrorLog.  WhenAll(HTTPProcessor, ServerTimestamp, Request, Response, Error, LastException);
 
             NoOwner = CreateOrganizationIfNotExists(Organization_Id.Parse("NoOwner"), CurrentUserId: Robot.Id);
 
@@ -1178,34 +1202,35 @@ namespace org.GraphDefined.OpenData.Users
         /// <param name="DisableNotifications">Disable external notifications.</param>
         /// <param name="DisableLogfile">Disable the log file.</param>
         /// <param name="LogfileName">The name of the logfile for this API.</param>
-        public static UsersAPI AttachToHTTPAPI(HTTPServer                          HTTPServer,
-                                               HTTPHostname?                       HTTPHostname                 = null,
-                                               HTTPURI?                            URIPrefix                    = null,
+        public static UsersAPI AttachToHTTPAPI(HTTPServer                           HTTPServer,
+                                               HTTPHostname?                        HTTPHostname                  = null,
+                                               HTTPURI?                             URIPrefix                     = null,
 
-                                               String                              ServiceName                  = DefaultServiceName,
-                                               EMailAddress                        APIEMailAddress              = null,
-                                               String                              APIPassphrase                = null,
-                                               EMailAddressList                    APIAdminEMails               = null,
-                                               SMTPClient                          APISMTPClient                = null,
+                                               String                               ServiceName                   = DefaultServiceName,
+                                               EMailAddress                         APIEMailAddress               = null,
+                                               String                               APIPassphrase                 = null,
+                                               EMailAddressList                     APIAdminEMails                = null,
+                                               SMTPClient                           APISMTPClient                 = null,
 
-                                               Credentials                         SMSAPICredentials            = null,
-                                               IEnumerable<PhoneNumber>            APIAdminSMS                  = null,
+                                               Credentials                          SMSAPICredentials             = null,
+                                               IEnumerable<PhoneNumber>             APIAdminSMS                   = null,
 
-                                               HTTPCookieName?                     CookieName                   = null,
-                                               Languages                           DefaultLanguage              = Languages.eng,
-                                               String                              LogoImage                    = null,
-                                               NewUserSignUpEMailCreatorDelegate   NewUserSignUpEMailCreator    = null,
-                                               NewUserWelcomeEMailCreatorDelegate  NewUserWelcomeEMailCreator   = null,
-                                               ResetPasswordEMailCreatorDelegate   ResetPasswordEMailCreator    = null,
-                                               Byte                                MinUserNameLenght            = DefaultMinUserNameLenght,
-                                               Byte                                MinRealmLenght               = DefaultMinRealmLenght,
-                                               Byte                                MinPasswordLenght            = DefaultMinPasswordLenght,
-                                               TimeSpan?                           SignInSessionLifetime        = null,
+                                               HTTPCookieName?                      CookieName                    = null,
+                                               Languages                            DefaultLanguage               = Languages.eng,
+                                               String                               LogoImage                     = null,
+                                               NewUserSignUpEMailCreatorDelegate    NewUserSignUpEMailCreator     = null,
+                                               NewUserWelcomeEMailCreatorDelegate   NewUserWelcomeEMailCreator    = null,
+                                               ResetPasswordEMailCreatorDelegate    ResetPasswordEMailCreator     = null,
+                                               PasswordChangedEMailCreatorDelegate  PasswordChangedEMailCreator   = null,
+                                               Byte                                 MinUserNameLenght             = DefaultMinUserNameLenght,
+                                               Byte                                 MinRealmLenght                = DefaultMinRealmLenght,
+                                               Byte                                 MinPasswordLenght             = DefaultMinPasswordLenght,
+                                               TimeSpan?                            SignInSessionLifetime         = null,
 
-                                               Boolean                             SkipURITemplates             = false,
-                                               Boolean                             DisableNotifications         = false,
-                                               Boolean                             DisableLogfile               = false,
-                                               String                              LogfileName                  = DefaultLogfileName)
+                                               Boolean                              SkipURITemplates              = false,
+                                               Boolean                              DisableNotifications          = false,
+                                               Boolean                              DisableLogfile                = false,
+                                               String                               LogfileName                   = DefaultLogfileName)
 
 
             => new UsersAPI(HTTPServer,
@@ -1227,6 +1252,7 @@ namespace org.GraphDefined.OpenData.Users
                             NewUserSignUpEMailCreator,
                             NewUserWelcomeEMailCreator,
                             ResetPasswordEMailCreator,
+                            PasswordChangedEMailCreator,
                             MinUserNameLenght,
                             MinRealmLenght,
                             MinPasswordLenght,
@@ -1392,7 +1418,7 @@ namespace org.GraphDefined.OpenData.Users
                                               if (NewUserWelcomeEMailCreatorLocal != null)
                                               {
 
-                                                  var NewUserMail = NewUserWelcomeEMailCreatorLocal(Login:     VerificationToken.Login,
+                                                  var NewUserMail = NewUserWelcomeEMailCreatorLocal(UserId:     VerificationToken.Login,
                                                                                                     EMail:     _User.EMail,
                                                                                                     Language:  DefaultLanguage);
 
@@ -1798,6 +1824,8 @@ namespace org.GraphDefined.OpenData.Users
 
                                              #endregion
 
+                                             #region No users found!
+
                                              if (Users.Count == 0)
                                              {
 
@@ -1817,45 +1845,46 @@ namespace org.GraphDefined.OpenData.Users
 
                                              }
 
-                                             var smsTelephoneNumbers  = Users.Where     (user => user.MobilePhone.HasValue).
-                                                                              SafeSelect(user => user.MobilePhone.ToString()).
-                                                                              ToHashSet();
+                                             #endregion
 
-                                             var PasswordReset        = ResetPassword(Users,
-                                                                                      SecurityToken_Id.Random(40, _Random),
-                                                                                      SecurityToken_Id.Parse(_Random.RandomString(5) + "-" + _Random.RandomString(5)));
+
+                                             var PasswordReset  = ResetPassword(Users,
+                                                                                SecurityToken_Id.Random(40, _Random),
+                                                                                SecurityToken_Id.Parse(_Random.RandomString(5) + "-" + _Random.RandomString(5)));
 
                                              MailSentStatus MailSentResult;
 
                                              foreach (var user in Users)
                                              {
 
+                                                 #region Send e-mail...
+
                                                  var MailResultTask = APISMTPClient.Send(ResetPasswordEMailCreator(user.Id,
                                                                                                                    user.EMail,
+                                                                                                                   user.Name,
                                                                                                                    PasswordReset.SecurityToken1,
-                                                                                                                   smsTelephoneNumbers.Count > 0,
+                                                                                                                   user.MobilePhone.HasValue,
+                                                                                                                   "https://" + Request.Host.ToString().ToLower(),
                                                                                                                    DefaultLanguage));
 
                                                  if (MailResultTask.Wait(60000))
                                                      MailSentResult = MailResultTask.Result;
 
-                                             }
+                                                 #endregion
 
+                                                 #region Send SMS...
 
-                                             if (_SMSAPI != null)
-                                             {
-
-                                                 foreach (var smsTelephoneNumber in Users.Where     (user => user.MobilePhone.HasValue).
-                                                                                          SafeSelect(user => user.MobilePhone.ToString()).
-                                                                                          ToHashSet())
+                                                 if (_SMSAPI != null && user.MobilePhone.HasValue)
                                                  {
 
-                                                     var result = _SMSAPI.Send("Your 2nd security token is '" + PasswordReset.SecurityToken2 + "'!",
-                                                                               smsTelephoneNumber).
+                                                     var result = _SMSAPI.Send("Dear '" + user.Name + "' your 2nd security token for resetting your password is '" + PasswordReset.SecurityToken2 + "'!",
+                                                                               user.MobilePhone.Value.ToString()).
                                                                           SetSender("CardiCloud").
                                                                           Execute();
 
                                                  }
+
+                                                 #endregion
 
                                              }
 
@@ -1949,6 +1978,9 @@ namespace org.GraphDefined.OpenData.Users
 
                                              #endregion
 
+
+                                             #region Verify token/password lengths...
+
                                              if (SecurityToken1.Length != 40 ||
                                                  NewPassword.Length < 6)
                                              {
@@ -1971,6 +2003,10 @@ namespace org.GraphDefined.OpenData.Users
 
                                              #endregion
 
+                                             #endregion
+
+                                             #region Is this a known/valid request?
+
                                              if (!PasswordResets.TryGetValue(SecurityToken1, out PasswordReset _PasswordReset))
                                              {
 
@@ -1986,6 +2022,10 @@ namespace org.GraphDefined.OpenData.Users
                                                             }.AsImmutable);
 
                                              }
+
+                                             #endregion
+
+                                             #region Is security token 2 used and valid?
 
                                              if (SecurityToken2.HasValue &&
                                                  SecurityToken2 != _PasswordReset.SecurityToken2)
@@ -2004,34 +2044,52 @@ namespace org.GraphDefined.OpenData.Users
 
                                              }
 
+                                             #endregion
+
+
                                              foreach (var user in _PasswordReset.Users)
                                              {
 
-                                                  WriteToLogfileAndNotify("ResetPassword",
-                                                                          JSONObject.Create(
+                                                 WriteToLogfileAndNotify("ResetPassword",
+                                                                         JSONObject.Create(
 
-                                                                              new JProperty("login",                 user.Id.ToString()),
+                                                                             new JProperty("login",                 user.Id.ToString()),
 
-                                                                              new JProperty("newPassword", new JObject(
-                                                                                  new JProperty("salt",              NewPassword.Salt.UnsecureString()),
-                                                                                  new JProperty("passwordHash",      NewPassword.UnsecureString)
-                                                                              )),
+                                                                             new JProperty("newPassword", new JObject(
+                                                                                 new JProperty("salt",              NewPassword.Salt.UnsecureString()),
+                                                                                 new JProperty("passwordHash",      NewPassword.UnsecureString)
+                                                                             )),
 
-                                                                              new JProperty("securityToken1",        SecurityToken1.ToString()),
+                                                                             new JProperty("securityToken1",        SecurityToken1.ToString()),
 
-                                                                              SecurityToken2.HasValue
-                                                                                  ? new JProperty("securityToken2",  SecurityToken2.ToString())
-                                                                                  : null
+                                                                             SecurityToken2.HasValue
+                                                                                 ? new JProperty("securityToken2",  SecurityToken2.ToString())
+                                                                                 : null
 
-                                                                          ),
-                                                                          DefaultPasswordFile,
-                                                                          Robot.Id);
+                                                                         ),
+                                                                         DefaultPasswordFile,
+                                                                         Robot.Id);
 
-                                                  _LoginPasswords.Remove(user.Id);
+                                                 _LoginPasswords.Remove(user.Id);
 
-                                                  _LoginPasswords.Add(user.Id, new LoginPassword(user.Id, NewPassword));
+                                                 _LoginPasswords.Add(user.Id, new LoginPassword(user.Id, NewPassword));
 
-                                                  Remove(_PasswordReset);
+                                                 Remove(_PasswordReset);
+
+                                                 #region Send e-mail...
+
+                                                 var MailSentResult = MailSentStatus.failed;
+
+                                                 var MailResultTask = APISMTPClient.Send(PasswordChangedEMailCreator(user.Id,
+                                                                                                                     user.EMail,
+                                                                                                                     user.Name,
+                                                                                                                     "https://" + Request.Host.ToString().ToLower(),
+                                                                                                                     DefaultLanguage));
+
+                                                 if (MailResultTask.Wait(60000))
+                                                     MailSentResult = MailResultTask.Result;
+
+                                                 #endregion
 
                                              }
 
@@ -2326,7 +2384,7 @@ namespace org.GraphDefined.OpenData.Users
                                               if (NewUserSignUpEMailCurrentUserIdLocal != null)
                                               {
 
-                                                  var NewUserMail = NewUserSignUpEMailCurrentUserIdLocal(Login:              _Login,
+                                                  var NewUserMail = NewUserSignUpEMailCurrentUserIdLocal(UserId:              _Login,
                                                                                                          EMail:              new EMailAddress(OwnerName:                 _Login.ToString(),
                                                                                                                                               SimpleEMailAddressString:  matches.Groups[0].Value,
                                                                                                                                               SecretKeyRing:             null,
@@ -3127,6 +3185,21 @@ namespace org.GraphDefined.OpenData.Users
                                                                    CurrentPassword,
                                                                    HTTPUser.Id))
                                              {
+
+                                                 #region Send e-mail...
+
+                                                 var MailSentResult = MailSentStatus.failed;
+
+                                                 var MailResultTask = APISMTPClient.Send(PasswordChangedEMailCreator(HTTPUser.Id,
+                                                                                                                     HTTPUser.EMail,
+                                                                                                                     HTTPUser.Name,
+                                                                                                                     "https://" + Request.Host.ToString().ToLower(),
+                                                                                                                     DefaultLanguage));
+
+                                                 if (MailResultTask.Wait(60000))
+                                                     MailSentResult = MailResultTask.Result;
+
+                                                 #endregion
 
                                                  return ChangePasswordResponse(
                                                             new HTTPResponseBuilder(Request) {
