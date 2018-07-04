@@ -2018,7 +2018,7 @@ namespace org.GraphDefined.OpenData.Users
                                                                                                                        user.Name,
                                                                                                                        PasswordReset.SecurityToken1,
                                                                                                                        user.MobilePhone.HasValue,
-                                                                                                                       "https://" + Request.Host.ToString().ToLower(),
+                                                                                                                       "https://" + Request.Host.Name.ToLower(),
                                                                                                                        DefaultLanguage));
 
                                                      if (MailResultTask.Wait(60000))
@@ -2259,7 +2259,7 @@ namespace org.GraphDefined.OpenData.Users
                                                  var MailResultTask = APISMTPClient.Send(PasswordChangedEMailCreator(user.Id,
                                                                                                                      user.EMail,
                                                                                                                      user.Name,
-                                                                                                                     "https://" + Request.Host.ToString().ToLower(),
+                                                                                                                     "https://" + Request.Host.Name.ToLower(),
                                                                                                                      DefaultLanguage));
 
                                                  if (MailResultTask.Wait(60000))
@@ -2768,7 +2768,7 @@ namespace org.GraphDefined.OpenData.Users
                                                                                                                      Name,
                                                                                                                      SetPasswordRequest.SecurityToken1,
                                                                                                                      MobilePhone.HasValue,
-                                                                                                                     "https://" + Request.Host.ToString().ToLower(),
+                                                                                                                     "https://" + Request.Host.Name.ToLower(),
                                                                                                                      DefaultLanguage));
 
                                                   if (MailResultTask.Wait(60000))
@@ -3642,7 +3642,7 @@ namespace org.GraphDefined.OpenData.Users
                                                  var MailResultTask = APISMTPClient.Send(PasswordChangedEMailCreator(HTTPUser.Id,
                                                                                                                      HTTPUser.EMail,
                                                                                                                      HTTPUser.Name,
-                                                                                                                     "https://" + Request.Host.ToString().ToLower(),
+                                                                                                                     "https://" + Request.Host.Name.ToLower(),
                                                                                                                      DefaultLanguage));
 
                                                  if (MailResultTask.Wait(60000))
