@@ -212,6 +212,161 @@ namespace org.GraphDefined.OpenData.Users
 
         #endregion
 
+
+        #region ParseOrganizationId(this HTTPRequest, UsersAPI, out OrganizationId,                   out HTTPResponse)
+
+        /// <summary>
+        /// Parse the given HTTP request and return the user identification
+        /// for the given HTTP hostname and HTTP query parameter
+        /// or an HTTP error response.
+        /// </summary>
+        /// <param name="HTTPRequest">A HTTP request.</param>
+        /// <param name="UsersAPI">The Organizations API.</param>
+        /// <param name="OrganizationId">The parsed unique user identification.</param>
+        /// <param name="HTTPResponse">A HTTP error response.</param>
+        /// <returns>True, when user identification was found; false else.</returns>
+        public static Boolean ParseOrganizationId(this HTTPRequest      HTTPRequest,
+                                                  UsersAPI              UsersAPI,
+                                                  out Organization_Id?  OrganizationId,
+                                                  out HTTPResponse      HTTPResponse)
+        {
+
+            #region Initial checks
+
+            if (HTTPRequest == null)
+                throw new ArgumentNullException(nameof(HTTPRequest),  "The given HTTP request must not be null!");
+
+            if (UsersAPI    == null)
+                throw new ArgumentNullException(nameof(UsersAPI),     "The given Organizations API must not be null!");
+
+            #endregion
+
+            OrganizationId        = null;
+            HTTPResponse  = null;
+
+            if (HTTPRequest.ParsedURIParameters.Length < 1)
+            {
+
+                HTTPResponse = new HTTPResponseBuilder(HTTPRequest) {
+                    HTTPStatusCode  = HTTPStatusCode.BadRequest,
+                    Server          = UsersAPI.HTTPServer.DefaultServerName,
+                    Date            = DateTime.UtcNow,
+                    Connection      = "close"
+                };
+
+                return false;
+
+            }
+
+            OrganizationId = Organization_Id.TryParse(HTTPRequest.ParsedURIParameters[0]);
+
+            if (!OrganizationId.HasValue)
+            {
+
+                HTTPResponse = new HTTPResponseBuilder(HTTPRequest) {
+                    HTTPStatusCode  = HTTPStatusCode.BadRequest,
+                    Server          = UsersAPI.HTTPServer.DefaultServerName,
+                    Date            = DateTime.UtcNow,
+                    ContentType     = HTTPContentType.JSON_UTF8,
+                    Content         = @"{ ""description"": ""Invalid OrganizationId!"" }".ToUTF8Bytes(),
+                    Connection      = "close"
+                };
+
+                return false;
+
+            }
+
+            return true;
+
+        }
+
+        #endregion
+
+        #region ParseOrganization  (this HTTPRequest, UsersAPI, out OrganizationId, out Organization, out HTTPResponse)
+
+        /// <summary>
+        /// Parse the given HTTP request and return the user identification
+        /// for the given HTTP hostname and HTTP query parameter
+        /// or an HTTP error response.
+        /// </summary>
+        /// <param name="HTTPRequest">A HTTP request.</param>
+        /// <param name="UsersAPI">The Organizations API.</param>
+        /// <param name="OrganizationId">The parsed unique user identification.</param>
+        /// <param name="Organization">The resolved user.</param>
+        /// <param name="HTTPResponse">A HTTP error response.</param>
+        /// <returns>True, when user identification was found; false else.</returns>
+        public static Boolean ParseOrganization(this HTTPRequest      HTTPRequest,
+                                                UsersAPI              UsersAPI,
+                                                out Organization_Id?  OrganizationId,
+                                                out Organization      Organization,
+                                                out HTTPResponse      HTTPResponse)
+        {
+
+            #region Initial checks
+
+            if (HTTPRequest == null)
+                throw new ArgumentNullException(nameof(HTTPRequest),  "The given HTTP request must not be null!");
+
+            if (UsersAPI    == null)
+                throw new ArgumentNullException(nameof(UsersAPI),     "The given Organizations API must not be null!");
+
+            #endregion
+
+            OrganizationId        = null;
+            Organization          = null;
+            HTTPResponse  = null;
+
+            if (HTTPRequest.ParsedURIParameters.Length < 1) {
+
+                HTTPResponse = new HTTPResponseBuilder(HTTPRequest) {
+                    HTTPStatusCode  = HTTPStatusCode.BadRequest,
+                    Server          = UsersAPI.HTTPServer.DefaultServerName,
+                    Date            = DateTime.UtcNow,
+                    Connection      = "close"
+                };
+
+                return false;
+
+            }
+
+            OrganizationId = Organization_Id.TryParse(HTTPRequest.ParsedURIParameters[0]);
+
+            if (!OrganizationId.HasValue) {
+
+                HTTPResponse = new HTTPResponseBuilder(HTTPRequest) {
+                    HTTPStatusCode  = HTTPStatusCode.BadRequest,
+                    Server          = UsersAPI.HTTPServer.DefaultServerName,
+                    Date            = DateTime.UtcNow,
+                    ContentType     = HTTPContentType.JSON_UTF8,
+                    Content         = @"{ ""description"": ""Invalid OrganizationId!"" }".ToUTF8Bytes(),
+                    Connection      = "close"
+                };
+
+                return false;
+
+            }
+
+            if (!UsersAPI.TryGetOrganization(OrganizationId.Value, out Organization)) {
+
+                HTTPResponse = new HTTPResponseBuilder(HTTPRequest) {
+                    HTTPStatusCode  = HTTPStatusCode.NotFound,
+                    Server          = UsersAPI.HTTPServer.DefaultServerName,
+                    Date            = DateTime.UtcNow,
+                    ContentType     = HTTPContentType.JSON_UTF8,
+                    Content         = @"{ ""description"": ""Unknown OrganizationId!"" }".ToUTF8Bytes(),
+                    Connection      = "close"
+                };
+
+                return false;
+
+            }
+
+            return true;
+
+        }
+
+        #endregion
+
     }
 
     public class PasswordReset
@@ -3240,7 +3395,7 @@ namespace org.GraphDefined.OpenData.Users
             // ------------------------------------------------------------------
             // curl -v -H "Accept: application/json" http://127.0.0.1:2100/groups
             // ------------------------------------------------------------------
-            HTTPServer.ITEMS_GET(UriTemplate: URIPrefix + "/groups",
+            HTTPServer.ITEMS_GET(UriTemplate: URIPrefix + "groups",
                                  Dictionary: _Groups,
                                  Filter: group => group.PrivacyLevel == PrivacyLevel.World,
                                  ToJSONDelegate: JSON_IO.ToJSON);
@@ -3252,7 +3407,7 @@ namespace org.GraphDefined.OpenData.Users
             // -------------------------------------------------------------------------------------------
             // curl -v -X EXITS -H "Accept: application/json" http://127.0.0.1:2100/groups/OK-Lab%20Jena
             // -------------------------------------------------------------------------------------------
-            HTTPServer.ITEM_EXISTS<Group_Id, Group>(UriTemplate: URIPrefix + "/groups/{GroupId}",
+            HTTPServer.ITEM_EXISTS<Group_Id, Group>(UriTemplate: URIPrefix + "groups/{GroupId}",
                                                     ParseIdDelegate: Group_Id.TryParse,
                                                     ParseIdError: Text => "Invalid group identification '" + Text + "'!",
                                                     TryGetItemDelegate: _Groups.TryGetValue,
@@ -3266,7 +3421,7 @@ namespace org.GraphDefined.OpenData.Users
             // ----------------------------------------------------------------------------------
             // curl -v -H "Accept: application/json" http://127.0.0.1:2100/groups/OK-Lab%20Jena
             // ----------------------------------------------------------------------------------
-            HTTPServer.ITEM_GET<Group_Id, Group>(UriTemplate:         URIPrefix + "/groups/{GroupId}",
+            HTTPServer.ITEM_GET<Group_Id, Group>(UriTemplate:         URIPrefix + "groups/{GroupId}",
                                                  ParseIdDelegate:     Group_Id.TryParse,
                                                  ParseIdError:        Text => "Invalid group identification '" + Text + "'!",
                                                  TryGetItemDelegate:  _Groups.TryGetValue,
@@ -3282,7 +3437,7 @@ namespace org.GraphDefined.OpenData.Users
             // ------------------------------------------------------------------
             // curl -v -H "Accept: application/json" http://127.0.0.1:2100/orgs
             // ------------------------------------------------------------------
-            HTTPServer.ITEMS_GET(UriTemplate:     URIPrefix + "/organizations",
+            HTTPServer.ITEMS_GET(UriTemplate:     URIPrefix + "organizations",
                                  Dictionary:      _Organizations,
                                  Filter:          org => org.PrivacyLevel == PrivacyLevel.World,
                                  ToJSONDelegate:  JSON_IO.ToJSON);
@@ -3294,7 +3449,7 @@ namespace org.GraphDefined.OpenData.Users
             // ------------------------------------------------------------------------------------
             // curl -v -X EXITS -H "Accept: application/json" http://127.0.0.1:2100/orgs/Stadtrat
             // ------------------------------------------------------------------------------------
-            HTTPServer.ITEM_EXISTS<Organization_Id, Organization>(UriTemplate:               URIPrefix + "/organizations/{OrgId}",
+            HTTPServer.ITEM_EXISTS<Organization_Id, Organization>(UriTemplate:               URIPrefix + "organizations/{OrgId}",
                                                                   ParseIdDelegate:           Organization_Id.TryParse,
                                                                   ParseIdError:              Text  => "Invalid organization identification '" + Text + "'!",
                                                                   TryGetItemDelegate:        _Organizations.TryGetValue,
@@ -3308,7 +3463,7 @@ namespace org.GraphDefined.OpenData.Users
             // ---------------------------------------------------------------------------
             // curl -v -H "Accept: application/json" http://127.0.0.1:2100/orgs/Stadtrat
             // ---------------------------------------------------------------------------
-            HTTPServer.ITEM_GET<Organization_Id, Organization>(UriTemplate:          URIPrefix + "/organizations/{OrgId}",
+            HTTPServer.ITEM_GET<Organization_Id, Organization>(UriTemplate:          URIPrefix + "organizations/{OrgId}",
                                                                ParseIdDelegate:     Organization_Id.TryParse,
                                                                ParseIdError:        Text  => "Invalid organization identification '" + Text + "'!",
                                                                TryGetItemDelegate:  _Organizations.TryGetValue,
@@ -3318,6 +3473,264 @@ namespace org.GraphDefined.OpenData.Users
                                                                    return "Unknown organization '" + orgId + "'!" + x;
                                                                },
                                                                ToJSONDelegate:      _ => _.ToJSON());
+
+            #endregion
+
+            #region SET         ~/organizations/{organizationId}
+
+            // ---------------------------------------------------------------------------------------------
+            // curl -v -X SET \
+            //      -H "Accept:       application/json; charset=utf-8" \
+            //      -H "Content-Type: application/json; charset=utf-8" \
+            //      -d "{ \
+            //              \"@id\" :             \"214080158\", \
+            //              \"@context\" :        \"https://cardi-link.cloud/contexts/cardidb+json/user\", \
+            //              \"description\" :     { \"deu\" : \"Test AED in Erlangen Raum Yavin 4\" },\
+            //              \"dataLicenseIds\" :  [ \"ODbL\" ],\
+            //              \"ownerId\" :         \"CardiLink\", \
+            //              \"address\" :         { \
+            //                                      \"country\" :      \"Germany\",
+            //                                      \"postalCode\" :   \"91052\",
+            //                                      \"city\" :         { \"deu\": \"Erlangen\" },
+            //                                      \"street\" :       \"Henkestraße\",
+            //                                      \"houseNumber\" :  \"91\",
+            //                                      \"floorLevel\" :   \"1\"
+            //                                    }, \
+            //              \"geoLocation\" :     { \"lat\": 49.594760, \"lng\": 11.019356 }, \
+            //              \"privacyLevel\" :    \"Public\" \
+            //          }" \
+            //      http://127.0.0.1:2000/users/214080158
+            // ---------------------------------------------------------------------------------------------
+            HTTPServer.AddMethodCallback(Hostname,
+                                         HTTPMethod.SET,
+                                         URIPrefix + "organizations/{organizationId}",
+                                         HTTPContentType.JSON_UTF8,
+                                         HTTPDelegate: async Request => {
+
+                                             SetOrganizationRequest(Request);
+
+                                             #region Get HTTP user and its organizations
+
+                                             // Will return HTTP 401 Unauthorized, when the HTTP user is unknown!
+                                             if (!TryGetHTTPUser(Request,
+                                                                 out User                       HTTPUser,
+                                                                 out IEnumerable<Organization>  HTTPOrganizations,
+                                                                 out HTTPResponse               Response,
+                                                                 AccessLevel:                   Access_Level.ReadWrite,
+                                                                 Recursive:                     true))
+                                             {
+                                                 return SetOrganizationResponse(Response);
+                                             }
+
+                                             #endregion
+
+                                             #region Check UserId URI parameter
+
+                                             if (!Request.ParseOrganizationId(this,
+                                                                              out Organization_Id?  OrganizationIdURI,
+                                                                              out HTTPResponse      HTTPResponse))
+                                             {
+                                                 return SetOrganizationResponse(HTTPResponse);
+                                             }
+
+                                             #endregion
+
+                                             #region Parse JSON
+
+                                             if (!Request.TryParseJObjectRequestBody(out JObject JSONObj, out HTTPResponse))
+                                                 return SetOrganizationResponse(HTTPResponse);
+
+                                             if (Organization.TryParseJSON(JSONObj,
+                                                                           out Organization  NewChildOrganization,
+                                                                           out String        ErrorResponse,
+                                                                           OrganizationIdURI))
+                                             {
+
+                                                 // {
+                                                 //     "@id":                             newChildOrganizationId,
+                                                 //     "@context":                        "https://opendata.social/contexts/UsersAPI+json/organization",
+                                                 //     "parentOrganization":              organization["@id"],
+                                                 //     "name":                            { "eng": newChildOrganizationName != "" ? newChildOrganizationName : newChildOrganizationId },
+                                                 //     "admins": [{
+                                                 //         "@id":       SignInUser,
+                                                 //         "@context":  "https://opendata.social/contexts/UsersAPI+json/user",
+                                                 //         "name":      Username,
+                                                 //         "email":     UserEMail
+                                                 //     }],
+                                                 //     "members":                         [],
+                                                 //     "youAreMember":                    true,
+                                                 //     "youCanAddMembers":                true,
+                                                 //     "youCanCreateChildOrganizations":  true,
+                                                 //     "childs":                          []
+                                                 // }
+
+                                                 if (!JSONObj.ParseMandatory("parentOrganization",
+                                                                             "parent organization",
+                                                                             HTTPServer.DefaultHTTPServerName,
+                                                                             Organization_Id.TryParse,
+                                                                             out Organization_Id ParentOrganizationId,
+                                                                             Request,
+                                                                             out HTTPResponse))
+                                                 {
+                                                     return SetOrganizationResponse(HTTPResponse);
+                                                 }
+
+                                                 if (!_Organizations.TryGetValue(ParentOrganizationId, out Organization ParentOrganization))
+                                                 {
+
+                                                     return SetOrganizationResponse(
+                                                                new HTTPResponseBuilder(Request) {
+                                                                    HTTPStatusCode             = HTTPStatusCode.BadRequest,
+                                                                    Server                     = HTTPServer.DefaultServerName,
+                                                                    Date                       = DateTime.UtcNow,
+                                                                    AccessControlAllowOrigin   = "*",
+                                                                    AccessControlAllowMethods  = "GET, SET",
+                                                                    AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
+                                                                    ContentType                = HTTPContentType.JSON_UTF8,
+                                                                    Content                    = JSONObject.Create(
+                                                                                                     new JProperty("description",  "Unknown parent organization!")
+                                                                                                 ).ToUTF8Bytes()
+                                                                });
+
+                                                 }
+
+
+                                                 if (!JSONObj.ParseMandatory("admins",
+                                                                             "organization admins",
+                                                                             HTTPServer.DefaultHTTPServerName,
+                                                                             out JArray AdminsJSON,
+                                                                             Request,
+                                                                             out HTTPResponse))
+                                                 {
+                                                     return SetOrganizationResponse(HTTPResponse);
+                                                 }
+
+
+                                                 User Admin      = null;
+                                                 var Admins      = new List<User>();
+                                                 var AdminNames  = AdminsJSON.Select(admin => (admin as JObject)).
+                                                                              Where(admin => admin != null).
+                                                                              Select(admin => User_Id.TryParse(admin["@id"].Value<String>())).
+                                                                              ToArray();
+
+                                                 foreach (var admin in AdminNames)
+                                                 {
+
+                                                     if (!admin.HasValue)
+                                                     {
+
+                                                         return SetOrganizationResponse(
+                                                                    new HTTPResponseBuilder(Request) {
+                                                                        HTTPStatusCode             = HTTPStatusCode.BadRequest,
+                                                                        Server                     = HTTPServer.DefaultServerName,
+                                                                        Date                       = DateTime.UtcNow,
+                                                                        AccessControlAllowOrigin   = "*",
+                                                                        AccessControlAllowMethods  = "GET, SET",
+                                                                        AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
+                                                                        ContentType                = HTTPContentType.JSON_UTF8,
+                                                                        Content                    = JSONObject.Create(
+                                                                                                         new JProperty("description",  "Invalid admin user '" + admin.Value  + "'!")
+                                                                                                     ).ToUTF8Bytes()
+                                                                    });
+
+                                                     }
+
+                                                     Admin = GetUser(admin.Value);
+
+                                                     if (Admin == null)
+                                                     {
+
+                                                         return SetOrganizationResponse(
+                                                                    new HTTPResponseBuilder(Request) {
+                                                                        HTTPStatusCode             = HTTPStatusCode.BadRequest,
+                                                                        Server                     = HTTPServer.DefaultServerName,
+                                                                        Date                       = DateTime.UtcNow,
+                                                                        AccessControlAllowOrigin   = "*",
+                                                                        AccessControlAllowMethods  = "GET, SET",
+                                                                        AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
+                                                                        ContentType                = HTTPContentType.JSON_UTF8,
+                                                                        Content                    = JSONObject.Create(
+                                                                                                         new JProperty("description",  "Unknown admin user '" + admin.Value + "'!")
+                                                                                                     ).ToUTF8Bytes()
+                                                                    });
+
+                                                     }
+
+                                                     Admins.Add(Admin);
+
+                                                 }
+
+
+                                                 try
+                                                 {
+
+                                                     var _NewChildOrganization = CreateOrganization(NewChildOrganization.Id,
+                                                                                                    NewChildOrganization.Name,
+                                                                                                    NewChildOrganization.Description,
+                                                                                                    ParentOrganization: ParentOrganization);
+
+                                                     foreach (var admin in Admins)
+                                                         AddToOrganization(admin, User2OrganizationEdges.IsAdmin, _NewChildOrganization);
+
+                                                 }
+                                                 catch (Exception e)
+                                                 {
+
+                                                     return SetOrganizationResponse(
+                                                                new HTTPResponseBuilder(Request) {
+                                                                    HTTPStatusCode             = HTTPStatusCode.BadRequest,
+                                                                    Server                     = HTTPServer.DefaultServerName,
+                                                                    Date                       = DateTime.UtcNow,
+                                                                    AccessControlAllowOrigin   = "*",
+                                                                    AccessControlAllowMethods  = "GET, SET",
+                                                                    AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
+                                                                    ContentType                = HTTPContentType.JSON_UTF8,
+                                                                    Content                    = JSONObject.Create(
+                                                                                                     new JProperty("description",  e.Message)
+                                                                                                 ).ToUTF8Bytes()
+                                                                });
+
+                                                 }
+
+                                             }
+
+                                             #endregion
+
+
+                                             //// Has the current HTTP user the required
+                                             //// access rights to update?
+                                             //if (HTTPUser.Id != _User.Id)
+                                             //    return SetOrganizationResponse(
+                                             //           new HTTPResponseBuilder(Request) {
+                                             //               HTTPStatusCode              = HTTPStatusCode.Forbidden,
+                                             //               Server                      = HTTPServer.DefaultServerName,
+                                             //               Date                        = DateTime.UtcNow,
+                                             //               AccessControlAllowOrigin    = "*",
+                                             //               AccessControlAllowMethods   = "GET, SET, CHOWN",
+                                             //               AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
+                                             //               Connection                  = "close"
+                                             //           }.AsImmutable);
+
+
+                                             //AddOrUpdate(_User,
+                                             //            HTTPUser.Id);
+
+
+                                             return SetOrganizationResponse(
+                                                        new HTTPResponseBuilder(Request) {
+                                                            HTTPStatusCode              = HTTPStatusCode.OK,
+                                                            Server                      = HTTPServer.DefaultServerName,
+                                                            Date                        = DateTime.UtcNow,
+                                                            AccessControlAllowOrigin    = "*",
+                                                            AccessControlAllowMethods   = "GET, SET",
+                                                            AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
+                                                            //ETag                        = _User.CurrentCryptoHash,
+                                                            //ContentType                 = HTTPContentType.JSON_UTF8,
+                                                            //Content                     = _User.ToJSON().ToUTF8Bytes(),
+                                                            Connection                  = "close"
+                                                        }.AsImmutable);
+
+                                         });
 
             #endregion
 
@@ -4163,6 +4576,7 @@ namespace org.GraphDefined.OpenData.Users
 
         #endregion
 
+
         #region (protected internal) SetUserRequest (Request)
 
         /// <summary>
@@ -4204,6 +4618,7 @@ namespace org.GraphDefined.OpenData.Users
 
         #endregion
 
+
         #region (protected internal) ChangePasswordRequest (Request)
 
         /// <summary>
@@ -4244,6 +4659,49 @@ namespace org.GraphDefined.OpenData.Users
         }
 
         #endregion
+
+
+        #region (protected internal) SetOrganizationRequest (Request)
+
+        /// <summary>
+        /// An event sent whenever set user request was received.
+        /// </summary>
+        public event RequestLogHandler OnSetOrganizationRequest;
+
+        protected internal HTTPRequest SetOrganizationRequest(HTTPRequest Request)
+        {
+
+            OnSetOrganizationRequest?.Invoke(Request.Timestamp,
+                                             HTTPServer,
+                                             Request);
+
+            return Request;
+
+        }
+
+        #endregion
+
+        #region (protected internal) SetOrganizationResponse(Response)
+
+        /// <summary>
+        /// An event sent whenever a response on a set user request was sent.
+        /// </summary>
+        public event AccessLogHandler OnSetOrganizationResponse;
+
+        protected internal HTTPResponse SetOrganizationResponse(HTTPResponse Response)
+        {
+
+            OnSetOrganizationResponse?.Invoke(Response.Timestamp,
+                                              HTTPServer,
+                                              Response.HTTPRequest,
+                                              Response);
+
+            return Response;
+
+        }
+
+        #endregion
+
 
 
         #region WriteToLogfileAndNotify(MessageId, JSONData, Logfilename = DefaultUsersAPIFile)
