@@ -413,7 +413,7 @@ namespace org.GraphDefined.OpenData.Users
         /// <param name="Description">An optional (multi-language) description of the user.</param>
         /// <param name="PublicKeyRing">An optional PGP/GPG public keyring of the user.</param>
         /// <param name="SecretKeyRing">An optional PGP/GPG secret keyring of the user.</param>
-        /// <param name="Telephone">An optional telephone number of the user.</param>
+        /// <param name="MobilePhone">An optional telephone number of the user.</param>
         /// <param name="GeoLocation">An optional geographical location of the user.</param>
         /// <param name="Address">An optional address of the user.</param>
         /// <param name="PrivacyLevel">Whether the user will be shown in user listings, or not.</param>
@@ -426,7 +426,7 @@ namespace org.GraphDefined.OpenData.Users
                       I18NString                                                         Description              = null,
                       PgpPublicKeyRing                                                   PublicKeyRing            = null,
                       PgpSecretKeyRing                                                   SecretKeyRing            = null,
-                      PhoneNumber?                                                       Telephone                = null,
+                      PhoneNumber?                                                       MobilePhone              = null,
                       GeoCoordinate?                                                     GeoLocation              = null,
                       Address                                                            Address                  = null,
                       PrivacyLevel?                                                      PrivacyLevel             = null,
@@ -461,7 +461,7 @@ namespace org.GraphDefined.OpenData.Users
             this.Name                     = Name;
             this.PublicKeyRing            = PublicKeyRing;
             this.SecretKeyRing            = SecretKeyRing;
-            this.MobilePhone                = Telephone;
+            this.MobilePhone              = MobilePhone;
             this.Description              = Description  ?? new I18NString();
             this.GeoLocation              = GeoLocation;
             this.Address                  = Address;
@@ -577,7 +577,7 @@ namespace org.GraphDefined.OpenData.Users
                     foreach (var organization in _User2OrganizationEdges.
                                                      Where (edge => edge.EdgeLabel == User2OrganizationEdges.IsAdmin  ||
                                                                     edge.EdgeLabel == User2OrganizationEdges.IsMember ||
-                                                                    edge.EdgeLabel == User2OrganizationEdges.IsVisitor).
+                                                                    edge.EdgeLabel == User2OrganizationEdges.IsGuest).
                                                      Select(edge => edge.Target))
                     {
                         AllMyOrganizations.Add(organization);
@@ -794,12 +794,12 @@ namespace org.GraphDefined.OpenData.Users
 
                 #endregion
 
-                #region Parse mobilePhone      [optional]
+                #region Parse MobilePhone      [optional]
 
                 if (JSONObject.ParseOptional("mobilePhone",
                                              "mobile phone number",
                                              PhoneNumber.TryParse,
-                                             out PhoneNumber? Telephone,
+                                             out PhoneNumber? MobilePhone,
                                              out ErrorResponse))
                 {
 
@@ -813,7 +813,7 @@ namespace org.GraphDefined.OpenData.Users
                 #region Parse Description      [optional]
 
                 if (!JSONObject.ParseOptional("description",
-                                              "Description",
+                                              "user description",
                                               out I18NString Description,
                                               out ErrorResponse))
                 {
@@ -924,7 +924,7 @@ namespace org.GraphDefined.OpenData.Users
                                 Description,
                                 PublicKeyRing,
                                 SecretKeyRing,
-                                Telephone,
+                                MobilePhone,
                                 GeoLocation,
                                 Address,
                                 PrivacyLevel,
@@ -1284,7 +1284,7 @@ namespace org.GraphDefined.OpenData.Users
             /// <param name="Description">An optional (multi-language) description of the user.</param>
             /// <param name="PublicKeyRing">An optional PGP/GPG public keyring of the user.</param>
             /// <param name="SecretKeyRing">An optional PGP/GPG secret keyring of the user.</param>
-            /// <param name="Telephone">An optional telephone number of the user.</param>
+            /// <param name="MobilePhone">An optional telephone number of the user.</param>
             /// <param name="GeoLocation">An optional geographical location of the user.</param>
             /// <param name="Address">An optional address of the user.</param>
             /// <param name="PrivacyLevel">Whether the user will be shown in user listings, or not.</param>
@@ -1296,7 +1296,7 @@ namespace org.GraphDefined.OpenData.Users
                            I18NString          Description       = null,
                            PgpPublicKeyRing    PublicKeyRing     = null,
                            PgpSecretKeyRing    SecretKeyRing     = null,
-                           PhoneNumber?        Telephone         = null,
+                           PhoneNumber?        MobilePhone       = null,
                            GeoCoordinate?      GeoLocation       = null,
                            Address             Address           = null,
                            PrivacyLevel        PrivacyLevel      = PrivacyLevel.World,
@@ -1316,7 +1316,7 @@ namespace org.GraphDefined.OpenData.Users
                 this.Description              = Description ?? new I18NString();
                 this.PublicKeyRing            = PublicKeyRing;
                 this.SecretKeyRing            = SecretKeyRing;
-                this.MobilePhone                = Telephone;
+                this.MobilePhone              = MobilePhone;
                 this.GeoLocation              = GeoLocation;
                 this.Address                  = Address;
                 this.PrivacyLevel             = PrivacyLevel;
