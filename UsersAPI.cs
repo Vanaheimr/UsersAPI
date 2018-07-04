@@ -1553,7 +1553,7 @@ namespace org.GraphDefined.OpenData.Users
 
                                                   var UserBuilder = _User.ToBuilder();
                                                   UserBuilder.IsAuthenticated = true;
-                                                  var AuthenticatedUser = UserBuilder.Build();
+                                                  var AuthenticatedUser = UserBuilder.ToImmutable;
 
                                                   _Users.Remove(_User.Id);
                                                   _Users.Add(AuthenticatedUser.Id, AuthenticatedUser);
@@ -2018,7 +2018,7 @@ namespace org.GraphDefined.OpenData.Users
                                                                                                                        user.Name,
                                                                                                                        PasswordReset.SecurityToken1,
                                                                                                                        user.MobilePhone.HasValue,
-                                                                                                                       "https://" + Request.Host.Name.ToLower(),
+                                                                                                                       "https://" + Request.Host.SimpleString,
                                                                                                                        DefaultLanguage));
 
                                                      if (MailResultTask.Wait(60000))
@@ -2259,7 +2259,7 @@ namespace org.GraphDefined.OpenData.Users
                                                  var MailResultTask = APISMTPClient.Send(PasswordChangedEMailCreator(user.Id,
                                                                                                                      user.EMail,
                                                                                                                      user.Name,
-                                                                                                                     "https://" + Request.Host.Name.ToLower(),
+                                                                                                                     "https://" + Request.Host.SimpleString,
                                                                                                                      DefaultLanguage));
 
                                                  if (MailResultTask.Wait(60000))
@@ -2768,7 +2768,7 @@ namespace org.GraphDefined.OpenData.Users
                                                                                                                      Name,
                                                                                                                      SetPasswordRequest.SecurityToken1,
                                                                                                                      MobilePhone.HasValue,
-                                                                                                                     "https://" + Request.Host.Name.ToLower(),
+                                                                                                                     "https://" + Request.Host.SimpleString,
                                                                                                                      DefaultLanguage));
 
                                                   if (MailResultTask.Wait(60000))
@@ -3176,6 +3176,8 @@ namespace org.GraphDefined.OpenData.Users
                                               #region Verify username
 
                                               if (LoginData.GetString("username").Length < MinLoginLenght)
+                                              {
+
                                                   return Task.FromResult(
                                                       new HTTPResponseBuilder(Request) {
                                                           HTTPStatusCode  = HTTPStatusCode.BadRequest,
@@ -3191,6 +3193,8 @@ namespace org.GraphDefined.OpenData.Users
                                                           Connection      = "close"
                                                       }.AsImmutable);
 
+                                              }
+
                                               #endregion
 
                                               #region Verify realm
@@ -3198,6 +3202,9 @@ namespace org.GraphDefined.OpenData.Users
                                               if (LoginData.Contains("realm") &&
                                                   LoginData.GetString("realm").IsNotNullOrEmpty() &&
                                                   LoginData.GetString("realm").Length < MinRealmLenght)
+
+                                              {
+
                                                   return Task.FromResult(
                                                       new HTTPResponseBuilder(Request) {
                                                           HTTPStatusCode  = HTTPStatusCode.BadRequest,
@@ -3213,11 +3220,15 @@ namespace org.GraphDefined.OpenData.Users
                                                           Connection      = "close"
                                                       }.AsImmutable);
 
+                                              }
+
                                               #endregion
 
                                               #region Verify password
 
                                               if (!LoginData.Contains("password"))
+                                              {
+
                                                   return Task.FromResult(
                                                       new HTTPResponseBuilder(Request) {
                                                           HTTPStatusCode  = HTTPStatusCode.BadRequest,
@@ -3233,7 +3244,11 @@ namespace org.GraphDefined.OpenData.Users
                                                           Connection      = "close"
                                                       }.AsImmutable);
 
+                                              }
+
                                               if (LoginData.GetString("password").Length < MinPasswordLenght)
+                                              {
+
                                                   return Task.FromResult(
                                                       new HTTPResponseBuilder(Request) {
                                                           HTTPStatusCode  = HTTPStatusCode.BadRequest,
@@ -3249,9 +3264,11 @@ namespace org.GraphDefined.OpenData.Users
                                                           Connection      = "close"
                                                       }.AsImmutable);
 
+                                              }
+
                                               #endregion
 
-                                              #region Check login and password
+                                              #region Check login
 
                                               String _Realm = LoginData.GetString("realm");
 
@@ -3277,6 +3294,47 @@ namespace org.GraphDefined.OpenData.Users
                                                       }.AsImmutable);
 
                                               }
+
+                                              #endregion
+
+                                              #region Check EULA
+
+                                              var acceptsEULA = LoginData["acceptsEULA"].Value<Boolean>();
+
+                                              if (!_User.AcceptedEULA.HasValue)
+                                              {
+
+                                                  if (!acceptsEULA)
+                                                  {
+
+                                                      return Task.FromResult(
+                                                          new HTTPResponseBuilder(Request) {
+                                                              HTTPStatusCode  = HTTPStatusCode.Unauthorized,
+                                                              Server          = HTTPServer.DefaultServerName,
+                                                              ContentType     = HTTPContentType.JSON_UTF8,
+                                                              Content         = new JObject(
+                                                                                    new JProperty("@context",     SignInOutContext),
+                                                                                    new JProperty("showEULA",     true),
+                                                                                    new JProperty("description",  "Please accept the end-user license agreement!")
+                                                                                ).ToString().ToUTF8Bytes(),
+                                                              CacheControl    = "private",
+                                                              Connection      = "close"
+                                                          }.AsImmutable);
+
+                                                  }
+
+                                                  lock (_Users)
+                                                  {
+                                                      var UUser = _User.ToBuilder();
+                                                      UUser.AcceptedEULA = DateTime.UtcNow;
+                                                      Update(UUser, _User.Id);
+                                                  }
+
+                                              }
+
+                                              #endregion
+
+                                              #region Check password
 
                                               if (!_LoginPassword.VerifyPassword(LoginData.GetString("password")))
                                               {
@@ -3617,6 +3675,8 @@ namespace org.GraphDefined.OpenData.Users
                                              // Has the current HTTP user the required
                                              // access rights to update?
                                              if (HTTPUser.Id != UserIdURI.Value)
+                                             {
+
                                                  return ChangePasswordResponse(
                                                         new HTTPResponseBuilder(Request) {
                                                             HTTPStatusCode              = HTTPStatusCode.Forbidden,
@@ -3628,6 +3688,7 @@ namespace org.GraphDefined.OpenData.Users
                                                             Connection                  = "close"
                                                         }.AsImmutable);
 
+                                             }
 
                                              if (TryChangePassword(UserIdURI.Value,
                                                                    Password.Parse(NewPassword),
@@ -3642,7 +3703,7 @@ namespace org.GraphDefined.OpenData.Users
                                                  var MailResultTask = APISMTPClient.Send(PasswordChangedEMailCreator(HTTPUser.Id,
                                                                                                                      HTTPUser.EMail,
                                                                                                                      HTTPUser.Name,
-                                                                                                                     "https://" + Request.Host.Name.ToLower(),
+                                                                                                                     "https://" + Request.Host.SimpleString,
                                                                                                                      DefaultLanguage));
 
                                                  if (MailResultTask.Wait(60000))
@@ -4415,8 +4476,6 @@ namespace org.GraphDefined.OpenData.Users
                 case "addOrUpdateUser":
 
                     if (User.TryParseJSON(JSONObject,
-                                          //ownerId         => GetOrganization(ownerId) ?? NoOwner,
-                                          //defibrillatorId => _Defibrillators.TryGet(defibrillatorId),
                                           out NewUser,
                                           out ErrorResponse))
                     {
@@ -4428,6 +4487,35 @@ namespace org.GraphDefined.OpenData.Users
                         }
 
                         _Users.Add(NewUser.Id, NewUser);
+
+                    }
+
+                    else
+                        DebugX.Log(String.Concat(nameof(UsersAPI), " ", Command, ": ", ErrorResponse));
+
+                    break;
+
+                #endregion
+
+                #region UpdateUser
+
+                case "updateUser":
+
+                    if (User.TryParseJSON(JSONObject,
+                                          out NewUser,
+                                          out ErrorResponse))
+                    {
+
+                        if (_Users.TryGetValue(NewUser.Id, out User OldUser))
+                        {
+
+                            _Users.Remove(OldUser.Id);
+                            NewUser.API = this;
+                            OldUser.CopyAllEdgesTo(NewUser);
+
+                            _Users.Add(NewUser.Id, NewUser);
+
+                        }
 
                     }
 
@@ -5377,6 +5465,7 @@ namespace org.GraphDefined.OpenData.Users
         /// <param name="GeoLocation">An optional geographical location of the user.</param>
         /// <param name="Address">An optional address of the user.</param>
         /// <param name="PrivacyLevel">Whether the user will be shown in user listings, or not.</param>
+        /// <param name="AcceptedEULA">Timestamp when the user accepted the End-User-License-Agreement.</param>
         /// <param name="IsAuthenticated">The user will not be shown in user listings, as its primary e-mail address is not yet authenticated.</param>
         /// <param name="IsDisabled">The user will be shown in user listings.</param>
         public User CreateUser(User_Id             Id,
@@ -5390,6 +5479,7 @@ namespace org.GraphDefined.OpenData.Users
                                GeoCoordinate?      GeoLocation       = null,
                                Address             Address           = null,
                                PrivacyLevel        PrivacyLevel      = PrivacyLevel.World,
+                               DateTime?           AcceptedEULA      = null,
                                Boolean             IsAuthenticated   = false,
                                Boolean             IsDisabled        = false,
                                User_Id?            CurrentUserId     = null)
@@ -5412,6 +5502,7 @@ namespace org.GraphDefined.OpenData.Users
                                     GeoLocation,
                                     Address,
                                     PrivacyLevel,
+                                    AcceptedEULA,
                                     IsAuthenticated,
                                     IsDisabled);
 
@@ -5446,6 +5537,7 @@ namespace org.GraphDefined.OpenData.Users
         /// <param name="GeoLocation">An optional geographical location of the user.</param>
         /// <param name="Address">An optional address of the user.</param>
         /// <param name="PrivacyLevel">Whether the user will be shown in user listings, or not.</param>
+        /// <param name="AcceptedEULA">Timestamp when the user accepted the End-User-License-Agreement.</param>
         /// <param name="IsAuthenticated">The user will not be shown in user listings, as its primary e-mail address is not yet authenticated.</param>
         /// <param name="IsDisabled">The user will be shown in user listings.</param>
         public User CreateUserIfNotExists(User_Id             Id,
@@ -5459,6 +5551,7 @@ namespace org.GraphDefined.OpenData.Users
                                           GeoCoordinate?      GeoLocation       = null,
                                           Address             Address           = null,
                                           PrivacyLevel        PrivacyLevel      = PrivacyLevel.World,
+                                          DateTime?           AcceptedEULA      = null,
                                           Boolean             IsAuthenticated   = false,
                                           Boolean             IsDisabled        = false,
                                           User_Id?            CurrentUserId     = null)
@@ -5481,6 +5574,7 @@ namespace org.GraphDefined.OpenData.Users
                                   GeoLocation,
                                   Address,
                                   PrivacyLevel,
+                                  AcceptedEULA,
                                   IsAuthenticated,
                                   IsDisabled,
                                   CurrentUserId);
@@ -5491,7 +5585,7 @@ namespace org.GraphDefined.OpenData.Users
 
         #endregion
 
-        #region AddOrUpdate   (User, CurrentUserId = null)
+        #region AddOrUpdate(User, CurrentUserId = null)
 
         /// <summary>
         /// Add or update the given user to/within the API.
@@ -5519,6 +5613,44 @@ namespace org.GraphDefined.OpenData.Users
                     _Users.Remove(OldUser.Id);
                     OldUser.CopyAllEdgesTo(User);
                 }
+
+                return _Users.AddAndReturnValue(User.Id, User);
+
+            }
+
+        }
+
+        #endregion
+
+        #region Update     (User, CurrentUserId = null)
+
+        /// <summary>
+        /// Update the given user to/within the API.
+        /// </summary>
+        /// <param name="User">A user.</param>
+        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
+        public User Update(User      User,
+                           User_Id?  CurrentUserId  = null)
+        {
+
+            lock (_Users)
+            {
+
+                if (User.API != null && User.API != this)
+                    throw new ArgumentException(nameof(User), "The given user is already attached to another API!");
+
+                if (!_Users.TryGetValue(User.Id, out User OldUser))
+                    throw new Exception("User '" + User.Id + "' does not exists in this API!");
+
+
+                WriteToLogfileAndNotify("updateUser",
+                                        User.ToJSON(),
+                                        CurrentUserId);
+
+                User.API = this;
+
+                _Users.Remove(OldUser.Id);
+                OldUser.CopyAllEdgesTo(User);
 
                 return _Users.AddAndReturnValue(User.Id, User);
 
@@ -5774,27 +5906,6 @@ namespace org.GraphDefined.OpenData.Users
         }
 
         #endregion
-
-        #endregion
-
-        #region Register a new user
-
-        #region RegisterUser(Users, SecurityToken1, SecurityToken2 = null)
-
-        //public PasswordReset RegisterUser(User_Id             UserId,
-        //                                  String              Name,
-        //                                  SimpleEMailAddress  EMail,
-        //                                  PhoneNumber?        MobilePhone,
-        //                                  Organization_Id     OrganizationId,
-        //                                  Access_Level?       AccessLevel  = Access_Level.ReadOnly)
-        //{
-
-
-
-        //}
-
-        #endregion
-
 
         #endregion
 

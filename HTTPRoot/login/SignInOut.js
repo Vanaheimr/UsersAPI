@@ -45,6 +45,7 @@ function DeleteCookie2(CookieName, Path) {
     document.cookie = CookieName += "=; expires=" + CookieDateTime.toUTCString() + "; Path=" + Path;
 }
 function VerifyLogin() {
+    var acceptsEULA = false;
     function ToogleSaveButton() {
         var validInput = _login.value.length >= 3 && _password.value.length > 5;
         loginInput.disabled = !validInput;
@@ -56,7 +57,8 @@ function VerifyLogin() {
     function VerifyPassword() {
         var ResponseText = HTTPAuth("/users/" + _login.value, "APIKey", {
             "login": _login.value,
-            "password": _password.value
+            "password": _password.value,
+            "acceptsEULA": acceptsEULA
         });
         if (ResponseText == "") {
             responseDiv.style.display = 'block';
@@ -65,6 +67,10 @@ function VerifyLogin() {
         }
         try {
             var responseJSON = JSON.parse(ResponseText);
+            if (responseJSON.showEULA == true) {
+                EULA.style.display = 'block';
+                return false;
+            }
             if (responseJSON.username == null || responseJSON.email == null) {
                 if (responseJSON.error != null) {
                     responseDiv.style.display = 'block';
@@ -95,6 +101,10 @@ function VerifyLogin() {
     var responseDiv = document.getElementById("response");
     var loginButton = document.getElementById("loginButton");
     var loginInput = document.getElementById("loginInput");
+    var EULA = document.getElementById("EULA");
+    var IAcceptDiv = document.getElementById("IAccept");
+    var IAcceptCheckbox = document.getElementById("IAcceptCheckbox");
+    var acceptEULAButton = document.getElementById("acceptEULAButton");
     _login.onchange = function (ev) {
         ToogleSaveButton();
     };
@@ -109,6 +119,16 @@ function VerifyLogin() {
     };
     loginform.onsubmit = function (ev) {
         return VerifyPassword();
+    };
+    IAcceptDiv.onclick = function (ev) {
+        IAcceptCheckbox.click();
+    };
+    IAcceptCheckbox.onclick = function (ev) {
+        acceptEULAButton.disabled = loginInput.disabled || !IAcceptCheckbox.checked;
+    };
+    acceptEULAButton.onclick = function (ev) {
+        acceptsEULA = true;
+        loginform.submit();
     };
     checkNotSignedIn();
 }

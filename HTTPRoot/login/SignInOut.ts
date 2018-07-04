@@ -84,6 +84,8 @@ function DeleteCookie2(CookieName: String, Path) {
 
 function VerifyLogin() {
 
+    let acceptsEULA = false;
+
     function ToogleSaveButton() {
 
         var validInput = _login.value.length >= 3 && _password.value.length > 5;
@@ -103,8 +105,9 @@ function VerifyLogin() {
         var ResponseText = HTTPAuth("/users/" + _login.value,
                                     "APIKey",
                                     {
-                                        "login":    _login.value,
-                                        "password": _password.value
+                                        "login":        _login.value,
+                                        "password":     _password.value,
+                                        "acceptsEULA":  acceptsEULA
                                     });
 
         if (ResponseText == "") {
@@ -116,6 +119,11 @@ function VerifyLogin() {
         try {
 
             var responseJSON = JSON.parse(ResponseText);
+
+            if (responseJSON.showEULA == true) {
+                EULA.style.display = 'block';
+                return false;
+            }
 
             if (responseJSON.username == null || responseJSON.email == null) {
 
@@ -150,13 +158,17 @@ function VerifyLogin() {
 
     }
 
-    let loginform    = document.getElementById("loginform")   as HTMLFormElement;
-    let _login       = document.getElementById("_login")      as HTMLInputElement;
-    let _realm       = document.getElementById("_realm")      as HTMLInputElement;
-    let _password    = document.getElementById("_password")   as HTMLInputElement;
-    let responseDiv  = document.getElementById("response")    as HTMLDivElement;
-    let loginButton  = document.getElementById("loginButton") as HTMLDivElement;
-    let loginInput   = document.getElementById("loginInput")  as HTMLInputElement;
+    let loginform         = document.getElementById("loginform")         as HTMLFormElement;
+    let _login            = document.getElementById("_login")            as HTMLInputElement;
+    let _realm            = document.getElementById("_realm")            as HTMLInputElement;
+    let _password         = document.getElementById("_password")         as HTMLInputElement;
+    let responseDiv       = document.getElementById("response")          as HTMLDivElement;
+    let loginButton       = document.getElementById("loginButton")       as HTMLDivElement;
+    let loginInput        = document.getElementById("loginInput")        as HTMLInputElement;
+    let EULA              = document.getElementById("EULA")              as HTMLDivElement;
+    let IAcceptDiv        = document.getElementById("IAccept")           as HTMLDivElement;
+    let IAcceptCheckbox   = document.getElementById("IAcceptCheckbox")   as HTMLInputElement;
+    let acceptEULAButton  = document.getElementById("acceptEULAButton")  as HTMLButtonElement;
 
     _login.onchange    = function (this: HTMLElement, ev: Event) {
         ToogleSaveButton();
@@ -176,6 +188,19 @@ function VerifyLogin() {
 
     loginform.onsubmit = function (this: HTMLElement, ev: Event) {
         return VerifyPassword();
+    }
+
+    IAcceptDiv.onclick = function (this: HTMLElement, ev: Event) {
+        IAcceptCheckbox.click();
+    }
+
+    IAcceptCheckbox.onclick = function (this: HTMLElement, ev: Event) {
+        acceptEULAButton.disabled = loginInput.disabled || !IAcceptCheckbox.checked;
+    }
+
+    acceptEULAButton.onclick = function (this: HTMLElement, ev: Event) {
+        acceptsEULA = true;
+        loginform.submit();
     }
 
     checkNotSignedIn();
