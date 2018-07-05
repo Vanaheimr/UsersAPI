@@ -603,25 +603,18 @@ namespace org.GraphDefined.OpenData.Users
     }
 
 
+
+
     /// <summary>
     /// A library for managing users within and HTTP API or website.
     /// </summary>
-    public class UsersAPI
+    public class UsersAPI : HTTPAPI
     {
 
         #region Data
 
         private static readonly SemaphoreSlim LogFileSemaphore = new SemaphoreSlim(1, 1);
 
-        /// <summary>
-        /// Internal non-cryptographic random number generator.
-        /// </summary>
-        protected static readonly Random                              _Random                        = new Random();
-
-        /// <summary>
-        /// The default HTTP server name.
-        /// </summary>
-        public  const             String                              DefaultHTTPServerName          = "GraphDefined Users API HTTP Service v0.8";
 
         /// <summary>
         /// The default HTTP server port.
@@ -689,57 +682,12 @@ namespace org.GraphDefined.OpenData.Users
 
         #endregion
 
-        #region Events
-
-        /// <summary>
-        /// An event called whenever a request came in.
-        /// </summary>
-        public RequestLogEvent RequestLog  = new RequestLogEvent();
-
-        /// <summary>
-        /// An event called whenever a request could successfully be processed.
-        /// </summary>
-        public AccessLogEvent  AccessLog   = new AccessLogEvent();
-
-        /// <summary>
-        /// An event called whenever a request resulted in an error.
-        /// </summary>
-        public ErrorLogEvent   ErrorLog    = new ErrorLogEvent();
-
-        #endregion
-
         #region Properties
 
         /// <summary>
         /// The current async local user identification to simplify API usage.
         /// </summary>
         internal static AsyncLocal<User_Id?> CurrentAsyncLocalUserId = new AsyncLocal<User_Id?>();
-
-        /// <summary>
-        /// The HTTP server of the API.
-        /// </summary>
-        public HTTPServer    HTTPServer   { get; }
-
-        /// <summary>
-        /// The HTTP hostname for all URIs within this API.
-        /// </summary>
-        public HTTPHostname  Hostname     { get; }
-
-        /// <summary>
-        /// The URI prefix of this HTTP API.
-        /// </summary>
-        public HTTPURI       URIPrefix    { get; }
-
-
-        #region ServiceName
-
-        /// <summary>
-        /// The name of the Open Data API service.
-        /// </summary>
-        public String ServiceName { get; }
-
-        #endregion
-
 
         public User          Robot        { get; }
 
@@ -948,10 +896,6 @@ namespace org.GraphDefined.OpenData.Users
         /// </summary>
         public String        CurrentDatabaseHashValue   { get; private set; }
 
-        /// <summary>
-        /// The unqiue identification of this system instance.
-        /// </summary>
-        public System_Id     SystemId                   { get; }
 
         /// <summary>
         /// Disable the log file.
@@ -1191,12 +1135,14 @@ namespace org.GraphDefined.OpenData.Users
                            Boolean                              DisableLogfile                = false,
                            String                               LogfileName                   = DefaultLogfileName)
 
+            : base(HTTPServer,
+                   HTTPHostname,
+                   URIPrefix,
+                   ServiceName)
+
         {
 
             #region Initial checks
-
-            if (HTTPServer == null)
-                throw new ArgumentNullException(nameof(HTTPServer), "HTTPServer!");
 
             if (NewUserSignUpEMailCreator  == null)
                 throw new ArgumentNullException(nameof(NewUserSignUpEMailCreator),   "NewUserSignUpEMailCreator!");
@@ -1210,12 +1156,6 @@ namespace org.GraphDefined.OpenData.Users
             #endregion
 
             #region Init data
-
-            this.HTTPServer                   = HTTPServer;
-            this.Hostname                     = HTTPHostname ?? Vanaheimr.Hermod.HTTP.HTTPHostname.Any;
-            this.URIPrefix                    = URIPrefix    ?? HTTPURI.Parse("/");
-
-            this.ServiceName                  = ServiceName. IsNotNullOrEmpty() ? ServiceName  : "UsersAPI";
 
             this.Robot                        = new User(Id:               User_Id.Parse("robot"),
                                                          EMail:            APIEMailAddress.Address,
@@ -1254,7 +1194,7 @@ namespace org.GraphDefined.OpenData.Users
             this._VerificationTokens          = new List<VerificationToken>();
 
             this._DNSClient                   = HTTPServer.DNSClient;
-            this.SystemId                     = System_Id.Parse(Environment.MachineName.Replace("/", "") + "/" + HTTPServer.DefaultHTTPServerPort);
+
             this.HTTPCookies                  = new Dictionary<SecurityToken_Id, SecurityToken>();
             this.PasswordResets               = new Dictionary<SecurityToken_Id, PasswordReset>();
 
@@ -1294,7 +1234,7 @@ namespace org.GraphDefined.OpenData.Users
             _Notifications.OnRemoved += (Timestamp, User, NotificationId, NotificationType) => WriteToLogfileAndNotify("RemoveNotification", NotificationType.ToJSON(User, NotificationId), CurrentUserId: Robot.Id);
 
             HTTPServer.RequestLog2   += (HTTPProcessor, ServerTimestamp, Request)                                 => RequestLog.WhenAll(HTTPProcessor, ServerTimestamp, Request);
-            HTTPServer.AccessLog2    += (HTTPProcessor, ServerTimestamp, Request, Response)                       => AccessLog. WhenAll(HTTPProcessor, ServerTimestamp, Request, Response);
+            HTTPServer.ResponseLog2    += (HTTPProcessor, ServerTimestamp, Request, Response)                       => ResponseLog. WhenAll(HTTPProcessor, ServerTimestamp, Request, Response);
             HTTPServer.ErrorLog2     += (HTTPProcessor, ServerTimestamp, Request, Response, Error, LastException) => ErrorLog.  WhenAll(HTTPProcessor, ServerTimestamp, Request, Response, Error, LastException);
 
             NoOwner = CreateOrganizationIfNotExists(Organization_Id.Parse("NoOwner"), CurrentUserId: Robot.Id);
@@ -1457,7 +1397,7 @@ namespace org.GraphDefined.OpenData.Users
             #region /shared/UsersAPI
 
             HTTPServer.RegisterResourcesFolder(HTTPHostname.Any,
-                                               URIPrefix + "/shared/UsersAPI",
+                                               URIPrefix + "shared/UsersAPI",
                                                HTTPRoot.Substring(0, HTTPRoot.Length - 1),
                                                typeof(UsersAPI).Assembly);
 
@@ -1911,7 +1851,7 @@ namespace org.GraphDefined.OpenData.Users
             // --------------------------------------------------------------------
             HTTPServer.AddMethodCallback(HTTPHostname.Any,
                                          HTTPMethod.SET,
-                                         URIPrefix + "/resetPassword",
+                                         URIPrefix + "resetPassword",
                                          HTTPContentType.JSON_UTF8,
                                          HTTPDelegate: Request => {
 
@@ -2092,7 +2032,7 @@ namespace org.GraphDefined.OpenData.Users
             // ------------------------------------------------------------------
             HTTPServer.AddMethodCallback(HTTPHostname.Any,
                                          HTTPMethod.SET,
-                                         URIPrefix + "/setPassword",
+                                         URIPrefix + "setPassword",
                                          HTTPContentType.JSON_UTF8,
                                          HTTPDelegate: Request => {
 
@@ -2296,7 +2236,7 @@ namespace org.GraphDefined.OpenData.Users
             // -------------------------------------------------------------------
             // curl -v -H "Accept: application/json" http://127.0.0.1:2100/users
             // -------------------------------------------------------------------
-            HTTPServer.ITEMS_GET(UriTemplate: URIPrefix + "/users",
+            HTTPServer.ITEMS_GET(UriTemplate: URIPrefix + "users",
                                  Dictionary: _Users,
                                  Filter: user => user.PrivacyLevel == PrivacyLevel.World,
                                  ToJSONDelegate: JSON_IO.ToJSON);
@@ -2334,9 +2274,9 @@ namespace org.GraphDefined.OpenData.Users
                                           HTTPMethod.ADD,
                                           HTTPURI.Parse("/users/{UserId}"),
                                           HTTPContentType.JSON_UTF8,
-                                          HTTPDelegate: async Request => {
-
-                                              AddUserRequest(Request);
+                                          HTTPRequestLogger:  AddUserRequest,
+                                          HTTPResponseLogger: AddUserResponse,
+                                          HTTPDelegate: Request => {
 
                                               #region Get HTTP user and its organizations
 
@@ -2348,7 +2288,7 @@ namespace org.GraphDefined.OpenData.Users
                                                                   AccessLevel:                   Access_Level.ReadWrite,
                                                                   Recursive:                     true))
                                               {
-                                                  return AddUserResponse(ErrorResponse);
+                                                  return Task.FromResult(ErrorResponse);
                                               }
 
                                               #endregion
@@ -2359,7 +2299,7 @@ namespace org.GraphDefined.OpenData.Users
                                                                        out User_Id? UserIdURI,
                                                                        out ErrorResponse))
                                               {
-                                                  return AddUserResponse(ErrorResponse);
+                                                  return Task.FromResult(ErrorResponse);
                                               }
 
                                               #endregion
@@ -2367,7 +2307,7 @@ namespace org.GraphDefined.OpenData.Users
                                               #region Parse JSON and create the new user...
 
                                               if (!Request.TryParseJObjectRequestBody(out JObject JSONObj, out ErrorResponse))
-                                                  return AddUserResponse(ErrorResponse);
+                                                  return Task.FromResult(ErrorResponse);
 
                                               #region Parse UserId           [optional]
 
@@ -2383,14 +2323,14 @@ namespace org.GraphDefined.OpenData.Users
                                               {
 
                                                   if (ErrorResponse != null)
-                                                      return AddUserResponse(ErrorResponse);
+                                                      return Task.FromResult(ErrorResponse);
 
                                               }
 
                                               if (!UserIdURI.HasValue && !UserIdBody.HasValue)
                                               {
 
-                                                  return AddUserResponse(
+                                                  return Task.FromResult(
                                                              new HTTPResponseBuilder(Request) {
                                                                  HTTPStatusCode             = HTTPStatusCode.BadRequest,
                                                                  Server                     = HTTPServer.DefaultServerName,
@@ -2402,14 +2342,14 @@ namespace org.GraphDefined.OpenData.Users
                                                                  Content                    = JSONObject.Create(
                                                                                                   new JProperty("description", "The user identification is missing!")
                                                                                               ).ToUTF8Bytes()
-                                                             });
+                                                             }.AsImmutable);
 
                                               }
 
                                               if (UserIdURI.HasValue && UserIdBody.HasValue && UserIdURI.Value != UserIdBody.Value)
                                               {
 
-                                                  return AddUserResponse(
+                                                  return Task.FromResult(
                                                              new HTTPResponseBuilder(Request) {
                                                                  HTTPStatusCode             = HTTPStatusCode.BadRequest,
                                                                  Server                     = HTTPServer.DefaultServerName,
@@ -2421,7 +2361,7 @@ namespace org.GraphDefined.OpenData.Users
                                                                  Content                    = JSONObject.Create(
                                                                                                   new JProperty("description", "The optional user identification given within the JSON body does not match the one given in the URI!")
                                                                                               ).ToUTF8Bytes()
-                                                             });
+                                                             }.AsImmutable);
 
                                               }
 
@@ -2429,7 +2369,7 @@ namespace org.GraphDefined.OpenData.Users
                                                    UserId.Length < MinLoginLenght)
                                               {
 
-                                                  return AddUserResponse(
+                                                  return Task.FromResult(
                                                              new HTTPResponseBuilder(Request) {
                                                                  HTTPStatusCode             = HTTPStatusCode.BadRequest,
                                                                  Server                     = HTTPServer.DefaultServerName,
@@ -2441,14 +2381,14 @@ namespace org.GraphDefined.OpenData.Users
                                                                  Content                    = JSONObject.Create(
                                                                                                   new JProperty("description", "The given user identification is invalid!")
                                                                                               ).ToUTF8Bytes()
-                                                             });
+                                                             }.AsImmutable);
 
                                               }
 
                                               if (_Users.ContainsKey(UserId))
                                               {
 
-                                                  return AddUserResponse(
+                                                  return Task.FromResult(
                                                              new HTTPResponseBuilder(Request) {
                                                                  HTTPStatusCode             = HTTPStatusCode.BadRequest,
                                                                  Server                     = HTTPServer.DefaultServerName,
@@ -2460,7 +2400,7 @@ namespace org.GraphDefined.OpenData.Users
                                                                  Content                    = JSONObject.Create(
                                                                                                   new JProperty("description", "The given user identification already exists!")
                                                                                               ).ToUTF8Bytes()
-                                                             });
+                                                             }.AsImmutable);
 
                                               }
 
@@ -2475,13 +2415,13 @@ namespace org.GraphDefined.OpenData.Users
                                                                           Request,
                                                                           out ErrorResponse))
                                               {
-                                                  return AddUserResponse(ErrorResponse);
+                                                  return Task.FromResult(ErrorResponse);
                                               }
 
                                               if (Context != User.JSONLDContext)
                                               {
 
-                                                  return AddUserResponse(
+                                                  return Task.FromResult(
                                                              new HTTPResponseBuilder(Request) {
                                                                  HTTPStatusCode             = HTTPStatusCode.BadRequest,
                                                                  Server                     = HTTPServer.DefaultServerName,
@@ -2493,7 +2433,7 @@ namespace org.GraphDefined.OpenData.Users
                                                                  Content                    = JSONObject.Create(
                                                                                                   new JProperty("description", @"The given JSON-LD ""@context"" information '" + Context + "' is not supported!")
                                                                                               ).ToUTF8Bytes()
-                                                             });
+                                                             }.AsImmutable);
 
                                               }
 
@@ -2508,13 +2448,13 @@ namespace org.GraphDefined.OpenData.Users
                                                                           Request,
                                                                           out ErrorResponse))
                                               {
-                                                  return AddUserResponse(ErrorResponse);
+                                                  return Task.FromResult(ErrorResponse);
                                               }
 
                                               if (Name.IsNullOrEmpty() || Name.Length < 4)
                                               {
 
-                                                  return AddUserResponse(
+                                                  return Task.FromResult(
                                                              new HTTPResponseBuilder(Request) {
                                                                  HTTPStatusCode             = HTTPStatusCode.BadRequest,
                                                                  Server                     = HTTPServer.DefaultServerName,
@@ -2526,7 +2466,7 @@ namespace org.GraphDefined.OpenData.Users
                                                                  Content                    = JSONObject.Create(
                                                                                                   new JProperty("description", "Invalid user name!")
                                                                                               ).ToUTF8Bytes()
-                                                             });
+                                                             }.AsImmutable);
 
                                               }
 
@@ -2542,7 +2482,7 @@ namespace org.GraphDefined.OpenData.Users
                                                                           Request,
                                                                           out ErrorResponse))
                                               {
-                                                  return AddUserResponse(ErrorResponse);
+                                                  return Task.FromResult(ErrorResponse);
                                               }
 
                                               //ToDo: See rfc5322 for more complex regular expression!
@@ -2556,7 +2496,7 @@ namespace org.GraphDefined.OpenData.Users
                                               if (!matches.Success)
                                               {
 
-                                                  return AddUserResponse(
+                                                  return Task.FromResult(
                                                              new HTTPResponseBuilder(Request) {
                                                                  HTTPStatusCode             = HTTPStatusCode.BadRequest,
                                                                  Server                     = HTTPServer.DefaultServerName,
@@ -2568,7 +2508,7 @@ namespace org.GraphDefined.OpenData.Users
                                                                  Content                    = JSONObject.Create(
                                                                                                   new JProperty("description", "Invalid e-mail address!")
                                                                                               ).ToUTF8Bytes()
-                                                             });
+                                                             }.AsImmutable);
 
                                               }
 
@@ -2584,7 +2524,7 @@ namespace org.GraphDefined.OpenData.Users
                                                   !MailServerMX.  Result.Any())
                                               {
 
-                                                  return AddUserResponse(
+                                                  return Task.FromResult(
                                                              new HTTPResponseBuilder(Request) {
                                                                  HTTPStatusCode             = HTTPStatusCode.BadRequest,
                                                                  Server                     = HTTPServer.DefaultServerName,
@@ -2596,7 +2536,7 @@ namespace org.GraphDefined.OpenData.Users
                                                                  Content                    = JSONObject.Create(
                                                                                                   new JProperty("description", "Invalid domain name of the given e-mail address!")
                                                                                               ).ToUTF8Bytes()
-                                                             });
+                                                             }.AsImmutable);
 
                                               }
 
@@ -2611,13 +2551,13 @@ namespace org.GraphDefined.OpenData.Users
                                                                           Request,
                                                                           out ErrorResponse))
                                               {
-                                                  return AddUserResponse(ErrorResponse);
+                                                  return Task.FromResult(ErrorResponse);
                                               }
 
                                               if (AccessLevel != "guest" && AccessLevel != "member" && AccessLevel != "admin")
                                               {
 
-                                                  return AddUserResponse(
+                                                  return Task.FromResult(
                                                              new HTTPResponseBuilder(Request) {
                                                                  HTTPStatusCode             = HTTPStatusCode.BadRequest,
                                                                  Server                     = HTTPServer.DefaultServerName,
@@ -2629,7 +2569,7 @@ namespace org.GraphDefined.OpenData.Users
                                                                  Content                    = JSONObject.Create(
                                                                                                   new JProperty("description", "Invalid user access level!")
                                                                                               ).ToUTF8Bytes()
-                                                             });
+                                                             }.AsImmutable);
 
                                               }
 
@@ -2647,7 +2587,7 @@ namespace org.GraphDefined.OpenData.Users
                                               {
 
                                                   if (ErrorResponse != null)
-                                                      return AddUserResponse(ErrorResponse);
+                                                      return Task.FromResult(ErrorResponse);
 
                                               }
 
@@ -2664,7 +2604,7 @@ namespace org.GraphDefined.OpenData.Users
                                               {
 
                                                   if (ErrorResponse != null)
-                                                      return AddUserResponse(ErrorResponse);
+                                                      return Task.FromResult(ErrorResponse);
 
                                               }
 
@@ -2686,12 +2626,12 @@ namespace org.GraphDefined.OpenData.Users
                                               {
 
                                                   if (ErrorResponse != null)
-                                                      return AddUserResponse(ErrorResponse);
+                                                      return Task.FromResult(ErrorResponse);
 
                                                   if (!_Organizations.TryGetValue(OrganizationId.Value, out _Organization))
                                                   {
 
-                                                      return AddUserResponse(
+                                                      return Task.FromResult(
                                                                  new HTTPResponseBuilder(Request) {
                                                                      HTTPStatusCode             = HTTPStatusCode.BadRequest,
                                                                      Server                     = HTTPServer.DefaultServerName,
@@ -2703,7 +2643,7 @@ namespace org.GraphDefined.OpenData.Users
                                                                      Content                    = JSONObject.Create(
                                                                                                       new JProperty("description", "The given user identification already exists!")
                                                                                                   ).ToUTF8Bytes()
-                                                                 });
+                                                                 }.AsImmutable);
 
                                                   }
 
@@ -2829,7 +2769,7 @@ namespace org.GraphDefined.OpenData.Users
                                                   else if (MailSentResult != MailSentStatus.ok)
                                                   {
 
-                                                      return AddUserResponse(
+                                                      return Task.FromResult(
                                                                  new HTTPResponseBuilder(Request) {
                                                                      HTTPStatusCode             = HTTPStatusCode.InternalServerError,
                                                                      Server                     = HTTPServer.DefaultServerName,
@@ -2841,7 +2781,7 @@ namespace org.GraphDefined.OpenData.Users
                                                                      Content                    = JSONObject.Create(
                                                                                                       new JProperty("description", "Could not send an e-mail to the user!")
                                                                                                   ).ToUTF8Bytes()
-                                                                 });
+                                                                 }.AsImmutable);
 
                                                   }
 
@@ -2868,7 +2808,7 @@ namespace org.GraphDefined.OpenData.Users
                                               catch (Exception e)
                                               {
 
-                                                  return AddUserResponse(
+                                                  return Task.FromResult(
                                                              new HTTPResponseBuilder(Request) {
                                                                  HTTPStatusCode             = HTTPStatusCode.InternalServerError,
                                                                  Server                     = HTTPServer.DefaultServerName,
@@ -2880,11 +2820,11 @@ namespace org.GraphDefined.OpenData.Users
                                                                  Content                    = JSONObject.Create(
                                                                                                   new JProperty("description", "Could not create the given user! " + e.Message)
                                                                                               ).ToUTF8Bytes()
-                                                             });
+                                                             }.AsImmutable);
 
                                               }
 
-                                              return AddUserResponse(
+                                              return Task.FromResult(
                                                         new HTTPResponseBuilder(Request) {
                                                             HTTPStatusCode              = HTTPStatusCode.Created,
                                                             Server                      = HTTPServer.DefaultServerName,
@@ -2904,7 +2844,7 @@ namespace org.GraphDefined.OpenData.Users
             // ---------------------------------------------------------------------------------
             // curl -v -X EXITS -H "Accept: application/json" http://127.0.0.1:2100/users/ahzf
             // ---------------------------------------------------------------------------------
-            HTTPServer.ITEM_EXISTS<User_Id, User>(UriTemplate: URIPrefix + "/users/{UserId}",
+            HTTPServer.ITEM_EXISTS<User_Id, User>(UriTemplate: URIPrefix + "users/{UserId}",
                                                   ParseIdDelegate: User_Id.TryParse,
                                                   ParseIdError: Text => "Invalid user identification '" + Text + "'!",
                                                   TryGetItemDelegate: _Users.TryGetValue,
@@ -2918,7 +2858,7 @@ namespace org.GraphDefined.OpenData.Users
             // ------------------------------------------------------------------------
             // curl -v -H "Accept: application/json" http://127.0.0.1:2100/users/ahzf
             // ------------------------------------------------------------------------
-            HTTPServer.ITEM_GET<User_Id, User>(UriTemplate:         URIPrefix + "/users/{UserId}",
+            HTTPServer.ITEM_GET<User_Id, User>(UriTemplate:         URIPrefix + "users/{UserId}",
                                                ParseIdDelegate:     User_Id.TryParse,
                                                ParseIdError:        Text => "Invalid user identification '" + Text + "'!",
                                                TryGetItemDelegate:  _Users.TryGetValue,
@@ -3035,11 +2975,11 @@ namespace org.GraphDefined.OpenData.Users
             // ---------------------------------------------------------------------------------------------
             HTTPServer.AddMethodCallback(Hostname,
                                          HTTPMethod.SET,
-                                         URIPrefix + "/users/{UserId}",
+                                         URIPrefix + "users/{UserId}",
                                          HTTPContentType.JSON_UTF8,
-                                         HTTPDelegate: async Request => {
-
-                                             SetUserRequest(Request);
+                                         HTTPRequestLogger:  SetUserRequest,
+                                         HTTPResponseLogger: SetUserResponse,
+                                         HTTPDelegate: Request => {
 
                                              #region Get HTTP user and its organizations
 
@@ -3051,7 +2991,7 @@ namespace org.GraphDefined.OpenData.Users
                                                                  AccessLevel:                   Access_Level.ReadWrite,
                                                                  Recursive:                     true))
                                              {
-                                                 return SetUserResponse(Response);
+                                                 return Task.FromResult(Response);
                                              }
 
                                              #endregion
@@ -3062,7 +3002,7 @@ namespace org.GraphDefined.OpenData.Users
                                                                       out User_Id?      UserIdURI,
                                                                       out HTTPResponse  HTTPResponse))
                                              {
-                                                 return SetUserResponse(HTTPResponse);
+                                                 return Task.FromResult(HTTPResponse);
                                              }
 
                                              #endregion
@@ -3070,7 +3010,7 @@ namespace org.GraphDefined.OpenData.Users
                                              #region Parse JSON
 
                                              if (!Request.TryParseJObjectRequestBody(out JObject JSONObj, out HTTPResponse))
-                                                 return SetUserResponse(HTTPResponse);
+                                                 return Task.FromResult(HTTPResponse);
 
                                              if (!User.TryParseJSON(JSONObj,
                                                                     out User    _User,
@@ -3078,7 +3018,7 @@ namespace org.GraphDefined.OpenData.Users
                                                                     UserIdURI))
                                              {
 
-                                                 return SetUserResponse(
+                                                 return Task.FromResult(
                                                             new HTTPResponseBuilder(Request) {
                                                                 HTTPStatusCode             = HTTPStatusCode.BadRequest,
                                                                 Server                     = HTTPServer.DefaultServerName,
@@ -3101,7 +3041,7 @@ namespace org.GraphDefined.OpenData.Users
                                              // Has the current HTTP user the required
                                              // access rights to update?
                                              if (HTTPUser.Id != _User.Id)
-                                                 return SetUserResponse(
+                                                 return Task.FromResult(
                                                         new HTTPResponseBuilder(Request) {
                                                             HTTPStatusCode              = HTTPStatusCode.Forbidden,
                                                             Server                      = HTTPServer.DefaultServerName,
@@ -3117,7 +3057,7 @@ namespace org.GraphDefined.OpenData.Users
                                                          HTTPUser.Id);
 
 
-                                             return SetUserResponse(
+                                             return Task.FromResult(
                                                         new HTTPResponseBuilder(Request) {
                                                             HTTPStatusCode              = HTTPStatusCode.OK,
                                                             Server                      = HTTPServer.DefaultServerName,
@@ -3414,7 +3354,7 @@ namespace org.GraphDefined.OpenData.Users
             #region GET         ~/users/{UserId}/profilephoto
 
             HTTPServer.RegisterFilesystemFile(HTTPHostname.Any,
-                                              URIPrefix + "/users/{UserId}/profilephoto",
+                                              URIPrefix + "users/{UserId}/profilephoto",
                                               URIParams => "LocalHTTPRoot/data/Users/" + URIParams[0] + ".png",
                                               DefaultFile: "HTTPRoot/images/defaults/DefaultUser.png");
 
@@ -3427,7 +3367,7 @@ namespace org.GraphDefined.OpenData.Users
             // --------------------------------------------------------------------------------------
             HTTPServer.AddMethodCallback(Hostname,
                                          HTTPMethod.GET,
-                                         URIPrefix + "/users/{UserId}/notifications",
+                                         URIPrefix + "users/{UserId}/notifications",
                                          HTTPContentType.JSON_UTF8,
                                          HTTPDelegate: Request => {
 
@@ -3478,6 +3418,120 @@ namespace org.GraphDefined.OpenData.Users
 
             #endregion
 
+            #region SET         ~/users/{UserId}/notifications
+
+            // ---------------------------------------------------------------------------------------------
+            // curl -v -X SET \
+            //      -H "Accept:       application/json; charset=utf-8" \
+            //      -H "Content-Type: application/json; charset=utf-8" \
+            //      -d "{ \
+            //          }" \
+            //      http://127.0.0.1:2000/users/214080158
+            // ---------------------------------------------------------------------------------------------
+            HTTPServer.AddMethodCallback(Hostname,
+                                         HTTPMethod.SET,
+                                         URIPrefix + "users/{UserId}/notifications",
+                                         HTTPContentType.JSON_UTF8,
+                                         HTTPRequestLogger:   SetUserNotificationsRequest,
+                                         HTTPResponseLogger:  SetUserNotificationsResponse,
+                                         HTTPDelegate:        Request => {
+
+                                             #region Get HTTP user and its organizations
+
+                                             // Will return HTTP 401 Unauthorized, when the HTTP user is unknown!
+                                             if (!TryGetHTTPUser(Request,
+                                                                 out User                       HTTPUser,
+                                                                 out IEnumerable<Organization>  HTTPOrganizations,
+                                                                 out HTTPResponse               Response,
+                                                                 AccessLevel:                   Access_Level.ReadWrite,
+                                                                 Recursive:                     true))
+                                             {
+                                                 return Task.FromResult(Response);
+                                             }
+
+                                             #endregion
+
+                                             #region Check UserId URI parameter
+
+                                             if (!Request.ParseUser(this,
+                                                                    out User_Id?      UserIdURI,
+                                                                    out User          User,
+                                                                    out HTTPResponse  HTTPResponse))
+                                             {
+                                                 return Task.FromResult(HTTPResponse);
+                                             }
+
+                                             #endregion
+
+
+                                             #region Parse JSON
+
+                                             if (!Request.TryParseJObjectRequestBody(out JObject JSONObj, out HTTPResponse))
+                                                 return Task.FromResult(HTTPResponse);
+
+                                             //if (!User.TryParseJSON(JSONObj,
+                                             //                       out User    _User,
+                                             //                       out String  ErrorResponse,
+                                             //                       UserIdURI))
+                                             //{
+
+                                             //    return SetUserResponse(
+                                             //               new HTTPResponseBuilder(Request) {
+                                             //                   HTTPStatusCode             = HTTPStatusCode.BadRequest,
+                                             //                   Server                     = HTTPServer.DefaultServerName,
+                                             //                   Date                       = DateTime.UtcNow,
+                                             //                   AccessControlAllowOrigin   = "*",
+                                             //                   AccessControlAllowMethods  = "GET, SET",
+                                             //                   AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
+                                             //                   ETag                       = "1",
+                                             //                   ContentType                = HTTPContentType.JSON_UTF8,
+                                             //                   Content                    = JSONObject.Create(
+                                             //                                                    new JProperty("description",  ErrorResponse)
+                                             //                                                ).ToUTF8Bytes()
+                                             //               }.AsImmutable);
+
+                                             //}
+
+                                             #endregion
+
+
+                                             //// Has the current HTTP user the required
+                                             //// access rights to update?
+                                             //if (HTTPUser.Id != _User.Id)
+                                             //    return SetUserResponse(
+                                             //           new HTTPResponseBuilder(Request) {
+                                             //               HTTPStatusCode              = HTTPStatusCode.Forbidden,
+                                             //               Server                      = HTTPServer.DefaultServerName,
+                                             //               Date                        = DateTime.UtcNow,
+                                             //               AccessControlAllowOrigin    = "*",
+                                             //               AccessControlAllowMethods   = "GET, SET, CHOWN",
+                                             //               AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
+                                             //               Connection                  = "close"
+                                             //           }.AsImmutable);
+
+
+                                             //AddOrUpdate(_User,
+                                             //            HTTPUser.Id);
+
+
+                                             return Task.FromResult(
+                                                        new HTTPResponseBuilder(Request) {
+                                                            HTTPStatusCode              = HTTPStatusCode.OK,
+                                                            Server                      = HTTPServer.DefaultServerName,
+                                                            Date                        = DateTime.UtcNow,
+                                                            AccessControlAllowOrigin    = "*",
+                                                            AccessControlAllowMethods   = "GET, SET",
+                                                            AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
+                                                            //ETag                        = _User.CurrentCryptoHash,
+                                                            //ContentType                 = HTTPContentType.JSON_UTF8,
+                                                            //Content                     = _User.ToJSON().ToUTF8Bytes(),
+                                                            Connection                  = "close"
+                                                        }.AsImmutable);
+
+                                         });
+
+            #endregion
+
             #region GET         ~/users/{UserId}/organizations
 
             // ------------------------------------------------------------------------------------------
@@ -3485,7 +3539,7 @@ namespace org.GraphDefined.OpenData.Users
             // ------------------------------------------------------------------------------------------
             HTTPServer.AddMethodCallback(Hostname,
                                          HTTPMethod.GET,
-                                         URIPrefix + "/users/{UserId}/organizations",
+                                         URIPrefix + "users/{UserId}/organizations",
                                          HTTPContentType.JSON_UTF8,
                                          HTTPDelegate: Request => {
 
@@ -3529,7 +3583,7 @@ namespace org.GraphDefined.OpenData.Users
             // --------------------------------------------------------------------------------
             HTTPServer.AddMethodCallback(Hostname,
                                          HTTPMethod.GET,
-                                         URIPrefix + "/users/{UserId}/APIKeys",
+                                         URIPrefix + "users/{UserId}/APIKeys",
                                          HTTPContentType.JSON_UTF8,
                                          HTTPDelegate: Request => {
 
@@ -3589,7 +3643,7 @@ namespace org.GraphDefined.OpenData.Users
 
             HTTPServer.AddMethodCallback(Hostname,
                                          HTTPMethod.SET,
-                                         URIPrefix + "/users/{UserId}/password",
+                                         URIPrefix + "users/{UserId}/password",
                                          HTTPContentType.JSON_UTF8,
                                          HTTPDelegate: async Request => {
 
@@ -3841,9 +3895,9 @@ namespace org.GraphDefined.OpenData.Users
                                          HTTPMethod.ADD,
                                          URIPrefix + "organizations/{organizationId}",
                                          HTTPContentType.JSON_UTF8,
-                                         HTTPDelegate: async Request => {
-
-                                             AddOrganizationRequest(Request);
+                                         HTTPRequestLogger:  AddOrganizationRequest,
+                                         HTTPResponseLogger: AddOrganizationResponse,
+                                         HTTPDelegate: Request => {
 
                                              #region Get HTTP user and its organizations
 
@@ -3855,7 +3909,7 @@ namespace org.GraphDefined.OpenData.Users
                                                                  AccessLevel:                   Access_Level.ReadWrite,
                                                                  Recursive:                     true))
                                              {
-                                                 return AddOrganizationResponse(Response);
+                                                 return Task.FromResult(Response);
                                              }
 
                                              #endregion
@@ -3866,7 +3920,7 @@ namespace org.GraphDefined.OpenData.Users
                                                                               out Organization_Id?  OrganizationIdURI,
                                                                               out HTTPResponse      HTTPResponse))
                                              {
-                                                 return AddOrganizationResponse(HTTPResponse);
+                                                 return Task.FromResult(HTTPResponse);
                                              }
 
                                              #endregion
@@ -3874,7 +3928,7 @@ namespace org.GraphDefined.OpenData.Users
                                              #region Parse JSON and create the new child organization...
 
                                              if (!Request.TryParseJObjectRequestBody(out JObject JSONObj, out HTTPResponse))
-                                                 return AddOrganizationResponse(HTTPResponse);
+                                                 return Task.FromResult(HTTPResponse);
 
                                              if (Organization.TryParseJSON(JSONObj,
                                                                            out Organization  NewChildOrganization,
@@ -3910,13 +3964,13 @@ namespace org.GraphDefined.OpenData.Users
                                                                              Request,
                                                                              out HTTPResponse))
                                                  {
-                                                     return AddOrganizationResponse(HTTPResponse);
+                                                     return Task.FromResult(HTTPResponse);
                                                  }
 
                                                  if (!_Organizations.TryGetValue(ParentOrganizationId, out Organization ParentOrganization))
                                                  {
 
-                                                     return AddOrganizationResponse(
+                                                     return Task.FromResult(
                                                                 new HTTPResponseBuilder(Request) {
                                                                     HTTPStatusCode             = HTTPStatusCode.BadRequest,
                                                                     Server                     = HTTPServer.DefaultServerName,
@@ -3928,7 +3982,7 @@ namespace org.GraphDefined.OpenData.Users
                                                                     Content                    = JSONObject.Create(
                                                                                                      new JProperty("description",  "Unknown parent organization!")
                                                                                                  ).ToUTF8Bytes()
-                                                                });
+                                                                }.AsImmutable);
 
                                                  }
 
@@ -3943,7 +3997,7 @@ namespace org.GraphDefined.OpenData.Users
                                                                              Request,
                                                                              out HTTPResponse))
                                                  {
-                                                     return AddOrganizationResponse(HTTPResponse);
+                                                     return Task.FromResult(HTTPResponse);
                                                  }
 
 
@@ -3960,7 +4014,7 @@ namespace org.GraphDefined.OpenData.Users
                                                      if (!admin.HasValue)
                                                      {
 
-                                                         return AddOrganizationResponse(
+                                                         return Task.FromResult(
                                                                     new HTTPResponseBuilder(Request) {
                                                                         HTTPStatusCode             = HTTPStatusCode.BadRequest,
                                                                         Server                     = HTTPServer.DefaultServerName,
@@ -3972,7 +4026,7 @@ namespace org.GraphDefined.OpenData.Users
                                                                         Content                    = JSONObject.Create(
                                                                                                          new JProperty("description",  "Invalid admin user '" + admin.Value  + "'!")
                                                                                                      ).ToUTF8Bytes()
-                                                                    });
+                                                                    }.AsImmutable);
 
                                                      }
 
@@ -3981,7 +4035,7 @@ namespace org.GraphDefined.OpenData.Users
                                                      if (Admin == null)
                                                      {
 
-                                                         return AddOrganizationResponse(
+                                                         return Task.FromResult(
                                                                     new HTTPResponseBuilder(Request) {
                                                                         HTTPStatusCode             = HTTPStatusCode.BadRequest,
                                                                         Server                     = HTTPServer.DefaultServerName,
@@ -3993,7 +4047,7 @@ namespace org.GraphDefined.OpenData.Users
                                                                         Content                    = JSONObject.Create(
                                                                                                          new JProperty("description",  "Unknown admin user '" + admin.Value + "'!")
                                                                                                      ).ToUTF8Bytes()
-                                                                    });
+                                                                    }.AsImmutable);
 
                                                      }
 
@@ -4019,7 +4073,7 @@ namespace org.GraphDefined.OpenData.Users
                                                  catch (Exception e)
                                                  {
 
-                                                     return AddOrganizationResponse(
+                                                     return Task.FromResult(
                                                                 new HTTPResponseBuilder(Request) {
                                                                     HTTPStatusCode             = HTTPStatusCode.BadRequest,
                                                                     Server                     = HTTPServer.DefaultServerName,
@@ -4031,11 +4085,11 @@ namespace org.GraphDefined.OpenData.Users
                                                                     Content                    = JSONObject.Create(
                                                                                                      new JProperty("description",  "Could not create the given child organization! " + e.Message)
                                                                                                  ).ToUTF8Bytes()
-                                                                });
+                                                                }.AsImmutable);
 
                                                  }
 
-                                                 return AddOrganizationResponse(
+                                                 return Task.FromResult(
                                                         new HTTPResponseBuilder(Request) {
                                                             HTTPStatusCode              = HTTPStatusCode.Created,
                                                             Server                      = HTTPServer.DefaultServerName,
@@ -4050,7 +4104,7 @@ namespace org.GraphDefined.OpenData.Users
 
                                              #endregion
 
-                                             return AddOrganizationResponse(
+                                             return Task.FromResult(
                                                         new HTTPResponseBuilder(Request) {
                                                             HTTPStatusCode             = HTTPStatusCode.BadRequest,
                                                             Server                     = HTTPServer.DefaultServerName,
@@ -4885,7 +4939,7 @@ namespace org.GraphDefined.OpenData.Users
                 Organizations  = null;
                 Response       = new HTTPResponseBuilder(Request) {
                                      HTTPStatusCode  = HTTPStatusCode.Unauthorized,
-                                     Location        = URIPrefix + "/login",
+                                     Location        = URIPrefix + "login",
                                      Date            = DateTime.Now,
                                      Server          = HTTPServer.DefaultServerName,
                                      CacheControl    = "private, max-age=0, no-cache",
@@ -4941,39 +4995,37 @@ namespace org.GraphDefined.OpenData.Users
         /// <summary>
         /// An event sent whenever add user request was received.
         /// </summary>
-        public event RequestLogHandler OnAddUserRequest;
+        public RequestLogEvent OnAddUserRequest = new RequestLogEvent();
 
-        protected internal HTTPRequest AddUserRequest(HTTPRequest Request)
-        {
+        /// <summary>
+        /// An event sent whenever add user request was received.
+        /// </summary>
+        /// <param name="Request">A HTTP request.</param>
+        protected internal Task AddUserRequest(HTTPRequest Request)
 
-            OnAddUserRequest?.Invoke(Request.Timestamp,
-                                              HTTPServer,
-                                              Request);
-
-            return Request;
-
-        }
+            => OnAddUserRequest?.WhenAll(this,
+                                         DateTime.UtcNow,
+                                         Request);
 
         #endregion
 
         #region (protected internal) AddUserResponse(Response)
 
         /// <summary>
-        /// An event sent whenever a response on a add user request was sent.
+        /// An event sent whenever a response on an add user request was sent.
         /// </summary>
-        public event AccessLogHandler OnAddUserResponse;
+        public ResponseLogEvent OnAddUserResponse = new ResponseLogEvent();
 
-        protected internal HTTPResponse AddUserResponse(HTTPResponse Response)
-        {
+        /// <summary>
+        /// An event sent whenever a response on an add user request was sent.
+        /// </summary>
+        /// <param name="Response">A HTTP response.</param>
+        protected internal Task AddUserResponse(HTTPResponse Response)
 
-            OnAddUserResponse?.Invoke(Response.Timestamp,
-                                               HTTPServer,
-                                               Response.HTTPRequest,
-                                               Response);
-
-            return Response;
-
-        }
+            => OnAddUserResponse?.WhenAll(this,
+                                          DateTime.UtcNow,
+                                          Response.HTTPRequest,
+                                          Response);
 
         #endregion
 
@@ -4983,18 +5035,17 @@ namespace org.GraphDefined.OpenData.Users
         /// <summary>
         /// An event sent whenever set user request was received.
         /// </summary>
-        public event RequestLogHandler OnSetUserRequest;
+        public RequestLogEvent OnSetUserRequest = new RequestLogEvent();
 
-        protected internal HTTPRequest SetUserRequest(HTTPRequest Request)
-        {
+        /// <summary>
+        /// An event sent whenever set user request was received.
+        /// </summary>
+        /// <param name="Request">A HTTP request.</param>
+        protected internal Task SetUserRequest(HTTPRequest Request)
 
-            OnSetUserRequest?.Invoke(Request.Timestamp,
-                                              HTTPServer,
-                                              Request);
-
-            return Request;
-
-        }
+            => OnSetUserRequest?.WhenAll(this,
+                                         DateTime.UtcNow,
+                                         Request);
 
         #endregion
 
@@ -5003,19 +5054,18 @@ namespace org.GraphDefined.OpenData.Users
         /// <summary>
         /// An event sent whenever a response on a set user request was sent.
         /// </summary>
-        public event AccessLogHandler OnSetUserResponse;
+        public ResponseLogEvent OnSetUserResponse = new ResponseLogEvent();
 
-        protected internal HTTPResponse SetUserResponse(HTTPResponse Response)
-        {
+        /// <summary>
+        /// An event sent whenever a response on a set user request was sent.
+        /// </summary>
+        /// <param name="Response">A HTTP response.</param>
+        protected internal Task SetUserResponse(HTTPResponse Response)
 
-            OnSetUserResponse?.Invoke(Response.Timestamp,
-                                               HTTPServer,
-                                               Response.HTTPRequest,
-                                               Response);
-
-            return Response;
-
-        }
+            => OnSetUserResponse?.WhenAll(this,
+                                          DateTime.UtcNow,
+                                          Response.HTTPRequest,
+                                          Response);
 
         #endregion
 
@@ -5062,23 +5112,66 @@ namespace org.GraphDefined.OpenData.Users
         #endregion
 
 
+        #region (protected internal) SetUserNotificationsRequest (Request)
+
+        /// <summary>
+        /// An event sent whenever set user notifications request was received.
+        /// </summary>
+        public event RequestLogHandler OnSetUserNotificationsRequest;
+
+        protected internal async Task SetUserNotificationsRequest(HTTPRequest Request)
+        {
+
+            var OnSetUserNotificationsRequestLocal = OnSetUserNotificationsRequest;
+
+            if (OnSetUserNotificationsRequestLocal != null)
+                await OnSetUserNotificationsRequestLocal?.Invoke(Request.Timestamp,
+                                                                 HTTPServer,
+                                                                 Request);
+
+        }
+
+        #endregion
+
+        #region (protected internal) SetUserNotificationsResponse(Response)
+
+        /// <summary>
+        /// An event sent whenever a response on a set user notifications request was sent.
+        /// </summary>
+        public event AccessLogHandler OnSetUserNotificationsResponse;
+
+        protected internal async Task SetUserNotificationsResponse(HTTPResponse Response)
+        {
+
+            var OnSetUserNotificationsResponseLocal = OnSetUserNotificationsResponse;
+
+            if (OnSetUserNotificationsResponseLocal != null)
+                await OnSetUserNotificationsResponseLocal?.Invoke(Response.Timestamp,
+                                                                  HTTPServer,
+                                                                  Response.HTTPRequest,
+                                                                  Response);
+
+        }
+
+        #endregion
+
+
         #region (protected internal) AddOrganizationRequest (Request)
 
         /// <summary>
         /// An event sent whenever add organization request was received.
         /// </summary>
-        public event RequestLogHandler OnAddOrganizationRequest;
+        public RequestLogEvent OnAddOrganizationRequest = new RequestLogEvent();
 
-        protected internal HTTPRequest AddOrganizationRequest(HTTPRequest Request)
-        {
+        /// <summary>
+        /// An event sent whenever add organization request was received.
+        /// </summary>
+        /// <param name="Request">A HTTP request.</param>
+        protected internal Task AddOrganizationRequest(HTTPRequest Request)
 
-            OnAddOrganizationRequest?.Invoke(Request.Timestamp,
-                                             HTTPServer,
-                                             Request);
-
-            return Request;
-
-        }
+            => OnAddOrganizationRequest?.WhenAll(this,
+                                                 DateTime.UtcNow,
+                                                 Request);
 
         #endregion
 
@@ -5087,19 +5180,18 @@ namespace org.GraphDefined.OpenData.Users
         /// <summary>
         /// An event sent whenever a response on an add organization request was sent.
         /// </summary>
-        public event AccessLogHandler OnAddOrganizationResponse;
+        public ResponseLogEvent OnAddOrganizationResponse = new ResponseLogEvent();
 
-        protected internal HTTPResponse AddOrganizationResponse(HTTPResponse Response)
-        {
+        /// <summary>
+        /// An event sent whenever a response on an add organization request was sent.
+        /// </summary>
+        /// <param name="Response">A HTTP response.</param>
+        protected internal Task AddOrganizationResponse(HTTPResponse Response)
 
-            OnAddOrganizationResponse?.Invoke(Response.Timestamp,
-                                              HTTPServer,
-                                              Response.HTTPRequest,
-                                              Response);
-
-            return Response;
-
-        }
+            => OnAddOrganizationResponse?.WhenAll(this,
+                                                  DateTime.UtcNow,
+                                                  Response.HTTPRequest,
+                                                  Response);
 
         #endregion
 
