@@ -35,9 +35,6 @@ function WithCookie(CookieName, OnSucess, OnFailure) {
         OnSucess(Cookie);
 }
 function DeleteCookie(CookieName, Path) {
-    DeleteCookie2(CookieName, "/");
-}
-function DeleteCookie2(CookieName, Path) {
     var CookieDateTime = new Date();
     CookieDateTime.setTime(CookieDateTime.getTime() - 86400000); // 1 day
     if (Path == undefined)
@@ -330,7 +327,7 @@ function SetPassword() {
     gotoLoginButton.onclick = function (ev) {
         window.location.href = "/login";
     };
-    checkNotSignedIn();
+    DeleteCookie(HTTPCookieId);
     ToogleSaveButton();
 }
 function SignIn() {
@@ -453,7 +450,7 @@ function SignOut() {
     SendJSON("DEAUTH", "/users", "", "", function (HTTPStatus, ResponseText) {
     }, function (HTTPStatus, StatusText, ResponseText) {
     });
-    DeleteCookie(HTTPCookieId, "/");
+    DeleteCookie(HTTPCookieId);
     location.href = "/login";
 }
 //# sourceMappingURL=SignInOut.js.map

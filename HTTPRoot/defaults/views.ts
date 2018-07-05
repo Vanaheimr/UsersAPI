@@ -90,27 +90,27 @@ class View {
     CreateButton(Prefix: string,
                  Name:   string) {
 
-        var ButtonDiv = this.ButtonDiv.appendChild(document.createElement('button')) as HTMLButtonElement;
-        ButtonDiv.id = Prefix + "Button";
-        ButtonDiv.className = "button";
-        ButtonDiv.innerHTML = Name;
+        var NewButton = this.ButtonDiv.appendChild(document.createElement('button')) as HTMLButtonElement;
+        NewButton.id = Prefix + "Button";
+        NewButton.className = "button";
+        NewButton.innerHTML = Name;
+
+        return NewButton;
 
     }
 
     CancelButton(Prefix: string,
                  Name:   string) {
 
-        var aa = this;
+        var me = this;
 
-        var ButtonDiv = this.ButtonDiv.appendChild(document.createElement('button')) as HTMLButtonElement;
-        ButtonDiv.id = Prefix + "Button";
-        ButtonDiv.className = "button";
-        ButtonDiv.innerText = Name;
-        ButtonDiv.onclick = function (this: HTMLElement, ev: MouseEvent) {
+        var CancelButton = this.CreateButton(Prefix, Name);
 
-            aa.myself.remove();
-
+        CancelButton.onclick = function (this: HTMLElement, ev: MouseEvent) {
+            me.myself.remove();
         };
+
+        return CancelButton;
 
     }
 

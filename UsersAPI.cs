@@ -3446,52 +3446,33 @@ namespace org.GraphDefined.OpenData.Users
                                              #endregion
 
                                              var __Notifications = _Notifications.GetNotifications(HTTPUser);
-                                             //var __Types         = __Notifications.NotificationTypes;
 
+                                             return Task.FromResult(new HTTPResponseBuilder(Request) {
+                                                        HTTPStatusCode             = HTTPStatusCode.OK,
+                                                        Server                     = HTTPServer.DefaultServerName,
+                                                        Date                       = DateTime.UtcNow,
+                                                        AccessControlAllowOrigin   = "*",
+                                                        AccessControlAllowMethods  = "GET, SET",
+                                                        AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
+                                                        ETag                       = "1",
+                                                        ContentType                = HTTPContentType.JSON_UTF8,
+                                                        Content                    = JSONObject.Create(
 
-                                             return Task.FromResult(__Notifications != null
+                                                                                         new JProperty("general",  JSONArray.Create(
+                                                                                             __Notifications?.NotificationTypes.SafeSelect(_ => _.GetAsJSON(new JObject())).ToArray()
+                                                                                         )),
 
-                                                                        ? new HTTPResponseBuilder(Request) {
-                                                                                  HTTPStatusCode             = HTTPStatusCode.OK,
-                                                                                  Server                     = HTTPServer.DefaultServerName,
-                                                                                  Date                       = DateTime.UtcNow,
-                                                                                  AccessControlAllowOrigin   = "*",
-                                                                                  AccessControlAllowMethods  = "GET, SET",
-                                                                                  AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
-                                                                                  ETag                       = "1",
-                                                                                  ContentType                = HTTPContentType.JSON_UTF8,
-                                                                                  Content                    = JSONObject.Create(
+                                                                                         new JProperty("messages", JSONObject.Create(
 
-                                                                                                                   new JProperty("general",  JSONArray.Create(
-                                                                                                                       __Notifications.NotificationTypes.Select(_ => _.GetAsJSON(new JObject())).ToArray()
-                                                                                                                   )),
+                                                                                             __Notifications?.NotificationIds.SafeSelect(_ => new JProperty(_.Key.ToString(), new JArray(
+                                                                                                                                                 _.Value.Select(__ => __.GetAsJSON(new JObject()))
+                                                                                                                                         ))).ToArray()
 
-                                                                                                                   new JProperty("messages", JSONArray.Create(
+                                                                                         ))
 
-                                                                                                                       __Notifications.NotificationIds.Select(_ => new JObject(
-                                                                                                                                                                       new JProperty("message",        _.Key.ToString()),
-                                                                                                                                                                       new JProperty("notifications",  new JArray(
-                                                                                                                                                                           _.Value.Select(__ => __.GetAsJSON(new JObject()))
-                                                                                                                                                                       ))
-                                                                                                                                                                   )).ToArray()
-
-                                                                                                                   ))
-
-                                                                                                               ).ToUTF8Bytes(),
-                                                                                  Connection                 = "close"
-                                                                              }.AsImmutable
-
-                                                                        : new HTTPResponseBuilder(Request) {
-                                                                                  HTTPStatusCode             = HTTPStatusCode.NotFound,
-                                                                                  Server                     = HTTPServer.DefaultServerName,
-                                                                                  Date                       = DateTime.UtcNow,
-                                                                                  AccessControlAllowOrigin   = "*",
-                                                                                  AccessControlAllowMethods  = "GET, SET",
-                                                                                  AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
-                                                                                  Connection                 = "close"
-                                                                              }.AsImmutable);
-
-
+                                                                                     ).ToUTF8Bytes(),
+                                                        Connection                 = "close"
+                                                    }.AsImmutable);
 
             });
 
@@ -4525,7 +4506,6 @@ namespace org.GraphDefined.OpenData.Users
                     break;
 
                 #endregion
-
 
 
                 #region CreateGroup

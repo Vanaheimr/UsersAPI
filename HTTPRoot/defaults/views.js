@@ -44,20 +44,19 @@ var View = /** @class */ (function () {
         return DivValue;
     };
     View.prototype.CreateButton = function (Prefix, Name) {
-        var ButtonDiv = this.ButtonDiv.appendChild(document.createElement('button'));
-        ButtonDiv.id = Prefix + "Button";
-        ButtonDiv.className = "button";
-        ButtonDiv.innerHTML = Name;
+        var NewButton = this.ButtonDiv.appendChild(document.createElement('button'));
+        NewButton.id = Prefix + "Button";
+        NewButton.className = "button";
+        NewButton.innerHTML = Name;
+        return NewButton;
     };
     View.prototype.CancelButton = function (Prefix, Name) {
-        var aa = this;
-        var ButtonDiv = this.ButtonDiv.appendChild(document.createElement('button'));
-        ButtonDiv.id = Prefix + "Button";
-        ButtonDiv.className = "button";
-        ButtonDiv.innerText = Name;
-        ButtonDiv.onclick = function (ev) {
-            aa.myself.remove();
+        var me = this;
+        var CancelButton = this.CreateButton(Prefix, Name);
+        CancelButton.onclick = function (ev) {
+            me.myself.remove();
         };
+        return CancelButton;
     };
     return View;
 }());

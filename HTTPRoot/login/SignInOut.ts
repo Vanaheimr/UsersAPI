@@ -65,11 +65,8 @@ function WithCookie(CookieName: String,
 
 }
 
-function DeleteCookie(CookieName: String, Path) {
-    DeleteCookie2(CookieName, "/");
-}
 
-function DeleteCookie2(CookieName: String, Path) {
+function DeleteCookie(CookieName: String, Path?) {
 
     var CookieDateTime = new Date();
     CookieDateTime.setTime(CookieDateTime.getTime() - 86400000); // 1 day
@@ -501,7 +498,7 @@ function SetPassword() {
         window.location.href = "/login";
     }
 
-    checkNotSignedIn();
+    DeleteCookie(HTTPCookieId);
     ToogleSaveButton();
 
 }
@@ -732,7 +729,7 @@ function SignOut() {
                            function (HTTPStatus, StatusText, ResponseText) {
                            });
 
-    DeleteCookie(HTTPCookieId, "/");
+    DeleteCookie(HTTPCookieId);
 
     location.href = "/login";
 
