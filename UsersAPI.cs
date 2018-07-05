@@ -579,37 +579,39 @@ namespace org.GraphDefined.OpenData.Users
 
     }
 
-    public class UserContext : IDisposable
-    {
-
-        public User_Id  Current    { get; }
-        public User_Id? Previous   { get; }
-
-
-        public UserContext(User_Id UserId)
-        {
-
-            this.Previous                           = UsersAPI.CurrentAsyncLocalUserId.Value;
-            this.Current                            = UserId;
-            UsersAPI.CurrentAsyncLocalUserId.Value  = UserId;
-
-        }
-
-        public void Dispose()
-        {
-            UsersAPI.CurrentAsyncLocalUserId.Value = Previous;
-        }
-
-    }
-
-
-
 
     /// <summary>
     /// A library for managing users within and HTTP API or website.
     /// </summary>
     public class UsersAPI : HTTPAPI
     {
+
+        #region (class) UserContext
+
+        public class UserContext : IDisposable
+        {
+
+            public User_Id  Current    { get; }
+            public User_Id? Previous   { get; }
+
+
+            public UserContext(User_Id UserId)
+            {
+
+                this.Previous                  = CurrentAsyncLocalUserId.Value;
+                this.Current                   = UserId;
+                CurrentAsyncLocalUserId.Value  = UserId;
+
+            }
+
+            public void Dispose()
+            {
+                CurrentAsyncLocalUserId.Value = Previous;
+            }
+
+        }
+
+        #endregion
 
         #region Data
 
@@ -687,7 +689,7 @@ namespace org.GraphDefined.OpenData.Users
         /// <summary>
         /// The current async local user identification to simplify API usage.
         /// </summary>
-        internal static AsyncLocal<User_Id?> CurrentAsyncLocalUserId = new AsyncLocal<User_Id?>();
+        protected internal static AsyncLocal<User_Id?> CurrentAsyncLocalUserId = new AsyncLocal<User_Id?>();
 
         public User          Robot        { get; }
 
@@ -917,6 +919,215 @@ namespace org.GraphDefined.OpenData.Users
 
 
         public Organization  NoOwner                    { get; }
+
+        #endregion
+
+        #region Events
+
+        #region (protected internal) AddUserRequest (Request)
+
+        /// <summary>
+        /// An event sent whenever add user request was received.
+        /// </summary>
+        public RequestLogEvent OnAddUserRequest = new RequestLogEvent();
+
+        /// <summary>
+        /// An event sent whenever add user request was received.
+        /// </summary>
+        /// <param name="Request">A HTTP request.</param>
+        protected internal Task AddUserRequest(HTTPRequest Request)
+
+            => OnAddUserRequest?.WhenAll(this,
+                                         DateTime.UtcNow,
+                                         Request);
+
+        #endregion
+
+        #region (protected internal) AddUserResponse(Response)
+
+        /// <summary>
+        /// An event sent whenever a response on an add user request was sent.
+        /// </summary>
+        public ResponseLogEvent OnAddUserResponse = new ResponseLogEvent();
+
+        /// <summary>
+        /// An event sent whenever a response on an add user request was sent.
+        /// </summary>
+        /// <param name="Response">A HTTP response.</param>
+        protected internal Task AddUserResponse(HTTPResponse Response)
+
+            => OnAddUserResponse?.WhenAll(this,
+                                          DateTime.UtcNow,
+                                          Response.HTTPRequest,
+                                          Response);
+
+        #endregion
+
+
+        #region (protected internal) SetUserRequest (Request)
+
+        /// <summary>
+        /// An event sent whenever set user request was received.
+        /// </summary>
+        public RequestLogEvent OnSetUserRequest = new RequestLogEvent();
+
+        /// <summary>
+        /// An event sent whenever set user request was received.
+        /// </summary>
+        /// <param name="Request">A HTTP request.</param>
+        protected internal Task SetUserRequest(HTTPRequest Request)
+
+            => OnSetUserRequest?.WhenAll(this,
+                                         DateTime.UtcNow,
+                                         Request);
+
+        #endregion
+
+        #region (protected internal) SetUserResponse(Response)
+
+        /// <summary>
+        /// An event sent whenever a response on a set user request was sent.
+        /// </summary>
+        public ResponseLogEvent OnSetUserResponse = new ResponseLogEvent();
+
+        /// <summary>
+        /// An event sent whenever a response on a set user request was sent.
+        /// </summary>
+        /// <param name="Response">A HTTP response.</param>
+        protected internal Task SetUserResponse(HTTPResponse Response)
+
+            => OnSetUserResponse?.WhenAll(this,
+                                          DateTime.UtcNow,
+                                          Response.HTTPRequest,
+                                          Response);
+
+        #endregion
+
+
+        #region (protected internal) ChangePasswordRequest (Request)
+
+        /// <summary>
+        /// An event sent whenever set user request was received.
+        /// </summary>
+        public event RequestLogHandler OnChangePasswordRequest;
+
+        protected internal HTTPRequest ChangePasswordRequest(HTTPRequest Request)
+        {
+
+            OnChangePasswordRequest?.Invoke(Request.Timestamp,
+                                            HTTPServer,
+                                            Request);
+
+            return Request;
+
+        }
+
+        #endregion
+
+        #region (protected internal) ChangePasswordResponse(Response)
+
+        /// <summary>
+        /// An event sent whenever a response on a set user request was sent.
+        /// </summary>
+        public event AccessLogHandler OnChangePasswordResponse;
+
+        protected internal HTTPResponse ChangePasswordResponse(HTTPResponse Response)
+        {
+
+            OnChangePasswordResponse?.Invoke(Response.Timestamp,
+                                             HTTPServer,
+                                             Response.HTTPRequest,
+                                             Response);
+
+            return Response;
+
+        }
+
+        #endregion
+
+
+        #region (protected internal) SetUserNotificationsRequest (Request)
+
+        /// <summary>
+        /// An event sent whenever set user notifications request was received.
+        /// </summary>
+        public event RequestLogHandler OnSetUserNotificationsRequest;
+
+        protected internal async Task SetUserNotificationsRequest(HTTPRequest Request)
+        {
+
+            var OnSetUserNotificationsRequestLocal = OnSetUserNotificationsRequest;
+
+            if (OnSetUserNotificationsRequestLocal != null)
+                await OnSetUserNotificationsRequestLocal?.Invoke(Request.Timestamp,
+                                                                 HTTPServer,
+                                                                 Request);
+
+        }
+
+        #endregion
+
+        #region (protected internal) SetUserNotificationsResponse(Response)
+
+        /// <summary>
+        /// An event sent whenever a response on a set user notifications request was sent.
+        /// </summary>
+        public event AccessLogHandler OnSetUserNotificationsResponse;
+
+        protected internal async Task SetUserNotificationsResponse(HTTPResponse Response)
+        {
+
+            var OnSetUserNotificationsResponseLocal = OnSetUserNotificationsResponse;
+
+            if (OnSetUserNotificationsResponseLocal != null)
+                await OnSetUserNotificationsResponseLocal?.Invoke(Response.Timestamp,
+                                                                  HTTPServer,
+                                                                  Response.HTTPRequest,
+                                                                  Response);
+
+        }
+
+        #endregion
+
+
+        #region (protected internal) AddOrganizationRequest (Request)
+
+        /// <summary>
+        /// An event sent whenever add organization request was received.
+        /// </summary>
+        public RequestLogEvent OnAddOrganizationRequest = new RequestLogEvent();
+
+        /// <summary>
+        /// An event sent whenever add organization request was received.
+        /// </summary>
+        /// <param name="Request">A HTTP request.</param>
+        protected internal Task AddOrganizationRequest(HTTPRequest Request)
+
+            => OnAddOrganizationRequest?.WhenAll(this,
+                                                 DateTime.UtcNow,
+                                                 Request);
+
+        #endregion
+
+        #region (protected internal) AddOrganizationResponse(Response)
+
+        /// <summary>
+        /// An event sent whenever a response on an add organization request was sent.
+        /// </summary>
+        public ResponseLogEvent OnAddOrganizationResponse = new ResponseLogEvent();
+
+        /// <summary>
+        /// An event sent whenever a response on an add organization request was sent.
+        /// </summary>
+        /// <param name="Response">A HTTP response.</param>
+        protected internal Task AddOrganizationResponse(HTTPResponse Response)
+
+            => OnAddOrganizationResponse?.WhenAll(this,
+                                                  DateTime.UtcNow,
+                                                  Response.HTTPRequest,
+                                                  Response);
+
+        #endregion
 
         #endregion
 
@@ -1232,10 +1443,6 @@ namespace org.GraphDefined.OpenData.Users
 
             _Notifications.OnAdded   += (Timestamp, User, NotificationId, NotificationType) => WriteToLogfileAndNotify("AddNotification",    NotificationType.ToJSON(User, NotificationId), CurrentUserId: Robot.Id);
             _Notifications.OnRemoved += (Timestamp, User, NotificationId, NotificationType) => WriteToLogfileAndNotify("RemoveNotification", NotificationType.ToJSON(User, NotificationId), CurrentUserId: Robot.Id);
-
-            HTTPServer.RequestLog2   += (HTTPProcessor, ServerTimestamp, Request)                                 => RequestLog.WhenAll(HTTPProcessor, ServerTimestamp, Request);
-            HTTPServer.ResponseLog2    += (HTTPProcessor, ServerTimestamp, Request, Response)                       => ResponseLog. WhenAll(HTTPProcessor, ServerTimestamp, Request, Response);
-            HTTPServer.ErrorLog2     += (HTTPProcessor, ServerTimestamp, Request, Response, Error, LastException) => ErrorLog.  WhenAll(HTTPProcessor, ServerTimestamp, Request, Response, Error, LastException);
 
             NoOwner = CreateOrganizationIfNotExists(Organization_Id.Parse("NoOwner"), CurrentUserId: Robot.Id);
 
@@ -4990,213 +5197,6 @@ namespace org.GraphDefined.OpenData.Users
         #endregion
 
 
-        #region (protected internal) AddUserRequest (Request)
-
-        /// <summary>
-        /// An event sent whenever add user request was received.
-        /// </summary>
-        public RequestLogEvent OnAddUserRequest = new RequestLogEvent();
-
-        /// <summary>
-        /// An event sent whenever add user request was received.
-        /// </summary>
-        /// <param name="Request">A HTTP request.</param>
-        protected internal Task AddUserRequest(HTTPRequest Request)
-
-            => OnAddUserRequest?.WhenAll(this,
-                                         DateTime.UtcNow,
-                                         Request);
-
-        #endregion
-
-        #region (protected internal) AddUserResponse(Response)
-
-        /// <summary>
-        /// An event sent whenever a response on an add user request was sent.
-        /// </summary>
-        public ResponseLogEvent OnAddUserResponse = new ResponseLogEvent();
-
-        /// <summary>
-        /// An event sent whenever a response on an add user request was sent.
-        /// </summary>
-        /// <param name="Response">A HTTP response.</param>
-        protected internal Task AddUserResponse(HTTPResponse Response)
-
-            => OnAddUserResponse?.WhenAll(this,
-                                          DateTime.UtcNow,
-                                          Response.HTTPRequest,
-                                          Response);
-
-        #endregion
-
-
-        #region (protected internal) SetUserRequest (Request)
-
-        /// <summary>
-        /// An event sent whenever set user request was received.
-        /// </summary>
-        public RequestLogEvent OnSetUserRequest = new RequestLogEvent();
-
-        /// <summary>
-        /// An event sent whenever set user request was received.
-        /// </summary>
-        /// <param name="Request">A HTTP request.</param>
-        protected internal Task SetUserRequest(HTTPRequest Request)
-
-            => OnSetUserRequest?.WhenAll(this,
-                                         DateTime.UtcNow,
-                                         Request);
-
-        #endregion
-
-        #region (protected internal) SetUserResponse(Response)
-
-        /// <summary>
-        /// An event sent whenever a response on a set user request was sent.
-        /// </summary>
-        public ResponseLogEvent OnSetUserResponse = new ResponseLogEvent();
-
-        /// <summary>
-        /// An event sent whenever a response on a set user request was sent.
-        /// </summary>
-        /// <param name="Response">A HTTP response.</param>
-        protected internal Task SetUserResponse(HTTPResponse Response)
-
-            => OnSetUserResponse?.WhenAll(this,
-                                          DateTime.UtcNow,
-                                          Response.HTTPRequest,
-                                          Response);
-
-        #endregion
-
-
-        #region (protected internal) ChangePasswordRequest (Request)
-
-        /// <summary>
-        /// An event sent whenever set user request was received.
-        /// </summary>
-        public event RequestLogHandler OnChangePasswordRequest;
-
-        protected internal HTTPRequest ChangePasswordRequest(HTTPRequest Request)
-        {
-
-            OnChangePasswordRequest?.Invoke(Request.Timestamp,
-                                            HTTPServer,
-                                            Request);
-
-            return Request;
-
-        }
-
-        #endregion
-
-        #region (protected internal) ChangePasswordResponse(Response)
-
-        /// <summary>
-        /// An event sent whenever a response on a set user request was sent.
-        /// </summary>
-        public event AccessLogHandler OnChangePasswordResponse;
-
-        protected internal HTTPResponse ChangePasswordResponse(HTTPResponse Response)
-        {
-
-            OnChangePasswordResponse?.Invoke(Response.Timestamp,
-                                             HTTPServer,
-                                             Response.HTTPRequest,
-                                             Response);
-
-            return Response;
-
-        }
-
-        #endregion
-
-
-        #region (protected internal) SetUserNotificationsRequest (Request)
-
-        /// <summary>
-        /// An event sent whenever set user notifications request was received.
-        /// </summary>
-        public event RequestLogHandler OnSetUserNotificationsRequest;
-
-        protected internal async Task SetUserNotificationsRequest(HTTPRequest Request)
-        {
-
-            var OnSetUserNotificationsRequestLocal = OnSetUserNotificationsRequest;
-
-            if (OnSetUserNotificationsRequestLocal != null)
-                await OnSetUserNotificationsRequestLocal?.Invoke(Request.Timestamp,
-                                                                 HTTPServer,
-                                                                 Request);
-
-        }
-
-        #endregion
-
-        #region (protected internal) SetUserNotificationsResponse(Response)
-
-        /// <summary>
-        /// An event sent whenever a response on a set user notifications request was sent.
-        /// </summary>
-        public event AccessLogHandler OnSetUserNotificationsResponse;
-
-        protected internal async Task SetUserNotificationsResponse(HTTPResponse Response)
-        {
-
-            var OnSetUserNotificationsResponseLocal = OnSetUserNotificationsResponse;
-
-            if (OnSetUserNotificationsResponseLocal != null)
-                await OnSetUserNotificationsResponseLocal?.Invoke(Response.Timestamp,
-                                                                  HTTPServer,
-                                                                  Response.HTTPRequest,
-                                                                  Response);
-
-        }
-
-        #endregion
-
-
-        #region (protected internal) AddOrganizationRequest (Request)
-
-        /// <summary>
-        /// An event sent whenever add organization request was received.
-        /// </summary>
-        public RequestLogEvent OnAddOrganizationRequest = new RequestLogEvent();
-
-        /// <summary>
-        /// An event sent whenever add organization request was received.
-        /// </summary>
-        /// <param name="Request">A HTTP request.</param>
-        protected internal Task AddOrganizationRequest(HTTPRequest Request)
-
-            => OnAddOrganizationRequest?.WhenAll(this,
-                                                 DateTime.UtcNow,
-                                                 Request);
-
-        #endregion
-
-        #region (protected internal) AddOrganizationResponse(Response)
-
-        /// <summary>
-        /// An event sent whenever a response on an add organization request was sent.
-        /// </summary>
-        public ResponseLogEvent OnAddOrganizationResponse = new ResponseLogEvent();
-
-        /// <summary>
-        /// An event sent whenever a response on an add organization request was sent.
-        /// </summary>
-        /// <param name="Response">A HTTP response.</param>
-        protected internal Task AddOrganizationResponse(HTTPResponse Response)
-
-            => OnAddOrganizationResponse?.WhenAll(this,
-                                                  DateTime.UtcNow,
-                                                  Response.HTTPRequest,
-                                                  Response);
-
-        #endregion
-
-
-
         #region WriteToLogfileAndNotify(MessageId, JSONData, Logfilename = DefaultUsersAPIFile)
 
         public void WriteToLogfileAndNotify(String    MessageId,
@@ -6644,57 +6644,6 @@ namespace org.GraphDefined.OpenData.Users
             => _Notifications.Remove(User,
                                      NotificationId,
                                      EqualityComparer);
-
-        #endregion
-
-
-        #region Start()
-
-        public void Start()
-        {
-
-            lock (HTTPServer)
-            {
-
-                if (!HTTPServer.IsStarted)
-                    HTTPServer.Start();
-
-                //SendStarted(this, DateTime.UtcNow);
-
-            }
-
-        }
-
-        #endregion
-
-        #region Shutdown(Message = null, Wait = true)
-
-        public void Shutdown(String Message = null, Boolean Wait = true)
-        {
-
-            lock (HTTPServer)
-            {
-
-                HTTPServer.Shutdown(Message, Wait);
-                //SendCompleted(this, DateTime.UtcNow, Message);
-
-            }
-
-        }
-
-        #endregion
-
-        #region Dispose()
-
-        public void Dispose()
-        {
-
-            lock (HTTPServer)
-            {
-                HTTPServer.Dispose();
-            }
-
-        }
 
         #endregion
 
