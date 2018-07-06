@@ -33,8 +33,6 @@ using Newtonsoft.Json.Linq;
 
 using Org.BouncyCastle.Bcpg.OpenPgp;
 
-using SMSApi.Api;
-
 using org.GraphDefined.Vanaheimr.Illias;
 using org.GraphDefined.Vanaheimr.Styx.Arrows;
 using org.GraphDefined.Vanaheimr.Hermod;
@@ -47,6 +45,7 @@ using org.GraphDefined.Vanaheimr.BouncyCastle;
 using org.GraphDefined.Vanaheimr.Hermod.Sockets;
 using org.GraphDefined.Vanaheimr.Aegir;
 using org.GraphDefined.Vanaheimr.Warden;
+using SMSApi.Api;
 
 #endregion
 
@@ -935,11 +934,15 @@ namespace org.GraphDefined.OpenData.Users
         /// <summary>
         /// An event sent whenever add user request was received.
         /// </summary>
+        /// <param name="Timestamp">The timestamp of the request.</param>
+        /// <param name="API">The HTTP API.</param>
         /// <param name="Request">A HTTP request.</param>
-        protected internal Task AddUserRequest(HTTPRequest Request)
+        protected internal Task AddUserRequest(DateTime     Timestamp,
+                                               HTTPAPI      API,
+                                               HTTPRequest  Request)
 
-            => OnAddUserRequest?.WhenAll(DateTime.UtcNow,
-                                         this,
+            => OnAddUserRequest?.WhenAll(Timestamp,
+                                         API ?? this,
                                          Request);
 
         #endregion
@@ -954,12 +957,18 @@ namespace org.GraphDefined.OpenData.Users
         /// <summary>
         /// An event sent whenever a response on an add user request was sent.
         /// </summary>
+        /// <param name="Timestamp">The timestamp of the request.</param>
+        /// <param name="API">The HTTP API.</param>
+        /// <param name="Request">A HTTP request.</param>
         /// <param name="Response">A HTTP response.</param>
-        protected internal Task AddUserResponse(HTTPResponse Response)
+        protected internal Task AddUserResponse(DateTime      Timestamp,
+                                                HTTPAPI       API,
+                                                HTTPRequest   Request,
+                                                HTTPResponse  Response)
 
-            => OnAddUserResponse?.WhenAll(DateTime.UtcNow,
-                                          this,
-                                          Response.HTTPRequest,
+            => OnAddUserResponse?.WhenAll(Timestamp,
+                                          API ?? this,
+                                          Request,
                                           Response);
 
         #endregion
@@ -975,11 +984,15 @@ namespace org.GraphDefined.OpenData.Users
         /// <summary>
         /// An event sent whenever set user request was received.
         /// </summary>
+        /// <param name="Timestamp">The timestamp of the request.</param>
+        /// <param name="API">The HTTP API.</param>
         /// <param name="Request">A HTTP request.</param>
-        protected internal Task SetUserRequest(HTTPRequest Request)
+        protected internal Task SetUserRequest(DateTime     Timestamp,
+                                               HTTPAPI      API,
+                                               HTTPRequest  Request)
 
-            => OnSetUserRequest?.WhenAll(DateTime.UtcNow,
-                                         this,
+            => OnSetUserRequest?.WhenAll(Timestamp,
+                                         API ?? this,
                                          Request);
 
         #endregion
@@ -994,12 +1007,18 @@ namespace org.GraphDefined.OpenData.Users
         /// <summary>
         /// An event sent whenever a response on a set user request was sent.
         /// </summary>
+        /// <param name="Timestamp">The timestamp of the request.</param>
+        /// <param name="API">The HTTP API.</param>
+        /// <param name="Request">A HTTP request.</param>
         /// <param name="Response">A HTTP response.</param>
-        protected internal Task SetUserResponse(HTTPResponse Response)
+        protected internal Task SetUserResponse(DateTime      Timestamp,
+                                                HTTPAPI       API,
+                                                HTTPRequest   Request,
+                                                HTTPResponse  Response)
 
-            => OnSetUserResponse?.WhenAll(DateTime.UtcNow,
-                                          this,
-                                          Response.HTTPRequest,
+            => OnSetUserResponse?.WhenAll(Timestamp,
+                                          API ?? this,
+                                          Request,
                                           Response);
 
         #endregion
@@ -1015,11 +1034,15 @@ namespace org.GraphDefined.OpenData.Users
         /// <summary>
         /// An event sent whenever set user request was received.
         /// </summary>
+        /// <param name="Timestamp">The timestamp of the request.</param>
+        /// <param name="API">The HTTP API.</param>
         /// <param name="Request">A HTTP request.</param>
-        protected internal Task ChangePasswordRequest(HTTPRequest Request)
+        protected internal Task ChangePasswordRequest(DateTime     Timestamp,
+                                                      HTTPAPI      API,
+                                                      HTTPRequest  Request)
 
-            => OnChangePasswordRequest?.WhenAll(DateTime.UtcNow,
-                                                this,
+            => OnChangePasswordRequest?.WhenAll(Timestamp,
+                                                API ?? this,
                                                 Request);
 
         #endregion
@@ -1034,13 +1057,19 @@ namespace org.GraphDefined.OpenData.Users
         /// <summary>
         /// An event sent whenever a response on a set user request was sent.
         /// </summary>
+        /// <param name="Timestamp">The timestamp of the request.</param>
+        /// <param name="API">The HTTP API.</param>
+        /// <param name="Request">A HTTP request.</param>
         /// <param name="Response">A HTTP response.</param>
-        protected internal Task ChangePasswordResponse(HTTPResponse Response)
+        protected internal Task ChangePasswordResponse(DateTime      Timestamp,
+                                                       HTTPAPI       API,
+                                                       HTTPRequest   Request,
+                                                       HTTPResponse  Response)
 
-            => OnChangePasswordResponse?.WhenAll(DateTime.UtcNow,
-                                          this,
-                                          Response.HTTPRequest,
-                                          Response);
+            => OnChangePasswordResponse?.WhenAll(Timestamp,
+                                                 API ?? this,
+                                                 Request,
+                                                 Response);
 
         #endregion
 
@@ -1055,11 +1084,15 @@ namespace org.GraphDefined.OpenData.Users
         /// <summary>
         /// An event sent whenever set user notifications request was received.
         /// </summary>
+        /// <param name="Timestamp">The timestamp of the request.</param>
+        /// <param name="API">The HTTP API.</param>
         /// <param name="Request">A HTTP request.</param>
-        protected internal Task SetUserNotificationsRequest(HTTPRequest Request)
+        protected internal Task SetUserNotificationsRequest(DateTime     Timestamp,
+                                                            HTTPAPI      API,
+                                                            HTTPRequest  Request)
 
-            => OnSetUserNotificationsRequest?.WhenAll(DateTime.UtcNow,
-                                                      this,
+            => OnSetUserNotificationsRequest?.WhenAll(Timestamp,
+                                                      API ?? this,
                                                       Request);
 
         #endregion
@@ -1074,12 +1107,18 @@ namespace org.GraphDefined.OpenData.Users
         /// <summary>
         /// An event sent whenever a response on a set user notifications request was sent.
         /// </summary>
+        /// <param name="Timestamp">The timestamp of the request.</param>
+        /// <param name="API">The HTTP API.</param>
+        /// <param name="Request">A HTTP request.</param>
         /// <param name="Response">A HTTP response.</param>
-        protected internal Task SetUserNotificationsResponse(HTTPResponse Response)
+        protected internal Task SetUserNotificationsResponse(DateTime      Timestamp,
+                                                             HTTPAPI       API,
+                                                             HTTPRequest   Request,
+                                                             HTTPResponse  Response)
 
-            => OnSetUserNotificationsResponse?.WhenAll(DateTime.UtcNow,
-                                                       this,
-                                                       Response.HTTPRequest,
+            => OnSetUserNotificationsResponse?.WhenAll(Timestamp,
+                                                       API ?? this,
+                                                       Request,
                                                        Response);
 
         #endregion
@@ -1095,11 +1134,15 @@ namespace org.GraphDefined.OpenData.Users
         /// <summary>
         /// An event sent whenever add organization request was received.
         /// </summary>
+        /// <param name="Timestamp">The timestamp of the request.</param>
+        /// <param name="API">The HTTP API.</param>
         /// <param name="Request">A HTTP request.</param>
-        protected internal Task AddOrganizationRequest(HTTPRequest Request)
+        protected internal Task AddOrganizationRequest(DateTime     Timestamp,
+                                                       HTTPAPI      API,
+                                                       HTTPRequest  Request)
 
-            => OnAddOrganizationRequest?.WhenAll(DateTime.UtcNow,
-                                                 this,
+            => OnAddOrganizationRequest?.WhenAll(Timestamp,
+                                                 API ?? this,
                                                  Request);
 
         #endregion
@@ -1114,12 +1157,18 @@ namespace org.GraphDefined.OpenData.Users
         /// <summary>
         /// An event sent whenever a response on an add organization request was sent.
         /// </summary>
+        /// <param name="Timestamp">The timestamp of the request.</param>
+        /// <param name="API">The HTTP API.</param>
+        /// <param name="Request">A HTTP request.</param>
         /// <param name="Response">A HTTP response.</param>
-        protected internal Task AddOrganizationResponse(HTTPResponse Response)
+        protected internal Task AddOrganizationResponse(DateTime      Timestamp,
+                                                        HTTPAPI       API,
+                                                        HTTPRequest   Request,
+                                                        HTTPResponse  Response)
 
-            => OnAddOrganizationResponse?.WhenAll(DateTime.UtcNow,
-                                                  this,
-                                                  Response.HTTPRequest,
+            => OnAddOrganizationResponse?.WhenAll(Timestamp,
+                                                  API ?? this,
+                                                  Request,
                                                   Response);
 
         #endregion
