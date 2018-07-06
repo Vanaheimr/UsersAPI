@@ -930,7 +930,7 @@ namespace org.GraphDefined.OpenData.Users
         /// <summary>
         /// An event sent whenever add user request was received.
         /// </summary>
-        public RequestLogEvent OnAddUserRequest = new RequestLogEvent();
+        public HTTPRequestLogEvent OnAddUserRequest = new HTTPRequestLogEvent();
 
         /// <summary>
         /// An event sent whenever add user request was received.
@@ -938,8 +938,8 @@ namespace org.GraphDefined.OpenData.Users
         /// <param name="Request">A HTTP request.</param>
         protected internal Task AddUserRequest(HTTPRequest Request)
 
-            => OnAddUserRequest?.WhenAll(this,
-                                         DateTime.UtcNow,
+            => OnAddUserRequest?.WhenAll(DateTime.UtcNow,
+                                         this,
                                          Request);
 
         #endregion
@@ -949,7 +949,7 @@ namespace org.GraphDefined.OpenData.Users
         /// <summary>
         /// An event sent whenever a response on an add user request was sent.
         /// </summary>
-        public ResponseLogEvent OnAddUserResponse = new ResponseLogEvent();
+        public HTTPResponseLogEvent OnAddUserResponse = new HTTPResponseLogEvent();
 
         /// <summary>
         /// An event sent whenever a response on an add user request was sent.
@@ -957,8 +957,8 @@ namespace org.GraphDefined.OpenData.Users
         /// <param name="Response">A HTTP response.</param>
         protected internal Task AddUserResponse(HTTPResponse Response)
 
-            => OnAddUserResponse?.WhenAll(this,
-                                          DateTime.UtcNow,
+            => OnAddUserResponse?.WhenAll(DateTime.UtcNow,
+                                          this,
                                           Response.HTTPRequest,
                                           Response);
 
@@ -970,7 +970,7 @@ namespace org.GraphDefined.OpenData.Users
         /// <summary>
         /// An event sent whenever set user request was received.
         /// </summary>
-        public RequestLogEvent OnSetUserRequest = new RequestLogEvent();
+        public HTTPRequestLogEvent OnSetUserRequest = new HTTPRequestLogEvent();
 
         /// <summary>
         /// An event sent whenever set user request was received.
@@ -978,8 +978,8 @@ namespace org.GraphDefined.OpenData.Users
         /// <param name="Request">A HTTP request.</param>
         protected internal Task SetUserRequest(HTTPRequest Request)
 
-            => OnSetUserRequest?.WhenAll(this,
-                                         DateTime.UtcNow,
+            => OnSetUserRequest?.WhenAll(DateTime.UtcNow,
+                                         this,
                                          Request);
 
         #endregion
@@ -989,7 +989,7 @@ namespace org.GraphDefined.OpenData.Users
         /// <summary>
         /// An event sent whenever a response on a set user request was sent.
         /// </summary>
-        public ResponseLogEvent OnSetUserResponse = new ResponseLogEvent();
+        public HTTPResponseLogEvent OnSetUserResponse = new HTTPResponseLogEvent();
 
         /// <summary>
         /// An event sent whenever a response on a set user request was sent.
@@ -997,8 +997,8 @@ namespace org.GraphDefined.OpenData.Users
         /// <param name="Response">A HTTP response.</param>
         protected internal Task SetUserResponse(HTTPResponse Response)
 
-            => OnSetUserResponse?.WhenAll(this,
-                                          DateTime.UtcNow,
+            => OnSetUserResponse?.WhenAll(DateTime.UtcNow,
+                                          this,
                                           Response.HTTPRequest,
                                           Response);
 
@@ -1010,18 +1010,17 @@ namespace org.GraphDefined.OpenData.Users
         /// <summary>
         /// An event sent whenever set user request was received.
         /// </summary>
-        public event RequestLogHandler OnChangePasswordRequest;
+        public HTTPRequestLogEvent OnChangePasswordRequest = new HTTPRequestLogEvent();
 
-        protected internal HTTPRequest ChangePasswordRequest(HTTPRequest Request)
-        {
+        /// <summary>
+        /// An event sent whenever set user request was received.
+        /// </summary>
+        /// <param name="Request">A HTTP request.</param>
+        protected internal Task ChangePasswordRequest(HTTPRequest Request)
 
-            OnChangePasswordRequest?.Invoke(Request.Timestamp,
-                                            HTTPServer,
-                                            Request);
-
-            return Request;
-
-        }
+            => OnChangePasswordRequest?.WhenAll(DateTime.UtcNow,
+                                                this,
+                                                Request);
 
         #endregion
 
@@ -1030,19 +1029,18 @@ namespace org.GraphDefined.OpenData.Users
         /// <summary>
         /// An event sent whenever a response on a set user request was sent.
         /// </summary>
-        public event AccessLogHandler OnChangePasswordResponse;
+        public HTTPResponseLogEvent OnChangePasswordResponse = new HTTPResponseLogEvent();
 
-        protected internal HTTPResponse ChangePasswordResponse(HTTPResponse Response)
-        {
+        /// <summary>
+        /// An event sent whenever a response on a set user request was sent.
+        /// </summary>
+        /// <param name="Response">A HTTP response.</param>
+        protected internal Task ChangePasswordResponse(HTTPResponse Response)
 
-            OnChangePasswordResponse?.Invoke(Response.Timestamp,
-                                             HTTPServer,
-                                             Response.HTTPRequest,
-                                             Response);
-
-            return Response;
-
-        }
+            => OnChangePasswordResponse?.WhenAll(DateTime.UtcNow,
+                                          this,
+                                          Response.HTTPRequest,
+                                          Response);
 
         #endregion
 
@@ -1052,19 +1050,17 @@ namespace org.GraphDefined.OpenData.Users
         /// <summary>
         /// An event sent whenever set user notifications request was received.
         /// </summary>
-        public event RequestLogHandler OnSetUserNotificationsRequest;
+        public HTTPRequestLogEvent OnSetUserNotificationsRequest = new HTTPRequestLogEvent();
 
-        protected internal async Task SetUserNotificationsRequest(HTTPRequest Request)
-        {
+        /// <summary>
+        /// An event sent whenever set user notifications request was received.
+        /// </summary>
+        /// <param name="Request">A HTTP request.</param>
+        protected internal Task SetUserNotificationsRequest(HTTPRequest Request)
 
-            var OnSetUserNotificationsRequestLocal = OnSetUserNotificationsRequest;
-
-            if (OnSetUserNotificationsRequestLocal != null)
-                await OnSetUserNotificationsRequestLocal?.Invoke(Request.Timestamp,
-                                                                 HTTPServer,
-                                                                 Request);
-
-        }
+            => OnSetUserNotificationsRequest?.WhenAll(DateTime.UtcNow,
+                                                      this,
+                                                      Request);
 
         #endregion
 
@@ -1073,20 +1069,18 @@ namespace org.GraphDefined.OpenData.Users
         /// <summary>
         /// An event sent whenever a response on a set user notifications request was sent.
         /// </summary>
-        public event AccessLogHandler OnSetUserNotificationsResponse;
+        public HTTPResponseLogEvent OnSetUserNotificationsResponse = new HTTPResponseLogEvent();
 
-        protected internal async Task SetUserNotificationsResponse(HTTPResponse Response)
-        {
+        /// <summary>
+        /// An event sent whenever a response on a set user notifications request was sent.
+        /// </summary>
+        /// <param name="Response">A HTTP response.</param>
+        protected internal Task SetUserNotificationsResponse(HTTPResponse Response)
 
-            var OnSetUserNotificationsResponseLocal = OnSetUserNotificationsResponse;
-
-            if (OnSetUserNotificationsResponseLocal != null)
-                await OnSetUserNotificationsResponseLocal?.Invoke(Response.Timestamp,
-                                                                  HTTPServer,
-                                                                  Response.HTTPRequest,
-                                                                  Response);
-
-        }
+            => OnSetUserNotificationsResponse?.WhenAll(DateTime.UtcNow,
+                                                       this,
+                                                       Response.HTTPRequest,
+                                                       Response);
 
         #endregion
 
@@ -1096,7 +1090,7 @@ namespace org.GraphDefined.OpenData.Users
         /// <summary>
         /// An event sent whenever add organization request was received.
         /// </summary>
-        public RequestLogEvent OnAddOrganizationRequest = new RequestLogEvent();
+        public HTTPRequestLogEvent OnAddOrganizationRequest = new HTTPRequestLogEvent();
 
         /// <summary>
         /// An event sent whenever add organization request was received.
@@ -1104,8 +1098,8 @@ namespace org.GraphDefined.OpenData.Users
         /// <param name="Request">A HTTP request.</param>
         protected internal Task AddOrganizationRequest(HTTPRequest Request)
 
-            => OnAddOrganizationRequest?.WhenAll(this,
-                                                 DateTime.UtcNow,
+            => OnAddOrganizationRequest?.WhenAll(DateTime.UtcNow,
+                                                 this,
                                                  Request);
 
         #endregion
@@ -1115,7 +1109,7 @@ namespace org.GraphDefined.OpenData.Users
         /// <summary>
         /// An event sent whenever a response on an add organization request was sent.
         /// </summary>
-        public ResponseLogEvent OnAddOrganizationResponse = new ResponseLogEvent();
+        public HTTPResponseLogEvent OnAddOrganizationResponse = new HTTPResponseLogEvent();
 
         /// <summary>
         /// An event sent whenever a response on an add organization request was sent.
@@ -1123,8 +1117,8 @@ namespace org.GraphDefined.OpenData.Users
         /// <param name="Response">A HTTP response.</param>
         protected internal Task AddOrganizationResponse(HTTPResponse Response)
 
-            => OnAddOrganizationResponse?.WhenAll(this,
-                                                  DateTime.UtcNow,
+            => OnAddOrganizationResponse?.WhenAll(DateTime.UtcNow,
+                                                  this,
                                                   Response.HTTPRequest,
                                                   Response);
 
@@ -3853,9 +3847,9 @@ namespace org.GraphDefined.OpenData.Users
                                          HTTPMethod.SET,
                                          URIPrefix + "users/{UserId}/password",
                                          HTTPContentType.JSON_UTF8,
+                                         HTTPRequestLogger:  ChangePasswordRequest,
+                                         HTTPResponseLogger: ChangePasswordResponse,
                                          HTTPDelegate: async Request => {
-
-                                             ChangePasswordRequest(Request);
 
                                              #region Get HTTP user and its organizations
 
@@ -3867,7 +3861,7 @@ namespace org.GraphDefined.OpenData.Users
                                                                  AccessLevel:                   Access_Level.ReadWrite,
                                                                  Recursive:                     true))
                                              {
-                                                 return ChangePasswordResponse(Response);
+                                                 return Response;
                                              }
 
                                              #endregion
@@ -3878,7 +3872,7 @@ namespace org.GraphDefined.OpenData.Users
                                                                       out User_Id?      UserIdURI,
                                                                       out HTTPResponse  HTTPResponse))
                                              {
-                                                 return ChangePasswordResponse(HTTPResponse);
+                                                 return HTTPResponse;
                                              }
 
                                              #endregion
@@ -3886,7 +3880,7 @@ namespace org.GraphDefined.OpenData.Users
                                              #region Parse JSON
 
                                              if (!Request.TryParseJObjectRequestBody(out JObject JSONObj, out HTTPResponse))
-                                                 return ChangePasswordResponse(HTTPResponse);
+                                                 return HTTPResponse;
 
                                              var ErrorResponse    = "";
                                              var CurrentPassword  = JSONObj.GetString("currentPassword");
@@ -3895,8 +3889,7 @@ namespace org.GraphDefined.OpenData.Users
                                              if (CurrentPassword.IsNullOrEmpty() || NewPassword.IsNullOrEmpty())
                                              {
 
-                                                 return ChangePasswordResponse(
-                                                            new HTTPResponseBuilder(Request) {
+                                                 return new HTTPResponseBuilder(Request) {
                                                                 HTTPStatusCode             = HTTPStatusCode.BadRequest,
                                                                 Server                     = HTTPServer.DefaultServerName,
                                                                 Date                       = DateTime.UtcNow,
@@ -3908,7 +3901,7 @@ namespace org.GraphDefined.OpenData.Users
                                                                 Content                    = JSONObject.Create(
                                                                                                  new JProperty("description",  ErrorResponse)
                                                                                              ).ToUTF8Bytes()
-                                                            }.AsImmutable);
+                                                            }.AsImmutable;
 
                                              }
 
@@ -3920,8 +3913,7 @@ namespace org.GraphDefined.OpenData.Users
                                              if (HTTPUser.Id != UserIdURI.Value)
                                              {
 
-                                                 return ChangePasswordResponse(
-                                                        new HTTPResponseBuilder(Request) {
+                                                 return new HTTPResponseBuilder(Request) {
                                                             HTTPStatusCode              = HTTPStatusCode.Forbidden,
                                                             Server                      = HTTPServer.DefaultServerName,
                                                             Date                        = DateTime.UtcNow,
@@ -3929,7 +3921,7 @@ namespace org.GraphDefined.OpenData.Users
                                                             AccessControlAllowMethods   = "GET, SET, CHOWN",
                                                             AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
                                                             Connection                  = "close"
-                                                        }.AsImmutable);
+                                                        }.AsImmutable;
 
                                              }
 
@@ -3939,23 +3931,13 @@ namespace org.GraphDefined.OpenData.Users
                                                                    HTTPUser.Id))
                                              {
 
-                                                 #region Send e-mail...
+                                                 var MailSentResult = await APISMTPClient.Send(PasswordChangedEMailCreator(HTTPUser.Id,
+                                                                                                                           HTTPUser.EMail,
+                                                                                                                           HTTPUser.Name,
+                                                                                                                           "https://" + Request.Host.SimpleString,
+                                                                                                                           DefaultLanguage));
 
-                                                 var MailSentResult = MailSentStatus.failed;
-
-                                                 var MailResultTask = APISMTPClient.Send(PasswordChangedEMailCreator(HTTPUser.Id,
-                                                                                                                     HTTPUser.EMail,
-                                                                                                                     HTTPUser.Name,
-                                                                                                                     "https://" + Request.Host.SimpleString,
-                                                                                                                     DefaultLanguage));
-
-                                                 if (MailResultTask.Wait(60000))
-                                                     MailSentResult = MailResultTask.Result;
-
-                                                 #endregion
-
-                                                 return ChangePasswordResponse(
-                                                            new HTTPResponseBuilder(Request) {
+                                                 return new HTTPResponseBuilder(Request) {
                                                                 HTTPStatusCode              = HTTPStatusCode.OK,
                                                                 Server                      = HTTPServer.DefaultServerName,
                                                                 Date                        = DateTime.UtcNow,
@@ -3963,14 +3945,13 @@ namespace org.GraphDefined.OpenData.Users
                                                                 AccessControlAllowMethods   = "SET",
                                                                 AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
                                                                 Connection                  = "close"
-                                                            }.AsImmutable);
+                                                            }.AsImmutable;
                                              }
 
                                              else
                                              {
 
-                                                 return ChangePasswordResponse(
-                                                            new HTTPResponseBuilder(Request) {
+                                                 return new HTTPResponseBuilder(Request) {
                                                                 HTTPStatusCode              = HTTPStatusCode.Forbidden,
                                                                 Server                      = HTTPServer.DefaultServerName,
                                                                 Date                        = DateTime.UtcNow,
@@ -3978,7 +3959,7 @@ namespace org.GraphDefined.OpenData.Users
                                                                 AccessControlAllowMethods   = "SET",
                                                                 AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
                                                                 Connection                  = "close"
-                                                            }.AsImmutable);
+                                                            }.AsImmutable;
 
                                              }
 
