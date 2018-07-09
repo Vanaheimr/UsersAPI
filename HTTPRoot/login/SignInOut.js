@@ -250,7 +250,6 @@ function SetPassword() {
         responseDiv.classList.remove("responseOk");
         var SetPasswordJSON = {
             "securityToken1": securityToken1.value,
-            "securityToken2": securityToken2.value,
             "newPassword": newPassword1.value
         };
         if (securityToken2.value != "")
