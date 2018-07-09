@@ -2393,8 +2393,9 @@ namespace org.GraphDefined.OpenData.Users
 
                                              #region Is security token 2 used and valid?
 
-                                             if (SecurityToken2.HasValue &&
-                                                 SecurityToken2 != _PasswordReset.SecurityToken2)
+                                             if (SecurityToken2.HasValue                &&
+                                                 SecurityToken2.Value.ToString() != ""  &&
+                                                 SecurityToken2.Value            != _PasswordReset.SecurityToken2)
                                              {
 
                                                  return Task.FromResult(
