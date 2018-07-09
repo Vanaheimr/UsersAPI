@@ -248,11 +248,13 @@ function SetPassword() {
         responseDiv.innerHTML = '<i class="fa fa-spinner faa-spin animated"></i> Verifying your request... please wait!';
         responseDiv.classList.remove("responseError");
         responseDiv.classList.remove("responseOk");
-        HTTPSet("/setPassword", "APIKey", {
+        var SetPasswordJSON = {
             "securityToken1": securityToken1.value,
-            "securityToken2": securityToken2.value,
             "newPassword": newPassword1.value
-        }, function (HTTPStatus, ResponseText) {
+        };
+        if (securityToken2.value != "")
+            SetPasswordJSON["securityToken2"] = securityToken2.value;
+        HTTPSet("/setPassword", "APIKey", SetPasswordJSON, function (HTTPStatus, ResponseText) {
             try {
                 var responseJSON = JSON.parse(ResponseText);
                 if (responseJSON.numberOfAccountsFound != null) {

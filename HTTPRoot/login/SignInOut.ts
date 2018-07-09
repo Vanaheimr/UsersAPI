@@ -383,13 +383,17 @@ function SetPassword() {
         responseDiv.classList.remove("responseError");
         responseDiv.classList.remove("responseOk");
 
+        let SetPasswordJSON = {
+            "securityToken1": securityToken1.value,
+            "newPassword":    newPassword1.value
+        };
+
+        if (securityToken2.value != "")
+            SetPasswordJSON["securityToken2"] = securityToken2.value;
+
         HTTPSet("/setPassword",
                 "APIKey",
-                {
-                    "securityToken1":  securityToken1.value,
-                    "securityToken2":  securityToken2.value,
-                    "newPassword":     newPassword1.value
-                },
+                SetPasswordJSON,
 
                 (HTTPStatus, ResponseText) => {
 
@@ -398,11 +402,11 @@ function SetPassword() {
                         var responseJSON = JSON.parse(ResponseText);
 
                         if (responseJSON.numberOfAccountsFound != null) {
-                            responseDiv.style.display = 'block';
-                            responseDiv.innerHTML     = "<i class='fas fa-user-check  fa-2x menuicons'></i> Succssfully resetted your password!";
+                            responseDiv.style.display       = 'block';
+                            responseDiv.innerHTML           = "<i class='fas fa-user-check  fa-2x menuicons'></i> Succssfully resetted your password!";
                             responseDiv.classList.remove("responseError");
                             responseDiv.classList.add   ("responseOk");
-                            setPasswordInput.disabled = true;
+                            setPasswordInput.disabled       = true;
                             setPasswordButton.style.display = 'none';
                             gotoLoginButton.style.display   = 'block';
                             return;
@@ -413,7 +417,7 @@ function SetPassword() {
                     { }
 
                     responseDiv.style.display = 'block';
-                    responseDiv.innerHTML = "<i class='fas fa-exclamation-triangle  fa-2x menuicons'></i> Setting your password failed!";
+                    responseDiv.innerHTML     = "<i class='fas fa-exclamation-triangle  fa-2x menuicons'></i> Setting your password failed!";
                     responseDiv.classList.remove("responseOk");
                     responseDiv.classList.add("responseError");
 
@@ -421,7 +425,7 @@ function SetPassword() {
 
                 (HTTPStatus, StatusText, ResponseText) => {
                     responseDiv.style.display = 'block';
-                    responseDiv.innerHTML = "<i class='fas fa-exclamation-triangle  fa-2x menuicons'></i> Setting your password failed!";
+                    responseDiv.innerHTML     = "<i class='fas fa-exclamation-triangle  fa-2x menuicons'></i> Setting your password failed!";
                     responseDiv.classList.remove("responseOk");
                     responseDiv.classList.add("responseError");
                 });
