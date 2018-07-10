@@ -103,9 +103,11 @@ function VerifyLogin() {
     var IAcceptCheckbox = document.getElementById("IAcceptCheckbox");
     var acceptEULAButton = document.getElementById("acceptEULAButton");
     _login.onchange = function (ev) {
+        _login.value = _login.value.toLowerCase();
         ToogleSaveButton();
     };
     _login.onkeyup = function (ev) {
+        _login.value = _login.value.toLowerCase();
         ToogleSaveButton();
     };
     _password.onchange = function (ev) {
@@ -179,17 +181,8 @@ function LostPassword() {
     var resetPasswordButton = document.getElementById("resetPasswordButton");
     var resetPasswordInput = document.getElementById("resetPasswordInput");
     _id.onchange = function (ev) {
+        _id.value = _id.value.toLowerCase();
         ToogleSaveButton();
-    };
-    _id.onkeydown = function (ev) {
-        //var charCode = ev.charCode;
-        //var char1    = String.fromCharCode(charCode);
-        //var char2    = char1.toLowerCase();
-        //console.debug(char1 + " = " + char2 + "? " + (char1 == char2));
-        //if (char1 != char2) {
-        //    _id.value += char2;
-        //    ev.preventDefault();
-        //}
     };
     _id.onkeyup = function (ev) {
         _id.value = _id.value.toLowerCase();
