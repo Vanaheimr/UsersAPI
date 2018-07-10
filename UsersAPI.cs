@@ -2279,7 +2279,14 @@ namespace org.GraphDefined.OpenData.Users
             #region SET         ~/setPassword
 
             // ------------------------------------------------------------------
-            // curl -v -H "Accept: text/html" http://127.0.0.1:2100/setPassword
+            // curl -v -X SET
+            //      -H 'Accept:       application/json; charset=UTF-8' \
+            //      -H 'Content-Type: application/json; charset=UTF-8' \
+            //      -d "{ \
+            //            \"securityToken1\": \"4tf7M62p5C92tE2d5CY74UWfx2S4jxSp2z5S3jM3\", \
+            //            \"newPassword\":    \"bguf7tf8g\" \
+            //          }" \
+            //      http://127.0.0.1:2001/setPassword
             // ------------------------------------------------------------------
             HTTPServer.AddMethodCallback(HTTPHostname.Any,
                                          HTTPMethod.SET,
@@ -2473,6 +2480,11 @@ namespace org.GraphDefined.OpenData.Users
                                                             Content                    = JSONObject.Create(
                                                                                              new JProperty("numberOfAccountsFound", Users.Count())
                                                                                          ).ToUTF8Bytes(),
+                                                            SetCookie                  = CookieName + "=; Expires=" + DateTime.UtcNow.ToRfc1123() +
+                                                                                             (HTTPCookieDomain.IsNotNullOrEmpty()
+                                                                                                 ? "; Domain=" + HTTPCookieDomain
+                                                                                                 : "") +
+                                                                                             "; Path=/",
                                                             Connection                 = "close"
                                                         }.AsImmutable);
 
@@ -4505,19 +4517,12 @@ namespace org.GraphDefined.OpenData.Users
                                         case "ResetPassword":
 
                                             if (_LoginPasswords.ContainsKey(Login))
-                                            {
-
                                                 _LoginPasswords.Remove(Login);
 
-                                                _LoginPasswords.Add(Login,
-                                                                    new LoginPassword(Login,
-                                                                                      Password.ParseHash(JSONObject["newPassword"]["salt"].        Value<String>(),
-                                                                                                         JSONObject["newPassword"]["passwordHash"].Value<String>())));
-
-                                            }
-
-                                            else
-                                                DebugX.Log("Invalid 'ResetPassword' command in '" + DefaultPasswordFile + "' line " + linenumber + "!");
+                                            _LoginPasswords.Add(Login,
+                                                                new LoginPassword(Login,
+                                                                                  Password.ParseHash(JSONObject["newPassword"]["salt"].        Value<String>(),
+                                                                                                     JSONObject["newPassword"]["passwordHash"].Value<String>())));
 
                                             break;
 
