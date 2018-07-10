@@ -73,8 +73,8 @@ namespace org.GraphDefined.OpenData.Users
                         String  Realm = null)
         {
 
-            this.InternalId  = String;
-            this.Realm       = Realm ?? "";
+            this.InternalId  = String.ToLower();
+            this.Realm       = Realm?.ToLower() ?? "";
 
         }
 
