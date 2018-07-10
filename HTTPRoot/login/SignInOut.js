@@ -181,7 +181,18 @@ function LostPassword() {
     _id.onchange = function (ev) {
         ToogleSaveButton();
     };
+    _id.onkeydown = function (ev) {
+        //var charCode = ev.charCode;
+        //var char1    = String.fromCharCode(charCode);
+        //var char2    = char1.toLowerCase();
+        //console.debug(char1 + " = " + char2 + "? " + (char1 == char2));
+        //if (char1 != char2) {
+        //    _id.value += char2;
+        //    ev.preventDefault();
+        //}
+    };
     _id.onkeyup = function (ev) {
+        _id.value = _id.value.toLowerCase();
         ToogleSaveButton();
     };
     loginform.onsubmit = function (ev) {
@@ -334,8 +345,8 @@ function SetPassword() {
 }
 function SignIn() {
     var SignInPanel = document.querySelector('#login');
-    var Username = SignInPanel.querySelector('#_login').value;
-    var Realm = SignInPanel.querySelector('#_realm').value;
+    var Username = SignInPanel.querySelector('#_login').value.toLowerCase();
+    var Realm = SignInPanel.querySelector('#_realm').value.toLowerCase();
     var Password = SignInPanel.querySelector('#_password').value;
     var RememberMe = SignInPanel.querySelector('#_rememberme').checked;
     var SignInErrors = SignInPanel.querySelector('#errors');

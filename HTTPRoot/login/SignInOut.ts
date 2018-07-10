@@ -168,10 +168,12 @@ function VerifyLogin() {
     let acceptEULAButton  = document.getElementById("acceptEULAButton")  as HTMLButtonElement;
 
     _login.onchange    = function (this: HTMLElement, ev: Event) {
+        _login.value = _login.value.toLowerCase();
         ToogleSaveButton();
     }
 
     _login.onkeyup     = function (this: HTMLElement, ev: Event) {
+        _login.value = _login.value.toLowerCase();
         ToogleSaveButton();
     }
 
@@ -280,11 +282,13 @@ function LostPassword() {
     let resetPasswordButton  = document.getElementById("resetPasswordButton") as HTMLDivElement;
     let resetPasswordInput   = document.getElementById("resetPasswordInput")  as HTMLInputElement;
 
-    _id.onchange = function (this: HTMLElement, ev: Event) {
+    _id.onchange       = function (this: HTMLElement, ev: Event) {
+        _id.value = _id.value.toLowerCase();
         ToogleSaveButton();
     }
 
-    _id.onkeyup = function (this: HTMLElement, ev: Event) {
+    _id.onkeyup        = function (this: HTMLElement, ev: KeyboardEvent) {
+        _id.value = _id.value.toLowerCase();
         ToogleSaveButton();
     }
 
@@ -512,8 +516,8 @@ function SetPassword() {
 function SignIn() {
 
     var SignInPanel  = document.querySelector('#login');
-    var Username     = (<HTMLInputElement> SignInPanel.querySelector('#_login')).     value;
-    var Realm        = (<HTMLInputElement> SignInPanel.querySelector('#_realm')).     value;
+    var Username     = (<HTMLInputElement> SignInPanel.querySelector('#_login')).     value.toLowerCase();
+    var Realm        = (<HTMLInputElement> SignInPanel.querySelector('#_realm')).     value.toLowerCase();
     var Password     = (<HTMLInputElement> SignInPanel.querySelector('#_password')).  value;
     var RememberMe   = (<HTMLInputElement> SignInPanel.querySelector('#_rememberme')).checked;
 
