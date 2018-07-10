@@ -164,7 +164,6 @@ function VerifyLogin() {
     let loginInput        = document.getElementById("loginInput")        as HTMLInputElement;
     let EULA              = document.getElementById("EULA")              as HTMLDivElement;
     let IAcceptDiv        = document.getElementById("IAccept")           as HTMLDivElement;
-    let IAcceptCheckbox   = document.getElementById("IAcceptCheckbox")   as HTMLInputElement;
     let acceptEULAButton  = document.getElementById("acceptEULAButton")  as HTMLButtonElement;
 
     _login.onchange    = function (this: HTMLElement, ev: Event) {
@@ -190,11 +189,23 @@ function VerifyLogin() {
     }
 
     IAcceptDiv.onclick = function (this: HTMLElement, ev: Event) {
-        IAcceptCheckbox.click();
-    }
 
-    IAcceptCheckbox.onclick = function (this: HTMLElement, ev: Event) {
-        acceptEULAButton.disabled = loginInput.disabled || !IAcceptCheckbox.checked;
+        if (!IAcceptDiv.children[0].classList.contains("accepted")) {
+
+            IAcceptDiv.children[0].classList.add("accepted");
+            acceptEULAButton.classList.add("accepted");
+
+            // Respect the login button... just for additional security!
+            acceptEULAButton.disabled = loginInput.disabled;
+
+        }
+
+        else {
+            IAcceptDiv.children[0].classList.remove("accepted");
+            acceptEULAButton.classList.remove("accepted");
+            acceptEULAButton.disabled = true;
+        }
+
     }
 
     acceptEULAButton.onclick = function (this: HTMLElement, ev: Event) {

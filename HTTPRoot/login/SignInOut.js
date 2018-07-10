@@ -100,7 +100,6 @@ function VerifyLogin() {
     var loginInput = document.getElementById("loginInput");
     var EULA = document.getElementById("EULA");
     var IAcceptDiv = document.getElementById("IAccept");
-    var IAcceptCheckbox = document.getElementById("IAcceptCheckbox");
     var acceptEULAButton = document.getElementById("acceptEULAButton");
     _login.onchange = function (ev) {
         _login.value = _login.value.toLowerCase();
@@ -120,10 +119,17 @@ function VerifyLogin() {
         return VerifyPassword();
     };
     IAcceptDiv.onclick = function (ev) {
-        IAcceptCheckbox.click();
-    };
-    IAcceptCheckbox.onclick = function (ev) {
-        acceptEULAButton.disabled = loginInput.disabled || !IAcceptCheckbox.checked;
+        if (!IAcceptDiv.children[0].classList.contains("accepted")) {
+            IAcceptDiv.children[0].classList.add("accepted");
+            acceptEULAButton.classList.add("accepted");
+            // Respect the login button... just for additional security!
+            acceptEULAButton.disabled = loginInput.disabled;
+        }
+        else {
+            IAcceptDiv.children[0].classList.remove("accepted");
+            acceptEULAButton.classList.remove("accepted");
+            acceptEULAButton.disabled = true;
+        }
     };
     acceptEULAButton.onclick = function (ev) {
         acceptsEULA = true;
