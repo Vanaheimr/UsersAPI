@@ -100,12 +100,13 @@ function VerifyLogin() {
     var loginInput = document.getElementById("loginInput");
     var EULA = document.getElementById("EULA");
     var IAcceptDiv = document.getElementById("IAccept");
-    var IAcceptCheckbox = document.getElementById("IAcceptCheckbox");
     var acceptEULAButton = document.getElementById("acceptEULAButton");
     _login.onchange = function (ev) {
+        _login.value = _login.value.toLowerCase();
         ToogleSaveButton();
     };
     _login.onkeyup = function (ev) {
+        _login.value = _login.value.toLowerCase();
         ToogleSaveButton();
     };
     _password.onchange = function (ev) {
@@ -118,10 +119,17 @@ function VerifyLogin() {
         return VerifyPassword();
     };
     IAcceptDiv.onclick = function (ev) {
-        IAcceptCheckbox.click();
-    };
-    IAcceptCheckbox.onclick = function (ev) {
-        acceptEULAButton.disabled = loginInput.disabled || !IAcceptCheckbox.checked;
+        if (!IAcceptDiv.children[0].classList.contains("accepted")) {
+            IAcceptDiv.children[0].classList.add("accepted");
+            acceptEULAButton.classList.add("accepted");
+            // Respect the login button... just for additional security!
+            acceptEULAButton.disabled = loginInput.disabled;
+        }
+        else {
+            IAcceptDiv.children[0].classList.remove("accepted");
+            acceptEULAButton.classList.remove("accepted");
+            acceptEULAButton.disabled = true;
+        }
     };
     acceptEULAButton.onclick = function (ev) {
         acceptsEULA = true;
@@ -179,9 +187,11 @@ function LostPassword() {
     var resetPasswordButton = document.getElementById("resetPasswordButton");
     var resetPasswordInput = document.getElementById("resetPasswordInput");
     _id.onchange = function (ev) {
+        _id.value = _id.value.toLowerCase();
         ToogleSaveButton();
     };
     _id.onkeyup = function (ev) {
+        _id.value = _id.value.toLowerCase();
         ToogleSaveButton();
     };
     loginform.onsubmit = function (ev) {
@@ -248,11 +258,13 @@ function SetPassword() {
         responseDiv.innerHTML = '<i class="fa fa-spinner faa-spin animated"></i> Verifying your request... please wait!';
         responseDiv.classList.remove("responseError");
         responseDiv.classList.remove("responseOk");
-        HTTPSet("/setPassword", "APIKey", {
+        var SetPasswordJSON = {
             "securityToken1": securityToken1.value,
-            "securityToken2": securityToken2.value,
             "newPassword": newPassword1.value
-        }, function (HTTPStatus, ResponseText) {
+        };
+        if (securityToken2.value != "")
+            SetPasswordJSON["securityToken2"] = securityToken2.value;
+        HTTPSet("/setPassword", "APIKey", SetPasswordJSON, function (HTTPStatus, ResponseText) {
             try {
                 var responseJSON = JSON.parse(ResponseText);
                 if (responseJSON.numberOfAccountsFound != null) {
@@ -332,8 +344,8 @@ function SetPassword() {
 }
 function SignIn() {
     var SignInPanel = document.querySelector('#login');
-    var Username = SignInPanel.querySelector('#_login').value;
-    var Realm = SignInPanel.querySelector('#_realm').value;
+    var Username = SignInPanel.querySelector('#_login').value.toLowerCase();
+    var Realm = SignInPanel.querySelector('#_realm').value.toLowerCase();
     var Password = SignInPanel.querySelector('#_password').value;
     var RememberMe = SignInPanel.querySelector('#_rememberme').checked;
     var SignInErrors = SignInPanel.querySelector('#errors');

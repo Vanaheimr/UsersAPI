@@ -164,14 +164,15 @@ function VerifyLogin() {
     let loginInput        = document.getElementById("loginInput")        as HTMLInputElement;
     let EULA              = document.getElementById("EULA")              as HTMLDivElement;
     let IAcceptDiv        = document.getElementById("IAccept")           as HTMLDivElement;
-    let IAcceptCheckbox   = document.getElementById("IAcceptCheckbox")   as HTMLInputElement;
     let acceptEULAButton  = document.getElementById("acceptEULAButton")  as HTMLButtonElement;
 
     _login.onchange    = function (this: HTMLElement, ev: Event) {
+        _login.value = _login.value.toLowerCase();
         ToogleSaveButton();
     }
 
     _login.onkeyup     = function (this: HTMLElement, ev: Event) {
+        _login.value = _login.value.toLowerCase();
         ToogleSaveButton();
     }
 
@@ -188,11 +189,23 @@ function VerifyLogin() {
     }
 
     IAcceptDiv.onclick = function (this: HTMLElement, ev: Event) {
-        IAcceptCheckbox.click();
-    }
 
-    IAcceptCheckbox.onclick = function (this: HTMLElement, ev: Event) {
-        acceptEULAButton.disabled = loginInput.disabled || !IAcceptCheckbox.checked;
+        if (!IAcceptDiv.children[0].classList.contains("accepted")) {
+
+            IAcceptDiv.children[0].classList.add("accepted");
+            acceptEULAButton.classList.add("accepted");
+
+            // Respect the login button... just for additional security!
+            acceptEULAButton.disabled = loginInput.disabled;
+
+        }
+
+        else {
+            IAcceptDiv.children[0].classList.remove("accepted");
+            acceptEULAButton.classList.remove("accepted");
+            acceptEULAButton.disabled = true;
+        }
+
     }
 
     acceptEULAButton.onclick = function (this: HTMLElement, ev: Event) {
@@ -280,11 +293,13 @@ function LostPassword() {
     let resetPasswordButton  = document.getElementById("resetPasswordButton") as HTMLDivElement;
     let resetPasswordInput   = document.getElementById("resetPasswordInput")  as HTMLInputElement;
 
-    _id.onchange = function (this: HTMLElement, ev: Event) {
+    _id.onchange       = function (this: HTMLElement, ev: Event) {
+        _id.value = _id.value.toLowerCase();
         ToogleSaveButton();
     }
 
-    _id.onkeyup = function (this: HTMLElement, ev: Event) {
+    _id.onkeyup        = function (this: HTMLElement, ev: KeyboardEvent) {
+        _id.value = _id.value.toLowerCase();
         ToogleSaveButton();
     }
 
@@ -383,13 +398,17 @@ function SetPassword() {
         responseDiv.classList.remove("responseError");
         responseDiv.classList.remove("responseOk");
 
+        let SetPasswordJSON = {
+            "securityToken1": securityToken1.value,
+            "newPassword":    newPassword1.value
+        };
+
+        if (securityToken2.value != "")
+            SetPasswordJSON["securityToken2"] = securityToken2.value;
+
         HTTPSet("/setPassword",
                 "APIKey",
-                {
-                    "securityToken1":  securityToken1.value,
-                    "securityToken2":  securityToken2.value,
-                    "newPassword":     newPassword1.value
-                },
+                SetPasswordJSON,
 
                 (HTTPStatus, ResponseText) => {
 
@@ -398,11 +417,11 @@ function SetPassword() {
                         var responseJSON = JSON.parse(ResponseText);
 
                         if (responseJSON.numberOfAccountsFound != null) {
-                            responseDiv.style.display = 'block';
-                            responseDiv.innerHTML     = "<i class='fas fa-user-check  fa-2x menuicons'></i> Succssfully resetted your password!";
+                            responseDiv.style.display       = 'block';
+                            responseDiv.innerHTML           = "<i class='fas fa-user-check  fa-2x menuicons'></i> Succssfully resetted your password!";
                             responseDiv.classList.remove("responseError");
                             responseDiv.classList.add   ("responseOk");
-                            setPasswordInput.disabled = true;
+                            setPasswordInput.disabled       = true;
                             setPasswordButton.style.display = 'none';
                             gotoLoginButton.style.display   = 'block';
                             return;
@@ -413,7 +432,7 @@ function SetPassword() {
                     { }
 
                     responseDiv.style.display = 'block';
-                    responseDiv.innerHTML = "<i class='fas fa-exclamation-triangle  fa-2x menuicons'></i> Setting your password failed!";
+                    responseDiv.innerHTML     = "<i class='fas fa-exclamation-triangle  fa-2x menuicons'></i> Setting your password failed!";
                     responseDiv.classList.remove("responseOk");
                     responseDiv.classList.add("responseError");
 
@@ -421,7 +440,7 @@ function SetPassword() {
 
                 (HTTPStatus, StatusText, ResponseText) => {
                     responseDiv.style.display = 'block';
-                    responseDiv.innerHTML = "<i class='fas fa-exclamation-triangle  fa-2x menuicons'></i> Setting your password failed!";
+                    responseDiv.innerHTML     = "<i class='fas fa-exclamation-triangle  fa-2x menuicons'></i> Setting your password failed!";
                     responseDiv.classList.remove("responseOk");
                     responseDiv.classList.add("responseError");
                 });
@@ -508,8 +527,8 @@ function SetPassword() {
 function SignIn() {
 
     var SignInPanel  = document.querySelector('#login');
-    var Username     = (<HTMLInputElement> SignInPanel.querySelector('#_login')).     value;
-    var Realm        = (<HTMLInputElement> SignInPanel.querySelector('#_realm')).     value;
+    var Username     = (<HTMLInputElement> SignInPanel.querySelector('#_login')).     value.toLowerCase();
+    var Realm        = (<HTMLInputElement> SignInPanel.querySelector('#_realm')).     value.toLowerCase();
     var Password     = (<HTMLInputElement> SignInPanel.querySelector('#_password')).  value;
     var RememberMe   = (<HTMLInputElement> SignInPanel.querySelector('#_rememberme')).checked;
 
