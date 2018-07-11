@@ -97,7 +97,7 @@
       <Project>{477efd16-3627-4473-957d-44ca9a9dfb79}</Project>
       <Name>Hermod</Name>
     </ProjectReference>
-    <ProjectReference Include="..\SMSAPI\smsapi\SMSAPI.csproj">
+    <ProjectReference Include="..\SMSAPI\smsapi\SMSAPI2.csproj">
       <Project>{05c2a720-2cd1-401b-a832-9ce85313c248}</Project>
       <Name>SMSAPI</Name>
     </ProjectReference>
