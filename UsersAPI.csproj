@@ -99,7 +99,7 @@
     </ProjectReference>
     <ProjectReference Include="..\SMSAPI\smsapi\SMSAPI2.csproj">
       <Project>{05c2a720-2cd1-401b-a832-9ce85313c248}</Project>
-      <Name>SMSAPI</Name>
+      <Name>SMSAPI2</Name>
     </ProjectReference>
     <ProjectReference Include="..\Styx\Styx\Styx.csproj">
       <Project>{af76ecc0-2ca5-4cff-9e1e-ff5478c4b6e4}</Project>
