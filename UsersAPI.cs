@@ -92,7 +92,7 @@ namespace org.GraphDefined.OpenData.Users
             if (HTTPRequest.ParsedURIParameters.Length < 1)
             {
 
-                HTTPResponse = new HTTPResponseBuilder(HTTPRequest) {
+                HTTPResponse = new HTTPResponse.Builder(HTTPRequest) {
                     HTTPStatusCode  = HTTPStatusCode.BadRequest,
                     Server          = UsersAPI.HTTPServer.DefaultServerName,
                     Date            = DateTime.UtcNow,
@@ -108,7 +108,7 @@ namespace org.GraphDefined.OpenData.Users
             if (!UserId.HasValue)
             {
 
-                HTTPResponse = new HTTPResponseBuilder(HTTPRequest) {
+                HTTPResponse = new HTTPResponse.Builder(HTTPRequest) {
                     HTTPStatusCode  = HTTPStatusCode.BadRequest,
                     Server          = UsersAPI.HTTPServer.DefaultServerName,
                     Date            = DateTime.UtcNow,
@@ -163,7 +163,7 @@ namespace org.GraphDefined.OpenData.Users
 
             if (HTTPRequest.ParsedURIParameters.Length < 1) {
 
-                HTTPResponse = new HTTPResponseBuilder(HTTPRequest) {
+                HTTPResponse = new HTTPResponse.Builder(HTTPRequest) {
                     HTTPStatusCode  = HTTPStatusCode.BadRequest,
                     Server          = UsersAPI.HTTPServer.DefaultServerName,
                     Date            = DateTime.UtcNow,
@@ -178,7 +178,7 @@ namespace org.GraphDefined.OpenData.Users
 
             if (!UserId.HasValue) {
 
-                HTTPResponse = new HTTPResponseBuilder(HTTPRequest) {
+                HTTPResponse = new HTTPResponse.Builder(HTTPRequest) {
                     HTTPStatusCode  = HTTPStatusCode.BadRequest,
                     Server          = UsersAPI.HTTPServer.DefaultServerName,
                     Date            = DateTime.UtcNow,
@@ -193,7 +193,7 @@ namespace org.GraphDefined.OpenData.Users
 
             if (!UsersAPI.TryGetUser(UserId.Value, out User)) {
 
-                HTTPResponse = new HTTPResponseBuilder(HTTPRequest) {
+                HTTPResponse = new HTTPResponse.Builder(HTTPRequest) {
                     HTTPStatusCode  = HTTPStatusCode.NotFound,
                     Server          = UsersAPI.HTTPServer.DefaultServerName,
                     Date            = DateTime.UtcNow,
@@ -247,7 +247,7 @@ namespace org.GraphDefined.OpenData.Users
             if (HTTPRequest.ParsedURIParameters.Length < 1)
             {
 
-                HTTPResponse = new HTTPResponseBuilder(HTTPRequest) {
+                HTTPResponse = new HTTPResponse.Builder(HTTPRequest) {
                     HTTPStatusCode  = HTTPStatusCode.BadRequest,
                     Server          = UsersAPI.HTTPServer.DefaultServerName,
                     Date            = DateTime.UtcNow,
@@ -263,7 +263,7 @@ namespace org.GraphDefined.OpenData.Users
             if (!OrganizationId.HasValue)
             {
 
-                HTTPResponse = new HTTPResponseBuilder(HTTPRequest) {
+                HTTPResponse = new HTTPResponse.Builder(HTTPRequest) {
                     HTTPStatusCode  = HTTPStatusCode.BadRequest,
                     Server          = UsersAPI.HTTPServer.DefaultServerName,
                     Date            = DateTime.UtcNow,
@@ -318,7 +318,7 @@ namespace org.GraphDefined.OpenData.Users
 
             if (HTTPRequest.ParsedURIParameters.Length < 1) {
 
-                HTTPResponse = new HTTPResponseBuilder(HTTPRequest) {
+                HTTPResponse = new HTTPResponse.Builder(HTTPRequest) {
                     HTTPStatusCode  = HTTPStatusCode.BadRequest,
                     Server          = UsersAPI.HTTPServer.DefaultServerName,
                     Date            = DateTime.UtcNow,
@@ -333,7 +333,7 @@ namespace org.GraphDefined.OpenData.Users
 
             if (!OrganizationId.HasValue) {
 
-                HTTPResponse = new HTTPResponseBuilder(HTTPRequest) {
+                HTTPResponse = new HTTPResponse.Builder(HTTPRequest) {
                     HTTPStatusCode  = HTTPStatusCode.BadRequest,
                     Server          = UsersAPI.HTTPServer.DefaultServerName,
                     Date            = DateTime.UtcNow,
@@ -348,7 +348,7 @@ namespace org.GraphDefined.OpenData.Users
 
             if (!UsersAPI.TryGetOrganization(OrganizationId.Value, out Organization)) {
 
-                HTTPResponse = new HTTPResponseBuilder(HTTPRequest) {
+                HTTPResponse = new HTTPResponse.Builder(HTTPRequest) {
                     HTTPStatusCode  = HTTPStatusCode.NotFound,
                     Server          = UsersAPI.HTTPServer.DefaultServerName,
                     Date            = DateTime.UtcNow,
@@ -1679,7 +1679,7 @@ namespace org.GraphDefined.OpenData.Users
                                               if (LogoImage != null)
                                                   HTML = HTML.Replace("<%= logoimage %>", String.Concat(@"<img src=""", LogoImage, @""" /> "));
 
-                                              return new HTTPResponseBuilder(Request) {
+                                              return new HTTPResponse.Builder(Request) {
                                                   HTTPStatusCode  = HTTPStatusCode.OK,
                                                   ContentType     = HTTPContentType.HTML_UTF8,
                                                   Content         = HTML.ToUTF8Bytes(),
@@ -1717,7 +1717,7 @@ namespace org.GraphDefined.OpenData.Users
 
                                               if (VerificationToken == null)
                                                   return Task.FromResult(
-                                                      new HTTPResponseBuilder(Request) {
+                                                      new HTTPResponse.Builder(Request) {
                                                           HTTPStatusCode  = HTTPStatusCode.NotFound,
                                                           Server          = HTTPServer.DefaultServerName,
                                                           ContentType     = HTTPContentType.HTML_UTF8,
@@ -1728,7 +1728,7 @@ namespace org.GraphDefined.OpenData.Users
 
                                               if (!_Users.TryGetValue(VerificationToken.Login, out User _User))
                                                   return Task.FromResult(
-                                                      new HTTPResponseBuilder(Request) {
+                                                      new HTTPResponse.Builder(Request) {
                                                           HTTPStatusCode  = HTTPStatusCode.NotFound,
                                                           Server          = HTTPServer.DefaultServerName,
                                                           ContentType     = HTTPContentType.HTML_UTF8,
@@ -1788,7 +1788,7 @@ namespace org.GraphDefined.OpenData.Users
                                                   #endregion
 
                                                   return Task.FromResult(
-                                                      new HTTPResponseBuilder(Request) {
+                                                      new HTTPResponse.Builder(Request) {
                                                           HTTPStatusCode  = HTTPStatusCode.Created,
                                                           Server          = HTTPServer.DefaultServerName,
                                                           ContentType     = HTTPContentType.JSON_UTF8,
@@ -1807,7 +1807,7 @@ namespace org.GraphDefined.OpenData.Users
                                               #endregion
 
                                               return Task.FromResult(
-                                                  new HTTPResponseBuilder(Request) {
+                                                  new HTTPResponse.Builder(Request) {
                                                       HTTPStatusCode  = HTTPStatusCode.OK,
                                                       Server          = HTTPServer.DefaultServerName,
                                                       ContentType     = HTTPContentType.HTML_UTF8,
@@ -1855,7 +1855,7 @@ namespace org.GraphDefined.OpenData.Users
                                               {
 
                                                   return Task.FromResult(
-                                                      new HTTPResponseBuilder(Request) {
+                                                      new HTTPResponse.Builder(Request) {
                                                           HTTPStatusCode  = HTTPStatusCode.BadRequest,
                                                           Server          = HTTPServer.DefaultServerName,
                                                           ContentType     = HTTPContentType.JSON_UTF8,
@@ -1877,7 +1877,7 @@ namespace org.GraphDefined.OpenData.Users
                                               {
 
                                                   return Task.FromResult(
-                                                      new HTTPResponseBuilder(Request) {
+                                                      new HTTPResponse.Builder(Request) {
                                                           HTTPStatusCode  = HTTPStatusCode.BadRequest,
                                                           Server          = HTTPServer.DefaultServerName,
                                                           ContentType     = HTTPContentType.JSON_UTF8,
@@ -1911,7 +1911,7 @@ namespace org.GraphDefined.OpenData.Users
                                               {
 
                                                  return Task.FromResult(
-                                                      new HTTPResponseBuilder(Request) {
+                                                      new HTTPResponse.Builder(Request) {
                                                           HTTPStatusCode  = HTTPStatusCode.BadRequest,
                                                           Server          = HTTPServer.DefaultServerName,
                                                           ContentType     = HTTPContentType.JSON_UTF8,
@@ -1933,7 +1933,7 @@ namespace org.GraphDefined.OpenData.Users
                                               {
 
                                                   return Task.FromResult(
-                                                      new HTTPResponseBuilder(Request) {
+                                                      new HTTPResponse.Builder(Request) {
                                                           HTTPStatusCode  = HTTPStatusCode.BadRequest,
                                                           Server          = HTTPServer.DefaultServerName,
                                                           ContentType     = HTTPContentType.JSON_UTF8,
@@ -1973,7 +1973,7 @@ namespace org.GraphDefined.OpenData.Users
                                               {
 
                                                   return Task.FromResult(
-                                                      new HTTPResponseBuilder(Request) {
+                                                      new HTTPResponse.Builder(Request) {
                                                           HTTPStatusCode  = HTTPStatusCode.NotFound,
                                                           Server          = HTTPServer.DefaultServerName,
                                                           ContentType     = HTTPContentType.JSON_UTF8,
@@ -1992,7 +1992,7 @@ namespace org.GraphDefined.OpenData.Users
                                               {
 
                                                   return Task.FromResult(
-                                                      new HTTPResponseBuilder(Request) {
+                                                      new HTTPResponse.Builder(Request) {
                                                           HTTPStatusCode  = HTTPStatusCode.Unauthorized,
                                                           Server          = HTTPServer.DefaultServerName,
                                                           ContentType     = HTTPContentType.JSON_UTF8,
@@ -2039,7 +2039,7 @@ namespace org.GraphDefined.OpenData.Users
                                               //Note: Add LoginResponse event!
 
                                               return Task.FromResult(
-                                                  new HTTPResponseBuilder(Request) {
+                                                  new HTTPResponse.Builder(Request) {
                                                       HTTPStatusCode  = HTTPStatusCode.Created,
                                                       ContentType     = HTTPContentType.HTML_UTF8,
                                                       Content         = String.Concat(
@@ -2079,7 +2079,7 @@ namespace org.GraphDefined.OpenData.Users
                                          HTTPDelegate: Request =>
 
                                             Task.FromResult(
-                                                new HTTPResponseBuilder(Request) {
+                                                new HTTPResponse.Builder(Request) {
                                                     HTTPStatusCode             = HTTPStatusCode.OK,
                                                     Server                     = HTTPServer.DefaultServerName,
                                                     Date                       = DateTime.UtcNow,
@@ -2130,7 +2130,7 @@ namespace org.GraphDefined.OpenData.Users
                                                  Thread.Sleep(5000);
 
                                                  return Task.FromResult(
-                                                            new HTTPResponseBuilder(Request) {
+                                                            new HTTPResponse.Builder(Request) {
                                                                 HTTPStatusCode             = HTTPStatusCode.BadRequest,
                                                                 Server                     = HTTPServer.DefaultServerName,
                                                                 Date                       = DateTime.UtcNow,
@@ -2174,7 +2174,7 @@ namespace org.GraphDefined.OpenData.Users
                                                  Thread.Sleep(5000);
 
                                                  return Task.FromResult(
-                                                            new HTTPResponseBuilder(Request) {
+                                                            new HTTPResponse.Builder(Request) {
                                                                 HTTPStatusCode             = HTTPStatusCode.NotFound,
                                                                 Server                     = HTTPServer.DefaultServerName,
                                                                 Date                       = DateTime.UtcNow,
@@ -2238,7 +2238,7 @@ namespace org.GraphDefined.OpenData.Users
                                              {
 
                                                  return Task.FromResult(
-                                                        new HTTPResponseBuilder(Request) {
+                                                        new HTTPResponse.Builder(Request) {
                                                             HTTPStatusCode             = HTTPStatusCode.InternalServerError,
                                                             Server                     = HTTPServer.DefaultServerName,
                                                             Date                       = DateTime.UtcNow,
@@ -2256,7 +2256,7 @@ namespace org.GraphDefined.OpenData.Users
 
 
                                              return Task.FromResult(
-                                                        new HTTPResponseBuilder(Request) {
+                                                        new HTTPResponse.Builder(Request) {
                                                             HTTPStatusCode             = HTTPStatusCode.OK,
                                                             Server                     = HTTPServer.DefaultServerName,
                                                             Date                       = DateTime.UtcNow,
@@ -2362,7 +2362,7 @@ namespace org.GraphDefined.OpenData.Users
                                                  Thread.Sleep(5000);
 
                                                  return Task.FromResult(
-                                                            new HTTPResponseBuilder(Request) {
+                                                            new HTTPResponse.Builder(Request) {
                                                                 HTTPStatusCode             = HTTPStatusCode.BadRequest,
                                                                 Server                     = HTTPServer.DefaultServerName,
                                                                 Date                       = DateTime.UtcNow,
@@ -2384,7 +2384,7 @@ namespace org.GraphDefined.OpenData.Users
                                              {
 
                                                  return Task.FromResult(
-                                                            new HTTPResponseBuilder(Request) {
+                                                            new HTTPResponse.Builder(Request) {
                                                                 HTTPStatusCode             = HTTPStatusCode.Forbidden,
                                                                 Server                     = HTTPServer.DefaultServerName,
                                                                 Date                       = DateTime.UtcNow,
@@ -2406,7 +2406,7 @@ namespace org.GraphDefined.OpenData.Users
                                              {
 
                                                  return Task.FromResult(
-                                                        new HTTPResponseBuilder(Request) {
+                                                        new HTTPResponse.Builder(Request) {
                                                             HTTPStatusCode             = HTTPStatusCode.Forbidden,
                                                             Server                     = HTTPServer.DefaultServerName,
                                                             Date                       = DateTime.UtcNow,
@@ -2469,7 +2469,7 @@ namespace org.GraphDefined.OpenData.Users
                                              }
 
                                              return Task.FromResult(
-                                                        new HTTPResponseBuilder(Request) {
+                                                        new HTTPResponse.Builder(Request) {
                                                             HTTPStatusCode             = HTTPStatusCode.OK,
                                                             Server                     = HTTPServer.DefaultServerName,
                                                             Date                       = DateTime.UtcNow,
@@ -2516,7 +2516,7 @@ namespace org.GraphDefined.OpenData.Users
                                           HTTPDelegate: Request =>
 
                                               Task.FromResult(
-                                                  new HTTPResponseBuilder(Request) {
+                                                  new HTTPResponse.Builder(Request) {
                                                       HTTPStatusCode  = HTTPStatusCode.OK,
                                                       CacheControl    = "private",
                                                       SetCookie       = CookieName + "=; Expires=" + DateTime.UtcNow.ToRfc1123() +
@@ -2595,7 +2595,7 @@ namespace org.GraphDefined.OpenData.Users
                                               {
 
                                                   return Task.FromResult(
-                                                             new HTTPResponseBuilder(Request) {
+                                                             new HTTPResponse.Builder(Request) {
                                                                  HTTPStatusCode             = HTTPStatusCode.BadRequest,
                                                                  Server                     = HTTPServer.DefaultServerName,
                                                                  Date                       = DateTime.UtcNow,
@@ -2614,7 +2614,7 @@ namespace org.GraphDefined.OpenData.Users
                                               {
 
                                                   return Task.FromResult(
-                                                             new HTTPResponseBuilder(Request) {
+                                                             new HTTPResponse.Builder(Request) {
                                                                  HTTPStatusCode             = HTTPStatusCode.BadRequest,
                                                                  Server                     = HTTPServer.DefaultServerName,
                                                                  Date                       = DateTime.UtcNow,
@@ -2634,7 +2634,7 @@ namespace org.GraphDefined.OpenData.Users
                                               {
 
                                                   return Task.FromResult(
-                                                             new HTTPResponseBuilder(Request) {
+                                                             new HTTPResponse.Builder(Request) {
                                                                  HTTPStatusCode             = HTTPStatusCode.BadRequest,
                                                                  Server                     = HTTPServer.DefaultServerName,
                                                                  Date                       = DateTime.UtcNow,
@@ -2653,7 +2653,7 @@ namespace org.GraphDefined.OpenData.Users
                                               {
 
                                                   return Task.FromResult(
-                                                             new HTTPResponseBuilder(Request) {
+                                                             new HTTPResponse.Builder(Request) {
                                                                  HTTPStatusCode             = HTTPStatusCode.BadRequest,
                                                                  Server                     = HTTPServer.DefaultServerName,
                                                                  Date                       = DateTime.UtcNow,
@@ -2686,7 +2686,7 @@ namespace org.GraphDefined.OpenData.Users
                                               {
 
                                                   return Task.FromResult(
-                                                             new HTTPResponseBuilder(Request) {
+                                                             new HTTPResponse.Builder(Request) {
                                                                  HTTPStatusCode             = HTTPStatusCode.BadRequest,
                                                                  Server                     = HTTPServer.DefaultServerName,
                                                                  Date                       = DateTime.UtcNow,
@@ -2719,7 +2719,7 @@ namespace org.GraphDefined.OpenData.Users
                                               {
 
                                                   return Task.FromResult(
-                                                             new HTTPResponseBuilder(Request) {
+                                                             new HTTPResponse.Builder(Request) {
                                                                  HTTPStatusCode             = HTTPStatusCode.BadRequest,
                                                                  Server                     = HTTPServer.DefaultServerName,
                                                                  Date                       = DateTime.UtcNow,
@@ -2761,7 +2761,7 @@ namespace org.GraphDefined.OpenData.Users
                                               {
 
                                                   return Task.FromResult(
-                                                             new HTTPResponseBuilder(Request) {
+                                                             new HTTPResponse.Builder(Request) {
                                                                  HTTPStatusCode             = HTTPStatusCode.BadRequest,
                                                                  Server                     = HTTPServer.DefaultServerName,
                                                                  Date                       = DateTime.UtcNow,
@@ -2789,7 +2789,7 @@ namespace org.GraphDefined.OpenData.Users
                                               {
 
                                                   return Task.FromResult(
-                                                             new HTTPResponseBuilder(Request) {
+                                                             new HTTPResponse.Builder(Request) {
                                                                  HTTPStatusCode             = HTTPStatusCode.BadRequest,
                                                                  Server                     = HTTPServer.DefaultServerName,
                                                                  Date                       = DateTime.UtcNow,
@@ -2822,7 +2822,7 @@ namespace org.GraphDefined.OpenData.Users
                                               {
 
                                                   return Task.FromResult(
-                                                             new HTTPResponseBuilder(Request) {
+                                                             new HTTPResponse.Builder(Request) {
                                                                  HTTPStatusCode             = HTTPStatusCode.BadRequest,
                                                                  Server                     = HTTPServer.DefaultServerName,
                                                                  Date                       = DateTime.UtcNow,
@@ -2896,7 +2896,7 @@ namespace org.GraphDefined.OpenData.Users
                                                   {
 
                                                       return Task.FromResult(
-                                                                 new HTTPResponseBuilder(Request) {
+                                                                 new HTTPResponse.Builder(Request) {
                                                                      HTTPStatusCode             = HTTPStatusCode.BadRequest,
                                                                      Server                     = HTTPServer.DefaultServerName,
                                                                      Date                       = DateTime.UtcNow,
@@ -2922,7 +2922,7 @@ namespace org.GraphDefined.OpenData.Users
                                               Password? UserPassword = null;
 
                                               //if (!NewUserData.Contains("password"))
-                                              //    return new HTTPResponseBuilder(Request) {
+                                              //    return new HTTPResponse.Builder(Request) {
                                               //        HTTPStatusCode = HTTPStatusCode.BadRequest,
                                               //        Server = HTTPServer.DefaultServerName,
                                               //        ContentType = HTTPContentType.JSON_UTF8,
@@ -2935,7 +2935,7 @@ namespace org.GraphDefined.OpenData.Users
                                               //    };
 
                                               //if (NewUserData.GetString("password").Length < MinPasswordLenght)
-                                              //    return new HTTPResponseBuilder(Request) {
+                                              //    return new HTTPResponse.Builder(Request) {
                                               //        HTTPStatusCode = HTTPStatusCode.BadRequest,
                                               //        Server = HTTPServer.DefaultServerName,
                                               //        ContentType = HTTPContentType.JSON_UTF8,
@@ -3034,7 +3034,7 @@ namespace org.GraphDefined.OpenData.Users
                                                   {
 
                                                       return Task.FromResult(
-                                                                 new HTTPResponseBuilder(Request) {
+                                                                 new HTTPResponse.Builder(Request) {
                                                                      HTTPStatusCode             = HTTPStatusCode.InternalServerError,
                                                                      Server                     = HTTPServer.DefaultServerName,
                                                                      Date                       = DateTime.UtcNow,
@@ -3073,7 +3073,7 @@ namespace org.GraphDefined.OpenData.Users
                                               {
 
                                                   return Task.FromResult(
-                                                             new HTTPResponseBuilder(Request) {
+                                                             new HTTPResponse.Builder(Request) {
                                                                  HTTPStatusCode             = HTTPStatusCode.InternalServerError,
                                                                  Server                     = HTTPServer.DefaultServerName,
                                                                  Date                       = DateTime.UtcNow,
@@ -3089,7 +3089,7 @@ namespace org.GraphDefined.OpenData.Users
                                               }
 
                                               return Task.FromResult(
-                                                        new HTTPResponseBuilder(Request) {
+                                                        new HTTPResponse.Builder(Request) {
                                                             HTTPStatusCode              = HTTPStatusCode.Created,
                                                             Server                      = HTTPServer.DefaultServerName,
                                                             Date                        = DateTime.UtcNow,
@@ -3163,7 +3163,7 @@ namespace org.GraphDefined.OpenData.Users
             //                                 {
 
             //                                     return Task.FromResult(
-            //                                         new HTTPResponseBuilder(Request) {
+            //                                         new HTTPResponse.Builder(Request) {
             //                                                          HTTPStatusCode             = HTTPStatusCode.OK,
             //                                                          Server                     = HTTPServer.DefaultServerName,
             //                                                          Date                       = DateTime.UtcNow,
@@ -3182,7 +3182,7 @@ namespace org.GraphDefined.OpenData.Users
             //                                 }
 
             //                                 else return Task.FromResult(
-            //                                                  new HTTPResponseBuilder(Request) {
+            //                                                  new HTTPResponse.Builder(Request) {
             //                                                            HTTPStatusCode             = HTTPStatusCode.Unauthorized,
             //                                                            Server                     = HTTPServer.DefaultServerName,
             //                                                            Date                       = DateTime.UtcNow,
@@ -3283,7 +3283,7 @@ namespace org.GraphDefined.OpenData.Users
                                              {
 
                                                  return Task.FromResult(
-                                                            new HTTPResponseBuilder(Request) {
+                                                            new HTTPResponse.Builder(Request) {
                                                                 HTTPStatusCode             = HTTPStatusCode.BadRequest,
                                                                 Server                     = HTTPServer.DefaultServerName,
                                                                 Date                       = DateTime.UtcNow,
@@ -3306,7 +3306,7 @@ namespace org.GraphDefined.OpenData.Users
                                              // access rights to update?
                                              if (HTTPUser.Id != _User.Id)
                                                  return Task.FromResult(
-                                                        new HTTPResponseBuilder(Request) {
+                                                        new HTTPResponse.Builder(Request) {
                                                             HTTPStatusCode              = HTTPStatusCode.Forbidden,
                                                             Server                      = HTTPServer.DefaultServerName,
                                                             Date                        = DateTime.UtcNow,
@@ -3322,7 +3322,7 @@ namespace org.GraphDefined.OpenData.Users
 
 
                                              return Task.FromResult(
-                                                        new HTTPResponseBuilder(Request) {
+                                                        new HTTPResponse.Builder(Request) {
                                                             HTTPStatusCode              = HTTPStatusCode.OK,
                                                             Server                      = HTTPServer.DefaultServerName,
                                                             Date                        = DateTime.UtcNow,
@@ -3359,7 +3359,7 @@ namespace org.GraphDefined.OpenData.Users
 
                                               if (!LoginData.HasValues)
                                                   return Task.FromResult(
-                                                      new HTTPResponseBuilder(Request) {
+                                                      new HTTPResponse.Builder(Request) {
                                                           HTTPStatusCode  = HTTPStatusCode.BadRequest,
                                                           Server          = HTTPServer.DefaultServerName,
                                                           ContentType     = HTTPContentType.JSON_UTF8,
@@ -3383,7 +3383,7 @@ namespace org.GraphDefined.OpenData.Users
                                               {
 
                                                   return Task.FromResult(
-                                                      new HTTPResponseBuilder(Request) {
+                                                      new HTTPResponse.Builder(Request) {
                                                           HTTPStatusCode  = HTTPStatusCode.BadRequest,
                                                           Server          = HTTPServer.DefaultServerName,
                                                           ContentType     = HTTPContentType.JSON_UTF8,
@@ -3410,7 +3410,7 @@ namespace org.GraphDefined.OpenData.Users
                                               {
 
                                                   return Task.FromResult(
-                                                      new HTTPResponseBuilder(Request) {
+                                                      new HTTPResponse.Builder(Request) {
                                                           HTTPStatusCode  = HTTPStatusCode.BadRequest,
                                                           Server          = HTTPServer.DefaultServerName,
                                                           ContentType     = HTTPContentType.JSON_UTF8,
@@ -3434,7 +3434,7 @@ namespace org.GraphDefined.OpenData.Users
                                               {
 
                                                   return Task.FromResult(
-                                                      new HTTPResponseBuilder(Request) {
+                                                      new HTTPResponse.Builder(Request) {
                                                           HTTPStatusCode  = HTTPStatusCode.BadRequest,
                                                           Server          = HTTPServer.DefaultServerName,
                                                           ContentType     = HTTPContentType.JSON_UTF8,
@@ -3454,7 +3454,7 @@ namespace org.GraphDefined.OpenData.Users
                                               {
 
                                                   return Task.FromResult(
-                                                      new HTTPResponseBuilder(Request) {
+                                                      new HTTPResponse.Builder(Request) {
                                                           HTTPStatusCode  = HTTPStatusCode.BadRequest,
                                                           Server          = HTTPServer.DefaultServerName,
                                                           ContentType     = HTTPContentType.JSON_UTF8,
@@ -3484,7 +3484,7 @@ namespace org.GraphDefined.OpenData.Users
                                               {
 
                                                   return Task.FromResult(
-                                                      new HTTPResponseBuilder(Request) {
+                                                      new HTTPResponse.Builder(Request) {
                                                           HTTPStatusCode  = HTTPStatusCode.NotFound,
                                                           Server          = HTTPServer.DefaultServerName,
                                                           ContentType     = HTTPContentType.JSON_UTF8,
@@ -3512,7 +3512,7 @@ namespace org.GraphDefined.OpenData.Users
                                                   {
 
                                                       return Task.FromResult(
-                                                          new HTTPResponseBuilder(Request) {
+                                                          new HTTPResponse.Builder(Request) {
                                                               HTTPStatusCode  = HTTPStatusCode.Unauthorized,
                                                               Server          = HTTPServer.DefaultServerName,
                                                               ContentType     = HTTPContentType.JSON_UTF8,
@@ -3544,7 +3544,7 @@ namespace org.GraphDefined.OpenData.Users
                                               {
 
                                                   return Task.FromResult(
-                                                      new HTTPResponseBuilder(Request) {
+                                                      new HTTPResponse.Builder(Request) {
                                                           HTTPStatusCode  = HTTPStatusCode.Unauthorized,
                                                           Server          = HTTPServer.DefaultServerName,
                                                           ContentType     = HTTPContentType.JSON_UTF8,
@@ -3566,7 +3566,7 @@ namespace org.GraphDefined.OpenData.Users
                                               var SecurityToken = SHA256Hash.ComputeHash((Guid.NewGuid().ToString() + _LoginPassword.Login).ToUTF8Bytes()).ToHexString();
 
                                               return Task.FromResult(
-                                                  new HTTPResponseBuilder(Request) {
+                                                  new HTTPResponse.Builder(Request) {
                                                       HTTPStatusCode  = HTTPStatusCode.Created,
                                                       ContentType     = HTTPContentType.TEXT_UTF8,
                                                       Content         = new JObject(
@@ -3602,7 +3602,7 @@ namespace org.GraphDefined.OpenData.Users
                                           HTTPDelegate: Request =>
 
                                               Task.FromResult(
-                                                  new HTTPResponseBuilder(Request) {
+                                                  new HTTPResponse.Builder(Request) {
                                                       HTTPStatusCode  = HTTPStatusCode.OK,
                                                       CacheControl    = "private",
                                                       SetCookie       = CookieName + "=; Expires=" + DateTime.UtcNow.ToRfc1123() +
@@ -3651,7 +3651,7 @@ namespace org.GraphDefined.OpenData.Users
 
                                              var __Notifications = _Notifications.GetNotifications(HTTPUser);
 
-                                             return Task.FromResult(new HTTPResponseBuilder(Request) {
+                                             return Task.FromResult(new HTTPResponse.Builder(Request) {
                                                         HTTPStatusCode             = HTTPStatusCode.OK,
                                                         Server                     = HTTPServer.DefaultServerName,
                                                         Date                       = DateTime.UtcNow,
@@ -3740,7 +3740,7 @@ namespace org.GraphDefined.OpenData.Users
                                              //{
 
                                              //    return SetUserResponse(
-                                             //               new HTTPResponseBuilder(Request) {
+                                             //               new HTTPResponse.Builder(Request) {
                                              //                   HTTPStatusCode             = HTTPStatusCode.BadRequest,
                                              //                   Server                     = HTTPServer.DefaultServerName,
                                              //                   Date                       = DateTime.UtcNow,
@@ -3763,7 +3763,7 @@ namespace org.GraphDefined.OpenData.Users
                                              //// access rights to update?
                                              //if (HTTPUser.Id != _User.Id)
                                              //    return SetUserResponse(
-                                             //           new HTTPResponseBuilder(Request) {
+                                             //           new HTTPResponse.Builder(Request) {
                                              //               HTTPStatusCode              = HTTPStatusCode.Forbidden,
                                              //               Server                      = HTTPServer.DefaultServerName,
                                              //               Date                        = DateTime.UtcNow,
@@ -3779,7 +3779,7 @@ namespace org.GraphDefined.OpenData.Users
 
 
                                              return Task.FromResult(
-                                                        new HTTPResponseBuilder(Request) {
+                                                        new HTTPResponse.Builder(Request) {
                                                             HTTPStatusCode              = HTTPStatusCode.OK,
                                                             Server                      = HTTPServer.DefaultServerName,
                                                             Date                        = DateTime.UtcNow,
@@ -3824,7 +3824,7 @@ namespace org.GraphDefined.OpenData.Users
                                              var AllMyOrganizations = new OrganizationInfo(NoOwner, HTTPUser).Childs;
 
                                              return Task.FromResult(
-                                                 new HTTPResponseBuilder(Request) {
+                                                 new HTTPResponse.Builder(Request) {
                                                      HTTPStatusCode             = HTTPStatusCode.OK,
                                                      Server                     = HTTPServer.DefaultServerName,
                                                      Date                       = DateTime.UtcNow,
@@ -3869,7 +3869,7 @@ namespace org.GraphDefined.OpenData.Users
 
                                              return Task.FromResult(__APIKeys != null
 
-                                                                        ? new HTTPResponseBuilder(Request) {
+                                                                        ? new HTTPResponse.Builder(Request) {
                                                                                   HTTPStatusCode             = HTTPStatusCode.OK,
                                                                                   Server                     = HTTPServer.DefaultServerName,
                                                                                   Date                       = DateTime.UtcNow,
@@ -3886,7 +3886,7 @@ namespace org.GraphDefined.OpenData.Users
                                                                                   Connection                 = "close"
                                                                               }.AsImmutable
 
-                                                                        : new HTTPResponseBuilder(Request) {
+                                                                        : new HTTPResponse.Builder(Request) {
                                                                                   HTTPStatusCode             = HTTPStatusCode.NotFound,
                                                                                   Server                     = HTTPServer.DefaultServerName,
                                                                                   Date                       = DateTime.UtcNow,
@@ -3951,7 +3951,7 @@ namespace org.GraphDefined.OpenData.Users
                                              if (CurrentPassword.IsNullOrEmpty() || NewPassword.IsNullOrEmpty())
                                              {
 
-                                                 return new HTTPResponseBuilder(Request) {
+                                                 return new HTTPResponse.Builder(Request) {
                                                                 HTTPStatusCode             = HTTPStatusCode.BadRequest,
                                                                 Server                     = HTTPServer.DefaultServerName,
                                                                 Date                       = DateTime.UtcNow,
@@ -3975,7 +3975,7 @@ namespace org.GraphDefined.OpenData.Users
                                              if (HTTPUser.Id != UserIdURI.Value)
                                              {
 
-                                                 return new HTTPResponseBuilder(Request) {
+                                                 return new HTTPResponse.Builder(Request) {
                                                             HTTPStatusCode              = HTTPStatusCode.Forbidden,
                                                             Server                      = HTTPServer.DefaultServerName,
                                                             Date                        = DateTime.UtcNow,
@@ -3999,7 +3999,7 @@ namespace org.GraphDefined.OpenData.Users
                                                                                                                            "https://" + Request.Host.SimpleString,
                                                                                                                            DefaultLanguage));
 
-                                                 return new HTTPResponseBuilder(Request) {
+                                                 return new HTTPResponse.Builder(Request) {
                                                                 HTTPStatusCode              = HTTPStatusCode.OK,
                                                                 Server                      = HTTPServer.DefaultServerName,
                                                                 Date                        = DateTime.UtcNow,
@@ -4013,7 +4013,7 @@ namespace org.GraphDefined.OpenData.Users
                                              else
                                              {
 
-                                                 return new HTTPResponseBuilder(Request) {
+                                                 return new HTTPResponse.Builder(Request) {
                                                                 HTTPStatusCode              = HTTPStatusCode.Forbidden,
                                                                 Server                      = HTTPServer.DefaultServerName,
                                                                 Date                        = DateTime.UtcNow,
@@ -4222,7 +4222,7 @@ namespace org.GraphDefined.OpenData.Users
                                                  {
 
                                                      return Task.FromResult(
-                                                                new HTTPResponseBuilder(Request) {
+                                                                new HTTPResponse.Builder(Request) {
                                                                     HTTPStatusCode             = HTTPStatusCode.BadRequest,
                                                                     Server                     = HTTPServer.DefaultServerName,
                                                                     Date                       = DateTime.UtcNow,
@@ -4266,7 +4266,7 @@ namespace org.GraphDefined.OpenData.Users
                                                      {
 
                                                          return Task.FromResult(
-                                                                    new HTTPResponseBuilder(Request) {
+                                                                    new HTTPResponse.Builder(Request) {
                                                                         HTTPStatusCode             = HTTPStatusCode.BadRequest,
                                                                         Server                     = HTTPServer.DefaultServerName,
                                                                         Date                       = DateTime.UtcNow,
@@ -4287,7 +4287,7 @@ namespace org.GraphDefined.OpenData.Users
                                                      {
 
                                                          return Task.FromResult(
-                                                                    new HTTPResponseBuilder(Request) {
+                                                                    new HTTPResponse.Builder(Request) {
                                                                         HTTPStatusCode             = HTTPStatusCode.BadRequest,
                                                                         Server                     = HTTPServer.DefaultServerName,
                                                                         Date                       = DateTime.UtcNow,
@@ -4325,7 +4325,7 @@ namespace org.GraphDefined.OpenData.Users
                                                  {
 
                                                      return Task.FromResult(
-                                                                new HTTPResponseBuilder(Request) {
+                                                                new HTTPResponse.Builder(Request) {
                                                                     HTTPStatusCode             = HTTPStatusCode.BadRequest,
                                                                     Server                     = HTTPServer.DefaultServerName,
                                                                     Date                       = DateTime.UtcNow,
@@ -4341,7 +4341,7 @@ namespace org.GraphDefined.OpenData.Users
                                                  }
 
                                                  return Task.FromResult(
-                                                        new HTTPResponseBuilder(Request) {
+                                                        new HTTPResponse.Builder(Request) {
                                                             HTTPStatusCode              = HTTPStatusCode.Created,
                                                             Server                      = HTTPServer.DefaultServerName,
                                                             Date                        = DateTime.UtcNow,
@@ -4356,7 +4356,7 @@ namespace org.GraphDefined.OpenData.Users
                                              #endregion
 
                                              return Task.FromResult(
-                                                        new HTTPResponseBuilder(Request) {
+                                                        new HTTPResponse.Builder(Request) {
                                                             HTTPStatusCode             = HTTPStatusCode.BadRequest,
                                                             Server                     = HTTPServer.DefaultServerName,
                                                             Date                       = DateTime.UtcNow,
@@ -5181,7 +5181,7 @@ namespace org.GraphDefined.OpenData.Users
                 //}
 
                 Organizations  = null;
-                Response       = new HTTPResponseBuilder(Request) {
+                Response       = new HTTPResponse.Builder(Request) {
                                      HTTPStatusCode  = HTTPStatusCode.Unauthorized,
                                      Location        = URIPrefix + "login",
                                      Date            = DateTime.Now,

@@ -99,7 +99,7 @@ namespace org.GraphDefined.OpenData.Users
                                                  AllItems = AllItems.
                                                                 Take(take.Value);
 
-                                             return new HTTPResponseBuilder(Request) {
+                                             return new HTTPResponse.Builder(Request) {
                                                                            HTTPStatusCode  = HTTPStatusCode.OK,
                                                                            Server          = HTTPServer.DefaultServerName,
                                                                            ContentType     = HTTPContentType.JSON_UTF8,
@@ -136,7 +136,7 @@ namespace org.GraphDefined.OpenData.Users
                                          HTTPDelegate: async Request => {
 
                                              if (!ParseIdDelegate(Request.ParsedURIParameters[0], out TId Id))
-                                                 return new HTTPResponseBuilder(Request) {
+                                                 return new HTTPResponse.Builder(Request) {
                                                      HTTPStatusCode             = HTTPStatusCode.BadRequest,
                                                      Server                     = HTTPServerName,
                                                      Date                       = DateTime.UtcNow,
@@ -151,7 +151,7 @@ namespace org.GraphDefined.OpenData.Users
                                                  };
 
                                              if (!TryGetItemDelegate(Id, out TItem Item) || !ItemFilterDelegate(Item))
-                                                 return new HTTPResponseBuilder(Request) {
+                                                 return new HTTPResponse.Builder(Request) {
                                                      HTTPStatusCode  = HTTPStatusCode.NotFound,
                                                      Server          = HTTPServerName,
                                                      Date            = DateTime.UtcNow,
@@ -161,7 +161,7 @@ namespace org.GraphDefined.OpenData.Users
                                                      Connection      = "close"
                                                  };
 
-                                             return new HTTPResponseBuilder(Request) {
+                                             return new HTTPResponse.Builder(Request) {
                                                  HTTPStatusCode  = HTTPStatusCode.OK,
                                                  Server          = HTTPServerName,
                                                  Date            = DateTime.UtcNow,
@@ -200,7 +200,7 @@ namespace org.GraphDefined.OpenData.Users
                                              TItem Item;
 
                                              if (!ParseIdDelegate(Request.ParsedURIParameters[0], out Id))
-                                                 return new HTTPResponseBuilder(Request) {
+                                                 return new HTTPResponse.Builder(Request) {
                                                      HTTPStatusCode  = HTTPStatusCode.BadRequest,
                                                      Server          = HTTPServer.DefaultServerName,
                                                      ContentType     = HTTPContentType.JSON_UTF8,
@@ -210,7 +210,7 @@ namespace org.GraphDefined.OpenData.Users
                                                  };
 
                                              if (!TryGetItemDelegate(Id, out Item) || !ItemFilterDelegate(Item))
-                                                 return new HTTPResponseBuilder(Request) {
+                                                 return new HTTPResponse.Builder(Request) {
                                                      HTTPStatusCode  = HTTPStatusCode.NotFound,
                                                      Server          = HTTPServer.DefaultServerName,
                                                      ContentType     = HTTPContentType.JSON_UTF8,
@@ -219,7 +219,7 @@ namespace org.GraphDefined.OpenData.Users
                                                      Connection      = "close"
                                                  };
 
-                                             return new HTTPResponseBuilder(Request) {
+                                             return new HTTPResponse.Builder(Request) {
                                                  HTTPStatusCode  = HTTPStatusCode.OK,
                                                  Server          = HTTPServer.DefaultServerName,
                                                  ContentType     = HTTPContentType.JSON_UTF8,
