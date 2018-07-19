@@ -30,15 +30,18 @@ namespace org.GraphDefined.OpenData.Users
     public class SecurityToken
     {
 
-        public User_Id  UserId    { get; }
-        public DateTime Expires   { get; }
+        public User_Id   UserId      { get; }
+        public DateTime  Expires     { get; }
+        public User_Id?  Astronaut   { get; }
 
         public SecurityToken(User_Id   UserId,
-                             DateTime  Expires)
+                             DateTime  Expires,
+                             User_Id?  Astronaut = null)
         {
 
-            this.UserId   = UserId;
-            this.Expires  = Expires;
+            this.UserId     = UserId;
+            this.Expires    = Expires;
+            this.Astronaut  = Astronaut;
 
         }
 

@@ -318,7 +318,6 @@ function HTTPChown(RessourceURI, APIKey, Data, OnSuccess, OnError) {
 // #endregion
 // #region HTTPCheck(RessourceURI, APIKey, Data, OnSuccess, OnError)
 function HTTPCheck(RessourceURI, APIKey, Data, OnSuccess, OnError) {
-    // #region Make HTTP call
     var ajax = new XMLHttpRequest();
     ajax.open("CHECK", RessourceURI, true); // , user, password);
     ajax.setRequestHeader("Accept", "application/json; charset=UTF-8");
@@ -345,7 +344,6 @@ function HTTPCheck(RessourceURI, APIKey, Data, OnSuccess, OnError) {
         ajax.send(JSON.stringify(Data));
     else
         ajax.send();
-    // #endregion
 }
 // #endregion
 // #region HTTPAuth(RessourceURI, APIKey, Data)
@@ -361,6 +359,52 @@ function HTTPAuth(RessourceURI, APIKey, Data) {
     else
         ajax.send();
     return ajax.responseText;
+}
+// #endregion
+// #region HTTPImpersonate(RessourceURI, OnSuccess, OnError)
+function HTTPImpersonate(RessourceURI, OnSuccess, OnError) {
+    var ajax = new XMLHttpRequest();
+    ajax.open("IMPERSONATE", RessourceURI, true); // NOT ASYNC!
+    ajax.onreadystatechange = function () {
+        // 0 UNSENT | 1 OPENED | 2 HEADERS_RECEIVED | 3 LOADING | 4 DONE
+        if (this.readyState == 4) {
+            // Ok
+            if (this.status >= 100 && this.status < 300) {
+                //alert(ajax.getAllResponseHeaders());
+                //alert(ajax.getResponseHeader("Date"));
+                //alert(ajax.getResponseHeader("Cache-control"));
+                //alert(ajax.getResponseHeader("ETag"));
+                if (OnSuccess && typeof OnSuccess === 'function')
+                    OnSuccess(this.status, ajax.responseText);
+            }
+            else if (OnError && typeof OnError === 'function')
+                OnError(this.status, this.statusText, ajax.responseText);
+        }
+    };
+    ajax.send();
+}
+// #endregion
+// #region HTTPDepersonate(RessourceURI, OnSuccess, OnError)
+function HTTPDepersonate(RessourceURI, OnSuccess, OnError) {
+    var ajax = new XMLHttpRequest();
+    ajax.open("DEPERSONATE", RessourceURI, true); // NOT ASYNC!
+    ajax.onreadystatechange = function () {
+        // 0 UNSENT | 1 OPENED | 2 HEADERS_RECEIVED | 3 LOADING | 4 DONE
+        if (this.readyState == 4) {
+            // Ok
+            if (this.status >= 100 && this.status < 300) {
+                //alert(ajax.getAllResponseHeaders());
+                //alert(ajax.getResponseHeader("Date"));
+                //alert(ajax.getResponseHeader("Cache-control"));
+                //alert(ajax.getResponseHeader("ETag"));
+                if (OnSuccess && typeof OnSuccess === 'function')
+                    OnSuccess(this.status, ajax.responseText);
+            }
+            else if (OnError && typeof OnError === 'function')
+                OnError(this.status, this.statusText, ajax.responseText);
+        }
+    };
+    ajax.send();
 }
 // #endregion
 // #region HTTPSet__SYNCED(RessourceURI, APIKey, Data)

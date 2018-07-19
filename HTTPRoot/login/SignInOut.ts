@@ -2,6 +2,7 @@
 var SignInUser    = "";
 var Username      = "";
 var UserEMail     = "";
+var Astronaut     = "";
 var isAdmin       = false;
 
 function HideElement(DivName) {
@@ -565,19 +566,25 @@ function checkSignedIn(RedirectUnkownUsers: Boolean) {
 
                cookie => {
 
+                   isAdmin   = false;
+                   Astronaut = "";
+
                    // Crumbs are base64 encoded!
                    cookie.split(":").forEach(crumb => {
 
-                       if (crumb.indexOf("login")    >= 0)
+                       if (crumb.indexOf("login")     >= 0)
                            SignInUser = atob(crumb.split("=")[1]);
 
-                       if (crumb.indexOf("username") >= 0)
+                       if (crumb.indexOf("username")  >= 0)
                            Username  = atob(crumb.split("=")[1]);
 
-                       if (crumb.indexOf("email") >= 0)
-                           UserEMail   = atob(crumb.split("=")[1]);
+                       if (crumb.indexOf("email")     >= 0)
+                           UserEMail = atob(crumb.split("=")[1]);
 
-                       if (crumb.indexOf("isAdmin") >= 0) {
+                       if (crumb.indexOf("astronaut") >= 0)
+                           Astronaut = atob(crumb.split("=")[1]);
+
+                       if (crumb.indexOf("isAdmin")   >= 0) {
                            isAdmin = true;
                            ShowElement('#admin');
                            ShowElement('.admin');
@@ -585,7 +592,11 @@ function checkSignedIn(RedirectUnkownUsers: Boolean) {
 
                    });
 
-                   (document.querySelector('#username') as HTMLDivElement).innerText = Username;
+                   (document.querySelector('#username')  as HTMLDivElement).innerText = Username;
+                   (document.querySelector('#astronaut') as HTMLDivElement).innerText = Astronaut;
+
+                   if (Astronaut != "")
+                       ShowElement2('#astronautFrame', 'inline-block');
 
                    ShowElement('#username');
                    ShowElement('.username');
@@ -751,5 +762,19 @@ function SignOut() {
     DeleteCookie(HTTPCookieId);
 
     location.href = "/login";
+
+}
+
+function Depersonate() {
+
+    HTTPDepersonate("/users/" + SignInUser,
+
+                    (HTTPStatus, ResponseText) => {
+                        window.location.reload(true);
+                    },
+
+                    (HTTPStatus, StatusText, ResponseText) => {
+                        alert("Not allowed!");
+                    });
 
 }

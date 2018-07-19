@@ -38,7 +38,7 @@ using org.GraphDefined.Vanaheimr.BouncyCastle;
 namespace org.GraphDefined.OpenData.Users
 {
 
-    public enum Access_Level
+    public enum Access_Levels
     {
         ReadOnly,
         ReadWrite,
@@ -552,7 +552,7 @@ namespace org.GraphDefined.OpenData.Users
 
         #region Organizations(RequireAdminAccess, RequireReadWriteAccess, Recursive)
 
-        public IEnumerable<Organization> Organizations(Access_Level  AccessLevel,
+        public IEnumerable<Organization> Organizations(Access_Levels  AccessLevel,
                                                        Boolean       Recursive)
         {
 
@@ -561,7 +561,7 @@ namespace org.GraphDefined.OpenData.Users
             switch (AccessLevel)
             {
 
-                case Access_Level.Admin:
+                case Access_Levels.Admin:
                     foreach (var organization in _User2OrganizationEdges.
                                                      Where (edge => edge.EdgeLabel == User2OrganizationEdges.IsAdmin).
                                                      Select(edge => edge.Target))
@@ -570,7 +570,7 @@ namespace org.GraphDefined.OpenData.Users
                     }
                     break;
 
-                case Access_Level.ReadWrite:
+                case Access_Levels.ReadWrite:
                     foreach (var organization in _User2OrganizationEdges.
                                                      Where (edge => edge.EdgeLabel == User2OrganizationEdges.IsAdmin ||
                                                                     edge.EdgeLabel == User2OrganizationEdges.IsMember).

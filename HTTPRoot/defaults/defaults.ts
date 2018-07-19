@@ -567,8 +567,6 @@ function HTTPCheck(RessourceURI: string,
                    OnSuccess,
                    OnError) {
 
-    // #region Make HTTP call
-
     let ajax = new XMLHttpRequest();
     ajax.open("CHECK", RessourceURI, true); // , user, password);
     ajax.setRequestHeader("Accept",       "application/json; charset=UTF-8");
@@ -608,8 +606,6 @@ function HTTPCheck(RessourceURI: string,
     else
         ajax.send();
 
-    // #endregion
-
 }
 
 // #endregion
@@ -634,6 +630,88 @@ function HTTPAuth(RessourceURI: string,
         ajax.send();
 
     return ajax.responseText;
+
+}
+
+// #endregion
+
+// #region HTTPImpersonate(RessourceURI, OnSuccess, OnError)
+
+function HTTPImpersonate(RessourceURI: string,
+                         OnSuccess,
+                         OnError) {
+
+    let ajax = new XMLHttpRequest();
+    ajax.open("IMPERSONATE", RessourceURI, true); // NOT ASYNC!
+
+    ajax.onreadystatechange = function () {
+
+        // 0 UNSENT | 1 OPENED | 2 HEADERS_RECEIVED | 3 LOADING | 4 DONE
+        if (this.readyState == 4) {
+
+            // Ok
+            if (this.status >= 100 && this.status < 300) {
+
+                //alert(ajax.getAllResponseHeaders());
+                //alert(ajax.getResponseHeader("Date"));
+                //alert(ajax.getResponseHeader("Cache-control"));
+                //alert(ajax.getResponseHeader("ETag"));
+
+                if (OnSuccess && typeof OnSuccess === 'function')
+                    OnSuccess(this.status, ajax.responseText);
+
+            }
+
+            else
+                if (OnError && typeof OnError === 'function')
+                    OnError(this.status, this.statusText, ajax.responseText);
+
+        }
+
+    }
+
+    ajax.send();
+
+}
+
+// #endregion
+
+// #region HTTPDepersonate(RessourceURI, OnSuccess, OnError)
+
+function HTTPDepersonate(RessourceURI: string,
+                         OnSuccess,
+                         OnError) {
+
+    let ajax = new XMLHttpRequest();
+    ajax.open("DEPERSONATE", RessourceURI, true); // NOT ASYNC!
+
+    ajax.onreadystatechange = function () {
+
+        // 0 UNSENT | 1 OPENED | 2 HEADERS_RECEIVED | 3 LOADING | 4 DONE
+        if (this.readyState == 4) {
+
+            // Ok
+            if (this.status >= 100 && this.status < 300) {
+
+                //alert(ajax.getAllResponseHeaders());
+                //alert(ajax.getResponseHeader("Date"));
+                //alert(ajax.getResponseHeader("Cache-control"));
+                //alert(ajax.getResponseHeader("ETag"));
+
+                if (OnSuccess && typeof OnSuccess === 'function')
+                    OnSuccess(this.status, ajax.responseText);
+
+            }
+
+            else
+                if (OnError && typeof OnError === 'function')
+                    OnError(this.status, this.statusText, ajax.responseText);
+
+        }
+
+    }
+
+    ajax.send();
 
 }
 

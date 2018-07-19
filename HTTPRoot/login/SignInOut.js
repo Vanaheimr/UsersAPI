@@ -1,6 +1,7 @@
 var SignInUser = "";
 var Username = "";
 var UserEMail = "";
+var Astronaut = "";
 var isAdmin = false;
 function HideElement(DivName) {
     var div = document.querySelector(DivName);
@@ -365,6 +366,8 @@ function SignIn() {
 }
 function checkSignedIn(RedirectUnkownUsers) {
     WithCookie(HTTPCookieId, function (cookie) {
+        isAdmin = false;
+        Astronaut = "";
         // Crumbs are base64 encoded!
         cookie.split(":").forEach(function (crumb) {
             if (crumb.indexOf("login") >= 0)
@@ -373,6 +376,8 @@ function checkSignedIn(RedirectUnkownUsers) {
                 Username = atob(crumb.split("=")[1]);
             if (crumb.indexOf("email") >= 0)
                 UserEMail = atob(crumb.split("=")[1]);
+            if (crumb.indexOf("astronaut") >= 0)
+                Astronaut = atob(crumb.split("=")[1]);
             if (crumb.indexOf("isAdmin") >= 0) {
                 isAdmin = true;
                 ShowElement('#admin');
@@ -380,6 +385,9 @@ function checkSignedIn(RedirectUnkownUsers) {
             }
         });
         document.querySelector('#username').innerText = Username;
+        document.querySelector('#astronaut').innerText = Astronaut;
+        if (Astronaut != "")
+            ShowElement2('#astronautFrame', 'inline-block');
         ShowElement('#username');
         ShowElement('.username');
         ShowElement('#profile');
@@ -464,5 +472,12 @@ function SignOut() {
     });
     DeleteCookie(HTTPCookieId);
     location.href = "/login";
+}
+function Depersonate() {
+    HTTPDepersonate("/users/" + SignInUser, function (HTTPStatus, ResponseText) {
+        window.location.reload(true);
+    }, function (HTTPStatus, StatusText, ResponseText) {
+        alert("Not allowed!");
+    });
 }
 //# sourceMappingURL=SignInOut.js.map

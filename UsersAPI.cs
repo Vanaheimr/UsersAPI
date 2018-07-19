@@ -2012,24 +2012,24 @@ namespace org.GraphDefined.OpenData.Users
 
                                               #region Register security token
 
-                                              var SHA256Hash     = new SHA256Managed();
-                                              var SecurityToken  = SecurityToken_Id.Parse(SHA256Hash.ComputeHash(
-                                                                                              String.Concat(Guid.NewGuid().ToString(),
-                                                                                                            _LoginPassword.Login).
-                                                                                              ToUTF8Bytes()
-                                                                                          ).ToHexString());
+                                              var SHA256Hash       = new SHA256Managed();
+                                              var SecurityTokenId  = SecurityToken_Id.Parse(SHA256Hash.ComputeHash(
+                                                                                                String.Concat(Guid.NewGuid().ToString(),
+                                                                                                              _LoginPassword.Login).
+                                                                                                ToUTF8Bytes()
+                                                                                            ).ToHexString());
 
-                                              var Expires        = DateTime.UtcNow.Add(SignInSessionLifetime);
+                                              var Expires          = DateTime.UtcNow.Add(SignInSessionLifetime);
 
                                               lock (HTTPCookies)
                                               {
 
-                                                  HTTPCookies.Add(SecurityToken,
-                                                                     new SecurityToken(_LoginPassword.Login,
-                                                                                             Expires));
+                                                  HTTPCookies.Add(SecurityTokenId,
+                                                                  new SecurityToken(_LoginPassword.Login,
+                                                                                    Expires));
 
                                                   File.AppendAllText(DefaultHTTPCookiesFile,
-                                                                     SecurityToken + ";" + _LoginPassword.Login + ";" + Expires.ToIso8601() + Environment.NewLine);
+                                                                     SecurityTokenId + ";" + _LoginPassword.Login + ";" + Expires.ToIso8601() + Environment.NewLine);
 
                                               }
 
@@ -2052,7 +2052,7 @@ namespace org.GraphDefined.OpenData.Users
                                                                                   ":username=" + _User.Name.ToBase64() +
                                                                                   ":email="    + _User.EMail.Address.ToString().ToBase64() +
                                                                                 (IsAdmin(_User) ? ":isAdmin" : "") +
-                                                                             ":securitytoken=" + SecurityToken +
+                                                                             ":securitytoken=" + SecurityTokenId +
                                                                                   "; Expires=" + Expires.ToRfc1123() +
                                                                                    (HTTPCookieDomain.IsNotNullOrEmpty()
                                                                                        ? "; Domain=" + HTTPCookieDomain
@@ -2549,7 +2549,7 @@ namespace org.GraphDefined.OpenData.Users
                                                                   out User                       HTTPUser,
                                                                   out IEnumerable<Organization>  HTTPOrganizations,
                                                                   out HTTPResponse               ErrorResponse,
-                                                                  AccessLevel:                   Access_Level.ReadWrite,
+                                                                  AccessLevel:                   Access_Levels.ReadWrite,
                                                                   Recursive:                     true))
                                               {
                                                   return Task.FromResult(ErrorResponse);
@@ -3252,7 +3252,7 @@ namespace org.GraphDefined.OpenData.Users
                                                                  out User                       HTTPUser,
                                                                  out IEnumerable<Organization>  HTTPOrganizations,
                                                                  out HTTPResponse               Response,
-                                                                 AccessLevel:                   Access_Level.ReadWrite,
+                                                                 AccessLevel:                   Access_Levels.ReadWrite,
                                                                  Recursive:                     true))
                                              {
                                                  return Task.FromResult(Response);
@@ -3615,6 +3615,259 @@ namespace org.GraphDefined.OpenData.Users
 
             #endregion
 
+            #region IMPERSONATE ~/users/{UserId}
+
+            HTTPServer.AddMethodCallback(HTTPHostname.Any,
+                                         HTTPMethod.IMPERSONATE,
+                                         HTTPURI.Parse("/users/{UserId}"),
+                                         HTTPContentType.JSON_UTF8,
+                                         HTTPDelegate: Request => {
+
+                                             #region Get astronaut and its organizations
+
+                                             // Will return HTTP 401 Unauthorized, when the HTTP user is unknown!
+                                             if (!TryGetAstronaut(Request,
+                                                                  out User                       Astronaut,
+                                                                  out IEnumerable<Organization>  AstronautOrganizations,
+                                                                  out HTTPResponse               Response,
+                                                                  Recursive: true))
+                                             {
+                                                 return Task.FromResult(Response);
+                                             }
+
+                                             #endregion
+
+                                             #region Check UserId URI parameter
+
+                                             if (!Request.ParseUserId(this,
+                                                                      out User_Id?      UserIdURI,
+                                                                      out HTTPResponse  HTTPResponse))
+                                             {
+                                                 return Task.FromResult(HTTPResponse);
+                                             }
+
+                                             if (!TryGetUser(UserIdURI.Value, out User UserURI))
+                                             {
+
+                                                 return Task.FromResult(
+                                                            new HTTPResponse.Builder(Request) {
+                                                                HTTPStatusCode              = HTTPStatusCode.NotFound,
+                                                                Server                      = HTTPServer.DefaultServerName,
+                                                                Date                        = DateTime.UtcNow,
+                                                                AccessControlAllowOrigin    = "*",
+                                                                AccessControlAllowMethods   = "IMPERSONATE",
+                                                                AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
+                                                                Connection                  = "close"
+                                                            }.AsImmutable);
+
+                                             }
+
+                                             #endregion
+
+                                             #region Is the current user allowed to impersonate the given user?
+
+                                             if (UserURI.Id.ToString() == "ahzf" ||
+                                                 UserURI.Id.ToString() == "lars")
+                                             {
+
+                                                 return Task.FromResult(
+                                                            new HTTPResponse.Builder(Request) {
+                                                                HTTPStatusCode              = HTTPStatusCode.Forbidden,
+                                                                Server                      = HTTPServer.DefaultServerName,
+                                                                Date                        = DateTime.UtcNow,
+                                                                AccessControlAllowOrigin    = "*",
+                                                                AccessControlAllowMethods   = "IMPERSONATE",
+                                                                AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
+                                                                Connection                  = "close"
+                                                            }.AsImmutable);
+
+                                             }
+
+                                             #endregion
+
+
+                                             #region Register security token
+
+                                             var SHA256Hash       = new SHA256Managed();
+                                             var SecurityTokenId  = SecurityToken_Id.Parse(SHA256Hash.ComputeHash(
+                                                                                               String.Concat(Guid.NewGuid().ToString(),
+                                                                                                             UserURI.Id).
+                                                                                               ToUTF8Bytes()
+                                                                                           ).ToHexString());
+
+                                             var Expires          = DateTime.UtcNow.Add(SignInSessionLifetime);
+
+                                             lock (HTTPCookies)
+                                             {
+
+                                                 HTTPCookies.Add(SecurityTokenId,
+                                                                    new SecurityToken(UserURI.Id,
+                                                                                      Expires,
+                                                                                      Astronaut.Id));
+
+                                                 File.AppendAllText(DefaultHTTPCookiesFile,
+                                                                    SecurityTokenId + ";" + UserURI.Id + ";" + Expires.ToIso8601() + ";" + Astronaut.Id + Environment.NewLine);
+
+                                             }
+
+                                             #endregion
+
+
+                                             return Task.FromResult(
+                                                 new HTTPResponse.Builder(Request) {
+                                                     HTTPStatusCode  = HTTPStatusCode.Created,
+                                                     ContentType     = HTTPContentType.TEXT_UTF8,
+                                                     Content         = new JObject(
+                                                                           new JProperty("@context",  SignInOutContext),
+                                                                           new JProperty("login",     UserURI.Id.ToString()),
+                                                                           new JProperty("username",  UserURI.Name),
+                                                                           new JProperty("email",     UserURI.EMail.Address.ToString())
+                                                                       ).ToUTF8Bytes(),
+                                                     CacheControl    = "private",
+                                                     SetCookie       = CookieName + "=login="    + UserURI.Id.ToString().ToBase64() +
+                                                                                 ":astronaut=" + Astronaut.Id.ToString().ToBase64() +
+                                                                                 ":username=" + UserURI.Name.ToBase64() +
+                                                                               (IsAdmin(Astronaut) ? ":isAdmin" : "") +
+                                                                            ":securitytoken=" + SecurityTokenId +
+                                                                                 "; Expires=" + DateTime.UtcNow.Add(SignInSessionLifetime).ToRfc1123() +
+                                                                                  (HTTPCookieDomain.IsNotNullOrEmpty()
+                                                                                      ? "; Domain=" + HTTPCookieDomain
+                                                                                      : "") +
+                                                                                    "; Path=/",
+                                                     // secure;"
+                                                     Connection = "close"
+                                                 }.AsImmutable);
+
+                                         });
+
+            #endregion
+
+            #region DEPERSONATE ~/users/{UserId}
+
+            HTTPServer.AddMethodCallback(HTTPHostname.Any,
+                                         HTTPMethod.DEPERSONATE,
+                                         HTTPURI.Parse("/users/{UserId}"),
+                                         HTTPContentType.JSON_UTF8,
+                                         HTTPDelegate: Request => {
+
+                                             #region Get astronaut and its organizations
+
+                                             // Will return HTTP 401 Unauthorized, when the HTTP user is unknown!
+                                             if (!TryGetAstronaut(Request,
+                                                                  out User                       Astronaut,
+                                                                  out IEnumerable<Organization>  AstronautOrganizations,
+                                                                  out HTTPResponse               Response,
+                                                                  Recursive: true))
+                                             {
+                                                 return Task.FromResult(Response);
+                                             }
+
+                                             #endregion
+
+                                             #region Check UserId URI parameter
+
+                                             if (!Request.ParseUserId(this,
+                                                                      out User_Id?      UserIdURI,
+                                                                      out HTTPResponse  HTTPResponse))
+                                             {
+                                                 return Task.FromResult(HTTPResponse);
+                                             }
+
+                                             if (!TryGetUser(UserIdURI.Value, out User UserURI))
+                                             {
+
+                                                 return Task.FromResult(
+                                                            new HTTPResponse.Builder(Request) {
+                                                                HTTPStatusCode              = HTTPStatusCode.NotFound,
+                                                                Server                      = HTTPServer.DefaultServerName,
+                                                                Date                        = DateTime.UtcNow,
+                                                                AccessControlAllowOrigin    = "*",
+                                                                AccessControlAllowMethods   = "DEPERSONATE",
+                                                                AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
+                                                                Connection                  = "close"
+                                                            }.AsImmutable);
+
+                                             }
+
+                                             #endregion
+
+                                             #region Is the current user allowed to impersonate the given user?
+
+                                             //if (UserURI.Id.ToString() == "ahzf" ||
+                                             //    UserURI.Id.ToString() == "lars")
+                                             //{
+
+                                             //    return Task.FromResult(
+                                             //               new HTTPResponse.Builder(Request) {
+                                             //                   HTTPStatusCode              = HTTPStatusCode.Forbidden,
+                                             //                   Server                      = HTTPServer.DefaultServerName,
+                                             //                   Date                        = DateTime.UtcNow,
+                                             //                   AccessControlAllowOrigin    = "*",
+                                             //                   AccessControlAllowMethods   = "IMPERSONATE",
+                                             //                   AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
+                                             //                   Connection                  = "close"
+                                             //               }.AsImmutable);
+
+                                             //}
+
+                                             #endregion
+
+
+                                             #region Register security token
+
+                                             var SHA256Hash       = new SHA256Managed();
+                                             var SecurityTokenId  = SecurityToken_Id.Parse(SHA256Hash.ComputeHash(
+                                                                                               String.Concat(Guid.NewGuid().ToString(),
+                                                                                                             Astronaut.Id).
+                                                                                               ToUTF8Bytes()
+                                                                                           ).ToHexString());
+
+                                             var Expires          = DateTime.UtcNow.Add(SignInSessionLifetime);
+
+                                             lock (HTTPCookies)
+                                             {
+
+                                                 HTTPCookies.Add(SecurityTokenId,
+                                                                 new SecurityToken(Astronaut.Id,
+                                                                                   Expires));
+
+                                                 File.AppendAllText(DefaultHTTPCookiesFile,
+                                                                    SecurityTokenId + ";" + UserURI.Id + ";" + Expires.ToIso8601() + Environment.NewLine);
+
+                                             }
+
+                                             #endregion
+
+
+                                             return Task.FromResult(
+                                                 new HTTPResponse.Builder(Request) {
+                                                     HTTPStatusCode  = HTTPStatusCode.Created,
+                                                     ContentType     = HTTPContentType.TEXT_UTF8,
+                                                     Content         = new JObject(
+                                                                           new JProperty("@context",  SignInOutContext),
+                                                                           new JProperty("login",     Astronaut.Id.ToString()),
+                                                                           new JProperty("username",  Astronaut.Name),
+                                                                           new JProperty("email",     Astronaut.EMail.Address.ToString())
+                                                                       ).ToUTF8Bytes(),
+                                                     CacheControl    = "private",
+                                                     SetCookie       = CookieName + "=login="    + Astronaut.Id.ToString().ToBase64() +
+                                                                                 ":username=" + Astronaut.Name.ToBase64() +
+                                                                               (IsAdmin(Astronaut) ? ":isAdmin" : "") +
+                                                                            ":securitytoken=" + SecurityTokenId +
+                                                                                 "; Expires=" + DateTime.UtcNow.Add(SignInSessionLifetime).ToRfc1123() +
+                                                                                  (HTTPCookieDomain.IsNotNullOrEmpty()
+                                                                                      ? "; Domain=" + HTTPCookieDomain
+                                                                                      : "") +
+                                                                                    "; Path=/",
+                                                     // secure;"
+                                                     Connection = "close"
+                                                 }.AsImmutable);
+
+                                         });
+
+            #endregion
+
+
             #region GET         ~/users/{UserId}/profilephoto
 
             HTTPServer.RegisterFilesystemFile(HTTPHostname.Any,
@@ -3707,7 +3960,7 @@ namespace org.GraphDefined.OpenData.Users
                                                                  out User                       HTTPUser,
                                                                  out IEnumerable<Organization>  HTTPOrganizations,
                                                                  out HTTPResponse               Response,
-                                                                 AccessLevel:                   Access_Level.ReadWrite,
+                                                                 AccessLevel:                   Access_Levels.ReadWrite,
                                                                  Recursive:                     true))
                                              {
                                                  return Task.FromResult(Response);
@@ -3920,7 +4173,7 @@ namespace org.GraphDefined.OpenData.Users
                                                                  out User                       HTTPUser,
                                                                  out IEnumerable<Organization>  HTTPOrganizations,
                                                                  out HTTPResponse               Response,
-                                                                 AccessLevel:                   Access_Level.ReadWrite,
+                                                                 AccessLevel:                   Access_Levels.ReadWrite,
                                                                  Recursive:                     true))
                                              {
                                                  return Response;
@@ -4157,7 +4410,7 @@ namespace org.GraphDefined.OpenData.Users
                                                                  out User                       HTTPUser,
                                                                  out IEnumerable<Organization>  HTTPOrganizations,
                                                                  out HTTPResponse               Response,
-                                                                 AccessLevel:                   Access_Level.ReadWrite,
+                                                                 AccessLevel:                   Access_Levels.ReadWrite,
                                                                  Recursive:                     true))
                                              {
                                                  return Task.FromResult(Response);
@@ -4575,24 +4828,31 @@ namespace org.GraphDefined.OpenData.Users
                             try
                             {
 
-                                var Tokens         = line.Split(new Char[] { ';' }, StringSplitOptions.None);
+                                var Tokens           = line.Split(new Char[] { ';' }, StringSplitOptions.None);
 
-                                var SecurityToken  = SecurityToken_Id.Parse(Tokens[0]);
-                                var Login          = User_Id.         Parse(Tokens[1]);
-                                var Expires        = DateTime.        Parse(Tokens[2]);
+                                var SecurityTokenId  = SecurityToken_Id.Parse(Tokens[0]);
+                                var Login            = User_Id.         Parse(Tokens[1]);
+                                var Expires          = DateTime.        Parse(Tokens[2]);
+                                var Astronaut        = Tokens.Length == 4
+                                                           ? new User_Id?(User_Id.Parse(Tokens[3]))
+                                                           : null;
 
-                                if (!HTTPCookies.ContainsKey(SecurityToken) &&
+                                if (!HTTPCookies.ContainsKey(SecurityTokenId) &&
                                     _LoginPasswords.ContainsKey(Login) &&
                                     Expires > DateTime.UtcNow)
                                 {
-                                    HTTPCookies.Add(SecurityToken,
-                                                       new SecurityToken(Login, Expires));
+
+                                    HTTPCookies.Add(SecurityTokenId,
+                                                    new SecurityToken(Login,
+                                                                      Expires,
+                                                                      Astronaut));
+
                                 }
 
                             }
                             catch (Exception e)
                             {
-                                DebugX.Log("Could not read security token file '" + DefaultHTTPCookiesFile + "' line " + linenumber + ": " + e.Message);
+                                DebugX.Log("Could not read HTTP cookies file '" + DefaultHTTPCookiesFile + "' line " + linenumber + ": " + e.Message);
                             }
 
                         });
@@ -4600,7 +4860,7 @@ namespace org.GraphDefined.OpenData.Users
                     }
                     catch (Exception e)
                     {
-                        DebugX.Log("Could not read security token file '" + DefaultHTTPCookiesFile + "': " + e.Message);
+                        DebugX.Log("Could not read HTTP cookies file '" + DefaultHTTPCookiesFile + "': " + e.Message);
                     }
 
                     // Write filtered (no invalid users, no expired tokens) tokens back to file...
@@ -5105,7 +5365,7 @@ namespace org.GraphDefined.OpenData.Users
 
         #endregion
 
-        #region (protected) TryGetHTTPUser(Request, out User)
+        #region (protected) TryGetHTTPUser (Request, out User)
 
         protected Boolean TryGetHTTPUser(HTTPRequest Request, out User User)
         {
@@ -5116,7 +5376,7 @@ namespace org.GraphDefined.OpenData.Users
                 Request. Cookies.TryGet     (CookieName,             out HTTPCookie        Cookie)              &&
                          Cookie. TryGet     (SecurityTokenCookieKey, out String            Value)               &&
                 SecurityToken_Id.TryParse   (Value,                  out SecurityToken_Id  SecurityTokenId)     &&
-                HTTPCookies.  TryGetValue(SecurityTokenId,        out SecurityToken     SecurityInformation) &&
+                HTTPCookies.     TryGetValue(SecurityTokenId,        out SecurityToken     SecurityInformation) &&
                 DateTime.UtcNow < SecurityInformation.Expires                                                   &&
                 TryGetUser(SecurityInformation.UserId, out User))
             {
@@ -5158,13 +5418,40 @@ namespace org.GraphDefined.OpenData.Users
 
         #endregion
 
-        #region (protected) TryGetHTTPUser(Request, User, Organizations, Response, AccessLevel = ReadOnly, Recursive = false)
+        #region (protected) TryGetAstronaut(Request, out User)
+
+        protected Boolean TryGetAstronaut(HTTPRequest Request, out User User)
+        {
+
+            #region Get user from cookie...
+
+            if (Request.Cookies != null                                                                         &&
+                Request. Cookies.TryGet     (CookieName,             out HTTPCookie        Cookie)              &&
+                         Cookie. TryGet     (SecurityTokenCookieKey, out String            Value)               &&
+                SecurityToken_Id.TryParse   (Value,                  out SecurityToken_Id  SecurityTokenId)     &&
+                HTTPCookies.     TryGetValue(SecurityTokenId,        out SecurityToken     SecurityInformation) &&
+                DateTime.UtcNow < SecurityInformation.Expires                                                   &&
+                TryGetUser(SecurityInformation.Astronaut ?? SecurityInformation.UserId, out User))
+            {
+                return true;
+            }
+
+            #endregion
+
+            User = null;
+            return false;
+
+        }
+
+        #endregion
+
+        #region (protected) TryGetHTTPUser (Request, User, Organizations, Response, AccessLevel = ReadOnly, Recursive = false)
 
         protected Boolean TryGetHTTPUser(HTTPRequest                    Request,
                                          out User                       User,
                                          out IEnumerable<Organization>  Organizations,
                                          out HTTPResponse               Response,
-                                         Access_Level                    AccessLevel  = Access_Level.ReadOnly,
+                                         Access_Levels                  AccessLevel  = Access_Levels.ReadOnly,
                                          Boolean                        Recursive    = false)
         {
 
@@ -5202,12 +5489,56 @@ namespace org.GraphDefined.OpenData.Users
 
         #endregion
 
-        #region (protected) TryGetHTTPUser(Request, User, Organizations,           AccessLevel = ReadOnly, Recursive = false)
+        #region (protected) TryGetAstronaut(Request, User, Organizations, Response, AccessLevel = ReadOnly, Recursive = false)
+
+        protected Boolean TryGetAstronaut(HTTPRequest                    Request,
+                                          out User                       User,
+                                          out IEnumerable<Organization>  Organizations,
+                                          out HTTPResponse               Response,
+                                          Access_Levels                  AccessLevel  = Access_Levels.ReadOnly,
+                                          Boolean                        Recursive    = false)
+        {
+
+            if (!TryGetAstronaut(Request, out User))
+            {
+
+                //if (Request.RemoteSocket.IPAddress.IsIPv4 &&
+                //    Request.RemoteSocket.IPAddress.IsLocalhost)
+                //{
+                //    User           = Admins.User2GroupInEdges(edgelabel => edgelabel == User2GroupEdges.IsAdmin).FirstOrDefault()?.Source;
+                //    Organizations  = User.Organizations(RequireReadWriteAccess, Recursive);
+                //    Response       = null;
+                //    return true;
+                //}
+
+                Organizations  = null;
+                Response       = new HTTPResponse.Builder(Request) {
+                                     HTTPStatusCode  = HTTPStatusCode.Unauthorized,
+                                     Location        = URIPrefix + "login",
+                                     Date            = DateTime.Now,
+                                     Server          = HTTPServer.DefaultServerName,
+                                     CacheControl    = "private, max-age=0, no-cache",
+                                     Connection      = "close"
+                                 };
+
+                return false;
+
+            }
+
+            Organizations = User?.Organizations(AccessLevel, Recursive);
+            Response      = null;
+            return true;
+
+        }
+
+        #endregion
+
+        #region (protected) TryGetHTTPUser (Request, User, Organizations,           AccessLevel = ReadOnly, Recursive = false)
 
         protected void TryGetHTTPUser(HTTPRequest                    Request,
                                       out User                       User,
                                       out IEnumerable<Organization>  Organizations,
-                                      Access_Level                    AccessLevel  = Access_Level.ReadOnly,
+                                      Access_Levels                  AccessLevel  = Access_Levels.ReadOnly,
                                       Boolean                        Recursive    = false)
         {
 
