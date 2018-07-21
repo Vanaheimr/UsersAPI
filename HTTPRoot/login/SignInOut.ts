@@ -598,8 +598,10 @@ function checkSignedIn(RedirectUnkownUsers: Boolean) {
                    if (Astronaut != "")
                        ShowElement2('#astronautFrame', 'inline-block');
 
-                   ShowElement('#username');
-                   ShowElement('.username');
+                   if (window.matchMedia("(min-device-width : 376px)").matches) {
+                       ShowElement('#username');
+                       ShowElement('.username');
+                   }
 
                    ShowElement('#profile');
                    ShowElement('.profile');
