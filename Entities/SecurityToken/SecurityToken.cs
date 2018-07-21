@@ -45,6 +45,9 @@ namespace org.GraphDefined.OpenData.Users
 
         }
 
+        public String ToLogLine()
+            => String.Concat(UserId, ";", Expires.ToIso8601(), Astronaut.HasValue ? ";" + Astronaut.Value : "");
+
     }
 
 }

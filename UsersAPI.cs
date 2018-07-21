@@ -4863,9 +4863,19 @@ namespace org.GraphDefined.OpenData.Users
                         DebugX.Log("Could not read HTTP cookies file '" + DefaultHTTPCookiesFile + "': " + e.Message);
                     }
 
+
                     // Write filtered (no invalid users, no expired tokens) tokens back to file...
-                    File.WriteAllLines(DefaultHTTPCookiesFile,
-                                       HTTPCookies.Select(token => token.Key + ";" + token.Value.UserId + ";" + token.Value.Expires.ToIso8601()));
+                    try
+                    {
+
+                        File.WriteAllLines(DefaultHTTPCookiesFile,
+                                           HTTPCookies.Select(token => token.Key + ";" + token.Value.ToLogLine()));
+
+                    }
+                    catch (Exception e)
+                    {
+                        DebugX.Log("Could not update HTTP cookies file '" + DefaultHTTPCookiesFile + "': " + e.Message);
+                    }
 
                 }
 
