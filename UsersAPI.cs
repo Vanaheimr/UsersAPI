@@ -682,6 +682,9 @@ namespace org.GraphDefined.OpenData.Users
 
         protected readonly Notifications _Notifications;
 
+
+        public static Organization NoOwner;
+
         #endregion
 
         #region Properties
@@ -916,9 +919,6 @@ namespace org.GraphDefined.OpenData.Users
 
 
         public Warden        Warden                     { get; }
-
-
-        public Organization  NoOwner                    { get; }
 
         #endregion
 
