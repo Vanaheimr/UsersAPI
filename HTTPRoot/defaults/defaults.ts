@@ -9,6 +9,7 @@ interface IUserProfile {
     id:               string;
     name:             string;
     email:            string;
+    telephone:        string;
     mobilePhone:      string;
     description:      Object;
     publicKeyRing:    string;

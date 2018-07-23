@@ -4040,8 +4040,8 @@ namespace org.GraphDefined.OpenData.Users
                                                             AccessControlAllowMethods   = "GET, SET",
                                                             AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
                                                             //ETag                        = _User.CurrentCryptoHash,
-                                                            //ContentType                 = HTTPContentType.JSON_UTF8,
-                                                            //Content                     = _User.ToJSON().ToUTF8Bytes(),
+                                                            ContentType                 = HTTPContentType.JSON_UTF8,
+                                                            Content                     = JSONObj.ToString().ToUTF8Bytes(),
                                                             Connection                  = "close"
                                                         }.AsImmutable);
 
@@ -4930,11 +4930,13 @@ namespace org.GraphDefined.OpenData.Users
 
                                             case "Add":
 
-                                                if (!PasswordResets.ContainsKey(_PasswordReset.SecurityToken1) &&
-                                                    Now - _PasswordReset.Timestamp <= MaxAge)
+                                                if (!PasswordResets.ContainsKey(_PasswordReset.SecurityToken1))
                                                 {
-                                                    PasswordResets.Add(_PasswordReset.SecurityToken1,
-                                                                       _PasswordReset);
+                                                    if (Now - _PasswordReset.Timestamp <= MaxAge)
+                                                    {
+                                                        PasswordResets.Add(_PasswordReset.SecurityToken1,
+                                                                           _PasswordReset);
+                                                    }
                                                 }
 
                                                 else
