@@ -23,6 +23,8 @@ using System.Collections.Generic;
 
 using Newtonsoft.Json.Linq;
 
+using Org.BouncyCastle.Bcpg.OpenPgp;
+
 using org.GraphDefined.Vanaheimr.Aegir;
 using org.GraphDefined.Vanaheimr.Illias;
 using org.GraphDefined.Vanaheimr.Hermod;
@@ -30,7 +32,6 @@ using org.GraphDefined.Vanaheimr.Hermod.Mail;
 using org.GraphDefined.Vanaheimr.Hermod.Distributed;
 using org.GraphDefined.Vanaheimr.Hermod.HTTP;
 using org.GraphDefined.Vanaheimr.Styx.Arrows;
-using Org.BouncyCastle.Bcpg.OpenPgp;
 using org.GraphDefined.Vanaheimr.BouncyCastle;
 
 #endregion
@@ -67,22 +68,22 @@ namespace org.GraphDefined.OpenData.Users
 
             }
 
-            if (OldUser.__User2OrganizationEdges.Any() && !NewUser.__User2OrganizationEdges.Any())
+            if (OldUser.User2Organization_OutEdges.Any() && !NewUser.User2Organization_OutEdges.Any())
             {
 
-                NewUser.Add(OldUser.__User2OrganizationEdges);
+                NewUser.Add(OldUser.User2Organization_OutEdges);
 
-                foreach (var edge in NewUser.__User2OrganizationEdges)
+                foreach (var edge in NewUser.User2Organization_OutEdges)
                     edge.Source = NewUser;
 
             }
 
-            if (OldUser.__User2GroupEdges.Any() && !NewUser.__User2GroupEdges.Any())
+            if (OldUser.User2Group_OutEdges.Any() && !NewUser.User2Group_OutEdges.Any())
             {
 
-                NewUser.Add(OldUser.__User2GroupEdges);
+                NewUser.Add(OldUser.User2Group_OutEdges);
 
-                foreach (var edge in NewUser.__User2GroupEdges)
+                foreach (var edge in NewUser.User2Group_OutEdges)
                     edge.Source = NewUser;
 
             }
@@ -94,7 +95,7 @@ namespace org.GraphDefined.OpenData.Users
     }
 
     /// <summary>
-    /// A user.
+    /// An Open Data user.
     /// </summary>
     public class User : ADistributedEntity<User_Id>,
                         IEntityClass<User>
@@ -171,6 +172,12 @@ namespace org.GraphDefined.OpenData.Users
         /// </summary>
         [Optional]
         public PgpSecretKeyRing    SecretKeyRing        { get; }
+
+        /// <summary>
+        /// The telephone number of the user.
+        /// </summary>
+        [Optional]
+        public PhoneNumber?        Telephone            { get; }
 
         /// <summary>
         /// The mobile telephone number of the user.
@@ -277,7 +284,7 @@ namespace org.GraphDefined.OpenData.Users
         /// All groups this user belongs to.
         /// </summary>
         public IEnumerable<Group> Groups()
-            => _User2GroupEdges.
+            => _User2Group_OutEdges.
                    Select(edge => edge.Target);
 
         #endregion
@@ -289,7 +296,7 @@ namespace org.GraphDefined.OpenData.Users
         /// filtered by the given edge label.
         /// </summary>
         public IEnumerable<Group> Groups(User2GroupEdges EdgeFilter)
-            => _User2GroupEdges.
+            => _User2Group_OutEdges.
                    Where (edge => edge.EdgeLabel == EdgeFilter).
                    Select(edge => edge.Target);
 
@@ -302,7 +309,7 @@ namespace org.GraphDefined.OpenData.Users
         /// filtered by the given edge label.
         /// </summary>
         public IEnumerable<User2GroupEdges> OutEdges(Group Group)
-            => _User2GroupEdges.
+            => _User2Group_OutEdges.
                    Where (edge => edge.Target == Group).
                    Select(edge => edge.EdgeLabel);
 
@@ -315,91 +322,9 @@ namespace org.GraphDefined.OpenData.Users
         /// filtered by the given edge label.
         /// </summary>
         public IEnumerable<User2OrganizationEdges> Edges(Organization Organization)
-            => _User2OrganizationEdges.
+            => _User2Organization_OutEdges.
                    Where (edge => edge.Target == Organization).
                    Select(edge => edge.EdgeLabel);
-
-        #endregion
-
-        #endregion
-
-        #region Edges
-
-        #region User2UserEdges
-
-        private readonly List<MiniEdge<User, User2UserEdges, User>> _User2UserEdges;
-
-        /// <summary>
-        /// All PAIRED messages.
-        /// </summary>
-        public IEnumerable<MiniEdge<User, User2UserEdges, User>> __User2UserEdges
-            => _User2UserEdges;
-
-        /// <summary>
-        /// Add a new PAIRED message.
-        /// </summary>
-        /// <param name="PairedMessage">A PAIRED message.</param>
-        public MiniEdge<User, User2UserEdges, User> Add(MiniEdge<User, User2UserEdges, User> PairedMessage)
-            => _User2UserEdges.AddAndReturnElement(PairedMessage);
-
-        /// <summary>
-        /// Add new PAIRED messages.
-        /// </summary>
-        /// <param name="PairedMessages">An enumeration of PAIRED messages.</param>
-        public IEnumerable<MiniEdge<User, User2UserEdges, User>> Add(IEnumerable<MiniEdge<User, User2UserEdges, User>> PairedMessages)
-            => _User2UserEdges.AddRangeAndReturnEnumeration(PairedMessages);
-
-        #endregion
-
-        #region User2GroupEdges
-
-        private readonly List<MiniEdge<User, User2GroupEdges, Group>> _User2GroupEdges;
-
-        /// <summary>
-        /// All PAIRED messages.
-        /// </summary>
-        public IEnumerable<MiniEdge<User, User2GroupEdges, Group>> __User2GroupEdges
-            => _User2GroupEdges;
-
-        /// <summary>
-        /// Add a new PAIRED message.
-        /// </summary>
-        /// <param name="PairedMessage">A PAIRED message.</param>
-        public MiniEdge<User, User2GroupEdges, Group> Add(MiniEdge<User, User2GroupEdges, Group> PairedMessage)
-            => _User2GroupEdges.AddAndReturnElement(PairedMessage);
-
-        /// <summary>
-        /// Add new PAIRED messages.
-        /// </summary>
-        /// <param name="PairedMessages">An enumeration of PAIRED messages.</param>
-        public IEnumerable<MiniEdge<User, User2GroupEdges, Group>> Add(IEnumerable<MiniEdge<User, User2GroupEdges, Group>> PairedMessages)
-            => _User2GroupEdges.AddRangeAndReturnEnumeration(PairedMessages);
-
-        #endregion
-
-        #region User2OrganizationEdges
-
-        private readonly List<MiniEdge<User, User2OrganizationEdges, Organization>> _User2OrganizationEdges;
-
-        /// <summary>
-        /// All PAIRED messages.
-        /// </summary>
-        public IEnumerable<MiniEdge<User, User2OrganizationEdges, Organization>> __User2OrganizationEdges
-            => _User2OrganizationEdges;
-
-        /// <summary>
-        /// Add a new PAIRED message.
-        /// </summary>
-        /// <param name="PairedMessage">A PAIRED message.</param>
-        public MiniEdge<User, User2OrganizationEdges, Organization> Add(MiniEdge<User, User2OrganizationEdges, Organization> PairedMessage)
-            => _User2OrganizationEdges.AddAndReturnElement(PairedMessage);
-
-        /// <summary>
-        /// Add new PAIRED messages.
-        /// </summary>
-        /// <param name="PairedMessages">An enumeration of PAIRED messages.</param>
-        public IEnumerable<MiniEdge<User, User2OrganizationEdges, Organization>> Add(IEnumerable<MiniEdge<User, User2OrganizationEdges, Organization>> PairedMessages)
-            => _User2OrganizationEdges.AddRangeAndReturnEnumeration(PairedMessages);
 
         #endregion
 
@@ -412,7 +337,7 @@ namespace org.GraphDefined.OpenData.Users
         #region Constructor(s)
 
         /// <summary>
-        /// Create a new user.
+        /// Create a new Open Data user.
         /// </summary>
         /// <param name="Id">The unique identification of the user.</param>
         /// <param name="EMail">The primary e-mail of the user.</param>
@@ -420,7 +345,8 @@ namespace org.GraphDefined.OpenData.Users
         /// <param name="Description">An optional (multi-language) description of the user.</param>
         /// <param name="PublicKeyRing">An optional PGP/GPG public keyring of the user.</param>
         /// <param name="SecretKeyRing">An optional PGP/GPG secret keyring of the user.</param>
-        /// <param name="MobilePhone">An optional telephone number of the user.</param>
+        /// <param name="Telephone">An optional telephone number of the user.</param>
+        /// <param name="MobilePhone">An optional mobile telephone number of the user.</param>
         /// <param name="GeoLocation">An optional geographical location of the user.</param>
         /// <param name="Address">An optional address of the user.</param>
         /// <param name="PrivacyLevel">Whether the user will be shown in user listings, or not.</param>
@@ -434,6 +360,7 @@ namespace org.GraphDefined.OpenData.Users
                       I18NString                                                         Description              = null,
                       PgpPublicKeyRing                                                   PublicKeyRing            = null,
                       PgpSecretKeyRing                                                   SecretKeyRing            = null,
+                      PhoneNumber?                                                       Telephone                = null,
                       PhoneNumber?                                                       MobilePhone              = null,
                       GeoCoordinate?                                                     GeoLocation              = null,
                       Address                                                            Address                  = null,
@@ -462,14 +389,13 @@ namespace org.GraphDefined.OpenData.Users
 
             #endregion
 
-            #region Init properties
-
             this.EMail                    = Name.IsNotNullOrEmpty()
                                                 ? new EMailAddress(Name, EMail, SecretKeyRing, PublicKeyRing)
                                                 : new EMailAddress(      EMail, SecretKeyRing, PublicKeyRing);
             this.Name                     = Name;
             this.PublicKeyRing            = PublicKeyRing;
             this.SecretKeyRing            = SecretKeyRing;
+            this.Telephone                = Telephone;
             this.MobilePhone              = MobilePhone;
             this.Description              = Description  ?? new I18NString();
             this.GeoLocation              = GeoLocation;
@@ -481,10 +407,9 @@ namespace org.GraphDefined.OpenData.Users
 
             // Init edges
             this._User2UserEdges          = User2UserEdges.        IsNeitherNullNorEmpty() ? new List<MiniEdge<User, User2UserEdges,         User>>        (User2UserEdges)         : new List<MiniEdge<User, User2UserEdges,         User>>();
-            this._User2GroupEdges         = User2GroupEdges.       IsNeitherNullNorEmpty() ? new List<MiniEdge<User, User2GroupEdges,        Group>>       (User2GroupEdges)        : new List<MiniEdge<User, User2GroupEdges,        Group>>();
-            this._User2OrganizationEdges  = User2OrganizationEdges.IsNeitherNullNorEmpty() ? new List<MiniEdge<User, User2OrganizationEdges, Organization>>(User2OrganizationEdges) : new List<MiniEdge<User, User2OrganizationEdges, Organization>>();
+            this._User2Group_OutEdges         = User2GroupEdges.       IsNeitherNullNorEmpty() ? new List<MiniEdge<User, User2GroupEdges,        Group>>       (User2GroupEdges)        : new List<MiniEdge<User, User2GroupEdges,        Group>>();
+            this._User2Organization_OutEdges  = User2OrganizationEdges.IsNeitherNullNorEmpty() ? new List<MiniEdge<User, User2OrganizationEdges, Organization>>(User2OrganizationEdges) : new List<MiniEdge<User, User2OrganizationEdges, Organization>>();
 
-            #endregion
 
             CalcHash();
 
@@ -493,15 +418,30 @@ namespace org.GraphDefined.OpenData.Users
         #endregion
 
 
+        #region User <-> User edges
+
+        private readonly List<MiniEdge<User, User2UserEdges, User>> _User2UserEdges;
+
+        public IEnumerable<MiniEdge<User, User2UserEdges, User>> __User2UserEdges
+            => _User2UserEdges;
+
+
         public MiniEdge<User, User2UserEdges, User>
 
-            Follow(User          User,
-                   PrivacyLevel  PrivacyLevel = PrivacyLevel.Private)
+            Add(MiniEdge<User, User2UserEdges, User> Edge)
 
-            => User.AddIncomingEdge(AddOutgoingEdge(User2UserEdges.follows, User, PrivacyLevel));
-
+                => _User2UserEdges.AddAndReturnElement(Edge);
 
 
+        public IEnumerable<MiniEdge<User, User2UserEdges, User>>
+
+            Add(IEnumerable<MiniEdge<User, User2UserEdges, User>> Edges)
+
+                => _User2UserEdges.AddRangeAndReturnEnumeration(Edges);
+
+
+
+        #region AddIncomingEdge(Edge)
 
         public MiniEdge<User, User2UserEdges, User>
 
@@ -509,15 +449,31 @@ namespace org.GraphDefined.OpenData.Users
 
             => _User2UserEdges.AddAndReturnElement(Edge);
 
+        #endregion
+
+        #region AddIncomingEdge(SourceUser, EdgeLabel, PrivacyLevel = PrivacyLevel.World)
+
         public MiniEdge<User, User2UserEdges, User>
 
-            AddIncomingEdge(User            Source,
+            AddIncomingEdge(User            SourceUser,
                             User2UserEdges  EdgeLabel,
                             PrivacyLevel    PrivacyLevel = PrivacyLevel.World)
 
-            => _User2UserEdges.AddAndReturnElement(new MiniEdge<User, User2UserEdges, User>(Source, EdgeLabel, this, PrivacyLevel));
+            => _User2UserEdges.AddAndReturnElement(new MiniEdge<User, User2UserEdges, User>(SourceUser, EdgeLabel, this, PrivacyLevel));
 
+        #endregion
 
+        #region AddOutgoingEdge(Edge)
+
+        public MiniEdge<User, User2UserEdges, User>
+
+            AddOutgoingEdge(MiniEdge<User, User2UserEdges, User>  Edge)
+
+            => _User2UserEdges.AddAndReturnElement(Edge);
+
+        #endregion
+
+        #region AddOutgoingEdge(SourceUser, EdgeLabel, PrivacyLevel = PrivacyLevel.World)
 
         public MiniEdge<User, User2UserEdges, User>
 
@@ -527,13 +483,41 @@ namespace org.GraphDefined.OpenData.Users
 
             => _User2UserEdges.AddAndReturnElement(new MiniEdge<User, User2UserEdges, User>(this, EdgeLabel, Target, PrivacyLevel));
 
+        #endregion
+
+        #endregion
+
+        #region User  -> Organization edges
+
+        private readonly List<MiniEdge<User, User2OrganizationEdges, Organization>> _User2Organization_OutEdges;
+
+        public IEnumerable<MiniEdge<User, User2OrganizationEdges, Organization>> User2Organization_OutEdges
+            => _User2Organization_OutEdges;
+
+
+        public MiniEdge<User, User2OrganizationEdges, Organization>
+
+            Add(MiniEdge<User, User2OrganizationEdges, Organization> Edge)
+
+                => _User2Organization_OutEdges.AddAndReturnElement(Edge);
+
+
+        public IEnumerable<MiniEdge<User, User2OrganizationEdges, Organization>>
+
+            Add(IEnumerable<MiniEdge<User, User2OrganizationEdges, Organization>> Edges)
+
+                => _User2Organization_OutEdges.AddRangeAndReturnEnumeration(Edges);
+
+
+
+
         public MiniEdge<User, User2OrganizationEdges, Organization>
 
             AddOutgoingEdge(User2OrganizationEdges  EdgeLabel,
                             Organization            Target,
                             PrivacyLevel            PrivacyLevel = PrivacyLevel.World)
 
-            => _User2OrganizationEdges.AddAndReturnElement(new MiniEdge<User, User2OrganizationEdges, Organization>(this, EdgeLabel, Target, PrivacyLevel));
+            => _User2Organization_OutEdges.AddAndReturnElement(new MiniEdge<User, User2OrganizationEdges, Organization>(this, EdgeLabel, Target, PrivacyLevel));
 
 
 
@@ -543,11 +527,11 @@ namespace org.GraphDefined.OpenData.Users
                             Group           Target,
                             PrivacyLevel    PrivacyLevel = PrivacyLevel.World)
 
-            => _User2GroupEdges.AddAndReturnElement(new MiniEdge<User, User2GroupEdges, Group>(this, EdgeLabel, Target, PrivacyLevel));
+            => _User2Group_OutEdges.AddAndReturnElement(new MiniEdge<User, User2GroupEdges, Group>(this, EdgeLabel, Target, PrivacyLevel));
 
 
         public IEnumerable<MiniEdge<User, User2GroupEdges, Group>> User2GroupOutEdges(Func<User2GroupEdges, Boolean> User2GroupEdgeFilter)
-            => _User2GroupEdges.Where(edge => User2GroupEdgeFilter(edge.EdgeLabel));
+            => _User2Group_OutEdges.Where(edge => User2GroupEdgeFilter(edge.EdgeLabel));
 
 
         #region Organizations(RequireAdminAccess, RequireReadWriteAccess, Recursive)
@@ -562,7 +546,7 @@ namespace org.GraphDefined.OpenData.Users
             {
 
                 case Access_Levels.Admin:
-                    foreach (var organization in _User2OrganizationEdges.
+                    foreach (var organization in _User2Organization_OutEdges.
                                                      Where (edge => edge.EdgeLabel == User2OrganizationEdges.IsAdmin).
                                                      Select(edge => edge.Target))
                     {
@@ -571,7 +555,7 @@ namespace org.GraphDefined.OpenData.Users
                     break;
 
                 case Access_Levels.ReadWrite:
-                    foreach (var organization in _User2OrganizationEdges.
+                    foreach (var organization in _User2Organization_OutEdges.
                                                      Where (edge => edge.EdgeLabel == User2OrganizationEdges.IsAdmin ||
                                                                     edge.EdgeLabel == User2OrganizationEdges.IsMember).
                                                      Select(edge => edge.Target))
@@ -581,7 +565,7 @@ namespace org.GraphDefined.OpenData.Users
                     break;
 
                 default:
-                    foreach (var organization in _User2OrganizationEdges.
+                    foreach (var organization in _User2Organization_OutEdges.
                                                      Where (edge => edge.EdgeLabel == User2OrganizationEdges.IsAdmin  ||
                                                                     edge.EdgeLabel == User2OrganizationEdges.IsMember ||
                                                                     edge.EdgeLabel == User2OrganizationEdges.IsGuest).
@@ -622,6 +606,32 @@ namespace org.GraphDefined.OpenData.Users
 
         #endregion
 
+        #endregion
+
+        #region User  -> Group        edges
+
+        private readonly List<MiniEdge<User, User2GroupEdges, Group>> _User2Group_OutEdges;
+
+        public IEnumerable<MiniEdge<User, User2GroupEdges, Group>> User2Group_OutEdges
+            => _User2Group_OutEdges;
+
+
+
+        public MiniEdge<User, User2GroupEdges, Group>
+
+            Add(MiniEdge<User, User2GroupEdges, Group> Edge)
+
+                => _User2Group_OutEdges.AddAndReturnElement(Edge);
+
+
+        public IEnumerable<MiniEdge<User, User2GroupEdges, Group>>
+
+            Add(IEnumerable<MiniEdge<User, User2GroupEdges, Group>> Edges)
+
+                => _User2Group_OutEdges.AddRangeAndReturnEnumeration(Edges);
+
+
+
         #region Groups(RequireReadWriteAccess = false, Recursive = false)
 
         public IEnumerable<Group> Groups(Boolean RequireReadWriteAccess  = false,
@@ -630,13 +640,13 @@ namespace org.GraphDefined.OpenData.Users
 
             var _Groups = RequireReadWriteAccess
 
-                                     ? _User2GroupEdges.
+                                     ? _User2Group_OutEdges.
                                            Where (edge => edge.EdgeLabel == User2GroupEdges.IsAdmin ||
                                                           edge.EdgeLabel == User2GroupEdges.IsMember).
                                            Select(edge => edge.Target).
                                            ToHashSet()
 
-                                     : _User2GroupEdges.
+                                     : _User2Group_OutEdges.
                                            Where (edge => edge.EdgeLabel == User2GroupEdges.IsAdmin  ||
                                                           edge.EdgeLabel == User2GroupEdges.IsMember ||
                                                           edge.EdgeLabel == User2GroupEdges.IsVisitor).
@@ -671,6 +681,8 @@ namespace org.GraphDefined.OpenData.Users
 
         #endregion
 
+        #endregion
+
 
         #region ToJSON(IncludeCryptoHash = true)
 
@@ -685,15 +697,12 @@ namespace org.GraphDefined.OpenData.Users
                    new JProperty("@id",                  Id.ToString()),
                    new JProperty("@context",             JSONLDContext),
                    new JProperty("name",                 Name),
-                   new JProperty("email",                EMail.Address.ToString()),
-
-                   MobilePhone.HasValue
-                       ? new JProperty("mobilePhone",    MobilePhone.ToString())
-                       : null,
 
                    Description.IsNeitherNullNorEmpty()
                        ? new JProperty("description",    Description.ToJSON())
                        : null,
+
+                   new JProperty("email",                EMail.Address.ToString()),
 
                    PublicKeyRing != null
                        ? new JProperty("publicKeyRing",  PublicKeyRing.GetEncoded().ToHexString())
@@ -701,6 +710,14 @@ namespace org.GraphDefined.OpenData.Users
 
                    SecretKeyRing != null
                        ? new JProperty("secretKeyRing",  SecretKeyRing.GetEncoded().ToHexString())
+                       : null,
+
+                   Telephone.HasValue
+                       ? new JProperty("telephone",      Telephone.ToString())
+                       : null,
+
+                   MobilePhone.HasValue
+                       ? new JProperty("mobilePhone",    MobilePhone.ToString())
                        : null,
 
                    PrivacyLevel.ToJSON(),
@@ -793,6 +810,18 @@ namespace org.GraphDefined.OpenData.Users
 
                 #endregion
 
+                #region Parse Description      [optional]
+
+                if (!JSONObject.ParseOptional("description",
+                                              "user description",
+                                              out I18NString Description,
+                                              out ErrorResponse))
+                {
+                    return false;
+                }
+
+                #endregion
+
                 #region Parse E-Mail           [mandatory]
 
                 if (!JSONObject.ParseMandatory("email",
@@ -800,34 +829,6 @@ namespace org.GraphDefined.OpenData.Users
                                                SimpleEMailAddress.Parse,
                                                out SimpleEMailAddress EMail,
                                                out ErrorResponse))
-                {
-                    return false;
-                }
-
-                #endregion
-
-                #region Parse MobilePhone      [optional]
-
-                if (JSONObject.ParseOptional("mobilePhone",
-                                             "mobile phone number",
-                                             PhoneNumber.TryParse,
-                                             out PhoneNumber? MobilePhone,
-                                             out ErrorResponse))
-                {
-
-                    if (ErrorResponse != null)
-                        return false;
-
-                }
-
-                #endregion
-
-                #region Parse Description      [optional]
-
-                if (!JSONObject.ParseOptional("description",
-                                              "user description",
-                                              out I18NString Description,
-                                              out ErrorResponse))
                 {
                     return false;
                 }
@@ -856,6 +857,38 @@ namespace org.GraphDefined.OpenData.Users
                                              "GPG/PGP secret key ring",
                                              txt => OpenPGP.ReadSecretKeyRing(txt.HexStringToByteArray()),
                                              out PgpSecretKeyRing SecretKeyRing,
+                                             out ErrorResponse))
+                {
+
+                    if (ErrorResponse != null)
+                        return false;
+
+                }
+
+                #endregion
+
+                #region Parse Telephone        [optional]
+
+                if (JSONObject.ParseOptional("telephone",
+                                             "phone number",
+                                             PhoneNumber.TryParse,
+                                             out PhoneNumber? Telephone,
+                                             out ErrorResponse))
+                {
+
+                    if (ErrorResponse != null)
+                        return false;
+
+                }
+
+                #endregion
+
+                #region Parse MobilePhone      [optional]
+
+                if (JSONObject.ParseOptional("mobilePhone",
+                                             "mobile phone number",
+                                             PhoneNumber.TryParse,
+                                             out PhoneNumber? MobilePhone,
                                              out ErrorResponse))
                 {
 
@@ -951,6 +984,7 @@ namespace org.GraphDefined.OpenData.Users
                                 Description,
                                 PublicKeyRing,
                                 SecretKeyRing,
+                                Telephone,
                                 MobilePhone,
                                 GeoLocation,
                                 Address,
@@ -1210,6 +1244,7 @@ namespace org.GraphDefined.OpenData.Users
                            PublicKeyRing,
                            SecretKeyRing,
                            MobilePhone,
+                           Telephone,
                            GeoLocation,
                            Address,
                            PrivacyLevel,
@@ -1219,8 +1254,8 @@ namespace org.GraphDefined.OpenData.Users
                            DataSource,
 
                            _User2UserEdges,
-                           _User2GroupEdges,
-                           _User2OrganizationEdges);
+                           _User2Group_OutEdges,
+                           _User2Organization_OutEdges);
 
         #endregion
 
@@ -1270,7 +1305,13 @@ namespace org.GraphDefined.OpenData.Users
             public PgpSecretKeyRing    SecretKeyRing        { get; set; }
 
             /// <summary>
-            /// The mobile telephone number of the user.
+            /// An optional telephone number of the user.
+            /// </summary>
+            [Optional]
+            public PhoneNumber?        Telephone            { get; set; }
+
+            /// <summary>
+            /// An optional mobile telephone number of the user.
             /// </summary>
             [Optional]
             public PhoneNumber?        MobilePhone          { get; set; }
@@ -1412,6 +1453,7 @@ namespace org.GraphDefined.OpenData.Users
             /// <param name="Description">An optional (multi-language) description of the user.</param>
             /// <param name="PublicKeyRing">An optional PGP/GPG public keyring of the user.</param>
             /// <param name="SecretKeyRing">An optional PGP/GPG secret keyring of the user.</param>
+            /// <param name="Telephone">An optional telephone number of the user.</param>
             /// <param name="MobilePhone">An optional telephone number of the user.</param>
             /// <param name="GeoLocation">An optional geographical location of the user.</param>
             /// <param name="Address">An optional address of the user.</param>
@@ -1426,6 +1468,7 @@ namespace org.GraphDefined.OpenData.Users
                            I18NString                                                         Description              = null,
                            PgpPublicKeyRing                                                   PublicKeyRing            = null,
                            PgpSecretKeyRing                                                   SecretKeyRing            = null,
+                           PhoneNumber?                                                       Telephone                = null,
                            PhoneNumber?                                                       MobilePhone              = null,
                            GeoCoordinate?                                                     GeoLocation              = null,
                            Address                                                            Address                  = null,
@@ -1451,6 +1494,7 @@ namespace org.GraphDefined.OpenData.Users
                 this.Description              = Description ?? new I18NString();
                 this.PublicKeyRing            = PublicKeyRing;
                 this.SecretKeyRing            = SecretKeyRing;
+                this.Telephone                = Telephone;
                 this.MobilePhone              = MobilePhone;
                 this.GeoLocation              = GeoLocation;
                 this.Address                  = Address;
@@ -1458,6 +1502,7 @@ namespace org.GraphDefined.OpenData.Users
                 this.AcceptedEULA             = AcceptedEULA;
                 this.IsDisabled               = IsDisabled;
                 this.IsAuthenticated          = IsAuthenticated;
+                this.DataSource               = DataSource;
 
                 // Init edges
                 this._User2UserEdges          = User2UserEdges.        IsNeitherNullNorEmpty() ? new List<MiniEdge<User, User2UserEdges,         User>>        (User2UserEdges)         : new List<MiniEdge<User, User2UserEdges,         User>>();
@@ -1491,6 +1536,7 @@ namespace org.GraphDefined.OpenData.Users
                             Description,
                             PublicKeyRing,
                             SecretKeyRing,
+                            Telephone,
                             MobilePhone,
                             GeoLocation,
                             Address,

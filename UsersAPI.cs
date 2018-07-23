@@ -346,7 +346,7 @@ namespace org.GraphDefined.OpenData.Users
 
             }
 
-            if (!UsersAPI.TryGetOrganization(OrganizationId.Value, out Organization)) {
+            if (!UsersAPI.TryGet(OrganizationId.Value, out Organization)) {
 
                 HTTPResponse = new HTTPResponse.Builder(HTTPRequest) {
                     HTTPStatusCode  = HTTPStatusCode.NotFound,
@@ -5165,8 +5165,8 @@ namespace org.GraphDefined.OpenData.Users
                     if (!U2O_User.Edges(U2O_Organization).Any(edgelabel => edgelabel == U2O_Edge))
                         U2O_User.AddOutgoingEdge(U2O_Edge, U2O_Organization, U2O_Privacy);
 
-                    if (!U2O_Organization.InEdges(U2O_User).Any(edgelabel => edgelabel == U2O_Edge))
-                        U2O_Organization.AddIncomingEdge(U2O_User, U2O_Edge, U2O_Privacy);
+                    if (!U2O_Organization.User2OrganizationInEdgeLabels(U2O_User).Any(edgelabel => edgelabel == U2O_Edge))
+                        U2O_Organization.LinkUser(U2O_User, U2O_Edge, U2O_Privacy);
 
                     break;
 
@@ -5911,7 +5911,8 @@ namespace org.GraphDefined.OpenData.Users
         /// <param name="Description">An optional (multi-language) description of the user.</param>
         /// <param name="PublicKeyRing">An optional PGP/GPG public keyring of the user.</param>
         /// <param name="SecretKeyRing">An optional PGP/GPG secret keyring of the user.</param>
-        /// <param name="MobilePhone">An optional telephone number of the user.</param>
+        /// <param name="Telephone">An optional telephone number of the user.</param>
+        /// <param name="MobilePhone">An optional mobile telephone number of the user.</param>
         /// <param name="GeoLocation">An optional geographical location of the user.</param>
         /// <param name="Address">An optional address of the user.</param>
         /// <param name="PrivacyLevel">Whether the user will be shown in user listings, or not.</param>
@@ -5925,6 +5926,7 @@ namespace org.GraphDefined.OpenData.Users
                                I18NString          Description       = null,
                                PgpPublicKeyRing    PublicKeyRing     = null,
                                PgpSecretKeyRing    SecretKeyRing     = null,
+                               PhoneNumber?        Telephone         = null,
                                PhoneNumber?        MobilePhone       = null,
                                GeoCoordinate?      GeoLocation       = null,
                                Address             Address           = null,
@@ -5948,6 +5950,7 @@ namespace org.GraphDefined.OpenData.Users
                                     Description,
                                     PublicKeyRing,
                                     SecretKeyRing,
+                                    Telephone,
                                     MobilePhone,
                                     GeoLocation,
                                     Address,
@@ -5983,6 +5986,7 @@ namespace org.GraphDefined.OpenData.Users
         /// <param name="Description">An optional (multi-language) description of the user.</param>
         /// <param name="PublicKeyRing">An optional PGP/GPG public keyring of the user.</param>
         /// <param name="SecretKeyRing">An optional PGP/GPG secret keyring of the user.</param>
+        /// <param name="Telephone">An optional telephone number of the user.</param>
         /// <param name="MobilePhone">An optional telephone number of the user.</param>
         /// <param name="GeoLocation">An optional geographical location of the user.</param>
         /// <param name="Address">An optional address of the user.</param>
@@ -5997,6 +6001,7 @@ namespace org.GraphDefined.OpenData.Users
                                           I18NString          Description       = null,
                                           PgpPublicKeyRing    PublicKeyRing     = null,
                                           PgpSecretKeyRing    SecretKeyRing     = null,
+                                          PhoneNumber?        Telephone         = null,
                                           PhoneNumber?        MobilePhone       = null,
                                           GeoCoordinate?      GeoLocation       = null,
                                           Address             Address           = null,
@@ -6020,6 +6025,7 @@ namespace org.GraphDefined.OpenData.Users
                                   Description,
                                   PublicKeyRing,
                                   SecretKeyRing,
+                                  Telephone,
                                   MobilePhone,
                                   GeoLocation,
                                   Address,
@@ -6109,7 +6115,6 @@ namespace org.GraphDefined.OpenData.Users
         }
 
         #endregion
-
 
 
         #region ChangePassword   (Login, NewPassword, CurrentPassword = null, CurrentUserId = null)
@@ -6647,21 +6652,207 @@ namespace org.GraphDefined.OpenData.Users
 
         #region Organizations
 
+        protected readonly Dictionary<Organization_Id, Organization> _Organizations;
+
+        public IEnumerable<Organization> Organizations
+            => _Organizations.Values;
+
+
+        #region Add           (Organization, ParentOrganization = null, CurrentUserId = null)
+
+        /// <summary>
+        /// Add the given organization to the API.
+        /// </summary>
+        /// <param name="Organization">A new organization to be added to this API.</param>
+        /// <param name="ParentOrganization">The parent organization of the organization organization to be added.</param>
+        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
+        public Organization Add(Organization  Organization,
+                                Organization  ParentOrganization   = null,
+                                User_Id?      CurrentUserId        = null)
+        {
+
+            lock (_Organizations)
+            {
+
+                if (Organization.API != null && Organization.API != this)
+                    throw new ArgumentException(nameof(Organization), "The given organization is already attached to another API!");
+
+                if (_Organizations.ContainsKey(Organization.Id))
+                    throw new Exception("Organization '" + Organization.Id + "' already exists in this API!");
+
+                if (ParentOrganization != null && !_Organizations.ContainsKey(ParentOrganization.Id))
+                    throw new Exception("Parent organization '" + ParentOrganization.Id + "' does not exists in this API!");
+
+                Organization.API = this;
+
+                WriteToLogfileAndNotify("AddOrganization",
+                                        Organization.ToJSON(),
+                                        CurrentUserId);
+
+                var NewOrg = _Organizations.AddAndReturnValue(Organization.Id, Organization);
+
+                if (ParentOrganization != null)
+                    LinkOrganizations(NewOrg, Organization2OrganizationEdges.IsChildOf, ParentOrganization, CurrentUserId: CurrentUserId);
+
+                return NewOrg;
+
+            }
+
+        }
+
+        #endregion
+
+        #region AddIfNotExists(Organization, ParentOrganization = null, CurrentUserId = null)
+
+        /// <summary>
+        /// When it has not been created before, add the given organization to the API.
+        /// </summary>
+        /// <param name="Organization">A new organization to be added to this API.</param>
+        /// <param name="ParentOrganization">The parent organization of the organization to be added.</param>
+        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
+        public Organization AddIfNotExists(Organization  Organization,
+                                           Organization  ParentOrganization   = null,
+                                           User_Id?      CurrentUserId        = null)
+        {
+
+            lock (_Organizations)
+            {
+
+                if (Organization.API != null && Organization.API != this)
+                    throw new ArgumentException(nameof(Organization), "The given organization is already attached to another API!");
+
+                if (_Organizations.ContainsKey(Organization.Id))
+                    return _Organizations[Organization.Id];
+
+                if (ParentOrganization != null && !_Organizations.ContainsKey(ParentOrganization.Id))
+                    throw new Exception("Parent organization '" + ParentOrganization.Id + "' does not exists in this API!");
+
+                Organization.API = this;
+
+                WriteToLogfileAndNotify("AddIfNotExistsOrganization",
+                                        Organization.ToJSON(),
+                                        CurrentUserId);
+
+                var NewOrg = _Organizations.AddAndReturnValue(Organization.Id, Organization);
+
+                if (ParentOrganization != null)
+                    LinkOrganizations(NewOrg, Organization2OrganizationEdges.IsChildOf, ParentOrganization, CurrentUserId: CurrentUserId);
+
+                return NewOrg;
+
+            }
+
+        }
+
+        #endregion
+
+        #region AddOrUpdate   (Organization, ParentOrganization = null, CurrentUserId = null)
+
+        /// <summary>
+        /// Add or update the given organization to/within the API.
+        /// </summary>
+        /// <param name="Organization">A organization.</param>
+        /// <param name="ParentOrganization">The parent organization of the organization to be added.</param>
+        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
+        public Organization AddOrUpdate(Organization  Organization,
+                                        Organization  ParentOrganization   = null,
+                                        User_Id?      CurrentUserId        = null)
+        {
+
+            lock (_Organizations)
+            {
+
+                if (Organization.API != null && Organization.API != this)
+                    throw new ArgumentException(nameof(Organization), "The given organization is already attached to another API!");
+
+                if (ParentOrganization != null && !_Organizations.ContainsKey(ParentOrganization.Id))
+                    throw new Exception("Parent organization '" + ParentOrganization.Id + "' does not exists in this API!");
+
+                if (_Organizations.TryGetValue(Organization.Id, out Organization OldOrganization))
+                {
+                    _Organizations.Remove(OldOrganization.Id);
+                }
+
+                Organization.API = this;
+
+                WriteToLogfileAndNotify("AddOrUpdateOrganization",
+                                        Organization.ToJSON(),
+                                        CurrentUserId);
+
+                var NewOrg = _Organizations.AddAndReturnValue(Organization.Id, Organization);
+
+                if (ParentOrganization != null)
+                {
+                    LinkOrganizations(NewOrg, Organization2OrganizationEdges.IsChildOf, ParentOrganization, CurrentUserId: CurrentUserId);
+                    //ToDo: Update link to parent organization
+                }
+
+                return NewOrg;
+
+            }
+
+        }
+
+        #endregion
+
+        #region Update        (Organization, CurrentUserId = null)
+
+        /// <summary>
+        /// Update the given organization within the API.
+        /// </summary>
+        /// <param name="Organization">A organization.</param>
+        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
+        public Organization Update(Organization  Organization,
+                                   User_Id?      CurrentUserId  = null)
+        {
+
+            lock (_Organizations)
+            {
+
+                if (Organization.API != null && Organization.API != this)
+                    throw new ArgumentException(nameof(Organization), "The given organization is already attached to another API!");
+
+                if (!_Organizations.TryGetValue(Organization.Id, out Organization OldOrganization))
+                    throw new Exception("Organization '" + Organization.Id + "' does not exists in this API!");
+
+                else
+                {
+
+                    _Organizations.Remove(OldOrganization.Id);
+
+                }
+
+                Organization.API = this;
+
+                WriteToLogfileAndNotify("UpdateOrganization",
+                                        Organization.ToJSON(),
+                                        CurrentUserId);
+
+                return _Organizations.AddAndReturnValue(Organization.Id, Organization);
+
+            }
+
+        }
+
+        #endregion
+
+
         #region CreateOrganization           (Id, Name = null, Description = null, ParentOrganization = null)
 
-        public Organization CreateOrganization(Organization_Id      Id,
-                                               I18NString           Name                = null,
-                                               I18NString           Description         = null,
-                                               SimpleEMailAddress?  EMail               = null,
-                                               String               PublicKeyRing       = null,
-                                               PhoneNumber?         Telephone           = null,
-                                               GeoCoordinate?       GeoLocation         = null,
-                                               Address              Address             = null,
-                                               PrivacyLevel         PrivacyLevel        = PrivacyLevel.World,
-                                               Boolean              IsDisabled          = false,
-                                               String               DataSource          = "",
-                                               Organization         ParentOrganization  = null,
-                                               User_Id?             CurrentUserId       = null)
+        public Organization CreateOrganization(Organization_Id           Id,
+                                               I18NString                Name                 = null,
+                                               I18NString                Description          = null,
+                                               SimpleEMailAddress?       EMail                = null,
+                                               String                    PublicKeyRing        = null,
+                                               PhoneNumber?              Telephone            = null,
+                                               GeoCoordinate?            GeoLocation          = null,
+                                               Address                   Address              = null,
+                                               Func<Tags.Builder, Tags>  Tags                 = null,
+                                               PrivacyLevel              PrivacyLevel         = PrivacyLevel.World,
+                                               Boolean                   IsDisabled           = false,
+                                               String                    DataSource           = "",
+                                               Organization              ParentOrganization   = null,
+                                               User_Id?                  CurrentUserId        = null)
         {
 
             lock (_Organizations)
@@ -6679,6 +6870,7 @@ namespace org.GraphDefined.OpenData.Users
                                                     Telephone,
                                                     GeoLocation,
                                                     Address,
+                                                    Tags,
                                                     PrivacyLevel,
                                                     IsDisabled,
                                                     DataSource);
@@ -6702,19 +6894,20 @@ namespace org.GraphDefined.OpenData.Users
 
         #region CreateOrganizationIfNotExists(Id, Name = null, Description = null, ParentOrganization = null)
 
-        public Organization CreateOrganizationIfNotExists(Organization_Id      Id,
-                                                          I18NString           Name                = null,
-                                                          I18NString           Description         = null,
-                                                          SimpleEMailAddress?  EMail               = null,
-                                                          String               PublicKeyRing       = null,
-                                                          PhoneNumber?         Telephone           = null,
-                                                          GeoCoordinate?       GeoLocation         = null,
-                                                          Address              Address             = null,
-                                                          PrivacyLevel         PrivacyLevel        = PrivacyLevel.World,
-                                                          Boolean              IsDisabled          = false,
-                                                          String               DataSource          = "",
-                                                          Organization         ParentOrganization  = null,
-                                                          User_Id?             CurrentUserId       = null)
+        public Organization CreateOrganizationIfNotExists(Organization_Id           Id,
+                                                          I18NString                Name                 = null,
+                                                          I18NString                Description          = null,
+                                                          SimpleEMailAddress?       EMail                = null,
+                                                          String                    PublicKeyRing        = null,
+                                                          PhoneNumber?              Telephone            = null,
+                                                          GeoCoordinate?            GeoLocation          = null,
+                                                          Address                   Address              = null,
+                                                          Func<Tags.Builder, Tags>  Tags                 = null,
+                                                          PrivacyLevel              PrivacyLevel         = PrivacyLevel.World,
+                                                          Boolean                   IsDisabled           = false,
+                                                          String                    DataSource           = "",
+                                                          Organization              ParentOrganization   = null,
+                                                          User_Id?                  CurrentUserId        = null)
         {
 
             lock (_Organizations)
@@ -6731,64 +6924,13 @@ namespace org.GraphDefined.OpenData.Users
                                           Telephone,
                                           GeoLocation,
                                           Address,
+                                          Tags,
                                           PrivacyLevel,
                                           IsDisabled,
                                           DataSource,
                                           ParentOrganization,
                                           CurrentUserId);
 
-            }
-
-        }
-
-        #endregion
-
-        #region Organizations
-
-        protected readonly Dictionary<Organization_Id, Organization> _Organizations;
-
-        public IEnumerable<Organization> Organizations
-            => _Organizations.Values;
-
-        #endregion
-
-        #region GetOrganization   (OrganizationId)
-
-        /// <summary>
-        /// Get the organization having the given unique identification.
-        /// </summary>
-        /// <param name="OrganizationId">The unique identification of the organization.</param>
-        public Organization GetOrganization(Organization_Id  OrganizationId)
-        {
-
-            lock (_Organizations)
-            {
-
-                if (_Organizations.TryGetValue(OrganizationId, out Organization Organization))
-                    return Organization;
-
-                return null;
-
-            }
-
-        }
-
-        #endregion
-
-        #region TryGetOrganization(OrganizationId, out Organization)
-
-        /// <summary>
-        /// Try to get the organization having the given unique identification.
-        /// </summary>
-        /// <param name="OrganizationId">The unique identification of the organization.</param>
-        /// <param name="Organization">The organization.</param>
-        public Boolean TryGetOrganization(Organization_Id   OrganizationId,
-                                          out Organization  Organization)
-        {
-
-            lock (_Organizations)
-            {
-                return _Organizations.TryGetValue(OrganizationId, out Organization);
             }
 
         }
@@ -6810,8 +6952,8 @@ namespace org.GraphDefined.OpenData.Users
 
                 User.AddOutgoingEdge(Edge, Organization, PrivacyLevel);
 
-                if (!Organization.InEdges(User).Any(edgelabel => edgelabel == Edge))
-                    Organization.AddIncomingEdge(User, Edge, PrivacyLevel);
+                if (!Organization.User2OrganizationInEdgeLabels(User).Any(edgelabel => edgelabel == Edge))
+                    Organization.LinkUser(User, Edge, PrivacyLevel);
 
                 WriteToLogfileAndNotify("AddUserToOrganization",
                                         new JObject(
@@ -6832,7 +6974,7 @@ namespace org.GraphDefined.OpenData.Users
 
         #endregion
 
-        #region LinkOrganizations(OrganizationOut, EdgeLabel, OrganizationIn, Privacy = Public)
+        #region LinkOrganizations  (OrganizationOut, EdgeLabel, OrganizationIn, Privacy = Public, CurrentUserId = null)
 
         public Boolean LinkOrganizations(Organization                    OrganizationOut,
                                          Organization2OrganizationEdges  EdgeLabel,
@@ -6854,7 +6996,7 @@ namespace org.GraphDefined.OpenData.Users
                         Where(edge => edge.Source    == OrganizationOut).
                         Any  (edge => edge.EdgeLabel == EdgeLabel))
                 {
-                    OrganizationIn.AddIncomingEdge(OrganizationOut, EdgeLabel, Privacy);
+                    OrganizationIn.AddInEdge(EdgeLabel, OrganizationOut, Privacy);
                 }
 
                 WriteToLogfileAndNotify("LinkOrganizations",
@@ -6871,6 +7013,231 @@ namespace org.GraphDefined.OpenData.Users
             }
 
             return false;
+
+        }
+
+        #endregion
+
+        #region UnlinkOrganizations(OrganizationOut, EdgeLabel, OrganizationIn,                   CurrentUserId = null)
+
+        public Boolean UnlinkOrganizations(Organization                    OrganizationOut,
+                                           Organization2OrganizationEdges  EdgeLabel,
+                                           Organization                    OrganizationIn,
+                                           User_Id?                        CurrentUserId  = null)
+        {
+
+            if (OrganizationOut.
+                    Organization2OrganizationOutEdges.
+                    Where(edge => edge.Target    == OrganizationIn).
+                    Any  (edge => edge.EdgeLabel == EdgeLabel))
+            {
+
+                OrganizationOut.RemoveOutEdges(EdgeLabel, OrganizationIn);
+
+                if (OrganizationIn.
+                        Organization2OrganizationInEdges.
+                        Where(edge => edge.Source    == OrganizationOut).
+                        Any  (edge => edge.EdgeLabel == EdgeLabel))
+                {
+                    OrganizationIn.RemoveInEdges(EdgeLabel, OrganizationOut);
+                }
+
+                WriteToLogfileAndNotify("UnlinkOrganizations",
+                                        new JObject(
+                                            new JProperty("organizationOut", OrganizationOut.Id.ToString()),
+                                            new JProperty("edge",            EdgeLabel.         ToString()),
+                                            new JProperty("organizationIn",  OrganizationIn. Id.ToString())
+                                        ),
+                                        CurrentUserId);
+
+                return true;
+
+            }
+
+            return false;
+
+        }
+
+        #endregion
+
+
+        #region (protected internal) SetOrganizationRequest (Request)
+
+        /// <summary>
+        /// An event sent whenever set organization (data) request was received.
+        /// </summary>
+        public event RequestLogHandler OnSetOrganizationRequest;
+
+        protected internal HTTPRequest SetOrganizationRequest(HTTPRequest Request)
+        {
+
+            OnSetOrganizationRequest?.Invoke(Request.Timestamp,
+                                              HTTPServer,
+                                              Request);
+
+            return Request;
+
+        }
+
+        #endregion
+
+        #region (protected internal) SetOrganizationResponse(Response)
+
+        /// <summary>
+        /// An event sent whenever a response on a set organization (data) request was sent.
+        /// </summary>
+        public event AccessLogHandler OnSetOrganizationResponse;
+
+        protected internal HTTPResponse SetOrganizationResponse(HTTPResponse Response)
+        {
+
+            OnSetOrganizationResponse?.Invoke(Response.Timestamp,
+                                               HTTPServer,
+                                               Response.HTTPRequest,
+                                               Response);
+
+            return Response;
+
+        }
+
+        #endregion
+
+
+        #region Contains      (OrganizationId)
+
+        /// <summary>
+        /// Whether this API contains a organization having the given unique identification.
+        /// </summary>
+        /// <param name="OrganizationId">The unique identification of the organization.</param>
+        public Boolean Contains(Organization_Id OrganizationId)
+        {
+
+            lock (_Organizations)
+            {
+                return _Organizations.ContainsKey(OrganizationId);
+            }
+
+        }
+
+        #endregion
+
+        #region Get           (OrganizationId)
+
+        /// <summary>
+        /// Get the organization having the given unique identification.
+        /// </summary>
+        /// <param name="OrganizationId">The unique identification of the organization.</param>
+        public Organization Get(Organization_Id  OrganizationId)
+        {
+
+            lock (_Organizations)
+            {
+
+                if (_Organizations.TryGetValue(OrganizationId, out Organization Organization))
+                    return Organization;
+
+                return null;
+
+            }
+
+        }
+
+        #endregion
+
+        #region TryGet        (OrganizationId, out Organization)
+
+        /// <summary>
+        /// Try to get the organization having the given unique identification.
+        /// </summary>
+        /// <param name="OrganizationId">The unique identification of the organization.</param>
+        /// <param name="Organization">The organization.</param>
+        public Boolean TryGet(Organization_Id   OrganizationId,
+                              out Organization  Organization)
+        {
+
+            lock (_Organizations)
+            {
+                return _Organizations.TryGetValue(OrganizationId, out Organization);
+            }
+
+        }
+
+        #endregion
+
+
+        #region Remove        (OrganizationId, CurrentUserId = null)
+
+        /// <summary>
+        /// Remove the given organization from this API.
+        /// </summary>
+        /// <param name="OrganizationId">The unique identification of the organization.</param>
+        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
+        public Organization Remove(Organization_Id  OrganizationId,
+                            User_Id?  CurrentUserId  = null)
+        {
+
+            lock (_Organizations)
+            {
+
+                if (_Organizations.TryGetValue(OrganizationId, out Organization Organization))
+                {
+
+                    WriteToLogfileAndNotify("RemoveOrganization",
+                                            Organization.ToJSON(),
+                                            
+                                            CurrentUserId);
+
+                    _Organizations.Remove(OrganizationId);
+
+                    Organization.API = null;
+
+                    return Organization;
+
+                }
+
+                return null;
+
+            }
+
+        }
+
+        #endregion
+
+        #region TryRemove     (OrganizationId, out Organization, CurrentUserId = null)
+
+        /// <summary>
+        /// Try to remove the given organization from this API.
+        /// </summary>
+        /// <param name="OrganizationId">The unique identification of the organization.</param>
+        /// <param name="Organization">The removed organization.</param>
+        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
+        public Boolean TryRemove(Organization_Id   OrganizationId,
+                                 out Organization  Organization,
+                                 User_Id?   CurrentUserId = null)
+        {
+
+            lock (_Organizations)
+            {
+
+                if (_Organizations.TryGetValue(OrganizationId, out Organization))
+                {
+
+                    WriteToLogfileAndNotify("TryRemoveOrganization",
+                                            Organization.ToJSON(),
+                                            
+                                            CurrentUserId);
+
+                    _Organizations.Remove(OrganizationId);
+
+                    Organization.API = null;
+
+                    return true;
+
+                }
+
+                return false;
+
+            }
 
         }
 

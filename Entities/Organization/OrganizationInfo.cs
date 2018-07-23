@@ -99,20 +99,20 @@ namespace org.GraphDefined.OpenData.Users
                    organization.Telephone,
                    organization.GeoLocation,
                    organization.Address,
+                   _ => organization.Tags,
                    organization.PrivacyLevel,
                    organization.IsDisabled,
                    organization.DataSource,
 
                    organization.User2OrganizationEdges,
-                   organization.Organization2UserEdges,
                    organization.Organization2OrganizationInEdges,
                    organization.Organization2OrganizationOutEdges)
 
         {
 
             this.You                             = You;
-            this.Admins                          = _User2OrganizationEdges.Where(_ => _.EdgeLabel == Users.User2OrganizationEdges.IsAdmin). SafeSelect(edge => edge.Source).ToArray();
-            this.Members                         = _User2OrganizationEdges.Where(_ => _.EdgeLabel == Users.User2OrganizationEdges.IsMember).SafeSelect(edge => edge.Source).ToArray();
+            this.Admins                          = _User2Organization_InEdges.Where(_ => _.EdgeLabel == Users.User2OrganizationEdges.IsAdmin). SafeSelect(edge => edge.Source).ToArray();
+            this.Members                         = _User2Organization_InEdges.Where(_ => _.EdgeLabel == Users.User2OrganizationEdges.IsMember).SafeSelect(edge => edge.Source).ToArray();
 
             this.YouAreMember                    = YouAreMember                   || Admins.Contains(You) || Members.Contains(You);
             this.YouCanAddMembers                = YouCanAddMembers               || Admins.Contains(You);

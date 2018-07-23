@@ -72,6 +72,9 @@
     <Compile Include="Entities\Message\Message_Id.cs" />
     <Compile Include="Entities\SecurityToken\SecurityToken.cs" />
     <Compile Include="Entities\SecurityToken\SecurityToken_Id.cs" />
+    <Compile Include="Entities\Tag\Tag.cs" />
+    <Compile Include="Entities\Tag\Tags.cs" />
+    <Compile Include="Entities\Tag\Tag_Id.cs" />
     <Compile Include="Entities\User\Password.cs" />
     <Compile Include="Entities\User\User.cs" />
     <Compile Include="Entities\User\User2OrganizationEdges.cs" />
