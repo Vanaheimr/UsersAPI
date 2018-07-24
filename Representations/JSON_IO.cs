@@ -80,17 +80,26 @@ namespace org.GraphDefined.OpenData.Users
             switch (Privacylevel)
             {
 
+                case PrivacyLevel.Private:
+                    return new JProperty("privacyLevel",  "private");
+
                 case PrivacyLevel.Internal:
                     return new JProperty("privacyLevel",  "internal");
 
                 case PrivacyLevel.Friends:
                     return new JProperty("privacyLevel",  "friends");
 
-                case PrivacyLevel.World:
-                    return new JProperty("privacyLevel",  "world");
+                case PrivacyLevel.City:
+                    return new JProperty("privacyLevel",  "city");
+
+                case PrivacyLevel.Country:
+                    return new JProperty("privacyLevel",  "country");
+
+                case PrivacyLevel.GDPR:
+                    return new JProperty("privacyLevel",  "GDPR");
 
                 default:
-                    return new JProperty("privacyLevel",  "private");
+                    return new JProperty("privacyLevel",  "world");
 
             }
 
@@ -109,20 +118,20 @@ namespace org.GraphDefined.OpenData.Users
                 case "world":
                     return PrivacyLevel.World;
 
-                case "gdpr":
-                    return PrivacyLevel.GDPR;
-
-                case "country":
-                    return PrivacyLevel.Country;
-
-                case "city":
-                    return PrivacyLevel.City;
+                case "internal":
+                    return PrivacyLevel.Internal;
 
                 case "friends":
                     return PrivacyLevel.Friends;
 
-                case "internal":
-                    return PrivacyLevel.Internal;
+                case "city":
+                    return PrivacyLevel.City;
+
+                case "country":
+                    return PrivacyLevel.Country;
+
+                case "GDPR":
+                    return PrivacyLevel.GDPR;
 
                 default:
                     return PrivacyLevel.Private;
@@ -145,20 +154,20 @@ namespace org.GraphDefined.OpenData.Users
                 case "world":
                     return PrivacyLevel.World;
 
-                case "gdpr":
-                    return PrivacyLevel.GDPR;
-
-                case "country":
-                    return PrivacyLevel.Country;
-
-                case "city":
-                    return PrivacyLevel.City;
+                case "internal":
+                    return PrivacyLevel.Internal;
 
                 case "friends":
                     return PrivacyLevel.Friends;
 
-                case "internal":
-                    return PrivacyLevel.Internal;
+                case "city":
+                    return PrivacyLevel.City;
+
+                case "country":
+                    return PrivacyLevel.Country;
+
+                case "GDPR":
+                    return PrivacyLevel.GDPR;
 
                 default:
                     return PrivacyLevel.Private;
@@ -228,6 +237,55 @@ namespace org.GraphDefined.OpenData.Users
 
         }
 
+        public static Boolean TryParsePrivacyLevel(String            Value,
+                                                   out PrivacyLevel  PrivacyLevel)
+        {
+
+            if (Value.IsNullOrEmpty())
+            {
+                PrivacyLevel = PrivacyLevel.Private;
+                return false;
+            }
+
+            switch (Value.Trim().ToLower())
+            {
+
+                case "world":
+                    PrivacyLevel  = PrivacyLevel.World;
+                    return true;
+
+                case "gdpr":
+                    PrivacyLevel  = PrivacyLevel.GDPR;
+                    return true;
+
+                case "country":
+                    PrivacyLevel  = PrivacyLevel.Country;
+                    return true;
+
+                case "city":
+                    PrivacyLevel  = PrivacyLevel.City;
+                    return true;
+
+                case "friends":
+                    PrivacyLevel  = PrivacyLevel.Friends;
+                    return true;
+
+                case "internal":
+                    PrivacyLevel  = PrivacyLevel.Internal;
+                    return true;
+
+                case "private":
+                    PrivacyLevel  = PrivacyLevel.Private;
+                    return true;
+
+                default:
+                    PrivacyLevel  = PrivacyLevel.Private;
+                    return false;
+
+            }
+
+        }
+
         public static PrivacyLevel? ParseOptional_PrivacyLevel(this JObject JSON)
         {
 
@@ -264,7 +322,12 @@ namespace org.GraphDefined.OpenData.Users
 
         }
 
+
+
         #endregion
+
+
+
 
         #region ToJSON(this APIKeyRights)
 
