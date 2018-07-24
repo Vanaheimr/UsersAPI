@@ -99,8 +99,9 @@ function UpdateI18NDescription(DescriptionDiv, JSON) {
 function HTTPGet(RessourceURI, APIKey, Data, OnSuccess, OnError) {
     // #region Make HTTP call
     var ajax = new XMLHttpRequest();
-    ajax.open("GET", RessourceURI, true); // , user, password);
+    ajax.open("GET", RessourceURI, true);
     ajax.setRequestHeader("Accept", "application/json; charset=UTF-8");
+    ajax.setRequestHeader("X-Portal", "true");
     //ajax.setRequestHeader("Content-Type", "application/json; charset=UTF-8");
     if (APIKey != null)
         ajax.setRequestHeader("APIKey", APIKey);
@@ -192,7 +193,7 @@ function Exists(RessourceURI, APIKey, OnSuccess, OnError) {
 function HTTPSet(RessourceURI, APIKey, Data, OnSuccess, OnError) {
     // #region Make HTTP call
     var ajax = new XMLHttpRequest();
-    ajax.open("SET", RessourceURI, true); // , user, password);
+    ajax.open("SET", RessourceURI, true);
     ajax.setRequestHeader("Accept", "application/json; charset=UTF-8");
     ajax.setRequestHeader("Content-Type", "application/json; charset=UTF-8");
     if (APIKey != null)

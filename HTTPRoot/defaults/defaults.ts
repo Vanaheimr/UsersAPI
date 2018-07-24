@@ -190,8 +190,9 @@ function HTTPGet(RessourceURI: string,
     // #region Make HTTP call
 
     let ajax = new XMLHttpRequest();
-    ajax.open("GET", RessourceURI, true); // , user, password);
-    ajax.setRequestHeader("Accept",       "application/json; charset=UTF-8");
+    ajax.open("GET", RessourceURI, true);
+    ajax.setRequestHeader("Accept",   "application/json; charset=UTF-8");
+    ajax.setRequestHeader("X-Portal", "true");
     //ajax.setRequestHeader("Content-Type", "application/json; charset=UTF-8");
 
     if (APIKey != null)
@@ -351,7 +352,7 @@ function HTTPSet(RessourceURI: string,
     // #region Make HTTP call
 
     let ajax = new XMLHttpRequest();
-    ajax.open("SET", RessourceURI, true); // , user, password);
+    ajax.open("SET", RessourceURI, true);
     ajax.setRequestHeader("Accept",       "application/json; charset=UTF-8");
     ajax.setRequestHeader("Content-Type", "application/json; charset=UTF-8");
 
