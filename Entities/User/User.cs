@@ -437,7 +437,7 @@ namespace org.GraphDefined.OpenData.Users
 
             Add(IEnumerable<MiniEdge<User, User2UserEdges, User>> Edges)
 
-                => _User2UserEdges.AddRangeAndReturnEnumeration(Edges);
+                => _User2UserEdges.AddAndReturnList(Edges);
 
 
 
@@ -506,7 +506,7 @@ namespace org.GraphDefined.OpenData.Users
 
             Add(IEnumerable<MiniEdge<User, User2OrganizationEdges, Organization>> Edges)
 
-                => _User2Organization_OutEdges.AddRangeAndReturnEnumeration(Edges);
+                => _User2Organization_OutEdges.AddAndReturnList(Edges);
 
 
 
@@ -628,7 +628,7 @@ namespace org.GraphDefined.OpenData.Users
 
             Add(IEnumerable<MiniEdge<User, User2GroupEdges, Group>> Edges)
 
-                => _User2Group_OutEdges.AddRangeAndReturnEnumeration(Edges);
+                => _User2Group_OutEdges.AddAndReturnList(Edges);
 
 
 
@@ -1384,7 +1384,7 @@ namespace org.GraphDefined.OpenData.Users
             /// </summary>
             /// <param name="PairedMessages">An enumeration of PAIRED messages.</param>
             public IEnumerable<MiniEdge<User, User2UserEdges, User>> Add(IEnumerable<MiniEdge<User, User2UserEdges, User>> PairedMessages)
-                => _User2UserEdges.AddRangeAndReturnEnumeration(PairedMessages);
+                => _User2UserEdges.AddAndReturnList(PairedMessages);
 
             #endregion
 
@@ -1410,7 +1410,7 @@ namespace org.GraphDefined.OpenData.Users
             /// </summary>
             /// <param name="PairedMessages">An enumeration of PAIRED messages.</param>
             public IEnumerable<MiniEdge<User, User2GroupEdges, Group>> Add(IEnumerable<MiniEdge<User, User2GroupEdges, Group>> PairedMessages)
-                => _User2GroupEdges.AddRangeAndReturnEnumeration(PairedMessages);
+                => _User2GroupEdges.AddAndReturnList(PairedMessages);
 
             #endregion
 
@@ -1436,7 +1436,7 @@ namespace org.GraphDefined.OpenData.Users
             /// </summary>
             /// <param name="PairedMessages">An enumeration of PAIRED messages.</param>
             public IEnumerable<MiniEdge<User, User2OrganizationEdges, Organization>> Add(IEnumerable<MiniEdge<User, User2OrganizationEdges, Organization>> PairedMessages)
-                => _User2OrganizationEdges.AddRangeAndReturnEnumeration(PairedMessages);
+                => _User2OrganizationEdges.AddAndReturnList(PairedMessages);
 
             #endregion
 
