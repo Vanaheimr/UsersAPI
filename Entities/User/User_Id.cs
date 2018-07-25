@@ -428,11 +428,11 @@ namespace org.GraphDefined.OpenData.Users
             if ((Object) UserId == null)
                 throw new ArgumentNullException(nameof(UserId),  "The given user identification must not be null!");
 
-            var c = String.Compare(InternalId, UserId.InternalId, StringComparison.Ordinal);
+            var c = String.Compare(InternalId, UserId.InternalId, StringComparison.OrdinalIgnoreCase);
             if (c != 0)
                 return c;
 
-            return String.Compare(Realm, UserId.Realm, StringComparison.Ordinal);
+            return String.Compare(Realm, UserId.Realm, StringComparison.OrdinalIgnoreCase);
 
         }
 
@@ -477,8 +477,8 @@ namespace org.GraphDefined.OpenData.Users
             if ((Object) UserId == null)
                 return false;
 
-            return InternalId.Equals(UserId.InternalId) &&
-                   Realm.     Equals(UserId.Realm);
+            return InternalId.Equals(UserId.InternalId, StringComparison.OrdinalIgnoreCase) &&
+                   Realm.     Equals(UserId.Realm,      StringComparison.OrdinalIgnoreCase);
 
         }
 
@@ -494,8 +494,8 @@ namespace org.GraphDefined.OpenData.Users
         /// <returns>The HashCode of this object.</returns>
         public override Int32 GetHashCode()
 
-            => InternalId.GetHashCode() ^
-               Realm.     GetHashCode();
+            => InternalId.ToLower().GetHashCode() ^
+               Realm.     ToLower().GetHashCode();
 
         #endregion
 
