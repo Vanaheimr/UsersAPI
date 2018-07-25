@@ -673,7 +673,7 @@ function checkNotSignedIn() {
         WithCookie(HTTPCookieId,
 
                    cookie => {
-                       location.href = "/index.html";
+                       location.href = "/index.shtml";
                    },
 
                    () => {

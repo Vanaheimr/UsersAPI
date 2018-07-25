@@ -427,7 +427,7 @@ function checkAdminSignedIn(RedirectUnkownUsers) {
 function checkNotSignedIn() {
     if (HTTPCookieId != null && HTTPCookieId != "") {
         WithCookie(HTTPCookieId, function (cookie) {
-            location.href = "/index.html";
+            location.href = "/index.shtml";
         }, function () {
         });
     }
