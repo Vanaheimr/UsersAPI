@@ -2985,7 +2985,9 @@ namespace org.GraphDefined.OpenData.Users
                                                   if (_SMSAPI != null && MobilePhone.HasValue)
                                                   {
 
-                                                      SMSSentResult = _SMSAPI.Send("Dear '" + Name + "' your 2nd security token for your new account is '" + SetPasswordRequest.SecurityToken2 + "'!",
+                                                                                   // Be careful what to send to endusers!
+                                                                                   // "Your new account is 'hsadgsagd'!" makes them type also ' and ! characters!
+                                                      SMSSentResult = _SMSAPI.Send("Dear '" + Name + "' your 2nd security token for your new account is: " + SetPasswordRequest.SecurityToken2,
                                                                                    MobilePhone.Value.ToString()).
                                                                               SetSender("CardiCloud").
                                                                               Execute();
