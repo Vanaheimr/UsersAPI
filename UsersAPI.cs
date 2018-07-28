@@ -5770,6 +5770,162 @@ namespace org.GraphDefined.OpenData.Users
         #endregion
 
 
+        #region AddEventSource(HTTPEventSourceId, URITemplate, IncludeFilterAtRuntime, ...)
+
+        public void AddEventSource(HTTPEventSource_Id              HTTPEventSourceId,
+                                   HTTPURI                         URITemplate,
+
+                                   Func<User, HTTPEvent, Boolean>  IncludeFilterAtRuntime,
+
+                                   HTTPHostname?                   Hostname                   = null,
+                                   HTTPMethod?                     HttpMethod                 = null,
+                                   HTTPContentType                 HTTPContentType            = null,
+
+                                   HTTPAuthentication              URIAuthentication          = null,
+                                   HTTPAuthentication              HTTPMethodAuthentication   = null,
+
+                                   HTTPDelegate                    DefaultErrorHandler        = null)
+        {
+
+            if (IncludeFilterAtRuntime == null)
+                IncludeFilterAtRuntime = (u, e) => true;
+
+            if (TryGet(HTTPEventSourceId, out HTTPEventSource _EventSource))
+            {
+
+                HTTPServer.AddMethodCallback(Hostname        ?? HTTPHostname.Any,
+                                             HttpMethod      ?? HTTPMethod.GET,
+                                             URITemplate,
+                                             HTTPContentType ?? HTTPContentType.EVENTSTREAM,
+                                             URIAuthentication:         URIAuthentication,
+                                             HTTPMethodAuthentication:  HTTPMethodAuthentication,
+                                             DefaultErrorHandler:       DefaultErrorHandler,
+                                             HTTPDelegate:              Request => {
+
+                                                 #region Get HTTP user and its organizations
+
+                                                 // Will return HTTP 401 Unauthorized, when the HTTP user is unknown!
+                                                 if (!TryGetHTTPUser(Request,
+                                                                     out User                       HTTPUser,
+                                                                     out IEnumerable<Organization>  HTTPOrganizations,
+                                                                     out HTTPResponse               Response,
+                                                                     AccessLevel:                   Access_Levels.ReadWrite,
+                                                                     Recursive:                     true))
+                                                 {
+                                                     return Task.FromResult(Response);
+                                                 }
+
+                                                 #endregion
+
+                                                 var _HTTPEvents         = _EventSource.GetAllEventsGreater(Request.GetHeaderField_UInt64("Last-Event-ID")).
+                                                                                        Where (_event => IncludeFilterAtRuntime(HTTPUser, _event)).
+                                                                                        Select(_event => _event.ToString()).
+                                                                                        AggregateWith(Environment.NewLine) +
+                                                                           Environment.NewLine;
+
+                                        //             _ResourceContent += Environment.NewLine + "retry: " + ((UInt32)_EventSource.RetryIntervall.TotalMilliseconds) + Environment.NewLine + Environment.NewLine;
+
+
+                                                 return Task.FromResult(
+                                                     new HTTPResponse.Builder(Request) {
+                                                         HTTPStatusCode  = HTTPStatusCode.OK,
+                                                         Server          = HTTPServer.DefaultHTTPServerName,
+                                                         ContentType     = HTTPContentType.EVENTSTREAM,
+                                                         CacheControl    = "no-cache",
+                                                         Connection      = "keep-alive",
+                                                         KeepAlive       = new KeepAliveType(TimeSpan.FromSeconds(2 * _EventSource.RetryIntervall.TotalSeconds)),
+                                                         Content         = _HTTPEvents.ToUTF8Bytes()
+                                                     }.AsImmutable);
+
+                                             });
+
+            }
+
+            else
+                throw new ArgumentException("Event source '" + HTTPEventSourceId + "' could not be found!", nameof(HTTPEventSourceId));
+
+        }
+
+
+        public void AddEventSource(HTTPEventSource_Id                                         HTTPEventSourceId,
+                                   HTTPURI                                                    URITemplate,
+
+                                   Func<User, IEnumerable<Organization>, HTTPEvent, Boolean>  IncludeFilterAtRuntime,
+
+                                   HTTPHostname?                                              Hostname                   = null,
+                                   HTTPMethod?                                                HttpMethod                 = null,
+                                   HTTPContentType                                            HTTPContentType            = null,
+
+                                   HTTPAuthentication                                         URIAuthentication          = null,
+                                   HTTPAuthentication                                         HTTPMethodAuthentication   = null,
+
+                                   HTTPDelegate                                               DefaultErrorHandler        = null)
+        {
+
+            if (IncludeFilterAtRuntime == null)
+                IncludeFilterAtRuntime = (u, o, e) => true;
+
+            if (TryGet(HTTPEventSourceId, out HTTPEventSource _EventSource))
+            {
+
+                HTTPServer.AddMethodCallback(Hostname        ?? HTTPHostname.Any,
+                                             HttpMethod      ?? HTTPMethod.GET,
+                                             URITemplate,
+                                             HTTPContentType ?? HTTPContentType.EVENTSTREAM,
+                                             URIAuthentication:         URIAuthentication,
+                                             HTTPMethodAuthentication:  HTTPMethodAuthentication,
+                                             DefaultErrorHandler:       DefaultErrorHandler,
+                                             HTTPDelegate:              Request => {
+
+                                                 #region Get HTTP user and its organizations
+
+                                                 // Will return HTTP 401 Unauthorized, when the HTTP user is unknown!
+                                                 if (!TryGetHTTPUser(Request,
+                                                                     out User                       HTTPUser,
+                                                                     out IEnumerable<Organization>  HTTPOrganizations,
+                                                                     out HTTPResponse               Response,
+                                                                     AccessLevel:                   Access_Levels.ReadWrite,
+                                                                     Recursive:                     true))
+                                                 {
+                                                     return Task.FromResult(Response);
+                                                 }
+
+                                                 #endregion
+
+                                                 var _HTTPEvents         = _EventSource.GetAllEventsGreater(Request.GetHeaderField_UInt64("Last-Event-ID")).
+                                                                                        Where (_event => IncludeFilterAtRuntime(HTTPUser,
+                                                                                                                                HTTPOrganizations,
+                                                                                                                                _event)).
+                                                                                        Select(_event => _event.ToString()).
+                                                                                        AggregateWith(Environment.NewLine) +
+                                                                           Environment.NewLine;
+
+                                        //             _ResourceContent += Environment.NewLine + "retry: " + ((UInt32)_EventSource.RetryIntervall.TotalMilliseconds) + Environment.NewLine + Environment.NewLine;
+
+
+                                                 return Task.FromResult(
+                                                     new HTTPResponse.Builder(Request) {
+                                                         HTTPStatusCode  = HTTPStatusCode.OK,
+                                                         Server          = HTTPServer.DefaultHTTPServerName,
+                                                         ContentType     = HTTPContentType.EVENTSTREAM,
+                                                         CacheControl    = "no-cache",
+                                                         Connection      = "keep-alive",
+                                                         KeepAlive       = new KeepAliveType(TimeSpan.FromSeconds(2 * _EventSource.RetryIntervall.TotalSeconds)),
+                                                         Content         = _HTTPEvents.ToUTF8Bytes()
+                                                     }.AsImmutable);
+
+                                             });
+
+            }
+
+            else
+                throw new ArgumentException("Event source '" + HTTPEventSourceId + "' could not be found!", nameof(HTTPEventSourceId));
+
+        }
+
+        #endregion
+
+
         #region DataLicenses
 
         #region DataLicenses
