@@ -37,50 +37,212 @@ using System.Collections;
 namespace org.GraphDefined.OpenData
 {
 
-    public enum TagEdge
+    public enum TagEdgeLabel
     {
 
         IsSameAs,
         IsOpposite,
-        IsPartOf
+        IsPartOf,
+        IsLinked
 
     }
 
-    public struct TagRelation
+    public struct TagEdge
     {
 
-        public TagEdge  Edge    { get; }
-        public Single   Value   { get; }
+        public TagEdgeLabel  Label   { get; }
+        public Single        Value   { get; }
 
-        public TagRelation(TagEdge Edge,
-                           Single  Value)
+        public TagEdge(TagEdgeLabel Label,
+                       Single       Value)
         {
-            this.Edge  = Edge;
-            this.Value = Value;
+            this.Label  = Label;
+            this.Value  = Value;
         }
 
-        public static TagRelation Create(TagEdge Edge,
-                                         Single  Value)
+        public static TagEdge Create(TagEdgeLabel  Edge,
+                                     Single        Value)
 
-            => new TagRelation(Edge, Value);
+            => new TagEdge(Edge, Value);
 
+
+    }
+
+    public struct TagTriple : IEquatable<TagTriple>
+    {
+
+        public Tag           Tag1    { get; }
+        public TagEdgeLabel  Label   { get; }
+        public Single        Value   { get; }
+        public Tag           Tag2    { get; }
+
+        public TagTriple(Tag           Tag1,
+                         TagEdgeLabel  Label,
+                         Single        Value,
+                         Tag           Tag2)
+        {
+
+            this.Tag1   = Tag1;
+            this.Label  = Label;
+            this.Value  = Value;
+            this.Tag2   = Tag2;
+
+        }
+
+        public JToken ToJSON(InfoStatus ExpandTags = InfoStatus.ShowIdOnly)
+
+            => ExpandTags.Switch(this,
+
+                   info => new JObject(new JProperty("tag1",   info.Tag1. ToJSON(true, ExpandDescription: InfoStatus.Expand)), 
+                                       new JProperty("label",  info.Label.ToString()),
+                                       new JProperty("value",  info.Value),
+                                       new JProperty("tag2",   info.Tag2. ToJSON(true, ExpandDescription: InfoStatus.Expand))),
+
+                   info => new JArray(info.Tag1.Id.ToString(),
+                                      info.Label.  ToString(),
+                                      info.Value,
+                                      info.Tag2.Id.ToString()));
+
+
+        #region IComparable<TagTriple> Members
+
+        //#region CompareTo(Object)
+
+        ///// <summary>
+        ///// Compares two instances of this object.
+        ///// </summary>
+        ///// <param name="Object">An object to compare with.</param>
+        //public Int32 CompareTo(Object Object)
+        //{
+
+        //    if (Object == null)
+        //        throw new ArgumentNullException(nameof(Object), "The given object must not be null!");
+
+        //    var EVSE_Operator = Object as TagTriple;
+        //    if ((Object) EVSE_Operator == null)
+        //        throw new ArgumentException("The given object is not a data source!");
+
+        //    return CompareTo(EVSE_Operator);
+
+        //}
+
+        //#endregion
+
+        //#region CompareTo(TagTriple)
+
+        ///// <summary>
+        ///// Compares two instances of this object.
+        ///// </summary>
+        ///// <param name="TagTriple">A data source object to compare with.</param>
+        //public Int32 CompareTo(TagTriple TagTriple)
+        //{
+
+        //    if ((Object) TagTriple == null)
+        //        throw new ArgumentNullException(nameof(TagTriple), "The given data source must not be null!");
+
+        //    return Id.CompareTo(TagTriple.Id);
+
+        //}
+
+        //#endregion
+
+        #endregion
+
+        #region IEquatable<TagTriple> Members
+
+        #region Equals(Object)
+
+        /// <summary>
+        /// Compares two instances of this object.
+        /// </summary>
+        /// <param name="Object">An object to compare with.</param>
+        /// <returns>true|false</returns>
+        public override Boolean Equals(Object Object)
+        {
+
+            if (Object == null)
+                return false;
+
+            if (!(Object is TagTriple _TagTriple))
+                return false;
+
+            return Equals(_TagTriple);
+
+        }
+
+        #endregion
+
+        #region Equals(TagTriple)
+
+        /// <summary>
+        /// Compares two data sources for equality.
+        /// </summary>
+        /// <param name="TagTriple">A data source to compare with.</param>
+        /// <returns>True if both match; False otherwise.</returns>
+        public Boolean Equals(TagTriple TagTriple)
+        {
+
+            if ((Object) TagTriple == null)
+                return false;
+
+            return Tag1. Equals(TagTriple.Tag1)  &&
+                   Label.Equals(TagTriple.Label) &&
+                   Value.Equals(TagTriple.Value) &&
+                   Tag2. Equals(TagTriple.Tag2);
+
+        }
+
+        #endregion
+
+        #endregion
+
+        #region GetHashCode()
+
+        /// <summary>
+        /// Get the hashcode of this object.
+        /// </summary>
+        public override Int32 GetHashCode()
+        {
+            unchecked
+            {
+
+                return Tag1. GetHashCode() * 7 ^
+                       Label.GetHashCode() * 5 ^
+                       Value.GetHashCode() * 3 ^
+                       Tag2. GetHashCode();
+
+            }
+        }
+
+        #endregion
+
+        #region ToString()
+
+        /// <summary>
+        /// Get a string representation of this object.
+        /// </summary>
+        public override String ToString()
+
+            => String.Concat(Tag1, " --", Label, "(", Value, ")--> ", Tag2);
+
+        #endregion
 
     }
 
     public struct TagInfo
     {
 
-        public TagEdge  Edge    { get; }
-        public Tag      Tag     { get; }
-        public Single   Value   { get; }
+        public TagEdgeLabel  Label   { get; }
+        public Tag           Tag     { get; }
+        public Single        Value   { get; }
 
-        public TagInfo(TagEdge Edge,
-                       Tag     Tag,
-                       Single  Value)
+        public TagInfo(TagEdgeLabel  Label,
+                       Tag           Tag,
+                       Single        Value)
         {
-            this.Edge  = Edge;
-            this.Tag   = Tag;
-            this.Value = Value;
+            this.Label  = Label;
+            this.Tag    = Tag;
+            this.Value  = Value;
         }
 
 
@@ -88,11 +250,11 @@ namespace org.GraphDefined.OpenData
 
             => ExpandTags.Switch(this,
 
-                   info => new JObject(new JProperty("edge",  info.Edge.  ToString()),
+                   info => new JObject(new JProperty("edge",  info.Label.  ToString()),
                                        new JProperty("tag",   info.Tag.ToJSON(true, ExpandDescription: InfoStatus.Expand)),
                                        new JProperty("value", info.Value)),
 
-                   info => new JArray(info.Edge.  ToString(),
+                   info => new JArray(info.Label.  ToString(),
                                       info.Tag.Id.ToString(),
                                       info.Value));
 
@@ -119,7 +281,7 @@ namespace org.GraphDefined.OpenData
 
         #region Data
 
-        private readonly Dictionary<Tag, TagRelation> _Tags;
+        private readonly Dictionary<Tag, TagEdge> _Tags;
 
         #endregion
 
@@ -136,10 +298,10 @@ namespace org.GraphDefined.OpenData
         /// Create a new collection of tags.
         /// </summary>
         /// <param name="Tags">An enumeration of tags.</param>
-        public Tags(IEnumerable<KeyValuePair<Tag, TagRelation>> Tags = null)
+        public Tags(IEnumerable<KeyValuePair<Tag, TagEdge>> Tags = null)
         {
 
-            _Tags = new Dictionary<Tag, TagRelation>();
+            _Tags = new Dictionary<Tag, TagEdge>();
 
             if (Tags != null)
                 foreach (var tag in Tags)
@@ -165,7 +327,7 @@ namespace org.GraphDefined.OpenData
         public JArray ToJSON(InfoStatus  ExpandTags   = InfoStatus.Hidden)
 
             => _Tags.Count > 0
-                   ? _Tags.Select(tag => new TagInfo(tag.Value.Edge, tag.Key, tag.Value.Value)).ToJSON(ExpandTags)
+                   ? _Tags.Select(tag => new TagInfo(tag.Value.Label, tag.Key, tag.Value.Value)).ToJSON(ExpandTags)
                    : new JArray();
 
         #endregion
@@ -198,7 +360,7 @@ namespace org.GraphDefined.OpenData
                 if (JSONArray.HasValues)
                 {
 
-                    var _tags = new Dictionary<Tag, TagRelation>();
+                    var _tags = new Dictionary<Tag, TagEdge>();
 
                     foreach (var item in JSONArray)
                     {
@@ -217,13 +379,13 @@ namespace org.GraphDefined.OpenData
                                                                           out ErrorResponse))
                                 {
                                     _tags.Add(Tag2,
-                                              new TagRelation(TagEdge.IsSameAs, item[1].Value<Single>()));
+                                              new TagEdge(TagEdgeLabel.IsSameAs, item[1].Value<Single>()));
                                 }
 
                                 else
                                 {
                                     _tags.Add(new Tag(Tag_Id.Parse(TagId)),
-                                              new TagRelation(TagEdge.IsSameAs, item[1].Value<Single>()));
+                                              new TagEdge(TagEdgeLabel.IsSameAs, item[1].Value<Single>()));
                                 }
 
                             }
@@ -257,10 +419,10 @@ namespace org.GraphDefined.OpenData
 
 
         public IEnumerator<TagInfo> GetEnumerator()
-            => _Tags.Select(tag => new TagInfo(tag.Value.Edge, tag.Key, tag.Value.Value)).GetEnumerator();
+            => _Tags.Select(tag => new TagInfo(tag.Value.Label, tag.Key, tag.Value.Value)).GetEnumerator();
 
         IEnumerator IEnumerable.GetEnumerator()
-            => _Tags.Select(tag => new TagInfo(tag.Value.Edge, tag.Key, tag.Value.Value)).GetEnumerator();
+            => _Tags.Select(tag => new TagInfo(tag.Value.Label, tag.Key, tag.Value.Value)).GetEnumerator();
 
 
 
@@ -285,7 +447,7 @@ namespace org.GraphDefined.OpenData
 
             #region Data
 
-            private readonly Dictionary<Tag, TagRelation> _Tags;
+            private readonly Dictionary<Tag, TagEdge> _Tags;
 
             #endregion
 
@@ -301,10 +463,10 @@ namespace org.GraphDefined.OpenData
             /// <summary>
             /// Create a new tag builder.
             /// </summary>
-            public Builder(IEnumerable<KeyValuePair<Tag, TagRelation>> Tags = null)
+            public Builder(IEnumerable<KeyValuePair<Tag, TagEdge>> Tags = null)
             {
 
-                _Tags = new Dictionary<Tag, TagRelation>();
+                _Tags = new Dictionary<Tag, TagEdge>();
 
                 if (Tags != null)
                     foreach (var tag in Tags)
@@ -321,18 +483,18 @@ namespace org.GraphDefined.OpenData
             //    return this;
             //}
 
-            public Builder Add(TagEdge Edge, Tag Tag, Single Value)
+            public Builder Add(TagEdgeLabel Edge, Tag Tag, Single Value)
             {
-                _Tags.Add(Tag, new TagRelation(Edge, Value));
+                _Tags.Add(Tag, new TagEdge(Edge, Value));
                 return this;
             }
 
 
             public IEnumerator<TagInfo> GetEnumerator()
-            => _Tags.Select(tag => new TagInfo(tag.Value.Edge, tag.Key, tag.Value.Value)).GetEnumerator();
+            => _Tags.Select(tag => new TagInfo(tag.Value.Label, tag.Key, tag.Value.Value)).GetEnumerator();
 
             IEnumerator IEnumerable.GetEnumerator()
-                => _Tags.Select(tag => new TagInfo(tag.Value.Edge, tag.Key, tag.Value.Value)).GetEnumerator();
+                => _Tags.Select(tag => new TagInfo(tag.Value.Label, tag.Key, tag.Value.Value)).GetEnumerator();
 
 
             #region ToImmutable

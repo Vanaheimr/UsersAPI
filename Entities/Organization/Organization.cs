@@ -40,7 +40,6 @@ namespace org.GraphDefined.OpenData.Users
                                                        Boolean       Embedded             = false,
                                                        InfoStatus    ExpandTags           = InfoStatus.ShowIdOnly,
                                                        InfoStatus    ExpandDataLicenses   = InfoStatus.ShowIdOnly,
-                                                       InfoStatus    ExpandOwnerId        = InfoStatus.ShowIdOnly,
                                                        Boolean       IncludeCryptoHash    = true);
 
 
@@ -65,7 +64,6 @@ namespace org.GraphDefined.OpenData.Users
                                     Boolean                         Embedded             = false,
                                     InfoStatus                      ExpandTags           = InfoStatus.ShowIdOnly,
                                     InfoStatus                      ExpandDataLicenses   = InfoStatus.ShowIdOnly,
-                                    InfoStatus                      ExpandOwnerId        = InfoStatus.ShowIdOnly,
                                     OrganizationToJSONDelegate      OrganizationToJSON   = null,
                                     Boolean                         IncludeCryptoHash    = true)
 
@@ -75,21 +73,19 @@ namespace org.GraphDefined.OpenData.Users
                    ? new JArray()
 
                    : new JArray(Organizations.
-                                    Where     (dataset =>  dataset != null).
-                                    OrderBy   (dataset => dataset.Id).
+                                    Where     (dataSet =>  dataSet != null).
+                                    OrderBy   (dataSet => dataSet.Id).
                                     SkipTakeFilter(Skip, Take).
                                     SafeSelect(organization => OrganizationToJSON != null
                                                                     ? OrganizationToJSON (organization,
                                                                                           Embedded,
                                                                                           ExpandTags,
                                                                                           ExpandDataLicenses,
-                                                                                          ExpandOwnerId,
                                                                                           IncludeCryptoHash)
 
                                                                     : organization.ToJSON(Embedded,
                                                                                           ExpandTags,
                                                                                           ExpandDataLicenses,
-                                                                                          ExpandOwnerId,
                                                                                           IncludeCryptoHash)));
 
         #endregion
@@ -473,7 +469,6 @@ namespace org.GraphDefined.OpenData.Users
             => ToJSON(Embedded:            false,
                       ExpandTags:          InfoStatus.ShowIdOnly,
                       ExpandDataLicenses:  InfoStatus.ShowIdOnly,
-                      ExpandOwnerId:       InfoStatus.ShowIdOnly,
                       IncludeCryptoHash:   true);
 
 
@@ -484,7 +479,6 @@ namespace org.GraphDefined.OpenData.Users
         public JObject ToJSON(Boolean     Embedded             = false,
                               InfoStatus  ExpandTags           = InfoStatus.ShowIdOnly,
                               InfoStatus  ExpandDataLicenses   = InfoStatus.ShowIdOnly,
-                              InfoStatus  ExpandOwnerId        = InfoStatus.ShowIdOnly,
                               Boolean     IncludeCryptoHash    = true)
 
             => JSONObject.Create(

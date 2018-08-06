@@ -59,18 +59,6 @@ namespace org.GraphDefined.OpenData.Users
 
         #endregion
 
-        #region ToJSON(Organizations)
-
-        public static JObject ToJSON(this IEnumerable<Organization> Organizations)
-        {
-
-            return new JObject(new JProperty("@context", "https://opendata.social/contexts/UsersAPI+json/organizations"),
-                               new JProperty("orgs",      new JArray(Organizations.SafeSelect(organization => organization.ToJSON()))));
-
-        }
-
-        #endregion
-
 
         #region ToJSON(this Privacylevel)
 
