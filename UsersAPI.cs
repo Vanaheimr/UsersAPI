@@ -1671,50 +1671,133 @@ namespace org.GraphDefined.OpenData.Users
         #endregion
 
 
-        public Boolean Impersonate(User Astronaut, User Member)
+        #region (private) CheckImpersonate(currentOrg, Astronaut, AstronautFound, Member, VetoUsers)
+
+        private Boolean? CheckImpersonate(Organization currentOrg, User Astronaut, Boolean AstronautFound, User Member, HashSet<User> VetoUsers)
         {
 
+            var currentUsers = new HashSet<User>(currentOrg.User2OrganizationEdges.Select(edge => edge.Source));
+
+            AstronautFound |= currentUsers.Contains(Astronaut);
+
+            if (!AstronautFound)
+            {
+
+                // Fail early!
+                if (currentUsers.Contains(Member))
+                    return false;
+
+            }
+
+            else if (currentUsers.Contains(Member))
+            {
+
+                // Astronaut and member are on the same level, e.g. both admin of the same organization!
+                if (currentUsers.Contains(Astronaut))
+                {
+                    // Currently this is allowed!
+                }
+
+                return !VetoUsers.Contains(Member);
+
+            }
+
+            // Everyone found so far can no longer be impersonated!
+            foreach (var currentUser in currentUsers)
+                VetoUsers.Add(currentUser);
+
+
+
+            var childResults = currentOrg.Organization2OrganizationInEdges.Where(edge => edge.EdgeLabel == Organization2OrganizationEdges.IsChildOf).
+                                          Select(edge => CheckImpersonate(edge.Source, Astronaut, AstronautFound, Member, new HashSet<User>(VetoUsers))).ToArray();
+
+            return childResults.Any(result => result == true);
+
+        }
+
+        #endregion
+
+        #region CanImpersonate(Astronaut, Member)
+
+        public Boolean CanImpersonate(User Astronaut, User Member)
+        {
+
+            if (Astronaut == Member)
+                return false;
+
+            // API admins can impersonate everyone! Except other API Admins!
+            if (Admins.InEdges(Astronaut).Any())
+                return !Admins.InEdges(Member).Any();
+
+            // API admins can never be impersonated!
+            if (Admins.InEdges(Member).Any())
+                return false;
+
+            // An astronaut must be at least an admin of some parent organization!
             if (!Astronaut.User2Organization_OutEdges.Any(edge => edge.EdgeLabel == User2OrganizationEdges.IsAdmin))
                 return false;
 
             var VetoUsers             = new HashSet<User>();
             var AstronautFound        = false;
-            var MemberFound           = false;
             var CurrentOrganizations  = new HashSet<Organization>(Organizations.Where(org => !org.Organization2OrganizationOutEdges.
                                                                                                   Any(edge => edge.EdgeLabel == Organization2OrganizationEdges.IsChildOf)));
+
+            var childResults = CurrentOrganizations.Select(org => CheckImpersonate(org, Astronaut, AstronautFound, Member, VetoUsers)).ToArray();
+
+            return childResults.Any(result => result == true);
+
 
             do
             {
 
                 var NextOrgs  = new HashSet<Organization>(CurrentOrganizations.SelectMany(org => org.Organization2OrganizationInEdges.Where(edge => edge.EdgeLabel == Organization2OrganizationEdges.IsChildOf)).Select(edge => edge.Source));
 
-                var Users     = new HashSet<User>(NextOrgs.SelectMany(org => org.User2OrganizationEdges).Select(edge => edge.Source));
-
-                AstronautFound |= Users.Contains(Astronaut);
-                MemberFound    |= Users.Contains(Member);
-
-                if (!AstronautFound)
+                foreach (var currentOrg in NextOrgs)
                 {
 
-                    if (MemberFound)
-                        return false;
+                    var currentUsers = new HashSet<User>(currentOrg.User2OrganizationEdges.Select(edge => edge.Source));
 
-                    Users.ForEach(user => VetoUsers.Add(user));
+                    AstronautFound |= currentUsers.Contains(Astronaut);
+
+                    if (!AstronautFound)
+                    {
+
+                        // Fail early!
+                        if (currentUsers.Contains(Member))
+                            return false;
+
+                    }
+
+                    else if (currentUsers.Contains(Member))
+                    {
+
+                        // Astronaut and member are on the same level, e.g. both admin of the same organization!
+                        if (currentUsers.Contains(Astronaut))
+                        {
+                            // Currently this is allowed!
+                        }
+
+                        return !VetoUsers.Contains(Member);
+
+                    }
+
+                    // Everyone found so far can no longer be impersonated!
+                    currentUsers.ForEach(user => VetoUsers.Add(user));
 
                 }
 
-
-                else
-                {
-                    var Members = new HashSet<User>(NextOrgs.SelectMany(org => org.User2OrganizationEdges.Where(edge => edge.EdgeLabel == User2OrganizationEdges.IsMember).Select(edge => edge.Source)));
-                }
+                CurrentOrganizations.Clear();
+                NextOrgs.ForEach(org => CurrentOrganizations.Add(org));
 
             }
-            while (!VetoUsers.Contains(Member));
+            while (CurrentOrganizations.Count > 0);
 
+            // The member was not found within the organizational hierarchy!
             return false;
 
         }
+
+        #endregion
 
 
         #region (private) RegisterURITemplates()
@@ -3744,31 +3827,9 @@ namespace org.GraphDefined.OpenData.Users
                                              #endregion
 
 
-
-                                             if (!Impersonate(Astronaut, UserURI))
-                                             {
-
-                                                 return Task.FromResult(
-                                                            new HTTPResponse.Builder(Request) {
-                                                                HTTPStatusCode              = HTTPStatusCode.Forbidden,
-                                                                Server                      = HTTPServer.DefaultServerName,
-                                                                Date                        = DateTime.UtcNow,
-                                                                AccessControlAllowOrigin    = "*",
-                                                                AccessControlAllowMethods   = "IMPERSONATE",
-                                                                AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
-                                                                Connection                  = "close"
-                                                            }.AsImmutable);
-
-                                             }
-
-
-
                                              #region Is the current user allowed to impersonate the given user?
 
-                                             if (UserURI.Id.ToString() == "ahzf" ||
-                                                 UserURI.Id.ToString() == "lars")
-                                             {
-
+                                             if (!CanImpersonate(Astronaut, UserURI))
                                                  return Task.FromResult(
                                                             new HTTPResponse.Builder(Request) {
                                                                 HTTPStatusCode              = HTTPStatusCode.Forbidden,
@@ -3780,7 +3841,23 @@ namespace org.GraphDefined.OpenData.Users
                                                                 Connection                  = "close"
                                                             }.AsImmutable);
 
-                                             }
+
+                                             //if (UserURI.Id.ToString() == "ahzf" ||
+                                             //    UserURI.Id.ToString() == "lars")
+                                             //{
+
+                                             //    return Task.FromResult(
+                                             //               new HTTPResponse.Builder(Request) {
+                                             //                   HTTPStatusCode              = HTTPStatusCode.Forbidden,
+                                             //                   Server                      = HTTPServer.DefaultServerName,
+                                             //                   Date                        = DateTime.UtcNow,
+                                             //                   AccessControlAllowOrigin    = "*",
+                                             //                   AccessControlAllowMethods   = "IMPERSONATE",
+                                             //                   AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
+                                             //                   Connection                  = "close"
+                                             //               }.AsImmutable);
+
+                                             //}
 
                                              #endregion
 

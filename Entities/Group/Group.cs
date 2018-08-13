@@ -162,12 +162,13 @@ namespace org.GraphDefined.OpenData.Users
             => _User2GroupEdges.Where(edge => User2GroupEdgeFilter(edge.EdgeLabel));
 
 
-        #region Edges(Group)
+        #region InEdges(User)
 
         /// <summary>
         /// All organizations this user belongs to,
         /// filtered by the given edge label.
         /// </summary>
+        /// <param name="User">Just return edges with the given user.</param>
         public IEnumerable<User2GroupEdges> InEdges(User User)
             => _User2GroupEdges.
                    Where (edge => edge.Source == User).

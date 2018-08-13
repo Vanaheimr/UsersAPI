@@ -385,7 +385,7 @@ namespace org.GraphDefined.OpenData.Users
                 Name = Name.Trim();
 
             if (Name.IsNullOrEmpty())
-                throw new ArgumentNullException(nameof(Name), "The givven username must not be null or empty!");
+                throw new ArgumentNullException(nameof(Name), "The given username must not be null or empty!");
 
             #endregion
 
