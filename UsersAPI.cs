@@ -1671,6 +1671,52 @@ namespace org.GraphDefined.OpenData.Users
         #endregion
 
 
+        public Boolean Impersonate(User Astronaut, User Member)
+        {
+
+            if (!Astronaut.User2Organization_OutEdges.Any(edge => edge.EdgeLabel == User2OrganizationEdges.IsAdmin))
+                return false;
+
+            var VetoUsers             = new HashSet<User>();
+            var AstronautFound        = false;
+            var MemberFound           = false;
+            var CurrentOrganizations  = new HashSet<Organization>(Organizations.Where(org => !org.Organization2OrganizationOutEdges.
+                                                                                                  Any(edge => edge.EdgeLabel == Organization2OrganizationEdges.IsChildOf)));
+
+            do
+            {
+
+                var NextOrgs  = new HashSet<Organization>(CurrentOrganizations.SelectMany(org => org.Organization2OrganizationInEdges.Where(edge => edge.EdgeLabel == Organization2OrganizationEdges.IsChildOf)).Select(edge => edge.Source));
+
+                var Users     = new HashSet<User>(NextOrgs.SelectMany(org => org.User2OrganizationEdges).Select(edge => edge.Source));
+
+                AstronautFound |= Users.Contains(Astronaut);
+                MemberFound    |= Users.Contains(Member);
+
+                if (!AstronautFound)
+                {
+
+                    if (MemberFound)
+                        return false;
+
+                    Users.ForEach(user => VetoUsers.Add(user));
+
+                }
+
+
+                else
+                {
+                    var Members = new HashSet<User>(NextOrgs.SelectMany(org => org.User2OrganizationEdges.Where(edge => edge.EdgeLabel == User2OrganizationEdges.IsMember).Select(edge => edge.Source)));
+                }
+
+            }
+            while (!VetoUsers.Contains(Member));
+
+            return false;
+
+        }
+
+
         #region (private) RegisterURITemplates()
 
         private void RegisterURITemplates()
@@ -3696,6 +3742,26 @@ namespace org.GraphDefined.OpenData.Users
                                              }
 
                                              #endregion
+
+
+
+                                             if (!Impersonate(Astronaut, UserURI))
+                                             {
+
+                                                 return Task.FromResult(
+                                                            new HTTPResponse.Builder(Request) {
+                                                                HTTPStatusCode              = HTTPStatusCode.Forbidden,
+                                                                Server                      = HTTPServer.DefaultServerName,
+                                                                Date                        = DateTime.UtcNow,
+                                                                AccessControlAllowOrigin    = "*",
+                                                                AccessControlAllowMethods   = "IMPERSONATE",
+                                                                AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
+                                                                Connection                  = "close"
+                                                            }.AsImmutable);
+
+                                             }
+
+
 
                                              #region Is the current user allowed to impersonate the given user?
 
