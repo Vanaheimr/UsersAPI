@@ -5493,6 +5493,126 @@ namespace org.GraphDefined.OpenData.Users
 
                 #endregion
 
+                #region AddIfNotExistsOrganization
+
+                case "addIfNotExistsOrganization":
+
+                    if (Organization.TryParseJSON(JSONObject,
+                                                  out _Organization,
+                                                  out ErrorResponse))
+                    {
+
+                        if (!_Organizations.ContainsKey(_Organization.Id))
+                        {
+                            _Organization.API = this;
+                            _Organizations.AddAndReturnValue(_Organization.Id, _Organization);
+                        }
+
+                    }
+
+                    else
+                        DebugX.Log(String.Concat(nameof(UsersAPI), " ", Command, ": ", ErrorResponse));
+
+                    break;
+
+                #endregion
+
+                #region AddOrUpdateOrganization
+
+                case "addOrUpdateOrganization":
+
+                    if (Organization.TryParseJSON(JSONObject,
+                                                  out _Organization,
+                                                  out ErrorResponse))
+                    {
+
+
+                        if (_Organizations.TryGetValue(_Organization.Id, out Organization OldOrganization))
+                        {
+                            _Organizations.Remove(OldOrganization.Id);
+                            _Organization.API = this;
+                            //OldOrganization.CopyAllEdgesTo(_Organization);
+                        }
+
+                        _Organizations.Add(_Organization.Id, _Organization);
+
+                    }
+
+                    else
+                        DebugX.Log(String.Concat(nameof(UsersAPI), " ", Command, ": ", ErrorResponse));
+
+                    break;
+
+                #endregion
+
+                #region UpdateOrganization
+
+                case "updateOrganization":
+
+                    if (Organization.TryParseJSON(JSONObject,
+                                                  out _Organization,
+                                                  out ErrorResponse))
+                    {
+
+                        if (_Organizations.TryGetValue(_Organization.Id, out Organization OldOrganization))
+                        {
+
+                            _Organizations.Remove(OldOrganization.Id);
+                            _Organization.API = this;
+                            //OldOrganization.CopyAllEdgesTo(_Organization);
+
+                            _Organizations.Add(_Organization.Id, _Organization);
+
+                        }
+
+                    }
+
+                    else
+                        DebugX.Log(String.Concat(nameof(UsersAPI), " ", Command, ": ", ErrorResponse));
+
+                    break;
+
+                #endregion
+
+                #region RemoveOrganization
+
+                case "removeOrganization":
+
+                    if (Organization.TryParseJSON(JSONObject,
+                                                  out _Organization,
+                                                  out ErrorResponse))
+                    {
+                        _Organizations.Remove(_Organization.Id);
+                    }
+
+                    else
+                        DebugX.Log(String.Concat(nameof(UsersAPI), " ", Command, ": ", ErrorResponse));
+
+                    break;
+
+                #endregion
+
+                #region RemoveOrganizationId
+
+                case "removeOrganizationId":
+
+                    if (JSONObject.ParseOptional("@id",
+                                                 "Organization identification to remove",
+                                                 Organization_Id.TryParse,
+                                                 out Organization_Id OrganizationId,
+                                                 out ErrorResponse))
+                    {
+                        _Organizations.Remove(OrganizationId);
+                    }
+
+                    else
+                        DebugX.Log(String.Concat(nameof(UsersAPI), " ", Command, ": ", ErrorResponse));
+
+                    break;
+
+                #endregion
+
+
                 #region LinkOrganizations
 
                 case "LinkOrganizations":
@@ -7220,7 +7340,7 @@ namespace org.GraphDefined.OpenData.Users
 
                 Organization.API = this;
 
-                WriteToLogfileAndNotify("AddOrganization",
+                WriteToLogfileAndNotify("addOrganization",
                                         Organization.ToJSON(),
                                         CurrentUserId);
 
@@ -7264,7 +7384,7 @@ namespace org.GraphDefined.OpenData.Users
 
                 Organization.API = this;
 
-                WriteToLogfileAndNotify("AddIfNotExistsOrganization",
+                WriteToLogfileAndNotify("addIfNotExistsOrganization",
                                         Organization.ToJSON(),
                                         CurrentUserId);
 
@@ -7310,7 +7430,7 @@ namespace org.GraphDefined.OpenData.Users
 
                 Organization.API = this;
 
-                WriteToLogfileAndNotify("AddOrUpdateOrganization",
+                WriteToLogfileAndNotify("addOrUpdateOrganization",
                                         Organization.ToJSON(),
                                         CurrentUserId);
 
@@ -7359,7 +7479,7 @@ namespace org.GraphDefined.OpenData.Users
 
                 Organization.API = this;
 
-                WriteToLogfileAndNotify("UpdateOrganization",
+                WriteToLogfileAndNotify("updateOrganization",
                                         Organization.ToJSON(),
                                         CurrentUserId);
 
@@ -7370,6 +7490,7 @@ namespace org.GraphDefined.OpenData.Users
         }
 
         #endregion
+
 
 
         #region CreateOrganization           (Id, Name = null, Description = null, ParentOrganization = null)
@@ -7396,30 +7517,19 @@ namespace org.GraphDefined.OpenData.Users
                 if (_Organizations.ContainsKey(Id))
                     throw new ArgumentException("The given organization identification already exists!", nameof(Id));
 
-
-                var Organization = new Organization(Id,
-                                                    Name,
-                                                    Description,
-                                                    EMail,
-                                                    PublicKeyRing,
-                                                    Telephone,
-                                                    GeoLocation,
-                                                    Address,
-                                                    Tags,
-                                                    PrivacyLevel,
-                                                    IsDisabled,
-                                                    DataSource);
-
-                WriteToLogfileAndNotify("CreateOrganization",
-                                        Organization.ToJSON(),
-                                        CurrentUserId);
-
-                var NewOrg = _Organizations.AddAndReturnValue(Organization.Id, Organization);
-
-                if (ParentOrganization != null)
-                    LinkOrganizations(NewOrg, Organization2OrganizationEdges.IsChildOf, ParentOrganization, CurrentUserId: CurrentUserId);
-
-                return NewOrg;
+                return Add(new Organization(Id,
+                                            Name,
+                                            Description,
+                                            EMail,
+                                            PublicKeyRing,
+                                            Telephone,
+                                            GeoLocation,
+                                            Address,
+                                            Tags,
+                                            PrivacyLevel,
+                                            IsDisabled,
+                                            DataSource),
+                           ParentOrganization);
 
             }
 
