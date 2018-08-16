@@ -4940,7 +4940,8 @@ namespace org.GraphDefined.OpenData.Users
                                                      var _NewChildOrganization = CreateOrganization(NewChildOrganization.Id,
                                                                                                     NewChildOrganization.Name,
                                                                                                     NewChildOrganization.Description,
-                                                                                                    ParentOrganization: ParentOrganization);
+                                                                                                    ParentOrganization:  ParentOrganization,
+                                                                                                    CurrentUserId:       HTTPUser.Id);
 
                                                      foreach (var admin in Admins)
                                                          AddToOrganization(admin, User2OrganizationEdges.IsAdmin, _NewChildOrganization);
