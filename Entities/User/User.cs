@@ -644,14 +644,14 @@ namespace org.GraphDefined.OpenData.Users
                                            Where (edge => edge.EdgeLabel == User2GroupEdges.IsAdmin ||
                                                           edge.EdgeLabel == User2GroupEdges.IsMember).
                                            Select(edge => edge.Target).
-                                           ToHashSet()
+                                           ToList()
 
                                      : _User2Group_OutEdges.
                                            Where (edge => edge.EdgeLabel == User2GroupEdges.IsAdmin  ||
                                                           edge.EdgeLabel == User2GroupEdges.IsMember ||
                                                           edge.EdgeLabel == User2GroupEdges.IsVisitor).
                                            Select(edge => edge.Target).
-                                           ToHashSet();
+                                           ToList();
 
             //if (Recursive)
             //{
@@ -675,7 +675,7 @@ namespace org.GraphDefined.OpenData.Users
 
             //}
 
-            return _Groups;
+            return new HashSet<Group>(_Groups);
 
         }
 

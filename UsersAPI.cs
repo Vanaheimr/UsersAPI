@@ -5494,6 +5494,153 @@ namespace org.GraphDefined.OpenData.Users
 
                 #endregion
 
+                #region AddIfNotExistsOrganization
+
+                case "addOrganization":
+
+                    if (Organization.TryParseJSON(JSONObject,
+                                                  out _Organization,
+                                                  out ErrorResponse))
+                    {
+
+                        if (!_Organizations.ContainsKey(_Organization.Id))
+                        {
+                            _Organization.API = this;
+                            _Organizations.Add(_Organization.Id, _Organization);
+                        }
+
+                        else
+                            DebugX.Log("Organization '" + _Organization.Id + "' already exists!");
+
+                    }
+
+                    else
+                        DebugX.Log(String.Concat(nameof(UsersAPI), " ", Command, ": ", ErrorResponse));
+
+                    break;
+
+                #endregion
+
+                #region AddIfNotExistsOrganization
+
+                case "addIfNotExistsOrganization":
+
+                    if (Organization.TryParseJSON(JSONObject,
+                                                  out _Organization,
+                                                  out ErrorResponse))
+                    {
+
+                        if (!_Organizations.ContainsKey(_Organization.Id))
+                        {
+                            _Organization.API = this;
+                            _Organizations.AddAndReturnValue(_Organization.Id, _Organization);
+                        }
+
+                    }
+
+                    else
+                        DebugX.Log(String.Concat(nameof(UsersAPI), " ", Command, ": ", ErrorResponse));
+
+                    break;
+
+                #endregion
+
+                #region AddOrUpdateOrganization
+
+                case "addOrUpdateOrganization":
+
+                    if (Organization.TryParseJSON(JSONObject,
+                                                  out _Organization,
+                                                  out ErrorResponse))
+                    {
+
+
+                        if (_Organizations.TryGetValue(_Organization.Id, out Organization OldOrganization))
+                        {
+                            _Organizations.Remove(OldOrganization.Id);
+                            _Organization.API = this;
+                            //OldOrganization.CopyAllEdgesTo(_Organization);
+                        }
+
+                        _Organizations.Add(_Organization.Id, _Organization);
+
+                    }
+
+                    else
+                        DebugX.Log(String.Concat(nameof(UsersAPI), " ", Command, ": ", ErrorResponse));
+
+                    break;
+
+                #endregion
+
+                #region UpdateOrganization
+
+                case "updateOrganization":
+
+                    if (Organization.TryParseJSON(JSONObject,
+                                                  out _Organization,
+                                                  out ErrorResponse))
+                    {
+
+                        if (_Organizations.TryGetValue(_Organization.Id, out Organization OldOrganization))
+                        {
+
+                            _Organizations.Remove(OldOrganization.Id);
+                            _Organization.API = this;
+                            //OldOrganization.CopyAllEdgesTo(_Organization);
+
+                            _Organizations.Add(_Organization.Id, _Organization);
+
+                        }
+
+                    }
+
+                    else
+                        DebugX.Log(String.Concat(nameof(UsersAPI), " ", Command, ": ", ErrorResponse));
+
+                    break;
+
+                #endregion
+
+                #region RemoveOrganization
+
+                case "removeOrganization":
+
+                    if (Organization.TryParseJSON(JSONObject,
+                                                  out _Organization,
+                                                  out ErrorResponse))
+                    {
+                        _Organizations.Remove(_Organization.Id);
+                    }
+
+                    else
+                        DebugX.Log(String.Concat(nameof(UsersAPI), " ", Command, ": ", ErrorResponse));
+
+                    break;
+
+                #endregion
+
+                #region RemoveOrganizationId
+
+                case "removeOrganizationId":
+
+                    if (JSONObject.ParseOptional("@id",
+                                                 "Organization identification to remove",
+                                                 Organization_Id.TryParse,
+                                                 out Organization_Id OrganizationId,
+                                                 out ErrorResponse))
+                    {
+                        _Organizations.Remove(OrganizationId);
+                    }
+
+                    else
+                        DebugX.Log(String.Concat(nameof(UsersAPI), " ", Command, ": ", ErrorResponse));
+
+                    break;
+
+                #endregion
+
+
                 #region LinkOrganizations
 
                 case "LinkOrganizations":
@@ -7221,7 +7368,7 @@ namespace org.GraphDefined.OpenData.Users
 
                 Organization.API = this;
 
-                WriteToLogfileAndNotify("AddOrganization",
+                WriteToLogfileAndNotify("addOrganization",
                                         Organization.ToJSON(),
                                         CurrentUserId);
 
@@ -7265,7 +7412,7 @@ namespace org.GraphDefined.OpenData.Users
 
                 Organization.API = this;
 
-                WriteToLogfileAndNotify("AddIfNotExistsOrganization",
+                WriteToLogfileAndNotify("addIfNotExistsOrganization",
                                         Organization.ToJSON(),
                                         CurrentUserId);
 
@@ -7311,7 +7458,7 @@ namespace org.GraphDefined.OpenData.Users
 
                 Organization.API = this;
 
-                WriteToLogfileAndNotify("AddOrUpdateOrganization",
+                WriteToLogfileAndNotify("addOrUpdateOrganization",
                                         Organization.ToJSON(),
                                         CurrentUserId);
 
@@ -7360,11 +7507,48 @@ namespace org.GraphDefined.OpenData.Users
 
                 Organization.API = this;
 
-                WriteToLogfileAndNotify("UpdateOrganization",
+                WriteToLogfileAndNotify("updateOrganization",
                                         Organization.ToJSON(),
                                         CurrentUserId);
 
                 return _Organizations.AddAndReturnValue(Organization.Id, Organization);
+
+            }
+
+        }
+
+        #endregion
+
+        #region Remove        (OrganizationId, CurrentUserId = null)
+
+        /// <summary>
+        /// Remove the given organization from this API.
+        /// </summary>
+        /// <param name="OrganizationId">The unique identification of the organization.</param>
+        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
+        public Organization Remove(Organization_Id  OrganizationId,
+                                   User_Id?         CurrentUserId  = null)
+        {
+
+            lock (_Organizations)
+            {
+
+                if (_Organizations.TryGetValue(OrganizationId, out Organization Organization))
+                {
+
+                    WriteToLogfileAndNotify("removeOrganization",
+                                            Organization.ToJSON(),
+                                            CurrentUserId);
+
+                    _Organizations.Remove(OrganizationId);
+
+                    Organization.API = null;
+
+                    return Organization;
+
+                }
+
+                return null;
 
             }
 
@@ -7397,30 +7581,19 @@ namespace org.GraphDefined.OpenData.Users
                 if (_Organizations.ContainsKey(Id))
                     throw new ArgumentException("The given organization identification already exists!", nameof(Id));
 
-
-                var Organization = new Organization(Id,
-                                                    Name,
-                                                    Description,
-                                                    EMail,
-                                                    PublicKeyRing,
-                                                    Telephone,
-                                                    GeoLocation,
-                                                    Address,
-                                                    Tags,
-                                                    PrivacyLevel,
-                                                    IsDisabled,
-                                                    DataSource);
-
-                WriteToLogfileAndNotify("CreateOrganization",
-                                        Organization.ToJSON(),
-                                        CurrentUserId);
-
-                var NewOrg = _Organizations.AddAndReturnValue(Organization.Id, Organization);
-
-                if (ParentOrganization != null)
-                    LinkOrganizations(NewOrg, Organization2OrganizationEdges.IsChildOf, ParentOrganization, CurrentUserId: CurrentUserId);
-
-                return NewOrg;
+                return Add(new Organization(Id,
+                                            Name,
+                                            Description,
+                                            EMail,
+                                            PublicKeyRing,
+                                            Telephone,
+                                            GeoLocation,
+                                            Address,
+                                            Tags,
+                                            PrivacyLevel,
+                                            IsDisabled,
+                                            DataSource),
+                           ParentOrganization);
 
             }
 
@@ -7694,85 +7867,6 @@ namespace org.GraphDefined.OpenData.Users
             lock (_Organizations)
             {
                 return _Organizations.TryGetValue(OrganizationId, out Organization);
-            }
-
-        }
-
-        #endregion
-
-
-        #region Remove        (OrganizationId, CurrentUserId = null)
-
-        /// <summary>
-        /// Remove the given organization from this API.
-        /// </summary>
-        /// <param name="OrganizationId">The unique identification of the organization.</param>
-        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
-        public Organization Remove(Organization_Id  OrganizationId,
-                            User_Id?  CurrentUserId  = null)
-        {
-
-            lock (_Organizations)
-            {
-
-                if (_Organizations.TryGetValue(OrganizationId, out Organization Organization))
-                {
-
-                    WriteToLogfileAndNotify("RemoveOrganization",
-                                            Organization.ToJSON(),
-                                            
-                                            CurrentUserId);
-
-                    _Organizations.Remove(OrganizationId);
-
-                    Organization.API = null;
-
-                    return Organization;
-
-                }
-
-                return null;
-
-            }
-
-        }
-
-        #endregion
-
-        #region TryRemove     (OrganizationId, out Organization, CurrentUserId = null)
-
-        /// <summary>
-        /// Try to remove the given organization from this API.
-        /// </summary>
-        /// <param name="OrganizationId">The unique identification of the organization.</param>
-        /// <param name="Organization">The removed organization.</param>
-        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
-        public Boolean TryRemove(Organization_Id   OrganizationId,
-                                 out Organization  Organization,
-                                 User_Id?   CurrentUserId = null)
-        {
-
-            lock (_Organizations)
-            {
-
-                if (_Organizations.TryGetValue(OrganizationId, out Organization))
-                {
-
-                    WriteToLogfileAndNotify("TryRemoveOrganization",
-                                            Organization.ToJSON(),
-                                            
-                                            CurrentUserId);
-
-                    _Organizations.Remove(OrganizationId);
-
-                    Organization.API = null;
-
-                    return true;
-
-                }
-
-                return false;
-
             }
 
         }
