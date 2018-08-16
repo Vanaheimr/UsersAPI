@@ -7491,6 +7491,42 @@ namespace org.GraphDefined.OpenData.Users
 
         #endregion
 
+        #region Remove        (OrganizationId, CurrentUserId = null)
+
+        /// <summary>
+        /// Remove the given organization from this API.
+        /// </summary>
+        /// <param name="OrganizationId">The unique identification of the organization.</param>
+        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
+        public Organization Remove(Organization_Id  OrganizationId,
+                                   User_Id?         CurrentUserId  = null)
+        {
+
+            lock (_Organizations)
+            {
+
+                if (_Organizations.TryGetValue(OrganizationId, out Organization Organization))
+                {
+
+                    WriteToLogfileAndNotify("removeOrganization",
+                                            Organization.ToJSON(),
+                                            CurrentUserId);
+
+                    _Organizations.Remove(OrganizationId);
+
+                    Organization.API = null;
+
+                    return Organization;
+
+                }
+
+                return null;
+
+            }
+
+        }
+
+        #endregion
 
 
         #region CreateOrganization           (Id, Name = null, Description = null, ParentOrganization = null)
@@ -7803,85 +7839,6 @@ namespace org.GraphDefined.OpenData.Users
             lock (_Organizations)
             {
                 return _Organizations.TryGetValue(OrganizationId, out Organization);
-            }
-
-        }
-
-        #endregion
-
-
-        #region Remove        (OrganizationId, CurrentUserId = null)
-
-        /// <summary>
-        /// Remove the given organization from this API.
-        /// </summary>
-        /// <param name="OrganizationId">The unique identification of the organization.</param>
-        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
-        public Organization Remove(Organization_Id  OrganizationId,
-                            User_Id?  CurrentUserId  = null)
-        {
-
-            lock (_Organizations)
-            {
-
-                if (_Organizations.TryGetValue(OrganizationId, out Organization Organization))
-                {
-
-                    WriteToLogfileAndNotify("RemoveOrganization",
-                                            Organization.ToJSON(),
-                                            
-                                            CurrentUserId);
-
-                    _Organizations.Remove(OrganizationId);
-
-                    Organization.API = null;
-
-                    return Organization;
-
-                }
-
-                return null;
-
-            }
-
-        }
-
-        #endregion
-
-        #region TryRemove     (OrganizationId, out Organization, CurrentUserId = null)
-
-        /// <summary>
-        /// Try to remove the given organization from this API.
-        /// </summary>
-        /// <param name="OrganizationId">The unique identification of the organization.</param>
-        /// <param name="Organization">The removed organization.</param>
-        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
-        public Boolean TryRemove(Organization_Id   OrganizationId,
-                                 out Organization  Organization,
-                                 User_Id?   CurrentUserId = null)
-        {
-
-            lock (_Organizations)
-            {
-
-                if (_Organizations.TryGetValue(OrganizationId, out Organization))
-                {
-
-                    WriteToLogfileAndNotify("TryRemoveOrganization",
-                                            Organization.ToJSON(),
-                                            
-                                            CurrentUserId);
-
-                    _Organizations.Remove(OrganizationId);
-
-                    Organization.API = null;
-
-                    return true;
-
-                }
-
-                return false;
-
             }
 
         }
