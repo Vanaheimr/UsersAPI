@@ -5495,6 +5495,33 @@ namespace org.GraphDefined.OpenData.Users
 
                 #region AddIfNotExistsOrganization
 
+                case "addOrganization":
+
+                    if (Organization.TryParseJSON(JSONObject,
+                                                  out _Organization,
+                                                  out ErrorResponse))
+                    {
+
+                        if (!_Organizations.ContainsKey(_Organization.Id))
+                        {
+                            _Organization.API = this;
+                            _Organizations.Add(_Organization.Id, _Organization);
+                        }
+
+                        else
+                            DebugX.Log("Organization '" + _Organization.Id + "' already exists!");
+
+                    }
+
+                    else
+                        DebugX.Log(String.Concat(nameof(UsersAPI), " ", Command, ": ", ErrorResponse));
+
+                    break;
+
+                #endregion
+
+                #region AddIfNotExistsOrganization
+
                 case "addIfNotExistsOrganization":
 
                     if (Organization.TryParseJSON(JSONObject,
