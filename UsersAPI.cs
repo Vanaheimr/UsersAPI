@@ -46,6 +46,7 @@ using org.GraphDefined.Vanaheimr.Aegir;
 using org.GraphDefined.Vanaheimr.Warden;
 
 using SMSApi.Api;
+using org.GraphDefined.OpenData.Notifications;
 
 #endregion
 
@@ -680,10 +681,12 @@ namespace org.GraphDefined.OpenData.Users
 
         public static readonly Regex JSONWhitespaceRegEx = new Regex(@"(\s)+", RegexOptions.IgnorePatternWhitespace);
 
-        protected readonly Notifications _Notifications;
-
-
         public static Organization NoOwner;
+
+        private readonly Queue<NotificationMessage> _NotificationMessages;
+
+        public IEnumerable<NotificationMessage> NotificationMessages
+            => _NotificationMessages;
 
         #endregion
 
@@ -1458,7 +1461,8 @@ namespace org.GraphDefined.OpenData.Users
             this.LogfileName                  = LogfileName ?? DefaultLogfileName;
 
             this._APIKeys                     = new Dictionary<APIKey, APIKeyInfo>();
-            this._Notifications               = new Notifications();
+
+            this._NotificationMessages        = new Queue<NotificationMessage>();
 
             #endregion
 
@@ -1484,9 +1488,6 @@ namespace org.GraphDefined.OpenData.Users
             #endregion
 
             ReadDatabaseFiles();
-
-            _Notifications.OnAdded   += (Timestamp, User, NotificationId, NotificationType) => WriteToLogfileAndNotify("AddNotification",    NotificationType.ToJSON(User, NotificationId), CurrentUserId: Robot.Id);
-            _Notifications.OnRemoved += (Timestamp, User, NotificationId, NotificationType) => WriteToLogfileAndNotify("RemoveNotification", NotificationType.ToJSON(User, NotificationId), CurrentUserId: Robot.Id);
 
             NoOwner = CreateOrganizationIfNotExists(Organization_Id.Parse("NoOwner"), CurrentUserId: Robot.Id);
 
@@ -1656,12 +1657,10 @@ namespace org.GraphDefined.OpenData.Users
                     return (Organization,
                             Embedded,
                             ExpandTags,
-                            ExpandDataLicenses,
                             IncludeCryptoHash)
 
                             => Organization.ToJSON(Embedded,
                                                    ExpandTags,
-                                                   ExpandDataLicenses,
                                                    IncludeCryptoHash);
 
             }
@@ -2584,7 +2583,7 @@ namespace org.GraphDefined.OpenData.Users
                                              foreach (var userId in _PasswordReset.UserIds)
                                              {
 
-                                                 WriteToLogfileAndNotify("ResetPassword",
+                                                 WriteToLogfileAndNotify(NotificationMessageType.Parse("resetPassword"),
                                                                          JSONObject.Create(
 
                                                                              new JProperty("login",                 userId.ToString()),
@@ -2601,6 +2600,7 @@ namespace org.GraphDefined.OpenData.Users
                                                                                  : null
 
                                                                          ),
+                                                                         NoOwner,
                                                                          DefaultPasswordFile,
                                                                          Robot.Id);
 
@@ -4078,8 +4078,6 @@ namespace org.GraphDefined.OpenData.Users
 
                                              #endregion
 
-                                             var __Notifications = _Notifications.GetNotifications(HTTPUser);
-
                                              return Task.FromResult(new HTTPResponse.Builder(Request) {
                                                         HTTPStatusCode             = HTTPStatusCode.OK,
                                                         Server                     = HTTPServer.DefaultServerName,
@@ -4089,21 +4087,7 @@ namespace org.GraphDefined.OpenData.Users
                                                         AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
                                                         ETag                       = "1",
                                                         ContentType                = HTTPContentType.JSON_UTF8,
-                                                        Content                    = JSONObject.Create(
-
-                                                                                         new JProperty("general",  JSONArray.Create(
-                                                                                             __Notifications?.NotificationTypes.SafeSelect(_ => _.GetAsJSON(new JObject())).ToArray()
-                                                                                         )),
-
-                                                                                         new JProperty("messages", JSONObject.Create(
-
-                                                                                             __Notifications?.NotificationIds.SafeSelect(_ => new JProperty(_.Key.ToString(), new JArray(
-                                                                                                                                                 _.Value.Select(__ => __.GetAsJSON(new JObject()))
-                                                                                                                                         ))).ToArray()
-
-                                                                                         ))
-
-                                                                                     ).ToUTF8Bytes(),
+                                                        Content                    = HTTPUser.GetNotificationInfos().ToUTF8Bytes(),
                                                         Connection                 = "close"
                                                     }.AsImmutable);
 
@@ -4532,7 +4516,6 @@ namespace org.GraphDefined.OpenData.Users
 
                                              var expand                  = Request.QueryString.GetStrings("expand", true);
                                              var expandTags              = expand.Contains("tags")         ? InfoStatus.Expand : InfoStatus.ShowIdOnly;
-                                             var expandDataLicenses      = expand.Contains("dataLicenses") ? InfoStatus.Expand : InfoStatus.ShowIdOnly;
 
 
                                              //ToDo: Getting the expected total count might be very expensive!
@@ -4557,7 +4540,6 @@ namespace org.GraphDefined.OpenData.Users
                                                                                                take,
                                                                                                false, //Embedded
                                                                                                expandTags,
-                                                                                               expandDataLicenses,
                                                                                                GetOrganizationSerializator(HTTPUser),
                                                                                                includeCryptoHash).
                                                                                         ToUTF8Bytes(),
@@ -5708,58 +5690,60 @@ namespace org.GraphDefined.OpenData.Users
                         JSONObject["type"  ]?.Value<String>().IsNotNullOrEmpty() == true)
                     {
 
-                        var UserId  = User_Id.Parse(JSONObject["userId"]?.Value<String>());
+                        if (User_Id.TryParse(JSONObject["userId"]?.Value<String>(), out User_Id UserId) &&
+                            TryGetUser(UserId, out User User))
+                        {
 
-                        if (JSONObject["notificationId"]?.Value<String>().IsNotNullOrEmpty() == true)
-                            switch (JSONObject["type"]?.Value<String>())
+                            if (JSONObject["notificationId"]?.Value<String>().IsNotNullOrEmpty() == true)
                             {
+                                switch (JSONObject["type"]?.Value<String>())
+                                {
 
-                                case "EMailNotification":
-                                    RegisterNotification(UserId,
-                                                         Notification_Id.Parse(JSONObject["notificationId"]?.Value<String>()),
-                                                         EMailNotification.Parse(JSONObject),
-                                                         (a, b) => a.EMailAddress == b.EMailAddress);
-                                    break;
+                                    case "EMailNotification":
+                                        AddNotification(User,
+                                                        EMailNotification.Parse(JSONObject),
+                                                        NotificationMessageType.Parse(JSONObject["notificationId"]?.Value<String>()));
+                                        break;
 
-                                case "SMSNotification":
-                                    RegisterNotification(UserId,
-                                                         Notification_Id.Parse(JSONObject["notificationId"]?.Value<String>()),
-                                                         SMSNotification.Parse(JSONObject),
-                                                         (a, b) => a.Phonenumber == b.Phonenumber);
-                                    break;
+                                    case "SMSNotification":
+                                        AddNotification(User,
+                                                        SMSNotification.Parse(JSONObject),
+                                                        NotificationMessageType.Parse(JSONObject["notificationId"]?.Value<String>()));
+                                        break;
 
-                                case "HTTPSNotification":
-                                    RegisterNotification(UserId,
-                                                         Notification_Id.Parse(JSONObject["notificationId"]?.Value<String>()),
-                                                         HTTPSNotification.Parse(JSONObject),
-                                                         (a, b) => a.URL == b.URL);
-                                    break;
+                                    case "HTTPSNotification":
+                                        AddNotification(User,
+                                                        HTTPSNotification.Parse(JSONObject),
+                                                        NotificationMessageType.Parse(JSONObject["notificationId"]?.Value<String>()));
+                                        break;
 
+                                }
                             }
 
-                        else
-                            switch (JSONObject["type"]?.Value<String>())
+                            else
                             {
+                                switch (JSONObject["type"]?.Value<String>())
+                                {
 
-                                case "EMailNotification":
-                                    RegisterNotification(UserId,
-                                                         EMailNotification.Parse(JSONObject),
-                                                         (a, b) => a.EMailAddress == b.EMailAddress);
-                                    break;
+                                    case "EMailNotification":
+                                        AddNotification(User,
+                                                        EMailNotification.Parse(JSONObject));
+                                        break;
 
-                                case "SMSNotification":
-                                    RegisterNotification(UserId,
-                                                         SMSNotification.Parse(JSONObject),
-                                                         (a, b) => a.Phonenumber == b.Phonenumber);
-                                    break;
+                                    case "SMSNotification":
+                                        AddNotification(User,
+                                                        SMSNotification.Parse(JSONObject));
+                                        break;
 
-                                case "HTTPSNotification":
-                                    RegisterNotification(UserId,
-                                                         HTTPSNotification.Parse(JSONObject),
-                                                         (a, b) => a.URL == b.URL);
-                                    break;
+                                    case "HTTPSNotification":
+                                        AddNotification(User,
+                                                        HTTPSNotification.Parse(JSONObject));
+                                        break;
 
+                                }
                             }
+
+                        }
 
                     }
 
@@ -5771,48 +5755,55 @@ namespace org.GraphDefined.OpenData.Users
 
                 case "RemoveNotification":
 
-                    if (JSONObject["userId"]?.Value<String>().IsNotNullOrEmpty() == true &&
-                        JSONObject["type"  ]?.Value<String>().IsNotNullOrEmpty() == true)
-                    {
+                    //if (JSONObject["userId"]?.Value<String>().IsNotNullOrEmpty() == true &&
+                    //    JSONObject["type"  ]?.Value<String>().IsNotNullOrEmpty() == true)
+                    //{
 
-                        var UserId  = User_Id.Parse(JSONObject["userId"]?.Value<String>());
+                    //    if (User_Id.TryParse(JSONObject["userId"]?.Value<String>(), out User_Id UserId) &&
+                    //        TryGetUser(UserId, out User User))
+                    //    {
 
-                        if (JSONObject["notificationId"]?.Value<String>().IsNotNullOrEmpty() == true)
-                            switch (JSONObject["type"]?.Value<String>())
-                            {
+                    //        if (JSONObject["notificationId"]?.Value<String>().IsNotNullOrEmpty() == true)
+                    //        {
+                    //            switch (JSONObject["type"]?.Value<String>())
+                    //            {
 
-                                case "EMailNotification":
-                                    UnregisterNotification<EMailNotification>(UserId,
-                                                                              Notification_Id.Parse(JSONObject["notificationId"]?.Value<String>()),
-                                                                              a => a.EMailAddress == EMailNotification.Parse(JSONObject).EMailAddress);
-                                    break;
+                    //                case "EMailNotification":
+                    //                    UnregisterNotification<EMailNotification>(UserId,
+                    //                                                              NotificationMessageType.Parse(JSONObject["notificationId"]?.Value<String>()),
+                    //                                                              a => a.EMailAddress == EMailNotification.Parse(JSONObject).EMailAddress);
+                    //                    break;
 
-                                case "SMSNotification":
-                                    UnregisterNotification<SMSNotification>  (UserId,
-                                                                              Notification_Id.Parse(JSONObject["notificationId"]?.Value<String>()),
-                                                                              a => a.Phonenumber  == SMSNotification.  Parse(JSONObject).Phonenumber);
-                                    break;
+                    //                case "SMSNotification":
+                    //                    UnregisterNotification<SMSNotification>  (UserId,
+                    //                                                              NotificationMessageType.Parse(JSONObject["notificationId"]?.Value<String>()),
+                    //                                                              a => a.Phonenumber  == SMSNotification.  Parse(JSONObject).Phonenumber);
+                    //                    break;
 
-                            }
+                    //            }
+                    //        }
 
-                        else
-                            switch (JSONObject["type"]?.Value<String>())
-                            {
+                    //        else
+                    //        {
+                    //            switch (JSONObject["type"]?.Value<String>())
+                    //            {
 
-                                case "EMailNotification":
-                                    UnregisterNotification<EMailNotification>(UserId,
-                                                                              a => a.EMailAddress == EMailNotification.Parse(JSONObject).EMailAddress);
-                                    break;
+                    //                case "EMailNotification":
+                    //                    UnregisterNotification<EMailNotification>(UserId,
+                    //                                                              a => a.EMailAddress == EMailNotification.Parse(JSONObject).EMailAddress);
+                    //                    break;
 
-                                case "SMSNotification":
-                                    UnregisterNotification<SMSNotification>  (UserId,
-                                                                              a => a.Phonenumber  == SMSNotification.  Parse(JSONObject).Phonenumber);
-                                    break;
+                    //                case "SMSNotification":
+                    //                    UnregisterNotification<SMSNotification>  (UserId,
+                    //                                                              a => a.Phonenumber  == SMSNotification.  Parse(JSONObject).Phonenumber);
+                    //                    break;
 
-                            }
+                    //            }
+                    //        }
 
+                    //    }
 
-                    }
+                    //}
 
                     break;
 
@@ -6102,37 +6093,56 @@ namespace org.GraphDefined.OpenData.Users
         #endregion
 
 
-        #region WriteToLogfileAndNotify(MessageId, JSONData, Logfilename = DefaultUsersAPIFile)
+        #region WriteToLogfileAndNotify(MessageType, JSONData, Logfilename = DefaultUsersAPIFile)
 
-        public void WriteToLogfileAndNotify(String    MessageId,
-                                            JObject   JSONData,
-                                            User_Id?  CurrentUserId)
+        public void WriteToLogfileAndNotify(NotificationMessageType  MessageType,
+                                            JObject                  JSONData,
+                                            Organization             Owner,
+                                            User_Id?                 CurrentUserId)
         {
 
-            WriteToLogfileAndNotify(MessageId,
+            WriteToLogfileAndNotify(MessageType,
                                     JSONData,
+                                    Owner != null ? new Organization[] { Owner } : new Organization[0],
                                     DefaultUsersAPIFile,
                                     CurrentUserId);
 
         }
 
-        public void WriteToLogfileAndNotify(String    MessageId,
-                                            JObject   JSONData,
-                                            String    Logfilename    = DefaultUsersAPIFile,
-                                            User_Id?  CurrentUserId  = null)
+        public void WriteToLogfileAndNotify(NotificationMessageType    MessageType,
+                                            JObject                    JSONData,
+                                            IEnumerable<Organization>  Owners,
+                                            User_Id?                   CurrentUserId)
         {
 
-            #region Initial checks
+            WriteToLogfileAndNotify(MessageType,
+                                    JSONData,
+                                    Owners,
+                                    DefaultUsersAPIFile,
+                                    CurrentUserId);
 
-            if (MessageId != null)
-                MessageId = MessageId.Trim();
+        }
 
-            if (MessageId.IsNullOrEmpty())
-                throw new ArgumentNullException(nameof(MessageId), "The given logfile message identification must not be null or empty!");
+        public void WriteToLogfileAndNotify(NotificationMessageType  MessageType,
+                                            JObject                  JSONData,
+                                            Organization             Owner,
+                                            String                   Logfilename    = DefaultUsersAPIFile,
+                                            User_Id?                 CurrentUserId  = null)
 
-            #endregion
+            => WriteToLogfileAndNotify(MessageType,
+                                       JSONData,
+                                       Owner != null ? new Organization[] { Owner } : new Organization[0],
+                                       Logfilename,
+                                       CurrentUserId);
 
-            if (!DisableLogfile)
+        public void WriteToLogfileAndNotify(NotificationMessageType    MessageType,
+                                            JObject                    JSONData,
+                                            IEnumerable<Organization>  Owners,
+                                            String                     Logfilename    = DefaultUsersAPIFile,
+                                            User_Id?                   CurrentUserId  = null)
+        {
+
+            if (!DisableLogfile || !DisableNotifications)
             {
                 lock (DefaultUsersAPIFile)
                 {
@@ -6140,13 +6150,13 @@ namespace org.GraphDefined.OpenData.Users
                     var Now          = DateTime.UtcNow;
 
                     var JSONMessage  = new JObject(
-                                           new JProperty(MessageId,     JSONData),
-                                           new JProperty("userId",      (CurrentUserId ?? CurrentAsyncLocalUserId.Value ?? Robot.Id).ToString()),
-                                           new JProperty("systemId",    SystemId.ToString()),
-                                           new JProperty("timestamp",   Now.ToIso8601()),
-                                           new JProperty("sha256hash",  new JObject(
-                                               new JProperty("nonce",       Guid.NewGuid().ToString().Replace("-", "")),
-                                               new JProperty("parentHash",  CurrentDatabaseHashValue)
+                                           new JProperty(MessageType.ToString(),  JSONData),
+                                           new JProperty("userId",                (CurrentUserId ?? CurrentAsyncLocalUserId.Value ?? Robot.Id).ToString()),
+                                           new JProperty("systemId",              SystemId.ToString()),
+                                           new JProperty("timestamp",             Now.ToIso8601()),
+                                           new JProperty("sha256hash",            new JObject(
+                                               new JProperty("nonce",                 Guid.NewGuid().ToString().Replace("-", "")),
+                                               new JProperty("parentHash",            CurrentDatabaseHashValue)
                                            ))
                                        );
 
@@ -6159,29 +6169,34 @@ namespace org.GraphDefined.OpenData.Users
 
                     #region Write to logfile
 
-                    var retry = false;
-
-                    do
+                    if (!DisableLogfile)
                     {
 
-                        try
+                        var retry = false;
+
+                        do
                         {
 
-                            File.AppendAllText(Logfilename,
-                                               JSONWhitespaceRegEx.Replace(JSONMessage.ToString(), " ") +
-                                               Environment.NewLine);
+                            try
+                            {
 
-                        }
-                        catch (IOException ioEx)
-                        {
-                            retry = false;
-                        }
-                        catch (Exception e)
-                        {
-                            retry = false;
-                        }
+                                File.AppendAllText(Logfilename,
+                                                   JSONWhitespaceRegEx.Replace(JSONMessage.ToString(), " ") +
+                                                   Environment.NewLine);
 
-                    } while(retry);
+                            }
+                            catch (IOException ioEx)
+                            {
+                                retry = false;
+                            }
+                            catch (Exception e)
+                            {
+                                retry = false;
+                            }
+
+                        } while (retry);
+
+                    }
 
                     #endregion
 
@@ -6191,7 +6206,10 @@ namespace org.GraphDefined.OpenData.Users
                     {
                         lock (_NotificationMessages)
                         {
-                            _NotificationMessages.Add(new Timestamped<JObject>(Now, JSONMessage));
+                            _NotificationMessages.Enqueue(new NotificationMessage(Now,
+                                                                                  MessageType,
+                                                                                  JSONMessage,
+                                                                                  Owners));
                         }
                     }
 
@@ -6248,49 +6266,28 @@ namespace org.GraphDefined.OpenData.Users
 
         #endregion
 
-        #region NotificationMessages
 
-        private readonly List<Timestamped<JObject>> _NotificationMessages = new List<Timestamped<JObject>>();
-
-        public IEnumerable<Timestamped<JObject>> NotificationMessages
-        {
-            get
-            {
-
-                if (DisableNotifications)
-                    return new Timestamped<JObject>[0];
-
-                lock (_NotificationMessages)
-                {
-                    return _NotificationMessages.ToArray();
-                }
-
-            }
-        }
-
-        #endregion
-
-        #region GetAndClearNotifications()
-
-        //public IEnumerable<JObject> GetAndClearNotifications()
+        //public void WriteToLogfileAndNotify(NotificationMessageType    MessageType,
+        //                                    JObject                    JSONData,
+        //                                    IEnumerable<Organization>  Owners,
+        //                                    String                     Logfilename    = DefaultUsersAPIFile,
+        //                                    User_Id?                   CurrentUserId  = null)
         //{
 
-        //    if (DisableNotifications)
-        //        return new JObject[0];
-
-        //    lock (_NotificationMessages)
+        //    if (!DisableNotifications)
         //    {
+        //        lock (_NotificationMessages)
+        //        {
 
-        //        var _Notifications = _NotificationMessages.ToArray();
-        //        _NotificationMessages.Clear();
+        //            _NotificationMessages.Enqueue(new NotificationMessage(DateTime.UtcNow,
+        //                                                                  MessageType,
+        //                                                                  JSONMessage,
+        //                                                                  Owners));
 
-        //        return _Notifications;
-
+        //        }
         //    }
 
         //}
-
-        #endregion
 
 
         #region AddEventSource(HTTPEventSourceId, URITemplate, IncludeFilterAtRuntime, ...)
@@ -6484,8 +6481,9 @@ namespace org.GraphDefined.OpenData.Users
                                                   Description,
                                                   URIs);
 
-                WriteToLogfileAndNotify("CreateDataLicense",
+                WriteToLogfileAndNotify(NotificationMessageType.Parse("createDataLicense"),
                                         DataLicense.ToJSON(),
+                                        NoOwner,
                                         Robot.Id);
 
                 return _DataLicenses.AddAndReturnValue(DataLicense.Id, DataLicense);
@@ -6642,8 +6640,9 @@ namespace org.GraphDefined.OpenData.Users
                                     IsAuthenticated,
                                     IsDisabled);
 
-                WriteToLogfileAndNotify("CreateUser",
+                WriteToLogfileAndNotify(NotificationMessageType.Parse("createUser"),
                                         User.ToJSON(),
+                                        NoOwner,
                                         CurrentUserId);
 
                 if (Password.HasValue)
@@ -6741,8 +6740,9 @@ namespace org.GraphDefined.OpenData.Users
                 if (User.API != null && User.API != this)
                     throw new ArgumentException(nameof(User), "The given user is already attached to another API!");
 
-                WriteToLogfileAndNotify("addOrUpdateUser",
+                WriteToLogfileAndNotify(NotificationMessageType.Parse("addOrUpdateUser"),
                                         User.ToJSON(),
+                                        NoOwner,
                                         CurrentUserId);
 
                 User.API = this;
@@ -6782,8 +6782,9 @@ namespace org.GraphDefined.OpenData.Users
                     throw new Exception("User '" + User.Id + "' does not exists in this API!");
 
 
-                WriteToLogfileAndNotify("updateUser",
+                WriteToLogfileAndNotify(NotificationMessageType.Parse("updateUser"),
                                         User.ToJSON(),
+                                        NoOwner,
                                         CurrentUserId);
 
                 User.API = this;
@@ -6841,7 +6842,7 @@ namespace org.GraphDefined.OpenData.Users
                 if (!_LoginPasswords.TryGetValue(Login, out LoginPassword _LoginPassword))
                 {
 
-                    WriteToLogfileAndNotify("AddPassword",
+                    WriteToLogfileAndNotify(NotificationMessageType.Parse("addPassword"),
                                             new JObject(
                                                 new JProperty("login",         Login.ToString()),
                                                 new JProperty("newPassword", new JObject(
@@ -6849,6 +6850,7 @@ namespace org.GraphDefined.OpenData.Users
                                                     new JProperty("passwordHash",  NewPassword.UnsecureString)
                                                 ))
                                             ),
+                                            NoOwner,
                                             DefaultPasswordFile,
                                             CurrentUserId);
 
@@ -6865,7 +6867,7 @@ namespace org.GraphDefined.OpenData.Users
                 else if (CurrentPassword.IsNotNullOrEmpty() && _LoginPassword.VerifyPassword(CurrentPassword))
                 {
 
-                    WriteToLogfileAndNotify("ChangePassword",
+                    WriteToLogfileAndNotify(NotificationMessageType.Parse("changePassword"),
                                             new JObject(
                                                 new JProperty("login",         Login.ToString()),
                                                 new JProperty("currentPassword", new JObject(
@@ -6877,6 +6879,7 @@ namespace org.GraphDefined.OpenData.Users
                                                     new JProperty("passwordHash",  NewPassword.UnsecureString)
                                                 ))
                                             ),
+                                            NoOwner,
                                             DefaultPasswordFile,
                                             CurrentUserId);
 
@@ -7016,8 +7019,9 @@ namespace org.GraphDefined.OpenData.Users
         public PasswordReset Add(PasswordReset passwordReset)
         {
 
-            WriteToLogfileAndNotify("Add",
+            WriteToLogfileAndNotify(NotificationMessageType.Parse("add"),
                                     passwordReset.ToJSON(),
+                                    NoOwner,
                                     DefaultPasswordResetsFile);
 
             this.PasswordResets.Add(passwordReset.SecurityToken1, passwordReset);
@@ -7033,8 +7037,9 @@ namespace org.GraphDefined.OpenData.Users
         public PasswordReset Remove(PasswordReset passwordReset)
         {
 
-            WriteToLogfileAndNotify("Remove",
+            WriteToLogfileAndNotify(NotificationMessageType.Parse("remove"),
                                     passwordReset.ToJSON(),
+                                    NoOwner,
                                     DefaultPasswordResetsFile);
 
             this.PasswordResets.Remove(passwordReset.SecurityToken1);
@@ -7142,8 +7147,9 @@ namespace org.GraphDefined.OpenData.Users
                 if (_APIKeys.ContainsKey(APIKey.APIKey))
                     return _APIKeys[APIKey.APIKey];
 
-                WriteToLogfileAndNotify("AddAPIKey",
+                WriteToLogfileAndNotify(NotificationMessageType.Parse("addAPIKey"),
                                         APIKey.ToJSON(true),
+                                        NoOwner,
                                         UserId);
 
                 return _APIKeys.AddAndReturnValue(APIKey.APIKey, APIKey);
@@ -7178,8 +7184,9 @@ namespace org.GraphDefined.OpenData.Users
                                       Description);
 
                 if (Group.Id.ToString() != AdminGroupName)
-                    WriteToLogfileAndNotify("CreateGroup",
+                    WriteToLogfileAndNotify(NotificationMessageType.Parse("createGroup"),
                                             Group.ToJSON(),
+                                            NoOwner,
                                             CurrentUserId);
 
                 return _Groups.AddAndReturnValue(Group.Id, Group);
@@ -7285,13 +7292,14 @@ namespace org.GraphDefined.OpenData.Users
                 if (!Group.Edges(Group).Any(edge => edge == Edge))
                     Group.AddIncomingEdge(User, Edge,  PrivacyLevel);
 
-                WriteToLogfileAndNotify("AddUserToGroup",
+                WriteToLogfileAndNotify(NotificationMessageType.Parse("addUserToGroup"),
                                         new JObject(
                                             new JProperty("user",     User.Id.ToString()),
                                             new JProperty("edge",     Edge.   ToString()),
                                             new JProperty("group",    Group.  ToString()),
                                             PrivacyLevel.ToJSON()
                                         ),
+                                        NoOwner,
                                         CurrentUserId);
 
                 return true;
@@ -7368,8 +7376,9 @@ namespace org.GraphDefined.OpenData.Users
 
                 Organization.API = this;
 
-                WriteToLogfileAndNotify("addOrganization",
+                WriteToLogfileAndNotify(NotificationMessageType.Parse("addOrganization"),
                                         Organization.ToJSON(),
+                                        NoOwner,
                                         CurrentUserId);
 
                 var NewOrg = _Organizations.AddAndReturnValue(Organization.Id, Organization);
@@ -7412,8 +7421,9 @@ namespace org.GraphDefined.OpenData.Users
 
                 Organization.API = this;
 
-                WriteToLogfileAndNotify("addIfNotExistsOrganization",
+                WriteToLogfileAndNotify(NotificationMessageType.Parse("addIfNotExistsOrganization"),
                                         Organization.ToJSON(),
+                                        NoOwner,
                                         CurrentUserId);
 
                 var NewOrg = _Organizations.AddAndReturnValue(Organization.Id, Organization);
@@ -7458,8 +7468,9 @@ namespace org.GraphDefined.OpenData.Users
 
                 Organization.API = this;
 
-                WriteToLogfileAndNotify("addOrUpdateOrganization",
+                WriteToLogfileAndNotify(NotificationMessageType.Parse("addOrUpdateOrganization"),
                                         Organization.ToJSON(),
+                                        Organization,
                                         CurrentUserId);
 
                 var NewOrg = _Organizations.AddAndReturnValue(Organization.Id, Organization);
@@ -7507,8 +7518,9 @@ namespace org.GraphDefined.OpenData.Users
 
                 Organization.API = this;
 
-                WriteToLogfileAndNotify("updateOrganization",
+                WriteToLogfileAndNotify(NotificationMessageType.Parse("updateOrganization"),
                                         Organization.ToJSON(),
+                                        Organization,
                                         CurrentUserId);
 
                 return _Organizations.AddAndReturnValue(Organization.Id, Organization);
@@ -7536,8 +7548,9 @@ namespace org.GraphDefined.OpenData.Users
                 if (_Organizations.TryGetValue(OrganizationId, out Organization Organization))
                 {
 
-                    WriteToLogfileAndNotify("removeOrganization",
+                    WriteToLogfileAndNotify(NotificationMessageType.Parse("removeOrganization"),
                                             Organization.ToJSON(),
+                                            Organization,
                                             CurrentUserId);
 
                     _Organizations.Remove(OrganizationId);
@@ -7664,13 +7677,14 @@ namespace org.GraphDefined.OpenData.Users
                 if (!Organization.User2OrganizationInEdgeLabels(User).Any(edgelabel => edgelabel == Edge))
                     Organization.LinkUser(User, Edge, PrivacyLevel);
 
-                WriteToLogfileAndNotify("AddUserToOrganization",
+                WriteToLogfileAndNotify(NotificationMessageType.Parse("addUserToOrganization"),
                                         new JObject(
                                             new JProperty("user",          User.        Id.ToString()),
                                             new JProperty("edge",          Edge.           ToString()),
                                             new JProperty("organization",  Organization.Id.ToString()),
                                             PrivacyLevel.ToJSON()
                                         ),
+                                        Organization,
                                         CurrentUserId);
 
                 return true;
@@ -7708,13 +7722,14 @@ namespace org.GraphDefined.OpenData.Users
                     OrganizationIn.AddInEdge(EdgeLabel, OrganizationOut, Privacy);
                 }
 
-                WriteToLogfileAndNotify("LinkOrganizations",
+                WriteToLogfileAndNotify(NotificationMessageType.Parse("linkOrganizations"),
                                         new JObject(
                                             new JProperty("organizationOut", OrganizationOut.Id.ToString()),
                                             new JProperty("edge",            EdgeLabel.         ToString()),
                                             new JProperty("organizationIn",  OrganizationIn. Id.ToString()),
                                             Privacy.ToJSON()
                                         ),
+                                        OrganizationOut,
                                         CurrentUserId);
 
                 return true;
@@ -7751,12 +7766,13 @@ namespace org.GraphDefined.OpenData.Users
                     OrganizationIn.RemoveInEdges(EdgeLabel, OrganizationOut);
                 }
 
-                WriteToLogfileAndNotify("UnlinkOrganizations",
+                WriteToLogfileAndNotify(NotificationMessageType.Parse("unlinkOrganizations"),
                                         new JObject(
                                             new JProperty("organizationOut", OrganizationOut.Id.ToString()),
                                             new JProperty("edge",            EdgeLabel.         ToString()),
                                             new JProperty("organizationIn",  OrganizationIn. Id.ToString())
                                         ),
+                                        new Organization[] { OrganizationOut, OrganizationIn },
                                         CurrentUserId);
 
                 return true;
@@ -7918,107 +7934,168 @@ namespace org.GraphDefined.OpenData.Users
 
         #region Notifications
 
-        public Notifications RegisterNotification<T>(User                 User,
-                                                     T                    NotificationType,
-                                                     Func<T, T, Boolean>  EqualityComparer)
+        #region AddNotification(User,   NotificationType)
 
-            where T : ANotificationType
+        public NotificationStore AddNotification<T>(User  User,
+                                                    T     NotificationType)
 
-            => _Notifications.Add(User,
-                                  NotificationType,
-                                  EqualityComparer);
+            where T : ANotification
 
-        public Notifications RegisterNotification<T>(User_Id              User,
-                                                     T                    NotificationType,
-                                                     Func<T, T, Boolean>  EqualityComparer)
+            => User.AddNotification(NotificationType);
 
-            where T : ANotificationType
+        #endregion
 
-            => _Notifications.Add(User,
-                                  NotificationType,
-                                  EqualityComparer);
+        #region AddNotification(UserId, NotificationType)
+
+        public NotificationStore AddNotification<T>(User_Id  UserId,
+                                                    T        NotificationType)
+
+            where T : ANotification
+
+            => TryGetUser(UserId, out User User)
+                   ? User.AddNotification(NotificationType)
+                   : null;
+
+        #endregion
+
+        #region AddNotification(User,   NotificationType, NotificationMessageType)
+
+        public NotificationStore AddNotification<T>(User                     User,
+                                                    T                        NotificationType,
+                                                    NotificationMessageType  NotificationMessageType)
+
+            where T : ANotification
+
+            => User.AddNotification(NotificationType,
+                                    NotificationMessageType);
+
+        #endregion
+
+        #region AddNotification(UserId, NotificationType, NotificationMessageType)
+
+        public NotificationStore AddNotification<T>(User_Id                  UserId,
+                                                    T                        NotificationType,
+                                                    NotificationMessageType  NotificationMessageType)
+
+            where T : ANotification
+
+            => TryGetUser(UserId, out User User)
+                   ? User.AddNotification(NotificationType,
+                                          NotificationMessageType)
+                   : null;
+
+        #endregion
+
+        #region AddNotification(User,   NotificationType, NotificationMessageTypes)
+
+        public NotificationStore AddNotification<T>(User                                  User,
+                                                    T                                     NotificationType,
+                                                    IEnumerable<NotificationMessageType>  NotificationMessageTypes)
+
+            where T : ANotification
+
+            => User.AddNotification(NotificationType,
+                                    NotificationMessageTypes);
+
+        #endregion
+
+        #region AddNotification(UserId, NotificationType, NotificationMessageTypes)
+
+        public NotificationStore AddNotification<T>(User_Id                               UserId,
+                                                    T                                     NotificationType,
+                                                    IEnumerable<NotificationMessageType>  NotificationMessageTypes)
+
+            where T : ANotification
+
+            => TryGetUser(UserId, out User User)
+                   ? User.AddNotification(NotificationType,
+                                          NotificationMessageTypes)
+                   : null;
+
+        #endregion
 
 
-        public Notifications RegisterNotification<T>(User                 User,
-                                                     Notification_Id      NotificationId,
-                                                     T                    NotificationType,
-                                                     Func<T, T, Boolean>  EqualityComparer)
+        #region GetNotifications  (User,   NotificationMessageType = null)
 
-            where T : ANotificationType
+        public IEnumerable<ANotification> GetNotifications(User                      User,
+                                                               NotificationMessageType?  NotificationMessageType = null)
 
-            => _Notifications.Add(User,
-                                  NotificationId,
-                                  NotificationType,
-                                  EqualityComparer);
+            => User.GetNotifications(NotificationMessageType);
 
-        public Notifications RegisterNotification<T>(User_Id              User,
-                                                     Notification_Id      NotificationId,
-                                                     T                    NotificationType,
-                                                     Func<T, T, Boolean>  EqualityComparer)
+        #endregion
 
-            where T : ANotificationType
+        #region GetNotifications  (UserId, NotificationMessageType = null)
 
-            => _Notifications.Add(User,
-                                  NotificationId,
-                                  NotificationType,
-                                  EqualityComparer);
+        public IEnumerable<ANotification> GetNotifications<T>(User_Id                   UserId,
+                                                                  NotificationMessageType?  NotificationMessageType = null)
 
+            => TryGetUser(UserId, out User User)
+                   ? User.GetNotifications(NotificationMessageType)
+                   : new ANotification[0];
 
+        #endregion
 
-        public IEnumerable<T> GetNotifications<T>(User             User,
-                                                  Notification_Id  NotificationId)
+        #region GetNotificationsOf(User,   NotificationMessageType = null)
 
-            where T : ANotificationType
+        public IEnumerable<T> GetNotificationsOf<T>(User                      User,
+                                                    NotificationMessageType?  NotificationMessageType = null)
 
-            => _Notifications.GetNotifications<T>(User,
-                                                  NotificationId);
+            where T : ANotification
 
-        public IEnumerable<T> GetNotifications<T>(User_Id          User,
-                                                  Notification_Id  NotificationId)
+            => User.GetNotificationsOf<T>(NotificationMessageType);
 
-            where T : ANotificationType
+        #endregion
 
-            => _Notifications.GetNotifications<T>(User,
-                                                  NotificationId);
+        #region GetNotificationsOf(UserId, NotificationMessageType = null)
 
+        public IEnumerable<T> GetNotificationsOf<T>(User_Id                   UserId,
+                                                    NotificationMessageType?  NotificationMessageType = null)
 
+            where T : ANotification
 
-        public Notifications UnregisterNotification<T>(User              User,
-                                                       Func<T, Boolean>  EqualityComparer)
+            => TryGetUser(UserId, out User User)
+                   ? User.GetNotificationsOf<T>(NotificationMessageType)
+                   : new T[0];
 
-            where T : ANotificationType
-
-            => _Notifications.Remove(User,
-                                     EqualityComparer);
-
-        public Notifications UnregisterNotification<T>(User_Id           User,
-                                                       Func<T, Boolean>  EqualityComparer)
-
-            where T : ANotificationType
-
-            => _Notifications.Remove(User,
-                                     EqualityComparer);
+        #endregion
 
 
-        public Notifications UnregisterNotification<T>(User              User,
-                                                       Notification_Id   NotificationId,
-                                                       Func<T, Boolean>  EqualityComparer)
+        //public Notifications UnregisterNotification<T>(User              User,
+        //                                               Func<T, Boolean>  EqualityComparer)
 
-            where T : ANotificationType
+        //    where T : ANotificationType
 
-            => _Notifications.Remove(User,
-                                     NotificationId,
-                                     EqualityComparer);
+        //    => _Notifications.Remove(User,
+        //                             EqualityComparer);
 
-        public Notifications UnregisterNotification<T>(User_Id           User,
-                                                       Notification_Id   NotificationId,
-                                                       Func<T, Boolean>  EqualityComparer)
+        //public Notifications UnregisterNotification<T>(User_Id           User,
+        //                                               Func<T, Boolean>  EqualityComparer)
 
-            where T : ANotificationType
+        //    where T : ANotificationType
 
-            => _Notifications.Remove(User,
-                                     NotificationId,
-                                     EqualityComparer);
+        //    => _Notifications.Remove(User,
+        //                             EqualityComparer);
+
+
+        //public Notifications UnregisterNotification<T>(User              User,
+        //                                               NotificationMessageType   NotificationMessageType,
+        //                                               Func<T, Boolean>  EqualityComparer)
+
+        //    where T : ANotificationType
+
+        //    => _Notifications.Remove(User,
+        //                             NotificationMessageType,
+        //                             EqualityComparer);
+
+        //public Notifications UnregisterNotification<T>(User_Id           User,
+        //                                               NotificationMessageType   NotificationMessageType,
+        //                                               Func<T, Boolean>  EqualityComparer)
+
+        //    where T : ANotificationType
+
+        //    => _Notifications.Remove(User,
+        //                             NotificationMessageType,
+        //                             EqualityComparer);
 
         #endregion
 

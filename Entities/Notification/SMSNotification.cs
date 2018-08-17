@@ -19,121 +19,175 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Newtonsoft.Json.Linq;
-using org.GraphDefined.Vanaheimr.Hermod;
-using org.GraphDefined.Vanaheimr.Hermod.Mail;
+
+using org.GraphDefined.OpenData.Users;
 using org.GraphDefined.Vanaheimr.Illias;
 
 #endregion
 
-namespace org.GraphDefined.OpenData.Users
+namespace org.GraphDefined.OpenData.Notifications
 {
 
     public static class SMSNotificationExtentions
     {
 
-        public static Notifications RegisterSMSNotification(this UsersAPI  UsersAPI,
-                                                            User_Id        User,
-                                                            PhoneNumber    Phonenumber,
-                                                            String         TextTemplate = null)
+        #region AddSMSNotification(this UsersAPI, User,                    Phonenumber, TextTemplate = null)
 
-            => UsersAPI.RegisterNotification(User,
-                                             new SMSNotification(Phonenumber, TextTemplate),
-                                             (a, b) => a.Phonenumber == b.Phonenumber);
+        public static NotificationStore AddSMSNotification(this UsersAPI  UsersAPI,
+                                                           User           User,
+                                                           PhoneNumber    Phonenumber,
+                                                           String         TextTemplate  = null)
 
-        public static Notifications RegisterSMSNotification(this UsersAPI  UsersAPI,
-                                                            User           User,
-                                                            PhoneNumber    Phonenumber,
-                                                            String         TextTemplate = null)
+            => UsersAPI.AddNotification(User,
+                                        new SMSNotification(Phonenumber,
+                                                            TextTemplate));
 
-            => UsersAPI.RegisterNotification(User.Id,
-                                             new SMSNotification(Phonenumber, TextTemplate),
-                                             (a, b) => a.Phonenumber == b.Phonenumber);
+        #endregion
+
+        #region AddSMSNotification(this UsersAPI, UserId,                  Phonenumber, TextTemplate = null)
+
+        public static NotificationStore AddSMSNotification(this UsersAPI  UsersAPI,
+                                                           User_Id        UserId,
+                                                           PhoneNumber    Phonenumber,
+                                                           String         TextTemplate  = null)
+
+            => UsersAPI.AddNotification(UserId,
+                                        new SMSNotification(Phonenumber,
+                                                            TextTemplate));
+
+        #endregion
+
+        #region AddSMSNotification(this UsersAPI, User,   NotificationId,  Phonenumber, TextTemplate = null)
+
+        public static NotificationStore AddSMSNotification(this UsersAPI            UsersAPI,
+                                                           User                     User,
+                                                           NotificationMessageType  NotificationId,
+                                                           PhoneNumber              Phonenumber,
+                                                           String                   TextTemplate  = null)
+
+            => UsersAPI.AddNotification(User,
+                                        new SMSNotification(Phonenumber,
+                                                            TextTemplate),
+                                        NotificationId);
+
+        #endregion
+
+        #region AddSMSNotification(this UsersAPI, UserId, NotificationId,  Phonenumber, TextTemplate = null)
+
+        public static NotificationStore AddSMSNotification(this UsersAPI            UsersAPI,
+                                                           User_Id                  UserId,
+                                                           NotificationMessageType  NotificationId,
+                                                           PhoneNumber              Phonenumber,
+                                                           String                   TextTemplate  = null)
+
+            => UsersAPI.AddNotification(UserId,
+                                        new SMSNotification(Phonenumber,
+                                                            TextTemplate),
+                                        NotificationId);
+
+        #endregion
+
+        #region AddSMSNotification(this UsersAPI, User,   NotificationIds, Phonenumber, TextTemplate = null)
+
+        public static NotificationStore AddSMSNotification(this UsersAPI                         UsersAPI,
+                                                           User                                  User,
+                                                           IEnumerable<NotificationMessageType>  NotificationIds,
+                                                           PhoneNumber                           Phonenumber,
+                                                           String                                TextTemplate  = null)
+
+            => UsersAPI.AddNotification(User,
+                                        new SMSNotification(Phonenumber,
+                                                            TextTemplate),
+                                        NotificationIds);
+
+        #endregion
+
+        #region AddSMSNotification(this UsersAPI, UserId, NotificationIds, Phonenumber, TextTemplate = null)
+
+        public static NotificationStore AddSMSNotification(this UsersAPI                         UsersAPI,
+                                                           User_Id                               UserId,
+                                                           IEnumerable<NotificationMessageType>  NotificationIds,
+                                                           PhoneNumber                           Phonenumber,
+                                                           String                                TextTemplate  = null)
+
+            => UsersAPI.AddNotification(UserId,
+                                        new SMSNotification(Phonenumber,
+                                                            TextTemplate),
+                                        NotificationIds);
+
+        #endregion
 
 
-        public static Notifications RegisterSMSNotification(this UsersAPI    UsersAPI,
-                                                            User_Id          User,
-                                                            Notification_Id  NotificationId,
-                                                            PhoneNumber      Phonenumber,
-                                                            String           TextTemplate = null)
+        #region GetSMSNotifications(this UsersAPI, User,   NotificationMessageType = null)
 
-            => UsersAPI.RegisterNotification(User,
-                                             NotificationId,
-                                             new SMSNotification(Phonenumber, TextTemplate),
-                                             (a, b) => a.Phonenumber == b.Phonenumber);
-
-        public static Notifications RegisterSMSNotification(this UsersAPI    UsersAPI,
-                                                            User             User,
-                                                            Notification_Id  NotificationId,
-                                                            PhoneNumber      Phonenumber,
-                                                            String           TextTemplate = null)
-
-            => UsersAPI.RegisterNotification(User.Id,
-                                             NotificationId,
-                                             new SMSNotification(Phonenumber, TextTemplate),
-                                             (a, b) => a.Phonenumber == b.Phonenumber);
+        public static IEnumerable<SMSNotification> GetSMSNotifications(this UsersAPI             UsersAPI,
+                                                                       User                      User,
+                                                                       NotificationMessageType?  NotificationMessageType = null)
 
 
+            => UsersAPI.GetNotificationsOf<SMSNotification>(User,
+                                                            NotificationMessageType);
+
+        #endregion
+
+        #region GetSMSNotifications(this UsersAPI, UserId, NotificationMessageType = null)
+
+        public static IEnumerable<SMSNotification> GetSMSNotifications(this UsersAPI             UsersAPI,
+                                                                       User_Id                   UserId,
+                                                                       NotificationMessageType?  NotificationMessageType = null)
 
 
-        public static IEnumerable<SMSNotification> GetSMSNotifications(this UsersAPI    UsersAPI,
-                                                                       User             User,
-                                                                       Notification_Id  NotificationId)
+            => UsersAPI.GetNotificationsOf<SMSNotification>(UserId,
+                                                            NotificationMessageType);
 
-
-            => UsersAPI.GetNotifications<SMSNotification>(User,
-                                                            NotificationId);
-
-        public static IEnumerable<SMSNotification> GetSMSNotifications(this UsersAPI    UsersAPI,
-                                                                       User_Id          User,
-                                                                       Notification_Id  NotificationId)
-
-
-            => UsersAPI.GetNotifications<SMSNotification>(User,
-                                                          NotificationId);
+        #endregion
 
 
 
 
-        public static Notifications UnregisterSMSNotification(this UsersAPI  UsersAPI,
-                                                              User           User,
-                                                              PhoneNumber   Phonenumber)
+        //public static Notifications UnregisterSMSNotification(this UsersAPI  UsersAPI,
+        //                                                      User           User,
+        //                                                      PhoneNumber   Phonenumber)
 
-            => UsersAPI.UnregisterNotification<SMSNotification>(User,
-                                                                a => a.Phonenumber == Phonenumber);
+        //    => UsersAPI.UnregisterNotification<SMSNotification>(User,
+        //                                                        a => a.Phonenumber == Phonenumber);
 
-        public static Notifications UnregisterSMSNotification(this UsersAPI  UsersAPI,
-                                                              User_Id        User,
-                                                              PhoneNumber   Phonenumber)
+        //public static Notifications UnregisterSMSNotification(this UsersAPI  UsersAPI,
+        //                                                      User_Id        User,
+        //                                                      PhoneNumber   Phonenumber)
 
-            => UsersAPI.UnregisterNotification<SMSNotification>(User,
-                                                                a => a.Phonenumber == Phonenumber);
+        //    => UsersAPI.UnregisterNotification<SMSNotification>(User,
+        //                                                        a => a.Phonenumber == Phonenumber);
 
 
-        public static Notifications UnregisterSMSNotification(this UsersAPI    UsersAPI,
-                                                              User             User,
-                                                              Notification_Id  NotificationId,
-                                                              PhoneNumber     Phonenumber)
+        //public static Notifications UnregisterSMSNotification(this UsersAPI    UsersAPI,
+        //                                                      User             User,
+        //                                                      NotificationMessageType  NotificationId,
+        //                                                      PhoneNumber     Phonenumber)
 
-            => UsersAPI.UnregisterNotification<SMSNotification>(User,
-                                                                NotificationId,
-                                                                a => a.Phonenumber == Phonenumber);
+        //    => UsersAPI.UnregisterNotification<SMSNotification>(User,
+        //                                                        NotificationId,
+        //                                                        a => a.Phonenumber == Phonenumber);
 
-        public static Notifications UnregisterSMSNotification(this UsersAPI    UsersAPI,
-                                                              User_Id          User,
-                                                              Notification_Id  NotificationId,
-                                                              PhoneNumber     Phonenumber)
+        //public static Notifications UnregisterSMSNotification(this UsersAPI    UsersAPI,
+        //                                                      User_Id          User,
+        //                                                      NotificationMessageType  NotificationId,
+        //                                                      PhoneNumber     Phonenumber)
 
-            => UsersAPI.UnregisterNotification<SMSNotification>(User,
-                                                                NotificationId,
-                                                                a => a.Phonenumber == Phonenumber);
+        //    => UsersAPI.UnregisterNotification<SMSNotification>(User,
+        //                                                        NotificationId,
+        //                                                        a => a.Phonenumber == Phonenumber);
 
     }
 
-    public class SMSNotification : ANotificationType
+    public class SMSNotification : ANotification,
+                                   IEquatable <SMSNotification>,
+                                   IComparable<SMSNotification>
     {
 
-        public PhoneNumber Phonenumber    { get; }
+        public PhoneNumber PhoneNumber    { get; }
         public String      TextTemplate   { get; }
 
 
@@ -141,7 +195,7 @@ namespace org.GraphDefined.OpenData.Users
                                String      TextTemplate = null)
         {
 
-            this.Phonenumber   = Phonenumber;
+            this.PhoneNumber   = Phonenumber;
             this.TextTemplate  = TextTemplate;
 
         }
@@ -153,22 +207,96 @@ namespace org.GraphDefined.OpenData.Users
                 throw new ArgumentException();
 
             return new SMSNotification(PhoneNumber.Parse(JSON["phoneNumber"]?.Value<String>()),
-                                       JSON["text"]?.Value<String>());
+                                       JSON["textTemplate"]?.Value<String>());
 
         }
 
-        public override JObject GetAsJSON(JObject JSON)
-        {
 
-            JSON.Add(new JProperty("type",         GetType().Name));
-            JSON.Add(new JProperty("phoneNumber",  Phonenumber.ToString()));
 
-            if (TextTemplate.IsNotNullOrEmpty())
-                JSON.Add(new JProperty("textTemplate",  TextTemplate));
+        public override JObject ToJSON()
 
-            return JSON;
+            => JSONObject.Create(
 
-        }
+                   new JProperty("type",           GetType().Name),
+                   new JProperty("phoneNumber",    PhoneNumber.ToString()),
+
+                   TextTemplate.IsNotNullOrEmpty()
+                       ? new JProperty("textTemplate",  TextTemplate)
+                       : null,
+
+                   NotificationMessageTypes.SafeAny()
+                       ? new JProperty("messageTypes",  new JArray(NotificationMessageTypes.Select(msgType => msgType.ToString())))
+                       : null
+
+               );
+
+
+
+        #region SortKey
+
+        public override String SortKey
+
+            => String.Concat(nameof(EMailNotification),
+                             PhoneNumber,
+                             TextTemplate);
+
+        #endregion
+
+        #region IComparable<SMSNotification> Members
+
+        #region CompareTo(ANotification)
+
+        public override Int32 CompareTo(ANotification other)
+            => SortKey.CompareTo(other.SortKey);
+
+        #endregion
+
+        #region CompareTo(SMSNotification)
+
+        public Int32 CompareTo(SMSNotification other)
+            => PhoneNumber.CompareTo(other.PhoneNumber);
+
+        #endregion
+
+        #endregion
+
+        #region IEquatable<SMSNotification> Members
+
+        #region Equals(ANotification)
+
+        public override Boolean Equals(ANotification other)
+            => SortKey.Equals(other.SortKey);
+
+        #endregion
+
+        #region Equals(SMSNotification)
+
+        public Boolean Equals(SMSNotification other)
+            => PhoneNumber.Equals(other.PhoneNumber);
+
+        #endregion
+
+        #endregion
+
+        #region GetHashCode()
+
+        /// <summary>
+        /// Get the hashcode of this object.
+        /// </summary>
+        public override Int32 GetHashCode()
+            => SortKey.GetHashCode();
+
+        #endregion
+
+        #region (override) ToString()
+
+        /// <summary>
+        /// Return a text representation of this object.
+        /// </summary>
+        public override String ToString()
+            => String.Concat(nameof(SMSNotification), ": ", PhoneNumber.ToString());
+
+        #endregion
 
     }
 

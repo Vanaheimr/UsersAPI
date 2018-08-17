@@ -156,20 +156,20 @@ namespace org.GraphDefined.OpenData.Users
                 if (LockTaken)
                 {
 
-                    var NotificationMessages  = UsersAPI.NotificationMessages.
-                                                         Where (notificationMessage => notificationMessage.Timestamp > LatestNotificationTimestamp).
-                                                         ToArray();
+                    //var NotificationMessages  = UsersAPI.NotificationMessages.
+                    //                                     Where (notificationMessage => notificationMessage.Timestamp > LatestNotificationTimestamp).
+                    //                                     ToArray();
 
-                    if (NotificationMessages.Length > 0)
-                    {
+                    //if (NotificationMessages.Length > 0)
+                    //{
 
-                        LatestNotificationTimestamp  = NotificationMessages.
-                                                           Max   (notificationMessage => notificationMessage.Timestamp);
+                    //    LatestNotificationTimestamp  = NotificationMessages.
+                    //                                       Max   (notificationMessage => notificationMessage.Timestamp);
 
-                        await SendNotifications(NotificationMessages.
-                                                           Select(notificationMessage => notificationMessage.Value));
+                    //    await SendNotifications(NotificationMessages.
+                    //                                       Select(notificationMessage => notificationMessage.Value));
 
-                    }
+                    //}
 
                 }
 

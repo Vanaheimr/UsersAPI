@@ -37,10 +37,9 @@ namespace org.GraphDefined.OpenData.Users
 {
 
     public delegate JObject OrganizationToJSONDelegate(Organization  Organization,
-                                                       Boolean       Embedded             = false,
-                                                       InfoStatus    ExpandTags           = InfoStatus.ShowIdOnly,
-                                                       InfoStatus    ExpandDataLicenses   = InfoStatus.ShowIdOnly,
-                                                       Boolean       IncludeCryptoHash    = true);
+                                                       Boolean       Embedded            = false,
+                                                       InfoStatus    ExpandTags          = InfoStatus.ShowIdOnly,
+                                                       Boolean       IncludeCryptoHash   = true);
 
 
     /// <summary>
@@ -63,7 +62,6 @@ namespace org.GraphDefined.OpenData.Users
                                     UInt64?                         Take                 = null,
                                     Boolean                         Embedded             = false,
                                     InfoStatus                      ExpandTags           = InfoStatus.ShowIdOnly,
-                                    InfoStatus                      ExpandDataLicenses   = InfoStatus.ShowIdOnly,
                                     OrganizationToJSONDelegate      OrganizationToJSON   = null,
                                     Boolean                         IncludeCryptoHash    = true)
 
@@ -80,12 +78,10 @@ namespace org.GraphDefined.OpenData.Users
                                                                     ? OrganizationToJSON (organization,
                                                                                           Embedded,
                                                                                           ExpandTags,
-                                                                                          ExpandDataLicenses,
                                                                                           IncludeCryptoHash)
 
                                                                     : organization.ToJSON(Embedded,
                                                                                           ExpandTags,
-                                                                                          ExpandDataLicenses,
                                                                                           IncludeCryptoHash)));
 
         #endregion
@@ -458,33 +454,38 @@ namespace org.GraphDefined.OpenData.Users
         #endregion
 
 
-        #region ToJSON(IncludeCryptoHash = true)
+        #region ToJSON(Embedded = false, IncludeCryptoHash = false)
 
         /// <summary>
         /// Return a JSON representation of this object.
         /// </summary>
-        /// <param name="IncludeCryptoHash">Include the cryptograhical hash value of this object.</param>
-        public override JObject ToJSON(Boolean IncludeCryptoHash)
+        /// <param name="Embedded">Whether this data is embedded into another data structure.</param>
+        /// <param name="IncludeCryptoHash">Include the crypto hash value of this object.</param>
+        public override JObject ToJSON(Boolean Embedded           = false,
+                                       Boolean IncludeCryptoHash  = false)
 
             => ToJSON(Embedded:            false,
                       ExpandTags:          InfoStatus.ShowIdOnly,
-                      ExpandDataLicenses:  InfoStatus.ShowIdOnly,
                       IncludeCryptoHash:   true);
 
 
         /// <summary>
         /// Return a JSON representation of this object.
         /// </summary>
+        /// <param name="Embedded">Whether this data is embedded into another data structure.</param>
         /// <param name="IncludeCryptoHash">Include the crypto hash value of this object.</param>
-        public JObject ToJSON(Boolean     Embedded             = false,
-                              InfoStatus  ExpandTags           = InfoStatus.ShowIdOnly,
-                              InfoStatus  ExpandDataLicenses   = InfoStatus.ShowIdOnly,
-                              Boolean     IncludeCryptoHash    = true)
+        public JObject ToJSON(Boolean     Embedded           = false,
+                              InfoStatus  ExpandTags         = InfoStatus.ShowIdOnly,
+                              Boolean     IncludeCryptoHash  = true)
 
             => JSONObject.Create(
 
                    new JProperty("@id",                 Id.             ToString()),
-                   new JProperty("@context",            JSONLDContext),
+
+                   !Embedded
+                       ? new JProperty("@context",      JSONLDContext)
+                       : null,
+
                    new JProperty("name",                Name.           ToJSON()),
 
                    Description.IsNeitherNullNorEmpty()

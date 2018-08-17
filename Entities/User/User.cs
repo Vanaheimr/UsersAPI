@@ -33,6 +33,7 @@ using org.GraphDefined.Vanaheimr.Hermod.Distributed;
 using org.GraphDefined.Vanaheimr.Hermod.HTTP;
 using org.GraphDefined.Vanaheimr.Styx.Arrows;
 using org.GraphDefined.Vanaheimr.BouncyCastle;
+using org.GraphDefined.OpenData.Notifications;
 
 #endregion
 
@@ -328,6 +329,9 @@ namespace org.GraphDefined.OpenData.Users
 
         #endregion
 
+
+        private readonly NotificationStore _Notifications;
+
         #endregion
 
         #region Events
@@ -389,33 +393,116 @@ namespace org.GraphDefined.OpenData.Users
 
             #endregion
 
-            this.EMail                    = Name.IsNotNullOrEmpty()
-                                                ? new EMailAddress(Name, EMail, SecretKeyRing, PublicKeyRing)
-                                                : new EMailAddress(      EMail, SecretKeyRing, PublicKeyRing);
-            this.Name                     = Name;
-            this.PublicKeyRing            = PublicKeyRing;
-            this.SecretKeyRing            = SecretKeyRing;
-            this.Telephone                = Telephone;
-            this.MobilePhone              = MobilePhone;
-            this.Description              = Description  ?? new I18NString();
-            this.GeoLocation              = GeoLocation;
-            this.Address                  = Address;
-            this.PrivacyLevel             = PrivacyLevel ?? OpenData.PrivacyLevel.Private;
-            this.AcceptedEULA             = AcceptedEULA;
-            this.IsAuthenticated          = IsAuthenticated;
-            this.IsDisabled               = IsDisabled;
+            this.EMail                        = Name.IsNotNullOrEmpty()
+                                                    ? new EMailAddress(Name, EMail, SecretKeyRing, PublicKeyRing)
+                                                    : new EMailAddress(      EMail, SecretKeyRing, PublicKeyRing);
+            this.Name                         = Name;
+            this.PublicKeyRing                = PublicKeyRing;
+            this.SecretKeyRing                = SecretKeyRing;
+            this.Telephone                    = Telephone;
+            this.MobilePhone                  = MobilePhone;
+            this.Description                  = Description  ?? new I18NString();
+            this.GeoLocation                  = GeoLocation;
+            this.Address                      = Address;
+            this.PrivacyLevel                 = PrivacyLevel ?? OpenData.PrivacyLevel.Private;
+            this.AcceptedEULA                 = AcceptedEULA;
+            this.IsAuthenticated              = IsAuthenticated;
+            this.IsDisabled                   = IsDisabled;
+
+            this._Notifications               = new NotificationStore();
 
             // Init edges
-            this._User2UserEdges          = User2UserEdges.        IsNeitherNullNorEmpty() ? new List<MiniEdge<User, User2UserEdges,         User>>        (User2UserEdges)         : new List<MiniEdge<User, User2UserEdges,         User>>();
+            this._User2UserEdges              = User2UserEdges.        IsNeitherNullNorEmpty() ? new List<MiniEdge<User, User2UserEdges,         User>>        (User2UserEdges)         : new List<MiniEdge<User, User2UserEdges,         User>>();
             this._User2Group_OutEdges         = User2GroupEdges.       IsNeitherNullNorEmpty() ? new List<MiniEdge<User, User2GroupEdges,        Group>>       (User2GroupEdges)        : new List<MiniEdge<User, User2GroupEdges,        Group>>();
             this._User2Organization_OutEdges  = User2OrganizationEdges.IsNeitherNullNorEmpty() ? new List<MiniEdge<User, User2OrganizationEdges, Organization>>(User2OrganizationEdges) : new List<MiniEdge<User, User2OrganizationEdges, Organization>>();
-
 
             CalcHash();
 
         }
 
         #endregion
+
+
+        #region AddNotification(NotificationType)
+
+        public NotificationStore AddNotification<T>(T NotificationType)
+            where T : ANotification
+        {
+
+            _Notifications.Add(NotificationType);
+
+            return _Notifications;
+
+        }
+
+        #endregion
+
+        #region AddNotification(NotificationType, NotificationMessageType)
+
+        public NotificationStore AddNotification<T>(T                        NotificationType,
+                                                NotificationMessageType  NotificationMessageType)
+            where T : ANotification
+        {
+
+            _Notifications.Add(NotificationType,
+                               NotificationMessageType);
+
+            return _Notifications;
+
+        }
+
+        #endregion
+
+        #region AddNotification(NotificationType, NotificationMessageTypes)
+
+        public NotificationStore AddNotification<T>(T                                     NotificationType,
+                                                IEnumerable<NotificationMessageType>  NotificationMessageTypes)
+            where T : ANotification
+        {
+
+            _Notifications.Add(NotificationType,
+                               NotificationMessageTypes);
+
+            return _Notifications;
+
+        }
+
+        #endregion
+
+
+        #region GetNotifications  (NotificationMessageType = null)
+
+        public IEnumerable<ANotification> GetNotifications(NotificationMessageType?  NotificationMessageType = null)
+        {
+
+            lock (_Notifications)
+            {
+                return _Notifications.GetNotifications(NotificationMessageType);
+            }
+
+        }
+
+        #endregion
+
+        #region GetNotificationsOf(NotificationMessageType = null)
+
+        public IEnumerable<T> GetNotificationsOf<T>(NotificationMessageType? NotificationMessageType = null)
+
+            where T : ANotification
+
+        {
+
+            lock (_Notifications)
+            {
+                return _Notifications.GetNotificationsOf<T>(NotificationMessageType);
+            }
+
+        }
+
+        #endregion
+
+        public JArray GetNotificationInfos()
+            => _Notifications.ToJSON();
 
 
         #region User <-> User edges
@@ -684,18 +771,24 @@ namespace org.GraphDefined.OpenData.Users
         #endregion
 
 
-        #region ToJSON(IncludeCryptoHash = true)
+        #region ToJSON(Embedded = false, IncludeCryptoHash = false)
 
         /// <summary>
         /// Return a JSON representation of this object.
         /// </summary>
-        /// <param name="IncludeCryptoHash">Include the hash value of this object.</param>
-        public override JObject ToJSON(Boolean IncludeCryptoHash = true)
+        /// <param name="Embedded">Whether this data is embedded into another data structure.</param>
+        /// <param name="IncludeCryptoHash">Include the crypto hash value of this object.</param>
+        public override JObject ToJSON(Boolean     Embedded             = false,
+                                       Boolean     IncludeCryptoHash    = false)
 
             => JSONObject.Create(
 
                    new JProperty("@id",                  Id.ToString()),
-                   new JProperty("@context",             JSONLDContext),
+
+                   !Embedded
+                       ? new JProperty("@context",       JSONLDContext)
+                       : null,
+
                    new JProperty("name",                 Name),
 
                    Description.IsNeitherNullNorEmpty()

@@ -66,13 +66,26 @@
         display: table-cell;
         width: inherit;
         background-color: #fafafa;
-        padding: 6px 10px;
+        padding: 7px 7px;
         border-radius: 5px;
         color: #777; }
-        #notificationinfos #notifications .row .value .info {
-          color: #AAA;
-          font-size: 85%;
-          display: block; }
+        #notificationinfos #notifications .row .value .infos {
+          padding: 4px 2px 2px 2px; }
+          #notificationinfos #notifications .row .value .infos .info {
+            color: #AAA;
+            font-size: 85%;
+            display: block; }
+        #notificationinfos #notifications .row .value .msgTypes {
+          display: block;
+          margin-top: 5px;
+          font-size: 85%; }
+          #notificationinfos #notifications .row .value .msgTypes .msgType {
+            display: block;
+            margin-top: 1px;
+            background-color: rgba(247, 126, 42, 0.2);
+            color: #8c5934;
+            padding: 4px 6px;
+            border-radius: 4px; }
         #notificationinfos #notifications .row .value input, #notificationinfos #notifications .row .value textarea, #notificationinfos #notifications .row .value select {
           background-color: rgba(255, 255, 255, 0.7);
           width: calc(100% - 16px);

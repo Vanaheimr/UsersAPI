@@ -23,19 +23,21 @@ using org.GraphDefined.Vanaheimr.Illias;
 
 #endregion
 
-namespace org.GraphDefined.OpenData.Users
+namespace org.GraphDefined.OpenData.Notifications
 {
 
     /// <summary>
-    /// The unique identification of a notification.
+    /// The unique identification of a notification message.
     /// </summary>
-    public struct Notification_Id : IId,
-                                    IEquatable<Notification_Id>,
-                                    IComparable<Notification_Id>
+    public struct NotificationMessage_Id : IId,
+                                           IEquatable<NotificationMessage_Id>,
+                                           IComparable<NotificationMessage_Id>
 
     {
 
         #region Data
+
+        private static readonly Random _random = new Random(DateTime.Now.Millisecond);
 
         /// <summary>
         /// The internal identification.
@@ -60,7 +62,7 @@ namespace org.GraphDefined.OpenData.Users
         /// Create a new notification identification based on the given string.
         /// </summary>
         /// <param name="String">The string representation of the notification identification.</param>
-        private Notification_Id(String  String)
+        private NotificationMessage_Id(String  String)
         {
             this.InternalId  = String;
         }
@@ -68,13 +70,25 @@ namespace org.GraphDefined.OpenData.Users
         #endregion
 
 
+        #region (static) Random  (Size)
+
+        /// <summary>
+        /// Create a random notification message identification.
+        /// </summary>
+        /// <param name="Size">The expected size of the notification message identification.</param>
+        public static NotificationMessage_Id Random(UInt16? Size = 64)
+
+            => new NotificationMessage_Id(_random.RandomString(Size ?? 64));
+
+        #endregion
+
         #region (static) Parse   (Text)
 
         /// <summary>
         /// Parse the given string as a notification identification.
         /// </summary>
         /// <param name="Text">A text representation of a notification identification.</param>
-        public static Notification_Id Parse(String Text)
+        public static NotificationMessage_Id Parse(String Text)
         {
 
             #region Initial checks
@@ -87,7 +101,7 @@ namespace org.GraphDefined.OpenData.Users
 
             #endregion
 
-            return new Notification_Id(Text);
+            return new NotificationMessage_Id(Text);
 
         }
 
@@ -99,7 +113,7 @@ namespace org.GraphDefined.OpenData.Users
         /// Try to parse the given string as a notification identification.
         /// </summary>
         /// <param name="Text">A text representation of a notification identification.</param>
-        public static Notification_Id? TryParse(String Text)
+        public static NotificationMessage_Id? TryParse(String Text)
         {
 
             #region Initial checks
@@ -112,10 +126,10 @@ namespace org.GraphDefined.OpenData.Users
 
             #endregion
 
-            if (TryParse(Text, out Notification_Id _NotificationId))
+            if (TryParse(Text, out NotificationMessage_Id _NotificationId))
                 return _NotificationId;
 
-            return new Notification_Id?();
+            return new NotificationMessage_Id?();
 
         }
 
@@ -128,7 +142,7 @@ namespace org.GraphDefined.OpenData.Users
         /// </summary>
         /// <param name="Text">A text representation of a notification identification.</param>
         /// <param name="NotificationId">The parsed notification identification.</param>
-        public static Boolean TryParse(String Text, out Notification_Id NotificationId)
+        public static Boolean TryParse(String Text, out NotificationMessage_Id NotificationId)
         {
 
             #region Initial checks
@@ -143,12 +157,12 @@ namespace org.GraphDefined.OpenData.Users
 
             try
             {
-                NotificationId = new Notification_Id(Text);
+                NotificationId = new NotificationMessage_Id(Text);
                 return true;
             }
             catch (Exception)
             {
-                NotificationId = default(Notification_Id);
+                NotificationId = default(NotificationMessage_Id);
                 return false;
             }
 
@@ -161,8 +175,8 @@ namespace org.GraphDefined.OpenData.Users
         /// <summary>
         /// Clone this notification identification.
         /// </summary>
-        public Notification_Id Clone
-            => new Notification_Id(new String(InternalId.ToCharArray()));
+        public NotificationMessage_Id Clone
+            => new NotificationMessage_Id(new String(InternalId.ToCharArray()));
 
         #endregion
 
@@ -177,7 +191,7 @@ namespace org.GraphDefined.OpenData.Users
         /// <param name="NotificationId1">A notification identification.</param>
         /// <param name="NotificationId2">Another notification identification.</param>
         /// <returns>true|false</returns>
-        public static Boolean operator == (Notification_Id NotificationId1, Notification_Id NotificationId2)
+        public static Boolean operator == (NotificationMessage_Id NotificationId1, NotificationMessage_Id NotificationId2)
         {
 
             // If both are null, or both are same instance, return true.
@@ -202,7 +216,7 @@ namespace org.GraphDefined.OpenData.Users
         /// <param name="NotificationId1">A notification identification.</param>
         /// <param name="NotificationId2">Another notification identification.</param>
         /// <returns>true|false</returns>
-        public static Boolean operator != (Notification_Id NotificationId1, Notification_Id NotificationId2)
+        public static Boolean operator != (NotificationMessage_Id NotificationId1, NotificationMessage_Id NotificationId2)
             => !(NotificationId1 == NotificationId2);
 
         #endregion
@@ -215,7 +229,7 @@ namespace org.GraphDefined.OpenData.Users
         /// <param name="NotificationId1">A notification identification.</param>
         /// <param name="NotificationId2">Another notification identification.</param>
         /// <returns>true|false</returns>
-        public static Boolean operator < (Notification_Id NotificationId1, Notification_Id NotificationId2)
+        public static Boolean operator < (NotificationMessage_Id NotificationId1, NotificationMessage_Id NotificationId2)
         {
 
             if ((Object) NotificationId1 == null)
@@ -235,7 +249,7 @@ namespace org.GraphDefined.OpenData.Users
         /// <param name="NotificationId1">A notification identification.</param>
         /// <param name="NotificationId2">Another notification identification.</param>
         /// <returns>true|false</returns>
-        public static Boolean operator <= (Notification_Id NotificationId1, Notification_Id NotificationId2)
+        public static Boolean operator <= (NotificationMessage_Id NotificationId1, NotificationMessage_Id NotificationId2)
             => !(NotificationId1 > NotificationId2);
 
         #endregion
@@ -248,7 +262,7 @@ namespace org.GraphDefined.OpenData.Users
         /// <param name="NotificationId1">A notification identification.</param>
         /// <param name="NotificationId2">Another notification identification.</param>
         /// <returns>true|false</returns>
-        public static Boolean operator > (Notification_Id NotificationId1, Notification_Id NotificationId2)
+        public static Boolean operator > (NotificationMessage_Id NotificationId1, NotificationMessage_Id NotificationId2)
         {
 
             if ((Object) NotificationId1 == null)
@@ -268,7 +282,7 @@ namespace org.GraphDefined.OpenData.Users
         /// <param name="NotificationId1">A notification identification.</param>
         /// <param name="NotificationId2">Another notification identification.</param>
         /// <returns>true|false</returns>
-        public static Boolean operator >= (Notification_Id NotificationId1, Notification_Id NotificationId2)
+        public static Boolean operator >= (NotificationMessage_Id NotificationId1, NotificationMessage_Id NotificationId2)
             => !(NotificationId1 < NotificationId2);
 
         #endregion
@@ -289,11 +303,10 @@ namespace org.GraphDefined.OpenData.Users
             if (Object == null)
                 throw new ArgumentNullException(nameof(Object), "The given object must not be null!");
 
-            if (!(Object is Notification_Id))
-                throw new ArgumentException("The given object is not a notification identification!",
-                                            nameof(Object));
+            if (!(Object is NotificationMessage_Id NotificationId))
+                throw new ArgumentException("The given object is not a notification identification!");
 
-            return CompareTo((Notification_Id) Object);
+            return CompareTo(NotificationId);
 
         }
 
@@ -305,7 +318,7 @@ namespace org.GraphDefined.OpenData.Users
         /// Compares two instances of this object.
         /// </summary>
         /// <param name="NotificationId">An object to compare with.</param>
-        public Int32 CompareTo(Notification_Id NotificationId)
+        public Int32 CompareTo(NotificationMessage_Id NotificationId)
         {
 
             if ((Object) NotificationId == null)
@@ -334,10 +347,10 @@ namespace org.GraphDefined.OpenData.Users
             if (Object == null)
                 return false;
 
-            if (!(Object is Notification_Id))
+            if (!(Object is NotificationMessage_Id NotificationId))
                 return false;
 
-            return Equals((Notification_Id) Object);
+            return Equals(NotificationId);
 
         }
 
@@ -350,13 +363,13 @@ namespace org.GraphDefined.OpenData.Users
         /// </summary>
         /// <param name="NotificationId">An notification identification to compare with.</param>
         /// <returns>True if both match; False otherwise.</returns>
-        public Boolean Equals(Notification_Id NotificationId)
+        public Boolean Equals(NotificationMessage_Id NotificationId)
         {
 
             if ((Object) NotificationId == null)
                 return false;
 
-            return InternalId.Equals(NotificationId.InternalId);
+            return InternalId.Equals(NotificationId.InternalId, StringComparison.OrdinalIgnoreCase);
 
         }
 
@@ -371,7 +384,7 @@ namespace org.GraphDefined.OpenData.Users
         /// </summary>
         /// <returns>The HashCode of this object.</returns>
         public override Int32 GetHashCode()
-            => InternalId.GetHashCode();
+            => InternalId.ToLower().GetHashCode();
 
         #endregion
 
