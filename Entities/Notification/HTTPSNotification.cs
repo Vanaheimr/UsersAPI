@@ -197,51 +197,6 @@ namespace org.GraphDefined.OpenData.Notifications
         #endregion
 
 
-
-        #region Upstream HTTP request...
-
-        //var httpresult = await new HTTPSClient(Hostname,
-        //                                       RemoteCertificateValidator,
-        //                                       RemotePort:  HTTPPort,
-        //                                       DNSClient:   DNSClient ?? this.DNSClient).
-
-        //                           Execute(client => client.REMOTESTART(HTTPURI.Parse("/ps/rest/hubject/RNs/" + RoamingNetworkId + "/EVSEs/" + EVSEId.ToString().Replace("+", "")),
-
-        //                                                                requestbuilder => {
-        //                                                                    requestbuilder.Host         = VirtualHostname;
-        //                                                                    requestbuilder.ContentType  = HTTPContentType.JSON_UTF8;
-        //                                                                    requestbuilder.Content      = new JObject(
-        //                                                                                                      new JProperty("@context",           "http://ld.graphdefined.org/wwcp/RemoteStartRequest"),
-        //                                                                                                      new JProperty("@id",                SessionId.ToString()),
-        //                                                                                                      new JProperty("ProviderId",         ProviderId.ToString()),
-        //                                                                                                      new JProperty("eMAId",              eMAId.ToString())
-        //                                                                                                      //new JProperty("ChargingProductId",  ChargingProductId != null ? ChargingProductId.ToString() : "")
-        //                                                                                                  ).ToString().
-        //                                                                                                    ToUTF8Bytes();
-        //                                                                    requestbuilder.Accept.Add(HTTPContentType.JSON_UTF8);
-        //                                                                }),
-
-        //                                   RequestLogDelegate:   OnRemoteStartRequest,
-        //                                   ResponseLogDelegate:  OnRemoteStartResponse,
-        //                                   CancellationToken:    CancellationToken,
-        //                                   EventTrackingId:      EventTrackingId,
-        //                                   RequestTimeout:       RequestTimeout ?? TimeSpan.FromSeconds(60)).
-
-        //                           ConfigureAwait(false);
-
-        #endregion
-
-
-
-
-
-
-
-
-
-
-
-
         //public static Notifications UnregisterHTTPSNotification(this UsersAPI  UsersAPI,
         //                                                        User           User,
         //                                                        String         URL,
@@ -292,17 +247,18 @@ namespace org.GraphDefined.OpenData.Notifications
         //                                                               a.BasicAuth_Login    == BasicAuth_Login &&
         //                                                               a.BasicAuth_Password == BasicAuth_Password);
 
-
-
-
-
     }
 
 
+    /// <summary>
+    /// A HTTPS notification.
+    /// </summary>
     public class HTTPSNotification : ANotification,
                                      IEquatable<HTTPSNotification>,
                                      IComparable<HTTPSNotification>
     {
+
+        #region Properties
 
         public HTTPMethod Method               { get; }
         public String     URL                  { get; }
@@ -312,6 +268,20 @@ namespace org.GraphDefined.OpenData.Notifications
         public String     APIKey               { get; }
 
 
+        public override String SortKey
+
+            => String.Concat(nameof(EMailNotification),
+                             URL,
+                             Method,
+                             TCPPort);
+
+        #endregion
+
+        #region Constructor(s)
+
+        /// <summary>
+        /// Create a new  HTTPS notification.
+        /// </summary>
         public HTTPSNotification(HTTPMethod Method,
                                  String     URL,
                                  IPPort?    TCPPort             = null,
@@ -328,6 +298,8 @@ namespace org.GraphDefined.OpenData.Notifications
             this.APIKey              = APIKey;
 
         }
+
+        #endregion
 
 
         public static HTTPSNotification Parse(JObject JSON)
@@ -377,18 +349,6 @@ namespace org.GraphDefined.OpenData.Notifications
 
                );
 
-
-
-        #region SortKey
-
-        public override String SortKey
-
-            => String.Concat(nameof(EMailNotification),
-                             URL,
-                             Method,
-                             TCPPort);
-
-        #endregion
 
         #region IComparable<HTTPSNotification> Members
 

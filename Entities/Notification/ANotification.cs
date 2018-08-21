@@ -18,21 +18,26 @@
 #region Usings
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
+
 using Newtonsoft.Json.Linq;
-using org.GraphDefined.OpenData.Users;
-using org.GraphDefined.Vanaheimr.Illias;
 
 #endregion
 
 namespace org.GraphDefined.OpenData.Notifications
 {
 
-    public abstract class ANotification : IEquatable <ANotification>,
+    /// <summary>
+    /// An abstract notification.
+    /// </summary>
+    public abstract class ANotification : IEnumerable<NotificationMessageType>,
+                                          IEquatable <ANotification>,
                                           IComparable<ANotification>,
                                           IComparable
     {
 
+        #region Properties
 
         private readonly HashSet<NotificationMessageType> _NotificationMessageTypes;
 
@@ -40,11 +45,28 @@ namespace org.GraphDefined.OpenData.Notifications
             => _NotificationMessageTypes;
 
 
-        public ANotification()
+        public Int32 Count
+            => _NotificationMessageTypes.Count;
+
+
+        public abstract String SortKey { get; }
+
+        #endregion
+
+        #region Constructor(s)
+
+        /// <summary>
+        /// Create an new abstract notification.
+        /// </summary>
+        protected ANotification()
         {
             this._NotificationMessageTypes = new HashSet<NotificationMessageType>();
         }
 
+        #endregion
+
+
+        #region Add     (NotificationMessageType)
 
         public void Add(NotificationMessageType NotificationMessageType)
         {
@@ -53,6 +75,10 @@ namespace org.GraphDefined.OpenData.Notifications
                 _NotificationMessageTypes.Add(NotificationMessageType);
             }
         }
+
+        #endregion
+
+        #region Add     (NotificationMessageTypes)
 
         public void Add(IEnumerable<NotificationMessageType> NotificationMessageTypes)
         {
@@ -63,6 +89,10 @@ namespace org.GraphDefined.OpenData.Notifications
             }
         }
 
+        #endregion
+
+        #region Contains(NotificationMessageType)
+
         public Boolean Contains(NotificationMessageType NotificationMessageType)
         {
             lock (_NotificationMessageTypes)
@@ -71,20 +101,56 @@ namespace org.GraphDefined.OpenData.Notifications
             }
         }
 
+        #endregion
 
+        #region IEnumerable<NotificationMessageType> Members
 
-        public abstract String SortKey { get; }
+        public IEnumerator<NotificationMessageType> GetEnumerator()
+            => _NotificationMessageTypes.GetEnumerator();
+
+        IEnumerator IEnumerable.GetEnumerator()
+            => _NotificationMessageTypes.GetEnumerator();
+
+        #endregion
+
 
         public abstract JObject ToJSON();
 
+
+        #region IComparable<ANotification> Members
 
         public abstract Int32 CompareTo(ANotification other);
 
         public Int32 CompareTo(Object obj)
             => 0;
 
+        #endregion
+
+        #region IEquatable<ANotification> Members
+
         public abstract Boolean Equals(ANotification other);
 
+        #endregion
+
+        #region GetHashCode()
+
+        /// <summary>
+        /// Get the hashcode of this object.
+        /// </summary>
+        public override Int32 GetHashCode()
+            => SortKey.GetHashCode();
+
+        #endregion
+
+        #region (override) ToString()
+
+        /// <summary>
+        /// Return a text representation of this object.
+        /// </summary>
+        public override String ToString()
+            => SortKey;
+
+        #endregion
 
     }
 

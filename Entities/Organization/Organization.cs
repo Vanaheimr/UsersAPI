@@ -36,6 +36,8 @@ using org.GraphDefined.Vanaheimr.Aegir;
 namespace org.GraphDefined.OpenData.Users
 {
 
+    public delegate Boolean OrganizationProviderDelegate(Organization_Id OrganizationId, out Organization Organization);
+
     public delegate JObject OrganizationToJSONDelegate(Organization  Organization,
                                                        Boolean       Embedded            = false,
                                                        InfoStatus    ExpandTags          = InfoStatus.ShowIdOnly,

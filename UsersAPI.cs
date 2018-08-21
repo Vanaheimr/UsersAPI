@@ -3175,15 +3175,15 @@ namespace org.GraphDefined.OpenData.Users
                                                           {
 
                                                               case "guest":
-                                                                  AddToOrganization(NewUser, User2OrganizationEdges.IsGuest, _Organization);
+                                                                  AddToOrganization(NewUser, User2OrganizationEdges.IsGuest,   _Organization);
                                                                   break;
 
                                                               case "member":
-                                                                  AddToOrganization(NewUser, User2OrganizationEdges.IsMember, _Organization);
+                                                                  AddToOrganization(NewUser, User2OrganizationEdges.IsMember,  _Organization);
                                                                   break;
 
                                                               case "admin":
-                                                                  AddToOrganization(NewUser, User2OrganizationEdges.IsAdmin, _Organization);
+                                                                  AddToOrganization(NewUser, User2OrganizationEdges.IsAdmin,   _Organization);
                                                                   break;
 
                                                           }
@@ -3233,6 +3233,9 @@ namespace org.GraphDefined.OpenData.Users
                                               }
                                               catch (Exception e)
                                               {
+
+                                                  while (e.InnerException != null)
+                                                      e = e.InnerException;
 
                                                   return Task.FromResult(
                                                              new HTTPResponse.Builder(Request) {
@@ -5084,6 +5087,7 @@ namespace org.GraphDefined.OpenData.Users
 
                                         #region AddPassword
 
+                                        case "addPassword":
                                         case "AddPassword":
 
                                             if (!_LoginPasswords.ContainsKey(Login))
@@ -5105,6 +5109,7 @@ namespace org.GraphDefined.OpenData.Users
 
                                         #region ChangePassword
 
+                                        case "changePassword":
                                         case "ChangePassword":
 
                                             if (_LoginPasswords.TryGetValue(Login, out LoginPassword _LoginPassword) &&
@@ -5127,6 +5132,7 @@ namespace org.GraphDefined.OpenData.Users
 
                                         #region ResetPassword
 
+                                        case "resetPassword":
                                         case "ResetPassword":
 
                                             if (_LoginPasswords.ContainsKey(Login))
@@ -5283,12 +5289,12 @@ namespace org.GraphDefined.OpenData.Users
                                     if (ErrorResponse == null)
                                     {
 
-                                        switch (JSONCommand)
+                                        switch (JSONCommand.ToLower())
                                         {
 
                                             #region Add
 
-                                            case "Add":
+                                            case "add":
 
                                                 if (!PasswordResets.ContainsKey(_PasswordReset.SecurityToken1))
                                                 {
@@ -5308,7 +5314,7 @@ namespace org.GraphDefined.OpenData.Users
 
                                             #region Remove
 
-                                            case "Remove":
+                                            case "remove":
                                                 PasswordResets.Remove(_PasswordReset.SecurityToken1);
                                                 break;
 
@@ -5366,6 +5372,7 @@ namespace org.GraphDefined.OpenData.Users
 
                 #region CreateUser
 
+                case "createUser":
                 case "CreateUser":
 
                     if (User.TryParseJSON(JSONObject,
@@ -5385,6 +5392,7 @@ namespace org.GraphDefined.OpenData.Users
                 #region AddOrUpdateUser
 
                 case "addOrUpdateUser":
+                case "AddOrUpdateUser":
 
                     if (User.TryParseJSON(JSONObject,
                                           out NewUser,
@@ -5411,6 +5419,7 @@ namespace org.GraphDefined.OpenData.Users
                 #region UpdateUser
 
                 case "updateUser":
+                case "UpdateUser":
 
                     if (User.TryParseJSON(JSONObject,
                                           out NewUser,
@@ -5440,6 +5449,7 @@ namespace org.GraphDefined.OpenData.Users
 
                 #region CreateGroup
 
+                case "createGroup":
                 case "CreateGroup":
 
                     if (Group.TryParseJSON(JSONObject,
@@ -5460,6 +5470,7 @@ namespace org.GraphDefined.OpenData.Users
 
                 #region CreateOrganization
 
+                case "createOrganization":
                 case "CreateOrganization":
 
                     if (Organization.TryParseJSON(JSONObject,
@@ -5625,6 +5636,7 @@ namespace org.GraphDefined.OpenData.Users
 
                 #region LinkOrganizations
 
+                case "linkOrganizations":
                 case "LinkOrganizations":
 
                     var O2O_OrganizationOut  = _Organizations[Organization_Id.Parse(JSONObject["organizationOut"].Value<String>())];
@@ -5645,6 +5657,7 @@ namespace org.GraphDefined.OpenData.Users
 
                 #region AddUserToGroup
 
+                case "addUserToGroup":
                 case "AddUserToGroup":
 
                     var U2G_User     = _Users [User_Id. Parse(JSONObject["user" ].Value<String>())];
@@ -5664,12 +5677,35 @@ namespace org.GraphDefined.OpenData.Users
 
                 #region AddUserToOrganization
 
+                case "addUserToOrganization":
                 case "AddUserToOrganization":
 
-                    var U2O_User          = _Users        [User_Id.        Parse(JSONObject["user" ].Value<String>())];
-                    var U2O_Organization  = _Organizations[Organization_Id.Parse(JSONObject["organization"].Value<String>())];
-                    var U2O_Edge          = (User2OrganizationEdges) Enum.Parse(typeof(User2OrganizationEdges), JSONObject["edge"].        Value<String>());
-                    var U2O_Privacy       = JSONObject.ParseMandatory_PrivacyLevel();
+                    if (!User_Id.TryParse(JSONObject["user"]?.Value<String>(), out User_Id U2O_UserId))
+                    {
+                        DebugX.Log(String.Concat(nameof(UsersAPI), " ", Command, ": ", "Invalid user identification '" + JSONObject["user"]?.Value<String>() + "'!"));
+                        break;
+                    }
+
+                    if (!TryGetUser(U2O_UserId, out User U2O_User))
+                    {
+                        DebugX.Log(String.Concat(nameof(UsersAPI), " ", Command, ": ", "Unknown user '" + U2O_UserId + "'!"));
+                        break;
+                    }
+
+                    if (!Organization_Id.TryParse(JSONObject["organization"]?.Value<String>(), out Organization_Id U2O_OrganizationId))
+                    {
+                        DebugX.Log(String.Concat(nameof(UsersAPI), " ", Command, ": ", "Invalid organization identification '" + JSONObject["user"]?.Value<String>() + "'!"));
+                        break;
+                    }
+
+                    if (!TryGet(U2O_OrganizationId, out Organization U2O_Organization))
+                    {
+                        DebugX.Log(String.Concat(nameof(UsersAPI), " ", Command, ": ", "Unknown organization '" + U2O_OrganizationId + "'!"));
+                        break;
+                    }
+
+                    var U2O_Edge     = (User2OrganizationEdges) Enum.Parse(typeof(User2OrganizationEdges), JSONObject["edge"].Value<String>());
+                    var U2O_Privacy  = JSONObject.ParseMandatory_PrivacyLevel();
 
                     if (!U2O_User.Edges(U2O_Organization).Any(edgelabel => edgelabel == U2O_Edge))
                         U2O_User.AddOutgoingEdge(U2O_Edge, U2O_Organization, U2O_Privacy);
@@ -5684,6 +5720,7 @@ namespace org.GraphDefined.OpenData.Users
 
                 #region AddNotification
 
+                case "addNotification":
                 case "AddNotification":
 
                     if (JSONObject["userId"]?.Value<String>().IsNotNullOrEmpty() == true &&
@@ -5812,11 +5849,12 @@ namespace org.GraphDefined.OpenData.Users
 
                 #region AddAPIKey
 
+                case "addAPIKey":
                 case "AddAPIKey":
 
                     if (APIKeyInfo.TryParseJSON(JSONObject,
                                                 out APIKeyInfo _APIKey,
-                                                userid => _Users[userid],
+                                                _Users.TryGetValue,
                                                 out ErrorResponse))
                     {
                         _APIKeys.AddAndReturnValue(_APIKey.APIKey, _APIKey);
@@ -6290,27 +6328,28 @@ namespace org.GraphDefined.OpenData.Users
         //}
 
 
-        #region AddEventSource(HTTPEventSourceId, URITemplate, IncludeFilterAtRuntime, ...)
+        #region AddEventSource(HTTPEventSourceId, URITemplate, IncludeFilterAtRuntime, CreateState, ...)
 
-        public void AddEventSource(HTTPEventSource_Id              HTTPEventSourceId,
-                                   HTTPURI                         URITemplate,
+        public void AddEventSource<TState>(HTTPEventSource_Id                      HTTPEventSourceId,
+                                           HTTPURI                                 URITemplate,
 
-                                   Func<User, HTTPEvent, Boolean>  IncludeFilterAtRuntime,
+                                           Func<TState, User, HTTPEvent, Boolean>  IncludeFilterAtRuntime,
+                                           Func<TState>                            CreateState,
 
-                                   HTTPHostname?                   Hostname                   = null,
-                                   HTTPMethod?                     HttpMethod                 = null,
-                                   HTTPContentType                 HTTPContentType            = null,
+                                           HTTPHostname?                           Hostname                   = null,
+                                           HTTPMethod?                             HttpMethod                 = null,
+                                           HTTPContentType                         HTTPContentType            = null,
 
-                                   HTTPAuthentication              URIAuthentication          = null,
-                                   HTTPAuthentication              HTTPMethodAuthentication   = null,
+                                           HTTPAuthentication                      URIAuthentication          = null,
+                                           HTTPAuthentication                      HTTPMethodAuthentication   = null,
 
-                                   HTTPDelegate                    DefaultErrorHandler        = null)
+                                           HTTPDelegate                            DefaultErrorHandler        = null)
         {
 
             if (IncludeFilterAtRuntime == null)
-                IncludeFilterAtRuntime = (u, e) => true;
+                IncludeFilterAtRuntime = (s, u, e) => true;
 
-            if (TryGet(HTTPEventSourceId, out HTTPEventSource _EventSource))
+            if (TryGet(HTTPEventSourceId, out IHTTPEventSource _EventSource))
             {
 
                 HTTPServer.AddMethodCallback(Hostname        ?? HTTPHostname.Any,
@@ -6337,11 +6376,14 @@ namespace org.GraphDefined.OpenData.Users
 
                                                  #endregion
 
-                                                 var _HTTPEvents         = _EventSource.GetAllEventsGreater(Request.GetHeaderField_UInt64("Last-Event-ID")).
-                                                                                        Where (_event => IncludeFilterAtRuntime(HTTPUser, _event)).
-                                                                                        Select(_event => _event.ToString()).
-                                                                                        AggregateWith(Environment.NewLine) +
-                                                                           Environment.NewLine;
+                                                 var State        = CreateState != null ? CreateState() : default(TState);
+                                                 var _HTTPEvents  = _EventSource.GetAllEventsGreater(Request.GetHeaderField_UInt64("Last-Event-ID")).
+                                                                                 Where (_event => IncludeFilterAtRuntime(State,
+                                                                                                                         HTTPUser,
+                                                                                                                         _event)).
+                                                                                 Select(_event => _event.ToString()).
+                                                                                 AggregateWith(Environment.NewLine) +
+                                                                                 Environment.NewLine;
 
                                         //             _ResourceContent += Environment.NewLine + "retry: " + ((UInt32)_EventSource.RetryIntervall.TotalMilliseconds) + Environment.NewLine + Environment.NewLine;
 
@@ -6366,26 +6408,26 @@ namespace org.GraphDefined.OpenData.Users
 
         }
 
+        public void AddEventSource<TState>(HTTPEventSource_Id                                                 HTTPEventSourceId,
+                                           HTTPURI                                                            URITemplate,
 
-        public void AddEventSource(HTTPEventSource_Id                                         HTTPEventSourceId,
-                                   HTTPURI                                                    URITemplate,
+                                           Func<TState, User, IEnumerable<Organization>, HTTPEvent, Boolean>  IncludeFilterAtRuntime,
+                                           Func<TState>                                                       CreateState,
 
-                                   Func<User, IEnumerable<Organization>, HTTPEvent, Boolean>  IncludeFilterAtRuntime,
+                                           HTTPHostname?                                                      Hostname                   = null,
+                                           HTTPMethod?                                                        HttpMethod                 = null,
+                                           HTTPContentType                                                    HTTPContentType            = null,
 
-                                   HTTPHostname?                                              Hostname                   = null,
-                                   HTTPMethod?                                                HttpMethod                 = null,
-                                   HTTPContentType                                            HTTPContentType            = null,
+                                           HTTPAuthentication                                                 URIAuthentication          = null,
+                                           HTTPAuthentication                                                 HTTPMethodAuthentication   = null,
 
-                                   HTTPAuthentication                                         URIAuthentication          = null,
-                                   HTTPAuthentication                                         HTTPMethodAuthentication   = null,
-
-                                   HTTPDelegate                                               DefaultErrorHandler        = null)
+                                           HTTPDelegate                                                       DefaultErrorHandler        = null)
         {
 
             if (IncludeFilterAtRuntime == null)
-                IncludeFilterAtRuntime = (u, o, e) => true;
+                IncludeFilterAtRuntime = (s, u, o, e) => true;
 
-            if (TryGet(HTTPEventSourceId, out HTTPEventSource _EventSource))
+            if (TryGet(HTTPEventSourceId, out IHTTPEventSource _EventSource))
             {
 
                 HTTPServer.AddMethodCallback(Hostname        ?? HTTPHostname.Any,
@@ -6412,13 +6454,15 @@ namespace org.GraphDefined.OpenData.Users
 
                                                  #endregion
 
-                                                 var _HTTPEvents         = _EventSource.GetAllEventsGreater(Request.GetHeaderField_UInt64("Last-Event-ID")).
-                                                                                        Where (_event => IncludeFilterAtRuntime(HTTPUser,
-                                                                                                                                HTTPOrganizations,
-                                                                                                                                _event)).
-                                                                                        Select(_event => _event.ToString()).
-                                                                                        AggregateWith(Environment.NewLine) +
-                                                                           Environment.NewLine;
+                                                 var State        = CreateState != null ? CreateState() : default(TState);
+                                                 var _HTTPEvents  = _EventSource.GetAllEventsGreater(Request.GetHeaderField_UInt64("Last-Event-ID")).
+                                                                        Where (_event => IncludeFilterAtRuntime(State,
+                                                                                                                HTTPUser,
+                                                                                                                HTTPOrganizations,
+                                                                                                                _event)).
+                                                                        Select(_event => _event.ToString()).
+                                                                        AggregateWith(Environment.NewLine) +
+                                                                        Environment.NewLine;
 
                                         //             _ResourceContent += Environment.NewLine + "retry: " + ((UInt32)_EventSource.RetryIntervall.TotalMilliseconds) + Environment.NewLine + Environment.NewLine;
 
@@ -8018,7 +8062,7 @@ namespace org.GraphDefined.OpenData.Users
         #region GetNotifications  (User,   NotificationMessageType = null)
 
         public IEnumerable<ANotification> GetNotifications(User                      User,
-                                                               NotificationMessageType?  NotificationMessageType = null)
+                                                           NotificationMessageType?  NotificationMessageType = null)
 
             => User.GetNotifications(NotificationMessageType);
 
@@ -8058,6 +8102,52 @@ namespace org.GraphDefined.OpenData.Users
                    : new T[0];
 
         #endregion
+
+
+        #region GetNotifications  (User,   NotificationMessageTypeFilter)
+
+        public IEnumerable<ANotification> GetNotifications(User                                    User,
+                                                           Func<NotificationMessageType, Boolean>  NotificationMessageTypeFilter)
+
+            => User.GetNotifications(NotificationMessageTypeFilter);
+
+        #endregion
+
+        #region GetNotifications  (UserId, NotificationMessageTypeFilter)
+
+        public IEnumerable<ANotification> GetNotifications(User_Id                                 UserId,
+                                                           Func<NotificationMessageType, Boolean>  NotificationMessageTypeFilter)
+
+            => TryGetUser(UserId, out User User)
+                   ? User.GetNotifications(NotificationMessageTypeFilter)
+                   : new ANotification[0];
+
+        #endregion
+
+        #region GetNotificationsOf(User,   NotificationMessageTypeFilter)
+
+        public IEnumerable<T> GetNotificationsOf<T>(User                                    User,
+                                                    Func<NotificationMessageType, Boolean>  NotificationMessageTypeFilter)
+
+            where T : ANotification
+
+            => User.GetNotificationsOf<T>(NotificationMessageTypeFilter);
+
+        #endregion
+
+        #region GetNotificationsOf(UserId, NotificationMessageTypeFilter)
+
+        public IEnumerable<T> GetNotificationsOf<T>(User_Id                                 UserId,
+                                                    Func<NotificationMessageType, Boolean>  NotificationMessageTypeFilter)
+
+            where T : ANotification
+
+            => TryGetUser(UserId, out User User)
+                   ? User.GetNotificationsOf<T>(NotificationMessageTypeFilter)
+                   : new T[0];
+
+        #endregion
+
 
 
         //public Notifications UnregisterNotification<T>(User              User,

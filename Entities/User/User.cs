@@ -25,6 +25,8 @@ using Newtonsoft.Json.Linq;
 
 using Org.BouncyCastle.Bcpg.OpenPgp;
 
+using org.GraphDefined.OpenData.Notifications;
+
 using org.GraphDefined.Vanaheimr.Aegir;
 using org.GraphDefined.Vanaheimr.Illias;
 using org.GraphDefined.Vanaheimr.Hermod;
@@ -33,12 +35,13 @@ using org.GraphDefined.Vanaheimr.Hermod.Distributed;
 using org.GraphDefined.Vanaheimr.Hermod.HTTP;
 using org.GraphDefined.Vanaheimr.Styx.Arrows;
 using org.GraphDefined.Vanaheimr.BouncyCastle;
-using org.GraphDefined.OpenData.Notifications;
 
 #endregion
 
 namespace org.GraphDefined.OpenData.Users
 {
+
+    public delegate Boolean UserProviderDelegate(User_Id UserId, out User User);
 
     public enum Access_Levels
     {
@@ -474,12 +477,10 @@ namespace org.GraphDefined.OpenData.Users
 
         public IEnumerable<ANotification> GetNotifications(NotificationMessageType?  NotificationMessageType = null)
         {
-
             lock (_Notifications)
             {
                 return _Notifications.GetNotifications(NotificationMessageType);
             }
-
         }
 
         #endregion
@@ -500,6 +501,36 @@ namespace org.GraphDefined.OpenData.Users
         }
 
         #endregion
+
+        #region GetNotifications  (NotificationMessageTypeFilter)
+
+        public IEnumerable<ANotification> GetNotifications(Func<NotificationMessageType, Boolean> NotificationMessageTypeFilter)
+        {
+            lock (_Notifications)
+            {
+                return _Notifications.GetNotifications(NotificationMessageTypeFilter);
+            }
+        }
+
+        #endregion
+
+        #region GetNotificationsOf(NotificationMessageTypeFilter)
+
+        public IEnumerable<T> GetNotificationsOf<T>(Func<NotificationMessageType, Boolean> NotificationMessageTypeFilter)
+
+            where T : ANotification
+
+        {
+
+            lock (_Notifications)
+            {
+                return _Notifications.GetNotificationsOf<T>(NotificationMessageTypeFilter);
+            }
+
+        }
+
+        #endregion
+
 
         public JArray GetNotificationInfos()
             => _Notifications.ToJSON();
