@@ -6512,42 +6512,15 @@ namespace org.GraphDefined.OpenData.Users
         #endregion
 
 
-        #region CreateUser           (Id, EMail, Password, Name = null, Description = null, PublicKeyRing = null, SecretKeyRing = null, MobilePhone = null, IsPublic = true, IsDisabled = false, IsAuthenticated = false)
+        #region Add           (User, CurrentUserId = null)
 
         /// <summary>
-        /// Create a new user.
+        /// Add the given user to the API.
         /// </summary>
-        /// <param name="Id">The unique identification of the user.</param>
-        /// <param name="EMail">The primary e-mail of the user.</param>
-        /// <param name="Password">An optional password of the user.</param>
-        /// <param name="Name">An offical (multi-language) name of the user.</param>
-        /// <param name="Description">An optional (multi-language) description of the user.</param>
-        /// <param name="PublicKeyRing">An optional PGP/GPG public keyring of the user.</param>
-        /// <param name="SecretKeyRing">An optional PGP/GPG secret keyring of the user.</param>
-        /// <param name="Telephone">An optional telephone number of the user.</param>
-        /// <param name="MobilePhone">An optional mobile telephone number of the user.</param>
-        /// <param name="GeoLocation">An optional geographical location of the user.</param>
-        /// <param name="Address">An optional address of the user.</param>
-        /// <param name="PrivacyLevel">Whether the user will be shown in user listings, or not.</param>
-        /// <param name="AcceptedEULA">Timestamp when the user accepted the End-User-License-Agreement.</param>
-        /// <param name="IsAuthenticated">The user will not be shown in user listings, as its primary e-mail address is not yet authenticated.</param>
-        /// <param name="IsDisabled">The user will be shown in user listings.</param>
-        public async Task<User> CreateUser(User_Id             Id,
-                                           SimpleEMailAddress  EMail,
-                                           Password?           Password          = null,
-                                           String              Name              = null,
-                                           I18NString          Description       = null,
-                                           PgpPublicKeyRing    PublicKeyRing     = null,
-                                           PgpSecretKeyRing    SecretKeyRing     = null,
-                                           PhoneNumber?        Telephone         = null,
-                                           PhoneNumber?        MobilePhone       = null,
-                                           GeoCoordinate?      GeoLocation       = null,
-                                           Address             Address           = null,
-                                           PrivacyLevel        PrivacyLevel      = PrivacyLevel.World,
-                                           DateTime?           AcceptedEULA      = null,
-                                           Boolean             IsAuthenticated   = false,
-                                           Boolean             IsDisabled        = false,
-                                           User_Id?            CurrentUserId     = null)
+        /// <param name="User">A new user to be added to this API.</param>
+        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
+        public async Task<User> Add(User      User,
+                                    User_Id?  CurrentUserId  = null)
         {
 
             try
@@ -6555,32 +6528,18 @@ namespace org.GraphDefined.OpenData.Users
 
                 await UsersSemaphore.WaitAsync();
 
-                if (_Users.ContainsKey(Id))
-                    throw new ArgumentException("The given username already exists!", nameof(Id));
+                if (User.API != null && User.API != this)
+                    throw new ArgumentException(nameof(User), "The given user is already attached to another API!");
 
+                if (_Users.ContainsKey(User.Id))
+                    throw new Exception("User '" + User.Id + "' already exists in this API!");
 
-                var User = new User(Id,
-                                    EMail,
-                                    Name,
-                                    Description,
-                                    PublicKeyRing,
-                                    SecretKeyRing,
-                                    Telephone,
-                                    MobilePhone,
-                                    GeoLocation,
-                                    Address,
-                                    PrivacyLevel,
-                                    AcceptedEULA,
-                                    IsAuthenticated,
-                                    IsDisabled);
+                User.API = this;
 
-                WriteToLogfileAndNotify(NotificationMessageType.Parse("createUser"),
+                WriteToLogfileAndNotify(NotificationMessageType.Parse("addUser"),
                                         User.ToJSON(),
                                         NoOwner,
                                         CurrentUserId);
-
-                if (Password.HasValue)
-                    await ChangePassword(Id, Password.Value, null, CurrentUserId);
 
                 return _Users.AddAndReturnValue(User.Id, User);
 
@@ -6594,42 +6553,15 @@ namespace org.GraphDefined.OpenData.Users
 
         #endregion
 
-        #region CreateUserIfNotExists(Id, EMail, Password, Name = null, Description = null, PublicKeyRing = null, SecretKeyRing = null, MobilePhone = null, IsPublic = true, IsDisabled = false, IsAuthenticated = false)
+        #region AddIfNotExists(User, CurrentUserId = null)
 
         /// <summary>
-        /// Create a new user.
+        /// When it has not been created before, add the given user to the API.
         /// </summary>
-        /// <param name="Id">The unique identification of the user.</param>
-        /// <param name="EMail">The primary e-mail of the user.</param>
-        /// <param name="Password">An optional password of the user.</param>
-        /// <param name="Name">An offical (multi-language) name of the user.</param>
-        /// <param name="Description">An optional (multi-language) description of the user.</param>
-        /// <param name="PublicKeyRing">An optional PGP/GPG public keyring of the user.</param>
-        /// <param name="SecretKeyRing">An optional PGP/GPG secret keyring of the user.</param>
-        /// <param name="Telephone">An optional telephone number of the user.</param>
-        /// <param name="MobilePhone">An optional telephone number of the user.</param>
-        /// <param name="GeoLocation">An optional geographical location of the user.</param>
-        /// <param name="Address">An optional address of the user.</param>
-        /// <param name="PrivacyLevel">Whether the user will be shown in user listings, or not.</param>
-        /// <param name="AcceptedEULA">Timestamp when the user accepted the End-User-License-Agreement.</param>
-        /// <param name="IsAuthenticated">The user will not be shown in user listings, as its primary e-mail address is not yet authenticated.</param>
-        /// <param name="IsDisabled">The user will be shown in user listings.</param>
-        public async Task<User> CreateUserIfNotExists(User_Id             Id,
-                                                      SimpleEMailAddress  EMail,
-                                                      Password?           Password          = null,
-                                                      String              Name              = null,
-                                                      I18NString          Description       = null,
-                                                      PgpPublicKeyRing    PublicKeyRing     = null,
-                                                      PgpSecretKeyRing    SecretKeyRing     = null,
-                                                      PhoneNumber?        Telephone         = null,
-                                                      PhoneNumber?        MobilePhone       = null,
-                                                      GeoCoordinate?      GeoLocation       = null,
-                                                      Address             Address           = null,
-                                                      PrivacyLevel        PrivacyLevel      = PrivacyLevel.World,
-                                                      DateTime?           AcceptedEULA      = null,
-                                                      Boolean             IsAuthenticated   = false,
-                                                      Boolean             IsDisabled        = false,
-                                                      User_Id?            CurrentUserId     = null)
+        /// <param name="User">A new user to be added to this API.</param>
+        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
+        public async Task<User> AddIfNotExists(User      User,
+                                               User_Id?  CurrentUserId  = null)
         {
 
             try
@@ -6637,25 +6569,20 @@ namespace org.GraphDefined.OpenData.Users
 
                 await UsersSemaphore.WaitAsync();
 
-                if (_Users.ContainsKey(Id))
-                    return _Users[Id];
+                if (User.API != null && User.API != this)
+                    throw new ArgumentException(nameof(User), "The given user is already attached to another API!");
 
-                return await CreateUser(Id,
-                                        EMail,
-                                        Password,
-                                        Name,
-                                        Description,
-                                        PublicKeyRing,
-                                        SecretKeyRing,
-                                        Telephone,
-                                        MobilePhone,
-                                        GeoLocation,
-                                        Address,
-                                        PrivacyLevel,
-                                        AcceptedEULA,
-                                        IsAuthenticated,
-                                        IsDisabled,
+                if (_Users.ContainsKey(User.Id))
+                    return _Users[User.Id];
+
+                User.API = this;
+
+                WriteToLogfileAndNotify(NotificationMessageType.Parse("addIfNotExistsUser"),
+                                        User.ToJSON(),
+                                        NoOwner,
                                         CurrentUserId);
+
+                return _Users.AddAndReturnValue(User.Id, User);
 
             }
             finally
@@ -6667,7 +6594,7 @@ namespace org.GraphDefined.OpenData.Users
 
         #endregion
 
-        #region AddOrUpdate(User, CurrentUserId = null)
+        #region AddOrUpdate   (User, CurrentUserId = null)
 
         /// <summary>
         /// Add or update the given user to/within the API.
@@ -6711,7 +6638,7 @@ namespace org.GraphDefined.OpenData.Users
 
         #endregion
 
-        #region Update     (User, CurrentUserId = null)
+        #region Update        (User, CurrentUserId = null)
 
         /// <summary>
         /// Update the given user to/within the API.
@@ -6756,7 +6683,7 @@ namespace org.GraphDefined.OpenData.Users
 
         #endregion
 
-        #region Update     (UserId, UpdateDelegate, CurrentUserId = null)
+        #region Update        (UserId, UpdateDelegate, CurrentUserId = null)
 
         /// <summary>
         /// Update the given user.
@@ -6803,6 +6730,119 @@ namespace org.GraphDefined.OpenData.Users
             }
 
         }
+
+        #endregion
+
+
+        #region CreateUser           (Id, EMail, Password, Name = null, Description = null, PublicKeyRing = null, SecretKeyRing = null, MobilePhone = null, IsPublic = true, IsDisabled = false, IsAuthenticated = false)
+
+        /// <summary>
+        /// Create a new user.
+        /// </summary>
+        /// <param name="Id">The unique identification of the user.</param>
+        /// <param name="EMail">The primary e-mail of the user.</param>
+        /// <param name="Password">An optional password of the user.</param>
+        /// <param name="Name">An offical (multi-language) name of the user.</param>
+        /// <param name="Description">An optional (multi-language) description of the user.</param>
+        /// <param name="PublicKeyRing">An optional PGP/GPG public keyring of the user.</param>
+        /// <param name="SecretKeyRing">An optional PGP/GPG secret keyring of the user.</param>
+        /// <param name="Telephone">An optional telephone number of the user.</param>
+        /// <param name="MobilePhone">An optional mobile telephone number of the user.</param>
+        /// <param name="GeoLocation">An optional geographical location of the user.</param>
+        /// <param name="Address">An optional address of the user.</param>
+        /// <param name="PrivacyLevel">Whether the user will be shown in user listings, or not.</param>
+        /// <param name="AcceptedEULA">Timestamp when the user accepted the End-User-License-Agreement.</param>
+        /// <param name="IsAuthenticated">The user will not be shown in user listings, as its primary e-mail address is not yet authenticated.</param>
+        /// <param name="IsDisabled">The user will be shown in user listings.</param>
+        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
+        public Task<User> CreateUser(User_Id             Id,
+                                     SimpleEMailAddress  EMail,
+                                     Password?           Password          = null,
+                                     String              Name              = null,
+                                     I18NString          Description       = null,
+                                     PgpPublicKeyRing    PublicKeyRing     = null,
+                                     PgpSecretKeyRing    SecretKeyRing     = null,
+                                     PhoneNumber?        Telephone         = null,
+                                     PhoneNumber?        MobilePhone       = null,
+                                     GeoCoordinate?      GeoLocation       = null,
+                                     Address             Address           = null,
+                                     PrivacyLevel        PrivacyLevel      = PrivacyLevel.Private,
+                                     DateTime?           AcceptedEULA      = null,
+                                     Boolean             IsAuthenticated   = false,
+                                     Boolean             IsDisabled        = false,
+                                     User_Id?            CurrentUserId     = null)
+
+            => Add(new User(Id,
+                            EMail,
+                            Name,
+                            Description,
+                            PublicKeyRing,
+                            SecretKeyRing,
+                            Telephone,
+                            MobilePhone,
+                            GeoLocation,
+                            Address,
+                            PrivacyLevel,
+                            AcceptedEULA,
+                            IsAuthenticated,
+                            IsDisabled),
+                   CurrentUserId);
+
+        #endregion
+
+        #region CreateUserIfNotExists(Id, EMail, Password, Name = null, Description = null, PublicKeyRing = null, SecretKeyRing = null, MobilePhone = null, IsPublic = true, IsDisabled = false, IsAuthenticated = false)
+
+        /// <summary>
+        /// Create a new user.
+        /// </summary>
+        /// <param name="Id">The unique identification of the user.</param>
+        /// <param name="EMail">The primary e-mail of the user.</param>
+        /// <param name="Password">An optional password of the user.</param>
+        /// <param name="Name">An offical (multi-language) name of the user.</param>
+        /// <param name="Description">An optional (multi-language) description of the user.</param>
+        /// <param name="PublicKeyRing">An optional PGP/GPG public keyring of the user.</param>
+        /// <param name="SecretKeyRing">An optional PGP/GPG secret keyring of the user.</param>
+        /// <param name="Telephone">An optional telephone number of the user.</param>
+        /// <param name="MobilePhone">An optional telephone number of the user.</param>
+        /// <param name="GeoLocation">An optional geographical location of the user.</param>
+        /// <param name="Address">An optional address of the user.</param>
+        /// <param name="PrivacyLevel">Whether the user will be shown in user listings, or not.</param>
+        /// <param name="AcceptedEULA">Timestamp when the user accepted the End-User-License-Agreement.</param>
+        /// <param name="IsAuthenticated">The user will not be shown in user listings, as its primary e-mail address is not yet authenticated.</param>
+        /// <param name="IsDisabled">The user will be shown in user listings.</param>
+        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
+        public Task<User> CreateUserIfNotExists(User_Id             Id,
+                                                SimpleEMailAddress  EMail,
+                                                Password?           Password          = null,
+                                                String              Name              = null,
+                                                I18NString          Description       = null,
+                                                PgpPublicKeyRing    PublicKeyRing     = null,
+                                                PgpSecretKeyRing    SecretKeyRing     = null,
+                                                PhoneNumber?        Telephone         = null,
+                                                PhoneNumber?        MobilePhone       = null,
+                                                GeoCoordinate?      GeoLocation       = null,
+                                                Address             Address           = null,
+                                                PrivacyLevel        PrivacyLevel      = PrivacyLevel.Private,
+                                                DateTime?           AcceptedEULA      = null,
+                                                Boolean             IsAuthenticated   = false,
+                                                Boolean             IsDisabled        = false,
+                                                User_Id?            CurrentUserId     = null)
+
+            => AddIfNotExists(new User(Id,
+                                       EMail,
+                                       Name,
+                                       Description,
+                                       PublicKeyRing,
+                                       SecretKeyRing,
+                                       Telephone,
+                                       MobilePhone,
+                                       GeoLocation,
+                                       Address,
+                                       PrivacyLevel,
+                                       AcceptedEULA,
+                                       IsAuthenticated,
+                                       IsDisabled),
+                              CurrentUserId);
 
         #endregion
 
@@ -7370,102 +7410,69 @@ namespace org.GraphDefined.OpenData.Users
 
         #region CreateOrganization           (Id, Name = null, Description = null, ParentOrganization = null)
 
-        public async Task<Organization> CreateOrganization(Organization_Id           Id,
-                                                           I18NString                Name                 = null,
-                                                           I18NString                Description          = null,
-                                                           SimpleEMailAddress?       EMail                = null,
-                                                           String                    PublicKeyRing        = null,
-                                                           PhoneNumber?              Telephone            = null,
-                                                           GeoCoordinate?            GeoLocation          = null,
-                                                           Address                   Address              = null,
-                                                           Func<Tags.Builder, Tags>  Tags                 = null,
-                                                           PrivacyLevel              PrivacyLevel         = PrivacyLevel.World,
-                                                           Boolean                   IsDisabled           = false,
-                                                           String                    DataSource           = "",
-                                                           Organization              ParentOrganization   = null,
-                                                           User_Id?                  CurrentUserId        = null)
-        {
+        public Task<Organization> CreateOrganization(Organization_Id           Id,
+                                                     I18NString                Name                 = null,
+                                                     I18NString                Description          = null,
+                                                     SimpleEMailAddress?       EMail                = null,
+                                                     String                    PublicKeyRing        = null,
+                                                     PhoneNumber?              Telephone            = null,
+                                                     GeoCoordinate?            GeoLocation          = null,
+                                                     Address                   Address              = null,
+                                                     Func<Tags.Builder, Tags>  Tags                 = null,
+                                                     PrivacyLevel              PrivacyLevel         = PrivacyLevel.Private,
+                                                     Boolean                   IsDisabled           = false,
+                                                     String                    DataSource           = "",
+                                                     Organization              ParentOrganization   = null,
+                                                     User_Id?                  CurrentUserId        = null)
 
-            try
-            {
-
-                await OrganizationsSemaphore.WaitAsync();
-
-                if (_Organizations.ContainsKey(Id))
-                    throw new ArgumentException("The given organization identification already exists!", nameof(Id));
-
-                return Add(new Organization(Id,
-                                            Name,
-                                            Description,
-                                            EMail,
-                                            PublicKeyRing,
-                                            Telephone,
-                                            GeoLocation,
-                                            Address,
-                                            Tags,
-                                            PrivacyLevel,
-                                            IsDisabled,
-                                            DataSource),
-                           ParentOrganization).Result;
-
-            }
-            finally
-            {
-                OrganizationsSemaphore.Release();
-            }
-
-        }
+            => Add(new Organization(Id,
+                                    Name,
+                                    Description,
+                                    EMail,
+                                    PublicKeyRing,
+                                    Telephone,
+                                    GeoLocation,
+                                    Address,
+                                    Tags,
+                                    PrivacyLevel,
+                                    IsDisabled,
+                                    DataSource),
+                   ParentOrganization,
+                   CurrentUserId);
 
         #endregion
 
         #region CreateOrganizationIfNotExists(Id, Name = null, Description = null, ParentOrganization = null)
 
-        public async Task<Organization> CreateOrganizationIfNotExists(Organization_Id           Id,
-                                                                      I18NString                Name                 = null,
-                                                                      I18NString                Description          = null,
-                                                                      SimpleEMailAddress?       EMail                = null,
-                                                                      String                    PublicKeyRing        = null,
-                                                                      PhoneNumber?              Telephone            = null,
-                                                                      GeoCoordinate?            GeoLocation          = null,
-                                                                      Address                   Address              = null,
-                                                                      Func<Tags.Builder, Tags>  Tags                 = null,
-                                                                      PrivacyLevel              PrivacyLevel         = PrivacyLevel.World,
-                                                                      Boolean                   IsDisabled           = false,
-                                                                      String                    DataSource           = "",
-                                                                      Organization              ParentOrganization   = null,
-                                                                      User_Id?                  CurrentUserId        = null)
-        {
+        public Task<Organization> CreateOrganizationIfNotExists(Organization_Id           Id,
+                                                                I18NString                Name                 = null,
+                                                                I18NString                Description          = null,
+                                                                SimpleEMailAddress?       EMail                = null,
+                                                                String                    PublicKeyRing        = null,
+                                                                PhoneNumber?              Telephone            = null,
+                                                                GeoCoordinate?            GeoLocation          = null,
+                                                                Address                   Address              = null,
+                                                                Func<Tags.Builder, Tags>  Tags                 = null,
+                                                                PrivacyLevel              PrivacyLevel         = PrivacyLevel.Private,
+                                                                Boolean                   IsDisabled           = false,
+                                                                String                    DataSource           = "",
+                                                                Organization              ParentOrganization   = null,
+                                                                User_Id?                  CurrentUserId        = null)
 
-            try
-            {
-
-                await OrganizationsSemaphore.WaitAsync();
-
-                if (_Organizations.ContainsKey(Id))
-                    return _Organizations[Id];
-
-                return CreateOrganization(Id,
-                                          Name,
-                                          Description,
-                                          EMail,
-                                          PublicKeyRing,
-                                          Telephone,
-                                          GeoLocation,
-                                          Address,
-                                          Tags,
-                                          PrivacyLevel,
-                                          IsDisabled,
-                                          DataSource,
-                                          ParentOrganization,
-                                          CurrentUserId).Result;
-
-            }
-            finally
-            {
-                OrganizationsSemaphore.Release();
-            }
-
-        }
+            => AddIfNotExists(new Organization(Id,
+                                               Name,
+                                               Description,
+                                               EMail,
+                                               PublicKeyRing,
+                                               Telephone,
+                                               GeoLocation,
+                                               Address,
+                                               Tags,
+                                               PrivacyLevel,
+                                               IsDisabled,
+                                               DataSource),
+                              ParentOrganization,
+                              CurrentUserId);
 
         #endregion
 
@@ -7842,10 +7849,17 @@ namespace org.GraphDefined.OpenData.Users
                 if (_Groups.ContainsKey(Id))
                     return _Groups[Id];
 
-                return await CreateGroup(Id,
-                                         CurrentUserId,
-                                         Name,
-                                         Description);
+                var Group = new Group(Id,
+                                      Name,
+                                      Description);
+
+                if (Group.Id.ToString() != AdminGroupName)
+                    WriteToLogfileAndNotify(NotificationMessageType.Parse("createGroup"),
+                                            Group.ToJSON(),
+                                            NoOwner,
+                                            CurrentUserId);
+
+                return _Groups.AddAndReturnValue(Group.Id, Group);
 
             }
             finally
