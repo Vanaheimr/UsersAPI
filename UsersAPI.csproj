@@ -87,6 +87,7 @@
     <Compile Include="Notifications\ANotificationSender.cs" />
     <Compile Include="Representations\HTTPHelper.cs" />
     <Compile Include="Representations\JSON_IO.cs" />
+    <Compile Include="Entities\User\PasswordReset.cs" />
     <Compile Include="UsersAPI.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

@@ -40,7 +40,7 @@ namespace org.GraphDefined.OpenData.Users
         /// <summary>
         /// Private non-cryptographic random number generator.
         /// </summary>
-        private static readonly Random _Random = new Random();
+        private static readonly Random _Random = new Random(DateTime.Now.Millisecond);
 
         /// <summary>
         /// The internal identification.
