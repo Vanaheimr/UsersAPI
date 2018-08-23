@@ -4446,48 +4446,6 @@ namespace org.GraphDefined.OpenData.Users
             #endregion
 
 
-            #region GET         ~/groups
-
-            // ------------------------------------------------------------------
-            // curl -v -H "Accept: application/json" http://127.0.0.1:2100/groups
-            // ------------------------------------------------------------------
-            HTTPServer.ITEMS_GET(UriTemplate: URIPrefix + "groups",
-                                 Dictionary: _Groups,
-                                 Filter: group => group.PrivacyLevel == PrivacyLevel.World,
-                                 ToJSONDelegate: JSON_IO.ToJSON);
-
-            #endregion
-
-            #region EXISTS      ~/groups/{GroupId}
-
-            // -------------------------------------------------------------------------------------------
-            // curl -v -X EXITS -H "Accept: application/json" http://127.0.0.1:2100/groups/OK-Lab%20Jena
-            // -------------------------------------------------------------------------------------------
-            HTTPServer.ITEM_EXISTS<Group_Id, Group>(UriTemplate: URIPrefix + "groups/{GroupId}",
-                                                    ParseIdDelegate: Group_Id.TryParse,
-                                                    ParseIdError: Text => "Invalid group identification '" + Text + "'!",
-                                                    TryGetItemDelegate: _Groups.TryGetValue,
-                                                    ItemFilterDelegate: group => group.PrivacyLevel == PrivacyLevel.World,
-                                                    TryGetItemError: groupId => "Unknown group '" + groupId + "'!");
-
-            #endregion
-
-            #region GET         ~/groups/{GroupId}
-
-            // ----------------------------------------------------------------------------------
-            // curl -v -H "Accept: application/json" http://127.0.0.1:2100/groups/OK-Lab%20Jena
-            // ----------------------------------------------------------------------------------
-            HTTPServer.ITEM_GET<Group_Id, Group>(UriTemplate:         URIPrefix + "groups/{GroupId}",
-                                                 ParseIdDelegate:     Group_Id.TryParse,
-                                                 ParseIdError:        Text => "Invalid group identification '" + Text + "'!",
-                                                 TryGetItemDelegate:  _Groups.TryGetValue,
-                                                 ItemFilterDelegate:  group => group.PrivacyLevel == PrivacyLevel.World,
-                                                 TryGetItemError:     groupId => "Unknown group '" + groupId + "'!",
-                                                 ToJSONDelegate:      _ => _.ToJSON());
-
-            #endregion
-
-
             #region GET         ~/organizations
 
             #region GET         ~/organizations
@@ -4525,28 +4483,28 @@ namespace org.GraphDefined.OpenData.Users
 
                                              return Task.FromResult(
                                                  new HTTPResponse.Builder(Request) {
-                                                     HTTPStatusCode             = HTTPStatusCode.OK,
-                                                     Server                     = HTTPServer.DefaultServerName,
-                                                     Date                       = DateTime.UtcNow,
-                                                     AccessControlAllowOrigin   = "*",
-                                                     AccessControlAllowMethods  = "GET, COUNT, OPTIONS",
-                                                     AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
-                                                     ETag                       = "1",
-                                                     ContentType                = HTTPContentType.JSON_UTF8,
-                                                     Content                    = Organizations.
-                                                                                        OrderBy(organization => organization.Id).
-                                                                                        //Where  (organization => HTTPOrganizations.Contains(organization.Owner) ||
-                                                                                        //                            Admins.InEdges(HTTPUser).
-                                                                                        //                                   Any(edgelabel => edgelabel == User2GroupEdges.IsAdmin)).
-                                                                                        ToJSON(skip,
-                                                                                               take,
-                                                                                               false, //Embedded
-                                                                                               expandTags,
-                                                                                               GetOrganizationSerializator(HTTPUser),
-                                                                                               includeCryptoHash).
-                                                                                        ToUTF8Bytes(),
-                                                     X_ExpectedTotalNumberOfItems = _ExpectedCount,
-                                                     Connection = "close"
+                                                     HTTPStatusCode                = HTTPStatusCode.OK,
+                                                     Server                        = HTTPServer.DefaultServerName,
+                                                     Date                          = DateTime.UtcNow,
+                                                     AccessControlAllowOrigin      = "*",
+                                                     AccessControlAllowMethods     = "GET, COUNT, OPTIONS",
+                                                     AccessControlAllowHeaders     = "Content-Type, Accept, Authorization",
+                                                     ETag                          = "1",
+                                                     ContentType                   = HTTPContentType.JSON_UTF8,
+                                                     Content                       = Organizations.
+                                                                                         OrderBy(organization => organization.Id).
+                                                                                         //Where  (organization => HTTPOrganizations.Contains(organization.Owner) ||
+                                                                                         //                            Admins.InEdges(HTTPUser).
+                                                                                         //                                   Any(edgelabel => edgelabel == User2GroupEdges.IsAdmin)).
+                                                                                         ToJSON(skip,
+                                                                                                take,
+                                                                                                false, //Embedded
+                                                                                                expandTags,
+                                                                                                GetOrganizationSerializator(HTTPUser),
+                                                                                                includeCryptoHash).
+                                                                                         ToUTF8Bytes(),
+                                                     X_ExpectedTotalNumberOfItems  = _ExpectedCount,
+                                                     Connection                    = "close"
                                                  }.AsImmutable);
 
                                          });
@@ -4641,7 +4599,7 @@ namespace org.GraphDefined.OpenData.Users
                                                                   Server                     = HTTPServer.DefaultServerName,
                                                                   Date                       = DateTime.UtcNow,
                                                                   AccessControlAllowOrigin   = "*",
-                                                                  AccessControlAllowMethods  = "GET",
+                                                                  AccessControlAllowMethods  = "GET, EXISTS",
                                                                   AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
                                                                   Connection                 = "close"
                                                               }.AsImmutable
@@ -4651,7 +4609,7 @@ namespace org.GraphDefined.OpenData.Users
                                                                   Server                     = HTTPServer.DefaultServerName,
                                                                   Date                       = DateTime.UtcNow,
                                                                   AccessControlAllowOrigin   = "*",
-                                                                  AccessControlAllowMethods  = "GET",
+                                                                  AccessControlAllowMethods  = "GET, EXISTS",
                                                                   AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
                                                                   ContentType                = HTTPContentType.JSON_UTF8,
                                                                   Content                    = Organization.ToJSON().ToUTF8Bytes(),
@@ -4709,20 +4667,6 @@ namespace org.GraphDefined.OpenData.Users
                                          });
 
             #endregion
-
-            #endregion
-
-            #region EXISTS      ~/orgs/{OrgId}
-
-            // ------------------------------------------------------------------------------------
-            // curl -v -X EXITS -H "Accept: application/json" http://127.0.0.1:2100/orgs/Stadtrat
-            // ------------------------------------------------------------------------------------
-            HTTPServer.ITEM_EXISTS<Organization_Id, Organization>(UriTemplate:               URIPrefix + "organizations/{OrgId}",
-                                                                  ParseIdDelegate:           Organization_Id.TryParse,
-                                                                  ParseIdError:              Text  => "Invalid organization identification '" + Text + "'!",
-                                                                  TryGetItemDelegate:        _Organizations.TryGetValue,
-                                                                  ItemFilterDelegate:        org   => org.PrivacyLevel == PrivacyLevel.World,
-                                                                  TryGetItemError:           orgId => "Unknown organization '" + orgId + "'!");
 
             #endregion
 
@@ -4976,6 +4920,51 @@ namespace org.GraphDefined.OpenData.Users
                                          });
 
             #endregion
+
+
+
+            #region GET         ~/groups
+
+            // ------------------------------------------------------------------
+            // curl -v -H "Accept: application/json" http://127.0.0.1:2100/groups
+            // ------------------------------------------------------------------
+            HTTPServer.ITEMS_GET(UriTemplate: URIPrefix + "groups",
+                                 Dictionary: _Groups,
+                                 Filter: group => group.PrivacyLevel == PrivacyLevel.World,
+                                 ToJSONDelegate: JSON_IO.ToJSON);
+
+            #endregion
+
+
+            #region EXISTS      ~/groups/{GroupId}
+
+            // -------------------------------------------------------------------------------------------
+            // curl -v -X EXITS -H "Accept: application/json" http://127.0.0.1:2100/groups/OK-Lab%20Jena
+            // -------------------------------------------------------------------------------------------
+            HTTPServer.ITEM_EXISTS<Group_Id, Group>(UriTemplate: URIPrefix + "groups/{GroupId}",
+                                                    ParseIdDelegate: Group_Id.TryParse,
+                                                    ParseIdError: Text => "Invalid group identification '" + Text + "'!",
+                                                    TryGetItemDelegate: _Groups.TryGetValue,
+                                                    ItemFilterDelegate: group => group.PrivacyLevel == PrivacyLevel.World,
+                                                    TryGetItemError: groupId => "Unknown group '" + groupId + "'!");
+
+            #endregion
+
+            #region GET         ~/groups/{GroupId}
+
+            // ----------------------------------------------------------------------------------
+            // curl -v -H "Accept: application/json" http://127.0.0.1:2100/groups/OK-Lab%20Jena
+            // ----------------------------------------------------------------------------------
+            HTTPServer.ITEM_GET<Group_Id, Group>(UriTemplate:         URIPrefix + "groups/{GroupId}",
+                                                 ParseIdDelegate:     Group_Id.TryParse,
+                                                 ParseIdError:        Text => "Invalid group identification '" + Text + "'!",
+                                                 TryGetItemDelegate:  _Groups.TryGetValue,
+                                                 ItemFilterDelegate:  group => group.PrivacyLevel == PrivacyLevel.World,
+                                                 TryGetItemError:     groupId => "Unknown group '" + groupId + "'!",
+                                                 ToJSONDelegate:      _ => _.ToJSON());
+
+            #endregion
+
 
 
             #region ~/tags
