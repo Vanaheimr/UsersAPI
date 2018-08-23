@@ -18,12 +18,15 @@
 #region Usings
 
 using System;
-using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
+using System.Collections.Generic;
+
 using Newtonsoft.Json.Linq;
 
 using org.GraphDefined.OpenData.Users;
 using org.GraphDefined.Vanaheimr.Illias;
+using org.GraphDefined.Vanaheimr.Hermod.Mail;
 
 #endregion
 
@@ -35,10 +38,10 @@ namespace org.GraphDefined.OpenData.Notifications
 
         #region AddSMSNotification(this UsersAPI, User,                    Phonenumber, TextTemplate = null)
 
-        public static NotificationStore AddSMSNotification(this UsersAPI  UsersAPI,
-                                                           User           User,
-                                                           PhoneNumber    Phonenumber,
-                                                           String         TextTemplate  = null)
+        public static Task<NotificationStore> AddSMSNotification(this UsersAPI  UsersAPI,
+                                                                 User           User,
+                                                                 PhoneNumber    Phonenumber,
+                                                                 String         TextTemplate  = null)
 
             => UsersAPI.AddNotification(User,
                                         new SMSNotification(Phonenumber,
@@ -48,10 +51,10 @@ namespace org.GraphDefined.OpenData.Notifications
 
         #region AddSMSNotification(this UsersAPI, UserId,                  Phonenumber, TextTemplate = null)
 
-        public static NotificationStore AddSMSNotification(this UsersAPI  UsersAPI,
-                                                           User_Id        UserId,
-                                                           PhoneNumber    Phonenumber,
-                                                           String         TextTemplate  = null)
+        public static Task<NotificationStore> AddSMSNotification(this UsersAPI  UsersAPI,
+                                                                 User_Id        UserId,
+                                                                 PhoneNumber    Phonenumber,
+                                                                 String         TextTemplate  = null)
 
             => UsersAPI.AddNotification(UserId,
                                         new SMSNotification(Phonenumber,
@@ -61,11 +64,11 @@ namespace org.GraphDefined.OpenData.Notifications
 
         #region AddSMSNotification(this UsersAPI, User,   NotificationId,  Phonenumber, TextTemplate = null)
 
-        public static NotificationStore AddSMSNotification(this UsersAPI            UsersAPI,
-                                                           User                     User,
-                                                           NotificationMessageType  NotificationId,
-                                                           PhoneNumber              Phonenumber,
-                                                           String                   TextTemplate  = null)
+        public static Task<NotificationStore> AddSMSNotification(this UsersAPI            UsersAPI,
+                                                                 User                     User,
+                                                                 NotificationMessageType  NotificationId,
+                                                                 PhoneNumber              Phonenumber,
+                                                                 String                   TextTemplate  = null)
 
             => UsersAPI.AddNotification(User,
                                         new SMSNotification(Phonenumber,
@@ -76,11 +79,11 @@ namespace org.GraphDefined.OpenData.Notifications
 
         #region AddSMSNotification(this UsersAPI, UserId, NotificationId,  Phonenumber, TextTemplate = null)
 
-        public static NotificationStore AddSMSNotification(this UsersAPI            UsersAPI,
-                                                           User_Id                  UserId,
-                                                           NotificationMessageType  NotificationId,
-                                                           PhoneNumber              Phonenumber,
-                                                           String                   TextTemplate  = null)
+        public static Task<NotificationStore> AddSMSNotification(this UsersAPI            UsersAPI,
+                                                                 User_Id                  UserId,
+                                                                 NotificationMessageType  NotificationId,
+                                                                 PhoneNumber              Phonenumber,
+                                                                 String                   TextTemplate  = null)
 
             => UsersAPI.AddNotification(UserId,
                                         new SMSNotification(Phonenumber,
@@ -91,11 +94,11 @@ namespace org.GraphDefined.OpenData.Notifications
 
         #region AddSMSNotification(this UsersAPI, User,   NotificationIds, Phonenumber, TextTemplate = null)
 
-        public static NotificationStore AddSMSNotification(this UsersAPI                         UsersAPI,
-                                                           User                                  User,
-                                                           IEnumerable<NotificationMessageType>  NotificationIds,
-                                                           PhoneNumber                           Phonenumber,
-                                                           String                                TextTemplate  = null)
+        public static Task<NotificationStore> AddSMSNotification(this UsersAPI                         UsersAPI,
+                                                                 User                                  User,
+                                                                 IEnumerable<NotificationMessageType>  NotificationIds,
+                                                                 PhoneNumber                           Phonenumber,
+                                                                 String                                TextTemplate  = null)
 
             => UsersAPI.AddNotification(User,
                                         new SMSNotification(Phonenumber,
@@ -106,11 +109,11 @@ namespace org.GraphDefined.OpenData.Notifications
 
         #region AddSMSNotification(this UsersAPI, UserId, NotificationIds, Phonenumber, TextTemplate = null)
 
-        public static NotificationStore AddSMSNotification(this UsersAPI                         UsersAPI,
-                                                           User_Id                               UserId,
-                                                           IEnumerable<NotificationMessageType>  NotificationIds,
-                                                           PhoneNumber                           Phonenumber,
-                                                           String                                TextTemplate  = null)
+        public static Task<NotificationStore> AddSMSNotification(this UsersAPI                         UsersAPI,
+                                                                 User_Id                               UserId,
+                                                                 IEnumerable<NotificationMessageType>  NotificationIds,
+                                                                 PhoneNumber                           Phonenumber,
+                                                                 String                                TextTemplate  = null)
 
             => UsersAPI.AddNotification(UserId,
                                         new SMSNotification(Phonenumber,
