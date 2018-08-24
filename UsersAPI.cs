@@ -3307,6 +3307,8 @@ namespace org.GraphDefined.OpenData.Users
 
 
                                              await AddOrUpdate(_User,
+                                                               null,
+                                                               null,
                                                                HTTPUser.Id);
 
 
@@ -4778,42 +4780,38 @@ namespace org.GraphDefined.OpenData.Users
             try
             {
 
-                if (File.Exists(DefaultUsersAPIFile))
-                {
+                JObject JSONLine;
+                String  JSONCommand;
+                JObject JSONObject;
 
-                    JObject JSONLine;
-                    String  JSONCommand;
-                    JObject JSONObject;
+                // Info: File.Exists(...) is harmful!
+                File.ReadLines(DefaultUsersAPIFile).ForEachCounted(async (line, linenumber) => {
 
-                    File.ReadLines(DefaultUsersAPIFile).ForEachCounted(async (line, linenumber) => {
+                    if (line.IsNeitherNullNorEmpty() &&
+                       !line.StartsWith("#")         &&
+                       !line.StartsWith("//"))
+                    {
 
-                        if (line.IsNeitherNullNorEmpty() &&
-                           !line.StartsWith("#")         &&
-                           !line.StartsWith("//"))
+                        try
                         {
 
-                            try
-                            {
+                            JSONLine                  = JObject.Parse(line);
+                            JSONCommand               = (JSONLine.First as JProperty)?.Name;
+                            JSONObject                = (JSONLine.First as JProperty)?.Value as JObject;
+                            CurrentDatabaseHashValue  =  JSONLine["sha256hash"]?["hashValue"]?.Value<String>();
 
-                                JSONLine                  = JObject.Parse(line);
-                                JSONCommand               = (JSONLine.First as JProperty)?.Name;
-                                JSONObject                = (JSONLine.First as JProperty)?.Value as JObject;
-                                CurrentDatabaseHashValue  =  JSONLine["sha256hash"]?["hashValue"]?.Value<String>();
-
-                                if (JSONCommand.IsNotNullOrEmpty() && JSONObject != null)
-                                    await ProcessCommand(JSONCommand, JSONObject);
-
-                            }
-                            catch (Exception e)
-                            {
-                                DebugX.Log("Could not read database file '" + DefaultUsersAPIFile + "' line " + linenumber + ": " + e.Message);
-                            }
+                            if (JSONCommand.IsNotNullOrEmpty() && JSONObject != null)
+                                await ProcessCommand(JSONCommand, JSONObject);
 
                         }
+                        catch (Exception e)
+                        {
+                            DebugX.Log("Could not read database file '" + DefaultUsersAPIFile + "' line " + linenumber + ": " + e.Message);
+                        }
 
-                    });
+                    }
 
-                }
+                });
 
             }
             catch (Exception e)
@@ -4828,37 +4826,35 @@ namespace org.GraphDefined.OpenData.Users
             try
             {
 
-                if (File.Exists(DefaultPasswordFile))
-                {
+                JObject JSONLine;
+                String  JSONCommand;
+                JObject JSONObject;
 
-                    JObject JSONLine;
-                    String  JSONCommand;
-                    JObject JSONObject;
+                // Info: File.Exists(...) is harmful!
+                File.ReadLines(DefaultPasswordFile).ForEachCounted((line, linenumber) => {
 
-                    File.ReadLines(DefaultPasswordFile).ForEachCounted((line, linenumber) => {
+                    if (line.IsNeitherNullNorEmpty() &&
+                       !line.StartsWith("#")         &&
+                       !line.StartsWith("//"))
+                    {
 
-                        if (line.IsNeitherNullNorEmpty() &&
-                           !line.StartsWith("#")         &&
-                           !line.StartsWith("//"))
+                        try
                         {
 
-                            try
+                            JSONLine                  = JObject.Parse(line);
+                            JSONCommand               = (JSONLine.First as JProperty)?.Name;
+                            JSONObject                = (JSONLine.First as JProperty)?.Value as JObject;
+                            CurrentDatabaseHashValue  =  JSONLine["sha256hash"]?["hashValue"]?.Value<String>();
+
+                            if (JSONCommand.IsNotNullOrEmpty() &&
+                                JSONObject  != null            &&
+                                User_Id.TryParse(JSONObject["login"].Value<String>(), out User_Id Login))
                             {
 
-                                JSONLine                  = JObject.Parse(line);
-                                JSONCommand               = (JSONLine.First as JProperty)?.Name;
-                                JSONObject                = (JSONLine.First as JProperty)?.Value as JObject;
-                                CurrentDatabaseHashValue  =  JSONLine["sha256hash"]?["hashValue"]?.Value<String>();
-
-                                if (JSONCommand.IsNotNullOrEmpty() &&
-                                    JSONObject  != null            &&
-                                    User_Id.TryParse(JSONObject["login"].Value<String>(), out User_Id Login))
+                                switch (JSONCommand)
                                 {
 
-                                    switch (JSONCommand)
-                                    {
-
-                                        #region AddPassword
+                                    #region AddPassword
 
                                         case "addPassword":
                                         case "AddPassword":
@@ -4880,7 +4876,7 @@ namespace org.GraphDefined.OpenData.Users
 
                                         #endregion
 
-                                        #region ChangePassword
+                                    #region ChangePassword
 
                                         case "changePassword":
                                         case "ChangePassword":
@@ -4903,7 +4899,7 @@ namespace org.GraphDefined.OpenData.Users
 
                                         #endregion
 
-                                        #region ResetPassword
+                                    #region ResetPassword
 
                                         case "resetPassword":
                                         case "ResetPassword":
@@ -4920,28 +4916,26 @@ namespace org.GraphDefined.OpenData.Users
 
                                         #endregion
 
-                                        default:
-                                            DebugX.Log("Unknown command '" + JSONCommand + "' in password file '" + DefaultPasswordFile + "' line " + linenumber + "!");
-                                            break;
-
-                                    }
+                                    default:
+                                        DebugX.Log("Unknown command '" + JSONCommand + "' in password file '" + DefaultPasswordFile + "' line " + linenumber + "!");
+                                        break;
 
                                 }
 
-                                else
-                                    DebugX.Log("Could not read password file '" + DefaultPasswordFile + "' line " + linenumber + "!");
+                            }
 
-                            }
-                            catch (Exception e)
-                            {
-                                DebugX.Log("Could not read password file '" + DefaultPasswordFile + "' line " + linenumber + ": " + e.Message);
-                            }
+                            else
+                                DebugX.Log("Could not read password file '" + DefaultPasswordFile + "' line " + linenumber + "!");
 
                         }
+                        catch (Exception e)
+                        {
+                            DebugX.Log("Could not read password file '" + DefaultPasswordFile + "' line " + linenumber + ": " + e.Message);
+                        }
 
-                    });
+                    }
 
-                }
+                });
 
             }
             catch (Exception e)
@@ -4953,69 +4947,64 @@ namespace org.GraphDefined.OpenData.Users
 
             #region Read HTTPCookiesFile file...
 
-            if (File.Exists(DefaultHTTPCookiesFile))
+            lock (HTTPCookies)
             {
 
-                lock (HTTPCookies)
+                try
                 {
 
-                    try
-                    {
+                    File.ReadLines(DefaultHTTPCookiesFile).ForEachCounted((line, linenumber) => {
 
-                        File.ReadLines(DefaultHTTPCookiesFile).ForEachCounted((line, linenumber) => {
+                        try
+                        {
 
-                            try
+                            var Tokens           = line.Split(new Char[] { ';' }, StringSplitOptions.None);
+
+                            var SecurityTokenId  = SecurityToken_Id.Parse(Tokens[0]);
+                            var Login            = User_Id.         Parse(Tokens[1]);
+                            var Expires          = DateTime.        Parse(Tokens[2]);
+                            var Astronaut        = Tokens.Length == 4
+                                                       ? new User_Id?(User_Id.Parse(Tokens[3]))
+                                                       : null;
+
+                            if (!HTTPCookies.ContainsKey(SecurityTokenId) &&
+                                _LoginPasswords.ContainsKey(Login) &&
+                                Expires > DateTime.UtcNow)
                             {
 
-                                var Tokens           = line.Split(new Char[] { ';' }, StringSplitOptions.None);
-
-                                var SecurityTokenId  = SecurityToken_Id.Parse(Tokens[0]);
-                                var Login            = User_Id.         Parse(Tokens[1]);
-                                var Expires          = DateTime.        Parse(Tokens[2]);
-                                var Astronaut        = Tokens.Length == 4
-                                                           ? new User_Id?(User_Id.Parse(Tokens[3]))
-                                                           : null;
-
-                                if (!HTTPCookies.ContainsKey(SecurityTokenId) &&
-                                    _LoginPasswords.ContainsKey(Login) &&
-                                    Expires > DateTime.UtcNow)
-                                {
-
-                                    HTTPCookies.Add(SecurityTokenId,
-                                                    new SecurityToken(Login,
-                                                                      Expires,
-                                                                      Astronaut));
-
-                                }
+                                HTTPCookies.Add(SecurityTokenId,
+                                                new SecurityToken(Login,
+                                                                  Expires,
+                                                                  Astronaut));
 
                             }
-                            catch (Exception e)
-                            {
-                                DebugX.Log("Could not read HTTP cookies file '" + DefaultHTTPCookiesFile + "' line " + linenumber + ": " + e.Message);
-                            }
 
-                        });
+                        }
+                        catch (Exception e)
+                        {
+                            DebugX.Log("Could not read HTTP cookies file '" + DefaultHTTPCookiesFile + "' line " + linenumber + ": " + e.Message);
+                        }
 
-                    }
-                    catch (Exception e)
-                    {
-                        DebugX.Log("Could not read HTTP cookies file '" + DefaultHTTPCookiesFile + "': " + e.Message);
-                    }
+                    });
+
+                }
+                catch (Exception e)
+                {
+                    DebugX.Log("Could not read HTTP cookies file '" + DefaultHTTPCookiesFile + "': " + e.Message);
+                }
 
 
-                    // Write filtered (no invalid users, no expired tokens) tokens back to file...
-                    try
-                    {
+                // Write filtered (no invalid users, no expired tokens) tokens back to file...
+                try
+                {
 
-                        File.WriteAllLines(DefaultHTTPCookiesFile,
-                                           HTTPCookies.Select(token => token.Key + ";" + token.Value.ToLogLine()));
+                    File.WriteAllLines(DefaultHTTPCookiesFile,
+                                       HTTPCookies.Select(token => token.Key + ";" + token.Value.ToLogLine()));
 
-                    }
-                    catch (Exception e)
-                    {
-                        DebugX.Log("Could not update HTTP cookies file '" + DefaultHTTPCookiesFile + "': " + e.Message);
-                    }
-
+                }
+                catch (Exception e)
+                {
+                    DebugX.Log("Could not update HTTP cookies file '" + DefaultHTTPCookiesFile + "': " + e.Message);
                 }
 
             }
@@ -5027,45 +5016,43 @@ namespace org.GraphDefined.OpenData.Users
             try
             {
 
-                if (File.Exists(DefaultPasswordResetsFile))
-                {
+                JObject  JSONLine;
+                String   JSONCommand;
+                JObject  JSONObject;
 
-                    JObject  JSONLine;
-                    String   JSONCommand;
-                    JObject  JSONObject;
+                var Now     = DateTime.UtcNow;
+                var MaxAge  = TimeSpan.FromDays(7);
 
-                    var Now     = DateTime.UtcNow;
-                    var MaxAge  = TimeSpan.FromDays(7);
+                // Info: File.Exists(...) is harmful!
+                File.ReadLines(DefaultPasswordResetsFile).ForEachCounted((line, linenumber) => {
 
-                    File.ReadLines(DefaultPasswordResetsFile).ForEachCounted((line, linenumber) => {
+                    if (line.IsNeitherNullNorEmpty() &&
+                       !line.StartsWith("#")         &&
+                       !line.StartsWith("//"))
+                    {
 
-                        if (line.IsNeitherNullNorEmpty() &&
-                           !line.StartsWith("#")         &&
-                           !line.StartsWith("//"))
+                        try
                         {
 
-                            try
+                            JSONLine                  = JObject.Parse(line);
+                            JSONCommand               = (JSONLine.First as JProperty)?.Name;
+                            JSONObject                = (JSONLine.First as JProperty)?.Value as JObject;
+                            //CurrentDatabaseHashValue  =  JSONLine["sha256hash"]?["hashValue"]?.Value<String>();
+
+                            if (JSONCommand.IsNotNullOrEmpty() &&
+                                JSONObject  != null &&
+                                PasswordReset.TryParseJSON(JSONObject,
+                                                           out PasswordReset _PasswordReset,
+                                                           out String        ErrorResponse))
                             {
 
-                                JSONLine                  = JObject.Parse(line);
-                                JSONCommand               = (JSONLine.First as JProperty)?.Name;
-                                JSONObject                = (JSONLine.First as JProperty)?.Value as JObject;
-                                //CurrentDatabaseHashValue  =  JSONLine["sha256hash"]?["hashValue"]?.Value<String>();
-
-                                if (JSONCommand.IsNotNullOrEmpty() &&
-                                    JSONObject  != null &&
-                                    PasswordReset.TryParseJSON(JSONObject,
-                                                               out PasswordReset _PasswordReset,
-                                                               out String        ErrorResponse))
+                                if (ErrorResponse == null)
                                 {
 
-                                    if (ErrorResponse == null)
+                                    switch (JSONCommand.ToLower())
                                     {
 
-                                        switch (JSONCommand.ToLower())
-                                        {
-
-                                            #region Add
+                                        #region Add
 
                                             case "add":
 
@@ -5085,7 +5072,7 @@ namespace org.GraphDefined.OpenData.Users
 
                                             #endregion
 
-                                            #region Remove
+                                        #region Remove
 
                                             case "remove":
                                                 PasswordResets.Remove(_PasswordReset.SecurityToken1);
@@ -5093,30 +5080,28 @@ namespace org.GraphDefined.OpenData.Users
 
                                             #endregion
 
-                                            default:
-                                                DebugX.Log("Unknown command '" + JSONCommand + "' in password file '" + DefaultPasswordResetsFile + "' line " + linenumber + "!");
-                                                break;
-
-                                        }
+                                        default:
+                                            DebugX.Log("Unknown command '" + JSONCommand + "' in password file '" + DefaultPasswordResetsFile + "' line " + linenumber + "!");
+                                            break;
 
                                     }
 
                                 }
 
-                                else
-                                    DebugX.Log("Could not read password file '" + DefaultPasswordResetsFile + "' line " + linenumber + "!");
+                            }
 
-                            }
-                            catch (Exception e)
-                            {
-                                DebugX.Log("Could not read password file '" + DefaultPasswordResetsFile + "' line " + linenumber + ": " + e.Message);
-                            }
+                            else
+                                DebugX.Log("Could not read password file '" + DefaultPasswordResetsFile + "' line " + linenumber + "!");
 
                         }
+                        catch (Exception e)
+                        {
+                            DebugX.Log("Could not read password file '" + DefaultPasswordResetsFile + "' line " + linenumber + ": " + e.Message);
+                        }
 
-                    });
+                    }
 
-                }
+                });
 
             }
             catch (Exception e)
@@ -5149,10 +5134,10 @@ namespace org.GraphDefined.OpenData.Users
                 case "CreateUser":
 
                     if (User.TryParseJSON(JSONObject,
-                                          out User    NewUser,
+                                          out User    _User,
                                           out String  ErrorResponse))
                     {
-                        _Users.AddAndReturnValue(NewUser.Id, NewUser);
+                        _Users.AddAndReturnValue(_User.Id, _User);
                     }
 
                     else
@@ -5162,23 +5147,66 @@ namespace org.GraphDefined.OpenData.Users
 
                 #endregion
 
-                #region AddOrUpdateUser
+                #region addUser
+
+                case "addUser":
+
+                    if (User.TryParseJSON(JSONObject,
+                                          out _User,
+                                          out ErrorResponse))
+                    {
+                        _Users.AddAndReturnValue(_User.Id, _User);
+                    }
+
+                    else
+                        DebugX.Log(String.Concat(nameof(UsersAPI), " ", Command, ": ", ErrorResponse));
+
+                    break;
+
+                #endregion
+
+                #region addIfNotExistsUser
+
+                case "addIfNotExistsUser":
+                case "AddIfNotExistsUser":
+
+                    if (User.TryParseJSON(JSONObject,
+                                          out _User,
+                                          out ErrorResponse))
+                    {
+
+                        if (!_Users.ContainsKey(_User.Id))
+                        {
+                            _User.API = this;
+                            _Users.AddAndReturnValue(_User.Id, _User);
+                        }
+
+                    }
+
+                    else
+                        DebugX.Log(String.Concat(nameof(UsersAPI), " ", Command, ": ", ErrorResponse));
+
+                    break;
+
+                #endregion
+
+                #region addOrUpdateUser
 
                 case "addOrUpdateUser":
                 case "AddOrUpdateUser":
 
                     if (User.TryParseJSON(JSONObject,
-                                          out NewUser,
+                                          out _User,
                                           out ErrorResponse))
                     {
 
-                        if (_Users.TryGetValue(NewUser.Id, out User OldUser))
+                        if (_Users.TryGetValue(_User.Id, out User OldUser))
                         {
                             _Users.Remove(OldUser.Id);
-                            OldUser.CopyAllEdgesTo(NewUser);
+                            OldUser.CopyAllEdgesTo(_User);
                         }
 
-                        _Users.Add(NewUser.Id, NewUser);
+                        _Users.Add(_User.Id, _User);
 
                     }
 
@@ -5189,24 +5217,24 @@ namespace org.GraphDefined.OpenData.Users
 
                 #endregion
 
-                #region UpdateUser
+                #region updateUser
 
                 case "updateUser":
                 case "UpdateUser":
 
                     if (User.TryParseJSON(JSONObject,
-                                          out NewUser,
+                                          out _User,
                                           out ErrorResponse))
                     {
 
-                        if (_Users.TryGetValue(NewUser.Id, out User OldUser))
+                        if (_Users.TryGetValue(_User.Id, out User OldUser))
                         {
 
                             _Users.Remove(OldUser.Id);
-                            NewUser.API = this;
-                            OldUser.CopyAllEdgesTo(NewUser);
+                            _User.API = this;
+                            OldUser.CopyAllEdgesTo(_User);
 
-                            _Users.Add(NewUser.Id, NewUser);
+                            _Users.Add(_User.Id, _User);
 
                         }
 
@@ -5219,18 +5247,35 @@ namespace org.GraphDefined.OpenData.Users
 
                 #endregion
 
+                #region removeUser
 
-                #region CreateGroup
+                case "removeUser":
 
-                case "createGroup":
-                case "CreateGroup":
-
-                    if (Group.TryParseJSON(JSONObject,
-                                           out Group  _Group,
-                                           out ErrorResponse) &&
-                        _Group.Id != Admins.Id)
+                    if (User.TryParseJSON(JSONObject,
+                                          out _User,
+                                          out ErrorResponse))
                     {
-                        _Groups.AddAndReturnValue(_Group.Id, _Group);
+                        _Users.Remove(_User.Id);
+                    }
+
+                    else
+                        DebugX.Log(String.Concat(nameof(UsersAPI), " ", Command, ": ", ErrorResponse));
+
+                    break;
+
+                #endregion
+
+                #region removeUserId
+
+                case "removeUserId":
+
+                    if (JSONObject.ParseOptional("@id",
+                                                 "User identification to remove",
+                                                 User_Id.TryParse,
+                                                 out User_Id UserId,
+                                                 out ErrorResponse))
+                    {
+                        _Users.Remove(UserId);
                     }
 
                     else
@@ -5260,7 +5305,7 @@ namespace org.GraphDefined.OpenData.Users
 
                 #endregion
 
-                #region AddIfNotExistsOrganization
+                #region addOrganization
 
                 case "addOrganization":
 
@@ -5287,7 +5332,7 @@ namespace org.GraphDefined.OpenData.Users
 
                 #endregion
 
-                #region AddIfNotExistsOrganization
+                #region addIfNotExistsOrganization
 
                 case "addIfNotExistsOrganization":
 
@@ -5407,47 +5452,6 @@ namespace org.GraphDefined.OpenData.Users
                 #endregion
 
 
-                #region LinkOrganizations
-
-                case "linkOrganizations":
-                case "LinkOrganizations":
-
-                    var O2O_OrganizationOut  = _Organizations[Organization_Id.Parse(JSONObject["organizationOut"].Value<String>())];
-                    var O2O_OrganizationIn   = _Organizations[Organization_Id.Parse(JSONObject["organizationIn" ].Value<String>())];
-                    var O2O_EdgeLabel        = (Organization2OrganizationEdges) Enum.Parse(typeof(Organization2OrganizationEdges), JSONObject["edge"].   Value<String>());
-                    var O2O_Privacy          = JSONObject.ParseMandatory_PrivacyLevel();
-
-                    if (!O2O_OrganizationOut.Organization2OrganizationOutEdges.Any(edge => edge.EdgeLabel == O2O_EdgeLabel && edge.Target == O2O_OrganizationIn))
-                        O2O_OrganizationOut.AddOutEdge(O2O_EdgeLabel, O2O_OrganizationIn,  O2O_Privacy);
-
-                    if (!O2O_OrganizationIn. Organization2OrganizationInEdges. Any(edge => edge.EdgeLabel == O2O_EdgeLabel && edge.Source == O2O_OrganizationOut))
-                        O2O_OrganizationIn. AddInEdge (O2O_EdgeLabel, O2O_OrganizationOut, O2O_Privacy);
-
-                    break;
-
-                #endregion
-
-
-                #region AddUserToGroup
-
-                case "addUserToGroup":
-                case "AddUserToGroup":
-
-                    var U2G_User     = _Users [User_Id. Parse(JSONObject["user" ].Value<String>())];
-                    var U2G_Group    = _Groups[Group_Id.Parse(JSONObject["group"].Value<String>())];
-                    var U2G_Edge     = (User2GroupEdges) Enum.Parse(typeof(User2GroupEdges), JSONObject["edge"].        Value<String>());
-                    var U2G_Privacy  = JSONObject.ParseMandatory_PrivacyLevel();
-
-                    if (!U2G_User.OutEdges(U2G_Group).Any(edge => edge == U2G_Edge))
-                        U2G_User.AddOutgoingEdge(U2G_Edge, U2G_Group, U2G_Privacy);
-
-                    if (!U2G_Group.Edges(U2G_Group).Any(edge => edge == U2G_Edge))
-                        U2G_Group.AddIncomingEdge(U2G_User, U2G_Edge, U2G_Privacy);
-
-                    break;
-
-                #endregion
-
                 #region AddUserToOrganization
 
                 case "addUserToOrganization":
@@ -5490,6 +5494,68 @@ namespace org.GraphDefined.OpenData.Users
 
                 #endregion
 
+                #region LinkOrganizations
+
+                case "linkOrganizations":
+                case "LinkOrganizations":
+
+                    var O2O_OrganizationOut  = _Organizations[Organization_Id.Parse(JSONObject["organizationOut"].Value<String>())];
+                    var O2O_OrganizationIn   = _Organizations[Organization_Id.Parse(JSONObject["organizationIn" ].Value<String>())];
+                    var O2O_EdgeLabel        = (Organization2OrganizationEdges) Enum.Parse(typeof(Organization2OrganizationEdges), JSONObject["edge"].   Value<String>());
+                    var O2O_Privacy          = JSONObject.ParseMandatory_PrivacyLevel();
+
+                    if (!O2O_OrganizationOut.Organization2OrganizationOutEdges.Any(edge => edge.EdgeLabel == O2O_EdgeLabel && edge.Target == O2O_OrganizationIn))
+                        O2O_OrganizationOut.AddOutEdge(O2O_EdgeLabel, O2O_OrganizationIn,  O2O_Privacy);
+
+                    if (!O2O_OrganizationIn. Organization2OrganizationInEdges. Any(edge => edge.EdgeLabel == O2O_EdgeLabel && edge.Source == O2O_OrganizationOut))
+                        O2O_OrganizationIn. AddInEdge (O2O_EdgeLabel, O2O_OrganizationOut, O2O_Privacy);
+
+                    break;
+
+                #endregion
+
+
+                #region CreateGroup
+
+                case "createGroup":
+                case "CreateGroup":
+
+                    if (Group.TryParseJSON(JSONObject,
+                                           out Group  _Group,
+                                           out ErrorResponse) &&
+                        _Group.Id != Admins.Id)
+                    {
+                        _Groups.AddAndReturnValue(_Group.Id, _Group);
+                    }
+
+                    else
+                        DebugX.Log(String.Concat(nameof(UsersAPI), " ", Command, ": ", ErrorResponse));
+
+                    break;
+
+                #endregion
+
+
+                #region AddUserToGroup
+
+                case "addUserToGroup":
+                case "AddUserToGroup":
+
+                    var U2G_User     = _Users [User_Id. Parse(JSONObject["user" ].Value<String>())];
+                    var U2G_Group    = _Groups[Group_Id.Parse(JSONObject["group"].Value<String>())];
+                    var U2G_Edge     = (User2GroupEdges) Enum.Parse(typeof(User2GroupEdges), JSONObject["edge"].        Value<String>());
+                    var U2G_Privacy  = JSONObject.ParseMandatory_PrivacyLevel();
+
+                    if (!U2G_User.OutEdges(U2G_Group).Any(edge => edge == U2G_Edge))
+                        U2G_User.AddOutgoingEdge(U2G_Edge, U2G_Group, U2G_Privacy);
+
+                    if (!U2G_Group.Edges(U2G_Group).Any(edge => edge == U2G_Edge))
+                        U2G_Group.AddIncomingEdge(U2G_User, U2G_Edge, U2G_Privacy);
+
+                    break;
+
+                #endregion
+
 
                 #region AddNotification
 
@@ -5500,7 +5566,7 @@ namespace org.GraphDefined.OpenData.Users
                         JSONObject["type"  ]?.Value<String>().IsNotNullOrEmpty() == true)
                     {
 
-                        if (User_Id.TryParse(JSONObject["userId"]?.Value<String>(), out User_Id UserId) &&
+                        if (User_Id.TryParse(JSONObject["userId"]?.Value<String>(), out UserId) &&
                             TryGetUser(UserId, out User User))
                         {
 
@@ -6329,15 +6395,17 @@ namespace org.GraphDefined.OpenData.Users
         #endregion
 
 
-        #region Add           (User, CurrentUserId = null)
+        #region Add           (User,   OnAdded = null,                   CurrentUserId = null)
 
         /// <summary>
         /// Add the given user to the API.
         /// </summary>
         /// <param name="User">A new user to be added to this API.</param>
+        /// <param name="OnAdded">A delegate run whenever the user had been added successfully.</param>
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
-        public async Task<User> Add(User      User,
-                                    User_Id?  CurrentUserId  = null)
+        public async Task<User> Add(User          User,
+                                    Action<User>  OnAdded        = null,
+                                    User_Id?      CurrentUserId  = null)
         {
 
             try
@@ -6358,7 +6426,11 @@ namespace org.GraphDefined.OpenData.Users
                                               NoOwner,
                                               CurrentUserId);
 
-                return _Users.AddAndReturnValue(User.Id, User);
+                _Users.Add(User.Id, User);
+
+                OnAdded?.Invoke(User);
+
+                return User;
 
             }
             finally
@@ -6370,15 +6442,17 @@ namespace org.GraphDefined.OpenData.Users
 
         #endregion
 
-        #region AddIfNotExists(User, CurrentUserId = null)
+        #region AddIfNotExists(User,   OnAdded = null,                   CurrentUserId = null)
 
         /// <summary>
         /// When it has not been created before, add the given user to the API.
         /// </summary>
         /// <param name="User">A new user to be added to this API.</param>
+        /// <param name="OnAdded">A delegate run whenever the user had been added successfully.</param>
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
-        public async Task<User> AddIfNotExists(User      User,
-                                               User_Id?  CurrentUserId  = null)
+        public async Task<User> AddIfNotExists(User          User,
+                                               Action<User>  OnAdded        = null,
+                                               User_Id?      CurrentUserId  = null)
         {
 
             try
@@ -6399,7 +6473,11 @@ namespace org.GraphDefined.OpenData.Users
                                               NoOwner,
                                               CurrentUserId);
 
-                return _Users.AddAndReturnValue(User.Id, User);
+                _Users.Add(User.Id, User);
+
+                OnAdded?.Invoke(User);
+
+                return User;
 
             }
             finally
@@ -6411,15 +6489,19 @@ namespace org.GraphDefined.OpenData.Users
 
         #endregion
 
-        #region AddOrUpdate   (User, CurrentUserId = null)
+        #region AddOrUpdate   (User,   OnAdded = null, OnUpdated = null, CurrentUserId = null)
 
         /// <summary>
         /// Add or update the given user to/within the API.
         /// </summary>
         /// <param name="User">A user.</param>
+        /// <param name="OnAdded">A delegate run whenever the user had been added successfully.</param>
+        /// <param name="OnUpdated">A delegate run whenever the user had been updated successfully.</param>
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
-        public async Task<User> AddOrUpdate(User      User,
-                                            User_Id?  CurrentUserId  = null)
+        public async Task<User> AddOrUpdate(User          User,
+                                            Action<User>  OnAdded        = null,
+                                            Action<User>  OnUpdated      = null,
+                                            User_Id?      CurrentUserId  = null)
         {
 
             try
@@ -6443,7 +6525,14 @@ namespace org.GraphDefined.OpenData.Users
                     OldUser.CopyAllEdgesTo(User);
                 }
 
-                return _Users.AddAndReturnValue(User.Id, User);
+                _Users.Add(User.Id, User);
+
+                if (OldUser != null)
+                    OnUpdated?.Invoke(User);
+                else
+                    OnAdded?.  Invoke(User);
+
+                return User;
 
             }
             finally
@@ -6455,7 +6544,7 @@ namespace org.GraphDefined.OpenData.Users
 
         #endregion
 
-        #region Update        (User, CurrentUserId = null)
+        #region Update        (User,                                     CurrentUserId = null)
 
         /// <summary>
         /// Update the given user to/within the API.
@@ -6500,7 +6589,7 @@ namespace org.GraphDefined.OpenData.Users
 
         #endregion
 
-        #region Update        (UserId, UpdateDelegate, CurrentUserId = null)
+        #region Update        (UserId, UpdateDelegate,                   CurrentUserId = null)
 
         /// <summary>
         /// Update the given user.
@@ -6572,38 +6661,52 @@ namespace org.GraphDefined.OpenData.Users
         /// <param name="IsAuthenticated">The user will not be shown in user listings, as its primary e-mail address is not yet authenticated.</param>
         /// <param name="IsDisabled">The user will be shown in user listings.</param>
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
-        public Task<User> CreateUser(User_Id             Id,
-                                     SimpleEMailAddress  EMail,
-                                     Password?           Password          = null,
-                                     String              Name              = null,
-                                     I18NString          Description       = null,
-                                     PgpPublicKeyRing    PublicKeyRing     = null,
-                                     PgpSecretKeyRing    SecretKeyRing     = null,
-                                     PhoneNumber?        Telephone         = null,
-                                     PhoneNumber?        MobilePhone       = null,
-                                     GeoCoordinate?      GeoLocation       = null,
-                                     Address             Address           = null,
-                                     PrivacyLevel        PrivacyLevel      = PrivacyLevel.Private,
-                                     DateTime?           AcceptedEULA      = null,
-                                     Boolean             IsAuthenticated   = false,
-                                     Boolean             IsDisabled        = false,
-                                     User_Id?            CurrentUserId     = null)
+        public async Task<User> CreateUser(User_Id             Id,
+                                           SimpleEMailAddress  EMail,
+                                           Password?           Password          = null,
+                                           String              Name              = null,
+                                           I18NString          Description       = null,
+                                           PgpPublicKeyRing    PublicKeyRing     = null,
+                                           PgpSecretKeyRing    SecretKeyRing     = null,
+                                           PhoneNumber?        Telephone         = null,
+                                           PhoneNumber?        MobilePhone       = null,
+                                           GeoCoordinate?      GeoLocation       = null,
+                                           Address             Address           = null,
+                                           PrivacyLevel        PrivacyLevel      = PrivacyLevel.Private,
+                                           DateTime?           AcceptedEULA      = null,
+                                           Boolean             IsAuthenticated   = false,
+                                           Boolean             IsDisabled        = false,
+                                           User_Id?            CurrentUserId     = null)
 
-            => Add(new User(Id,
-                            EMail,
-                            Name,
-                            Description,
-                            PublicKeyRing,
-                            SecretKeyRing,
-                            Telephone,
-                            MobilePhone,
-                            GeoLocation,
-                            Address,
-                            PrivacyLevel,
-                            AcceptedEULA,
-                            IsAuthenticated,
-                            IsDisabled),
-                   CurrentUserId);
+            => await Add(new User(Id,
+                                  EMail,
+                                  Name,
+                                  Description,
+                                  PublicKeyRing,
+                                  SecretKeyRing,
+                                  Telephone,
+                                  MobilePhone,
+                                  GeoLocation,
+                                  Address,
+                                  PrivacyLevel,
+                                  AcceptedEULA,
+                                  IsAuthenticated,
+                                  IsDisabled),
+
+                         user => {
+
+                             if (Password.HasValue &&
+                                 !_TryChangePassword(user.Id,
+                                                     Password.Value,
+                                                     null,
+                                                     CurrentUserId).Result)
+                             {
+                                 throw new ApplicationException("The password for '" + user.Id + "' could not be changed, as the given current password does not match!");
+                             }
+
+                         },
+
+                         CurrentUserId);
 
         #endregion
 
@@ -6628,38 +6731,53 @@ namespace org.GraphDefined.OpenData.Users
         /// <param name="IsAuthenticated">The user will not be shown in user listings, as its primary e-mail address is not yet authenticated.</param>
         /// <param name="IsDisabled">The user will be shown in user listings.</param>
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
-        public Task<User> CreateUserIfNotExists(User_Id             Id,
-                                                SimpleEMailAddress  EMail,
-                                                Password?           Password          = null,
-                                                String              Name              = null,
-                                                I18NString          Description       = null,
-                                                PgpPublicKeyRing    PublicKeyRing     = null,
-                                                PgpSecretKeyRing    SecretKeyRing     = null,
-                                                PhoneNumber?        Telephone         = null,
-                                                PhoneNumber?        MobilePhone       = null,
-                                                GeoCoordinate?      GeoLocation       = null,
-                                                Address             Address           = null,
-                                                PrivacyLevel        PrivacyLevel      = PrivacyLevel.Private,
-                                                DateTime?           AcceptedEULA      = null,
-                                                Boolean             IsAuthenticated   = false,
-                                                Boolean             IsDisabled        = false,
-                                                User_Id?            CurrentUserId     = null)
+        public async Task<User> CreateUserIfNotExists(User_Id             Id,
+                                                      SimpleEMailAddress  EMail,
+                                                      Password?           Password          = null,
+                                                      String              Name              = null,
+                                                      I18NString          Description       = null,
+                                                      PgpPublicKeyRing    PublicKeyRing     = null,
+                                                      PgpSecretKeyRing    SecretKeyRing     = null,
+                                                      PhoneNumber?        Telephone         = null,
+                                                      PhoneNumber?        MobilePhone       = null,
+                                                      GeoCoordinate?      GeoLocation       = null,
+                                                      Address             Address           = null,
+                                                      PrivacyLevel        PrivacyLevel      = PrivacyLevel.Private,
+                                                      DateTime?           AcceptedEULA      = null,
+                                                      Boolean             IsAuthenticated   = false,
+                                                      Boolean             IsDisabled        = false,
+                                                      User_Id?            CurrentUserId     = null)
 
-            => AddIfNotExists(new User(Id,
-                                       EMail,
-                                       Name,
-                                       Description,
-                                       PublicKeyRing,
-                                       SecretKeyRing,
-                                       Telephone,
-                                       MobilePhone,
-                                       GeoLocation,
-                                       Address,
-                                       PrivacyLevel,
-                                       AcceptedEULA,
-                                       IsAuthenticated,
-                                       IsDisabled),
-                              CurrentUserId);
+
+            => await AddIfNotExists(new User(Id,
+                                             EMail,
+                                             Name,
+                                             Description,
+                                             PublicKeyRing,
+                                             SecretKeyRing,
+                                             Telephone,
+                                             MobilePhone,
+                                             GeoLocation,
+                                             Address,
+                                             PrivacyLevel,
+                                             AcceptedEULA,
+                                             IsAuthenticated,
+                                             IsDisabled),
+
+                                    user => {
+
+                                        if (Password.HasValue &&
+                                            !_TryChangePassword(user.Id,
+                                                                Password.Value,
+                                                                null,
+                                                                CurrentUserId).Result)
+                                        {
+                                            throw new ApplicationException("The password for '" + user.Id + "' could not be changed, as the given current password does not match!");
+                                        }
+
+                                    },
+
+                                    CurrentUserId);
 
         #endregion
 
@@ -6677,12 +6795,12 @@ namespace org.GraphDefined.OpenData.Users
 
                 await UsersSemaphore.WaitAsync();
 
-                if (!TryChangePassword(Login,
-                                       NewPassword,
-                                       CurrentPassword,
-                                       CurrentUserId).Result)
+                if (!_TryChangePassword(Login,
+                                        NewPassword,
+                                        CurrentPassword,
+                                        CurrentUserId).Result)
                 {
-                    throw new ApplicationException("The password could not be changed, as the current password does not match!");
+                    throw new ApplicationException("The password for '" + Login + "' could not be changed, as the given current password does not match!");
                 }
 
             }
@@ -6697,6 +6815,71 @@ namespace org.GraphDefined.OpenData.Users
 
         #region TryChangePassword(Login, NewPassword, CurrentPassword = null, CurrentUserId = null)
 
+        protected async Task<Boolean> _TryChangePassword(User_Id   Login,
+                                                         Password  NewPassword,
+                                                         String    CurrentPassword  = null,
+                                                         User_Id?  CurrentUserId    = null)
+        {
+
+            #region AddPassword
+
+            if (!_LoginPasswords.TryGetValue(Login, out LoginPassword _LoginPassword))
+            {
+
+                await WriteToLogfileAndNotify(NotificationMessageType.Parse("addPassword"),
+                                              new JObject(
+                                                  new JProperty("login",         Login.ToString()),
+                                                  new JProperty("newPassword", new JObject(
+                                                      new JProperty("salt",          NewPassword.Salt.UnsecureString()),
+                                                      new JProperty("passwordHash",  NewPassword.UnsecureString)
+                                                  ))
+                                              ),
+                                              NoOwner,
+                                              DefaultPasswordFile,
+                                              CurrentUserId);
+
+                _LoginPasswords.Add(Login, new LoginPassword(Login, NewPassword));
+
+                return true;
+
+            }
+
+            #endregion
+
+            #region ChangePassword
+
+            else if (CurrentPassword.IsNotNullOrEmpty() && _LoginPassword.VerifyPassword(CurrentPassword))
+            {
+
+                await WriteToLogfileAndNotify(NotificationMessageType.Parse("changePassword"),
+                                              new JObject(
+                                                  new JProperty("login",         Login.ToString()),
+                                                  new JProperty("currentPassword", new JObject(
+                                                      new JProperty("salt",          _LoginPassword.Password.Salt.UnsecureString()),
+                                                      new JProperty("passwordHash",  _LoginPassword.Password.UnsecureString)
+                                                  )),
+                                                  new JProperty("newPassword",     new JObject(
+                                                      new JProperty("salt",          NewPassword.Salt.UnsecureString()),
+                                                      new JProperty("passwordHash",  NewPassword.UnsecureString)
+                                                  ))
+                                              ),
+                                              NoOwner,
+                                              DefaultPasswordFile,
+                                              CurrentUserId);
+
+                _LoginPasswords[Login] = new LoginPassword(Login, NewPassword);
+
+                return true;
+
+            }
+
+            #endregion
+
+            else
+                return false;
+
+        }
+
         public async Task<Boolean> TryChangePassword(User_Id   Login,
                                                      Password  NewPassword,
                                                      String    CurrentPassword  = null,
@@ -6708,62 +6891,10 @@ namespace org.GraphDefined.OpenData.Users
 
                 await UsersSemaphore.WaitAsync();
 
-                #region AddPassword
-
-                if (!_LoginPasswords.TryGetValue(Login, out LoginPassword _LoginPassword))
-                {
-
-                    await WriteToLogfileAndNotify(NotificationMessageType.Parse("addPassword"),
-                                                  new JObject(
-                                                      new JProperty("login",         Login.ToString()),
-                                                      new JProperty("newPassword", new JObject(
-                                                          new JProperty("salt",          NewPassword.Salt.UnsecureString()),
-                                                          new JProperty("passwordHash",  NewPassword.UnsecureString)
-                                                      ))
-                                                  ),
-                                                  NoOwner,
-                                                  DefaultPasswordFile,
-                                                  CurrentUserId);
-
-                    _LoginPasswords.Add(Login, new LoginPassword(Login, NewPassword));
-
-                    return true;
-
-                }
-
-                #endregion
-
-                #region ChangePassword
-
-                else if (CurrentPassword.IsNotNullOrEmpty() && _LoginPassword.VerifyPassword(CurrentPassword))
-                {
-
-                    await WriteToLogfileAndNotify(NotificationMessageType.Parse("changePassword"),
-                                                  new JObject(
-                                                      new JProperty("login",         Login.ToString()),
-                                                      new JProperty("currentPassword", new JObject(
-                                                          new JProperty("salt",          _LoginPassword.Password.Salt.UnsecureString()),
-                                                          new JProperty("passwordHash",  _LoginPassword.Password.UnsecureString)
-                                                      )),
-                                                      new JProperty("newPassword",     new JObject(
-                                                          new JProperty("salt",          NewPassword.Salt.UnsecureString()),
-                                                          new JProperty("passwordHash",  NewPassword.UnsecureString)
-                                                      ))
-                                                  ),
-                                                  NoOwner,
-                                                  DefaultPasswordFile,
-                                                  CurrentUserId);
-
-                    _LoginPasswords[Login] = new LoginPassword(Login, NewPassword);
-
-                    return true;
-
-                }
-
-                #endregion
-
-                else
-                    return false;
+                return await _TryChangePassword(Login,
+                                                NewPassword,
+                                                CurrentPassword,
+                                                CurrentUserId);
 
             }
             finally
@@ -8044,6 +8175,9 @@ namespace org.GraphDefined.OpenData.Users
         #endregion
 
         #region Notifications
+
+        // ToDo: Add locks
+        // ToDo: Add logging!
 
         #region AddNotification(User,   NotificationType)
 

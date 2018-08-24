@@ -92,6 +92,14 @@ namespace org.GraphDefined.OpenData.Users
 
             }
 
+            if (OldUser.GetNotifications().Any() && !NewUser.GetNotifications().Any())
+            {
+
+                foreach (var notification in OldUser.GetNotifications())
+                    NewUser.AddNotification(notification);
+
+            }
+
         }
 
         #endregion
