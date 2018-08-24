@@ -41,11 +41,11 @@ namespace org.GraphDefined.OpenData.Notifications
 
         #region AddEMailNotification(this UsersAPI, User,                    EMailAddress, Subject = null, SubjectPrefix = null)
 
-        public static Task<NotificationStore> AddEMailNotification(this UsersAPI  UsersAPI,
-                                                                   User           User,
-                                                                   EMailAddress   EMailAddress,
-                                                                   String         Subject        = null,
-                                                                   String         SubjectPrefix  = null)
+        public static Task AddEMailNotification(this UsersAPI  UsersAPI,
+                                                User           User,
+                                                EMailAddress   EMailAddress,
+                                                String         Subject        = null,
+                                                String         SubjectPrefix  = null)
 
             => UsersAPI.AddNotification(User,
                                         new EMailNotification(EMailAddress,
@@ -56,11 +56,11 @@ namespace org.GraphDefined.OpenData.Notifications
 
         #region AddEMailNotification(this UsersAPI, UserId,                  EMailAddress, Subject = null, SubjectPrefix = null)
 
-        public static Task<NotificationStore> AddEMailNotification(this UsersAPI  UsersAPI,
-                                                                   User_Id        UserId,
-                                                                   EMailAddress   EMailAddress,
-                                                                   String         Subject        = null,
-                                                                   String         SubjectPrefix  = null)
+        public static Task AddEMailNotification(this UsersAPI  UsersAPI,
+                                                User_Id        UserId,
+                                                EMailAddress   EMailAddress,
+                                                String         Subject        = null,
+                                                String         SubjectPrefix  = null)
 
             => UsersAPI.AddNotification(UserId,
                                         new EMailNotification(EMailAddress,
@@ -69,31 +69,31 @@ namespace org.GraphDefined.OpenData.Notifications
 
         #endregion
 
-        #region AddEMailNotification(this UsersAPI, User,   NotificationId,  EMailAddress, Subject = null, SubjectPrefix = null)
+        #region AddEMailNotification(this UsersAPI, User,   NotificationMessageType,  EMailAddress, Subject = null, SubjectPrefix = null)
 
-        public static Task<NotificationStore> AddEMailNotification(this UsersAPI            UsersAPI,
-                                                                   User                     User,
-                                                                   NotificationMessageType  NotificationId,
-                                                                   EMailAddress             EMailAddress,
-                                                                   String                   Subject        = null,
-                                                                   String                   SubjectPrefix  = null)
+        public static Task AddEMailNotification(this UsersAPI            UsersAPI,
+                                                User                     User,
+                                                NotificationMessageType  NotificationMessageType,
+                                                EMailAddress             EMailAddress,
+                                                String                   Subject        = null,
+                                                String                   SubjectPrefix  = null)
 
             => UsersAPI.AddNotification(User,
                                         new EMailNotification(EMailAddress,
                                                               Subject,
                                                               SubjectPrefix),
-                                        NotificationId);
+                                        NotificationMessageType);
 
         #endregion
 
         #region AddEMailNotification(this UsersAPI, UserId, NotificationId,  EMailAddress, Subject = null, SubjectPrefix = null)
 
-        public static Task<NotificationStore> AddEMailNotification(this UsersAPI            UsersAPI,
-                                                                   User_Id                  UserId,
-                                                                   NotificationMessageType  NotificationId,
-                                                                   EMailAddress             EMailAddress,
-                                                                   String                   Subject        = null,
-                                                                   String                   SubjectPrefix  = null)
+        public static Task AddEMailNotification(this UsersAPI            UsersAPI,
+                                                User_Id                  UserId,
+                                                NotificationMessageType  NotificationId,
+                                                EMailAddress             EMailAddress,
+                                                String                   Subject        = null,
+                                                String                   SubjectPrefix  = null)
 
             => UsersAPI.AddNotification(UserId,
                                         new EMailNotification(EMailAddress,
@@ -105,12 +105,12 @@ namespace org.GraphDefined.OpenData.Notifications
 
         #region AddEMailNotification(this UsersAPI, User,   NotificationIds, EMailAddress, Subject = null, SubjectPrefix = null)
 
-        public static Task<NotificationStore> AddEMailNotification(this UsersAPI                         UsersAPI,
-                                                                   User                                  User,
-                                                                   IEnumerable<NotificationMessageType>  NotificationIds,
-                                                                   EMailAddress                          EMailAddress,
-                                                                   String                                Subject        = null,
-                                                                   String                                SubjectPrefix  = null)
+        public static Task AddEMailNotification(this UsersAPI                         UsersAPI,
+                                                User                                  User,
+                                                IEnumerable<NotificationMessageType>  NotificationIds,
+                                                EMailAddress                          EMailAddress,
+                                                String                                Subject        = null,
+                                                String                                SubjectPrefix  = null)
 
             => UsersAPI.AddNotification(User,
                                         new EMailNotification(EMailAddress,
@@ -122,12 +122,12 @@ namespace org.GraphDefined.OpenData.Notifications
 
         #region AddEMailNotification(this UsersAPI, UserId, NotificationIds, EMailAddress, Subject = null, SubjectPrefix = null)
 
-        public static Task<NotificationStore> AddEMailNotification(this UsersAPI                         UsersAPI,
-                                                                   User_Id                               UserId,
-                                                                   IEnumerable<NotificationMessageType>  NotificationIds,
-                                                                   EMailAddress                          EMailAddress,
-                                                                   String                                Subject        = null,
-                                                                   String                                SubjectPrefix  = null)
+        public static Task AddEMailNotification(this UsersAPI                         UsersAPI,
+                                                User_Id                               UserId,
+                                                IEnumerable<NotificationMessageType>  NotificationIds,
+                                                EMailAddress                          EMailAddress,
+                                                String                                Subject        = null,
+                                                String                                SubjectPrefix  = null)
 
             => UsersAPI.AddNotification(UserId,
                                         new EMailNotification(EMailAddress,
@@ -207,6 +207,15 @@ namespace org.GraphDefined.OpenData.Notifications
                                      IComparable<EMailNotification>
     {
 
+        #region Data
+
+        /// <summary>
+        /// The JSON-LD context of the object.
+        /// </summary>
+        public const String JSONLDContext = "https://opendata.social/contexts/UsersAPI+json/EMailNotification";
+
+        #endregion
+
         #region Properties
 
         /// <summary>
@@ -240,10 +249,15 @@ namespace org.GraphDefined.OpenData.Notifications
         /// <param name="Subject">An optional customer-specific subject of all e-mails to send.</param>
         /// <param name="SubjectPrefix">An optional prefix added to the standard subject of all e-mails to send.</param>
         /// <param name="ListId">An optional 'List-Id" e-mail header within all e-mails to send.</param>
-        public EMailNotification(EMailAddress  EMailAddress,
-                                 String        Subject         = null,
-                                 String        SubjectPrefix   = null,
-                                 String        ListId          = null)
+        /// <param name="NotificationMessageTypes">An optional enumeration of notification message types.</param>
+        public EMailNotification(EMailAddress                          EMailAddress,
+                                 String                                Subject                   = null,
+                                 String                                SubjectPrefix             = null,
+                                 String                                ListId                    = null,
+                                 IEnumerable<NotificationMessageType>  NotificationMessageTypes  = null)
+
+            : base(NotificationMessageTypes)
+
         {
 
             this.EMailAddress   = EMailAddress;
@@ -262,19 +276,32 @@ namespace org.GraphDefined.OpenData.Notifications
             if (JSON["type"]?.Value<String>() != typeof(EMailNotification).Name)
                 throw new ArgumentException();
 
-            return new EMailNotification(new EMailAddress(
-                                             OwnerName:                 JSON["username"]?.Value<String>(),
-                                             SimpleEMailAddressString:  JSON["email"]?.   Value<String>(),
-                                             SecretKeyRing:             null,
-                                             PublicKeyRing:             null
-                                         ),
-                                         JSON["subject"]?.Value<String>());
+            if (JSON["email"] is JObject EMailJSON &&
+                EMailAddress.TryParseJSON(EMailJSON,
+                                          out EMailAddress EMail,
+                                          out String       ErrorResponse,
+                                          true))
+            {
+
+                return new EMailNotification(EMail,
+                                             JSON["subject"      ]?.Value<String>(),
+                                             JSON["subjectPrefix"]?.Value<String>(),
+                                             JSON["listId"       ]?.Value<String>(),
+                                             (JSON["messageTypes"] as JArray)?.SafeSelect(element => NotificationMessageType.Parse(element.Value<String>())));
+
+            }
+
+            return null;
 
         }
 
-        public override JObject ToJSON()
+        public override JObject ToJSON(Boolean Embedded = false)
 
             => JSONObject.Create(
+
+                   !Embedded
+                       ? new JProperty("@context", JSONLDContext)
+                       : null,
 
                    new JProperty("type",      GetType().Name),
                    new JProperty("email",     EMailAddress.ToJSON(Embedded: true)),
@@ -296,6 +323,25 @@ namespace org.GraphDefined.OpenData.Notifications
                        : null
 
                );
+
+
+        #region OptionalEquals(EMailNotification)
+
+        public override Boolean OptionalEquals(ANotification other)
+
+            => other is EMailNotification eMailNotification &&
+               this.OptionalEquals(eMailNotification);
+
+        public Boolean OptionalEquals(EMailNotification other)
+
+            => EMailAddress.  Equals(other.EMailAddress) &&
+
+               Subject?.      Equals(other.Subject) == true &&
+               SubjectPrefix?.Equals(other.Subject) == true &&
+               ListId?.       Equals(other.Subject) == true;
+
+        #endregion
+
 
 
         #region SortKey

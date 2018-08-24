@@ -434,49 +434,43 @@ namespace org.GraphDefined.OpenData.Users
         #endregion
 
 
-        #region AddNotification(NotificationType)
+        #region (internal) AddNotification(NotificationType,                           OnUpdate = null)
 
-        public NotificationStore AddNotification<T>(T NotificationType)
+        internal T AddNotification<T>(T          NotificationType,
+                                      Action<T>  OnUpdate  = null)
+
             where T : ANotification
-        {
 
-            _Notifications.Add(NotificationType);
-
-            return _Notifications;
-
-        }
+            => _Notifications.Add(NotificationType,
+                                  OnUpdate);
 
         #endregion
 
-        #region AddNotification(NotificationType, NotificationMessageType)
+        #region (internal) AddNotification(NotificationType, NotificationMessageType,  OnUpdate = null)
 
-        public NotificationStore AddNotification<T>(T                        NotificationType,
-                                                NotificationMessageType  NotificationMessageType)
+        internal T AddNotification<T>(T                        NotificationType,
+                                      NotificationMessageType  NotificationMessageType,
+                                      Action<T>                OnUpdate  = null)
+
             where T : ANotification
-        {
 
-            _Notifications.Add(NotificationType,
-                               NotificationMessageType);
-
-            return _Notifications;
-
-        }
+            => _Notifications.Add(NotificationType,
+                                  NotificationMessageType,
+                                  OnUpdate);
 
         #endregion
 
-        #region AddNotification(NotificationType, NotificationMessageTypes)
+        #region (internal) AddNotification(NotificationType, NotificationMessageTypes, OnUpdate = null)
 
-        public NotificationStore AddNotification<T>(T                                     NotificationType,
-                                                IEnumerable<NotificationMessageType>  NotificationMessageTypes)
+        internal T AddNotification<T>(T                                     NotificationType,
+                                      IEnumerable<NotificationMessageType>  NotificationMessageTypes,
+                                      Action<T>                             OnUpdate  = null)
+
             where T : ANotification
-        {
 
-            _Notifications.Add(NotificationType,
-                               NotificationMessageTypes);
-
-            return _Notifications;
-
-        }
+            => _Notifications.Add(NotificationType,
+                                  NotificationMessageTypes,
+                                  OnUpdate);
 
         #endregion
 
@@ -540,8 +534,8 @@ namespace org.GraphDefined.OpenData.Users
         #endregion
 
 
-        public JArray GetNotificationInfos()
-            => _Notifications.ToJSON();
+        public JArray GetNotificationInfos(Boolean Embedded = false)
+            => _Notifications.ToJSON(Embedded);
 
 
         #region User <-> User edges

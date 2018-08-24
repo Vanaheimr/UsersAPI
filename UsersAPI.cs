@@ -485,6 +485,14 @@ namespace org.GraphDefined.OpenData.Users
 
         #region Properties
 
+        public String                    LoggingPath                { get; }
+        public String                    UsersAPIPath               { get; }
+        public String                    HTTPSSEPath                { get; }
+        public String                    HTTPRequestsPath           { get; }
+        public String                    HTTPResponsesPath          { get; }
+        public String                    NotificationsPath          { get; }
+        public String                    MetricsPath                { get; }
+
         /// <summary>
         /// The current async local user identification to simplify API usage.
         /// </summary>
@@ -1108,6 +1116,7 @@ namespace org.GraphDefined.OpenData.Users
                         Boolean                              SkipURITemplates                   = false,
                         Boolean                              DisableNotifications               = false,
                         Boolean                              DisableLogfile                     = false,
+                        String                               LoggingPath                        = null,
                         String                               LogfileName                        = DefaultLogfileName,
                         DNSClient                            DNSClient                          = null,
                         Boolean                              Autostart                          = false)
@@ -1160,6 +1169,7 @@ namespace org.GraphDefined.OpenData.Users
                    SkipURITemplates,
                    DisableNotifications,
                    DisableLogfile,
+                   LoggingPath,
                    LogfileName)
 
         {
@@ -1234,6 +1244,7 @@ namespace org.GraphDefined.OpenData.Users
                            Boolean                              SkipURITemplates              = false,
                            Boolean                              DisableNotifications          = false,
                            Boolean                              DisableLogfile                = false,
+                           String                               LoggingPath                   = null,
                            String                               LogfileName                   = DefaultLogfileName)
 
             : base(HTTPServer,
@@ -1257,6 +1268,29 @@ namespace org.GraphDefined.OpenData.Users
             #endregion
 
             #region Init data
+
+            this.LoggingPath                  = LoggingPath ?? Directory.GetCurrentDirectory();
+
+            if (!this.LoggingPath.EndsWith(Path.DirectorySeparatorChar.ToString()))
+                this.LoggingPath += Path.DirectorySeparatorChar;
+
+            this.UsersAPIPath                 = this.LoggingPath + "UsersAPI"      + Path.DirectorySeparatorChar;
+            this.HTTPRequestsPath             = this.LoggingPath + "HTTPRequests"  + Path.DirectorySeparatorChar;
+            this.HTTPResponsesPath            = this.LoggingPath + "HTTPResponses" + Path.DirectorySeparatorChar;
+            this.HTTPSSEPath                  = this.LoggingPath + "HTTPSSEs"      + Path.DirectorySeparatorChar;
+            this.NotificationsPath            = this.LoggingPath + "Notifications" + Path.DirectorySeparatorChar;
+            this.MetricsPath                  = this.LoggingPath + "Metrics"       + Path.DirectorySeparatorChar;
+
+            if (!DisableLogfile)
+            {
+                Directory.CreateDirectory(this.LoggingPath);
+                Directory.CreateDirectory(this.UsersAPIPath);
+                Directory.CreateDirectory(this.HTTPRequestsPath);
+                Directory.CreateDirectory(this.HTTPResponsesPath);
+                Directory.CreateDirectory(this.HTTPSSEPath);
+                Directory.CreateDirectory(this.NotificationsPath);
+                Directory.CreateDirectory(this.MetricsPath);
+            }
 
             this.Robot                        = new User(Id:               User_Id.Parse("robot"),
                                                          EMail:            APIEMailAddress.Address,
@@ -1301,7 +1335,7 @@ namespace org.GraphDefined.OpenData.Users
 
             this.DisableNotifications         = DisableNotifications;
             this.DisableLogfile               = DisableLogfile;
-            this.LogfileName                  = LogfileName ?? DefaultLogfileName;
+            this.LogfileName                  = this.UsersAPIPath + (LogfileName ?? DefaultLogfileName);
 
             this._APIKeys                     = new Dictionary<APIKey, APIKeyInfo>();
 
@@ -2030,7 +2064,7 @@ namespace org.GraphDefined.OpenData.Users
                                                                   new SecurityToken(_LoginPassword.Login,
                                                                                     Expires));
 
-                                                  File.AppendAllText(DefaultHTTPCookiesFile,
+                                                  File.AppendAllText(this.UsersAPIPath + DefaultHTTPCookiesFile,
                                                                      SecurityTokenId + ";" + _LoginPassword.Login + ";" + Expires.ToIso8601() + Environment.NewLine);
 
                                               }
@@ -3677,7 +3711,7 @@ namespace org.GraphDefined.OpenData.Users
                                                                                       Expires,
                                                                                       Astronaut.Id));
 
-                                                 File.AppendAllText(DefaultHTTPCookiesFile,
+                                                 File.AppendAllText(this.UsersAPIPath + DefaultHTTPCookiesFile,
                                                                     SecurityTokenId + ";" + UserURI.Id + ";" + Expires.ToIso8601() + ";" + Astronaut.Id + Environment.NewLine);
 
                                              }
@@ -3802,7 +3836,7 @@ namespace org.GraphDefined.OpenData.Users
                                                                  new SecurityToken(Astronaut.Id,
                                                                                    Expires));
 
-                                                 File.AppendAllText(DefaultHTTPCookiesFile,
+                                                 File.AppendAllText(this.UsersAPIPath + DefaultHTTPCookiesFile,
                                                                     SecurityTokenId + ";" + UserURI.Id + ";" + Expires.ToIso8601() + Environment.NewLine);
 
                                              }
@@ -3882,7 +3916,7 @@ namespace org.GraphDefined.OpenData.Users
                                                         AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
                                                         ETag                       = "1",
                                                         ContentType                = HTTPContentType.JSON_UTF8,
-                                                        Content                    = HTTPUser.GetNotificationInfos().ToUTF8Bytes(),
+                                                        Content                    = HTTPUser.GetNotificationInfos(false).ToUTF8Bytes(),
                                                         Connection                 = "close"
                                                     }.AsImmutable);
 
@@ -4785,7 +4819,7 @@ namespace org.GraphDefined.OpenData.Users
                 JObject JSONObject;
 
                 // Info: File.Exists(...) is harmful!
-                File.ReadLines(DefaultUsersAPIFile).ForEachCounted(async (line, linenumber) => {
+                File.ReadLines(this.UsersAPIPath + DefaultUsersAPIFile).ForEachCounted(async (line, linenumber) => {
 
                     if (line.IsNeitherNullNorEmpty() &&
                        !line.StartsWith("#")         &&
@@ -4806,7 +4840,7 @@ namespace org.GraphDefined.OpenData.Users
                         }
                         catch (Exception e)
                         {
-                            DebugX.Log("Could not read database file '" + DefaultUsersAPIFile + "' line " + linenumber + ": " + e.Message);
+                            DebugX.Log("Could not read database file '" + this.UsersAPIPath + DefaultUsersAPIFile + "' line " + linenumber + ": " + e.Message);
                         }
 
                     }
@@ -4814,9 +4848,11 @@ namespace org.GraphDefined.OpenData.Users
                 });
 
             }
+            catch (FileNotFoundException fe)
+            { }
             catch (Exception e)
             {
-                DebugX.LogT("ReadDatabaseFiles() -> DefaultUsersAPIFile failed: " + e.Message);
+                DebugX.LogT("Could not read database file '" + this.UsersAPIPath + DefaultUsersAPIFile + "': " + e.Message);
             }
 
             #endregion
@@ -4831,7 +4867,7 @@ namespace org.GraphDefined.OpenData.Users
                 JObject JSONObject;
 
                 // Info: File.Exists(...) is harmful!
-                File.ReadLines(DefaultPasswordFile).ForEachCounted((line, linenumber) => {
+                File.ReadLines(this.UsersAPIPath + DefaultPasswordFile).ForEachCounted((line, linenumber) => {
 
                     if (line.IsNeitherNullNorEmpty() &&
                        !line.StartsWith("#")         &&
@@ -4870,7 +4906,7 @@ namespace org.GraphDefined.OpenData.Users
                                             }
 
                                             else
-                                                DebugX.Log("Invalid 'AddPassword' command in '" + DefaultPasswordFile + "' line " + linenumber + "!");
+                                                DebugX.Log("Invalid 'AddPassword' command in '" + this.UsersAPIPath + DefaultPasswordFile + "' line " + linenumber + "!");
 
                                             break;
 
@@ -4893,7 +4929,7 @@ namespace org.GraphDefined.OpenData.Users
                                             }
 
                                             else
-                                                DebugX.Log("Invalid 'ChangePassword' command in '" + DefaultPasswordFile + "' line " + linenumber + "!");
+                                                DebugX.Log("Invalid 'ChangePassword' command in '" + this.UsersAPIPath + DefaultPasswordFile + "' line " + linenumber + "!");
 
                                             break;
 
@@ -4917,7 +4953,7 @@ namespace org.GraphDefined.OpenData.Users
                                         #endregion
 
                                     default:
-                                        DebugX.Log("Unknown command '" + JSONCommand + "' in password file '" + DefaultPasswordFile + "' line " + linenumber + "!");
+                                        DebugX.Log("Unknown command '" + JSONCommand + "' in password file '" + this.UsersAPIPath + DefaultPasswordFile + "' line " + linenumber + "!");
                                         break;
 
                                 }
@@ -4925,12 +4961,12 @@ namespace org.GraphDefined.OpenData.Users
                             }
 
                             else
-                                DebugX.Log("Could not read password file '" + DefaultPasswordFile + "' line " + linenumber + "!");
+                                DebugX.Log("Could not read password file '" + this.UsersAPIPath + DefaultPasswordFile + "' line " + linenumber + "!");
 
                         }
                         catch (Exception e)
                         {
-                            DebugX.Log("Could not read password file '" + DefaultPasswordFile + "' line " + linenumber + ": " + e.Message);
+                            DebugX.Log("Could not read password file '" + this.UsersAPIPath + DefaultPasswordFile + "' line " + linenumber + ": " + e.Message);
                         }
 
                     }
@@ -4938,9 +4974,11 @@ namespace org.GraphDefined.OpenData.Users
                 });
 
             }
+            catch (FileNotFoundException fe)
+            { }
             catch (Exception e)
             {
-                DebugX.LogT("ReadDatabaseFiles() -> DefaultPasswordFile failed: " + e.Message);
+                DebugX.LogT("Could not read password file '" + this.UsersAPIPath + DefaultPasswordFile + "' failed: " + e.Message);
             }
 
             #endregion
@@ -4953,7 +4991,7 @@ namespace org.GraphDefined.OpenData.Users
                 try
                 {
 
-                    File.ReadLines(DefaultHTTPCookiesFile).ForEachCounted((line, linenumber) => {
+                    File.ReadLines(this.UsersAPIPath + DefaultHTTPCookiesFile).ForEachCounted((line, linenumber) => {
 
                         try
                         {
@@ -4982,15 +5020,17 @@ namespace org.GraphDefined.OpenData.Users
                         }
                         catch (Exception e)
                         {
-                            DebugX.Log("Could not read HTTP cookies file '" + DefaultHTTPCookiesFile + "' line " + linenumber + ": " + e.Message);
+                            DebugX.Log("Could not read HTTP cookies file '" + this.UsersAPIPath + DefaultHTTPCookiesFile + "' line " + linenumber + ": " + e.Message);
                         }
 
                     });
 
                 }
+                catch (FileNotFoundException fe)
+                { }
                 catch (Exception e)
                 {
-                    DebugX.Log("Could not read HTTP cookies file '" + DefaultHTTPCookiesFile + "': " + e.Message);
+                    DebugX.Log("Could not read HTTP cookies file '" + this.UsersAPIPath + DefaultHTTPCookiesFile + "': " + e.Message);
                 }
 
 
@@ -4998,13 +5038,13 @@ namespace org.GraphDefined.OpenData.Users
                 try
                 {
 
-                    File.WriteAllLines(DefaultHTTPCookiesFile,
+                    File.WriteAllLines(this.UsersAPIPath + DefaultHTTPCookiesFile,
                                        HTTPCookies.Select(token => token.Key + ";" + token.Value.ToLogLine()));
 
                 }
                 catch (Exception e)
                 {
-                    DebugX.Log("Could not update HTTP cookies file '" + DefaultHTTPCookiesFile + "': " + e.Message);
+                    DebugX.Log("Could not update HTTP cookies file '" + this.UsersAPIPath + DefaultHTTPCookiesFile + "': " + e.Message);
                 }
 
             }
@@ -5024,7 +5064,7 @@ namespace org.GraphDefined.OpenData.Users
                 var MaxAge  = TimeSpan.FromDays(7);
 
                 // Info: File.Exists(...) is harmful!
-                File.ReadLines(DefaultPasswordResetsFile).ForEachCounted((line, linenumber) => {
+                File.ReadLines(this.UsersAPIPath + DefaultPasswordResetsFile).ForEachCounted((line, linenumber) => {
 
                     if (line.IsNeitherNullNorEmpty() &&
                        !line.StartsWith("#")         &&
@@ -5081,7 +5121,7 @@ namespace org.GraphDefined.OpenData.Users
                                             #endregion
 
                                         default:
-                                            DebugX.Log("Unknown command '" + JSONCommand + "' in password file '" + DefaultPasswordResetsFile + "' line " + linenumber + "!");
+                                            DebugX.Log("Unknown command '" + JSONCommand + "' in password file '" + this.UsersAPIPath + DefaultPasswordResetsFile + "' line " + linenumber + "!");
                                             break;
 
                                     }
@@ -5091,12 +5131,12 @@ namespace org.GraphDefined.OpenData.Users
                             }
 
                             else
-                                DebugX.Log("Could not read password file '" + DefaultPasswordResetsFile + "' line " + linenumber + "!");
+                                DebugX.Log("Could not read password file '" + this.UsersAPIPath + DefaultPasswordResetsFile + "' line " + linenumber + "!");
 
                         }
                         catch (Exception e)
                         {
-                            DebugX.Log("Could not read password file '" + DefaultPasswordResetsFile + "' line " + linenumber + ": " + e.Message);
+                            DebugX.Log("Could not read password file '" + this.UsersAPIPath + DefaultPasswordResetsFile + "' line " + linenumber + ": " + e.Message);
                         }
 
                     }
@@ -5104,9 +5144,11 @@ namespace org.GraphDefined.OpenData.Users
                 });
 
             }
+            catch (FileNotFoundException fe)
+            { }
             catch (Exception e)
             {
-                DebugX.LogT("ReadDatabaseFiles() -> DefaultPasswordResetsFile failed: " + e.Message);
+                DebugX.LogT("Could not read password file '" + this.UsersAPIPath + DefaultPasswordResetsFile + "': " + e.Message);
             }
 
             #endregion
@@ -5570,53 +5612,47 @@ namespace org.GraphDefined.OpenData.Users
                             TryGetUser(UserId, out User User))
                         {
 
-                            if (JSONObject["notificationId"]?.Value<String>().IsNotNullOrEmpty() == true)
+                            switch (JSONObject["type"]?.Value<String>())
                             {
-                                switch (JSONObject["type"]?.Value<String>())
-                                {
 
-                                    case "EMailNotification":
-                                        await AddNotification(User,
-                                                              EMailNotification.Parse(JSONObject),
-                                                              NotificationMessageType.Parse(JSONObject["notificationId"]?.Value<String>()));
-                                        break;
+                                case "EMailNotification":
 
-                                    case "SMSNotification":
-                                        await AddNotification(User,
-                                                              SMSNotification.Parse(JSONObject),
-                                                              NotificationMessageType.Parse(JSONObject["notificationId"]?.Value<String>()));
-                                        break;
+                                    var emailnotification = EMailNotification.Parse(JSONObject);
 
-                                    case "HTTPSNotification":
-                                        await AddNotification(User,
-                                                              HTTPSNotification.Parse(JSONObject),
-                                                              NotificationMessageType.Parse(JSONObject["notificationId"]?.Value<String>()));
-                                        break;
+                                    if (emailnotification != null)
+                                        User.AddNotification(emailnotification);
 
-                                }
-                            }
+                                    else
+                                        DebugX.Log(String.Concat(nameof(UsersAPI), " Could not parse the given e-mail notification!"));
 
-                            else
-                            {
-                                switch (JSONObject["type"]?.Value<String>())
-                                {
+                                    break;
 
-                                    case "EMailNotification":
-                                        await AddNotification(User,
-                                                              EMailNotification.Parse(JSONObject));
-                                        break;
 
-                                    case "SMSNotification":
-                                        await AddNotification(User,
-                                                              SMSNotification.Parse(JSONObject));
-                                        break;
+                                case "SMSNotification":
 
-                                    case "HTTPSNotification":
-                                        await AddNotification(User,
-                                                              HTTPSNotification.Parse(JSONObject));
-                                        break;
+                                    var smsnotification = SMSNotification.Parse(JSONObject);
 
-                                }
+                                    if (smsnotification != null)
+                                        User.AddNotification(smsnotification);
+
+                                    else
+                                        DebugX.Log(String.Concat(nameof(UsersAPI), " Could not parse the given SMS notification!"));
+
+                                    break;
+
+
+                                case "HTTPSNotification":
+
+                                    var httpsnotification = HTTPSNotification.Parse(JSONObject);
+
+                                    if (httpsnotification != null)
+                                        User.AddNotification(httpsnotification);
+
+                                    else
+                                        DebugX.Log(String.Concat(nameof(UsersAPI), " Could not parse the given HTTPS notification!"));
+
+                                    break;
+
                             }
 
                         }
@@ -5980,7 +6016,7 @@ namespace org.GraphDefined.OpenData.Users
             => WriteToLogfileAndNotify(MessageType,
                                        JSONData,
                                        Owner != null ? new Organization[] { Owner } : new Organization[0],
-                                       DefaultUsersAPIFile,
+                                       this.UsersAPIPath + DefaultUsersAPIFile,
                                        CurrentUserId);
 
         #endregion
@@ -5995,7 +6031,7 @@ namespace org.GraphDefined.OpenData.Users
             => WriteToLogfileAndNotify(MessageType,
                                        JSONData,
                                        Owners,
-                                       DefaultUsersAPIFile,
+                                       this.UsersAPIPath + DefaultUsersAPIFile,
                                        CurrentUserId);
 
         #endregion
@@ -6067,7 +6103,7 @@ namespace org.GraphDefined.OpenData.Users
                         await LogFileSemaphore.WaitAsync();
 
                         var retry       = 0;
-                        var maxRetries  = 5;
+                        var maxRetries  = 23;
 
                         do
                         {
@@ -6084,13 +6120,13 @@ namespace org.GraphDefined.OpenData.Users
                             }
                             catch (IOException ioEx)
                             {
-                                DebugX.Log("Could not write message '" + MessageType + "' to logfile '" + Logfilename + "': " + ioEx.Message);
+                                DebugX.Log("Retry " + retry + ": Could not write message '" + MessageType + "' to logfile '" + Logfilename + "': " + ioEx.Message);
                                 await Task.Delay(10);
                                 retry++;
                             }
                             catch (Exception e)
                             {
-                                DebugX.Log("Could not write message '" + MessageType + "' to logfile '" + Logfilename + "': " + e.Message);
+                                DebugX.Log("Retry " + retry + ": Could not write message '" + MessageType + "' to logfile '" + Logfilename + "': " + e.Message);
                                 await Task.Delay(10);
                                 retry++;
                             }
@@ -6157,7 +6193,7 @@ namespace org.GraphDefined.OpenData.Users
                         try
                         {
 
-                            File.AppendAllText(Logfilename,
+                            File.AppendAllText(this.LoggingPath + Logfilename,
                                                Data +
                                                Environment.NewLine);
 
@@ -6179,29 +6215,6 @@ namespace org.GraphDefined.OpenData.Users
         }
 
         #endregion
-
-
-        //public void WriteToLogfileAndNotify(NotificationMessageType    MessageType,
-        //                                    JObject                    JSONData,
-        //                                    IEnumerable<Organization>  Owners,
-        //                                    String                     Logfilename    = DefaultUsersAPIFile,
-        //                                    User_Id?                   CurrentUserId  = null)
-        //{
-
-        //    if (!DisableNotifications)
-        //    {
-        //        lock (_NotificationMessages)
-        //        {
-
-        //            _NotificationMessages.Enqueue(new NotificationMessage(DateTime.UtcNow,
-        //                                                                  MessageType,
-        //                                                                  JSONMessage,
-        //                                                                  Owners));
-
-        //        }
-        //    }
-
-        //}
 
 
         #region AddEventSource(HTTPEventSourceId, URITemplate, IncludeFilterAtRuntime, CreateState, ...)
@@ -6835,7 +6848,7 @@ namespace org.GraphDefined.OpenData.Users
                                                   ))
                                               ),
                                               NoOwner,
-                                              DefaultPasswordFile,
+                                              this.UsersAPIPath + DefaultPasswordFile,
                                               CurrentUserId);
 
                 _LoginPasswords.Add(Login, new LoginPassword(Login, NewPassword));
@@ -6864,7 +6877,7 @@ namespace org.GraphDefined.OpenData.Users
                                                   ))
                                               ),
                                               NoOwner,
-                                              DefaultPasswordFile,
+                                              this.UsersAPIPath + DefaultPasswordFile,
                                               CurrentUserId);
 
                 _LoginPasswords[Login] = new LoginPassword(Login, NewPassword);
@@ -7051,7 +7064,7 @@ namespace org.GraphDefined.OpenData.Users
         #endregion
 
 
-        #region Add           (Organization, ParentOrganization = null, CurrentUserId = null)
+        #region Add           (Organization,   ParentOrganization = null, CurrentUserId = null)
 
         /// <summary>
         /// Add the given organization to the API.
@@ -7102,7 +7115,7 @@ namespace org.GraphDefined.OpenData.Users
 
         #endregion
 
-        #region AddIfNotExists(Organization, ParentOrganization = null, CurrentUserId = null)
+        #region AddIfNotExists(Organization,   ParentOrganization = null, CurrentUserId = null)
 
         /// <summary>
         /// When it has not been created before, add the given organization to the API.
@@ -7153,7 +7166,7 @@ namespace org.GraphDefined.OpenData.Users
 
         #endregion
 
-        #region AddOrUpdate   (Organization, ParentOrganization = null, CurrentUserId = null)
+        #region AddOrUpdate   (Organization,   ParentOrganization = null, CurrentUserId = null)
 
         /// <summary>
         /// Add or update the given organization to/within the API.
@@ -7211,7 +7224,7 @@ namespace org.GraphDefined.OpenData.Users
 
         #endregion
 
-        #region Update        (Organization, CurrentUserId = null)
+        #region Update        (Organization,                              CurrentUserId = null)
 
         /// <summary>
         /// Update the given organization within the API.
@@ -7261,7 +7274,7 @@ namespace org.GraphDefined.OpenData.Users
 
         #endregion
 
-        #region Update        (OrganizationId, UpdateDelegate, CurrentUserId = null)
+        #region Update        (OrganizationId, UpdateDelegate,            CurrentUserId = null)
 
         /// <summary>
         /// Update the given organization.
@@ -7311,7 +7324,7 @@ namespace org.GraphDefined.OpenData.Users
 
         #endregion
 
-        #region Remove        (OrganizationId, CurrentUserId = null)
+        #region Remove        (OrganizationId,                            CurrentUserId = null)
 
         /// <summary>
         /// Remove the given organization from this API.
@@ -8179,83 +8192,218 @@ namespace org.GraphDefined.OpenData.Users
         // ToDo: Add locks
         // ToDo: Add logging!
 
-        #region AddNotification(User,   NotificationType)
+        #region AddNotification(User,   NotificationType,                           CurrentUserId = null)
 
-        public async Task<NotificationStore> AddNotification<T>(User  User,
-                                                                T     NotificationType)
+        public async Task AddNotification<T>(User      User,
+                                             T         NotificationType,
+                                             User_Id?  CurrentUserId  = null)
 
             where T : ANotification
 
-            => User.AddNotification(NotificationType);
+        {
+
+            try
+            {
+
+                await UsersSemaphore.WaitAsync();
+
+                User.AddNotification(NotificationType,
+                                     async update => await WriteToLogfileAndNotify(NotificationMessageType.Parse("addNotification"),
+                                                                                   update.ToJSON(false).AddFirstAndReturn(new JProperty("userId", User.Id.ToString())),
+                                                                                   NoOwner,
+                                                                                   CurrentUserId));
+
+            }
+            finally
+            {
+                UsersSemaphore.Release();
+            }
+
+        }
 
         #endregion
 
-        #region AddNotification(UserId, NotificationType)
+        #region AddNotification(UserId, NotificationType,                           CurrentUserId = null)
 
-        public async Task<NotificationStore> AddNotification<T>(User_Id  UserId,
-                                                                T        NotificationType)
+        public async Task AddNotification<T>(User_Id   UserId,
+                                             T         NotificationType,
+                                             User_Id?  CurrentUserId  = null)
 
             where T : ANotification
 
-            => TryGetUser(UserId, out User User)
-                   ? User.AddNotification(NotificationType)
-                   : null;
+        {
+
+            try
+            {
+
+                await UsersSemaphore.WaitAsync();
+
+                if (_Users.TryGetValue(UserId, out User User))
+                {
+
+                    User.AddNotification(NotificationType,
+                                         async update => await WriteToLogfileAndNotify(NotificationMessageType.Parse("addNotification"),
+                                                                                       update.ToJSON(false).AddFirstAndReturn(new JProperty("userId", User.Id.ToString())),
+                                                                                       NoOwner,
+                                                                                       CurrentUserId));
+
+                }
+
+            }
+            finally
+            {
+                UsersSemaphore.Release();
+            }
+
+        }
 
         #endregion
 
-        #region AddNotification(User,   NotificationType, NotificationMessageType)
+        #region AddNotification(User,   NotificationType, NotificationMessageType,  CurrentUserId = null)
 
-        public async Task<NotificationStore> AddNotification<T>(User                     User,
-                                                                T                        NotificationType,
-                                                                NotificationMessageType  NotificationMessageType)
+        public async Task AddNotification<T>(User                     User,
+                                             T                        NotificationType,
+                                             NotificationMessageType  NotificationMessageType,
+                                             User_Id?                 CurrentUserId  = null)
 
             where T : ANotification
 
-            => User.AddNotification(NotificationType,
-                                    NotificationMessageType);
+        {
+
+            try
+            {
+
+                await UsersSemaphore.WaitAsync();
+
+                User.AddNotification(NotificationType,
+                                     NotificationMessageType,
+                                     async update => await WriteToLogfileAndNotify(NotificationMessageType.Parse("addNotification"),
+                                                                                   update.ToJSON(false).AddFirstAndReturn(new JProperty("userId", User.Id.ToString())),
+                                                                                   NoOwner,
+                                                                                   CurrentUserId));
+
+            }
+            finally
+            {
+                UsersSemaphore.Release();
+            }
+
+        }
 
         #endregion
 
-        #region AddNotification(UserId, NotificationType, NotificationMessageType)
+        #region AddNotification(UserId, NotificationType, NotificationMessageType,  CurrentUserId = null)
 
-        public async Task<NotificationStore> AddNotification<T>(User_Id                  UserId,
-                                                                T                        NotificationType,
-                                                                NotificationMessageType  NotificationMessageType)
+        public async Task AddNotification<T>(User_Id                  UserId,
+                                             T                        NotificationType,
+                                             NotificationMessageType  NotificationMessageType,
+                                             User_Id?                 CurrentUserId  = null)
 
             where T : ANotification
 
-            => TryGetUser(UserId, out User User)
-                   ? User.AddNotification(NotificationType,
-                                          NotificationMessageType)
-                   : null;
+        {
+
+            try
+            {
+
+                await UsersSemaphore.WaitAsync();
+
+                if (_Users.TryGetValue(UserId, out User User))
+                {
+
+                    User.AddNotification(NotificationType,
+                                         NotificationMessageType,
+                                         async update => await WriteToLogfileAndNotify(NotificationMessageType.Parse("addNotification"),
+                                                                                       update.ToJSON(false).AddFirstAndReturn(new JProperty("userId", User.Id.ToString())),
+                                                                                       NoOwner,
+                                                                                       CurrentUserId));
+
+                }
+
+                else
+                    throw new ArgumentException("The given user '" + UserId + "' is unknown!");
+
+            }
+            finally
+            {
+                UsersSemaphore.Release();
+            }
+
+        }
 
         #endregion
 
-        #region AddNotification(User,   NotificationType, NotificationMessageTypes)
+        #region AddNotification(User,   NotificationType, NotificationMessageTypes, CurrentUserId = null)
 
-        public async Task<NotificationStore> AddNotification<T>(User                                  User,
-                                                                T                                     NotificationType,
-                                                                IEnumerable<NotificationMessageType>  NotificationMessageTypes)
+        public async Task AddNotification<T>(User                                  User,
+                                             T                                     NotificationType,
+                                             IEnumerable<NotificationMessageType>  NotificationMessageTypes,
+                                             User_Id?                              CurrentUserId  = null)
 
             where T : ANotification
 
-            => User.AddNotification(NotificationType,
-                                    NotificationMessageTypes);
+        {
+
+            try
+            {
+
+                await UsersSemaphore.WaitAsync();
+
+                User.AddNotification(NotificationType,
+                                     NotificationMessageTypes,
+                                     async update => await WriteToLogfileAndNotify(NotificationMessageType.Parse("addNotification"),
+                                                                                   update.ToJSON(false).AddFirstAndReturn(new JProperty("userId", User.Id.ToString())),
+                                                                                   NoOwner,
+                                                                                   CurrentUserId));
+
+            }
+            finally
+            {
+                UsersSemaphore.Release();
+            }
+
+        }
 
         #endregion
 
-        #region AddNotification(UserId, NotificationType, NotificationMessageTypes)
+        #region AddNotification(UserId, NotificationType, NotificationMessageTypes, CurrentUserId = null)
 
-        public async Task<NotificationStore> AddNotification<T>(User_Id                               UserId,
-                                                                T                                     NotificationType,
-                                                                IEnumerable<NotificationMessageType>  NotificationMessageTypes)
+        public async Task AddNotification<T>(User_Id                               UserId,
+                                             T                                     NotificationType,
+                                             IEnumerable<NotificationMessageType>  NotificationMessageTypes,
+                                             User_Id?                              CurrentUserId  = null)
 
             where T : ANotification
 
-            => TryGetUser(UserId, out User User)
-                   ? User.AddNotification(NotificationType,
-                                          NotificationMessageTypes)
-                   : null;
+        {
+
+            try
+            {
+
+                await UsersSemaphore.WaitAsync();
+
+                if (_Users.TryGetValue(UserId, out User User))
+                {
+
+                    User.AddNotification(NotificationType,
+                                         NotificationMessageTypes,
+                                         async update => await WriteToLogfileAndNotify(NotificationMessageType.Parse("addNotification"),
+                                                                                       update.ToJSON(false).AddFirstAndReturn(new JProperty("userId", User.Id.ToString())),
+                                                                                       NoOwner,
+                                                                                       CurrentUserId));
+
+                }
+
+                else
+                    throw new ArgumentException("The given user '" + UserId + "' is unknown!");
+
+            }
+            finally
+            {
+                UsersSemaphore.Release();
+            }
+
+        }
 
         #endregion
 

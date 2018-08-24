@@ -58,34 +58,61 @@ namespace org.GraphDefined.OpenData.Notifications
         /// <summary>
         /// Create an new abstract notification.
         /// </summary>
-        protected ANotification()
+        protected ANotification(IEnumerable<NotificationMessageType> NotificationMessageTypes)
         {
+
             this._NotificationMessageTypes = new HashSet<NotificationMessageType>();
+
+            if (NotificationMessageTypes != null)
+                foreach (var notificationMessageType in NotificationMessageTypes)
+                    _NotificationMessageTypes.Add(notificationMessageType);
+
         }
 
         #endregion
 
 
-        #region Add     (NotificationMessageType)
+        #region Add     (NotificationMessageType,  OnAdded   = null)
 
-        public void Add(NotificationMessageType NotificationMessageType)
+        internal void Add(NotificationMessageType  NotificationMessageType,
+                          Action                   OnAdded  = null)
         {
             lock (_NotificationMessageTypes)
             {
-                _NotificationMessageTypes.Add(NotificationMessageType);
+
+                if (!_NotificationMessageTypes.Contains(NotificationMessageType))
+                {
+                    _NotificationMessageTypes.Add(NotificationMessageType);
+                    OnAdded?.Invoke();
+                }
+
             }
         }
 
         #endregion
 
-        #region Add     (NotificationMessageTypes)
+        #region Add     (NotificationMessageTypes, OnAdded   = null)
 
-        public void Add(IEnumerable<NotificationMessageType> NotificationMessageTypes)
+        internal void Add(IEnumerable<NotificationMessageType>  NotificationMessageTypes,
+                          Action                                OnAdded  = null)
         {
             lock (_NotificationMessageTypes)
             {
+
+                var Added = false;
+
                 foreach (var NotificationMessageType in NotificationMessageTypes)
-                    _NotificationMessageTypes.Add(NotificationMessageType);
+                {
+                    if (!_NotificationMessageTypes.Contains(NotificationMessageType))
+                    {
+                        _NotificationMessageTypes.Add(NotificationMessageType);
+                        Added = true;
+                    }
+                }
+
+                if (Added)
+                    OnAdded?.Invoke();
+
             }
         }
 
@@ -113,8 +140,57 @@ namespace org.GraphDefined.OpenData.Notifications
 
         #endregion
 
+        #region Remove  (NotificationMessageType,  OnRemoved = null)
 
-        public abstract JObject ToJSON();
+        internal void Remove(NotificationMessageType  NotificationMessageType,
+                             Action                   OnRemoved  = null)
+        {
+            lock (_NotificationMessageTypes)
+            {
+
+                if (_NotificationMessageTypes.Contains(NotificationMessageType))
+                {
+                    _NotificationMessageTypes.Add(NotificationMessageType);
+                    OnRemoved?.Invoke();
+                }
+
+            }
+        }
+
+        #endregion
+
+        #region Remove  (NotificationMessageTypes, OnRemoved = null)
+
+        internal void Remove(IEnumerable<NotificationMessageType>  NotificationMessageTypes,
+                             Action                                OnRemoved  = null)
+        {
+            lock (_NotificationMessageTypes)
+            {
+
+                var Removed = false;
+
+                foreach (var NotificationMessageType in NotificationMessageTypes)
+                {
+                    if (!_NotificationMessageTypes.Contains(NotificationMessageType))
+                    {
+                        _NotificationMessageTypes.Add(NotificationMessageType);
+                        Removed = true;
+                    }
+                }
+
+                if (Removed)
+                    OnRemoved?.Invoke();
+
+            }
+        }
+
+        #endregion
+
+
+        public abstract JObject ToJSON(Boolean Embedded = false);
+
+
+        public abstract Boolean OptionalEquals(ANotification other);
 
 
         #region IComparable<ANotification> Members

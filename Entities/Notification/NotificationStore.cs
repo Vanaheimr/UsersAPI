@@ -45,18 +45,6 @@ namespace org.GraphDefined.OpenData.Notifications
 
         #endregion
 
-        #region Events
-
-        public delegate void OnNotificationDelegate(DateTime                              Timestamp,
-                                                    IEnumerable<NotificationMessageType>  NotificationMessageTypes,
-                                                    ANotification                         Notification);
-
-        public event OnNotificationDelegate OnAdded;
-
-        public event OnNotificationDelegate OnRemoved;
-
-        #endregion
-
         #region Constructor(s)
 
         /// <summary>
@@ -70,9 +58,10 @@ namespace org.GraphDefined.OpenData.Notifications
         #endregion
 
 
-        #region Add(NotificationType)
+        #region Add(NotificationType,                           OnUpdate = null)
 
-        public NotificationStore Add<T>(T NotificationType)
+        public T Add<T>(T          NotificationType,
+                        Action<T>  OnUpdate  = null)
 
             where T : ANotification
 
@@ -85,16 +74,43 @@ namespace org.GraphDefined.OpenData.Notifications
 
                 if (notification == null)
                 {
-
                     _NotificationTypes.Add(NotificationType);
+                    notification = NotificationType;
+                    OnUpdate?.Invoke(notification);
+                }
 
-                    OnAdded?.Invoke(DateTime.UtcNow,
-                                    null,
-                                    NotificationType);
+                else
+                {
+                    // When reloaded from disc: Merge notifications.
+                    var Updated = false;
+
+                    // Some optional parameters are different...
+                    if (!NotificationType.OptionalEquals(notification))
+                    {
+                        _NotificationTypes.Remove(notification);
+                        _NotificationTypes.Add   (NotificationType);
+                    }
+
+                    else
+                    {
+
+                        foreach (var notificationMessageType in NotificationType.NotificationMessageTypes)
+                        {
+                            if (!notification.Contains(notificationMessageType))
+                            {
+                                notification.Add(notificationMessageType,
+                                                 () => Updated = true);
+                            }
+                        }
+
+                        if (Updated)
+                            OnUpdate?.Invoke(notification);
+
+                    }
 
                 }
 
-                return this;
+                return notification;
 
             }
 
@@ -102,10 +118,11 @@ namespace org.GraphDefined.OpenData.Notifications
 
         #endregion
 
-        #region Add(NotificationType, NotificationMessageType)
+        #region Add(NotificationType, NotificationMessageType,  OnUpdate = null)
 
-        public NotificationStore Add<T>(T                        NotificationType,
-                                        NotificationMessageType  NotificationMessageType)
+        public T Add<T>(T                        NotificationType,
+                        NotificationMessageType  NotificationMessageType,
+                        Action<T>                OnUpdate  = null)
 
             where T : ANotification
 
@@ -118,20 +135,14 @@ namespace org.GraphDefined.OpenData.Notifications
 
                 if (notification == null)
                 {
-
                     _NotificationTypes.Add(NotificationType);
-
                     notification = NotificationType;
-
-                    OnAdded?.Invoke(DateTime.UtcNow,
-                                    null,
-                                    NotificationType);
-
                 }
 
-                notification.Add(NotificationMessageType);
+                notification.Add(NotificationMessageType,
+                                 () => OnUpdate?.Invoke(notification));
 
-                return this;
+                return notification;
 
             }
 
@@ -139,10 +150,11 @@ namespace org.GraphDefined.OpenData.Notifications
 
         #endregion
 
-        #region Add(NotificationType, NotificationMessageTypes)
+        #region Add(NotificationType, NotificationMessageTypes, OnUpdate = null)
 
-        public NotificationStore Add<T>(T                                     NotificationType,
-                                        IEnumerable<NotificationMessageType>  NotificationMessageTypes)
+        public T Add<T>(T                                     NotificationType,
+                        IEnumerable<NotificationMessageType>  NotificationMessageTypes,
+                        Action<T>                             OnUpdate  = null)
 
             where T : ANotification
 
@@ -155,20 +167,14 @@ namespace org.GraphDefined.OpenData.Notifications
 
                 if (notification == null)
                 {
-
                     _NotificationTypes.Add(NotificationType);
-
                     notification = NotificationType;
-
-                    OnAdded?.Invoke(DateTime.UtcNow,
-                                    null,
-                                    NotificationType);
-
                 }
 
-                notification.Add(NotificationMessageTypes);
+                notification.Add(NotificationMessageTypes,
+                                 () => OnUpdate?.Invoke(notification));
 
-                return this;
+                return notification;
 
             }
 
@@ -392,8 +398,8 @@ namespace org.GraphDefined.OpenData.Notifications
         //#endregion
 
 
-        public JArray ToJSON()
-            => new JArray(_NotificationTypes.SafeSelect(_ => _.ToJSON()));
+        public JArray ToJSON(Boolean Embedded = false)
+            => new JArray(_NotificationTypes.SafeSelect(_ => _.ToJSON(Embedded)));
 
 
     }
