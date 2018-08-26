@@ -205,6 +205,8 @@ namespace org.GraphDefined.OpenData.Notifications
 
         #endregion
 
+        #region Constructor(s)
+
         public SMSNotification(PhoneNumber                           Phonenumber,
                                String                                TextTemplate              = null,
                                IEnumerable<NotificationMessageType>  NotificationMessageTypes  = null)
@@ -218,19 +220,48 @@ namespace org.GraphDefined.OpenData.Notifications
 
         }
 
+        #endregion
+
+
+        #region Parse   (JSON)
+
         public static SMSNotification Parse(JObject JSON)
         {
 
-            if (JSON["type"]?.Value<String>() != typeof(SMSNotification).Name)
-                throw new ArgumentException();
+            if (TryParse(JSON, out SMSNotification Notification))
+                return Notification;
 
-            return new SMSNotification(PhoneNumber.Parse(JSON["phoneNumber"]?.Value<String>()),
-                                       JSON["textTemplate"]?.Value<String>(),
-                                       (JSON["messageTypes"] as JArray)?.SafeSelect(element => NotificationMessageType.Parse(element.Value<String>())));
+            return null;
 
         }
 
+        #endregion
 
+        #region TryParse(JSON, out Notification)
+
+        public static Boolean TryParse(JObject JSON, out SMSNotification Notification)
+        {
+
+            if (JSON["@context"]?.Value<String>() == JSONLDContext &&
+                PhoneNumber.TryParse(JSON["phoneNumber"]?.Value<String>(), out PhoneNumber phoneNumber))
+            {
+
+                Notification = new SMSNotification(PhoneNumber.Parse(JSON["phoneNumber"]?.Value<String>()),
+                                                    JSON["textTemplate"]?.Value<String>(),
+                                                   (JSON["messageTypes"] as JArray)?.SafeSelect(element => NotificationMessageType.Parse(element.Value<String>())));
+
+                return true;
+
+            }
+
+            Notification = null;
+            return false;
+
+        }
+
+        #endregion
+
+        #region ToJSON(Embedded = false)
 
         public override JObject ToJSON(Boolean Embedded = false)
 
@@ -240,7 +271,6 @@ namespace org.GraphDefined.OpenData.Notifications
                        ? new JProperty("@context", JSONLDContext)
                        : null,
 
-                   new JProperty("type",           GetType().Name),
                    new JProperty("phoneNumber",    PhoneNumber.ToString()),
 
                    TextTemplate.IsNotNullOrEmpty()
@@ -253,6 +283,7 @@ namespace org.GraphDefined.OpenData.Notifications
 
                );
 
+        #endregion
 
 
         #region OptionalEquals(EMailNotification)

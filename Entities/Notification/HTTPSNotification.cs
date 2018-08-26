@@ -318,23 +318,51 @@ namespace org.GraphDefined.OpenData.Notifications
         #endregion
 
 
+        #region Parse   (JSON)
+
         public static HTTPSNotification Parse(JObject JSON)
         {
 
-            if (JSON["type"]?.Value<String>() != typeof(HTTPSNotification).Name)
-                throw new ArgumentException();
+            if (TryParse(JSON, out HTTPSNotification Notification))
+                return Notification;
 
-            return new HTTPSNotification(
-                       JSON["method"] != null ? HTTPMethod.ParseString(JSON["method"].Value<String>()) : HTTPMethod.POST,
-                       JSON["URL"]?.Value<String>(),
-                       JSON["TCPPort"] != null ? IPPort.Parse(JSON["TCPPort"].Value<String>()) : IPPort.HTTPS,
-                       JSON["basicAuth"]?["login"]?.   Value<String>(),
-                       JSON["basicAuth"]?["password"]?.Value<String>(),
-                       JSON["APIKey"]?.Value<String>(),
-                       (JSON["messageTypes"] as JArray)?.SafeSelect(element => NotificationMessageType.Parse(element.Value<String>())));
+            return null;
 
         }
 
+        #endregion
+
+        #region TryParse(JSON, out Notification)
+
+        public static Boolean TryParse(JObject JSON, out HTTPSNotification Notification)
+        {
+
+            var url = JSON["URL"]?.Value<String>();
+
+            if (JSON["@context"]?.Value<String>() == JSONLDContext &&
+                url.IsNotNullOrEmpty())
+            {
+
+                Notification = new HTTPSNotification(JSON["method"] != null ? HTTPMethod.ParseString(JSON["method"].Value<String>()) : HTTPMethod.POST,
+                                                     JSON["URL"]?.Value<String>(),
+                                                     JSON["TCPPort"] != null ? IPPort.Parse(JSON["TCPPort"].Value<String>()) : IPPort.HTTPS,
+                                                     JSON["basicAuth"]?["login"]?.   Value<String>(),
+                                                     JSON["basicAuth"]?["password"]?.Value<String>(),
+                                                     JSON["APIKey"]?.Value<String>(),
+                                                     (JSON["messageTypes"] as JArray)?.SafeSelect(element => NotificationMessageType.Parse(element.Value<String>())));
+
+                return true;
+
+            }
+
+            Notification = null;
+            return false;
+
+        }
+
+        #endregion
+
+        #region ToJSON(Embedded = false)
 
         public override JObject ToJSON(Boolean Embedded = false)
 
@@ -344,7 +372,6 @@ namespace org.GraphDefined.OpenData.Notifications
                        ? new JProperty("@context", JSONLDContext)
                        : null,
 
-                   new JProperty("type",     GetType().Name),
                    new JProperty("method",   Method.ToString()),
                    new JProperty("URL",      URL),
                    new JProperty("TCPPort",  TCPPort.ToUInt16()),
@@ -368,6 +395,8 @@ namespace org.GraphDefined.OpenData.Notifications
                        : null
 
                );
+
+        #endregion
 
 
         #region OptionalEquals(EMailNotification)

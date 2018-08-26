@@ -270,30 +270,51 @@ namespace org.GraphDefined.OpenData.Notifications
         #endregion
 
 
+        #region Parse   (JSON)
+
         public static EMailNotification Parse(JObject JSON)
         {
 
-            if (JSON["type"]?.Value<String>() != typeof(EMailNotification).Name)
-                throw new ArgumentException();
+            if (TryParse(JSON, out EMailNotification Notification))
+                return Notification;
 
-            if (JSON["email"] is JObject EMailJSON &&
+            return null;
+
+        }
+
+        #endregion
+
+        #region TryParse(JSON, out Notification)
+
+        public static Boolean TryParse(JObject JSON, out EMailNotification Notification)
+        {
+
+            if (JSON["@context"]?.Value<String>() == JSONLDContext &&
+                JSON["email"] is JObject EMailJSON &&
                 EMailAddress.TryParseJSON(EMailJSON,
                                           out EMailAddress EMail,
                                           out String       ErrorResponse,
                                           true))
             {
 
-                return new EMailNotification(EMail,
-                                             JSON["subject"      ]?.Value<String>(),
-                                             JSON["subjectPrefix"]?.Value<String>(),
-                                             JSON["listId"       ]?.Value<String>(),
-                                             (JSON["messageTypes"] as JArray)?.SafeSelect(element => NotificationMessageType.Parse(element.Value<String>())));
+                Notification = new EMailNotification(EMail,
+                                                     JSON["subject"      ]?.Value<String>(),
+                                                     JSON["subjectPrefix"]?.Value<String>(),
+                                                     JSON["listId"       ]?.Value<String>(),
+                                                     (JSON["messageTypes"] as JArray)?.SafeSelect(element => NotificationMessageType.Parse(element.Value<String>())));
+
+                return true;
 
             }
 
-            return null;
+            Notification = null;
+            return false;
 
         }
+
+        #endregion
+
+        #region ToJSON(Embedded = false)
 
         public override JObject ToJSON(Boolean Embedded = false)
 
@@ -303,7 +324,6 @@ namespace org.GraphDefined.OpenData.Notifications
                        ? new JProperty("@context", JSONLDContext)
                        : null,
 
-                   new JProperty("type",      GetType().Name),
                    new JProperty("email",     EMailAddress.ToJSON(Embedded: true)),
 
                    Subject.IsNotNullOrEmpty()
@@ -324,6 +344,8 @@ namespace org.GraphDefined.OpenData.Notifications
 
                );
 
+        #endregion
+
 
         #region OptionalEquals(EMailNotification)
 
@@ -341,7 +363,6 @@ namespace org.GraphDefined.OpenData.Notifications
                ListId?.       Equals(other.Subject) == true;
 
         #endregion
-
 
 
         #region SortKey

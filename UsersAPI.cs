@@ -3940,7 +3940,7 @@ namespace org.GraphDefined.OpenData.Users
                                          HTTPContentType.JSON_UTF8,
                                          HTTPRequestLogger:   SetUserNotificationsRequest,
                                          HTTPResponseLogger:  SetUserNotificationsResponse,
-                                         HTTPDelegate:        Request => {
+                                         HTTPDelegate:        async Request => {
 
                                              #region Get HTTP user and its organizations
 
@@ -3948,11 +3948,11 @@ namespace org.GraphDefined.OpenData.Users
                                              if (!TryGetHTTPUser(Request,
                                                                  out User                       HTTPUser,
                                                                  out IEnumerable<Organization>  HTTPOrganizations,
-                                                                 out HTTPResponse               Response,
+                                                                 out HTTPResponse               HTTPResponse,
                                                                  AccessLevel:                   Access_Levels.ReadWrite,
                                                                  Recursive:                     true))
                                              {
-                                                 return Task.FromResult(Response);
+                                                 return HTTPResponse;
                                              }
 
                                              #endregion
@@ -3960,79 +3960,137 @@ namespace org.GraphDefined.OpenData.Users
                                              #region Check UserId URI parameter
 
                                              if (!Request.ParseUser(this,
-                                                                    out User_Id?      UserIdURI,
-                                                                    out User          User,
-                                                                    out HTTPResponse  HTTPResponse))
+                                                                    out User_Id?  UserIdURI,
+                                                                    out User      User,
+                                                                    out           HTTPResponse))
                                              {
-                                                 return Task.FromResult(HTTPResponse);
+                                                 return HTTPResponse;
+                                             }
+
+                                             #endregion
+
+                                             #region Has the current HTTP user the required access rights to update?
+
+                                             if (UserIdURI != HTTPUser.Id)
+                                             {
+
+                                                 return new HTTPResponse.Builder(Request) {
+                                                            HTTPStatusCode              = HTTPStatusCode.Forbidden,
+                                                            Server                      = HTTPServer.DefaultServerName,
+                                                            Date                        = DateTime.UtcNow,
+                                                            AccessControlAllowOrigin    = "*",
+                                                            AccessControlAllowMethods   = "GET, SET, CHOWN",
+                                                            AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
+                                                            Connection                  = "close"
+                                                        }.AsImmutable;
+
                                              }
 
                                              #endregion
 
 
-                                             #region Parse JSON
+                                             #region Parse JSON and new notifications...
 
-                                             if (!Request.TryParseJObjectRequestBody(out JObject JSONObj, out HTTPResponse))
-                                                 return Task.FromResult(HTTPResponse);
+                                             if (!Request.TryParseJArrayRequestBody(out JArray JSONArray, out HTTPResponse))
+                                                 return HTTPResponse;
 
-                                             //if (!User.TryParseJSON(JSONObj,
-                                             //                       out User    _User,
-                                             //                       out String  ErrorResponse,
-                                             //                       UserIdURI))
-                                             //{
+                                             String ErrorString = null;
 
-                                             //    return SetUserResponse(
-                                             //               new HTTPResponse.Builder(Request) {
-                                             //                   HTTPStatusCode             = HTTPStatusCode.BadRequest,
-                                             //                   Server                     = HTTPServer.DefaultServerName,
-                                             //                   Date                       = DateTime.UtcNow,
-                                             //                   AccessControlAllowOrigin   = "*",
-                                             //                   AccessControlAllowMethods  = "GET, SET",
-                                             //                   AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
-                                             //                   ETag                       = "1",
-                                             //                   ContentType                = HTTPContentType.JSON_UTF8,
-                                             //                   Content                    = JSONObject.Create(
-                                             //                                                    new JProperty("description",  ErrorResponse)
-                                             //                                                ).ToUTF8Bytes()
-                                             //               }.AsImmutable);
+                                             if (JSONArray.Count > 0)
+                                             {
 
-                                             //}
+                                                 var JSONObjects = JSONArray.Cast<JObject>().ToArray();
+
+                                                 if (!JSONObjects.Any())
+                                                     goto fail;
+
+                                                 String context = null;
+
+                                                 foreach (var JSONObject in JSONObjects)
+                                                 {
+
+                                                     context = JSONObject["@context"]?.Value<String>();
+
+                                                     if (context.IsNullOrEmpty())
+                                                         goto fail;
+
+                                                     switch (context)
+                                                     {
+
+                                                         case EMailNotification.JSONLDContext:
+                                                             if (!EMailNotification.TryParse(JSONObject, out EMailNotification eMailNotification))
+                                                             {
+                                                                 ErrorString = "Could not parse e-mail notification!";
+                                                                 goto fail;
+                                                             }
+                                                             await AddNotification(HTTPUser, eMailNotification, HTTPUser.Id);
+                                                             break;
+
+                                                         case SMSNotification.JSONLDContext:
+                                                             if (!SMSNotification.  TryParse(JSONObject, out SMSNotification   smsNotification))
+                                                             {
+                                                                 ErrorString = "Could not parse sms notification!";
+                                                                 goto fail;
+                                                             }
+                                                             await AddNotification(HTTPUser, smsNotification, HTTPUser.Id);
+                                                             break;
+
+                                                         case HTTPSNotification.JSONLDContext:
+                                                             if (!HTTPSNotification.TryParse(JSONObject, out HTTPSNotification httpsNotification))
+                                                             {
+                                                                 ErrorString = "Could not parse https notification!";
+                                                                 goto fail;
+                                                             }
+                                                             await AddNotification(HTTPUser, httpsNotification, HTTPUser.Id);
+                                                             break;
+
+                                                         default:
+                                                             goto fail;
+
+                                                     }
+
+                                                 }
+
+                                             }
+
+                                             goto goon;
+
+                                             #region fail...
+
+                                             fail:
+
+                                             return new HTTPResponse.Builder(Request) {
+                                                            HTTPStatusCode             = HTTPStatusCode.BadRequest,
+                                                            Server                     = HTTPServer.DefaultServerName,
+                                                            Date                       = DateTime.UtcNow,
+                                                            AccessControlAllowOrigin   = "*",
+                                                            AccessControlAllowMethods  = "GET, SET",
+                                                            AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
+                                                            ETag                       = "1",
+                                                            ContentType                = HTTPContentType.JSON_UTF8,
+                                                            Content                    = JSONObject.Create(
+                                                                                             new JProperty("description", ErrorString ?? "Invalid array of notifications!")
+                                                                                         ).ToUTF8Bytes()
+                                                        }.AsImmutable;
+
+                                             #endregion
+
+                                             goon:
 
                                              #endregion
 
 
-                                             //// Has the current HTTP user the required
-                                             //// access rights to update?
-                                             //if (HTTPUser.Id != _User.Id)
-                                             //    return SetUserResponse(
-                                             //           new HTTPResponse.Builder(Request) {
-                                             //               HTTPStatusCode              = HTTPStatusCode.Forbidden,
-                                             //               Server                      = HTTPServer.DefaultServerName,
-                                             //               Date                        = DateTime.UtcNow,
-                                             //               AccessControlAllowOrigin    = "*",
-                                             //               AccessControlAllowMethods   = "GET, SET, CHOWN",
-                                             //               AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
-                                             //               Connection                  = "close"
-                                             //           }.AsImmutable);
-
-
-                                             //AddOrUpdate(_User,
-                                             //            HTTPUser.Id);
-
-
-                                             return Task.FromResult(
-                                                        new HTTPResponse.Builder(Request) {
-                                                            HTTPStatusCode              = HTTPStatusCode.OK,
-                                                            Server                      = HTTPServer.DefaultServerName,
-                                                            Date                        = DateTime.UtcNow,
-                                                            AccessControlAllowOrigin    = "*",
-                                                            AccessControlAllowMethods   = "GET, SET",
-                                                            AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
-                                                            //ETag                        = _User.CurrentCryptoHash,
-                                                            ContentType                 = HTTPContentType.JSON_UTF8,
-                                                            Content                     = JSONObj.ToString().ToUTF8Bytes(),
-                                                            Connection                  = "close"
-                                                        }.AsImmutable);
+                                             return new HTTPResponse.Builder(Request) {
+                                                        HTTPStatusCode              = HTTPStatusCode.OK,
+                                                        Server                      = HTTPServer.DefaultServerName,
+                                                        Date                        = DateTime.UtcNow,
+                                                        AccessControlAllowOrigin    = "*",
+                                                        AccessControlAllowMethods   = "GET, SET",
+                                                        AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
+                                                        ContentType                 = HTTPContentType.JSON_UTF8,
+                                                        Content                     = HTTPUser.GetNotificationInfos(false).ToUTF8Bytes(),
+                                                        Connection                  = "close"
+                                                    }.AsImmutable;
 
                                          });
 
@@ -5604,18 +5662,18 @@ namespace org.GraphDefined.OpenData.Users
                 case "addNotification":
                 case "AddNotification":
 
-                    if (JSONObject["userId"]?.Value<String>().IsNotNullOrEmpty() == true &&
-                        JSONObject["type"  ]?.Value<String>().IsNotNullOrEmpty() == true)
+                    if (JSONObject["userId"  ]?.Value<String>().IsNotNullOrEmpty() == true &&
+                        JSONObject["@context"]?.Value<String>().IsNotNullOrEmpty() == true)
                     {
 
                         if (User_Id.TryParse(JSONObject["userId"]?.Value<String>(), out UserId) &&
                             TryGetUser(UserId, out User User))
                         {
 
-                            switch (JSONObject["type"]?.Value<String>())
+                            switch (JSONObject["@context"]?.Value<String>())
                             {
 
-                                case "EMailNotification":
+                                case EMailNotification.JSONLDContext:
 
                                     var emailnotification = EMailNotification.Parse(JSONObject);
 
@@ -5628,7 +5686,7 @@ namespace org.GraphDefined.OpenData.Users
                                     break;
 
 
-                                case "SMSNotification":
+                                case SMSNotification.JSONLDContext:
 
                                     var smsnotification = SMSNotification.Parse(JSONObject);
 
@@ -5641,7 +5699,7 @@ namespace org.GraphDefined.OpenData.Users
                                     break;
 
 
-                                case "HTTPSNotification":
+                                case HTTPSNotification.JSONLDContext:
 
                                     var httpsnotification = HTTPSNotification.Parse(JSONObject);
 
