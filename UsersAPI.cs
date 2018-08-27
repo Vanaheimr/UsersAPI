@@ -53,6 +53,35 @@ using org.GraphDefined.OpenData.Notifications;
 namespace org.GraphDefined.OpenData.Users
 {
 
+    public class NotificationMessageTypeInfo
+    {
+
+        public NotificationMessageType Id            { get; }
+        public String                  Text          { get; }
+        public I18NString              Description   { get; }
+
+        public NotificationMessageTypeInfo(NotificationMessageType  Id,
+                                           String                   Text,
+                                           I18NString               Description)
+        {
+
+            this.Id           = Id;
+            this.Text         = Text;
+            this.Description  = Description;
+
+        }
+
+        public JObject ToJSON()
+
+            => JSONObject.Create(
+                   new JProperty("@id",          Id.ToString()),
+                   new JProperty("text",         Text),
+                   new JProperty("description",  Description.ToJSON())
+               );
+
+    }
+
+
     /// <summary>
     /// Extention method for the Users API.
     /// </summary>
@@ -1674,6 +1703,30 @@ namespace org.GraphDefined.OpenData.Users
         }
 
         #endregion
+
+
+        private readonly List<NotificationMessageTypeInfo> _NotificationMessageTypeInfos = new List<NotificationMessageTypeInfo> ();
+
+        public void Add(NotificationMessageTypeInfo NotificationMessageTypeInfo)
+            => _NotificationMessageTypeInfos.Add(NotificationMessageTypeInfo);
+
+
+        private JObject GetNotificationInfos(User User)
+        {
+
+            if (User == null)
+                throw new ArgumentNullException(nameof(User), "The given user must not be null!");
+
+            var notificationsJSON = User.GetNotificationInfos();
+
+            notificationsJSON.AddFirst(new JProperty("messages", new JArray(
+                                           _NotificationMessageTypeInfos.Select(notificationMessageTypeInfo => notificationMessageTypeInfo.ToJSON())
+                                      )));
+
+            return notificationsJSON;
+
+        }
+
 
 
         #region (private) RegisterURITemplates()
@@ -3916,7 +3969,7 @@ namespace org.GraphDefined.OpenData.Users
                                                         AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
                                                         ETag                       = "1",
                                                         ContentType                = HTTPContentType.JSON_UTF8,
-                                                        Content                    = HTTPUser.GetNotificationInfos(false).ToUTF8Bytes(),
+                                                        Content                    = GetNotificationInfos(HTTPUser).ToUTF8Bytes(),
                                                         Connection                 = "close"
                                                     }.AsImmutable);
 
@@ -4088,7 +4141,7 @@ namespace org.GraphDefined.OpenData.Users
                                                         AccessControlAllowMethods   = "GET, SET",
                                                         AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
                                                         ContentType                 = HTTPContentType.JSON_UTF8,
-                                                        Content                     = HTTPUser.GetNotificationInfos(false).ToUTF8Bytes(),
+                                                        Content                     = GetNotificationInfos(HTTPUser).ToUTF8Bytes(),
                                                         Connection                  = "close"
                                                     }.AsImmutable;
 

@@ -398,8 +398,8 @@ namespace org.GraphDefined.OpenData.Notifications
         //#endregion
 
 
-        public JArray ToJSON(Boolean Embedded = false)
-            => new JArray(_NotificationTypes.SafeSelect(_ => _.ToJSON(Embedded)));
+        public JArray ToJSON()
+            => new JArray(_NotificationTypes.SafeSelect(_ => _.ToJSON(false)));
 
 
     }

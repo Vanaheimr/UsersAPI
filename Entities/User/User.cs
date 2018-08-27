@@ -534,8 +534,23 @@ namespace org.GraphDefined.OpenData.Users
         #endregion
 
 
-        public JArray GetNotificationInfos(Boolean Embedded = false)
-            => _Notifications.ToJSON(Embedded);
+        #region GetNotificationInfos()
+
+        public JObject GetNotificationInfos()
+
+            => JSONObject.Create(new JProperty("user", JSONObject.Create(
+
+                                     new JProperty("name",               EMail.OwnerName),
+                                     new JProperty("email",              EMail.Address.ToString()),
+
+                                     MobilePhone.HasValue
+                                         ? new JProperty("phoneNumber",  MobilePhone.Value.ToString())
+                                         : null
+
+                                 )),
+                                 new JProperty("notifications",  _Notifications.ToJSON()));
+
+        #endregion
 
 
         #region User <-> User edges
