@@ -40,7 +40,7 @@ namespace org.GraphDefined.OpenData.Notifications
     public static class HTTPSNotificationExtentions
     {
 
-        #region AddHTTPSNotification(this UsersAPI, User,                    URL, Method, BasicAuth_Login = null, BasicAuth_Password = null, APIKey = null)
+        #region AddHTTPSNotification(this UsersAPI, User,                             URL, Method, BasicAuth_Login = null, BasicAuth_Password = null, APIKey = null)
 
         public static Task AddHTTPSNotification(this UsersAPI  UsersAPI,
                                                 User           User,
@@ -61,7 +61,7 @@ namespace org.GraphDefined.OpenData.Notifications
 
         #endregion
 
-        #region AddHTTPSNotification(this UsersAPI, UserId,                  URL, Method, BasicAuth_Login = null, BasicAuth_Password = null, APIKey = null)
+        #region AddHTTPSNotification(this UsersAPI, UserId,                           URL, Method, BasicAuth_Login = null, BasicAuth_Password = null, APIKey = null)
 
         public static Task AddHTTPSNotification(this UsersAPI  UsersAPI,
                                                 User_Id        UserId,
@@ -82,11 +82,11 @@ namespace org.GraphDefined.OpenData.Notifications
 
         #endregion
 
-        #region AddHTTPSNotification(this UsersAPI, User,   NotificationId,  URL, Method, BasicAuth_Login = null, BasicAuth_Password = null, APIKey = null)
+        #region AddHTTPSNotification(this UsersAPI, User,   NotificationMessageType,  URL, Method, BasicAuth_Login = null, BasicAuth_Password = null, APIKey = null)
 
         public static Task AddHTTPSNotification(this UsersAPI            UsersAPI,
                                                 User                     User,
-                                                NotificationMessageType  NotificationId,
+                                                NotificationMessageType  NotificationMessageType,
                                                 String                   URL,
                                                 HTTPMethod?              Method              = null,
                                                 IPPort?                  TCPPort             = null,
@@ -101,15 +101,15 @@ namespace org.GraphDefined.OpenData.Notifications
                                                               BasicAuth_Login,
                                                               BasicAuth_Password,
                                                               APIKey),
-                                        NotificationId);
+                                        NotificationMessageType);
 
         #endregion
 
-        #region AddHTTPSNotification(this UsersAPI, UserId, NotificationId,  URL, Method, BasicAuth_Login = null, BasicAuth_Password = null, APIKey = null)
+        #region AddHTTPSNotification(this UsersAPI, UserId, NotificationMessageType,  URL, Method, BasicAuth_Login = null, BasicAuth_Password = null, APIKey = null)
 
         public static Task AddHTTPSNotification(this UsersAPI            UsersAPI,
                                                 User_Id                  UserId,
-                                                NotificationMessageType  NotificationId,
+                                                NotificationMessageType  NotificationMessageType,
                                                 String                   URL,
                                                 HTTPMethod?              Method              = null,
                                                 IPPort?                  TCPPort             = null,
@@ -124,15 +124,15 @@ namespace org.GraphDefined.OpenData.Notifications
                                                               BasicAuth_Login,
                                                               BasicAuth_Password,
                                                               APIKey),
-                                        NotificationId);
+                                        NotificationMessageType);
 
         #endregion
 
-        #region AddHTTPSNotification(this UsersAPI, User,   NotificationIds, URL, Method, BasicAuth_Login = null, BasicAuth_Password = null, APIKey = null)
+        #region AddHTTPSNotification(this UsersAPI, User,   NotificationMessageTypes, URL, Method, BasicAuth_Login = null, BasicAuth_Password = null, APIKey = null)
 
         public static Task AddHTTPSNotification(this UsersAPI                         UsersAPI,
                                                 User                                  User,
-                                                IEnumerable<NotificationMessageType>  NotificationIds,
+                                                IEnumerable<NotificationMessageType>  NotificationMessageTypes,
                                                 String                                URL,
                                                 HTTPMethod?                           Method              = null,
                                                 IPPort?                               TCPPort             = null,
@@ -147,15 +147,15 @@ namespace org.GraphDefined.OpenData.Notifications
                                                               BasicAuth_Login,
                                                               BasicAuth_Password,
                                                               APIKey),
-                                        NotificationIds);
+                                        NotificationMessageTypes);
 
         #endregion
 
-        #region AddHTTPSNotification(this UsersAPI, UserId, NotificationIds, URL, Method, BasicAuth_Login = null, BasicAuth_Password = null, APIKey = null)
+        #region AddHTTPSNotification(this UsersAPI, UserId, NotificationMessageTypes, URL, Method, BasicAuth_Login = null, BasicAuth_Password = null, APIKey = null)
 
         public static Task AddHTTPSNotification(this UsersAPI                         UsersAPI,
                                                 User_Id                               UserId,
-                                                IEnumerable<NotificationMessageType>  NotificationIds,
+                                                IEnumerable<NotificationMessageType>  NotificationMessageTypes,
                                                 String                                URL,
                                                 HTTPMethod?                           Method              = null,
                                                 IPPort?                               TCPPort             = null,
@@ -170,7 +170,7 @@ namespace org.GraphDefined.OpenData.Notifications
                                                               BasicAuth_Login,
                                                               BasicAuth_Password,
                                                               APIKey),
-                                        NotificationIds);
+                                        NotificationMessageTypes);
 
         #endregion
 
@@ -226,26 +226,26 @@ namespace org.GraphDefined.OpenData.Notifications
 
         //public static Notifications UnregisterHTTPSNotification(this UsersAPI    UsersAPI,
         //                                                        User             User,
-        //                                                        NotificationMessageType  NotificationId,
+        //                                                        NotificationMessageType  NotificationMessageType,
         //                                                        String           URL,
         //                                                        String           BasicAuth_Login     = null,
         //                                                        String           BasicAuth_Password  = null)
 
         //    => UsersAPI.UnregisterNotification<HTTPSNotification>(User,
-        //                                                          NotificationId,
+        //                                                          NotificationMessageType,
         //                                                          a => a.URL                == URL &&
         //                                                               a.BasicAuth_Login    == BasicAuth_Login &&
         //                                                               a.BasicAuth_Password == BasicAuth_Password);
 
         //public static Notifications UnregisterHTTPSNotification(this UsersAPI    UsersAPI,
         //                                                        User_Id          User,
-        //                                                        NotificationMessageType  NotificationId,
+        //                                                        NotificationMessageType  NotificationMessageType,
         //                                                        String           URL,
         //                                                        String           BasicAuth_Login     = null,
         //                                                        String           BasicAuth_Password  = null)
 
         //    => UsersAPI.UnregisterNotification<HTTPSNotification>(User,
-        //                                                          NotificationId,
+        //                                                          NotificationMessageType,
         //                                                          a => a.URL                == URL &&
         //                                                               a.BasicAuth_Login    == BasicAuth_Login &&
         //                                                               a.BasicAuth_Password == BasicAuth_Password);
@@ -300,9 +300,11 @@ namespace org.GraphDefined.OpenData.Notifications
                                  String                                BasicAuth_Login           = null,
                                  String                                BasicAuth_Password        = null,
                                  String                                APIKey                    = null,
-                                 IEnumerable<NotificationMessageType>  NotificationMessageTypes  = null)
+                                 IEnumerable<NotificationMessageType>  NotificationMessageTypes  = null,
+                                 String                                Description               = null)
 
-            : base(NotificationMessageTypes)
+            : base(NotificationMessageTypes,
+                   Description)
 
         {
 
@@ -343,13 +345,14 @@ namespace org.GraphDefined.OpenData.Notifications
                 url.IsNotNullOrEmpty())
             {
 
-                Notification = new HTTPSNotification(JSON["method"] != null ? HTTPMethod.ParseString(JSON["method"].Value<String>()) : HTTPMethod.POST,
-                                                     JSON["URL"]?.Value<String>(),
-                                                     JSON["TCPPort"] != null ? IPPort.Parse(JSON["TCPPort"].Value<String>()) : IPPort.HTTPS,
-                                                     JSON["basicAuth"]?["login"]?.   Value<String>(),
-                                                     JSON["basicAuth"]?["password"]?.Value<String>(),
-                                                     JSON["APIKey"]?.Value<String>(),
-                                                     (JSON["messageTypes"] as JArray)?.SafeSelect(element => NotificationMessageType.Parse(element.Value<String>())));
+                Notification = new HTTPSNotification(JSON["method"       ] != null ? HTTPMethod.ParseString(JSON["method"].Value<String>()) : HTTPMethod.POST,
+                                                     JSON["URL"          ]?.Value<String>(),
+                                                     JSON["TCPPort"      ] != null ? IPPort.Parse(JSON["TCPPort"].Value<String>()) : IPPort.HTTPS,
+                                                     JSON["basicAuth"    ]?["login"   ]?.Value<String>(),
+                                                     JSON["basicAuth"    ]?["password"]?.Value<String>(),
+                                                     JSON["APIKey"       ]?.Value<String>(),
+                                                     (JSON["messageTypes"] as JArray)?.SafeSelect(element => NotificationMessageType.Parse(element.Value<String>())),
+                                                     JSON["description"  ]?.Value<String>());
 
                 return true;
 
@@ -369,12 +372,12 @@ namespace org.GraphDefined.OpenData.Notifications
             => JSONObject.Create(
 
                    !Embedded
-                       ? new JProperty("@context", JSONLDContext)
+                       ? new JProperty("@context",      JSONLDContext)
                        : null,
 
-                   new JProperty("method",   Method.ToString()),
-                   new JProperty("URL",      URL),
-                   new JProperty("TCPPort",  TCPPort.ToUInt16()),
+                   new JProperty("method",              Method.ToString()),
+                   new JProperty("URL",                 URL),
+                   new JProperty("TCPPort",             TCPPort.ToUInt16()),
 
                    BasicAuth_Login.   IsNotNullOrEmpty() &&
                    BasicAuth_Password.IsNotNullOrEmpty()
@@ -387,11 +390,15 @@ namespace org.GraphDefined.OpenData.Notifications
                        : null,
 
                    APIKey.IsNotNullOrEmpty()
-                       ? new JProperty("APIKey",  APIKey)
+                       ? new JProperty("APIKey",        APIKey)
                        : null,
 
                    NotificationMessageTypes.SafeAny()
-                       ? new JProperty("messageTypes", new JArray(NotificationMessageTypes.Select(msgType => msgType.ToString())))
+                       ? new JProperty("messageTypes",  new JArray(NotificationMessageTypes.Select(msgType => msgType.ToString())))
+                       : null,
+
+                   Description.IsNotNullOrEmpty()
+                       ? new JProperty("description",   Description)
                        : null
 
                );

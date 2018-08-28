@@ -41,15 +41,27 @@ namespace org.GraphDefined.OpenData.Notifications
 
         private readonly HashSet<NotificationMessageType> _NotificationMessageTypes;
 
+        /// <summary>
+        /// All notification messages types.
+        /// </summary>
         public IEnumerable<NotificationMessageType> NotificationMessageTypes
             => _NotificationMessageTypes;
 
-
+        /// <summary>
+        /// The number of notification messages types.
+        /// </summary>
         public Int32 Count
             => _NotificationMessageTypes.Count;
 
+        /// <summary>
+        /// Some description to remember why this notification was created.
+        /// </summary>
+        public          String  Description    { get; }
 
-        public abstract String SortKey { get; }
+        /// <summary>
+        /// A helper for sorting.
+        /// </summary>
+        public abstract String  SortKey        { get; }
 
         #endregion
 
@@ -58,14 +70,17 @@ namespace org.GraphDefined.OpenData.Notifications
         /// <summary>
         /// Create an new abstract notification.
         /// </summary>
-        protected ANotification(IEnumerable<NotificationMessageType> NotificationMessageTypes)
+        protected ANotification(IEnumerable<NotificationMessageType>  NotificationMessageTypes,
+                                String                                Description)
         {
 
-            this._NotificationMessageTypes = new HashSet<NotificationMessageType>();
+            this._NotificationMessageTypes  = new HashSet<NotificationMessageType>();
 
             if (NotificationMessageTypes != null)
                 foreach (var notificationMessageType in NotificationMessageTypes)
                     _NotificationMessageTypes.Add(notificationMessageType);
+
+            this.Description                = Description;
 
         }
 

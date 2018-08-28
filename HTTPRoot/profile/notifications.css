@@ -74,6 +74,12 @@
           color: #AAA;
           font-size: 85%;
           display: block; }
+      #notificationinfos #notifications .notification .description {
+        color: #aaa;
+        font-size: 80%;
+        display: block;
+        padding-left: 8px;
+        font-style: italic; }
       #notificationinfos #notifications .notification .msgTypes {
         display: block;
         margin-top: 5px;

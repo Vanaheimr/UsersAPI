@@ -21,6 +21,10 @@ var View = /** @class */ (function () {
         this.CurrentGroupDiv = GroupDiv;
         return GroupDiv;
     };
+    View.prototype.ResetGroup = function () {
+        this.CurrentGroupDiv = this.ContentDiv;
+    };
+    ;
     View.prototype.CreateRow = function (Prefix, KeyText, greeter) {
         if (greeter === void 0) { greeter = null; }
         return this.CreateRow2(Prefix, KeyText, false, greeter);

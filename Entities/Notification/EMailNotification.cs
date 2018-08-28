@@ -39,7 +39,7 @@ namespace org.GraphDefined.OpenData.Notifications
     public static class EMailNotificationExtentions
     {
 
-        #region AddEMailNotification(this UsersAPI, User,                    EMailAddress, Subject = null, SubjectPrefix = null)
+        #region AddEMailNotification(this UsersAPI, User,                             EMailAddress, Subject = null, SubjectPrefix = null)
 
         public static Task AddEMailNotification(this UsersAPI  UsersAPI,
                                                 User           User,
@@ -54,7 +54,7 @@ namespace org.GraphDefined.OpenData.Notifications
 
         #endregion
 
-        #region AddEMailNotification(this UsersAPI, UserId,                  EMailAddress, Subject = null, SubjectPrefix = null)
+        #region AddEMailNotification(this UsersAPI, UserId,                           EMailAddress, Subject = null, SubjectPrefix = null)
 
         public static Task AddEMailNotification(this UsersAPI  UsersAPI,
                                                 User_Id        UserId,
@@ -86,11 +86,11 @@ namespace org.GraphDefined.OpenData.Notifications
 
         #endregion
 
-        #region AddEMailNotification(this UsersAPI, UserId, NotificationId,  EMailAddress, Subject = null, SubjectPrefix = null)
+        #region AddEMailNotification(this UsersAPI, UserId, NotificationMessageType,  EMailAddress, Subject = null, SubjectPrefix = null)
 
         public static Task AddEMailNotification(this UsersAPI            UsersAPI,
                                                 User_Id                  UserId,
-                                                NotificationMessageType  NotificationId,
+                                                NotificationMessageType  NotificationMessageType,
                                                 EMailAddress             EMailAddress,
                                                 String                   Subject        = null,
                                                 String                   SubjectPrefix  = null)
@@ -99,15 +99,15 @@ namespace org.GraphDefined.OpenData.Notifications
                                         new EMailNotification(EMailAddress,
                                                               Subject,
                                                               SubjectPrefix),
-                                        NotificationId);
+                                        NotificationMessageType);
 
         #endregion
 
-        #region AddEMailNotification(this UsersAPI, User,   NotificationIds, EMailAddress, Subject = null, SubjectPrefix = null)
+        #region AddEMailNotification(this UsersAPI, User,   NotificationMessageTypes, EMailAddress, Subject = null, SubjectPrefix = null)
 
         public static Task AddEMailNotification(this UsersAPI                         UsersAPI,
                                                 User                                  User,
-                                                IEnumerable<NotificationMessageType>  NotificationIds,
+                                                IEnumerable<NotificationMessageType>  NotificationMessageTypes,
                                                 EMailAddress                          EMailAddress,
                                                 String                                Subject        = null,
                                                 String                                SubjectPrefix  = null)
@@ -116,15 +116,15 @@ namespace org.GraphDefined.OpenData.Notifications
                                         new EMailNotification(EMailAddress,
                                                               Subject,
                                                               SubjectPrefix),
-                                        NotificationIds);
+                                        NotificationMessageTypes);
 
         #endregion
 
-        #region AddEMailNotification(this UsersAPI, UserId, NotificationIds, EMailAddress, Subject = null, SubjectPrefix = null)
+        #region AddEMailNotification(this UsersAPI, UserId, NotificationMessageTypes, EMailAddress, Subject = null, SubjectPrefix = null)
 
         public static Task AddEMailNotification(this UsersAPI                         UsersAPI,
                                                 User_Id                               UserId,
-                                                IEnumerable<NotificationMessageType>  NotificationIds,
+                                                IEnumerable<NotificationMessageType>  NotificationMessageTypes,
                                                 EMailAddress                          EMailAddress,
                                                 String                                Subject        = null,
                                                 String                                SubjectPrefix  = null)
@@ -133,7 +133,7 @@ namespace org.GraphDefined.OpenData.Notifications
                                         new EMailNotification(EMailAddress,
                                                               Subject,
                                                               SubjectPrefix),
-                                        NotificationIds);
+                                        NotificationMessageTypes);
 
         #endregion
 
@@ -180,20 +180,20 @@ namespace org.GraphDefined.OpenData.Notifications
 
         //public static Notifications UnregisterEMailNotification(this UsersAPI    UsersAPI,
         //                                                        User             User,
-        //                                                        NotificationMessageType  NotificationId,
+        //                                                        NotificationMessageType  NotificationMessageType,
         //                                                        EMailAddress     EMailAddress)
 
         //    => UsersAPI.UnregisterNotification<EMailNotification>(User,
-        //                                                          NotificationId,
+        //                                                          NotificationMessageType,
         //                                                          a => a.EMailAddress == EMailAddress);
 
         //public static Notifications UnregisterEMailNotification(this UsersAPI    UsersAPI,
         //                                                        User_Id          User,
-        //                                                        NotificationMessageType  NotificationId,
+        //                                                        NotificationMessageType  NotificationMessageType,
         //                                                        EMailAddress     EMailAddress)
 
         //    => UsersAPI.UnregisterNotification<EMailNotification>(User,
-        //                                                          NotificationId,
+        //                                                          NotificationMessageType,
         //                                                          a => a.EMailAddress == EMailAddress);
 
     }
@@ -254,9 +254,11 @@ namespace org.GraphDefined.OpenData.Notifications
                                  String                                Subject                   = null,
                                  String                                SubjectPrefix             = null,
                                  String                                ListId                    = null,
-                                 IEnumerable<NotificationMessageType>  NotificationMessageTypes  = null)
+                                 IEnumerable<NotificationMessageType>  NotificationMessageTypes  = null,
+                                 String                                Description               = null)
 
-            : base(NotificationMessageTypes)
+            : base(NotificationMessageTypes,
+                   Description)
 
         {
 
@@ -301,7 +303,8 @@ namespace org.GraphDefined.OpenData.Notifications
                                                      JSON["subject"      ]?.Value<String>(),
                                                      JSON["subjectPrefix"]?.Value<String>(),
                                                      JSON["listId"       ]?.Value<String>(),
-                                                     (JSON["messageTypes"] as JArray)?.SafeSelect(element => NotificationMessageType.Parse(element.Value<String>())));
+                                                     (JSON["messageTypes"] as JArray)?.SafeSelect(element => NotificationMessageType.Parse(element.Value<String>())),
+                                                     JSON["description"  ]?.Value<String>());
 
                 return true;
 
@@ -321,10 +324,10 @@ namespace org.GraphDefined.OpenData.Notifications
             => JSONObject.Create(
 
                    !Embedded
-                       ? new JProperty("@context", JSONLDContext)
+                       ? new JProperty("@context",       JSONLDContext)
                        : null,
 
-                   new JProperty("email",     EMailAddress.ToJSON(Embedded: true)),
+                   new JProperty("email",                EMailAddress.ToJSON(Embedded: true)),
 
                    Subject.IsNotNullOrEmpty()
                        ? new JProperty("subject",        Subject)
@@ -340,6 +343,10 @@ namespace org.GraphDefined.OpenData.Notifications
 
                    NotificationMessageTypes.SafeAny()
                        ? new JProperty("messageTypes",   new JArray(NotificationMessageTypes.Select(msgType => msgType.ToString())))
+                       : null,
+
+                   Description.IsNotNullOrEmpty()
+                       ? new JProperty("description",    Description)
                        : null
 
                );
