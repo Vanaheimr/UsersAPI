@@ -553,6 +553,19 @@ namespace org.GraphDefined.OpenData.Users
         #endregion
 
 
+        #region (internal) RemoveNotification(NotificationType,                           OnRemoval = null)
+
+        internal T RemoveNotification<T>(T          NotificationType,
+                                         Action<T>  OnRemoval  = null)
+
+            where T : ANotification
+
+            => _Notifications.Remove(NotificationType,
+                                     OnRemoval);
+
+        #endregion
+
+
         #region User <-> User edges
 
         private readonly List<MiniEdge<User, User2UserEdges, User>> _User2UserEdges;

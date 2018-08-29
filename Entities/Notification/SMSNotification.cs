@@ -302,8 +302,11 @@ namespace org.GraphDefined.OpenData.Notifications
 
         public Boolean OptionalEquals(SMSNotification other)
 
-            => PhoneNumber.  Equals(other.PhoneNumber) &&
-               TextTemplate?.Equals(other.TextTemplate) == true;
+            => PhoneNumber.  Equals(other.PhoneNumber)         &&
+
+               String.Equals(TextTemplate, other.TextTemplate) &&
+
+               _NotificationMessageTypes.SetEquals(other._NotificationMessageTypes);
 
         #endregion
 

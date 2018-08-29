@@ -72,6 +72,7 @@ namespace org.GraphDefined.OpenData.Notifications
 
                 var notification = _NotificationTypes.OfType<T>().FirstOrDefault(typeT => typeT.Equals(NotificationType));
 
+                // Create a new notification...
                 if (notification == null)
                 {
                     _NotificationTypes.Add(NotificationType);
@@ -82,31 +83,38 @@ namespace org.GraphDefined.OpenData.Notifications
                 else
                 {
                     // When reloaded from disc: Merge notifications.
-                    var Updated = false;
+                    //var Updated = false;
 
                     // Some optional parameters are different...
                     if (!NotificationType.OptionalEquals(notification))
                     {
+
                         _NotificationTypes.Remove(notification);
                         _NotificationTypes.Add   (NotificationType);
-                    }
 
-                    else
-                    {
-
-                        foreach (var notificationMessageType in NotificationType.NotificationMessageTypes)
-                        {
-                            if (!notification.Contains(notificationMessageType))
-                            {
-                                notification.Add(notificationMessageType,
-                                                 () => Updated = true);
-                            }
-                        }
-
-                        if (Updated)
-                            OnUpdate?.Invoke(notification);
+                        OnUpdate?.Invoke(NotificationType);
 
                     }
+
+                    //else
+                    //{
+
+                    //    foreach (var notificationMessageType in NotificationType.NotificationMessageTypes)
+                    //    {
+
+                    //        notification.Clear();
+
+                    //        if (!notification.Contains(notificationMessageType))
+                    //        {
+                    //            notification.Add(notificationMessageType,
+                    //                             () => Updated = true);
+                    //        }
+                    //    }
+
+                    //}
+
+                    //if (Updated)
+                    //    OnUpdate?.Invoke(notification);
 
                 }
 
@@ -284,118 +292,31 @@ namespace org.GraphDefined.OpenData.Notifications
         #endregion
 
 
-        //#region Remove(                          EqualityComparer)
+        #region Remove(NotificationType,                        OnRemoval = null)
 
-        //public Notifications Remove<T>(Func<T, Boolean>  EqualityComparer)
+        public T Remove<T>(T          NotificationType,
+                           Action<T>  OnRemoval  = null)
 
-        //    where T : ANotificationType
+            where T : ANotification
 
-        //{
+        {
 
-        //    lock (NotificationTypes)
-        //    {
+            lock (_NotificationTypes)
+            {
 
-        //            foreach (var notificationtype in NotificationTypes.ToArray())
-        //            {
-        //                if (notificationtype is T mailnotification &&
-        //                    EqualityComparer(mailnotification))
-        //                {
+                foreach (var notification in _NotificationTypes.OfType<T>().Where(typeT => typeT.Equals(NotificationType)).ToArray())
+                {
+                    _NotificationTypes.Remove(notification);
+                    OnRemoval?.Invoke(notification);
+                }
 
-        //                    Remove(notificationtype);
+                return null;
 
-        //                    OnRemoved?.Invoke(DateTime.UtcNow,
-        //                                      null,
-        //                                      notificationtype);
+            }
 
-        //                }
-        //            }
+        }
 
-        //    }
-
-        //    return this;
-
-        //}
-
-        //#endregion
-
-        //#region Remove(NotificationMessageType,  EqualityComparer)
-
-        //public Notifications Remove<T>(NotificationMessageType   NotificationMessageType)
-
-        //    where T : ANotificationType
-
-        //{
-
-        //    lock (NotificationMessageTypes)
-        //    {
-
-        //        if (NotificationMessageTypes.TryGetValue(NotificationMessageType,  out List<ANotificationType>  NotificationTypes))
-        //        {
-
-        //            foreach (var notificationtype in NotificationTypes.ToArray())
-        //            {
-        //                if (notificationtype is T mailnotification &&
-        //                    EqualityComparer(mailnotification))
-        //                {
-
-        //                    NotificationTypes.Remove(notificationtype);
-
-        //                    //OnRemoved?.Invoke(DateTime.UtcNow,
-        //                    //                  NotificationMessageType,
-        //                    //                  notificationtype);
-
-        //                }
-        //            }
-
-        //        }
-
-        //    }
-
-        //    return this;
-
-        //}
-
-        //#endregion
-
-        //#region Remove(NotificationMessageTypes, EqualityComparer)
-
-        //public Notifications Remove<T>(IEnumerable<NotificationMessageType>  NotificationMessageType,
-        //                               Func<T, Boolean>              EqualityComparer)
-
-        //    where T : ANotificationType
-
-        //{
-
-        //    lock (NotificationMessageTypes)
-        //    {
-
-        //        if (NotificationMessageTypes.TryGetValue(NotificationMessageType,  out List<ANotificationType>  NotificationTypes))
-        //        {
-
-        //            foreach (var notificationtype in NotificationTypes.ToArray())
-        //            {
-        //                if (notificationtype is T mailnotification &&
-        //                    EqualityComparer(mailnotification))
-        //                {
-
-        //                    NotificationTypes.Remove(notificationtype);
-
-        //                    //OnRemoved?.Invoke(DateTime.UtcNow,
-        //                    //                  NotificationMessageType,
-        //                    //                  notificationtype);
-
-        //                }
-        //            }
-
-        //        }
-
-        //    }
-
-        //    return this;
-
-        //}
-
-        //#endregion
+        #endregion
 
 
         public JArray ToJSON()

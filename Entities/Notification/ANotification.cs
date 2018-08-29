@@ -39,7 +39,10 @@ namespace org.GraphDefined.OpenData.Notifications
 
         #region Properties
 
-        private readonly HashSet<NotificationMessageType> _NotificationMessageTypes;
+        /// <summary>
+        /// All notification messages types.
+        /// </summary>
+        protected readonly HashSet<NotificationMessageType> _NotificationMessageTypes;
 
         /// <summary>
         /// All notification messages types.
@@ -195,6 +198,24 @@ namespace org.GraphDefined.OpenData.Notifications
 
                 if (Removed)
                     OnRemoved?.Invoke();
+
+            }
+        }
+
+        #endregion
+
+        #region Clear   (OnCleared = null)
+
+        internal void Clear(Action OnCleared = null)
+        {
+            lock (_NotificationMessageTypes)
+            {
+
+                if (_NotificationMessageTypes.Count > 0)
+                {
+                    _NotificationMessageTypes.Clear();
+                    OnCleared?.Invoke();
+                }
 
             }
         }

@@ -415,13 +415,15 @@ namespace org.GraphDefined.OpenData.Notifications
 
         public Boolean OptionalEquals(HTTPSNotification other)
 
-            => Method. Equals(other.Method)  &&
-               URL.    Equals(other.URL)     &&
-               TCPPort.Equals(other.TCPPort) &&
+            => Method. Equals(other.Method)                                &&
+               URL.    Equals(other.URL)                                   &&
+               TCPPort.Equals(other.TCPPort)                               &&
 
-               BasicAuth_Login?.   Equals(other.BasicAuth_Login)    == true &&
-               BasicAuth_Password?.Equals(other.BasicAuth_Password) == true &&
-               APIKey?.            Equals(other.APIKey)             == true;
+               String.Equals(BasicAuth_Login,    other.BasicAuth_Login)    &&
+               String.Equals(BasicAuth_Password, other.BasicAuth_Password) &&
+               String.Equals(APIKey,             other.APIKey)             &&
+
+               _NotificationMessageTypes.SetEquals(other._NotificationMessageTypes);
 
         #endregion
 

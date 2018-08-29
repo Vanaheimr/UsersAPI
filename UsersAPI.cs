@@ -907,7 +907,7 @@ namespace org.GraphDefined.OpenData.Users
         #endregion
 
 
-        #region (protected internal) SetUserNotificationsRequest (Request)
+        #region (protected internal) SetUserNotificationsRequest    (Request)
 
         /// <summary>
         /// An event sent whenever set user notifications request was received.
@@ -930,7 +930,7 @@ namespace org.GraphDefined.OpenData.Users
 
         #endregion
 
-        #region (protected internal) SetUserNotificationsResponse(Response)
+        #region (protected internal) SetUserNotificationsResponse   (Response)
 
         /// <summary>
         /// An event sent whenever a response on a set user notifications request was sent.
@@ -953,6 +953,55 @@ namespace org.GraphDefined.OpenData.Users
                                                        API ?? this,
                                                        Request,
                                                        Response);
+
+        #endregion
+
+        #region (protected internal) DeleteUserNotificationsRequest (Request)
+
+        /// <summary>
+        /// An event sent whenever set user notifications request was received.
+        /// </summary>
+        public HTTPRequestLogEvent OnDeleteUserNotificationsRequest = new HTTPRequestLogEvent();
+
+        /// <summary>
+        /// An event sent whenever set user notifications request was received.
+        /// </summary>
+        /// <param name="Timestamp">The timestamp of the request.</param>
+        /// <param name="API">The HTTP API.</param>
+        /// <param name="Request">A HTTP request.</param>
+        protected internal Task DeleteUserNotificationsRequest(DateTime     Timestamp,
+                                                               HTTPAPI      API,
+                                                               HTTPRequest  Request)
+
+            => OnDeleteUserNotificationsRequest?.WhenAll(Timestamp,
+                                                         API ?? this,
+                                                         Request);
+
+        #endregion
+
+        #region (protected internal) DeleteUserNotificationsResponse(Response)
+
+        /// <summary>
+        /// An event sent whenever a response on a set user notifications request was sent.
+        /// </summary>
+        public HTTPResponseLogEvent OnDeleteUserNotificationsResponse = new HTTPResponseLogEvent();
+
+        /// <summary>
+        /// An event sent whenever a response on a set user notifications request was sent.
+        /// </summary>
+        /// <param name="Timestamp">The timestamp of the request.</param>
+        /// <param name="API">The HTTP API.</param>
+        /// <param name="Request">A HTTP request.</param>
+        /// <param name="Response">A HTTP response.</param>
+        protected internal Task DeleteUserNotificationsResponse(DateTime      Timestamp,
+                                                                HTTPAPI       API,
+                                                                HTTPRequest   Request,
+                                                                HTTPResponse  Response)
+
+            => OnDeleteUserNotificationsResponse?.WhenAll(Timestamp,
+                                                          API ?? this,
+                                                          Request,
+                                                          Response);
 
         #endregion
 
@@ -4149,6 +4198,178 @@ namespace org.GraphDefined.OpenData.Users
 
             #endregion
 
+            #region DELETE      ~/users/{UserId}/notifications
+
+            // ---------------------------------------------------------------------------------------------
+            // curl -v -X DELETE \
+            //      -H "Accept:       application/json; charset=utf-8" \
+            //      -H "Content-Type: application/json; charset=utf-8" \
+            //      -d "{ \
+            //          }" \
+            //      http://127.0.0.1:2000/users/214080158
+            // ---------------------------------------------------------------------------------------------
+            HTTPServer.AddMethodCallback(Hostname,
+                                         HTTPMethod.DELETE,
+                                         URIPrefix + "users/{UserId}/notifications",
+                                         HTTPContentType.JSON_UTF8,
+                                         HTTPRequestLogger:   DeleteUserNotificationsRequest,
+                                         HTTPResponseLogger:  DeleteUserNotificationsResponse,
+                                         HTTPDelegate:        async Request => {
+
+                                             #region Get HTTP user and its organizations
+
+                                             // Will return HTTP 401 Unauthorized, when the HTTP user is unknown!
+                                             if (!TryGetHTTPUser(Request,
+                                                                 out User                       HTTPUser,
+                                                                 out IEnumerable<Organization>  HTTPOrganizations,
+                                                                 out HTTPResponse               HTTPResponse,
+                                                                 AccessLevel:                   Access_Levels.ReadWrite,
+                                                                 Recursive:                     true))
+                                             {
+                                                 return HTTPResponse;
+                                             }
+
+                                             #endregion
+
+                                             #region Check UserId URI parameter
+
+                                             if (!Request.ParseUser(this,
+                                                                    out User_Id?  UserIdURI,
+                                                                    out User      User,
+                                                                    out           HTTPResponse))
+                                             {
+                                                 return HTTPResponse;
+                                             }
+
+                                             #endregion
+
+                                             #region Has the current HTTP user the required access rights to update?
+
+                                             if (UserIdURI != HTTPUser.Id)
+                                             {
+
+                                                 return new HTTPResponse.Builder(Request) {
+                                                            HTTPStatusCode              = HTTPStatusCode.Forbidden,
+                                                            Server                      = HTTPServer.DefaultServerName,
+                                                            Date                        = DateTime.UtcNow,
+                                                            AccessControlAllowOrigin    = "*",
+                                                            AccessControlAllowMethods   = "GET, SET, CHOWN",
+                                                            AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
+                                                            Connection                  = "close"
+                                                        }.AsImmutable;
+
+                                             }
+
+                                             #endregion
+
+
+                                             #region Parse JSON and new notifications...
+
+                                             if (!Request.TryParseJArrayRequestBody(out JArray JSONArray, out HTTPResponse))
+                                                 return HTTPResponse;
+
+                                             String ErrorString = null;
+
+                                             if (JSONArray.Count > 0)
+                                             {
+
+                                                 var JSONObjects = JSONArray.Cast<JObject>().ToArray();
+
+                                                 if (!JSONObjects.Any())
+                                                     goto fail;
+
+                                                 String context = null;
+
+                                                 foreach (var JSONObject in JSONObjects)
+                                                 {
+
+                                                     context = JSONObject["@context"]?.Value<String>();
+
+                                                     if (context.IsNullOrEmpty())
+                                                         goto fail;
+
+                                                     switch (context)
+                                                     {
+
+                                                         case EMailNotification.JSONLDContext:
+                                                             if (!EMailNotification.TryParse(JSONObject, out EMailNotification eMailNotification))
+                                                             {
+                                                                 ErrorString = "Could not parse e-mail notification!";
+                                                                 goto fail;
+                                                             }
+                                                             await RemoveNotification(HTTPUser, eMailNotification, HTTPUser.Id);
+                                                             break;
+
+                                                         case SMSNotification.JSONLDContext:
+                                                             if (!SMSNotification.  TryParse(JSONObject, out SMSNotification   smsNotification))
+                                                             {
+                                                                 ErrorString = "Could not parse sms notification!";
+                                                                 goto fail;
+                                                             }
+                                                             await RemoveNotification(HTTPUser, smsNotification, HTTPUser.Id);
+                                                             break;
+
+                                                         case HTTPSNotification.JSONLDContext:
+                                                             if (!HTTPSNotification.TryParse(JSONObject, out HTTPSNotification httpsNotification))
+                                                             {
+                                                                 ErrorString = "Could not parse https notification!";
+                                                                 goto fail;
+                                                             }
+                                                             await RemoveNotification(HTTPUser, httpsNotification, HTTPUser.Id);
+                                                             break;
+
+                                                         default:
+                                                             goto fail;
+
+                                                     }
+
+                                                 }
+
+                                             }
+
+                                             goto goon;
+
+                                             #region fail...
+
+                                             fail:
+
+                                             return new HTTPResponse.Builder(Request) {
+                                                            HTTPStatusCode             = HTTPStatusCode.BadRequest,
+                                                            Server                     = HTTPServer.DefaultServerName,
+                                                            Date                       = DateTime.UtcNow,
+                                                            AccessControlAllowOrigin   = "*",
+                                                            AccessControlAllowMethods  = "GET, SET",
+                                                            AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
+                                                            ETag                       = "1",
+                                                            ContentType                = HTTPContentType.JSON_UTF8,
+                                                            Content                    = JSONObject.Create(
+                                                                                             new JProperty("description", ErrorString ?? "Invalid array of notifications!")
+                                                                                         ).ToUTF8Bytes()
+                                                        }.AsImmutable;
+
+                                             #endregion
+
+                                             goon:
+
+                                             #endregion
+
+
+                                             return new HTTPResponse.Builder(Request) {
+                                                        HTTPStatusCode              = HTTPStatusCode.OK,
+                                                        Server                      = HTTPServer.DefaultServerName,
+                                                        Date                        = DateTime.UtcNow,
+                                                        AccessControlAllowOrigin    = "*",
+                                                        AccessControlAllowMethods   = "GET, SET",
+                                                        AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
+                                                        ContentType                 = HTTPContentType.JSON_UTF8,
+                                                        Content                     = GetNotificationInfos(HTTPUser).ToUTF8Bytes(),
+                                                        Connection                  = "close"
+                                                    }.AsImmutable;
+
+                                         });
+
+            #endregion
+
             #region GET         ~/users/{UserId}/organizations
 
             // ------------------------------------------------------------------------------------------
@@ -5776,57 +5997,62 @@ namespace org.GraphDefined.OpenData.Users
 
                 #region RemoveNotification
 
-                case "RemoveNotification":
+                case "removeNotification":
 
-                    //if (JSONObject["userId"]?.Value<String>().IsNotNullOrEmpty() == true &&
-                    //    JSONObject["type"  ]?.Value<String>().IsNotNullOrEmpty() == true)
-                    //{
+                    if (JSONObject["userId"  ]?.Value<String>().IsNotNullOrEmpty() == true &&
+                        JSONObject["@context"]?.Value<String>().IsNotNullOrEmpty() == true)
+                    {
 
-                    //    if (User_Id.TryParse(JSONObject["userId"]?.Value<String>(), out User_Id UserId) &&
-                    //        TryGetUser(UserId, out User User))
-                    //    {
+                        if (User_Id.TryParse(JSONObject["userId"]?.Value<String>(), out UserId) &&
+                            TryGetUser(UserId, out User User))
+                        {
 
-                    //        if (JSONObject["notificationId"]?.Value<String>().IsNotNullOrEmpty() == true)
-                    //        {
-                    //            switch (JSONObject["type"]?.Value<String>())
-                    //            {
+                            switch (JSONObject["@context"]?.Value<String>())
+                            {
 
-                    //                case "EMailNotification":
-                    //                    UnregisterNotification<EMailNotification>(UserId,
-                    //                                                              NotificationMessageType.Parse(JSONObject["notificationId"]?.Value<String>()),
-                    //                                                              a => a.EMailAddress == EMailNotification.Parse(JSONObject).EMailAddress);
-                    //                    break;
+                                case EMailNotification.JSONLDContext:
 
-                    //                case "SMSNotification":
-                    //                    UnregisterNotification<SMSNotification>  (UserId,
-                    //                                                              NotificationMessageType.Parse(JSONObject["notificationId"]?.Value<String>()),
-                    //                                                              a => a.Phonenumber  == SMSNotification.  Parse(JSONObject).Phonenumber);
-                    //                    break;
+                                    var emailnotification = EMailNotification.Parse(JSONObject);
 
-                    //            }
-                    //        }
+                                    if (emailnotification != null)
+                                        User.RemoveNotification(emailnotification);
 
-                    //        else
-                    //        {
-                    //            switch (JSONObject["type"]?.Value<String>())
-                    //            {
+                                    else
+                                        DebugX.Log(String.Concat(nameof(UsersAPI), " Could not parse the given e-mail notification!"));
 
-                    //                case "EMailNotification":
-                    //                    UnregisterNotification<EMailNotification>(UserId,
-                    //                                                              a => a.EMailAddress == EMailNotification.Parse(JSONObject).EMailAddress);
-                    //                    break;
+                                    break;
 
-                    //                case "SMSNotification":
-                    //                    UnregisterNotification<SMSNotification>  (UserId,
-                    //                                                              a => a.Phonenumber  == SMSNotification.  Parse(JSONObject).Phonenumber);
-                    //                    break;
 
-                    //            }
-                    //        }
+                                case SMSNotification.JSONLDContext:
 
-                    //    }
+                                    var smsnotification = SMSNotification.Parse(JSONObject);
 
-                    //}
+                                    if (smsnotification != null)
+                                        User.RemoveNotification(smsnotification);
+
+                                    else
+                                        DebugX.Log(String.Concat(nameof(UsersAPI), " Could not parse the given SMS notification!"));
+
+                                    break;
+
+
+                                case HTTPSNotification.JSONLDContext:
+
+                                    var httpsnotification = HTTPSNotification.Parse(JSONObject);
+
+                                    if (httpsnotification != null)
+                                        User.RemoveNotification(httpsnotification);
+
+                                    else
+                                        DebugX.Log(String.Concat(nameof(UsersAPI), " Could not parse the given HTTPS notification!"));
+
+                                    break;
+
+                            }
+
+                        }
+
+                    }
 
                     break;
 
@@ -8609,43 +8835,72 @@ namespace org.GraphDefined.OpenData.Users
         #endregion
 
 
+        #region RemoveNotification(User,   NotificationType,                        CurrentUserId = null)
 
-        //public Notifications UnregisterNotification<T>(User              User,
-        //                                               Func<T, Boolean>  EqualityComparer)
+        public async Task RemoveNotification<T>(User      User,
+                                                T         NotificationType,
+                                                User_Id?  CurrentUserId  = null)
 
-        //    where T : ANotificationType
+            where T : ANotification
 
-        //    => _Notifications.Remove(User,
-        //                             EqualityComparer);
+        {
 
-        //public Notifications UnregisterNotification<T>(User_Id           User,
-        //                                               Func<T, Boolean>  EqualityComparer)
+            try
+            {
 
-        //    where T : ANotificationType
+                await UsersSemaphore.WaitAsync();
 
-        //    => _Notifications.Remove(User,
-        //                             EqualityComparer);
+                User.RemoveNotification(NotificationType,
+                                        async update => await WriteToLogfileAndNotify(NotificationMessageType.Parse("removeNotification"),
+                                                                                      update.ToJSON(false).AddFirstAndReturn(new JProperty("userId", User.Id.ToString())),
+                                                                                      NoOwner,
+                                                                                      CurrentUserId));
 
+            }
+            finally
+            {
+                UsersSemaphore.Release();
+            }
 
-        //public Notifications UnregisterNotification<T>(User              User,
-        //                                               NotificationMessageType   NotificationMessageType,
-        //                                               Func<T, Boolean>  EqualityComparer)
+        }
 
-        //    where T : ANotificationType
+        #endregion
 
-        //    => _Notifications.Remove(User,
-        //                             NotificationMessageType,
-        //                             EqualityComparer);
+        #region RemoveNotification(UserId, NotificationType,                        CurrentUserId = null)
 
-        //public Notifications UnregisterNotification<T>(User_Id           User,
-        //                                               NotificationMessageType   NotificationMessageType,
-        //                                               Func<T, Boolean>  EqualityComparer)
+        public async Task RemoveNotification<T>(User_Id   UserId,
+                                                T         NotificationType,
+                                                User_Id?  CurrentUserId  = null)
 
-        //    where T : ANotificationType
+            where T : ANotification
 
-        //    => _Notifications.Remove(User,
-        //                             NotificationMessageType,
-        //                             EqualityComparer);
+        {
+
+            try
+            {
+
+                await UsersSemaphore.WaitAsync();
+
+                if (_Users.TryGetValue(UserId, out User User))
+                {
+
+                    User.RemoveNotification(NotificationType,
+                                            async update => await WriteToLogfileAndNotify(NotificationMessageType.Parse("removeNotification"),
+                                                                                          update.ToJSON(false).AddFirstAndReturn(new JProperty("userId", User.Id.ToString())),
+                                                                                          NoOwner,
+                                                                                          CurrentUserId));
+
+                }
+
+            }
+            finally
+            {
+                UsersSemaphore.Release();
+            }
+
+        }
+
+        #endregion
 
         #endregion
 

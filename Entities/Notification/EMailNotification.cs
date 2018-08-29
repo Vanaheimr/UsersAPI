@@ -363,11 +363,13 @@ namespace org.GraphDefined.OpenData.Notifications
 
         public Boolean OptionalEquals(EMailNotification other)
 
-            => EMailAddress.  Equals(other.EMailAddress) &&
+            => EMailAddress.Equals(other.EMailAddress)           &&
 
-               Subject?.      Equals(other.Subject) == true &&
-               SubjectPrefix?.Equals(other.Subject) == true &&
-               ListId?.       Equals(other.Subject) == true;
+               String.Equals(Subject,       other.Subject)       &&
+               String.Equals(SubjectPrefix, other.SubjectPrefix) &&
+               String.Equals(ListId,        other.ListId)        &&
+
+               _NotificationMessageTypes.SetEquals(other._NotificationMessageTypes);
 
         #endregion
 

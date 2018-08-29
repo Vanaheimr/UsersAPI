@@ -74,6 +74,11 @@
           color: #AAA;
           font-size: 85%;
           display: block; }
+      #notificationinfos #notifications .notification .parameter {
+        color: #aaa;
+        font-size: 80%;
+        display: block;
+        padding-left: 8px; }
       #notificationinfos #notifications .notification .description {
         color: #aaa;
         font-size: 80%;
