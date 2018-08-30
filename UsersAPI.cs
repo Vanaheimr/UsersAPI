@@ -5937,59 +5937,58 @@ namespace org.GraphDefined.OpenData.Users
                 case "AddNotification":
 
                     if (JSONObject["userId"  ]?.Value<String>().IsNotNullOrEmpty() == true &&
-                        JSONObject["@context"]?.Value<String>().IsNotNullOrEmpty() == true)
+                        JSONObject["@context"]?.Value<String>().IsNotNullOrEmpty() == true &&
+                        User_Id.TryParse(JSONObject["userId"]?.Value<String>(), out UserId) &&
+                        TryGetUser(UserId, out _User))
                     {
 
-                        if (User_Id.TryParse(JSONObject["userId"]?.Value<String>(), out UserId) &&
-                            TryGetUser(UserId, out User User))
+                        switch (JSONObject["@context"]?.Value<String>())
                         {
 
-                            switch (JSONObject["@context"]?.Value<String>())
-                            {
+                            case EMailNotification.JSONLDContext:
 
-                                case EMailNotification.JSONLDContext:
+                                var emailnotification = EMailNotification.Parse(JSONObject);
 
-                                    var emailnotification = EMailNotification.Parse(JSONObject);
+                                if (emailnotification != null)
+                                    _User.AddNotification(emailnotification);
 
-                                    if (emailnotification != null)
-                                        User.AddNotification(emailnotification);
+                                else
+                                    DebugX.Log(String.Concat(nameof(UsersAPI), " Could not parse the given e-mail notification!"));
 
-                                    else
-                                        DebugX.Log(String.Concat(nameof(UsersAPI), " Could not parse the given e-mail notification!"));
-
-                                    break;
+                                break;
 
 
-                                case SMSNotification.JSONLDContext:
+                            case SMSNotification.JSONLDContext:
 
-                                    var smsnotification = SMSNotification.Parse(JSONObject);
+                                var smsnotification = SMSNotification.Parse(JSONObject);
 
-                                    if (smsnotification != null)
-                                        User.AddNotification(smsnotification);
+                                if (smsnotification != null)
+                                    _User.AddNotification(smsnotification);
 
-                                    else
-                                        DebugX.Log(String.Concat(nameof(UsersAPI), " Could not parse the given SMS notification!"));
+                                else
+                                    DebugX.Log(String.Concat(nameof(UsersAPI), " Could not parse the given SMS notification!"));
 
-                                    break;
+                                break;
 
 
-                                case HTTPSNotification.JSONLDContext:
+                            case HTTPSNotification.JSONLDContext:
 
-                                    var httpsnotification = HTTPSNotification.Parse(JSONObject);
+                                var httpsnotification = HTTPSNotification.Parse(JSONObject);
 
-                                    if (httpsnotification != null)
-                                        User.AddNotification(httpsnotification);
+                                if (httpsnotification != null)
+                                    _User.AddNotification(httpsnotification);
 
-                                    else
-                                        DebugX.Log(String.Concat(nameof(UsersAPI), " Could not parse the given HTTPS notification!"));
+                                else
+                                    DebugX.Log(String.Concat(nameof(UsersAPI), " Could not parse the given HTTPS notification!"));
 
-                                    break;
-
-                            }
+                                break;
 
                         }
 
                     }
+
+                    else
+                        DebugX.Log(String.Concat(nameof(UsersAPI), " Could not parse the given 'add notification' command!"));
 
                     break;
 
@@ -6000,59 +5999,58 @@ namespace org.GraphDefined.OpenData.Users
                 case "removeNotification":
 
                     if (JSONObject["userId"  ]?.Value<String>().IsNotNullOrEmpty() == true &&
-                        JSONObject["@context"]?.Value<String>().IsNotNullOrEmpty() == true)
+                        JSONObject["@context"]?.Value<String>().IsNotNullOrEmpty() == true &&
+                        User_Id.TryParse(JSONObject["userId"]?.Value<String>(), out UserId) &&
+                        TryGetUser(UserId, out _User))
                     {
 
-                        if (User_Id.TryParse(JSONObject["userId"]?.Value<String>(), out UserId) &&
-                            TryGetUser(UserId, out User User))
+                        switch (JSONObject["@context"]?.Value<String>())
                         {
 
-                            switch (JSONObject["@context"]?.Value<String>())
-                            {
+                            case EMailNotification.JSONLDContext:
 
-                                case EMailNotification.JSONLDContext:
+                                var emailnotification = EMailNotification.Parse(JSONObject);
 
-                                    var emailnotification = EMailNotification.Parse(JSONObject);
+                                if (emailnotification != null)
+                                    _User.RemoveNotification(emailnotification);
 
-                                    if (emailnotification != null)
-                                        User.RemoveNotification(emailnotification);
+                                else
+                                    DebugX.Log(String.Concat(nameof(UsersAPI), " Could not parse the given e-mail notification!"));
 
-                                    else
-                                        DebugX.Log(String.Concat(nameof(UsersAPI), " Could not parse the given e-mail notification!"));
-
-                                    break;
+                                break;
 
 
-                                case SMSNotification.JSONLDContext:
+                            case SMSNotification.JSONLDContext:
 
-                                    var smsnotification = SMSNotification.Parse(JSONObject);
+                                var smsnotification = SMSNotification.Parse(JSONObject);
 
-                                    if (smsnotification != null)
-                                        User.RemoveNotification(smsnotification);
+                                if (smsnotification != null)
+                                    _User.RemoveNotification(smsnotification);
 
-                                    else
-                                        DebugX.Log(String.Concat(nameof(UsersAPI), " Could not parse the given SMS notification!"));
+                                else
+                                    DebugX.Log(String.Concat(nameof(UsersAPI), " Could not parse the given SMS notification!"));
 
-                                    break;
+                                break;
 
 
-                                case HTTPSNotification.JSONLDContext:
+                            case HTTPSNotification.JSONLDContext:
 
-                                    var httpsnotification = HTTPSNotification.Parse(JSONObject);
+                                var httpsnotification = HTTPSNotification.Parse(JSONObject);
 
-                                    if (httpsnotification != null)
-                                        User.RemoveNotification(httpsnotification);
+                                if (httpsnotification != null)
+                                    _User.RemoveNotification(httpsnotification);
 
-                                    else
-                                        DebugX.Log(String.Concat(nameof(UsersAPI), " Could not parse the given HTTPS notification!"));
+                                else
+                                    DebugX.Log(String.Concat(nameof(UsersAPI), " Could not parse the given HTTPS notification!"));
 
-                                    break;
-
-                            }
+                                break;
 
                         }
 
                     }
+
+                    else
+                        DebugX.Log(String.Concat(nameof(UsersAPI), " Could not parse the given 'remove notification' command!"));
 
                     break;
 
