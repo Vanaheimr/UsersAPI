@@ -6387,6 +6387,12 @@ namespace org.GraphDefined.OpenData.Users
 
         #endregion
 
+        //protected virtual IEnumerable<EMailAddress> GetNotificationEMailAddresses22(NotificationMessageType    MessageType,
+        //                                                                            IEnumerable<Organization>  Owners)
+        //{
+        //    return EMailAddressList.Empty;
+        //}
+
         #region WriteToLogfileAndNotify(MessageType, JSONData, Owners, Logfilename = DefaultUsersAPIFile, CurrentUserId = null)
 
         /// <summary>
