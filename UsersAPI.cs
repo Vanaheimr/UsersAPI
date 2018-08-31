@@ -8769,26 +8769,26 @@ namespace org.GraphDefined.OpenData.Users
 
         #endregion
 
-        #region GetNotificationsOf(User,   NotificationMessageType = null)
+        #region GetNotificationsOf(User,   params NotificationMessageTypes)
 
-        public IEnumerable<T> GetNotificationsOf<T>(User                      User,
-                                                    NotificationMessageType?  NotificationMessageType = null)
+        public IEnumerable<T> GetNotificationsOf<T>(User                              User,
+                                                    params NotificationMessageType[]  NotificationMessageTypes)
 
             where T : ANotification
 
-            => User.GetNotificationsOf<T>(NotificationMessageType);
+            => User.GetNotificationsOf<T>(NotificationMessageTypes);
 
         #endregion
 
-        #region GetNotificationsOf(UserId, NotificationMessageType = null)
+        #region GetNotificationsOf(UserId, params NotificationMessageTypes)
 
-        public IEnumerable<T> GetNotificationsOf<T>(User_Id                   UserId,
-                                                    NotificationMessageType?  NotificationMessageType = null)
+        public IEnumerable<T> GetNotificationsOf<T>(User_Id                           UserId,
+                                                    params NotificationMessageType[]  NotificationMessageTypes)
 
             where T : ANotification
 
             => TryGetUser(UserId, out User User)
-                   ? User.GetNotificationsOf<T>(NotificationMessageType)
+                   ? User.GetNotificationsOf<T>(NotificationMessageTypes)
                    : new T[0];
 
         #endregion

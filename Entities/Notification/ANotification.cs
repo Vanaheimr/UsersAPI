@@ -136,13 +136,25 @@ namespace org.GraphDefined.OpenData.Notifications
 
         #endregion
 
-        #region Contains(NotificationMessageType)
+        #region Contains(params NotificationMessageTypes)
 
-        public Boolean Contains(NotificationMessageType NotificationMessageType)
+        public Boolean Contains(params NotificationMessageType[] NotificationMessageTypes)
         {
+
+            if (NotificationMessageTypes == null || NotificationMessageTypes.Length == 0)
+                return false;
+
             lock (_NotificationMessageTypes)
             {
-                return _NotificationMessageTypes.Contains(NotificationMessageType);
+
+                foreach (var notificationMessageType in NotificationMessageTypes)
+                {
+                    if (_NotificationMessageTypes.Contains(notificationMessageType))
+                        return true;
+                }
+
+                return false;
+
             }
         }
 

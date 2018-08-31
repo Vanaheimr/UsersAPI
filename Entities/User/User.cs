@@ -487,9 +487,9 @@ namespace org.GraphDefined.OpenData.Users
 
         #endregion
 
-        #region GetNotificationsOf(NotificationMessageType = null)
+        #region GetNotificationsOf(params NotificationMessageTypes)
 
-        public IEnumerable<T> GetNotificationsOf<T>(NotificationMessageType? NotificationMessageType = null)
+        public IEnumerable<T> GetNotificationsOf<T>(params NotificationMessageType[] NotificationMessageTypes)
 
             where T : ANotification
 
@@ -497,7 +497,7 @@ namespace org.GraphDefined.OpenData.Users
 
             lock (_Notifications)
             {
-                return _Notifications.GetNotificationsOf<T>(NotificationMessageType);
+                return _Notifications.GetNotificationsOf<T>(NotificationMessageTypes);
             }
 
         }
