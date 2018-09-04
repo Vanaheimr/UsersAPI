@@ -53,35 +53,6 @@ using org.GraphDefined.OpenData.Notifications;
 namespace org.GraphDefined.OpenData.Users
 {
 
-    public class NotificationMessageTypeInfo
-    {
-
-        public NotificationMessageType Id            { get; }
-        public String                  Text          { get; }
-        public I18NString              Description   { get; }
-
-        public NotificationMessageTypeInfo(NotificationMessageType  Id,
-                                           String                   Text,
-                                           I18NString               Description)
-        {
-
-            this.Id           = Id;
-            this.Text         = Text;
-            this.Description  = Description;
-
-        }
-
-        public JObject ToJSON()
-
-            => JSONObject.Create(
-                   new JProperty("@id",          Id.ToString()),
-                   new JProperty("text",         Text),
-                   new JProperty("description",  Description.ToJSON())
-               );
-
-    }
-
-
     /// <summary>
     /// Extention method for the Users API.
     /// </summary>

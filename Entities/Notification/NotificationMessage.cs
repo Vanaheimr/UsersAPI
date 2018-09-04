@@ -40,7 +40,6 @@ namespace org.GraphDefined.OpenData.Notifications
                                        IEntityClass<NotificationMessage>
     {
 
-
         #region Data
 
         /// <summary>

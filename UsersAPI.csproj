@@ -83,6 +83,7 @@
     <Compile Include="Entities\User\User2GroupEdges.cs" />
     <Compile Include="Entities\User\User2UserEdges.cs" />
     <Compile Include="Entities\User\User_Id.cs" />
+    <Compile Include="Notifications\NotificationMessageTypeInfo.cs" />
     <Compile Include="Notifications\HTTPNotificationSender.cs" />
     <Compile Include="Notifications\ANotificationSender.cs" />
     <Compile Include="Representations\HTTPHelper.cs" />
