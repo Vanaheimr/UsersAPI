@@ -6358,6 +6358,12 @@ namespace org.GraphDefined.OpenData.Users
 
         #endregion
 
+        //protected virtual IEnumerable<EMailAddress> GetNotificationEMailAddresses22(NotificationMessageType    MessageType,
+        //                                                                            IEnumerable<Organization>  Owners)
+        //{
+        //    return EMailAddressList.Empty;
+        //}
+
         #region WriteToLogfileAndNotify(MessageType, JSONData, Owners, Logfilename = DefaultUsersAPIFile, CurrentUserId = null)
 
         /// <summary>
@@ -6417,9 +6423,8 @@ namespace org.GraphDefined.OpenData.Users
                             try
                             {
 
-                                var data = JSONWhitespaceRegEx.Replace(JSONMessage.ToString(), " ") + Environment.NewLine;
-
-                                File.AppendAllText(Logfilename, data);
+                                File.AppendAllText(Logfilename,
+                                                   JSONWhitespaceRegEx.Replace(JSONMessage.ToString(), " ") + Environment.NewLine);
 
                                 retry = maxRetries;
 
@@ -6481,17 +6486,21 @@ namespace org.GraphDefined.OpenData.Users
 
         #region WriteToCustomLogfile(Logfilename, Lock, Data)
 
-        public void WriteToCustomLogfile(String  Logfilename,
-                                         Object  Lock,
-                                         String  Data)
+        public async Task WriteToCustomLogfile(String         Logfilename,
+                                               SemaphoreSlim  Lock,
+                                               String         Data)
         {
 
             if (!DisableLogfile)
             {
-                lock (Lock)
+
+                try
                 {
 
-                    var retry = false;
+                    await Lock.WaitAsync();
+
+                    var retry       = 0;
+                    var maxRetries  = 23;
 
                     do
                     {
@@ -6499,23 +6508,34 @@ namespace org.GraphDefined.OpenData.Users
                         try
                         {
 
-                            File.AppendAllText(this.LoggingPath + Logfilename,
+                            File.AppendAllText(Logfilename,
                                                Data +
                                                Environment.NewLine);
+
+                            retry = maxRetries;
 
                         }
                         catch (IOException ioEx)
                         {
-                            retry = false;
+                            DebugX.Log("Retry " + retry + ": Could not write custom logfile '" + Logfilename + "': " + ioEx.Message);
+                            await Task.Delay(10);
+                            retry++;
                         }
                         catch (Exception e)
                         {
-                            retry = false;
+                            DebugX.Log("Retry " + retry + ": Could not write custom logfile '" + Logfilename + "': " + e.Message);
+                            await Task.Delay(10);
+                            retry++;
                         }
 
-                    } while(retry);
+                    } while (retry < maxRetries);
 
                 }
+                finally
+                {
+                    Lock.Release();
+                }
+
             }
 
         }
@@ -8734,26 +8754,26 @@ namespace org.GraphDefined.OpenData.Users
 
         #endregion
 
-        #region GetNotificationsOf(User,   NotificationMessageType = null)
+        #region GetNotificationsOf(User,   params NotificationMessageTypes)
 
-        public IEnumerable<T> GetNotificationsOf<T>(User                      User,
-                                                    NotificationMessageType?  NotificationMessageType = null)
+        public IEnumerable<T> GetNotificationsOf<T>(User                              User,
+                                                    params NotificationMessageType[]  NotificationMessageTypes)
 
             where T : ANotification
 
-            => User.GetNotificationsOf<T>(NotificationMessageType);
+            => User.GetNotificationsOf<T>(NotificationMessageTypes);
 
         #endregion
 
-        #region GetNotificationsOf(UserId, NotificationMessageType = null)
+        #region GetNotificationsOf(UserId, params NotificationMessageTypes)
 
-        public IEnumerable<T> GetNotificationsOf<T>(User_Id                   UserId,
-                                                    NotificationMessageType?  NotificationMessageType = null)
+        public IEnumerable<T> GetNotificationsOf<T>(User_Id                           UserId,
+                                                    params NotificationMessageType[]  NotificationMessageTypes)
 
             where T : ANotification
 
             => TryGetUser(UserId, out User User)
-                   ? User.GetNotificationsOf<T>(NotificationMessageType)
+                   ? User.GetNotificationsOf<T>(NotificationMessageTypes)
                    : new T[0];
 
         #endregion

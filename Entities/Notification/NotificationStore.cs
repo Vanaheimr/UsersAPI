@@ -214,9 +214,9 @@ namespace org.GraphDefined.OpenData.Notifications
 
         #endregion
 
-        #region GetNotificationsOf(NotificationMessageType = null)
+        #region GetNotificationsOf(params NotificationMessageTypes)
 
-        public IEnumerable<T> GetNotificationsOf<T>(NotificationMessageType?  NotificationMessageType = null)
+        public IEnumerable<T> GetNotificationsOf<T>(params NotificationMessageType[]  NotificationMessageTypes)
 
             where T : ANotification
 
@@ -225,8 +225,8 @@ namespace org.GraphDefined.OpenData.Notifications
             lock (_NotificationTypes)
             {
 
-                var results = NotificationMessageType.HasValue
-                                  ? _NotificationTypes.OfType<T>().Where(typeT => typeT.Contains(NotificationMessageType.Value)).ToArray()
+                var results = NotificationMessageTypes != null && NotificationMessageTypes.Length > 0
+                                  ? _NotificationTypes.OfType<T>().Where(typeT => typeT.Contains(NotificationMessageTypes)).ToArray()
                                   : _NotificationTypes.OfType<T>().ToArray();
 
                 // When no specialized notification was found... return a general notification!

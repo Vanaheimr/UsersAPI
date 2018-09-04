@@ -122,27 +122,27 @@ namespace org.GraphDefined.OpenData.Notifications
         #endregion
 
 
-        #region GetSMSNotifications(this UsersAPI, User,   NotificationMessageType = null)
+        #region GetSMSNotifications(this UsersAPI, User,   params NotificationMessageTypes)
 
-        public static IEnumerable<SMSNotification> GetSMSNotifications(this UsersAPI             UsersAPI,
-                                                                       User                      User,
-                                                                       NotificationMessageType?  NotificationMessageType = null)
+        public static IEnumerable<SMSNotification> GetSMSNotifications(this UsersAPI                     UsersAPI,
+                                                                       User                              User,
+                                                                       params NotificationMessageType[]  NotificationMessageTypes)
 
 
             => UsersAPI.GetNotificationsOf<SMSNotification>(User,
-                                                            NotificationMessageType);
+                                                            NotificationMessageTypes);
 
         #endregion
 
-        #region GetSMSNotifications(this UsersAPI, UserId, NotificationMessageType = null)
+        #region GetSMSNotifications(this UsersAPI, UserId, params NotificationMessageTypes)
 
-        public static IEnumerable<SMSNotification> GetSMSNotifications(this UsersAPI             UsersAPI,
-                                                                       User_Id                   UserId,
-                                                                       NotificationMessageType?  NotificationMessageType = null)
+        public static IEnumerable<SMSNotification> GetSMSNotifications(this UsersAPI                     UsersAPI,
+                                                                       User_Id                           UserId,
+                                                                       params NotificationMessageType[]  NotificationMessageTypes)
 
 
             => UsersAPI.GetNotificationsOf<SMSNotification>(UserId,
-                                                            NotificationMessageType);
+                                                            NotificationMessageTypes);
 
         #endregion
 

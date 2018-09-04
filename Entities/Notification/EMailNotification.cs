@@ -138,27 +138,27 @@ namespace org.GraphDefined.OpenData.Notifications
         #endregion
 
 
-        #region GetEMailNotifications(this UsersAPI, User,   NotificationMessageType = null)
+        #region GetEMailNotifications(this UsersAPI, User,   params NotificationMessageTypes)
 
-        public static IEnumerable<EMailNotification> GetEMailNotifications(this UsersAPI             UsersAPI,
-                                                                           User                      User,
-                                                                           NotificationMessageType?  NotificationMessageType = null)
+        public static IEnumerable<EMailNotification> GetEMailNotifications(this UsersAPI                     UsersAPI,
+                                                                           User                              User,
+                                                                           params NotificationMessageType[]  NotificationMessageTypes)
 
 
             => UsersAPI.GetNotificationsOf<EMailNotification>(User,
-                                                              NotificationMessageType);
+                                                              NotificationMessageTypes);
 
         #endregion
 
-        #region GetEMailNotifications(this UsersAPI, UserId, NotificationMessageType = null)
+        #region GetEMailNotifications(this UsersAPI, UserId, params NotificationMessageTypes)
 
-        public static IEnumerable<EMailNotification> GetEMailNotifications(this UsersAPI             UsersAPI,
-                                                                           User_Id                   UserId,
-                                                                           NotificationMessageType?  NotificationMessageType = null)
+        public static IEnumerable<EMailNotification> GetEMailNotifications(this UsersAPI                     UsersAPI,
+                                                                           User_Id                           UserId,
+                                                                           params NotificationMessageType[]  NotificationMessageTypes)
 
 
             => UsersAPI.GetNotificationsOf<EMailNotification>(UserId,
-                                                              NotificationMessageType);
+                                                              NotificationMessageTypes);
 
         #endregion
 
