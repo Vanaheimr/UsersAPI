@@ -2548,7 +2548,7 @@ namespace org.GraphDefined.OpenData.Users
 
                                                                                ),
                                                                                NoOwner,
-                                                                               DefaultPasswordFile,
+                                                                               this.UsersAPIPath + DefaultPasswordFile,
                                                                                Robot.Id);
 
                                                  _LoginPasswords.Remove(userId);
@@ -5409,7 +5409,7 @@ namespace org.GraphDefined.OpenData.Users
                                                 }
 
                                                 else
-                                                    DebugX.Log("Invalid 'Add' command in '" + DefaultPasswordResetsFile + "' line " + linenumber + "!");
+                                                    DebugX.Log("Invalid 'Add' command in '" + this.UsersAPIPath + DefaultPasswordResetsFile + "' line " + linenumber + "!");
 
                                                 break;
 
@@ -8373,7 +8373,7 @@ namespace org.GraphDefined.OpenData.Users
             WriteToLogfileAndNotify(NotificationMessageType.Parse("add"),
                                     passwordReset.ToJSON(),
                                     NoOwner,
-                                    DefaultPasswordResetsFile);
+                                    this.UsersAPIPath + DefaultPasswordResetsFile);
 
             this.PasswordResets.Add(passwordReset.SecurityToken1, passwordReset);
 
@@ -8391,7 +8391,7 @@ namespace org.GraphDefined.OpenData.Users
             WriteToLogfileAndNotify(NotificationMessageType.Parse("remove"),
                                     passwordReset.ToJSON(),
                                     NoOwner,
-                                    DefaultPasswordResetsFile);
+                                    this.UsersAPIPath + DefaultPasswordResetsFile);
 
             this.PasswordResets.Remove(passwordReset.SecurityToken1);
 
