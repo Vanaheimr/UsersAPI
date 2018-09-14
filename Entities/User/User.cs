@@ -25,6 +25,8 @@ using Newtonsoft.Json.Linq;
 
 using Org.BouncyCastle.Bcpg.OpenPgp;
 
+using org.GraphDefined.OpenData.Notifications;
+
 using org.GraphDefined.Vanaheimr.Aegir;
 using org.GraphDefined.Vanaheimr.Illias;
 using org.GraphDefined.Vanaheimr.Hermod;
@@ -38,6 +40,8 @@ using org.GraphDefined.Vanaheimr.BouncyCastle;
 
 namespace org.GraphDefined.OpenData.Users
 {
+
+    public delegate Boolean UserProviderDelegate(User_Id UserId, out User User);
 
     public enum Access_Levels
     {
@@ -85,6 +89,14 @@ namespace org.GraphDefined.OpenData.Users
 
                 foreach (var edge in NewUser.User2Group_OutEdges)
                     edge.Source = NewUser;
+
+            }
+
+            if (OldUser.GetNotifications().Any() && !NewUser.GetNotifications().Any())
+            {
+
+                foreach (var notification in OldUser.GetNotifications())
+                    NewUser.AddNotification(notification);
 
             }
 
@@ -328,6 +340,9 @@ namespace org.GraphDefined.OpenData.Users
 
         #endregion
 
+
+        private readonly NotificationStore _Notifications;
+
         #endregion
 
         #region Events
@@ -389,31 +404,164 @@ namespace org.GraphDefined.OpenData.Users
 
             #endregion
 
-            this.EMail                    = Name.IsNotNullOrEmpty()
-                                                ? new EMailAddress(Name, EMail, SecretKeyRing, PublicKeyRing)
-                                                : new EMailAddress(      EMail, SecretKeyRing, PublicKeyRing);
-            this.Name                     = Name;
-            this.PublicKeyRing            = PublicKeyRing;
-            this.SecretKeyRing            = SecretKeyRing;
-            this.Telephone                = Telephone;
-            this.MobilePhone              = MobilePhone;
-            this.Description              = Description  ?? new I18NString();
-            this.GeoLocation              = GeoLocation;
-            this.Address                  = Address;
-            this.PrivacyLevel             = PrivacyLevel ?? OpenData.PrivacyLevel.Private;
-            this.AcceptedEULA             = AcceptedEULA;
-            this.IsAuthenticated          = IsAuthenticated;
-            this.IsDisabled               = IsDisabled;
+            this.EMail                        = Name.IsNotNullOrEmpty()
+                                                    ? new EMailAddress(Name, EMail, SecretKeyRing, PublicKeyRing)
+                                                    : new EMailAddress(      EMail, SecretKeyRing, PublicKeyRing);
+            this.Name                         = Name;
+            this.PublicKeyRing                = PublicKeyRing;
+            this.SecretKeyRing                = SecretKeyRing;
+            this.Telephone                    = Telephone;
+            this.MobilePhone                  = MobilePhone;
+            this.Description                  = Description  ?? new I18NString();
+            this.GeoLocation                  = GeoLocation;
+            this.Address                      = Address;
+            this.PrivacyLevel                 = PrivacyLevel ?? OpenData.PrivacyLevel.Private;
+            this.AcceptedEULA                 = AcceptedEULA;
+            this.IsAuthenticated              = IsAuthenticated;
+            this.IsDisabled                   = IsDisabled;
+
+            this._Notifications               = new NotificationStore();
 
             // Init edges
-            this._User2UserEdges          = User2UserEdges.        IsNeitherNullNorEmpty() ? new List<MiniEdge<User, User2UserEdges,         User>>        (User2UserEdges)         : new List<MiniEdge<User, User2UserEdges,         User>>();
+            this._User2UserEdges              = User2UserEdges.        IsNeitherNullNorEmpty() ? new List<MiniEdge<User, User2UserEdges,         User>>        (User2UserEdges)         : new List<MiniEdge<User, User2UserEdges,         User>>();
             this._User2Group_OutEdges         = User2GroupEdges.       IsNeitherNullNorEmpty() ? new List<MiniEdge<User, User2GroupEdges,        Group>>       (User2GroupEdges)        : new List<MiniEdge<User, User2GroupEdges,        Group>>();
             this._User2Organization_OutEdges  = User2OrganizationEdges.IsNeitherNullNorEmpty() ? new List<MiniEdge<User, User2OrganizationEdges, Organization>>(User2OrganizationEdges) : new List<MiniEdge<User, User2OrganizationEdges, Organization>>();
-
 
             CalcHash();
 
         }
+
+        #endregion
+
+
+        #region (internal) AddNotification(NotificationType,                           OnUpdate = null)
+
+        internal T AddNotification<T>(T          NotificationType,
+                                      Action<T>  OnUpdate  = null)
+
+            where T : ANotification
+
+            => _Notifications.Add(NotificationType,
+                                  OnUpdate);
+
+        #endregion
+
+        #region (internal) AddNotification(NotificationType, NotificationMessageType,  OnUpdate = null)
+
+        internal T AddNotification<T>(T                        NotificationType,
+                                      NotificationMessageType  NotificationMessageType,
+                                      Action<T>                OnUpdate  = null)
+
+            where T : ANotification
+
+            => _Notifications.Add(NotificationType,
+                                  NotificationMessageType,
+                                  OnUpdate);
+
+        #endregion
+
+        #region (internal) AddNotification(NotificationType, NotificationMessageTypes, OnUpdate = null)
+
+        internal T AddNotification<T>(T                                     NotificationType,
+                                      IEnumerable<NotificationMessageType>  NotificationMessageTypes,
+                                      Action<T>                             OnUpdate  = null)
+
+            where T : ANotification
+
+            => _Notifications.Add(NotificationType,
+                                  NotificationMessageTypes,
+                                  OnUpdate);
+
+        #endregion
+
+
+        #region GetNotifications  (NotificationMessageType = null)
+
+        public IEnumerable<ANotification> GetNotifications(NotificationMessageType?  NotificationMessageType = null)
+        {
+            lock (_Notifications)
+            {
+                return _Notifications.GetNotifications(NotificationMessageType);
+            }
+        }
+
+        #endregion
+
+        #region GetNotificationsOf(params NotificationMessageTypes)
+
+        public IEnumerable<T> GetNotificationsOf<T>(params NotificationMessageType[] NotificationMessageTypes)
+
+            where T : ANotification
+
+        {
+
+            lock (_Notifications)
+            {
+                return _Notifications.GetNotificationsOf<T>(NotificationMessageTypes);
+            }
+
+        }
+
+        #endregion
+
+        #region GetNotifications  (NotificationMessageTypeFilter)
+
+        public IEnumerable<ANotification> GetNotifications(Func<NotificationMessageType, Boolean> NotificationMessageTypeFilter)
+        {
+            lock (_Notifications)
+            {
+                return _Notifications.GetNotifications(NotificationMessageTypeFilter);
+            }
+        }
+
+        #endregion
+
+        #region GetNotificationsOf(NotificationMessageTypeFilter)
+
+        public IEnumerable<T> GetNotificationsOf<T>(Func<NotificationMessageType, Boolean> NotificationMessageTypeFilter)
+
+            where T : ANotification
+
+        {
+
+            lock (_Notifications)
+            {
+                return _Notifications.GetNotificationsOf<T>(NotificationMessageTypeFilter);
+            }
+
+        }
+
+        #endregion
+
+
+        #region GetNotificationInfos()
+
+        public JObject GetNotificationInfos()
+
+            => JSONObject.Create(new JProperty("user", JSONObject.Create(
+
+                                     new JProperty("name",               EMail.OwnerName),
+                                     new JProperty("email",              EMail.Address.ToString()),
+
+                                     MobilePhone.HasValue
+                                         ? new JProperty("phoneNumber",  MobilePhone.Value.ToString())
+                                         : null
+
+                                 )),
+                                 new JProperty("notifications",  _Notifications.ToJSON()));
+
+        #endregion
+
+
+        #region (internal) RemoveNotification(NotificationType,                           OnRemoval = null)
+
+        internal T RemoveNotification<T>(T          NotificationType,
+                                         Action<T>  OnRemoval  = null)
+
+            where T : ANotification
+
+            => _Notifications.Remove(NotificationType,
+                                     OnRemoval);
 
         #endregion
 
@@ -684,18 +832,24 @@ namespace org.GraphDefined.OpenData.Users
         #endregion
 
 
-        #region ToJSON(IncludeCryptoHash = true)
+        #region ToJSON(Embedded = false, IncludeCryptoHash = false)
 
         /// <summary>
         /// Return a JSON representation of this object.
         /// </summary>
-        /// <param name="IncludeCryptoHash">Include the hash value of this object.</param>
-        public override JObject ToJSON(Boolean IncludeCryptoHash = true)
+        /// <param name="Embedded">Whether this data is embedded into another data structure.</param>
+        /// <param name="IncludeCryptoHash">Include the crypto hash value of this object.</param>
+        public override JObject ToJSON(Boolean     Embedded             = false,
+                                       Boolean     IncludeCryptoHash    = false)
 
             => JSONObject.Create(
 
                    new JProperty("@id",                  Id.ToString()),
-                   new JProperty("@context",             JSONLDContext),
+
+                   !Embedded
+                       ? new JProperty("@context",       JSONLDContext)
+                       : null,
+
                    new JProperty("name",                 Name),
 
                    Description.IsNeitherNullNorEmpty()

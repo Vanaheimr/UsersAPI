@@ -254,8 +254,10 @@ namespace org.GraphDefined.OpenData.Users
         /// <summary>
         /// Return a JSON representation of this object.
         /// </summary>
-        /// <param name="IncludeHash">Include the hash value of this object.</param>
-        public override JObject ToJSON(Boolean IncludeHash = true)
+        /// <param name="Embedded">Whether this data is embedded into another data structure.</param>
+        /// <param name="IncludeCryptoHash">Include the crypto hash value of this object.</param>
+        public override JObject ToJSON(Boolean Embedded           = false,
+                                       Boolean IncludeCryptoHash  = false)
 
             => JSONObject.Create(
 
@@ -266,7 +268,7 @@ namespace org.GraphDefined.OpenData.Users
                    PrivacyLevel.ToJSON(),
                    new JProperty("isDisabled",        IsDisabled),
 
-                   IncludeHash
+                   IncludeCryptoHash
                        ? new JProperty("cryptoHash",  CurrentCryptoHash)
                        : null
 

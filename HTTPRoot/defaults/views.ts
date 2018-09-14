@@ -16,7 +16,7 @@ class View {
                 Prefix:        string,
                 HeadlineText:  string) {
 
-        this.myself = Parent.appendChild(document.createElement('div')) as HTMLDivElement;
+        this.myself    = Parent.appendChild(document.createElement('div')) as HTMLDivElement;
         this.myself.id = Prefix + "View";
 
         this.HeadlineDiv = this.myself.appendChild(document.createElement('div')) as HTMLDivElement;
@@ -48,23 +48,25 @@ class View {
 
     }
 
-    CreateRow(Prefix: string,
-        KeyText: string,
-        greeter: DivElementAction = null) {
+    ResetGroup() {
+        this.CurrentGroupDiv = this.ContentDiv;
+    };
 
-        return this.CreateRow2(
-            Prefix,
-            KeyText,
-            false,
-            greeter);
+    CreateRow(Prefix:  string,
+              KeyText: string,
+              greeter: DivElementAction = null) {
+
+        return this.CreateRow2(Prefix,
+                               KeyText,
+                               false,
+                               greeter);
 
     };
 
-    CreateRow2(
-        Prefix: string,
-        KeyText: string,
-        keyTop: boolean = false,
-        greeter: DivElementAction = null) {
+    CreateRow2(Prefix:  string,
+               KeyText: string,
+               keyTop:  boolean          = false,
+               greeter: DivElementAction = null) {
 
 
         var DivRow = this.CurrentGroupDiv.appendChild(document.createElement('div')) as HTMLDivElement;

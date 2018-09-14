@@ -127,6 +127,32 @@ namespace org.GraphDefined.OpenData.Users
         #endregion
 
 
+        #region ToJSON(IncludeHash = true)
+
+        /// <summary>
+        /// Return a JSON representation of this object.
+        /// </summary>
+        /// <param name="Embedded">Whether this data is embedded into another data structure.</param>
+        /// <param name="IncludeCryptoHash">Include the crypto hash value of this object.</param>
+        public override JObject ToJSON(Boolean Embedded           = false,
+                                       Boolean IncludeCryptoHash  = false)
+
+            => JSONObject.Create(
+
+                   new JProperty("@id",         Id.     ToString()),
+                   new JProperty("sender",      Sender. ToString()),
+                   new JProperty("subject",     Subject.ToJSON()),
+                   new JProperty("text",        Text.   ToJSON()),
+
+                   IncludeCryptoHash
+                       ? new JProperty("cryptoHash", CurrentCryptoHash)
+                       : null
+
+               );
+
+        #endregion
+
+
         #region IComparable<Message> Members
 
         #region CompareTo(Object)
@@ -234,29 +260,6 @@ namespace org.GraphDefined.OpenData.Users
         /// </summary>
         public override String ToString()
             => Id.ToString();
-
-        #endregion
-
-        #region ToJSON(IncludeHash = true)
-
-        /// <summary>
-        /// Return a JSON representation of this object.
-        /// </summary>
-        /// <param name="IncludeHash">Include the hash value of this object.</param>
-        public override JObject ToJSON(Boolean IncludeHash = true)
-
-            => JSONObject.Create(
-
-                   new JProperty("@id",         Id.     ToString()),
-                   new JProperty("sender",      Sender. ToString()),
-                   new JProperty("subject",     Subject.ToJSON()),
-                   new JProperty("text",        Text.   ToJSON()),
-
-                   IncludeHash
-                       ? new JProperty("Hash",  CurrentCryptoHash)
-                       : null
-
-               );
 
         #endregion
 

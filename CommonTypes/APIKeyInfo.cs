@@ -180,11 +180,11 @@ namespace org.GraphDefined.OpenData.Users
 
         #region (static) TryParseJSON(JSONObject, ..., out APIKeyInfo, out ErrorResponse)
 
-        public static Boolean TryParseJSON(JObject              JSONObject,
-                                           out APIKeyInfo       APIKeyInfo,
-                                           Func<User_Id, User>  UserProvider,
-                                           out String           ErrorResponse,
-                                           APIKey?              APIKeyURI = null)
+        public static Boolean TryParseJSON(JObject               JSONObject,
+                                           out APIKeyInfo        APIKeyInfo,
+                                           UserProviderDelegate  UserProvider,
+                                           out String            ErrorResponse,
+                                           APIKey?               APIKeyURI = null)
         {
 
             try
@@ -250,9 +250,7 @@ namespace org.GraphDefined.OpenData.Users
                     return false;
                 }
 
-                //if (!TryGetUser(UserId, out User User))
-                var User = UserProvider(UserId);
-                if (User == null)
+                if (!UserProvider(UserId, out User User))
                 {
                     ErrorResponse = "The given user '" + UserId + "' is unknown!";
                     return false;

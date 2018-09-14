@@ -46,6 +46,7 @@ using org.GraphDefined.Vanaheimr.Aegir;
 using org.GraphDefined.Vanaheimr.Warden;
 
 using SMSApi.Api;
+using org.GraphDefined.OpenData.Notifications;
 
 #endregion
 
@@ -369,216 +370,6 @@ namespace org.GraphDefined.OpenData.Users
 
     }
 
-    public class PasswordReset
-    {
-
-        #region Data
-
-        /// <summary>
-        /// The JSON-LD context of the object.
-        /// </summary>
-        public const String JSONLDContext = "https://cardi-link.cloud/contexts/cardidb+json/passwordReset";
-
-        #endregion
-
-        #region Properties
-
-        public DateTime              Timestamp        { get; }
-        public IEnumerable<User_Id>  UserIds          { get; }
-        public SecurityToken_Id      SecurityToken1   { get; }
-        public SecurityToken_Id?     SecurityToken2   { get; }
-
-        #endregion
-
-        #region Constructor(s)
-
-        public PasswordReset(IEnumerable<User_Id>  UserIds,
-                             SecurityToken_Id      SecurityToken1,
-                             SecurityToken_Id?     SecurityToken2)
-
-            : this(DateTime.UtcNow,
-                   UserIds,
-                   SecurityToken1,
-                   SecurityToken2)
-
-        { }
-
-        public PasswordReset(DateTime              Timestamp,
-                             IEnumerable<User_Id>  UserIds,
-                             SecurityToken_Id      SecurityToken1,
-                             SecurityToken_Id?     SecurityToken2)
-        {
-
-            this.Timestamp       = Timestamp;
-            this.UserIds         = UserIds;
-            this.SecurityToken1  = SecurityToken1;
-            this.SecurityToken2  = SecurityToken2;
-
-        }
-
-        #endregion
-
-
-        #region ToJSON(Embedded = true)
-
-        /// <summary>
-        /// Return a JSON representation of this object.
-        /// </summary>
-        /// <param name="Embedded">Whether this data is embedded into another data structure.</param>
-        public JObject ToJSON(Boolean Embedded = true)
-
-            => JSONObject.Create(
-
-                   Embedded
-                       ? null
-                       : new JProperty("@context",  JSONLDContext),
-
-                   new JProperty("timestamp",       Timestamp.ToIso8601()),
-                   new JProperty("userIds",         new JArray(UserIds.Select(user => user.ToString()))),
-                   new JProperty("securityToken1",  SecurityToken1.ToString()),
-
-                   SecurityToken2.HasValue
-                       ? new JProperty("securityToken2",  SecurityToken2.ToString())
-                       : null
-
-               );
-
-        #endregion
-
-        #region (static) TryParseJSON(JSONObject, ..., out Communicator, out ErrorResponse, IgnoreContextMismatches = true)
-
-        public static Boolean TryParseJSON(JObject              JSONObject,
-                                           out PasswordReset    PasswordReset,
-                                           out String           ErrorResponse,
-                                           Boolean              IgnoreContextMismatches = true)
-
-        {
-
-            try
-            {
-
-                PasswordReset = null;
-
-                if (JSONObject == null)
-                {
-                    ErrorResponse = "The given JSON object must not be null!";
-                    return false;
-                }
-
-                #region Parse Context          [mandatory]
-
-                if (!IgnoreContextMismatches)
-                {
-
-                    if (!JSONObject.ParseMandatory("@context",
-                                                   "JSON-LD context",
-                                                   out String Context,
-                                                   out ErrorResponse))
-                    {
-                        ErrorResponse = @"The JSON-LD ""@context"" information is missing!";
-                        return false;
-                    }
-
-                    if (Context != JSONLDContext)
-                    {
-                        ErrorResponse = @"The given JSON-LD ""@context"" information '" + Context + "' is not supported!";
-                        return false;
-                    }
-
-                }
-
-                #endregion
-
-                #region Parse Timestamp        [mandatory]
-
-                if (!JSONObject.ParseMandatory("timestamp",
-                                               "timestamp",
-                                               out DateTime Timestamp,
-                                               out          ErrorResponse))
-                {
-                    return false;
-                }
-
-                #endregion
-
-                #region Parse UserIds          [mandatory]
-
-                if (!JSONObject.ParseMandatory("userIds",
-                                               "user identifications",
-                                               out JArray UserIdArray,
-                                               out ErrorResponse))
-                {
-                    return false;
-                }
-
-                var UserIds = new User_Id[0];
-
-                try
-                {
-                    UserIds = UserIdArray.Select(jsonvalue => User_Id.Parse(jsonvalue.Value<String>())).ToArray();
-                }
-                catch (Exception e)
-                {
-                    ErrorResponse = "The given array of users '" + UserIdArray + "' is invalid!";
-                    return false;
-                }
-
-                if (UserIds.Length == 0)
-                {
-                    ErrorResponse = "The given array of users '" + UserIdArray + "' is invalid!";
-                    return false;
-                }
-
-                #endregion
-
-                #region Parse SecurityToken1   [mandatory]
-
-                if (!JSONObject.ParseMandatory("securityToken1",
-                                               "security token #1",
-                                               SecurityToken_Id.TryParse,
-                                               out SecurityToken_Id SecurityToken1,
-                                               out ErrorResponse))
-                {
-                    return false;
-                }
-
-                #endregion
-
-                #region Parse SecurityToken2   [optional]
-
-                if (!JSONObject.ParseOptionalN("securityToken2",
-                                               "security token #2",
-                                               SecurityToken_Id.TryParse,
-                                               out SecurityToken_Id? SecurityToken2,
-                                               out ErrorResponse))
-                {
-                    return false;
-                }
-
-                #endregion
-
-
-                PasswordReset = new PasswordReset(Timestamp,
-                                                  UserIds,
-                                                  SecurityToken1,
-                                                  SecurityToken2);
-
-                return true;
-
-            }
-            catch (Exception e)
-            {
-                ErrorResponse = e.Message;
-                PasswordReset = null;
-                return false;
-            }
-
-        }
-
-        #endregion
-
-    }
-
 
     /// <summary>
     /// A library for managing users within and HTTP API or website.
@@ -615,8 +406,11 @@ namespace org.GraphDefined.OpenData.Users
 
         #region Data
 
-        private static readonly SemaphoreSlim LogFileSemaphore = new SemaphoreSlim(1, 1);
-
+        private static readonly SemaphoreSlim  LogFileSemaphore        = new SemaphoreSlim(1, 1);
+        private static readonly SemaphoreSlim  NotificationsSemaphore  = new SemaphoreSlim(1, 1);
+        private static readonly SemaphoreSlim  UsersSemaphore          = new SemaphoreSlim(1, 1);
+        private static readonly SemaphoreSlim  OrganizationsSemaphore  = new SemaphoreSlim(1, 1);
+        private static readonly SemaphoreSlim  GroupsSemaphore         = new SemaphoreSlim(1, 1);
 
         /// <summary>
         /// The default HTTP server port.
@@ -680,14 +474,24 @@ namespace org.GraphDefined.OpenData.Users
 
         public static readonly Regex JSONWhitespaceRegEx = new Regex(@"(\s)+", RegexOptions.IgnorePatternWhitespace);
 
-        protected readonly Notifications _Notifications;
-
-
         public static Organization NoOwner;
+
+        private readonly Queue<NotificationMessage> _NotificationMessages;
+
+        public IEnumerable<NotificationMessage> NotificationMessages
+            => _NotificationMessages;
 
         #endregion
 
         #region Properties
+
+        public String                    LoggingPath                { get; }
+        public String                    UsersAPIPath               { get; }
+        public String                    HTTPSSEPath                { get; }
+        public String                    HTTPRequestsPath           { get; }
+        public String                    HTTPResponsesPath          { get; }
+        public String                    NotificationsPath          { get; }
+        public String                    MetricsPath                { get; }
 
         /// <summary>
         /// The current async local user identification to simplify API usage.
@@ -1074,7 +878,7 @@ namespace org.GraphDefined.OpenData.Users
         #endregion
 
 
-        #region (protected internal) SetUserNotificationsRequest (Request)
+        #region (protected internal) SetUserNotificationsRequest    (Request)
 
         /// <summary>
         /// An event sent whenever set user notifications request was received.
@@ -1097,7 +901,7 @@ namespace org.GraphDefined.OpenData.Users
 
         #endregion
 
-        #region (protected internal) SetUserNotificationsResponse(Response)
+        #region (protected internal) SetUserNotificationsResponse   (Response)
 
         /// <summary>
         /// An event sent whenever a response on a set user notifications request was sent.
@@ -1120,6 +924,105 @@ namespace org.GraphDefined.OpenData.Users
                                                        API ?? this,
                                                        Request,
                                                        Response);
+
+        #endregion
+
+        #region (protected internal) DeleteUserNotificationsRequest (Request)
+
+        /// <summary>
+        /// An event sent whenever set user notifications request was received.
+        /// </summary>
+        public HTTPRequestLogEvent OnDeleteUserNotificationsRequest = new HTTPRequestLogEvent();
+
+        /// <summary>
+        /// An event sent whenever set user notifications request was received.
+        /// </summary>
+        /// <param name="Timestamp">The timestamp of the request.</param>
+        /// <param name="API">The HTTP API.</param>
+        /// <param name="Request">A HTTP request.</param>
+        protected internal Task DeleteUserNotificationsRequest(DateTime     Timestamp,
+                                                               HTTPAPI      API,
+                                                               HTTPRequest  Request)
+
+            => OnDeleteUserNotificationsRequest?.WhenAll(Timestamp,
+                                                         API ?? this,
+                                                         Request);
+
+        #endregion
+
+        #region (protected internal) DeleteUserNotificationsResponse(Response)
+
+        /// <summary>
+        /// An event sent whenever a response on a set user notifications request was sent.
+        /// </summary>
+        public HTTPResponseLogEvent OnDeleteUserNotificationsResponse = new HTTPResponseLogEvent();
+
+        /// <summary>
+        /// An event sent whenever a response on a set user notifications request was sent.
+        /// </summary>
+        /// <param name="Timestamp">The timestamp of the request.</param>
+        /// <param name="API">The HTTP API.</param>
+        /// <param name="Request">A HTTP request.</param>
+        /// <param name="Response">A HTTP response.</param>
+        protected internal Task DeleteUserNotificationsResponse(DateTime      Timestamp,
+                                                                HTTPAPI       API,
+                                                                HTTPRequest   Request,
+                                                                HTTPResponse  Response)
+
+            => OnDeleteUserNotificationsResponse?.WhenAll(Timestamp,
+                                                          API ?? this,
+                                                          Request,
+                                                          Response);
+
+        #endregion
+
+
+        #region (protected internal) ImpersonateUserRequest (Request)
+
+        /// <summary>
+        /// An event sent whenever an impersonate user request was received.
+        /// </summary>
+        public HTTPRequestLogEvent OnImpersonateUserRequest = new HTTPRequestLogEvent();
+
+        /// <summary>
+        /// An event sent whenever an impersonate user request was received.
+        /// </summary>
+        /// <param name="Timestamp">The timestamp of the request.</param>
+        /// <param name="API">The HTTP API.</param>
+        /// <param name="Request">A HTTP request.</param>
+        protected internal Task ImpersonateUserRequest(DateTime     Timestamp,
+                                                       HTTPAPI      API,
+                                                       HTTPRequest  Request)
+
+            => OnImpersonateUserRequest?.WhenAll(Timestamp,
+                                                 API ?? this,
+                                                 Request);
+
+        #endregion
+
+        #region (protected internal) ImpersonateUserResponse(Response)
+
+        /// <summary>
+        /// An event sent whenever a response on an impersonate user request was sent.
+        /// </summary>
+        public HTTPResponseLogEvent OnImpersonateUserResponse = new HTTPResponseLogEvent();
+
+        /// <summary>
+        /// An event sent whenever a response on an impersonate user request was sent.
+        /// </summary>
+        /// <param name="Timestamp">The timestamp of the request.</param>
+        /// <param name="API">The HTTP API.</param>
+        /// <param name="Request">A HTTP request.</param>
+        /// <param name="Response">A HTTP response.</param>
+        protected internal Task ImpersonateUserResponse(DateTime      Timestamp,
+                                                        HTTPAPI       API,
+                                                        HTTPRequest   Request,
+                                                        HTTPResponse  Response)
+
+            => OnImpersonateUserResponse?.WhenAll(Timestamp,
+                                                  API ?? this,
+                                                  Request,
+                                                  Response);
 
         #endregion
 
@@ -1262,6 +1165,7 @@ namespace org.GraphDefined.OpenData.Users
                         Boolean                              SkipURITemplates                   = false,
                         Boolean                              DisableNotifications               = false,
                         Boolean                              DisableLogfile                     = false,
+                        String                               LoggingPath                        = null,
                         String                               LogfileName                        = DefaultLogfileName,
                         DNSClient                            DNSClient                          = null,
                         Boolean                              Autostart                          = false)
@@ -1314,6 +1218,7 @@ namespace org.GraphDefined.OpenData.Users
                    SkipURITemplates,
                    DisableNotifications,
                    DisableLogfile,
+                   LoggingPath,
                    LogfileName)
 
         {
@@ -1388,6 +1293,7 @@ namespace org.GraphDefined.OpenData.Users
                            Boolean                              SkipURITemplates              = false,
                            Boolean                              DisableNotifications          = false,
                            Boolean                              DisableLogfile                = false,
+                           String                               LoggingPath                   = null,
                            String                               LogfileName                   = DefaultLogfileName)
 
             : base(HTTPServer,
@@ -1411,6 +1317,29 @@ namespace org.GraphDefined.OpenData.Users
             #endregion
 
             #region Init data
+
+            this.LoggingPath                  = LoggingPath ?? Directory.GetCurrentDirectory();
+
+            if (!this.LoggingPath.EndsWith(Path.DirectorySeparatorChar.ToString()))
+                this.LoggingPath += Path.DirectorySeparatorChar;
+
+            this.UsersAPIPath                 = this.LoggingPath + "UsersAPI"      + Path.DirectorySeparatorChar;
+            this.HTTPRequestsPath             = this.LoggingPath + "HTTPRequests"  + Path.DirectorySeparatorChar;
+            this.HTTPResponsesPath            = this.LoggingPath + "HTTPResponses" + Path.DirectorySeparatorChar;
+            this.HTTPSSEPath                  = this.LoggingPath + "HTTPSSEs"      + Path.DirectorySeparatorChar;
+            this.NotificationsPath            = this.LoggingPath + "Notifications" + Path.DirectorySeparatorChar;
+            this.MetricsPath                  = this.LoggingPath + "Metrics"       + Path.DirectorySeparatorChar;
+
+            if (!DisableLogfile)
+            {
+                Directory.CreateDirectory(this.LoggingPath);
+                Directory.CreateDirectory(this.UsersAPIPath);
+                Directory.CreateDirectory(this.HTTPRequestsPath);
+                Directory.CreateDirectory(this.HTTPResponsesPath);
+                Directory.CreateDirectory(this.HTTPSSEPath);
+                Directory.CreateDirectory(this.NotificationsPath);
+                Directory.CreateDirectory(this.MetricsPath);
+            }
 
             this.Robot                        = new User(Id:               User_Id.Parse("robot"),
                                                          EMail:            APIEMailAddress.Address,
@@ -1455,17 +1384,18 @@ namespace org.GraphDefined.OpenData.Users
 
             this.DisableNotifications         = DisableNotifications;
             this.DisableLogfile               = DisableLogfile;
-            this.LogfileName                  = LogfileName ?? DefaultLogfileName;
+            this.LogfileName                  = this.UsersAPIPath + (LogfileName ?? DefaultLogfileName);
 
             this._APIKeys                     = new Dictionary<APIKey, APIKeyInfo>();
-            this._Notifications               = new Notifications();
+
+            this._NotificationMessages        = new Queue<NotificationMessage>();
 
             #endregion
 
             this.Admins  = CreateGroupIfNotExists(Group_Id.Parse(AdminGroupName),
                                                   Robot.Id,
                                                   I18NString.Create(Languages.eng, AdminGroupName),
-                                                  I18NString.Create(Languages.eng, "All admins of this API."));
+                                                  I18NString.Create(Languages.eng, "All admins of this API.")).Result;
 
             #region Reflect data licenses
 
@@ -1483,12 +1413,9 @@ namespace org.GraphDefined.OpenData.Users
 
             #endregion
 
-            ReadDatabaseFiles();
+            ReadDatabaseFiles().Wait();
 
-            _Notifications.OnAdded   += (Timestamp, User, NotificationId, NotificationType) => WriteToLogfileAndNotify("AddNotification",    NotificationType.ToJSON(User, NotificationId), CurrentUserId: Robot.Id);
-            _Notifications.OnRemoved += (Timestamp, User, NotificationId, NotificationType) => WriteToLogfileAndNotify("RemoveNotification", NotificationType.ToJSON(User, NotificationId), CurrentUserId: Robot.Id);
-
-            NoOwner = CreateOrganizationIfNotExists(Organization_Id.Parse("NoOwner"), CurrentUserId: Robot.Id);
+            NoOwner = CreateOrganizationIfNotExists(Organization_Id.Parse("NoOwner"), CurrentUserId: Robot.Id).Result;
 
             if (SMSAPICredentials != null)
             {
@@ -1656,12 +1583,10 @@ namespace org.GraphDefined.OpenData.Users
                     return (Organization,
                             Embedded,
                             ExpandTags,
-                            ExpandDataLicenses,
                             IncludeCryptoHash)
 
                             => Organization.ToJSON(Embedded,
                                                    ExpandTags,
-                                                   ExpandDataLicenses,
                                                    IncludeCryptoHash);
 
             }
@@ -1798,6 +1723,30 @@ namespace org.GraphDefined.OpenData.Users
         }
 
         #endregion
+
+
+        private readonly List<NotificationMessageTypeInfo> _NotificationMessageTypeInfos = new List<NotificationMessageTypeInfo> ();
+
+        public void Add(NotificationMessageTypeInfo NotificationMessageTypeInfo)
+            => _NotificationMessageTypeInfos.Add(NotificationMessageTypeInfo);
+
+
+        private JObject GetNotificationInfos(User User)
+        {
+
+            if (User == null)
+                throw new ArgumentNullException(nameof(User), "The given user must not be null!");
+
+            var notificationsJSON = User.GetNotificationInfos();
+
+            notificationsJSON.AddFirst(new JProperty("messages", new JArray(
+                                           _NotificationMessageTypeInfos.Select(notificationMessageTypeInfo => notificationMessageTypeInfo.ToJSON())
+                                      )));
+
+            return notificationsJSON;
+
+        }
+
 
 
         #region (private) RegisterURITemplates()
@@ -2188,7 +2137,7 @@ namespace org.GraphDefined.OpenData.Users
                                                                   new SecurityToken(_LoginPassword.Login,
                                                                                     Expires));
 
-                                                  File.AppendAllText(DefaultHTTPCookiesFile,
+                                                  File.AppendAllText(this.UsersAPIPath + DefaultHTTPCookiesFile,
                                                                      SecurityTokenId + ";" + _LoginPassword.Login + ";" + Expires.ToIso8601() + Environment.NewLine);
 
                                               }
@@ -2452,7 +2401,7 @@ namespace org.GraphDefined.OpenData.Users
                                          HTTPMethod.SET,
                                          URIPrefix + "setPassword",
                                          HTTPContentType.JSON_UTF8,
-                                         HTTPDelegate: Request => {
+                                         HTTPDelegate:        async Request => {
 
                                              #region Parse JSON
 
@@ -2462,7 +2411,7 @@ namespace org.GraphDefined.OpenData.Users
                                                  // Slow down attackers!
                                                  Thread.Sleep(5000);
 
-                                                 return Task.FromResult(HTTPResponse);
+                                                 return HTTPResponse;
 
                                              }
 
@@ -2476,7 +2425,7 @@ namespace org.GraphDefined.OpenData.Users
                                                                          Request,
                                                                          out HTTPResponse ErrorResponse))
                                              {
-                                                 return Task.FromResult(HTTPResponse);
+                                                 return HTTPResponse;
                                              }
 
                                              #endregion
@@ -2491,7 +2440,7 @@ namespace org.GraphDefined.OpenData.Users
                                                                          Request,
                                                                          out ErrorResponse))
                                              {
-                                                 return Task.FromResult(HTTPResponse);
+                                                 return HTTPResponse;
                                              }
 
                                              #endregion
@@ -2506,7 +2455,7 @@ namespace org.GraphDefined.OpenData.Users
                                                                          Request,
                                                                          out ErrorResponse))
                                              {
-                                                 return Task.FromResult(HTTPResponse);
+                                                 return HTTPResponse;
                                              }
 
                                              #endregion
@@ -2521,16 +2470,15 @@ namespace org.GraphDefined.OpenData.Users
                                                  // Slow down attackers!
                                                  Thread.Sleep(5000);
 
-                                                 return Task.FromResult(
-                                                            new HTTPResponse.Builder(Request) {
-                                                                HTTPStatusCode             = HTTPStatusCode.BadRequest,
-                                                                Server                     = HTTPServer.DefaultServerName,
-                                                                Date                       = DateTime.UtcNow,
-                                                                AccessControlAllowOrigin   = "*",
-                                                                AccessControlAllowMethods  = "SET",
-                                                                AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
-                                                                Connection                 = "close"
-                                                            }.AsImmutable);
+                                                 return new HTTPResponse.Builder(Request) {
+                                                            HTTPStatusCode             = HTTPStatusCode.BadRequest,
+                                                            Server                     = HTTPServer.DefaultServerName,
+                                                            Date                       = DateTime.UtcNow,
+                                                            AccessControlAllowOrigin   = "*",
+                                                            AccessControlAllowMethods  = "SET",
+                                                            AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
+                                                            Connection                 = "close"
+                                                        }.AsImmutable;
 
                                              }
 
@@ -2543,16 +2491,15 @@ namespace org.GraphDefined.OpenData.Users
                                              if (!PasswordResets.TryGetValue(SecurityToken1, out PasswordReset _PasswordReset))
                                              {
 
-                                                 return Task.FromResult(
-                                                            new HTTPResponse.Builder(Request) {
-                                                                HTTPStatusCode             = HTTPStatusCode.Forbidden,
-                                                                Server                     = HTTPServer.DefaultServerName,
-                                                                Date                       = DateTime.UtcNow,
-                                                                AccessControlAllowOrigin   = "*",
-                                                                AccessControlAllowMethods  = "SET",
-                                                                AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
-                                                                Connection                 = "close"
-                                                            }.AsImmutable);
+                                                 return new HTTPResponse.Builder(Request) {
+                                                            HTTPStatusCode             = HTTPStatusCode.Forbidden,
+                                                            Server                     = HTTPServer.DefaultServerName,
+                                                            Date                       = DateTime.UtcNow,
+                                                            AccessControlAllowOrigin   = "*",
+                                                            AccessControlAllowMethods  = "SET",
+                                                            AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
+                                                            Connection                 = "close"
+                                                        }.AsImmutable;
 
                                              }
 
@@ -2565,8 +2512,7 @@ namespace org.GraphDefined.OpenData.Users
                                                  SecurityToken2.Value            != _PasswordReset.SecurityToken2)
                                              {
 
-                                                 return Task.FromResult(
-                                                        new HTTPResponse.Builder(Request) {
+                                                 return new HTTPResponse.Builder(Request) {
                                                             HTTPStatusCode             = HTTPStatusCode.Forbidden,
                                                             Server                     = HTTPServer.DefaultServerName,
                                                             Date                       = DateTime.UtcNow,
@@ -2574,7 +2520,7 @@ namespace org.GraphDefined.OpenData.Users
                                                             AccessControlAllowMethods  = "SET",
                                                             AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
                                                             Connection                 = "close"
-                                                        }.AsImmutable);
+                                                        }.AsImmutable;
 
                                              }
 
@@ -2584,25 +2530,26 @@ namespace org.GraphDefined.OpenData.Users
                                              foreach (var userId in _PasswordReset.UserIds)
                                              {
 
-                                                 WriteToLogfileAndNotify("ResetPassword",
-                                                                         JSONObject.Create(
+                                                 await WriteToLogfileAndNotify(NotificationMessageType.Parse("resetPassword"),
+                                                                               JSONObject.Create(
 
-                                                                             new JProperty("login",                 userId.ToString()),
+                                                                                   new JProperty("login",                 userId.ToString()),
 
-                                                                             new JProperty("newPassword", new JObject(
-                                                                                 new JProperty("salt",              NewPassword.Salt.UnsecureString()),
-                                                                                 new JProperty("passwordHash",      NewPassword.UnsecureString)
-                                                                             )),
+                                                                                   new JProperty("newPassword", new JObject(
+                                                                                       new JProperty("salt",              NewPassword.Salt.UnsecureString()),
+                                                                                       new JProperty("passwordHash",      NewPassword.UnsecureString)
+                                                                                   )),
 
-                                                                             new JProperty("securityToken1",        SecurityToken1.ToString()),
+                                                                                   new JProperty("securityToken1",        SecurityToken1.ToString()),
 
-                                                                             SecurityToken2.HasValue
-                                                                                 ? new JProperty("securityToken2",  SecurityToken2.ToString())
-                                                                                 : null
+                                                                                   SecurityToken2.HasValue
+                                                                                       ? new JProperty("securityToken2",  SecurityToken2.ToString())
+                                                                                       : null
 
-                                                                         ),
-                                                                         DefaultPasswordFile,
-                                                                         Robot.Id);
+                                                                               ),
+                                                                               NoOwner,
+                                                                               this.UsersAPIPath + DefaultPasswordFile,
+                                                                               Robot.Id);
 
                                                  _LoginPasswords.Remove(userId);
 
@@ -2613,7 +2560,7 @@ namespace org.GraphDefined.OpenData.Users
                                                  #region Send e-mail...
 
                                                  var MailSentResult = MailSentStatus.failed;
-                                                 var user           = GetUser(userId);
+                                                 var user           = await GetUser(userId);
 
                                                  var MailResultTask = APISMTPClient.Send(PasswordChangedEMailCreator(user.Id,
                                                                                                                      user.EMail,
@@ -2628,25 +2575,24 @@ namespace org.GraphDefined.OpenData.Users
 
                                              }
 
-                                             return Task.FromResult(
-                                                        new HTTPResponse.Builder(Request) {
-                                                            HTTPStatusCode             = HTTPStatusCode.OK,
-                                                            Server                     = HTTPServer.DefaultServerName,
-                                                            Date                       = DateTime.UtcNow,
-                                                            AccessControlAllowOrigin   = "*",
-                                                            AccessControlAllowMethods  = "SET",
-                                                            AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
-                                                            ContentType                = HTTPContentType.JSON_UTF8,
-                                                            Content                    = JSONObject.Create(
-                                                                                             new JProperty("numberOfAccountsFound", Users.Count())
-                                                                                         ).ToUTF8Bytes(),
-                                                            SetCookie                  = CookieName + "=; Expires=" + DateTime.UtcNow.ToRfc1123() +
-                                                                                             (HTTPCookieDomain.IsNotNullOrEmpty()
-                                                                                                 ? "; Domain=" + HTTPCookieDomain
-                                                                                                 : "") +
-                                                                                             "; Path=/",
-                                                            Connection                 = "close"
-                                                        }.AsImmutable);
+                                             return new HTTPResponse.Builder(Request) {
+                                                        HTTPStatusCode             = HTTPStatusCode.OK,
+                                                        Server                     = HTTPServer.DefaultServerName,
+                                                        Date                       = DateTime.UtcNow,
+                                                        AccessControlAllowOrigin   = "*",
+                                                        AccessControlAllowMethods  = "SET",
+                                                        AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
+                                                        ContentType                = HTTPContentType.JSON_UTF8,
+                                                        Content                    = JSONObject.Create(
+                                                                                         new JProperty("numberOfAccountsFound", Users.Count())
+                                                                                     ).ToUTF8Bytes(),
+                                                        SetCookie                  = CookieName + "=; Expires=" + DateTime.UtcNow.ToRfc1123() +
+                                                                                         (HTTPCookieDomain.IsNotNullOrEmpty()
+                                                                                             ? "; Domain=" + HTTPCookieDomain
+                                                                                             : "") +
+                                                                                         "; Path=/",
+                                                        Connection                 = "close"
+                                                    }.AsImmutable;
 
                                              },
 
@@ -2698,9 +2644,9 @@ namespace org.GraphDefined.OpenData.Users
                                           HTTPMethod.ADD,
                                           HTTPURI.Parse("/users/{UserId}"),
                                           HTTPContentType.JSON_UTF8,
-                                          HTTPRequestLogger:  AddUserRequest,
-                                          HTTPResponseLogger: AddUserResponse,
-                                          HTTPDelegate: Request => {
+                                          HTTPRequestLogger:   AddUserRequest,
+                                          HTTPResponseLogger:  AddUserResponse,
+                                          HTTPDelegate:        async Request => {
 
                                               #region Get HTTP user and its organizations
 
@@ -2712,7 +2658,7 @@ namespace org.GraphDefined.OpenData.Users
                                                                   AccessLevel:                   Access_Levels.ReadWrite,
                                                                   Recursive:                     true))
                                               {
-                                                  return Task.FromResult(ErrorResponse);
+                                                  return ErrorResponse;
                                               }
 
                                               #endregion
@@ -2723,7 +2669,7 @@ namespace org.GraphDefined.OpenData.Users
                                                                        out User_Id? UserIdURI,
                                                                        out ErrorResponse))
                                               {
-                                                  return Task.FromResult(ErrorResponse);
+                                                  return ErrorResponse;
                                               }
 
                                               #endregion
@@ -2731,7 +2677,7 @@ namespace org.GraphDefined.OpenData.Users
                                               #region Parse JSON and create the new user...
 
                                               if (!Request.TryParseJObjectRequestBody(out JObject JSONObj, out ErrorResponse))
-                                                  return Task.FromResult(ErrorResponse);
+                                                  return ErrorResponse;
 
                                               #region Parse UserId           [optional]
 
@@ -2747,45 +2693,43 @@ namespace org.GraphDefined.OpenData.Users
                                               {
 
                                                   if (ErrorResponse != null)
-                                                      return Task.FromResult(ErrorResponse);
+                                                      return ErrorResponse;
 
                                               }
 
                                               if (!UserIdURI.HasValue && !UserIdBody.HasValue)
                                               {
 
-                                                  return Task.FromResult(
-                                                             new HTTPResponse.Builder(Request) {
-                                                                 HTTPStatusCode             = HTTPStatusCode.BadRequest,
-                                                                 Server                     = HTTPServer.DefaultServerName,
-                                                                 Date                       = DateTime.UtcNow,
-                                                                 AccessControlAllowOrigin   = "*",
-                                                                 AccessControlAllowMethods  = "GET, SET",
-                                                                 AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
-                                                                 ContentType                = HTTPContentType.JSON_UTF8,
-                                                                 Content                    = JSONObject.Create(
-                                                                                                  new JProperty("description", "The user identification is missing!")
-                                                                                              ).ToUTF8Bytes()
-                                                             }.AsImmutable);
+                                                  return new HTTPResponse.Builder(Request) {
+                                                             HTTPStatusCode             = HTTPStatusCode.BadRequest,
+                                                             Server                     = HTTPServer.DefaultServerName,
+                                                             Date                       = DateTime.UtcNow,
+                                                             AccessControlAllowOrigin   = "*",
+                                                             AccessControlAllowMethods  = "GET, SET",
+                                                             AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
+                                                             ContentType                = HTTPContentType.JSON_UTF8,
+                                                             Content                    = JSONObject.Create(
+                                                                                              new JProperty("description", "The user identification is missing!")
+                                                                                          ).ToUTF8Bytes()
+                                                         }.AsImmutable;
 
                                               }
 
                                               if (UserIdURI.HasValue && UserIdBody.HasValue && UserIdURI.Value != UserIdBody.Value)
                                               {
 
-                                                  return Task.FromResult(
-                                                             new HTTPResponse.Builder(Request) {
-                                                                 HTTPStatusCode             = HTTPStatusCode.BadRequest,
-                                                                 Server                     = HTTPServer.DefaultServerName,
-                                                                 Date                       = DateTime.UtcNow,
-                                                                 AccessControlAllowOrigin   = "*",
-                                                                 AccessControlAllowMethods  = "GET, SET",
-                                                                 AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
-                                                                 ContentType                = HTTPContentType.JSON_UTF8,
-                                                                 Content                    = JSONObject.Create(
-                                                                                                  new JProperty("description", "The optional user identification given within the JSON body does not match the one given in the URI!")
-                                                                                              ).ToUTF8Bytes()
-                                                             }.AsImmutable);
+                                                  return new HTTPResponse.Builder(Request) {
+                                                             HTTPStatusCode             = HTTPStatusCode.BadRequest,
+                                                             Server                     = HTTPServer.DefaultServerName,
+                                                             Date                       = DateTime.UtcNow,
+                                                             AccessControlAllowOrigin   = "*",
+                                                             AccessControlAllowMethods  = "GET, SET",
+                                                             AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
+                                                             ContentType                = HTTPContentType.JSON_UTF8,
+                                                             Content                    = JSONObject.Create(
+                                                                                              new JProperty("description", "The optional user identification given within the JSON body does not match the one given in the URI!")
+                                                                                          ).ToUTF8Bytes()
+                                                         }.AsImmutable;
 
                                               }
 
@@ -2793,38 +2737,36 @@ namespace org.GraphDefined.OpenData.Users
                                                    UserId.Length < MinLoginLenght)
                                               {
 
-                                                  return Task.FromResult(
-                                                             new HTTPResponse.Builder(Request) {
-                                                                 HTTPStatusCode             = HTTPStatusCode.BadRequest,
-                                                                 Server                     = HTTPServer.DefaultServerName,
-                                                                 Date                       = DateTime.UtcNow,
-                                                                 AccessControlAllowOrigin   = "*",
-                                                                 AccessControlAllowMethods  = "GET, SET",
-                                                                 AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
-                                                                 ContentType                = HTTPContentType.JSON_UTF8,
-                                                                 Content                    = JSONObject.Create(
-                                                                                                  new JProperty("description", "The given user identification is invalid!")
-                                                                                              ).ToUTF8Bytes()
-                                                             }.AsImmutable);
+                                                  return new HTTPResponse.Builder(Request) {
+                                                             HTTPStatusCode             = HTTPStatusCode.BadRequest,
+                                                             Server                     = HTTPServer.DefaultServerName,
+                                                             Date                       = DateTime.UtcNow,
+                                                             AccessControlAllowOrigin   = "*",
+                                                             AccessControlAllowMethods  = "GET, SET",
+                                                             AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
+                                                             ContentType                = HTTPContentType.JSON_UTF8,
+                                                             Content                    = JSONObject.Create(
+                                                                                              new JProperty("description", "The given user identification is invalid!")
+                                                                                          ).ToUTF8Bytes()
+                                                         }.AsImmutable;
 
                                               }
 
                                               if (_Users.ContainsKey(UserId))
                                               {
 
-                                                  return Task.FromResult(
-                                                             new HTTPResponse.Builder(Request) {
-                                                                 HTTPStatusCode             = HTTPStatusCode.BadRequest,
-                                                                 Server                     = HTTPServer.DefaultServerName,
-                                                                 Date                       = DateTime.UtcNow,
-                                                                 AccessControlAllowOrigin   = "*",
-                                                                 AccessControlAllowMethods  = "GET, SET",
-                                                                 AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
-                                                                 ContentType                = HTTPContentType.JSON_UTF8,
-                                                                 Content                    = JSONObject.Create(
-                                                                                                  new JProperty("description", "The given user identification already exists!")
-                                                                                              ).ToUTF8Bytes()
-                                                             }.AsImmutable);
+                                                  return new HTTPResponse.Builder(Request) {
+                                                             HTTPStatusCode             = HTTPStatusCode.BadRequest,
+                                                             Server                     = HTTPServer.DefaultServerName,
+                                                             Date                       = DateTime.UtcNow,
+                                                             AccessControlAllowOrigin   = "*",
+                                                             AccessControlAllowMethods  = "GET, SET",
+                                                             AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
+                                                             ContentType                = HTTPContentType.JSON_UTF8,
+                                                             Content                    = JSONObject.Create(
+                                                                                              new JProperty("description", "The given user identification already exists!")
+                                                                                          ).ToUTF8Bytes()
+                                                         }.AsImmutable;
 
                                               }
 
@@ -2839,25 +2781,24 @@ namespace org.GraphDefined.OpenData.Users
                                                                           Request,
                                                                           out ErrorResponse))
                                               {
-                                                  return Task.FromResult(ErrorResponse);
+                                                  return ErrorResponse;
                                               }
 
                                               if (Context != User.JSONLDContext)
                                               {
 
-                                                  return Task.FromResult(
-                                                             new HTTPResponse.Builder(Request) {
-                                                                 HTTPStatusCode             = HTTPStatusCode.BadRequest,
-                                                                 Server                     = HTTPServer.DefaultServerName,
-                                                                 Date                       = DateTime.UtcNow,
-                                                                 AccessControlAllowOrigin   = "*",
-                                                                 AccessControlAllowMethods  = "GET, SET",
-                                                                 AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
-                                                                 ContentType                = HTTPContentType.JSON_UTF8,
-                                                                 Content                    = JSONObject.Create(
-                                                                                                  new JProperty("description", @"The given JSON-LD ""@context"" information '" + Context + "' is not supported!")
-                                                                                              ).ToUTF8Bytes()
-                                                             }.AsImmutable);
+                                                  return new HTTPResponse.Builder(Request) {
+                                                             HTTPStatusCode             = HTTPStatusCode.BadRequest,
+                                                             Server                     = HTTPServer.DefaultServerName,
+                                                             Date                       = DateTime.UtcNow,
+                                                             AccessControlAllowOrigin   = "*",
+                                                             AccessControlAllowMethods  = "GET, SET",
+                                                             AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
+                                                             ContentType                = HTTPContentType.JSON_UTF8,
+                                                             Content                    = JSONObject.Create(
+                                                                                              new JProperty("description", @"The given JSON-LD ""@context"" information '" + Context + "' is not supported!")
+                                                                                          ).ToUTF8Bytes()
+                                                         }.AsImmutable;
 
                                               }
 
@@ -2872,25 +2813,24 @@ namespace org.GraphDefined.OpenData.Users
                                                                           Request,
                                                                           out ErrorResponse))
                                               {
-                                                  return Task.FromResult(ErrorResponse);
+                                                  return ErrorResponse;
                                               }
 
                                               if (Name.IsNullOrEmpty() || Name.Length < 4)
                                               {
 
-                                                  return Task.FromResult(
-                                                             new HTTPResponse.Builder(Request) {
-                                                                 HTTPStatusCode             = HTTPStatusCode.BadRequest,
-                                                                 Server                     = HTTPServer.DefaultServerName,
-                                                                 Date                       = DateTime.UtcNow,
-                                                                 AccessControlAllowOrigin   = "*",
-                                                                 AccessControlAllowMethods  = "GET, SET",
-                                                                 AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
-                                                                 ContentType                = HTTPContentType.JSON_UTF8,
-                                                                 Content                    = JSONObject.Create(
-                                                                                                  new JProperty("description", "Invalid user name!")
-                                                                                              ).ToUTF8Bytes()
-                                                             }.AsImmutable);
+                                                  return new HTTPResponse.Builder(Request) {
+                                                             HTTPStatusCode             = HTTPStatusCode.BadRequest,
+                                                             Server                     = HTTPServer.DefaultServerName,
+                                                             Date                       = DateTime.UtcNow,
+                                                             AccessControlAllowOrigin   = "*",
+                                                             AccessControlAllowMethods  = "GET, SET",
+                                                             AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
+                                                             ContentType                = HTTPContentType.JSON_UTF8,
+                                                             Content                    = JSONObject.Create(
+                                                                                              new JProperty("description", "Invalid user name!")
+                                                                                          ).ToUTF8Bytes()
+                                                         }.AsImmutable;
 
                                               }
 
@@ -2906,7 +2846,7 @@ namespace org.GraphDefined.OpenData.Users
                                                                           Request,
                                                                           out ErrorResponse))
                                               {
-                                                  return Task.FromResult(ErrorResponse);
+                                                  return ErrorResponse;
                                               }
 
                                               //ToDo: See rfc5322 for more complex regular expression!
@@ -2920,19 +2860,18 @@ namespace org.GraphDefined.OpenData.Users
                                               if (!matches.Success)
                                               {
 
-                                                  return Task.FromResult(
-                                                             new HTTPResponse.Builder(Request) {
-                                                                 HTTPStatusCode             = HTTPStatusCode.BadRequest,
-                                                                 Server                     = HTTPServer.DefaultServerName,
-                                                                 Date                       = DateTime.UtcNow,
-                                                                 AccessControlAllowOrigin   = "*",
-                                                                 AccessControlAllowMethods  = "GET, SET",
-                                                                 AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
-                                                                 ContentType                = HTTPContentType.JSON_UTF8,
-                                                                 Content                    = JSONObject.Create(
-                                                                                                  new JProperty("description", "Invalid e-mail address!")
-                                                                                              ).ToUTF8Bytes()
-                                                             }.AsImmutable);
+                                                  return new HTTPResponse.Builder(Request) {
+                                                             HTTPStatusCode             = HTTPStatusCode.BadRequest,
+                                                             Server                     = HTTPServer.DefaultServerName,
+                                                             Date                       = DateTime.UtcNow,
+                                                             AccessControlAllowOrigin   = "*",
+                                                             AccessControlAllowMethods  = "GET, SET",
+                                                             AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
+                                                             ContentType                = HTTPContentType.JSON_UTF8,
+                                                             Content                    = JSONObject.Create(
+                                                                                              new JProperty("description", "Invalid e-mail address!")
+                                                                                          ).ToUTF8Bytes()
+                                                         }.AsImmutable;
 
                                               }
 
@@ -2948,19 +2887,18 @@ namespace org.GraphDefined.OpenData.Users
                                                   !MailServerMX.  Result.Any())
                                               {
 
-                                                  return Task.FromResult(
-                                                             new HTTPResponse.Builder(Request) {
-                                                                 HTTPStatusCode             = HTTPStatusCode.BadRequest,
-                                                                 Server                     = HTTPServer.DefaultServerName,
-                                                                 Date                       = DateTime.UtcNow,
-                                                                 AccessControlAllowOrigin   = "*",
-                                                                 AccessControlAllowMethods  = "GET, SET",
-                                                                 AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
-                                                                 ContentType                = HTTPContentType.JSON_UTF8,
-                                                                 Content                    = JSONObject.Create(
-                                                                                                  new JProperty("description", "Invalid domain name of the given e-mail address!")
-                                                                                              ).ToUTF8Bytes()
-                                                             }.AsImmutable);
+                                                  return new HTTPResponse.Builder(Request) {
+                                                             HTTPStatusCode             = HTTPStatusCode.BadRequest,
+                                                             Server                     = HTTPServer.DefaultServerName,
+                                                             Date                       = DateTime.UtcNow,
+                                                             AccessControlAllowOrigin   = "*",
+                                                             AccessControlAllowMethods  = "GET, SET",
+                                                             AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
+                                                             ContentType                = HTTPContentType.JSON_UTF8,
+                                                             Content                    = JSONObject.Create(
+                                                                                              new JProperty("description", "Invalid domain name of the given e-mail address!")
+                                                                                          ).ToUTF8Bytes()
+                                                         }.AsImmutable;
 
                                               }
 
@@ -2975,25 +2913,24 @@ namespace org.GraphDefined.OpenData.Users
                                                                           Request,
                                                                           out ErrorResponse))
                                               {
-                                                  return Task.FromResult(ErrorResponse);
+                                                  return ErrorResponse;
                                               }
 
                                               if (AccessLevel != "guest" && AccessLevel != "member" && AccessLevel != "admin")
                                               {
 
-                                                  return Task.FromResult(
-                                                             new HTTPResponse.Builder(Request) {
-                                                                 HTTPStatusCode             = HTTPStatusCode.BadRequest,
-                                                                 Server                     = HTTPServer.DefaultServerName,
-                                                                 Date                       = DateTime.UtcNow,
-                                                                 AccessControlAllowOrigin   = "*",
-                                                                 AccessControlAllowMethods  = "GET, SET",
-                                                                 AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
-                                                                 ContentType                = HTTPContentType.JSON_UTF8,
-                                                                 Content                    = JSONObject.Create(
-                                                                                                  new JProperty("description", "Invalid user access level!")
-                                                                                              ).ToUTF8Bytes()
-                                                             }.AsImmutable);
+                                                  return new HTTPResponse.Builder(Request) {
+                                                             HTTPStatusCode             = HTTPStatusCode.BadRequest,
+                                                             Server                     = HTTPServer.DefaultServerName,
+                                                             Date                       = DateTime.UtcNow,
+                                                             AccessControlAllowOrigin   = "*",
+                                                             AccessControlAllowMethods  = "GET, SET",
+                                                             AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
+                                                             ContentType                = HTTPContentType.JSON_UTF8,
+                                                             Content                    = JSONObject.Create(
+                                                                                              new JProperty("description", "Invalid user access level!")
+                                                                                          ).ToUTF8Bytes()
+                                                         }.AsImmutable;
 
                                               }
 
@@ -3011,7 +2948,7 @@ namespace org.GraphDefined.OpenData.Users
                                               {
 
                                                   if (ErrorResponse != null)
-                                                      return Task.FromResult(ErrorResponse);
+                                                      return ErrorResponse;
 
                                               }
 
@@ -3028,7 +2965,7 @@ namespace org.GraphDefined.OpenData.Users
                                               {
 
                                                   if (ErrorResponse != null)
-                                                      return Task.FromResult(ErrorResponse);
+                                                      return ErrorResponse;
 
                                               }
 
@@ -3050,24 +2987,23 @@ namespace org.GraphDefined.OpenData.Users
                                               {
 
                                                   if (ErrorResponse != null)
-                                                      return Task.FromResult(ErrorResponse);
+                                                      return ErrorResponse;
 
                                                   if (!_Organizations.TryGetValue(OrganizationId.Value, out _Organization))
                                                   {
 
-                                                      return Task.FromResult(
-                                                                 new HTTPResponse.Builder(Request) {
-                                                                     HTTPStatusCode             = HTTPStatusCode.BadRequest,
-                                                                     Server                     = HTTPServer.DefaultServerName,
-                                                                     Date                       = DateTime.UtcNow,
-                                                                     AccessControlAllowOrigin   = "*",
-                                                                     AccessControlAllowMethods  = "GET, SET",
-                                                                     AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
-                                                                     ContentType                = HTTPContentType.JSON_UTF8,
-                                                                     Content                    = JSONObject.Create(
-                                                                                                      new JProperty("description", "The given user identification already exists!")
-                                                                                                  ).ToUTF8Bytes()
-                                                                 }.AsImmutable);
+                                                      return new HTTPResponse.Builder(Request) {
+                                                                 HTTPStatusCode             = HTTPStatusCode.BadRequest,
+                                                                 Server                     = HTTPServer.DefaultServerName,
+                                                                 Date                       = DateTime.UtcNow,
+                                                                 AccessControlAllowOrigin   = "*",
+                                                                 AccessControlAllowMethods  = "GET, SET",
+                                                                 AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
+                                                                 ContentType                = HTTPContentType.JSON_UTF8,
+                                                                 Content                    = JSONObject.Create(
+                                                                                                  new JProperty("description", "The given user identification already exists!")
+                                                                                              ).ToUTF8Bytes()
+                                                             }.AsImmutable;
 
                                                   }
 
@@ -3159,14 +3095,14 @@ namespace org.GraphDefined.OpenData.Users
                                                   if (MailSentResult == MailSentStatus.ok) //ToDo: Verify SMS!
                                                   {
 
-                                                      var NewUser = CreateUser(Id:             UserId,
-                                                                               Name:           Name,
-                                                                               EMail:          UserEMail,
-                                                                               MobilePhone:    MobilePhone,
-                                                                               Description:    Description,
-                                                                           //    Password:       Password.Parse(NewUserData.GetString("password")),
-                                                                               PublicKeyRing:  _PublicKeyRing,
-                                                                               CurrentUserId:  HTTPUser.Id);
+                                                      var NewUser = await CreateUser(Id:             UserId,
+                                                                                     Name:           Name,
+                                                                                     EMail:          UserEMail,
+                                                                                     MobilePhone:    MobilePhone,
+                                                                                     Description:    Description,
+                                                                                 //    Password:       Password.Parse(NewUserData.GetString("password")),
+                                                                                     PublicKeyRing:  _PublicKeyRing,
+                                                                                     CurrentUserId:  HTTPUser.Id);
 
                                                       if (_Organization != null)
                                                       {
@@ -3175,15 +3111,15 @@ namespace org.GraphDefined.OpenData.Users
                                                           {
 
                                                               case "guest":
-                                                                  AddToOrganization(NewUser, User2OrganizationEdges.IsGuest, _Organization);
+                                                                  await AddToOrganization(NewUser, User2OrganizationEdges.IsGuest,   _Organization);
                                                                   break;
 
                                                               case "member":
-                                                                  AddToOrganization(NewUser, User2OrganizationEdges.IsMember, _Organization);
+                                                                  await AddToOrganization(NewUser, User2OrganizationEdges.IsMember,  _Organization);
                                                                   break;
 
                                                               case "admin":
-                                                                  AddToOrganization(NewUser, User2OrganizationEdges.IsAdmin, _Organization);
+                                                                  await AddToOrganization(NewUser, User2OrganizationEdges.IsAdmin,   _Organization);
                                                                   break;
 
                                                           }
@@ -3195,19 +3131,18 @@ namespace org.GraphDefined.OpenData.Users
                                                   else if (MailSentResult != MailSentStatus.ok)
                                                   {
 
-                                                      return Task.FromResult(
-                                                                 new HTTPResponse.Builder(Request) {
-                                                                     HTTPStatusCode             = HTTPStatusCode.InternalServerError,
-                                                                     Server                     = HTTPServer.DefaultServerName,
-                                                                     Date                       = DateTime.UtcNow,
-                                                                     AccessControlAllowOrigin   = "*",
-                                                                     AccessControlAllowMethods  = "ADD, SET, GET",
-                                                                     AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
-                                                                     ContentType                = HTTPContentType.JSON_UTF8,
-                                                                     Content                    = JSONObject.Create(
-                                                                                                      new JProperty("description", "Could not send an e-mail to the user!")
-                                                                                                  ).ToUTF8Bytes()
-                                                                 }.AsImmutable);
+                                                      return new HTTPResponse.Builder(Request) {
+                                                                 HTTPStatusCode             = HTTPStatusCode.InternalServerError,
+                                                                 Server                     = HTTPServer.DefaultServerName,
+                                                                 Date                       = DateTime.UtcNow,
+                                                                 AccessControlAllowOrigin   = "*",
+                                                                 AccessControlAllowMethods  = "ADD, SET, GET",
+                                                                 AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
+                                                                 ContentType                = HTTPContentType.JSON_UTF8,
+                                                                 Content                    = JSONObject.Create(
+                                                                                                  new JProperty("description", "Could not send an e-mail to the user!")
+                                                                                              ).ToUTF8Bytes()
+                                                             }.AsImmutable;
 
                                                   }
 
@@ -3234,32 +3169,33 @@ namespace org.GraphDefined.OpenData.Users
                                               catch (Exception e)
                                               {
 
-                                                  return Task.FromResult(
-                                                             new HTTPResponse.Builder(Request) {
-                                                                 HTTPStatusCode             = HTTPStatusCode.InternalServerError,
-                                                                 Server                     = HTTPServer.DefaultServerName,
-                                                                 Date                       = DateTime.UtcNow,
-                                                                 AccessControlAllowOrigin   = "*",
-                                                                 AccessControlAllowMethods  = "ADD, SET, GET",
-                                                                 AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
-                                                                 ContentType                = HTTPContentType.JSON_UTF8,
-                                                                 Content                    = JSONObject.Create(
-                                                                                                  new JProperty("description", "Could not create the given user! " + e.Message)
-                                                                                              ).ToUTF8Bytes()
-                                                             }.AsImmutable);
+                                                  while (e.InnerException != null)
+                                                      e = e.InnerException;
+
+                                                  return new HTTPResponse.Builder(Request) {
+                                                             HTTPStatusCode             = HTTPStatusCode.InternalServerError,
+                                                             Server                     = HTTPServer.DefaultServerName,
+                                                             Date                       = DateTime.UtcNow,
+                                                             AccessControlAllowOrigin   = "*",
+                                                             AccessControlAllowMethods  = "ADD, SET, GET",
+                                                             AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
+                                                             ContentType                = HTTPContentType.JSON_UTF8,
+                                                             Content                    = JSONObject.Create(
+                                                                                              new JProperty("description", "Could not create the given user! " + e.Message)
+                                                                                          ).ToUTF8Bytes()
+                                                         }.AsImmutable;
 
                                               }
 
-                                              return Task.FromResult(
-                                                        new HTTPResponse.Builder(Request) {
-                                                            HTTPStatusCode              = HTTPStatusCode.Created,
-                                                            Server                      = HTTPServer.DefaultServerName,
-                                                            Date                        = DateTime.UtcNow,
-                                                            AccessControlAllowOrigin    = "*",
-                                                            AccessControlAllowMethods   = "ADD, SET, GET",
-                                                            AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
-                                                            Connection                  = "close"
-                                                        }.AsImmutable);
+                                              return new HTTPResponse.Builder(Request) {
+                                                         HTTPStatusCode              = HTTPStatusCode.Created,
+                                                         Server                      = HTTPServer.DefaultServerName,
+                                                         Date                        = DateTime.UtcNow,
+                                                         AccessControlAllowOrigin    = "*",
+                                                         AccessControlAllowMethods   = "ADD, SET, GET",
+                                                         AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
+                                                         Connection                  = "close"
+                                                     }.AsImmutable;
 
                                          });
 
@@ -3403,9 +3339,9 @@ namespace org.GraphDefined.OpenData.Users
                                          HTTPMethod.SET,
                                          URIPrefix + "users/{UserId}",
                                          HTTPContentType.JSON_UTF8,
-                                         HTTPRequestLogger:  SetUserRequest,
-                                         HTTPResponseLogger: SetUserResponse,
-                                         HTTPDelegate: Request => {
+                                         HTTPRequestLogger:   SetUserRequest,
+                                         HTTPResponseLogger:  SetUserResponse,
+                                         HTTPDelegate:        async Request => {
 
                                              #region Get HTTP user and its organizations
 
@@ -3417,7 +3353,7 @@ namespace org.GraphDefined.OpenData.Users
                                                                  AccessLevel:                   Access_Levels.ReadWrite,
                                                                  Recursive:                     true))
                                              {
-                                                 return Task.FromResult(Response);
+                                                 return Response;
                                              }
 
                                              #endregion
@@ -3428,7 +3364,7 @@ namespace org.GraphDefined.OpenData.Users
                                                                       out User_Id?      UserIdURI,
                                                                       out HTTPResponse  HTTPResponse))
                                              {
-                                                 return Task.FromResult(HTTPResponse);
+                                                 return HTTPResponse;
                                              }
 
                                              #endregion
@@ -3436,7 +3372,7 @@ namespace org.GraphDefined.OpenData.Users
                                              #region Parse JSON
 
                                              if (!Request.TryParseJObjectRequestBody(out JObject JSONObj, out HTTPResponse))
-                                                 return Task.FromResult(HTTPResponse);
+                                                 return HTTPResponse;
 
                                              if (!User.TryParseJSON(JSONObj,
                                                                     out User    _User,
@@ -3444,20 +3380,19 @@ namespace org.GraphDefined.OpenData.Users
                                                                     UserIdURI))
                                              {
 
-                                                 return Task.FromResult(
-                                                            new HTTPResponse.Builder(Request) {
-                                                                HTTPStatusCode             = HTTPStatusCode.BadRequest,
-                                                                Server                     = HTTPServer.DefaultServerName,
-                                                                Date                       = DateTime.UtcNow,
-                                                                AccessControlAllowOrigin   = "*",
-                                                                AccessControlAllowMethods  = "GET, SET",
-                                                                AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
-                                                                ETag                       = "1",
-                                                                ContentType                = HTTPContentType.JSON_UTF8,
-                                                                Content                    = JSONObject.Create(
-                                                                                                 new JProperty("description",  ErrorResponse)
-                                                                                             ).ToUTF8Bytes()
-                                                            }.AsImmutable);
+                                                 return new HTTPResponse.Builder(Request) {
+                                                            HTTPStatusCode             = HTTPStatusCode.BadRequest,
+                                                            Server                     = HTTPServer.DefaultServerName,
+                                                            Date                       = DateTime.UtcNow,
+                                                            AccessControlAllowOrigin   = "*",
+                                                            AccessControlAllowMethods  = "GET, SET",
+                                                            AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
+                                                            ETag                       = "1",
+                                                            ContentType                = HTTPContentType.JSON_UTF8,
+                                                            Content                    = JSONObject.Create(
+                                                                                             new JProperty("description",  ErrorResponse)
+                                                                                         ).ToUTF8Bytes()
+                                                        }.AsImmutable;
 
                                              }
 
@@ -3467,8 +3402,7 @@ namespace org.GraphDefined.OpenData.Users
                                              // Has the current HTTP user the required
                                              // access rights to update?
                                              if (HTTPUser.Id != _User.Id)
-                                                 return Task.FromResult(
-                                                        new HTTPResponse.Builder(Request) {
+                                                 return new HTTPResponse.Builder(Request) {
                                                             HTTPStatusCode              = HTTPStatusCode.Forbidden,
                                                             Server                      = HTTPServer.DefaultServerName,
                                                             Date                        = DateTime.UtcNow,
@@ -3476,26 +3410,27 @@ namespace org.GraphDefined.OpenData.Users
                                                             AccessControlAllowMethods   = "GET, SET, CHOWN",
                                                             AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
                                                             Connection                  = "close"
-                                                        }.AsImmutable);
+                                                        }.AsImmutable;
 
 
-                                             AddOrUpdate(_User,
-                                                         HTTPUser.Id);
+                                             await AddOrUpdate(_User,
+                                                               null,
+                                                               null,
+                                                               HTTPUser.Id);
 
 
-                                             return Task.FromResult(
-                                                        new HTTPResponse.Builder(Request) {
-                                                            HTTPStatusCode              = HTTPStatusCode.OK,
-                                                            Server                      = HTTPServer.DefaultServerName,
-                                                            Date                        = DateTime.UtcNow,
-                                                            AccessControlAllowOrigin    = "*",
-                                                            AccessControlAllowMethods   = "GET, SET",
-                                                            AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
-                                                            ETag                        = _User.CurrentCryptoHash,
-                                                            ContentType                 = HTTPContentType.JSON_UTF8,
-                                                            Content                     = _User.ToJSON().ToUTF8Bytes(),
-                                                            Connection                  = "close"
-                                                        }.AsImmutable);
+                                             return new HTTPResponse.Builder(Request) {
+                                                        HTTPStatusCode              = HTTPStatusCode.OK,
+                                                        Server                      = HTTPServer.DefaultServerName,
+                                                        Date                        = DateTime.UtcNow,
+                                                        AccessControlAllowOrigin    = "*",
+                                                        AccessControlAllowMethods   = "GET, SET",
+                                                        AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
+                                                        ETag                        = _User.CurrentCryptoHash,
+                                                        ContentType                 = HTTPContentType.JSON_UTF8,
+                                                        Content                     = _User.ToJSON().ToUTF8Bytes(),
+                                                        Connection                  = "close"
+                                                    }.AsImmutable;
 
                                          });
 
@@ -3507,7 +3442,7 @@ namespace org.GraphDefined.OpenData.Users
                                           HTTPMethod.AUTH,
                                           HTTPURI.Parse("/users/{UserId}"),
                                           HTTPContentType.JSON_UTF8,
-                                          HTTPDelegate: Request => {
+                                          HTTPDelegate:  async Request => {
 
                                               #region Check JSON body...
 
@@ -3516,23 +3451,22 @@ namespace org.GraphDefined.OpenData.Users
                                               //    return Body.Error;
 
                                               if (!Request.TryParseJObjectRequestBody(out JObject LoginData, out HTTPResponse _HTTPResponse))
-                                                  return Task.FromResult(_HTTPResponse);
+                                                  return _HTTPResponse;
 
 
                                               if (!LoginData.HasValues)
-                                                  return Task.FromResult(
-                                                      new HTTPResponse.Builder(Request) {
-                                                          HTTPStatusCode  = HTTPStatusCode.BadRequest,
-                                                          Server          = HTTPServer.DefaultServerName,
-                                                          ContentType     = HTTPContentType.JSON_UTF8,
-                                                          Content         = new JObject(
-                                                                                new JProperty("@context",     SignInOutContext),
-                                                                                new JProperty("statuscode",   400),
-                                                                                new JProperty("description",  "Invalid JSON!")
-                                                                           ).ToUTF8Bytes(),
-                                                          CacheControl    = "private",
-                                                          Connection      = "close"
-                                                      }.AsImmutable);
+                                                  return new HTTPResponse.Builder(Request) {
+                                                             HTTPStatusCode  = HTTPStatusCode.BadRequest,
+                                                             Server          = HTTPServer.DefaultServerName,
+                                                             ContentType     = HTTPContentType.JSON_UTF8,
+                                                             Content         = new JObject(
+                                                                                   new JProperty("@context",     SignInOutContext),
+                                                                                   new JProperty("statuscode",   400),
+                                                                                   new JProperty("description",  "Invalid JSON!")
+                                                                              ).ToUTF8Bytes(),
+                                                             CacheControl    = "private",
+                                                             Connection      = "close"
+                                                         }.AsImmutable;
 
                                               #endregion
 
@@ -3544,20 +3478,19 @@ namespace org.GraphDefined.OpenData.Users
                                               if (LoginData.GetString("username").Length < MinLoginLenght)
                                               {
 
-                                                  return Task.FromResult(
-                                                      new HTTPResponse.Builder(Request) {
-                                                          HTTPStatusCode  = HTTPStatusCode.BadRequest,
-                                                          Server          = HTTPServer.DefaultServerName,
-                                                          ContentType     = HTTPContentType.JSON_UTF8,
-                                                          Content         = new JObject(
-                                                                                new JProperty("@context",     SignInOutContext),
-                                                                                new JProperty("statuscode",   400),
-                                                                                new JProperty("property",     "username"),
-                                                                                new JProperty("description",  "The login is too short!")
-                                                                            ).ToString().ToUTF8Bytes(),
-                                                          CacheControl    = "private",
-                                                          Connection      = "close"
-                                                      }.AsImmutable);
+                                                  return new HTTPResponse.Builder(Request) {
+                                                             HTTPStatusCode  = HTTPStatusCode.BadRequest,
+                                                             Server          = HTTPServer.DefaultServerName,
+                                                             ContentType     = HTTPContentType.JSON_UTF8,
+                                                             Content         = new JObject(
+                                                                                   new JProperty("@context",     SignInOutContext),
+                                                                                   new JProperty("statuscode",   400),
+                                                                                   new JProperty("property",     "username"),
+                                                                                   new JProperty("description",  "The login is too short!")
+                                                                               ).ToString().ToUTF8Bytes(),
+                                                             CacheControl    = "private",
+                                                             Connection      = "close"
+                                                         }.AsImmutable;
 
                                               }
 
@@ -3571,20 +3504,19 @@ namespace org.GraphDefined.OpenData.Users
 
                                               {
 
-                                                  return Task.FromResult(
-                                                      new HTTPResponse.Builder(Request) {
-                                                          HTTPStatusCode  = HTTPStatusCode.BadRequest,
-                                                          Server          = HTTPServer.DefaultServerName,
-                                                          ContentType     = HTTPContentType.JSON_UTF8,
-                                                          Content         = new JObject(
-                                                                                new JProperty("@context",     SignInOutContext),
-                                                                                new JProperty("statuscode",   400),
-                                                                                new JProperty("property",     "realm"),
-                                                                                new JProperty("description",  "The realm is too short!")
-                                                                            ).ToString().ToUTF8Bytes(),
-                                                          CacheControl    = "private",
-                                                          Connection      = "close"
-                                                      }.AsImmutable);
+                                                  return new HTTPResponse.Builder(Request) {
+                                                             HTTPStatusCode  = HTTPStatusCode.BadRequest,
+                                                             Server          = HTTPServer.DefaultServerName,
+                                                             ContentType     = HTTPContentType.JSON_UTF8,
+                                                             Content         = new JObject(
+                                                                                   new JProperty("@context",     SignInOutContext),
+                                                                                   new JProperty("statuscode",   400),
+                                                                                   new JProperty("property",     "realm"),
+                                                                                   new JProperty("description",  "The realm is too short!")
+                                                                               ).ToString().ToUTF8Bytes(),
+                                                             CacheControl    = "private",
+                                                             Connection      = "close"
+                                                         }.AsImmutable;
 
                                               }
 
@@ -3595,40 +3527,38 @@ namespace org.GraphDefined.OpenData.Users
                                               if (!LoginData.Contains("password"))
                                               {
 
-                                                  return Task.FromResult(
-                                                      new HTTPResponse.Builder(Request) {
-                                                          HTTPStatusCode  = HTTPStatusCode.BadRequest,
-                                                          Server          = HTTPServer.DefaultServerName,
-                                                          ContentType     = HTTPContentType.JSON_UTF8,
-                                                          Content         = new JObject(
-                                                                                new JProperty("@context",     SignInOutContext),
-                                                                                new JProperty("statuscode",   400),
-                                                                                new JProperty("property",     "password"),
-                                                                                new JProperty("description",  "Missing \"password\" property!")
-                                                                           ).ToString().ToUTF8Bytes(),
-                                                          CacheControl    = "private",
-                                                          Connection      = "close"
-                                                      }.AsImmutable);
+                                                  return new HTTPResponse.Builder(Request) {
+                                                             HTTPStatusCode  = HTTPStatusCode.BadRequest,
+                                                             Server          = HTTPServer.DefaultServerName,
+                                                             ContentType     = HTTPContentType.JSON_UTF8,
+                                                             Content         = new JObject(
+                                                                                   new JProperty("@context",     SignInOutContext),
+                                                                                   new JProperty("statuscode",   400),
+                                                                                   new JProperty("property",     "password"),
+                                                                                   new JProperty("description",  "Missing \"password\" property!")
+                                                                              ).ToString().ToUTF8Bytes(),
+                                                             CacheControl    = "private",
+                                                             Connection      = "close"
+                                                         }.AsImmutable;
 
                                               }
 
                                               if (LoginData.GetString("password").Length < MinPasswordLenght)
                                               {
 
-                                                  return Task.FromResult(
-                                                      new HTTPResponse.Builder(Request) {
-                                                          HTTPStatusCode  = HTTPStatusCode.BadRequest,
-                                                          Server          = HTTPServer.DefaultServerName,
-                                                          ContentType     = HTTPContentType.JSON_UTF8,
-                                                          Content         = new JObject(
-                                                                                new JProperty("@context",     SignInOutContext),
-                                                                                new JProperty("statuscode",   400),
-                                                                                new JProperty("property",     "password"),
-                                                                                new JProperty("description",  "The password is too short!")
-                                                                           ).ToString().ToUTF8Bytes(),
-                                                          CacheControl    = "private",
-                                                          Connection      = "close"
-                                                      }.AsImmutable);
+                                                  return new HTTPResponse.Builder(Request) {
+                                                             HTTPStatusCode  = HTTPStatusCode.BadRequest,
+                                                             Server          = HTTPServer.DefaultServerName,
+                                                             ContentType     = HTTPContentType.JSON_UTF8,
+                                                             Content         = new JObject(
+                                                                                   new JProperty("@context",     SignInOutContext),
+                                                                                   new JProperty("statuscode",   400),
+                                                                                   new JProperty("property",     "password"),
+                                                                                   new JProperty("description",  "The password is too short!")
+                                                                              ).ToString().ToUTF8Bytes(),
+                                                             CacheControl    = "private",
+                                                             Connection      = "close"
+                                                         }.AsImmutable;
 
                                               }
 
@@ -3645,19 +3575,18 @@ namespace org.GraphDefined.OpenData.Users
                                                   !_Users.         TryGetValue(_UserId, out User          _User))
                                               {
 
-                                                  return Task.FromResult(
-                                                      new HTTPResponse.Builder(Request) {
-                                                          HTTPStatusCode  = HTTPStatusCode.NotFound,
-                                                          Server          = HTTPServer.DefaultServerName,
-                                                          ContentType     = HTTPContentType.JSON_UTF8,
-                                                          Content         = new JObject(
-                                                                                new JProperty("@context",     SignInOutContext),
-                                                                                new JProperty("property",     "username"),
-                                                                                new JProperty("description",  "Unknown user!")
-                                                                            ).ToString().ToUTF8Bytes(),
-                                                          CacheControl    = "private",
-                                                          Connection      = "close"
-                                                      }.AsImmutable);
+                                                  return new HTTPResponse.Builder(Request) {
+                                                             HTTPStatusCode  = HTTPStatusCode.NotFound,
+                                                             Server          = HTTPServer.DefaultServerName,
+                                                             ContentType     = HTTPContentType.JSON_UTF8,
+                                                             Content         = new JObject(
+                                                                                   new JProperty("@context",     SignInOutContext),
+                                                                                   new JProperty("property",     "username"),
+                                                                                   new JProperty("description",  "Unknown user!")
+                                                                               ).ToString().ToUTF8Bytes(),
+                                                             CacheControl    = "private",
+                                                             Connection      = "close"
+                                                         }.AsImmutable;
 
                                               }
 
@@ -3673,28 +3602,23 @@ namespace org.GraphDefined.OpenData.Users
                                                   if (!acceptsEULA)
                                                   {
 
-                                                      return Task.FromResult(
-                                                          new HTTPResponse.Builder(Request) {
-                                                              HTTPStatusCode  = HTTPStatusCode.Unauthorized,
-                                                              Server          = HTTPServer.DefaultServerName,
-                                                              ContentType     = HTTPContentType.JSON_UTF8,
-                                                              Content         = new JObject(
-                                                                                    new JProperty("@context",     SignInOutContext),
-                                                                                    new JProperty("showEULA",     true),
-                                                                                    new JProperty("description",  "Please accept the end-user license agreement!")
-                                                                                ).ToString().ToUTF8Bytes(),
-                                                              CacheControl    = "private",
-                                                              Connection      = "close"
-                                                          }.AsImmutable);
+                                                      return new HTTPResponse.Builder(Request) {
+                                                                 HTTPStatusCode  = HTTPStatusCode.Unauthorized,
+                                                                 Server          = HTTPServer.DefaultServerName,
+                                                                 ContentType     = HTTPContentType.JSON_UTF8,
+                                                                 Content         = new JObject(
+                                                                                       new JProperty("@context",     SignInOutContext),
+                                                                                       new JProperty("showEULA",     true),
+                                                                                       new JProperty("description",  "Please accept the end-user license agreement!")
+                                                                                   ).ToString().ToUTF8Bytes(),
+                                                                 CacheControl    = "private",
+                                                                 Connection      = "close"
+                                                             }.AsImmutable;
 
                                                   }
 
-                                                  lock (_Users)
-                                                  {
-                                                      var UUser = _User.ToBuilder();
-                                                      UUser.AcceptedEULA = DateTime.UtcNow;
-                                                      Update(UUser, _User.Id);
-                                                  }
+                                                  await Update(_User.Id,
+                                                               user => user.AcceptedEULA = DateTime.UtcNow);
 
                                               }
 
@@ -3705,19 +3629,18 @@ namespace org.GraphDefined.OpenData.Users
                                               if (!_LoginPassword.VerifyPassword(LoginData.GetString("password")))
                                               {
 
-                                                  return Task.FromResult(
-                                                      new HTTPResponse.Builder(Request) {
-                                                          HTTPStatusCode  = HTTPStatusCode.Unauthorized,
-                                                          Server          = HTTPServer.DefaultServerName,
-                                                          ContentType     = HTTPContentType.JSON_UTF8,
-                                                          Content         = new JObject(
-                                                                                new JProperty("@context",     SignInOutContext),
-                                                                                new JProperty("property",     "username"),
-                                                                                new JProperty("description",  "Invalid username or password!")
-                                                                            ).ToString().ToUTF8Bytes(),
-                                                          CacheControl    = "private",
-                                                          Connection      = "close"
-                                                      }.AsImmutable);
+                                                  return new HTTPResponse.Builder(Request) {
+                                                             HTTPStatusCode  = HTTPStatusCode.Unauthorized,
+                                                             Server          = HTTPServer.DefaultServerName,
+                                                             ContentType     = HTTPContentType.JSON_UTF8,
+                                                             Content         = new JObject(
+                                                                                   new JProperty("@context",     SignInOutContext),
+                                                                                   new JProperty("property",     "username"),
+                                                                                   new JProperty("description",  "Invalid username or password!")
+                                                                               ).ToString().ToUTF8Bytes(),
+                                                             CacheControl    = "private",
+                                                             Connection      = "close"
+                                                         }.AsImmutable;
 
                                               }
 
@@ -3727,29 +3650,28 @@ namespace org.GraphDefined.OpenData.Users
                                               var SHA256Hash    = new SHA256Managed();
                                               var SecurityToken = SHA256Hash.ComputeHash((Guid.NewGuid().ToString() + _LoginPassword.Login).ToUTF8Bytes()).ToHexString();
 
-                                              return Task.FromResult(
-                                                  new HTTPResponse.Builder(Request) {
-                                                      HTTPStatusCode  = HTTPStatusCode.Created,
-                                                      ContentType     = HTTPContentType.TEXT_UTF8,
-                                                      Content         = new JObject(
-                                                                            new JProperty("@context",  SignInOutContext),
-                                                                            new JProperty("login",     _LoginPassword.Login.ToString()),
-                                                                            new JProperty("username",  _User.Name),
-                                                                            new JProperty("email",     _User.EMail.Address.ToString())
-                                                                        ).ToUTF8Bytes(),
-                                                      CacheControl    = "private",
-                                                      SetCookie       = CookieName + "=login="    + _LoginPassword.Login.ToString().ToBase64() +
-                                                                                  ":username=" + _User.Name.ToBase64() +
-                                                                                (IsAdmin(_User) ? ":isAdmin" : "") +
-                                                                             ":securitytoken=" + SecurityToken +
-                                                                                  "; Expires=" + DateTime.UtcNow.Add(SignInSessionLifetime).ToRfc1123() +
-                                                                                   (HTTPCookieDomain.IsNotNullOrEmpty()
-                                                                                       ? "; Domain=" + HTTPCookieDomain
-                                                                                       : "") +
-                                                                                     "; Path=/",
-                                                      // secure;"
-                                                      Connection = "close"
-                                                  }.AsImmutable);
+                                              return new HTTPResponse.Builder(Request) {
+                                                         HTTPStatusCode  = HTTPStatusCode.Created,
+                                                         ContentType     = HTTPContentType.TEXT_UTF8,
+                                                         Content         = new JObject(
+                                                                               new JProperty("@context",  SignInOutContext),
+                                                                               new JProperty("login",     _LoginPassword.Login.ToString()),
+                                                                               new JProperty("username",  _User.Name),
+                                                                               new JProperty("email",     _User.EMail.Address.ToString())
+                                                                           ).ToUTF8Bytes(),
+                                                         CacheControl    = "private",
+                                                         SetCookie       = CookieName + "=login="    + _LoginPassword.Login.ToString().ToBase64() +
+                                                                                     ":username=" + _User.Name.ToBase64() +
+                                                                                   (IsAdmin(_User) ? ":isAdmin" : "") +
+                                                                                ":securitytoken=" + SecurityToken +
+                                                                                     "; Expires=" + DateTime.UtcNow.Add(SignInSessionLifetime).ToRfc1123() +
+                                                                                      (HTTPCookieDomain.IsNotNullOrEmpty()
+                                                                                          ? "; Domain=" + HTTPCookieDomain
+                                                                                          : "") +
+                                                                                        "; Path=/",
+                                                         // secure;"
+                                                         Connection = "close"
+                                                     }.AsImmutable;
 
                                           });
 
@@ -3783,7 +3705,9 @@ namespace org.GraphDefined.OpenData.Users
                                          HTTPMethod.IMPERSONATE,
                                          HTTPURI.Parse("/users/{UserId}"),
                                          HTTPContentType.JSON_UTF8,
-                                         HTTPDelegate: Request => {
+                                         HTTPRequestLogger:   ImpersonateUserRequest,
+                                         HTTPResponseLogger:  ImpersonateUserResponse,
+                                         HTTPDelegate:        async Request => {
 
                                              #region Get astronaut and its organizations
 
@@ -3794,7 +3718,7 @@ namespace org.GraphDefined.OpenData.Users
                                                                   out HTTPResponse               Response,
                                                                   Recursive: true))
                                              {
-                                                 return Task.FromResult(Response);
+                                                 return Response;
                                              }
 
                                              #endregion
@@ -3805,59 +3729,38 @@ namespace org.GraphDefined.OpenData.Users
                                                                       out User_Id?      UserIdURI,
                                                                       out HTTPResponse  HTTPResponse))
                                              {
-                                                 return Task.FromResult(HTTPResponse);
+                                                 return HTTPResponse;
                                              }
 
                                              if (!TryGetUser(UserIdURI.Value, out User UserURI))
                                              {
 
-                                                 return Task.FromResult(
-                                                            new HTTPResponse.Builder(Request) {
-                                                                HTTPStatusCode              = HTTPStatusCode.NotFound,
-                                                                Server                      = HTTPServer.DefaultServerName,
-                                                                Date                        = DateTime.UtcNow,
-                                                                AccessControlAllowOrigin    = "*",
-                                                                AccessControlAllowMethods   = "IMPERSONATE",
-                                                                AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
-                                                                Connection                  = "close"
-                                                            }.AsImmutable);
+                                                 return new HTTPResponse.Builder(Request) {
+                                                            HTTPStatusCode              = HTTPStatusCode.NotFound,
+                                                            Server                      = HTTPServer.DefaultServerName,
+                                                            Date                        = DateTime.UtcNow,
+                                                            AccessControlAllowOrigin    = "*",
+                                                            AccessControlAllowMethods   = "IMPERSONATE",
+                                                            AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
+                                                            Connection                  = "close"
+                                                        }.AsImmutable;
 
                                              }
 
                                              #endregion
 
-
                                              #region Is the current user allowed to impersonate the given user?
 
                                              if (!CanImpersonate(Astronaut, UserURI))
-                                                 return Task.FromResult(
-                                                            new HTTPResponse.Builder(Request) {
-                                                                HTTPStatusCode              = HTTPStatusCode.Forbidden,
-                                                                Server                      = HTTPServer.DefaultServerName,
-                                                                Date                        = DateTime.UtcNow,
-                                                                AccessControlAllowOrigin    = "*",
-                                                                AccessControlAllowMethods   = "IMPERSONATE",
-                                                                AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
-                                                                Connection                  = "close"
-                                                            }.AsImmutable);
-
-
-                                             //if (UserURI.Id.ToString() == "ahzf" ||
-                                             //    UserURI.Id.ToString() == "lars")
-                                             //{
-
-                                             //    return Task.FromResult(
-                                             //               new HTTPResponse.Builder(Request) {
-                                             //                   HTTPStatusCode              = HTTPStatusCode.Forbidden,
-                                             //                   Server                      = HTTPServer.DefaultServerName,
-                                             //                   Date                        = DateTime.UtcNow,
-                                             //                   AccessControlAllowOrigin    = "*",
-                                             //                   AccessControlAllowMethods   = "IMPERSONATE",
-                                             //                   AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
-                                             //                   Connection                  = "close"
-                                             //               }.AsImmutable);
-
-                                             //}
+                                                 return new HTTPResponse.Builder(Request) {
+                                                            HTTPStatusCode              = HTTPStatusCode.Forbidden,
+                                                            Server                      = HTTPServer.DefaultServerName,
+                                                            Date                        = DateTime.UtcNow,
+                                                            AccessControlAllowOrigin    = "*",
+                                                            AccessControlAllowMethods   = "IMPERSONATE",
+                                                            AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
+                                                            Connection                  = "close"
+                                                        }.AsImmutable;
 
                                              #endregion
 
@@ -3881,7 +3784,7 @@ namespace org.GraphDefined.OpenData.Users
                                                                                       Expires,
                                                                                       Astronaut.Id));
 
-                                                 File.AppendAllText(DefaultHTTPCookiesFile,
+                                                 File.AppendAllText(this.UsersAPIPath + DefaultHTTPCookiesFile,
                                                                     SecurityTokenId + ";" + UserURI.Id + ";" + Expires.ToIso8601() + ";" + Astronaut.Id + Environment.NewLine);
 
                                              }
@@ -3889,30 +3792,29 @@ namespace org.GraphDefined.OpenData.Users
                                              #endregion
 
 
-                                             return Task.FromResult(
-                                                 new HTTPResponse.Builder(Request) {
-                                                     HTTPStatusCode  = HTTPStatusCode.Created,
-                                                     ContentType     = HTTPContentType.TEXT_UTF8,
-                                                     Content         = new JObject(
-                                                                           new JProperty("@context",  SignInOutContext),
-                                                                           new JProperty("login",     UserURI.Id.ToString()),
-                                                                           new JProperty("username",  UserURI.Name),
-                                                                           new JProperty("email",     UserURI.EMail.Address.ToString())
-                                                                       ).ToUTF8Bytes(),
-                                                     CacheControl    = "private",
-                                                     SetCookie       = CookieName + "=login="    + UserURI.Id.ToString().ToBase64() +
-                                                                                 ":astronaut=" + Astronaut.Id.ToString().ToBase64() +
-                                                                                 ":username=" + UserURI.Name.ToBase64() +
-                                                                               (IsAdmin(Astronaut) ? ":isAdmin" : "") +
-                                                                            ":securitytoken=" + SecurityTokenId +
-                                                                                 "; Expires=" + DateTime.UtcNow.Add(SignInSessionLifetime).ToRfc1123() +
-                                                                                  (HTTPCookieDomain.IsNotNullOrEmpty()
-                                                                                      ? "; Domain=" + HTTPCookieDomain
-                                                                                      : "") +
-                                                                                    "; Path=/",
-                                                     // secure;"
-                                                     Connection = "close"
-                                                 }.AsImmutable);
+                                             return new HTTPResponse.Builder(Request) {
+                                                        HTTPStatusCode  = HTTPStatusCode.Created,
+                                                        ContentType     = HTTPContentType.TEXT_UTF8,
+                                                        Content         = new JObject(
+                                                                              new JProperty("@context",  SignInOutContext),
+                                                                              new JProperty("login",     UserURI.Id.ToString()),
+                                                                              new JProperty("username",  UserURI.Name),
+                                                                              new JProperty("email",     UserURI.EMail.Address.ToString())
+                                                                          ).ToUTF8Bytes(),
+                                                        CacheControl    = "private",
+                                                        SetCookie       = CookieName + "=login="    + UserURI.Id.ToString().ToBase64() +
+                                                                                    ":astronaut=" + Astronaut.Id.ToString().ToBase64() +
+                                                                                    ":username=" + UserURI.Name.ToBase64() +
+                                                                                  (IsAdmin(Astronaut) ? ":isAdmin" : "") +
+                                                                               ":securitytoken=" + SecurityTokenId +
+                                                                                    "; Expires=" + DateTime.UtcNow.Add(SignInSessionLifetime).ToRfc1123() +
+                                                                                     (HTTPCookieDomain.IsNotNullOrEmpty()
+                                                                                         ? "; Domain=" + HTTPCookieDomain
+                                                                                         : "") +
+                                                                                       "; Path=/",
+                                                        // secure;"
+                                                        Connection = "close"
+                                                    }.AsImmutable;
 
                                          });
 
@@ -4007,7 +3909,7 @@ namespace org.GraphDefined.OpenData.Users
                                                                  new SecurityToken(Astronaut.Id,
                                                                                    Expires));
 
-                                                 File.AppendAllText(DefaultHTTPCookiesFile,
+                                                 File.AppendAllText(this.UsersAPIPath + DefaultHTTPCookiesFile,
                                                                     SecurityTokenId + ";" + UserURI.Id + ";" + Expires.ToIso8601() + Environment.NewLine);
 
                                              }
@@ -4078,8 +3980,6 @@ namespace org.GraphDefined.OpenData.Users
 
                                              #endregion
 
-                                             var __Notifications = _Notifications.GetNotifications(HTTPUser);
-
                                              return Task.FromResult(new HTTPResponse.Builder(Request) {
                                                         HTTPStatusCode             = HTTPStatusCode.OK,
                                                         Server                     = HTTPServer.DefaultServerName,
@@ -4089,21 +3989,7 @@ namespace org.GraphDefined.OpenData.Users
                                                         AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
                                                         ETag                       = "1",
                                                         ContentType                = HTTPContentType.JSON_UTF8,
-                                                        Content                    = JSONObject.Create(
-
-                                                                                         new JProperty("general",  JSONArray.Create(
-                                                                                             __Notifications?.NotificationTypes.SafeSelect(_ => _.GetAsJSON(new JObject())).ToArray()
-                                                                                         )),
-
-                                                                                         new JProperty("messages", JSONObject.Create(
-
-                                                                                             __Notifications?.NotificationIds.SafeSelect(_ => new JProperty(_.Key.ToString(), new JArray(
-                                                                                                                                                 _.Value.Select(__ => __.GetAsJSON(new JObject()))
-                                                                                                                                         ))).ToArray()
-
-                                                                                         ))
-
-                                                                                     ).ToUTF8Bytes(),
+                                                        Content                    = GetNotificationInfos(HTTPUser).ToUTF8Bytes(),
                                                         Connection                 = "close"
                                                     }.AsImmutable);
 
@@ -4127,7 +4013,7 @@ namespace org.GraphDefined.OpenData.Users
                                          HTTPContentType.JSON_UTF8,
                                          HTTPRequestLogger:   SetUserNotificationsRequest,
                                          HTTPResponseLogger:  SetUserNotificationsResponse,
-                                         HTTPDelegate:        Request => {
+                                         HTTPDelegate:        async Request => {
 
                                              #region Get HTTP user and its organizations
 
@@ -4135,11 +4021,11 @@ namespace org.GraphDefined.OpenData.Users
                                              if (!TryGetHTTPUser(Request,
                                                                  out User                       HTTPUser,
                                                                  out IEnumerable<Organization>  HTTPOrganizations,
-                                                                 out HTTPResponse               Response,
+                                                                 out HTTPResponse               HTTPResponse,
                                                                  AccessLevel:                   Access_Levels.ReadWrite,
                                                                  Recursive:                     true))
                                              {
-                                                 return Task.FromResult(Response);
+                                                 return HTTPResponse;
                                              }
 
                                              #endregion
@@ -4147,79 +4033,309 @@ namespace org.GraphDefined.OpenData.Users
                                              #region Check UserId URI parameter
 
                                              if (!Request.ParseUser(this,
-                                                                    out User_Id?      UserIdURI,
-                                                                    out User          User,
-                                                                    out HTTPResponse  HTTPResponse))
+                                                                    out User_Id?  UserIdURI,
+                                                                    out User      User,
+                                                                    out           HTTPResponse))
                                              {
-                                                 return Task.FromResult(HTTPResponse);
+                                                 return HTTPResponse;
+                                             }
+
+                                             #endregion
+
+                                             #region Has the current HTTP user the required access rights to update?
+
+                                             if (UserIdURI != HTTPUser.Id)
+                                             {
+
+                                                 return new HTTPResponse.Builder(Request) {
+                                                            HTTPStatusCode              = HTTPStatusCode.Forbidden,
+                                                            Server                      = HTTPServer.DefaultServerName,
+                                                            Date                        = DateTime.UtcNow,
+                                                            AccessControlAllowOrigin    = "*",
+                                                            AccessControlAllowMethods   = "GET, SET, CHOWN",
+                                                            AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
+                                                            Connection                  = "close"
+                                                        }.AsImmutable;
+
                                              }
 
                                              #endregion
 
 
-                                             #region Parse JSON
+                                             #region Parse JSON and new notifications...
 
-                                             if (!Request.TryParseJObjectRequestBody(out JObject JSONObj, out HTTPResponse))
-                                                 return Task.FromResult(HTTPResponse);
+                                             if (!Request.TryParseJArrayRequestBody(out JArray JSONArray, out HTTPResponse))
+                                                 return HTTPResponse;
 
-                                             //if (!User.TryParseJSON(JSONObj,
-                                             //                       out User    _User,
-                                             //                       out String  ErrorResponse,
-                                             //                       UserIdURI))
-                                             //{
+                                             String ErrorString = null;
 
-                                             //    return SetUserResponse(
-                                             //               new HTTPResponse.Builder(Request) {
-                                             //                   HTTPStatusCode             = HTTPStatusCode.BadRequest,
-                                             //                   Server                     = HTTPServer.DefaultServerName,
-                                             //                   Date                       = DateTime.UtcNow,
-                                             //                   AccessControlAllowOrigin   = "*",
-                                             //                   AccessControlAllowMethods  = "GET, SET",
-                                             //                   AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
-                                             //                   ETag                       = "1",
-                                             //                   ContentType                = HTTPContentType.JSON_UTF8,
-                                             //                   Content                    = JSONObject.Create(
-                                             //                                                    new JProperty("description",  ErrorResponse)
-                                             //                                                ).ToUTF8Bytes()
-                                             //               }.AsImmutable);
+                                             if (JSONArray.Count > 0)
+                                             {
 
-                                             //}
+                                                 var JSONObjects = JSONArray.Cast<JObject>().ToArray();
+
+                                                 if (!JSONObjects.Any())
+                                                     goto fail;
+
+                                                 String context = null;
+
+                                                 foreach (var JSONObject in JSONObjects)
+                                                 {
+
+                                                     context = JSONObject["@context"]?.Value<String>();
+
+                                                     if (context.IsNullOrEmpty())
+                                                         goto fail;
+
+                                                     switch (context)
+                                                     {
+
+                                                         case EMailNotification.JSONLDContext:
+                                                             if (!EMailNotification.TryParse(JSONObject, out EMailNotification eMailNotification))
+                                                             {
+                                                                 ErrorString = "Could not parse e-mail notification!";
+                                                                 goto fail;
+                                                             }
+                                                             await AddNotification(HTTPUser, eMailNotification, HTTPUser.Id);
+                                                             break;
+
+                                                         case SMSNotification.JSONLDContext:
+                                                             if (!SMSNotification.  TryParse(JSONObject, out SMSNotification   smsNotification))
+                                                             {
+                                                                 ErrorString = "Could not parse sms notification!";
+                                                                 goto fail;
+                                                             }
+                                                             await AddNotification(HTTPUser, smsNotification, HTTPUser.Id);
+                                                             break;
+
+                                                         case HTTPSNotification.JSONLDContext:
+                                                             if (!HTTPSNotification.TryParse(JSONObject, out HTTPSNotification httpsNotification))
+                                                             {
+                                                                 ErrorString = "Could not parse https notification!";
+                                                                 goto fail;
+                                                             }
+                                                             await AddNotification(HTTPUser, httpsNotification, HTTPUser.Id);
+                                                             break;
+
+                                                         default:
+                                                             goto fail;
+
+                                                     }
+
+                                                 }
+
+                                             }
+
+                                             goto goon;
+
+                                             #region fail...
+
+                                             fail:
+
+                                             return new HTTPResponse.Builder(Request) {
+                                                            HTTPStatusCode             = HTTPStatusCode.BadRequest,
+                                                            Server                     = HTTPServer.DefaultServerName,
+                                                            Date                       = DateTime.UtcNow,
+                                                            AccessControlAllowOrigin   = "*",
+                                                            AccessControlAllowMethods  = "GET, SET",
+                                                            AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
+                                                            ETag                       = "1",
+                                                            ContentType                = HTTPContentType.JSON_UTF8,
+                                                            Content                    = JSONObject.Create(
+                                                                                             new JProperty("description", ErrorString ?? "Invalid array of notifications!")
+                                                                                         ).ToUTF8Bytes()
+                                                        }.AsImmutable;
+
+                                             #endregion
+
+                                             goon:
 
                                              #endregion
 
 
-                                             //// Has the current HTTP user the required
-                                             //// access rights to update?
-                                             //if (HTTPUser.Id != _User.Id)
-                                             //    return SetUserResponse(
-                                             //           new HTTPResponse.Builder(Request) {
-                                             //               HTTPStatusCode              = HTTPStatusCode.Forbidden,
-                                             //               Server                      = HTTPServer.DefaultServerName,
-                                             //               Date                        = DateTime.UtcNow,
-                                             //               AccessControlAllowOrigin    = "*",
-                                             //               AccessControlAllowMethods   = "GET, SET, CHOWN",
-                                             //               AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
-                                             //               Connection                  = "close"
-                                             //           }.AsImmutable);
+                                             return new HTTPResponse.Builder(Request) {
+                                                        HTTPStatusCode              = HTTPStatusCode.OK,
+                                                        Server                      = HTTPServer.DefaultServerName,
+                                                        Date                        = DateTime.UtcNow,
+                                                        AccessControlAllowOrigin    = "*",
+                                                        AccessControlAllowMethods   = "GET, SET",
+                                                        AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
+                                                        ContentType                 = HTTPContentType.JSON_UTF8,
+                                                        Content                     = GetNotificationInfos(HTTPUser).ToUTF8Bytes(),
+                                                        Connection                  = "close"
+                                                    }.AsImmutable;
 
+                                         });
 
-                                             //AddOrUpdate(_User,
-                                             //            HTTPUser.Id);
+            #endregion
 
+            #region DELETE      ~/users/{UserId}/notifications
 
-                                             return Task.FromResult(
-                                                        new HTTPResponse.Builder(Request) {
-                                                            HTTPStatusCode              = HTTPStatusCode.OK,
+            // ---------------------------------------------------------------------------------------------
+            // curl -v -X DELETE \
+            //      -H "Accept:       application/json; charset=utf-8" \
+            //      -H "Content-Type: application/json; charset=utf-8" \
+            //      -d "{ \
+            //          }" \
+            //      http://127.0.0.1:2000/users/214080158
+            // ---------------------------------------------------------------------------------------------
+            HTTPServer.AddMethodCallback(Hostname,
+                                         HTTPMethod.DELETE,
+                                         URIPrefix + "users/{UserId}/notifications",
+                                         HTTPContentType.JSON_UTF8,
+                                         HTTPRequestLogger:   DeleteUserNotificationsRequest,
+                                         HTTPResponseLogger:  DeleteUserNotificationsResponse,
+                                         HTTPDelegate:        async Request => {
+
+                                             #region Get HTTP user and its organizations
+
+                                             // Will return HTTP 401 Unauthorized, when the HTTP user is unknown!
+                                             if (!TryGetHTTPUser(Request,
+                                                                 out User                       HTTPUser,
+                                                                 out IEnumerable<Organization>  HTTPOrganizations,
+                                                                 out HTTPResponse               HTTPResponse,
+                                                                 AccessLevel:                   Access_Levels.ReadWrite,
+                                                                 Recursive:                     true))
+                                             {
+                                                 return HTTPResponse;
+                                             }
+
+                                             #endregion
+
+                                             #region Check UserId URI parameter
+
+                                             if (!Request.ParseUser(this,
+                                                                    out User_Id?  UserIdURI,
+                                                                    out User      User,
+                                                                    out           HTTPResponse))
+                                             {
+                                                 return HTTPResponse;
+                                             }
+
+                                             #endregion
+
+                                             #region Has the current HTTP user the required access rights to update?
+
+                                             if (UserIdURI != HTTPUser.Id)
+                                             {
+
+                                                 return new HTTPResponse.Builder(Request) {
+                                                            HTTPStatusCode              = HTTPStatusCode.Forbidden,
                                                             Server                      = HTTPServer.DefaultServerName,
                                                             Date                        = DateTime.UtcNow,
                                                             AccessControlAllowOrigin    = "*",
-                                                            AccessControlAllowMethods   = "GET, SET",
+                                                            AccessControlAllowMethods   = "GET, SET, CHOWN",
                                                             AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
-                                                            //ETag                        = _User.CurrentCryptoHash,
-                                                            ContentType                 = HTTPContentType.JSON_UTF8,
-                                                            Content                     = JSONObj.ToString().ToUTF8Bytes(),
                                                             Connection                  = "close"
-                                                        }.AsImmutable);
+                                                        }.AsImmutable;
+
+                                             }
+
+                                             #endregion
+
+
+                                             #region Parse JSON and new notifications...
+
+                                             if (!Request.TryParseJArrayRequestBody(out JArray JSONArray, out HTTPResponse))
+                                                 return HTTPResponse;
+
+                                             String ErrorString = null;
+
+                                             if (JSONArray.Count > 0)
+                                             {
+
+                                                 var JSONObjects = JSONArray.Cast<JObject>().ToArray();
+
+                                                 if (!JSONObjects.Any())
+                                                     goto fail;
+
+                                                 String context = null;
+
+                                                 foreach (var JSONObject in JSONObjects)
+                                                 {
+
+                                                     context = JSONObject["@context"]?.Value<String>();
+
+                                                     if (context.IsNullOrEmpty())
+                                                         goto fail;
+
+                                                     switch (context)
+                                                     {
+
+                                                         case EMailNotification.JSONLDContext:
+                                                             if (!EMailNotification.TryParse(JSONObject, out EMailNotification eMailNotification))
+                                                             {
+                                                                 ErrorString = "Could not parse e-mail notification!";
+                                                                 goto fail;
+                                                             }
+                                                             await RemoveNotification(HTTPUser, eMailNotification, HTTPUser.Id);
+                                                             break;
+
+                                                         case SMSNotification.JSONLDContext:
+                                                             if (!SMSNotification.  TryParse(JSONObject, out SMSNotification   smsNotification))
+                                                             {
+                                                                 ErrorString = "Could not parse sms notification!";
+                                                                 goto fail;
+                                                             }
+                                                             await RemoveNotification(HTTPUser, smsNotification, HTTPUser.Id);
+                                                             break;
+
+                                                         case HTTPSNotification.JSONLDContext:
+                                                             if (!HTTPSNotification.TryParse(JSONObject, out HTTPSNotification httpsNotification))
+                                                             {
+                                                                 ErrorString = "Could not parse https notification!";
+                                                                 goto fail;
+                                                             }
+                                                             await RemoveNotification(HTTPUser, httpsNotification, HTTPUser.Id);
+                                                             break;
+
+                                                         default:
+                                                             goto fail;
+
+                                                     }
+
+                                                 }
+
+                                             }
+
+                                             goto goon;
+
+                                             #region fail...
+
+                                             fail:
+
+                                             return new HTTPResponse.Builder(Request) {
+                                                            HTTPStatusCode             = HTTPStatusCode.BadRequest,
+                                                            Server                     = HTTPServer.DefaultServerName,
+                                                            Date                       = DateTime.UtcNow,
+                                                            AccessControlAllowOrigin   = "*",
+                                                            AccessControlAllowMethods  = "GET, SET",
+                                                            AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
+                                                            ETag                       = "1",
+                                                            ContentType                = HTTPContentType.JSON_UTF8,
+                                                            Content                    = JSONObject.Create(
+                                                                                             new JProperty("description", ErrorString ?? "Invalid array of notifications!")
+                                                                                         ).ToUTF8Bytes()
+                                                        }.AsImmutable;
+
+                                             #endregion
+
+                                             goon:
+
+                                             #endregion
+
+
+                                             return new HTTPResponse.Builder(Request) {
+                                                        HTTPStatusCode              = HTTPStatusCode.OK,
+                                                        Server                      = HTTPServer.DefaultServerName,
+                                                        Date                        = DateTime.UtcNow,
+                                                        AccessControlAllowOrigin    = "*",
+                                                        AccessControlAllowMethods   = "GET, SET",
+                                                        AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
+                                                        ContentType                 = HTTPContentType.JSON_UTF8,
+                                                        Content                     = GetNotificationInfos(HTTPUser).ToUTF8Bytes(),
+                                                        Connection                  = "close"
+                                                    }.AsImmutable;
 
                                          });
 
@@ -4338,9 +4454,9 @@ namespace org.GraphDefined.OpenData.Users
                                          HTTPMethod.SET,
                                          URIPrefix + "users/{UserId}/password",
                                          HTTPContentType.JSON_UTF8,
-                                         HTTPRequestLogger:  ChangePasswordRequest,
-                                         HTTPResponseLogger: ChangePasswordResponse,
-                                         HTTPDelegate: async Request => {
+                                         HTTPRequestLogger:   ChangePasswordRequest,
+                                         HTTPResponseLogger:  ChangePasswordResponse,
+                                         HTTPDelegate:        async Request => {
 
                                              #region Get HTTP user and its organizations
 
@@ -4419,7 +4535,7 @@ namespace org.GraphDefined.OpenData.Users
                                              if (TryChangePassword(UserIdURI.Value,
                                                                    Password.Parse(NewPassword),
                                                                    CurrentPassword,
-                                                                   HTTPUser.Id))
+                                                                   HTTPUser.Id).Result)
                                              {
 
                                                  var MailSentResult = await APISMTPClient.Send(PasswordChangedEMailCreator(HTTPUser.Id,
@@ -4460,48 +4576,6 @@ namespace org.GraphDefined.OpenData.Users
             #endregion
 
 
-            #region GET         ~/groups
-
-            // ------------------------------------------------------------------
-            // curl -v -H "Accept: application/json" http://127.0.0.1:2100/groups
-            // ------------------------------------------------------------------
-            HTTPServer.ITEMS_GET(UriTemplate: URIPrefix + "groups",
-                                 Dictionary: _Groups,
-                                 Filter: group => group.PrivacyLevel == PrivacyLevel.World,
-                                 ToJSONDelegate: JSON_IO.ToJSON);
-
-            #endregion
-
-            #region EXISTS      ~/groups/{GroupId}
-
-            // -------------------------------------------------------------------------------------------
-            // curl -v -X EXITS -H "Accept: application/json" http://127.0.0.1:2100/groups/OK-Lab%20Jena
-            // -------------------------------------------------------------------------------------------
-            HTTPServer.ITEM_EXISTS<Group_Id, Group>(UriTemplate: URIPrefix + "groups/{GroupId}",
-                                                    ParseIdDelegate: Group_Id.TryParse,
-                                                    ParseIdError: Text => "Invalid group identification '" + Text + "'!",
-                                                    TryGetItemDelegate: _Groups.TryGetValue,
-                                                    ItemFilterDelegate: group => group.PrivacyLevel == PrivacyLevel.World,
-                                                    TryGetItemError: groupId => "Unknown group '" + groupId + "'!");
-
-            #endregion
-
-            #region GET         ~/groups/{GroupId}
-
-            // ----------------------------------------------------------------------------------
-            // curl -v -H "Accept: application/json" http://127.0.0.1:2100/groups/OK-Lab%20Jena
-            // ----------------------------------------------------------------------------------
-            HTTPServer.ITEM_GET<Group_Id, Group>(UriTemplate:         URIPrefix + "groups/{GroupId}",
-                                                 ParseIdDelegate:     Group_Id.TryParse,
-                                                 ParseIdError:        Text => "Invalid group identification '" + Text + "'!",
-                                                 TryGetItemDelegate:  _Groups.TryGetValue,
-                                                 ItemFilterDelegate:  group => group.PrivacyLevel == PrivacyLevel.World,
-                                                 TryGetItemError:     groupId => "Unknown group '" + groupId + "'!",
-                                                 ToJSONDelegate:      _ => _.ToJSON());
-
-            #endregion
-
-
             #region GET         ~/organizations
 
             #region GET         ~/organizations
@@ -4532,7 +4606,6 @@ namespace org.GraphDefined.OpenData.Users
 
                                              var expand                  = Request.QueryString.GetStrings("expand", true);
                                              var expandTags              = expand.Contains("tags")         ? InfoStatus.Expand : InfoStatus.ShowIdOnly;
-                                             var expandDataLicenses      = expand.Contains("dataLicenses") ? InfoStatus.Expand : InfoStatus.ShowIdOnly;
 
 
                                              //ToDo: Getting the expected total count might be very expensive!
@@ -4540,29 +4613,28 @@ namespace org.GraphDefined.OpenData.Users
 
                                              return Task.FromResult(
                                                  new HTTPResponse.Builder(Request) {
-                                                     HTTPStatusCode             = HTTPStatusCode.OK,
-                                                     Server                     = HTTPServer.DefaultServerName,
-                                                     Date                       = DateTime.UtcNow,
-                                                     AccessControlAllowOrigin   = "*",
-                                                     AccessControlAllowMethods  = "GET, COUNT, OPTIONS",
-                                                     AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
-                                                     ETag                       = "1",
-                                                     ContentType                = HTTPContentType.JSON_UTF8,
-                                                     Content                    = Organizations.
-                                                                                        OrderBy(organization => organization.Id).
-                                                                                        //Where  (organization => HTTPOrganizations.Contains(organization.Owner) ||
-                                                                                        //                            Admins.InEdges(HTTPUser).
-                                                                                        //                                   Any(edgelabel => edgelabel == User2GroupEdges.IsAdmin)).
-                                                                                        ToJSON(skip,
-                                                                                               take,
-                                                                                               false, //Embedded
-                                                                                               expandTags,
-                                                                                               expandDataLicenses,
-                                                                                               GetOrganizationSerializator(HTTPUser),
-                                                                                               includeCryptoHash).
-                                                                                        ToUTF8Bytes(),
-                                                     X_ExpectedTotalNumberOfItems = _ExpectedCount,
-                                                     Connection = "close"
+                                                     HTTPStatusCode                = HTTPStatusCode.OK,
+                                                     Server                        = HTTPServer.DefaultServerName,
+                                                     Date                          = DateTime.UtcNow,
+                                                     AccessControlAllowOrigin      = "*",
+                                                     AccessControlAllowMethods     = "GET, COUNT, OPTIONS",
+                                                     AccessControlAllowHeaders     = "Content-Type, Accept, Authorization",
+                                                     ETag                          = "1",
+                                                     ContentType                   = HTTPContentType.JSON_UTF8,
+                                                     Content                       = Organizations.
+                                                                                         OrderBy(organization => organization.Id).
+                                                                                         //Where  (organization => HTTPOrganizations.Contains(organization.Owner) ||
+                                                                                         //                            Admins.InEdges(HTTPUser).
+                                                                                         //                                   Any(edgelabel => edgelabel == User2GroupEdges.IsAdmin)).
+                                                                                         ToJSON(skip,
+                                                                                                take,
+                                                                                                false, //Embedded
+                                                                                                expandTags,
+                                                                                                GetOrganizationSerializator(HTTPUser),
+                                                                                                includeCryptoHash).
+                                                                                         ToUTF8Bytes(),
+                                                     X_ExpectedTotalNumberOfItems  = _ExpectedCount,
+                                                     Connection                    = "close"
                                                  }.AsImmutable);
 
                                          });
@@ -4657,7 +4729,7 @@ namespace org.GraphDefined.OpenData.Users
                                                                   Server                     = HTTPServer.DefaultServerName,
                                                                   Date                       = DateTime.UtcNow,
                                                                   AccessControlAllowOrigin   = "*",
-                                                                  AccessControlAllowMethods  = "GET",
+                                                                  AccessControlAllowMethods  = "GET, EXISTS",
                                                                   AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
                                                                   Connection                 = "close"
                                                               }.AsImmutable
@@ -4667,7 +4739,7 @@ namespace org.GraphDefined.OpenData.Users
                                                                   Server                     = HTTPServer.DefaultServerName,
                                                                   Date                       = DateTime.UtcNow,
                                                                   AccessControlAllowOrigin   = "*",
-                                                                  AccessControlAllowMethods  = "GET",
+                                                                  AccessControlAllowMethods  = "GET, EXISTS",
                                                                   AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
                                                                   ContentType                = HTTPContentType.JSON_UTF8,
                                                                   Content                    = Organization.ToJSON().ToUTF8Bytes(),
@@ -4728,20 +4800,6 @@ namespace org.GraphDefined.OpenData.Users
 
             #endregion
 
-            #region EXISTS      ~/orgs/{OrgId}
-
-            // ------------------------------------------------------------------------------------
-            // curl -v -X EXITS -H "Accept: application/json" http://127.0.0.1:2100/orgs/Stadtrat
-            // ------------------------------------------------------------------------------------
-            HTTPServer.ITEM_EXISTS<Organization_Id, Organization>(UriTemplate:               URIPrefix + "organizations/{OrgId}",
-                                                                  ParseIdDelegate:           Organization_Id.TryParse,
-                                                                  ParseIdError:              Text  => "Invalid organization identification '" + Text + "'!",
-                                                                  TryGetItemDelegate:        _Organizations.TryGetValue,
-                                                                  ItemFilterDelegate:        org   => org.PrivacyLevel == PrivacyLevel.World,
-                                                                  TryGetItemError:           orgId => "Unknown organization '" + orgId + "'!");
-
-            #endregion
-
             #region Add         ~/organizations/{organizationId}
 
             // ---------------------------------------------------------------------------------------------
@@ -4773,7 +4831,7 @@ namespace org.GraphDefined.OpenData.Users
                                          HTTPContentType.JSON_UTF8,
                                          HTTPRequestLogger:  AddOrganizationRequest,
                                          HTTPResponseLogger: AddOrganizationResponse,
-                                         HTTPDelegate: Request => {
+                                         HTTPDelegate:       async Request => {
 
                                              #region Get HTTP user and its organizations
 
@@ -4785,7 +4843,7 @@ namespace org.GraphDefined.OpenData.Users
                                                                  AccessLevel:                   Access_Levels.ReadWrite,
                                                                  Recursive:                     true))
                                              {
-                                                 return Task.FromResult(Response);
+                                                 return Response;
                                              }
 
                                              #endregion
@@ -4796,7 +4854,7 @@ namespace org.GraphDefined.OpenData.Users
                                                                               out Organization_Id?  OrganizationIdURI,
                                                                               out HTTPResponse      HTTPResponse))
                                              {
-                                                 return Task.FromResult(HTTPResponse);
+                                                 return HTTPResponse;
                                              }
 
                                              #endregion
@@ -4804,7 +4862,7 @@ namespace org.GraphDefined.OpenData.Users
                                              #region Parse JSON and create the new child organization...
 
                                              if (!Request.TryParseJObjectRequestBody(out JObject JSONObj, out HTTPResponse))
-                                                 return Task.FromResult(HTTPResponse);
+                                                 return HTTPResponse;
 
                                              if (Organization.TryParseJSON(JSONObj,
                                                                            out Organization  NewChildOrganization,
@@ -4840,25 +4898,24 @@ namespace org.GraphDefined.OpenData.Users
                                                                              Request,
                                                                              out HTTPResponse))
                                                  {
-                                                     return Task.FromResult(HTTPResponse);
+                                                     return HTTPResponse;
                                                  }
 
                                                  if (!_Organizations.TryGetValue(ParentOrganizationId, out Organization ParentOrganization))
                                                  {
 
-                                                     return Task.FromResult(
-                                                                new HTTPResponse.Builder(Request) {
-                                                                    HTTPStatusCode             = HTTPStatusCode.BadRequest,
-                                                                    Server                     = HTTPServer.DefaultServerName,
-                                                                    Date                       = DateTime.UtcNow,
-                                                                    AccessControlAllowOrigin   = "*",
-                                                                    AccessControlAllowMethods  = "GET, SET",
-                                                                    AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
-                                                                    ContentType                = HTTPContentType.JSON_UTF8,
-                                                                    Content                    = JSONObject.Create(
-                                                                                                     new JProperty("description",  "Unknown parent organization!")
-                                                                                                 ).ToUTF8Bytes()
-                                                                }.AsImmutable);
+                                                     return new HTTPResponse.Builder(Request) {
+                                                                HTTPStatusCode             = HTTPStatusCode.BadRequest,
+                                                                Server                     = HTTPServer.DefaultServerName,
+                                                                Date                       = DateTime.UtcNow,
+                                                                AccessControlAllowOrigin   = "*",
+                                                                AccessControlAllowMethods  = "GET, SET",
+                                                                AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
+                                                                ContentType                = HTTPContentType.JSON_UTF8,
+                                                                Content                    = JSONObject.Create(
+                                                                                                 new JProperty("description",  "Unknown parent organization!")
+                                                                                             ).ToUTF8Bytes()
+                                                            }.AsImmutable;
 
                                                  }
 
@@ -4873,7 +4930,7 @@ namespace org.GraphDefined.OpenData.Users
                                                                              Request,
                                                                              out HTTPResponse))
                                                  {
-                                                     return Task.FromResult(HTTPResponse);
+                                                     return HTTPResponse;
                                                  }
 
 
@@ -4890,40 +4947,38 @@ namespace org.GraphDefined.OpenData.Users
                                                      if (!admin.HasValue)
                                                      {
 
-                                                         return Task.FromResult(
-                                                                    new HTTPResponse.Builder(Request) {
-                                                                        HTTPStatusCode             = HTTPStatusCode.BadRequest,
-                                                                        Server                     = HTTPServer.DefaultServerName,
-                                                                        Date                       = DateTime.UtcNow,
-                                                                        AccessControlAllowOrigin   = "*",
-                                                                        AccessControlAllowMethods  = "GET, SET",
-                                                                        AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
-                                                                        ContentType                = HTTPContentType.JSON_UTF8,
-                                                                        Content                    = JSONObject.Create(
-                                                                                                         new JProperty("description",  "Invalid admin user '" + admin.Value  + "'!")
-                                                                                                     ).ToUTF8Bytes()
-                                                                    }.AsImmutable);
+                                                         return new HTTPResponse.Builder(Request) {
+                                                                    HTTPStatusCode             = HTTPStatusCode.BadRequest,
+                                                                    Server                     = HTTPServer.DefaultServerName,
+                                                                    Date                       = DateTime.UtcNow,
+                                                                    AccessControlAllowOrigin   = "*",
+                                                                    AccessControlAllowMethods  = "GET, SET",
+                                                                    AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
+                                                                    ContentType                = HTTPContentType.JSON_UTF8,
+                                                                    Content                    = JSONObject.Create(
+                                                                                                     new JProperty("description",  "Invalid admin user '" + admin.Value  + "'!")
+                                                                                                 ).ToUTF8Bytes()
+                                                                }.AsImmutable;
 
                                                      }
 
-                                                     Admin = GetUser(admin.Value);
+                                                     Admin = await GetUser(admin.Value);
 
                                                      if (Admin == null)
                                                      {
 
-                                                         return Task.FromResult(
-                                                                    new HTTPResponse.Builder(Request) {
-                                                                        HTTPStatusCode             = HTTPStatusCode.BadRequest,
-                                                                        Server                     = HTTPServer.DefaultServerName,
-                                                                        Date                       = DateTime.UtcNow,
-                                                                        AccessControlAllowOrigin   = "*",
-                                                                        AccessControlAllowMethods  = "GET, SET",
-                                                                        AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
-                                                                        ContentType                = HTTPContentType.JSON_UTF8,
-                                                                        Content                    = JSONObject.Create(
-                                                                                                         new JProperty("description",  "Unknown admin user '" + admin.Value + "'!")
-                                                                                                     ).ToUTF8Bytes()
-                                                                    }.AsImmutable);
+                                                         return new HTTPResponse.Builder(Request) {
+                                                                    HTTPStatusCode             = HTTPStatusCode.BadRequest,
+                                                                    Server                     = HTTPServer.DefaultServerName,
+                                                                    Date                       = DateTime.UtcNow,
+                                                                    AccessControlAllowOrigin   = "*",
+                                                                    AccessControlAllowMethods  = "GET, SET",
+                                                                    AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
+                                                                    ContentType                = HTTPContentType.JSON_UTF8,
+                                                                    Content                    = JSONObject.Create(
+                                                                                                     new JProperty("description",  "Unknown admin user '" + admin.Value + "'!")
+                                                                                                 ).ToUTF8Bytes()
+                                                                }.AsImmutable;
 
                                                      }
 
@@ -4937,36 +4992,35 @@ namespace org.GraphDefined.OpenData.Users
                                                  try
                                                  {
 
-                                                     var _NewChildOrganization = CreateOrganization(NewChildOrganization.Id,
-                                                                                                    NewChildOrganization.Name,
-                                                                                                    NewChildOrganization.Description,
-                                                                                                    ParentOrganization: ParentOrganization);
+                                                     var _NewChildOrganization = await CreateOrganization(NewChildOrganization.Id,
+                                                                                                          NewChildOrganization.Name,
+                                                                                                          NewChildOrganization.Description,
+                                                                                                          ParentOrganization:  ParentOrganization,
+                                                                                                          CurrentUserId:       HTTPUser.Id);
 
                                                      foreach (var admin in Admins)
-                                                         AddToOrganization(admin, User2OrganizationEdges.IsAdmin, _NewChildOrganization);
+                                                         await AddToOrganization(admin, User2OrganizationEdges.IsAdmin, _NewChildOrganization);
 
                                                  }
                                                  catch (Exception e)
                                                  {
 
-                                                     return Task.FromResult(
-                                                                new HTTPResponse.Builder(Request) {
-                                                                    HTTPStatusCode             = HTTPStatusCode.BadRequest,
-                                                                    Server                     = HTTPServer.DefaultServerName,
-                                                                    Date                       = DateTime.UtcNow,
-                                                                    AccessControlAllowOrigin   = "*",
-                                                                    AccessControlAllowMethods  = "GET, SET",
-                                                                    AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
-                                                                    ContentType                = HTTPContentType.JSON_UTF8,
-                                                                    Content                    = JSONObject.Create(
-                                                                                                     new JProperty("description",  "Could not create the given child organization! " + e.Message)
-                                                                                                 ).ToUTF8Bytes()
-                                                                }.AsImmutable);
+                                                     return new HTTPResponse.Builder(Request) {
+                                                                HTTPStatusCode             = HTTPStatusCode.BadRequest,
+                                                                Server                     = HTTPServer.DefaultServerName,
+                                                                Date                       = DateTime.UtcNow,
+                                                                AccessControlAllowOrigin   = "*",
+                                                                AccessControlAllowMethods  = "GET, SET",
+                                                                AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
+                                                                ContentType                = HTTPContentType.JSON_UTF8,
+                                                                Content                    = JSONObject.Create(
+                                                                                                 new JProperty("description",  "Could not create the given child organization! " + e.Message)
+                                                                                             ).ToUTF8Bytes()
+                                                            }.AsImmutable;
 
                                                  }
 
-                                                 return Task.FromResult(
-                                                        new HTTPResponse.Builder(Request) {
+                                                 return new HTTPResponse.Builder(Request) {
                                                             HTTPStatusCode              = HTTPStatusCode.Created,
                                                             Server                      = HTTPServer.DefaultServerName,
                                                             Date                        = DateTime.UtcNow,
@@ -4974,29 +5028,73 @@ namespace org.GraphDefined.OpenData.Users
                                                             AccessControlAllowMethods   = "GET, SET",
                                                             AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
                                                             Connection                  = "close"
-                                                        }.AsImmutable);
+                                                        }.AsImmutable;
 
                                              }
 
                                              #endregion
 
-                                             return Task.FromResult(
-                                                        new HTTPResponse.Builder(Request) {
-                                                            HTTPStatusCode             = HTTPStatusCode.BadRequest,
-                                                            Server                     = HTTPServer.DefaultServerName,
-                                                            Date                       = DateTime.UtcNow,
-                                                            AccessControlAllowOrigin   = "*",
-                                                            AccessControlAllowMethods  = "GET, SET",
-                                                            AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
-                                                            ContentType                = HTTPContentType.JSON_UTF8,
-                                                            Content                    = JSONObject.Create(
-                                                                                             new JProperty("description",  "Could not parse the given child organization data!")
-                                                                                         ).ToUTF8Bytes()
-                                                        }.AsImmutable);
+                                             return new HTTPResponse.Builder(Request) {
+                                                        HTTPStatusCode             = HTTPStatusCode.BadRequest,
+                                                        Server                     = HTTPServer.DefaultServerName,
+                                                        Date                       = DateTime.UtcNow,
+                                                        AccessControlAllowOrigin   = "*",
+                                                        AccessControlAllowMethods  = "GET, SET",
+                                                        AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
+                                                        ContentType                = HTTPContentType.JSON_UTF8,
+                                                        Content                    = JSONObject.Create(
+                                                                                         new JProperty("description",  "Could not parse the given child organization data!")
+                                                                                     ).ToUTF8Bytes()
+                                                    }.AsImmutable;
 
                                          });
 
             #endregion
+
+
+
+            #region GET         ~/groups
+
+            // ------------------------------------------------------------------
+            // curl -v -H "Accept: application/json" http://127.0.0.1:2100/groups
+            // ------------------------------------------------------------------
+            HTTPServer.ITEMS_GET(UriTemplate: URIPrefix + "groups",
+                                 Dictionary: _Groups,
+                                 Filter: group => group.PrivacyLevel == PrivacyLevel.World,
+                                 ToJSONDelegate: JSON_IO.ToJSON);
+
+            #endregion
+
+
+            #region EXISTS      ~/groups/{GroupId}
+
+            // -------------------------------------------------------------------------------------------
+            // curl -v -X EXITS -H "Accept: application/json" http://127.0.0.1:2100/groups/OK-Lab%20Jena
+            // -------------------------------------------------------------------------------------------
+            HTTPServer.ITEM_EXISTS<Group_Id, Group>(UriTemplate: URIPrefix + "groups/{GroupId}",
+                                                    ParseIdDelegate: Group_Id.TryParse,
+                                                    ParseIdError: Text => "Invalid group identification '" + Text + "'!",
+                                                    TryGetItemDelegate: _Groups.TryGetValue,
+                                                    ItemFilterDelegate: group => group.PrivacyLevel == PrivacyLevel.World,
+                                                    TryGetItemError: groupId => "Unknown group '" + groupId + "'!");
+
+            #endregion
+
+            #region GET         ~/groups/{GroupId}
+
+            // ----------------------------------------------------------------------------------
+            // curl -v -H "Accept: application/json" http://127.0.0.1:2100/groups/OK-Lab%20Jena
+            // ----------------------------------------------------------------------------------
+            HTTPServer.ITEM_GET<Group_Id, Group>(UriTemplate:         URIPrefix + "groups/{GroupId}",
+                                                 ParseIdDelegate:     Group_Id.TryParse,
+                                                 ParseIdError:        Text => "Invalid group identification '" + Text + "'!",
+                                                 TryGetItemDelegate:  _Groups.TryGetValue,
+                                                 ItemFilterDelegate:  group => group.PrivacyLevel == PrivacyLevel.World,
+                                                 TryGetItemError:     groupId => "Unknown group '" + groupId + "'!",
+                                                 ToJSONDelegate:      _ => _.ToJSON());
+
+            #endregion
+
 
 
             #region ~/tags
@@ -5009,7 +5107,7 @@ namespace org.GraphDefined.OpenData.Users
 
         #region (private) ReadDatabaseFiles()
 
-        private void ReadDatabaseFiles()
+        private async Task ReadDatabaseFiles()
         {
 
             DebugX.Log("Reading all UsersAPI database files...");
@@ -5019,47 +5117,45 @@ namespace org.GraphDefined.OpenData.Users
             try
             {
 
-                if (File.Exists(DefaultUsersAPIFile))
-                {
+                JObject JSONLine;
+                String  JSONCommand;
+                JObject JSONObject;
 
-                    JObject JSONLine;
-                    String  JSONCommand;
-                    JObject JSONObject;
+                // Info: File.Exists(...) is harmful!
+                File.ReadLines(this.UsersAPIPath + DefaultUsersAPIFile).ForEachCounted(async (line, linenumber) => {
 
-                    File.ReadLines(DefaultUsersAPIFile).ForEachCounted((line, linenumber) => {
+                    if (line.IsNeitherNullNorEmpty() &&
+                       !line.StartsWith("#")         &&
+                       !line.StartsWith("//"))
+                    {
 
-                        if (line.IsNeitherNullNorEmpty() &&
-                           !line.StartsWith("#")         &&
-                           !line.StartsWith("//"))
+                        try
                         {
 
-                            try
-                            {
+                            JSONLine                  = JObject.Parse(line);
+                            JSONCommand               = (JSONLine.First as JProperty)?.Name;
+                            JSONObject                = (JSONLine.First as JProperty)?.Value as JObject;
+                            CurrentDatabaseHashValue  =  JSONLine["sha256hash"]?["hashValue"]?.Value<String>();
 
-                                JSONLine                  = JObject.Parse(line);
-                                JSONCommand               = (JSONLine.First as JProperty)?.Name;
-                                JSONObject                = (JSONLine.First as JProperty)?.Value as JObject;
-                                CurrentDatabaseHashValue  =  JSONLine["sha256hash"]?["hashValue"]?.Value<String>();
-
-                                if (JSONCommand.IsNotNullOrEmpty() && JSONObject != null)
-                                    ProcessCommand(JSONCommand, JSONObject);
-
-                            }
-                            catch (Exception e)
-                            {
-                                DebugX.Log("Could not read database file '" + DefaultUsersAPIFile + "' line " + linenumber + ": " + e.Message);
-                            }
+                            if (JSONCommand.IsNotNullOrEmpty() && JSONObject != null)
+                                await ProcessCommand(JSONCommand, JSONObject);
 
                         }
+                        catch (Exception e)
+                        {
+                            DebugX.Log("Could not read database file '" + this.UsersAPIPath + DefaultUsersAPIFile + "' line " + linenumber + ": " + e.Message);
+                        }
 
-                    });
+                    }
 
-                }
+                });
 
             }
+            catch (FileNotFoundException fe)
+            { }
             catch (Exception e)
             {
-                DebugX.LogT("ReadDatabaseFiles() -> DefaultUsersAPIFile failed: " + e.Message);
+                DebugX.LogT("Could not read database file '" + this.UsersAPIPath + DefaultUsersAPIFile + "': " + e.Message);
             }
 
             #endregion
@@ -5069,38 +5165,37 @@ namespace org.GraphDefined.OpenData.Users
             try
             {
 
-                if (File.Exists(DefaultPasswordFile))
-                {
+                JObject JSONLine;
+                String  JSONCommand;
+                JObject JSONObject;
 
-                    JObject JSONLine;
-                    String  JSONCommand;
-                    JObject JSONObject;
+                // Info: File.Exists(...) is harmful!
+                File.ReadLines(this.UsersAPIPath + DefaultPasswordFile).ForEachCounted((line, linenumber) => {
 
-                    File.ReadLines(DefaultPasswordFile).ForEachCounted((line, linenumber) => {
+                    if (line.IsNeitherNullNorEmpty() &&
+                       !line.StartsWith("#")         &&
+                       !line.StartsWith("//"))
+                    {
 
-                        if (line.IsNeitherNullNorEmpty() &&
-                           !line.StartsWith("#")         &&
-                           !line.StartsWith("//"))
+                        try
                         {
 
-                            try
+                            JSONLine                  = JObject.Parse(line);
+                            JSONCommand               = (JSONLine.First as JProperty)?.Name;
+                            JSONObject                = (JSONLine.First as JProperty)?.Value as JObject;
+                            CurrentDatabaseHashValue  =  JSONLine["sha256hash"]?["hashValue"]?.Value<String>();
+
+                            if (JSONCommand.IsNotNullOrEmpty() &&
+                                JSONObject  != null            &&
+                                User_Id.TryParse(JSONObject["login"].Value<String>(), out User_Id Login))
                             {
 
-                                JSONLine                  = JObject.Parse(line);
-                                JSONCommand               = (JSONLine.First as JProperty)?.Name;
-                                JSONObject                = (JSONLine.First as JProperty)?.Value as JObject;
-                                CurrentDatabaseHashValue  =  JSONLine["sha256hash"]?["hashValue"]?.Value<String>();
-
-                                if (JSONCommand.IsNotNullOrEmpty() &&
-                                    JSONObject  != null            &&
-                                    User_Id.TryParse(JSONObject["login"].Value<String>(), out User_Id Login))
+                                switch (JSONCommand)
                                 {
 
-                                    switch (JSONCommand)
-                                    {
+                                    #region AddPassword
 
-                                        #region AddPassword
-
+                                        case "addPassword":
                                         case "AddPassword":
 
                                             if (!_LoginPasswords.ContainsKey(Login))
@@ -5114,14 +5209,15 @@ namespace org.GraphDefined.OpenData.Users
                                             }
 
                                             else
-                                                DebugX.Log("Invalid 'AddPassword' command in '" + DefaultPasswordFile + "' line " + linenumber + "!");
+                                                DebugX.Log("Invalid 'AddPassword' command in '" + this.UsersAPIPath + DefaultPasswordFile + "' line " + linenumber + "!");
 
                                             break;
 
                                         #endregion
 
-                                        #region ChangePassword
+                                    #region ChangePassword
 
+                                        case "changePassword":
                                         case "ChangePassword":
 
                                             if (_LoginPasswords.TryGetValue(Login, out LoginPassword _LoginPassword) &&
@@ -5136,14 +5232,15 @@ namespace org.GraphDefined.OpenData.Users
                                             }
 
                                             else
-                                                DebugX.Log("Invalid 'ChangePassword' command in '" + DefaultPasswordFile + "' line " + linenumber + "!");
+                                                DebugX.Log("Invalid 'ChangePassword' command in '" + this.UsersAPIPath + DefaultPasswordFile + "' line " + linenumber + "!");
 
                                             break;
 
                                         #endregion
 
-                                        #region ResetPassword
+                                    #region ResetPassword
 
+                                        case "resetPassword":
                                         case "ResetPassword":
 
                                             if (_LoginPasswords.ContainsKey(Login))
@@ -5158,102 +5255,99 @@ namespace org.GraphDefined.OpenData.Users
 
                                         #endregion
 
-                                        default:
-                                            DebugX.Log("Unknown command '" + JSONCommand + "' in password file '" + DefaultPasswordFile + "' line " + linenumber + "!");
-                                            break;
-
-                                    }
+                                    default:
+                                        DebugX.Log("Unknown command '" + JSONCommand + "' in password file '" + this.UsersAPIPath + DefaultPasswordFile + "' line " + linenumber + "!");
+                                        break;
 
                                 }
 
-                                else
-                                    DebugX.Log("Could not read password file '" + DefaultPasswordFile + "' line " + linenumber + "!");
+                            }
 
-                            }
-                            catch (Exception e)
-                            {
-                                DebugX.Log("Could not read password file '" + DefaultPasswordFile + "' line " + linenumber + ": " + e.Message);
-                            }
+                            else
+                                DebugX.Log("Could not read password file '" + this.UsersAPIPath + DefaultPasswordFile + "' line " + linenumber + "!");
 
                         }
+                        catch (Exception e)
+                        {
+                            DebugX.Log("Could not read password file '" + this.UsersAPIPath + DefaultPasswordFile + "' line " + linenumber + ": " + e.Message);
+                        }
 
-                    });
+                    }
 
-                }
+                });
 
             }
+            catch (FileNotFoundException fe)
+            { }
             catch (Exception e)
             {
-                DebugX.LogT("ReadDatabaseFiles() -> DefaultPasswordFile failed: " + e.Message);
+                DebugX.LogT("Could not read password file '" + this.UsersAPIPath + DefaultPasswordFile + "' failed: " + e.Message);
             }
 
             #endregion
 
             #region Read HTTPCookiesFile file...
 
-            if (File.Exists(DefaultHTTPCookiesFile))
+            lock (HTTPCookies)
             {
 
-                lock (HTTPCookies)
+                try
                 {
 
-                    try
-                    {
+                    File.ReadLines(this.UsersAPIPath + DefaultHTTPCookiesFile).ForEachCounted((line, linenumber) => {
 
-                        File.ReadLines(DefaultHTTPCookiesFile).ForEachCounted((line, linenumber) => {
+                        try
+                        {
 
-                            try
+                            var Tokens           = line.Split(new Char[] { ';' }, StringSplitOptions.None);
+
+                            var SecurityTokenId  = SecurityToken_Id.Parse(Tokens[0]);
+                            var Login            = User_Id.         Parse(Tokens[1]);
+                            var Expires          = DateTime.        Parse(Tokens[2]);
+                            var Astronaut        = Tokens.Length == 4
+                                                       ? new User_Id?(User_Id.Parse(Tokens[3]))
+                                                       : null;
+
+                            if (!HTTPCookies.ContainsKey(SecurityTokenId) &&
+                                _LoginPasswords.ContainsKey(Login) &&
+                                Expires > DateTime.UtcNow)
                             {
 
-                                var Tokens           = line.Split(new Char[] { ';' }, StringSplitOptions.None);
-
-                                var SecurityTokenId  = SecurityToken_Id.Parse(Tokens[0]);
-                                var Login            = User_Id.         Parse(Tokens[1]);
-                                var Expires          = DateTime.        Parse(Tokens[2]);
-                                var Astronaut        = Tokens.Length == 4
-                                                           ? new User_Id?(User_Id.Parse(Tokens[3]))
-                                                           : null;
-
-                                if (!HTTPCookies.ContainsKey(SecurityTokenId) &&
-                                    _LoginPasswords.ContainsKey(Login) &&
-                                    Expires > DateTime.UtcNow)
-                                {
-
-                                    HTTPCookies.Add(SecurityTokenId,
-                                                    new SecurityToken(Login,
-                                                                      Expires,
-                                                                      Astronaut));
-
-                                }
+                                HTTPCookies.Add(SecurityTokenId,
+                                                new SecurityToken(Login,
+                                                                  Expires,
+                                                                  Astronaut));
 
                             }
-                            catch (Exception e)
-                            {
-                                DebugX.Log("Could not read HTTP cookies file '" + DefaultHTTPCookiesFile + "' line " + linenumber + ": " + e.Message);
-                            }
 
-                        });
+                        }
+                        catch (Exception e)
+                        {
+                            DebugX.Log("Could not read HTTP cookies file '" + this.UsersAPIPath + DefaultHTTPCookiesFile + "' line " + linenumber + ": " + e.Message);
+                        }
 
-                    }
-                    catch (Exception e)
-                    {
-                        DebugX.Log("Could not read HTTP cookies file '" + DefaultHTTPCookiesFile + "': " + e.Message);
-                    }
+                    });
+
+                }
+                catch (FileNotFoundException fe)
+                { }
+                catch (Exception e)
+                {
+                    DebugX.Log("Could not read HTTP cookies file '" + this.UsersAPIPath + DefaultHTTPCookiesFile + "': " + e.Message);
+                }
 
 
-                    // Write filtered (no invalid users, no expired tokens) tokens back to file...
-                    try
-                    {
+                // Write filtered (no invalid users, no expired tokens) tokens back to file...
+                try
+                {
 
-                        File.WriteAllLines(DefaultHTTPCookiesFile,
-                                           HTTPCookies.Select(token => token.Key + ";" + token.Value.ToLogLine()));
+                    File.WriteAllLines(this.UsersAPIPath + DefaultHTTPCookiesFile,
+                                       HTTPCookies.Select(token => token.Key + ";" + token.Value.ToLogLine()));
 
-                    }
-                    catch (Exception e)
-                    {
-                        DebugX.Log("Could not update HTTP cookies file '" + DefaultHTTPCookiesFile + "': " + e.Message);
-                    }
-
+                }
+                catch (Exception e)
+                {
+                    DebugX.Log("Could not update HTTP cookies file '" + this.UsersAPIPath + DefaultHTTPCookiesFile + "': " + e.Message);
                 }
 
             }
@@ -5265,47 +5359,45 @@ namespace org.GraphDefined.OpenData.Users
             try
             {
 
-                if (File.Exists(DefaultPasswordResetsFile))
-                {
+                JObject  JSONLine;
+                String   JSONCommand;
+                JObject  JSONObject;
 
-                    JObject  JSONLine;
-                    String   JSONCommand;
-                    JObject  JSONObject;
+                var Now     = DateTime.UtcNow;
+                var MaxAge  = TimeSpan.FromDays(7);
 
-                    var Now     = DateTime.UtcNow;
-                    var MaxAge  = TimeSpan.FromDays(7);
+                // Info: File.Exists(...) is harmful!
+                File.ReadLines(this.UsersAPIPath + DefaultPasswordResetsFile).ForEachCounted((line, linenumber) => {
 
-                    File.ReadLines(DefaultPasswordResetsFile).ForEachCounted((line, linenumber) => {
+                    if (line.IsNeitherNullNorEmpty() &&
+                       !line.StartsWith("#")         &&
+                       !line.StartsWith("//"))
+                    {
 
-                        if (line.IsNeitherNullNorEmpty() &&
-                           !line.StartsWith("#")         &&
-                           !line.StartsWith("//"))
+                        try
                         {
 
-                            try
+                            JSONLine                  = JObject.Parse(line);
+                            JSONCommand               = (JSONLine.First as JProperty)?.Name;
+                            JSONObject                = (JSONLine.First as JProperty)?.Value as JObject;
+                            //CurrentDatabaseHashValue  =  JSONLine["sha256hash"]?["hashValue"]?.Value<String>();
+
+                            if (JSONCommand.IsNotNullOrEmpty() &&
+                                JSONObject  != null &&
+                                PasswordReset.TryParseJSON(JSONObject,
+                                                           out PasswordReset _PasswordReset,
+                                                           out String        ErrorResponse))
                             {
 
-                                JSONLine                  = JObject.Parse(line);
-                                JSONCommand               = (JSONLine.First as JProperty)?.Name;
-                                JSONObject                = (JSONLine.First as JProperty)?.Value as JObject;
-                                //CurrentDatabaseHashValue  =  JSONLine["sha256hash"]?["hashValue"]?.Value<String>();
-
-                                if (JSONCommand.IsNotNullOrEmpty() &&
-                                    JSONObject  != null &&
-                                    PasswordReset.TryParseJSON(JSONObject,
-                                                               out PasswordReset _PasswordReset,
-                                                               out String        ErrorResponse))
+                                if (ErrorResponse == null)
                                 {
 
-                                    if (ErrorResponse == null)
+                                    switch (JSONCommand.ToLower())
                                     {
 
-                                        switch (JSONCommand)
-                                        {
+                                        #region Add
 
-                                            #region Add
-
-                                            case "Add":
+                                            case "add":
 
                                                 if (!PasswordResets.ContainsKey(_PasswordReset.SecurityToken1))
                                                 {
@@ -5317,49 +5409,49 @@ namespace org.GraphDefined.OpenData.Users
                                                 }
 
                                                 else
-                                                    DebugX.Log("Invalid 'Add' command in '" + DefaultPasswordResetsFile + "' line " + linenumber + "!");
+                                                    DebugX.Log("Invalid 'Add' command in '" + this.UsersAPIPath + DefaultPasswordResetsFile + "' line " + linenumber + "!");
 
                                                 break;
 
                                             #endregion
 
-                                            #region Remove
+                                        #region Remove
 
-                                            case "Remove":
+                                            case "remove":
                                                 PasswordResets.Remove(_PasswordReset.SecurityToken1);
                                                 break;
 
                                             #endregion
 
-                                            default:
-                                                DebugX.Log("Unknown command '" + JSONCommand + "' in password file '" + DefaultPasswordResetsFile + "' line " + linenumber + "!");
-                                                break;
-
-                                        }
+                                        default:
+                                            DebugX.Log("Unknown command '" + JSONCommand + "' in password file '" + this.UsersAPIPath + DefaultPasswordResetsFile + "' line " + linenumber + "!");
+                                            break;
 
                                     }
 
                                 }
 
-                                else
-                                    DebugX.Log("Could not read password file '" + DefaultPasswordResetsFile + "' line " + linenumber + "!");
+                            }
 
-                            }
-                            catch (Exception e)
-                            {
-                                DebugX.Log("Could not read password file '" + DefaultPasswordResetsFile + "' line " + linenumber + ": " + e.Message);
-                            }
+                            else
+                                DebugX.Log("Could not read password file '" + this.UsersAPIPath + DefaultPasswordResetsFile + "' line " + linenumber + "!");
 
                         }
+                        catch (Exception e)
+                        {
+                            DebugX.Log("Could not read password file '" + this.UsersAPIPath + DefaultPasswordResetsFile + "' line " + linenumber + ": " + e.Message);
+                        }
 
-                    });
+                    }
 
-                }
+                });
 
             }
+            catch (FileNotFoundException fe)
+            { }
             catch (Exception e)
             {
-                DebugX.LogT("ReadDatabaseFiles() -> DefaultPasswordResetsFile failed: " + e.Message);
+                DebugX.LogT("Could not read password file '" + this.UsersAPIPath + DefaultPasswordResetsFile + "': " + e.Message);
             }
 
             #endregion
@@ -5374,8 +5466,8 @@ namespace org.GraphDefined.OpenData.Users
 
         #region (private) ProcessCommand(Command, Parameters)
 
-        private void ProcessCommand(String   Command,
-                                    JObject  JSONObject)
+        private async Task ProcessCommand(String   Command,
+                                          JObject  JSONObject)
         {
 
             switch (Command)
@@ -5383,13 +5475,14 @@ namespace org.GraphDefined.OpenData.Users
 
                 #region CreateUser
 
+                case "createUser":
                 case "CreateUser":
 
                     if (User.TryParseJSON(JSONObject,
-                                          out User    NewUser,
+                                          out User    _User,
                                           out String  ErrorResponse))
                     {
-                        _Users.AddAndReturnValue(NewUser.Id, NewUser);
+                        _Users.AddAndReturnValue(_User.Id, _User);
                     }
 
                     else
@@ -5399,22 +5492,66 @@ namespace org.GraphDefined.OpenData.Users
 
                 #endregion
 
-                #region AddOrUpdateUser
+                #region addUser
+
+                case "addUser":
+
+                    if (User.TryParseJSON(JSONObject,
+                                          out _User,
+                                          out ErrorResponse))
+                    {
+                        _Users.AddAndReturnValue(_User.Id, _User);
+                    }
+
+                    else
+                        DebugX.Log(String.Concat(nameof(UsersAPI), " ", Command, ": ", ErrorResponse));
+
+                    break;
+
+                #endregion
+
+                #region addIfNotExistsUser
+
+                case "addIfNotExistsUser":
+                case "AddIfNotExistsUser":
+
+                    if (User.TryParseJSON(JSONObject,
+                                          out _User,
+                                          out ErrorResponse))
+                    {
+
+                        if (!_Users.ContainsKey(_User.Id))
+                        {
+                            _User.API = this;
+                            _Users.AddAndReturnValue(_User.Id, _User);
+                        }
+
+                    }
+
+                    else
+                        DebugX.Log(String.Concat(nameof(UsersAPI), " ", Command, ": ", ErrorResponse));
+
+                    break;
+
+                #endregion
+
+                #region addOrUpdateUser
 
                 case "addOrUpdateUser":
+                case "AddOrUpdateUser":
 
                     if (User.TryParseJSON(JSONObject,
-                                          out NewUser,
+                                          out _User,
                                           out ErrorResponse))
                     {
 
-                        if (_Users.TryGetValue(NewUser.Id, out User OldUser))
+                        if (_Users.TryGetValue(_User.Id, out User OldUser))
                         {
                             _Users.Remove(OldUser.Id);
-                            OldUser.CopyAllEdgesTo(NewUser);
+                            OldUser.CopyAllEdgesTo(_User);
                         }
 
-                        _Users.Add(NewUser.Id, NewUser);
+                        _Users.Add(_User.Id, _User);
 
                     }
 
@@ -5425,23 +5562,24 @@ namespace org.GraphDefined.OpenData.Users
 
                 #endregion
 
-                #region UpdateUser
+                #region updateUser
 
                 case "updateUser":
+                case "UpdateUser":
 
                     if (User.TryParseJSON(JSONObject,
-                                          out NewUser,
+                                          out _User,
                                           out ErrorResponse))
                     {
 
-                        if (_Users.TryGetValue(NewUser.Id, out User OldUser))
+                        if (_Users.TryGetValue(_User.Id, out User OldUser))
                         {
 
                             _Users.Remove(OldUser.Id);
-                            NewUser.API = this;
-                            OldUser.CopyAllEdgesTo(NewUser);
+                            _User.API = this;
+                            OldUser.CopyAllEdgesTo(_User);
 
-                            _Users.Add(NewUser.Id, NewUser);
+                            _Users.Add(_User.Id, _User);
 
                         }
 
@@ -5454,17 +5592,35 @@ namespace org.GraphDefined.OpenData.Users
 
                 #endregion
 
+                #region removeUser
 
-                #region CreateGroup
+                case "removeUser":
 
-                case "CreateGroup":
-
-                    if (Group.TryParseJSON(JSONObject,
-                                           out Group  _Group,
-                                           out ErrorResponse) &&
-                        _Group.Id != Admins.Id)
+                    if (User.TryParseJSON(JSONObject,
+                                          out _User,
+                                          out ErrorResponse))
                     {
-                        _Groups.AddAndReturnValue(_Group.Id, _Group);
+                        _Users.Remove(_User.Id);
+                    }
+
+                    else
+                        DebugX.Log(String.Concat(nameof(UsersAPI), " ", Command, ": ", ErrorResponse));
+
+                    break;
+
+                #endregion
+
+                #region removeUserId
+
+                case "removeUserId":
+
+                    if (JSONObject.ParseOptional("@id",
+                                                 "User identification to remove",
+                                                 User_Id.TryParse,
+                                                 out User_Id UserId,
+                                                 out ErrorResponse))
+                    {
+                        _Users.Remove(UserId);
                     }
 
                     else
@@ -5477,6 +5633,7 @@ namespace org.GraphDefined.OpenData.Users
 
                 #region CreateOrganization
 
+                case "createOrganization":
                 case "CreateOrganization":
 
                     if (Organization.TryParseJSON(JSONObject,
@@ -5493,7 +5650,7 @@ namespace org.GraphDefined.OpenData.Users
 
                 #endregion
 
-                #region AddIfNotExistsOrganization
+                #region addOrganization
 
                 case "addOrganization":
 
@@ -5520,7 +5677,7 @@ namespace org.GraphDefined.OpenData.Users
 
                 #endregion
 
-                #region AddIfNotExistsOrganization
+                #region addIfNotExistsOrganization
 
                 case "addIfNotExistsOrganization":
 
@@ -5640,8 +5797,51 @@ namespace org.GraphDefined.OpenData.Users
                 #endregion
 
 
+                #region AddUserToOrganization
+
+                case "addUserToOrganization":
+                case "AddUserToOrganization":
+
+                    if (!User_Id.TryParse(JSONObject["user"]?.Value<String>(), out User_Id U2O_UserId))
+                    {
+                        DebugX.Log(String.Concat(nameof(UsersAPI), " ", Command, ": ", "Invalid user identification '" + JSONObject["user"]?.Value<String>() + "'!"));
+                        break;
+                    }
+
+                    if (!TryGetUser(U2O_UserId, out User U2O_User))
+                    {
+                        DebugX.Log(String.Concat(nameof(UsersAPI), " ", Command, ": ", "Unknown user '" + U2O_UserId + "'!"));
+                        break;
+                    }
+
+                    if (!Organization_Id.TryParse(JSONObject["organization"]?.Value<String>(), out Organization_Id U2O_OrganizationId))
+                    {
+                        DebugX.Log(String.Concat(nameof(UsersAPI), " ", Command, ": ", "Invalid organization identification '" + JSONObject["user"]?.Value<String>() + "'!"));
+                        break;
+                    }
+
+                    if (!TryGet(U2O_OrganizationId, out Organization U2O_Organization))
+                    {
+                        DebugX.Log(String.Concat(nameof(UsersAPI), " ", Command, ": ", "Unknown organization '" + U2O_OrganizationId + "'!"));
+                        break;
+                    }
+
+                    var U2O_Edge     = (User2OrganizationEdges) Enum.Parse(typeof(User2OrganizationEdges), JSONObject["edge"].Value<String>());
+                    var U2O_Privacy  = JSONObject.ParseMandatory_PrivacyLevel();
+
+                    if (!U2O_User.Edges(U2O_Organization).Any(edgelabel => edgelabel == U2O_Edge))
+                        U2O_User.AddOutgoingEdge(U2O_Edge, U2O_Organization, U2O_Privacy);
+
+                    if (!U2O_Organization.User2OrganizationInEdgeLabels(U2O_User).Any(edgelabel => edgelabel == U2O_Edge))
+                        U2O_Organization.LinkUser(U2O_User, U2O_Edge, U2O_Privacy);
+
+                    break;
+
+                #endregion
+
                 #region LinkOrganizations
 
+                case "linkOrganizations":
                 case "LinkOrganizations":
 
                     var O2O_OrganizationOut  = _Organizations[Organization_Id.Parse(JSONObject["organizationOut"].Value<String>())];
@@ -5660,8 +5860,30 @@ namespace org.GraphDefined.OpenData.Users
                 #endregion
 
 
+                #region CreateGroup
+
+                case "createGroup":
+                case "CreateGroup":
+
+                    if (Group.TryParseJSON(JSONObject,
+                                           out Group  _Group,
+                                           out ErrorResponse) &&
+                        _Group.Id != Admins.Id)
+                    {
+                        _Groups.AddAndReturnValue(_Group.Id, _Group);
+                    }
+
+                    else
+                        DebugX.Log(String.Concat(nameof(UsersAPI), " ", Command, ": ", ErrorResponse));
+
+                    break;
+
+                #endregion
+
+
                 #region AddUserToGroup
 
+                case "addUserToGroup":
                 case "AddUserToGroup":
 
                     var U2G_User     = _Users [User_Id. Parse(JSONObject["user" ].Value<String>())];
@@ -5679,88 +5901,65 @@ namespace org.GraphDefined.OpenData.Users
 
                 #endregion
 
-                #region AddUserToOrganization
-
-                case "AddUserToOrganization":
-
-                    var U2O_User          = _Users        [User_Id.        Parse(JSONObject["user" ].Value<String>())];
-                    var U2O_Organization  = _Organizations[Organization_Id.Parse(JSONObject["organization"].Value<String>())];
-                    var U2O_Edge          = (User2OrganizationEdges) Enum.Parse(typeof(User2OrganizationEdges), JSONObject["edge"].        Value<String>());
-                    var U2O_Privacy       = JSONObject.ParseMandatory_PrivacyLevel();
-
-                    if (!U2O_User.Edges(U2O_Organization).Any(edgelabel => edgelabel == U2O_Edge))
-                        U2O_User.AddOutgoingEdge(U2O_Edge, U2O_Organization, U2O_Privacy);
-
-                    if (!U2O_Organization.User2OrganizationInEdgeLabels(U2O_User).Any(edgelabel => edgelabel == U2O_Edge))
-                        U2O_Organization.LinkUser(U2O_User, U2O_Edge, U2O_Privacy);
-
-                    break;
-
-                #endregion
-
 
                 #region AddNotification
 
+                case "addNotification":
                 case "AddNotification":
 
-                    if (JSONObject["userId"]?.Value<String>().IsNotNullOrEmpty() == true &&
-                        JSONObject["type"  ]?.Value<String>().IsNotNullOrEmpty() == true)
+                    if (JSONObject["userId"  ]?.Value<String>().IsNotNullOrEmpty() == true &&
+                        JSONObject["@context"]?.Value<String>().IsNotNullOrEmpty() == true &&
+                        User_Id.TryParse(JSONObject["userId"]?.Value<String>(), out UserId) &&
+                        TryGetUser(UserId, out _User))
                     {
 
-                        var UserId  = User_Id.Parse(JSONObject["userId"]?.Value<String>());
+                        switch (JSONObject["@context"]?.Value<String>())
+                        {
 
-                        if (JSONObject["notificationId"]?.Value<String>().IsNotNullOrEmpty() == true)
-                            switch (JSONObject["type"]?.Value<String>())
-                            {
+                            case EMailNotification.JSONLDContext:
 
-                                case "EMailNotification":
-                                    RegisterNotification(UserId,
-                                                         Notification_Id.Parse(JSONObject["notificationId"]?.Value<String>()),
-                                                         EMailNotification.Parse(JSONObject),
-                                                         (a, b) => a.EMailAddress == b.EMailAddress);
-                                    break;
+                                var emailnotification = EMailNotification.Parse(JSONObject);
 
-                                case "SMSNotification":
-                                    RegisterNotification(UserId,
-                                                         Notification_Id.Parse(JSONObject["notificationId"]?.Value<String>()),
-                                                         SMSNotification.Parse(JSONObject),
-                                                         (a, b) => a.Phonenumber == b.Phonenumber);
-                                    break;
+                                if (emailnotification != null)
+                                    _User.AddNotification(emailnotification);
 
-                                case "HTTPSNotification":
-                                    RegisterNotification(UserId,
-                                                         Notification_Id.Parse(JSONObject["notificationId"]?.Value<String>()),
-                                                         HTTPSNotification.Parse(JSONObject),
-                                                         (a, b) => a.URL == b.URL);
-                                    break;
+                                else
+                                    DebugX.Log(String.Concat(nameof(UsersAPI), " Could not parse the given e-mail notification!"));
 
-                            }
+                                break;
 
-                        else
-                            switch (JSONObject["type"]?.Value<String>())
-                            {
 
-                                case "EMailNotification":
-                                    RegisterNotification(UserId,
-                                                         EMailNotification.Parse(JSONObject),
-                                                         (a, b) => a.EMailAddress == b.EMailAddress);
-                                    break;
+                            case SMSNotification.JSONLDContext:
 
-                                case "SMSNotification":
-                                    RegisterNotification(UserId,
-                                                         SMSNotification.Parse(JSONObject),
-                                                         (a, b) => a.Phonenumber == b.Phonenumber);
-                                    break;
+                                var smsnotification = SMSNotification.Parse(JSONObject);
 
-                                case "HTTPSNotification":
-                                    RegisterNotification(UserId,
-                                                         HTTPSNotification.Parse(JSONObject),
-                                                         (a, b) => a.URL == b.URL);
-                                    break;
+                                if (smsnotification != null)
+                                    _User.AddNotification(smsnotification);
 
-                            }
+                                else
+                                    DebugX.Log(String.Concat(nameof(UsersAPI), " Could not parse the given SMS notification!"));
+
+                                break;
+
+
+                            case HTTPSNotification.JSONLDContext:
+
+                                var httpsnotification = HTTPSNotification.Parse(JSONObject);
+
+                                if (httpsnotification != null)
+                                    _User.AddNotification(httpsnotification);
+
+                                else
+                                    DebugX.Log(String.Concat(nameof(UsersAPI), " Could not parse the given HTTPS notification!"));
+
+                                break;
+
+                        }
 
                     }
+
+                    else
+                        DebugX.Log(String.Concat(nameof(UsersAPI), " Could not parse the given 'add notification' command!"));
 
                     break;
 
@@ -5768,50 +5967,61 @@ namespace org.GraphDefined.OpenData.Users
 
                 #region RemoveNotification
 
-                case "RemoveNotification":
+                case "removeNotification":
 
-                    if (JSONObject["userId"]?.Value<String>().IsNotNullOrEmpty() == true &&
-                        JSONObject["type"  ]?.Value<String>().IsNotNullOrEmpty() == true)
+                    if (JSONObject["userId"  ]?.Value<String>().IsNotNullOrEmpty() == true &&
+                        JSONObject["@context"]?.Value<String>().IsNotNullOrEmpty() == true &&
+                        User_Id.TryParse(JSONObject["userId"]?.Value<String>(), out UserId) &&
+                        TryGetUser(UserId, out _User))
                     {
 
-                        var UserId  = User_Id.Parse(JSONObject["userId"]?.Value<String>());
+                        switch (JSONObject["@context"]?.Value<String>())
+                        {
 
-                        if (JSONObject["notificationId"]?.Value<String>().IsNotNullOrEmpty() == true)
-                            switch (JSONObject["type"]?.Value<String>())
-                            {
+                            case EMailNotification.JSONLDContext:
 
-                                case "EMailNotification":
-                                    UnregisterNotification<EMailNotification>(UserId,
-                                                                              Notification_Id.Parse(JSONObject["notificationId"]?.Value<String>()),
-                                                                              a => a.EMailAddress == EMailNotification.Parse(JSONObject).EMailAddress);
-                                    break;
+                                var emailnotification = EMailNotification.Parse(JSONObject);
 
-                                case "SMSNotification":
-                                    UnregisterNotification<SMSNotification>  (UserId,
-                                                                              Notification_Id.Parse(JSONObject["notificationId"]?.Value<String>()),
-                                                                              a => a.Phonenumber  == SMSNotification.  Parse(JSONObject).Phonenumber);
-                                    break;
+                                if (emailnotification != null)
+                                    _User.RemoveNotification(emailnotification);
 
-                            }
+                                else
+                                    DebugX.Log(String.Concat(nameof(UsersAPI), " Could not parse the given e-mail notification!"));
 
-                        else
-                            switch (JSONObject["type"]?.Value<String>())
-                            {
+                                break;
 
-                                case "EMailNotification":
-                                    UnregisterNotification<EMailNotification>(UserId,
-                                                                              a => a.EMailAddress == EMailNotification.Parse(JSONObject).EMailAddress);
-                                    break;
 
-                                case "SMSNotification":
-                                    UnregisterNotification<SMSNotification>  (UserId,
-                                                                              a => a.Phonenumber  == SMSNotification.  Parse(JSONObject).Phonenumber);
-                                    break;
+                            case SMSNotification.JSONLDContext:
 
-                            }
+                                var smsnotification = SMSNotification.Parse(JSONObject);
 
+                                if (smsnotification != null)
+                                    _User.RemoveNotification(smsnotification);
+
+                                else
+                                    DebugX.Log(String.Concat(nameof(UsersAPI), " Could not parse the given SMS notification!"));
+
+                                break;
+
+
+                            case HTTPSNotification.JSONLDContext:
+
+                                var httpsnotification = HTTPSNotification.Parse(JSONObject);
+
+                                if (httpsnotification != null)
+                                    _User.RemoveNotification(httpsnotification);
+
+                                else
+                                    DebugX.Log(String.Concat(nameof(UsersAPI), " Could not parse the given HTTPS notification!"));
+
+                                break;
+
+                        }
 
                     }
+
+                    else
+                        DebugX.Log(String.Concat(nameof(UsersAPI), " Could not parse the given 'remove notification' command!"));
 
                     break;
 
@@ -5820,11 +6030,12 @@ namespace org.GraphDefined.OpenData.Users
 
                 #region AddAPIKey
 
+                case "addAPIKey":
                 case "AddAPIKey":
 
                     if (APIKeyInfo.TryParseJSON(JSONObject,
                                                 out APIKeyInfo _APIKey,
-                                                userid => _Users[userid],
+                                                _Users.TryGetValue,
                                                 out ErrorResponse))
                     {
                         _APIKeys.AddAndReturnValue(_APIKey.APIKey, _APIKey);
@@ -6101,102 +6312,170 @@ namespace org.GraphDefined.OpenData.Users
         #endregion
 
 
-        #region WriteToLogfileAndNotify(MessageId, JSONData, Logfilename = DefaultUsersAPIFile)
+        #region WriteToLogfileAndNotify(MessageType, JSONData, Owner,  CurrentUserId = null)
 
-        public void WriteToLogfileAndNotify(String    MessageId,
-                                            JObject   JSONData,
-                                            User_Id?  CurrentUserId)
+        public Task WriteToLogfileAndNotify(NotificationMessageType  MessageType,
+                                            JObject                  JSONData,
+                                            Organization             Owner,
+                                            User_Id?                 CurrentUserId = null)
+
+            => WriteToLogfileAndNotify(MessageType,
+                                       JSONData,
+                                       Owner != null ? new Organization[] { Owner } : new Organization[0],
+                                       this.UsersAPIPath + DefaultUsersAPIFile,
+                                       CurrentUserId);
+
+        #endregion
+
+        #region WriteToLogfileAndNotify(MessageType, JSONData, Owners, CurrentUserId = null)
+
+        public Task WriteToLogfileAndNotify(NotificationMessageType    MessageType,
+                                            JObject                    JSONData,
+                                            IEnumerable<Organization>  Owners,
+                                            User_Id?                   CurrentUserId = null)
+
+            => WriteToLogfileAndNotify(MessageType,
+                                       JSONData,
+                                       Owners,
+                                       this.UsersAPIPath + DefaultUsersAPIFile,
+                                       CurrentUserId);
+
+        #endregion
+
+        #region WriteToLogfileAndNotify(MessageType, JSONData, Owner,  Logfilename = DefaultUsersAPIFile, CurrentUserId = null)
+
+        public Task WriteToLogfileAndNotify(NotificationMessageType  MessageType,
+                                            JObject                  JSONData,
+                                            Organization             Owner,
+                                            String                   Logfilename    = DefaultUsersAPIFile,
+                                            User_Id?                 CurrentUserId  = null)
+
+            => WriteToLogfileAndNotify(MessageType,
+                                       JSONData,
+                                       Owner != null ? new Organization[] { Owner } : new Organization[0],
+                                       Logfilename,
+                                       CurrentUserId);
+
+        #endregion
+
+        //protected virtual IEnumerable<EMailAddress> GetNotificationEMailAddresses22(NotificationMessageType    MessageType,
+        //                                                                            IEnumerable<Organization>  Owners)
+        //{
+        //    return EMailAddressList.Empty;
+        //}
+
+        #region WriteToLogfileAndNotify(MessageType, JSONData, Owners, Logfilename = DefaultUsersAPIFile, CurrentUserId = null)
+
+        /// <summary>
+        /// Write data to a log file and send notifications.
+        /// </summary>
+        /// <param name="MessageType">The type of the message.</param>
+        /// <param name="JSONData">The JSON data of the message.</param>
+        /// <param name="Owners">The owner of this information.</param>
+        /// <param name="Logfilename">An optional log file name.</param>
+        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
+        public async Task WriteToLogfileAndNotify(NotificationMessageType    MessageType,
+                                                  JObject                    JSONData,
+                                                  IEnumerable<Organization>  Owners,
+                                                  String                     Logfilename    = DefaultUsersAPIFile,
+                                                  User_Id?                   CurrentUserId  = null)
         {
 
-            WriteToLogfileAndNotify(MessageId,
-                                    JSONData,
-                                    DefaultUsersAPIFile,
-                                    CurrentUserId);
-
-        }
-
-        public void WriteToLogfileAndNotify(String    MessageId,
-                                            JObject   JSONData,
-                                            String    Logfilename    = DefaultUsersAPIFile,
-                                            User_Id?  CurrentUserId  = null)
-        {
-
-            #region Initial checks
-
-            if (MessageId != null)
-                MessageId = MessageId.Trim();
-
-            if (MessageId.IsNullOrEmpty())
-                throw new ArgumentNullException(nameof(MessageId), "The given logfile message identification must not be null or empty!");
-
-            #endregion
-
-            if (!DisableLogfile)
+            if (!DisableLogfile || !DisableNotifications)
             {
-                lock (DefaultUsersAPIFile)
+
+                var Now          = DateTime.UtcNow;
+
+                var JSONMessage  = new JObject(
+                                       new JProperty(MessageType.ToString(),  JSONData),
+                                       new JProperty("userId",                (CurrentUserId ?? CurrentAsyncLocalUserId.Value ?? Robot.Id).ToString()),
+                                       new JProperty("systemId",              SystemId.ToString()),
+                                       new JProperty("timestamp",             Now.ToIso8601()),
+                                       new JProperty("sha256hash",            new JObject(
+                                           new JProperty("nonce",                 Guid.NewGuid().ToString().Replace("-", "")),
+                                           new JProperty("parentHash",            CurrentDatabaseHashValue)
+                                       ))
+                                   );
+
+                var SHA256                = new SHA256Managed();
+                CurrentDatabaseHashValue  = SHA256.ComputeHash(Encoding.Unicode.GetBytes(JSONWhitespaceRegEx.Replace(JSONMessage.ToString(), " "))).
+                                                   Select(value => String.Format("{0:x2}", value)).
+                                                   Aggregate();
+
+                (JSONMessage["sha256hash"] as JObject)?.Add(new JProperty("hashValue",  CurrentDatabaseHashValue));
+
+                #region Write to logfile
+
+                if (!DisableLogfile)
                 {
 
-                    var Now          = DateTime.UtcNow;
-
-                    var JSONMessage  = new JObject(
-                                           new JProperty(MessageId,     JSONData),
-                                           new JProperty("userId",      (CurrentUserId ?? CurrentAsyncLocalUserId.Value ?? Robot.Id).ToString()),
-                                           new JProperty("systemId",    SystemId.ToString()),
-                                           new JProperty("timestamp",   Now.ToIso8601()),
-                                           new JProperty("sha256hash",  new JObject(
-                                               new JProperty("nonce",       Guid.NewGuid().ToString().Replace("-", "")),
-                                               new JProperty("parentHash",  CurrentDatabaseHashValue)
-                                           ))
-                                       );
-
-                    var SHA256                = new SHA256Managed();
-                    CurrentDatabaseHashValue  = SHA256.ComputeHash(Encoding.Unicode.GetBytes(JSONWhitespaceRegEx.Replace(JSONMessage.ToString(), " "))).
-                                                       Select(value => String.Format("{0:x2}", value)).
-                                                       Aggregate();
-
-                    (JSONMessage["sha256hash"] as JObject)?.Add(new JProperty("hashValue",  CurrentDatabaseHashValue));
-
-                    #region Write to logfile
-
-                    var retry = false;
-
-                    do
+                    try
                     {
 
-                        try
+                        await LogFileSemaphore.WaitAsync();
+
+                        var retry       = 0;
+                        var maxRetries  = 23;
+
+                        do
                         {
 
-                            File.AppendAllText(Logfilename,
-                                               JSONWhitespaceRegEx.Replace(JSONMessage.ToString(), " ") +
-                                               Environment.NewLine);
+                            try
+                            {
 
-                        }
-                        catch (IOException ioEx)
-                        {
-                            retry = false;
-                        }
-                        catch (Exception e)
-                        {
-                            retry = false;
-                        }
+                                File.AppendAllText(Logfilename,
+                                                   JSONWhitespaceRegEx.Replace(JSONMessage.ToString(), " ") + Environment.NewLine);
 
-                    } while(retry);
+                                retry = maxRetries;
 
-                    #endregion
+                            }
+                            catch (IOException ioEx)
+                            {
+                                DebugX.Log("Retry " + retry + ": Could not write message '" + MessageType + "' to logfile '" + Logfilename + "': " + ioEx.Message);
+                                await Task.Delay(10);
+                                retry++;
+                            }
+                            catch (Exception e)
+                            {
+                                DebugX.Log("Retry " + retry + ": Could not write message '" + MessageType + "' to logfile '" + Logfilename + "': " + e.Message);
+                                await Task.Delay(10);
+                                retry++;
+                            }
 
-                    #region Send notifications
+                        } while (retry < maxRetries);
 
-                    if (!DisableNotifications)
+                    }
+                    finally
                     {
-                        lock (_NotificationMessages)
-                        {
-                            _NotificationMessages.Add(new Timestamped<JObject>(Now, JSONMessage));
-                        }
+                        LogFileSemaphore.Release();
                     }
 
-                    #endregion
-
                 }
+
+                #endregion
+
+                #region Send notifications
+
+                if (!DisableNotifications)
+                {
+                    try
+                    {
+
+                        await NotificationsSemaphore.WaitAsync();
+
+                        _NotificationMessages.Enqueue(new NotificationMessage(Now,
+                                                                              MessageType,
+                                                                              JSONMessage,
+                                                                              Owners));
+
+                    }
+                    finally
+                    {
+                        NotificationsSemaphore.Release();
+                    }
+                }
+
+                #endregion
 
             }
 
@@ -6204,19 +6483,24 @@ namespace org.GraphDefined.OpenData.Users
 
         #endregion
 
+
         #region WriteToCustomLogfile(Logfilename, Lock, Data)
 
-        public void WriteToCustomLogfile(String  Logfilename,
-                                         Object  Lock,
-                                         String  Data)
+        public async Task WriteToCustomLogfile(String         Logfilename,
+                                               SemaphoreSlim  Lock,
+                                               String         Data)
         {
 
             if (!DisableLogfile)
             {
-                lock (Lock)
+
+                try
                 {
 
-                    var retry = false;
+                    await Lock.WaitAsync();
+
+                    var retry       = 0;
+                    var maxRetries  = 23;
 
                     do
                     {
@@ -6228,40 +6512,220 @@ namespace org.GraphDefined.OpenData.Users
                                                Data +
                                                Environment.NewLine);
 
+                            retry = maxRetries;
+
                         }
                         catch (IOException ioEx)
                         {
-                            retry = false;
+                            DebugX.Log("Retry " + retry + ": Could not write custom logfile '" + Logfilename + "': " + ioEx.Message);
+                            await Task.Delay(10);
+                            retry++;
                         }
                         catch (Exception e)
                         {
-                            retry = false;
+                            DebugX.Log("Retry " + retry + ": Could not write custom logfile '" + Logfilename + "': " + e.Message);
+                            await Task.Delay(10);
+                            retry++;
                         }
 
-                    } while(retry);
+                    } while (retry < maxRetries);
 
                 }
+                finally
+                {
+                    Lock.Release();
+                }
+
             }
 
         }
 
         #endregion
 
-        #region NotificationMessages
 
-        private readonly List<Timestamped<JObject>> _NotificationMessages = new List<Timestamped<JObject>>();
+        #region AddEventSource(HTTPEventSourceId, URITemplate, IncludeFilterAtRuntime, CreateState, ...)
 
-        public IEnumerable<Timestamped<JObject>> NotificationMessages
+        public void AddEventSource<TState>(HTTPEventSource_Id                      HTTPEventSourceId,
+                                           HTTPURI                                 URITemplate,
+
+                                           Func<TState, User, HTTPEvent, Boolean>  IncludeFilterAtRuntime,
+                                           Func<TState>                            CreateState,
+
+                                           HTTPHostname?                           Hostname                   = null,
+                                           HTTPMethod?                             HttpMethod                 = null,
+                                           HTTPContentType                         HTTPContentType            = null,
+
+                                           HTTPAuthentication                      URIAuthentication          = null,
+                                           HTTPAuthentication                      HTTPMethodAuthentication   = null,
+
+                                           HTTPDelegate                            DefaultErrorHandler        = null)
+        {
+
+            if (IncludeFilterAtRuntime == null)
+                IncludeFilterAtRuntime = (s, u, e) => true;
+
+            if (TryGet(HTTPEventSourceId, out IHTTPEventSource _EventSource))
+            {
+
+                HTTPServer.AddMethodCallback(Hostname        ?? HTTPHostname.Any,
+                                             HttpMethod      ?? HTTPMethod.GET,
+                                             URITemplate,
+                                             HTTPContentType ?? HTTPContentType.EVENTSTREAM,
+                                             URIAuthentication:         URIAuthentication,
+                                             HTTPMethodAuthentication:  HTTPMethodAuthentication,
+                                             DefaultErrorHandler:       DefaultErrorHandler,
+                                             HTTPDelegate:              Request => {
+
+                                                 #region Get HTTP user and its organizations
+
+                                                 // Will return HTTP 401 Unauthorized, when the HTTP user is unknown!
+                                                 if (!TryGetHTTPUser(Request,
+                                                                     out User                       HTTPUser,
+                                                                     out IEnumerable<Organization>  HTTPOrganizations,
+                                                                     out HTTPResponse               Response,
+                                                                     AccessLevel:                   Access_Levels.ReadWrite,
+                                                                     Recursive:                     true))
+                                                 {
+                                                     return Task.FromResult(Response);
+                                                 }
+
+                                                 #endregion
+
+                                                 var State        = CreateState != null ? CreateState() : default(TState);
+                                                 var _HTTPEvents  = _EventSource.GetAllEventsGreater(Request.GetHeaderField_UInt64("Last-Event-ID")).
+                                                                                 Where (_event => IncludeFilterAtRuntime(State,
+                                                                                                                         HTTPUser,
+                                                                                                                         _event)).
+                                                                                 Select(_event => _event.ToString()).
+                                                                                 AggregateWith(Environment.NewLine) +
+                                                                                 Environment.NewLine;
+
+                                        //             _ResourceContent += Environment.NewLine + "retry: " + ((UInt32)_EventSource.RetryIntervall.TotalMilliseconds) + Environment.NewLine + Environment.NewLine;
+
+
+                                                 return Task.FromResult(
+                                                     new HTTPResponse.Builder(Request) {
+                                                         HTTPStatusCode  = HTTPStatusCode.OK,
+                                                         Server          = HTTPServer.DefaultHTTPServerName,
+                                                         ContentType     = HTTPContentType.EVENTSTREAM,
+                                                         CacheControl    = "no-cache",
+                                                         Connection      = "keep-alive",
+                                                         KeepAlive       = new KeepAliveType(TimeSpan.FromSeconds(2 * _EventSource.RetryIntervall.TotalSeconds)),
+                                                         Content         = _HTTPEvents.ToUTF8Bytes()
+                                                     }.AsImmutable);
+
+                                             });
+
+            }
+
+            else
+                throw new ArgumentException("Event source '" + HTTPEventSourceId + "' could not be found!", nameof(HTTPEventSourceId));
+
+        }
+
+        public void AddEventSource<TState>(HTTPEventSource_Id                                                 HTTPEventSourceId,
+                                           HTTPURI                                                            URITemplate,
+
+                                           Func<TState, User, IEnumerable<Organization>, HTTPEvent, Boolean>  IncludeFilterAtRuntime,
+                                           Func<TState>                                                       CreateState,
+
+                                           HTTPHostname?                                                      Hostname                   = null,
+                                           HTTPMethod?                                                        HttpMethod                 = null,
+                                           HTTPContentType                                                    HTTPContentType            = null,
+
+                                           HTTPAuthentication                                                 URIAuthentication          = null,
+                                           HTTPAuthentication                                                 HTTPMethodAuthentication   = null,
+
+                                           HTTPDelegate                                                       DefaultErrorHandler        = null)
+        {
+
+            if (IncludeFilterAtRuntime == null)
+                IncludeFilterAtRuntime = (s, u, o, e) => true;
+
+            if (TryGet(HTTPEventSourceId, out IHTTPEventSource _EventSource))
+            {
+
+                HTTPServer.AddMethodCallback(Hostname        ?? HTTPHostname.Any,
+                                             HttpMethod      ?? HTTPMethod.GET,
+                                             URITemplate,
+                                             HTTPContentType ?? HTTPContentType.EVENTSTREAM,
+                                             URIAuthentication:         URIAuthentication,
+                                             HTTPMethodAuthentication:  HTTPMethodAuthentication,
+                                             DefaultErrorHandler:       DefaultErrorHandler,
+                                             HTTPDelegate:              Request => {
+
+                                                 #region Get HTTP user and its organizations
+
+                                                 // Will return HTTP 401 Unauthorized, when the HTTP user is unknown!
+                                                 if (!TryGetHTTPUser(Request,
+                                                                     out User                       HTTPUser,
+                                                                     out IEnumerable<Organization>  HTTPOrganizations,
+                                                                     out HTTPResponse               Response,
+                                                                     AccessLevel:                   Access_Levels.ReadWrite,
+                                                                     Recursive:                     true))
+                                                 {
+                                                     return Task.FromResult(Response);
+                                                 }
+
+                                                 #endregion
+
+                                                 var State        = CreateState != null ? CreateState() : default(TState);
+                                                 var _HTTPEvents  = _EventSource.GetAllEventsGreater(Request.GetHeaderField_UInt64("Last-Event-ID")).
+                                                                        Where (_event => IncludeFilterAtRuntime(State,
+                                                                                                                HTTPUser,
+                                                                                                                HTTPOrganizations,
+                                                                                                                _event)).
+                                                                        Select(_event => _event.ToString()).
+                                                                        AggregateWith(Environment.NewLine) +
+                                                                        Environment.NewLine;
+
+                                        //             _ResourceContent += Environment.NewLine + "retry: " + ((UInt32)_EventSource.RetryIntervall.TotalMilliseconds) + Environment.NewLine + Environment.NewLine;
+
+
+                                                 return Task.FromResult(
+                                                     new HTTPResponse.Builder(Request) {
+                                                         HTTPStatusCode  = HTTPStatusCode.OK,
+                                                         Server          = HTTPServer.DefaultHTTPServerName,
+                                                         ContentType     = HTTPContentType.EVENTSTREAM,
+                                                         CacheControl    = "no-cache",
+                                                         Connection      = "keep-alive",
+                                                         KeepAlive       = new KeepAliveType(TimeSpan.FromSeconds(2 * _EventSource.RetryIntervall.TotalSeconds)),
+                                                         Content         = _HTTPEvents.ToUTF8Bytes()
+                                                     }.AsImmutable);
+
+                                             });
+
+            }
+
+            else
+                throw new ArgumentException("Event source '" + HTTPEventSourceId + "' could not be found!", nameof(HTTPEventSourceId));
+
+        }
+
+        #endregion
+
+
+        #region Users
+
+        #region Data
+
+        protected readonly Dictionary<User_Id, User> _Users;
+
+        /// <summary>
+        /// Return an enumeration of all users.
+        /// </summary>
+        public IEnumerable<User> Users
         {
             get
             {
-
-                if (DisableNotifications)
-                    return new Timestamped<JObject>[0];
-
-                lock (_NotificationMessages)
+                try
                 {
-                    return _NotificationMessages.ToArray();
+                    UsersSemaphore.Wait();
+                    return _Users.Values.ToArray();
+                }
+                finally
+                {
+                    UsersSemaphore.Release();
                 }
 
             }
@@ -6269,195 +6733,2214 @@ namespace org.GraphDefined.OpenData.Users
 
         #endregion
 
-        #region GetAndClearNotifications()
 
-        //public IEnumerable<JObject> GetAndClearNotifications()
-        //{
+        #region Add           (User,   OnAdded = null,                   CurrentUserId = null)
 
-        //    if (DisableNotifications)
-        //        return new JObject[0];
-
-        //    lock (_NotificationMessages)
-        //    {
-
-        //        var _Notifications = _NotificationMessages.ToArray();
-        //        _NotificationMessages.Clear();
-
-        //        return _Notifications;
-
-        //    }
-
-        //}
-
-        #endregion
-
-
-        #region AddEventSource(HTTPEventSourceId, URITemplate, IncludeFilterAtRuntime, ...)
-
-        public void AddEventSource(HTTPEventSource_Id              HTTPEventSourceId,
-                                   HTTPURI                         URITemplate,
-
-                                   Func<User, HTTPEvent, Boolean>  IncludeFilterAtRuntime,
-
-                                   HTTPHostname?                   Hostname                   = null,
-                                   HTTPMethod?                     HttpMethod                 = null,
-                                   HTTPContentType                 HTTPContentType            = null,
-
-                                   HTTPAuthentication              URIAuthentication          = null,
-                                   HTTPAuthentication              HTTPMethodAuthentication   = null,
-
-                                   HTTPDelegate                    DefaultErrorHandler        = null)
+        /// <summary>
+        /// Add the given user to the API.
+        /// </summary>
+        /// <param name="User">A new user to be added to this API.</param>
+        /// <param name="OnAdded">A delegate run whenever the user had been added successfully.</param>
+        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
+        public async Task<User> Add(User          User,
+                                    Action<User>  OnAdded        = null,
+                                    User_Id?      CurrentUserId  = null)
         {
 
-            if (IncludeFilterAtRuntime == null)
-                IncludeFilterAtRuntime = (u, e) => true;
-
-            if (TryGet(HTTPEventSourceId, out HTTPEventSource _EventSource))
+            try
             {
 
-                HTTPServer.AddMethodCallback(Hostname        ?? HTTPHostname.Any,
-                                             HttpMethod      ?? HTTPMethod.GET,
-                                             URITemplate,
-                                             HTTPContentType ?? HTTPContentType.EVENTSTREAM,
-                                             URIAuthentication:         URIAuthentication,
-                                             HTTPMethodAuthentication:  HTTPMethodAuthentication,
-                                             DefaultErrorHandler:       DefaultErrorHandler,
-                                             HTTPDelegate:              Request => {
+                await UsersSemaphore.WaitAsync();
 
-                                                 #region Get HTTP user and its organizations
+                if (User.API != null && User.API != this)
+                    throw new ArgumentException(nameof(User), "The given user is already attached to another API!");
 
-                                                 // Will return HTTP 401 Unauthorized, when the HTTP user is unknown!
-                                                 if (!TryGetHTTPUser(Request,
-                                                                     out User                       HTTPUser,
-                                                                     out IEnumerable<Organization>  HTTPOrganizations,
-                                                                     out HTTPResponse               Response,
-                                                                     AccessLevel:                   Access_Levels.ReadWrite,
-                                                                     Recursive:                     true))
-                                                 {
-                                                     return Task.FromResult(Response);
-                                                 }
+                if (_Users.ContainsKey(User.Id))
+                    throw new Exception("User '" + User.Id + "' already exists in this API!");
 
-                                                 #endregion
+                User.API = this;
 
-                                                 var _HTTPEvents         = _EventSource.GetAllEventsGreater(Request.GetHeaderField_UInt64("Last-Event-ID")).
-                                                                                        Where (_event => IncludeFilterAtRuntime(HTTPUser, _event)).
-                                                                                        Select(_event => _event.ToString()).
-                                                                                        AggregateWith(Environment.NewLine) +
-                                                                           Environment.NewLine;
+                await WriteToLogfileAndNotify(NotificationMessageType.Parse("addUser"),
+                                              User.ToJSON(),
+                                              NoOwner,
+                                              CurrentUserId);
 
-                                        //             _ResourceContent += Environment.NewLine + "retry: " + ((UInt32)_EventSource.RetryIntervall.TotalMilliseconds) + Environment.NewLine + Environment.NewLine;
+                _Users.Add(User.Id, User);
 
+                OnAdded?.Invoke(User);
 
-                                                 return Task.FromResult(
-                                                     new HTTPResponse.Builder(Request) {
-                                                         HTTPStatusCode  = HTTPStatusCode.OK,
-                                                         Server          = HTTPServer.DefaultHTTPServerName,
-                                                         ContentType     = HTTPContentType.EVENTSTREAM,
-                                                         CacheControl    = "no-cache",
-                                                         Connection      = "keep-alive",
-                                                         KeepAlive       = new KeepAliveType(TimeSpan.FromSeconds(2 * _EventSource.RetryIntervall.TotalSeconds)),
-                                                         Content         = _HTTPEvents.ToUTF8Bytes()
-                                                     }.AsImmutable);
-
-                                             });
+                return User;
 
             }
-
-            else
-                throw new ArgumentException("Event source '" + HTTPEventSourceId + "' could not be found!", nameof(HTTPEventSourceId));
-
-        }
-
-
-        public void AddEventSource(HTTPEventSource_Id                                         HTTPEventSourceId,
-                                   HTTPURI                                                    URITemplate,
-
-                                   Func<User, IEnumerable<Organization>, HTTPEvent, Boolean>  IncludeFilterAtRuntime,
-
-                                   HTTPHostname?                                              Hostname                   = null,
-                                   HTTPMethod?                                                HttpMethod                 = null,
-                                   HTTPContentType                                            HTTPContentType            = null,
-
-                                   HTTPAuthentication                                         URIAuthentication          = null,
-                                   HTTPAuthentication                                         HTTPMethodAuthentication   = null,
-
-                                   HTTPDelegate                                               DefaultErrorHandler        = null)
-        {
-
-            if (IncludeFilterAtRuntime == null)
-                IncludeFilterAtRuntime = (u, o, e) => true;
-
-            if (TryGet(HTTPEventSourceId, out HTTPEventSource _EventSource))
+            finally
             {
-
-                HTTPServer.AddMethodCallback(Hostname        ?? HTTPHostname.Any,
-                                             HttpMethod      ?? HTTPMethod.GET,
-                                             URITemplate,
-                                             HTTPContentType ?? HTTPContentType.EVENTSTREAM,
-                                             URIAuthentication:         URIAuthentication,
-                                             HTTPMethodAuthentication:  HTTPMethodAuthentication,
-                                             DefaultErrorHandler:       DefaultErrorHandler,
-                                             HTTPDelegate:              Request => {
-
-                                                 #region Get HTTP user and its organizations
-
-                                                 // Will return HTTP 401 Unauthorized, when the HTTP user is unknown!
-                                                 if (!TryGetHTTPUser(Request,
-                                                                     out User                       HTTPUser,
-                                                                     out IEnumerable<Organization>  HTTPOrganizations,
-                                                                     out HTTPResponse               Response,
-                                                                     AccessLevel:                   Access_Levels.ReadWrite,
-                                                                     Recursive:                     true))
-                                                 {
-                                                     return Task.FromResult(Response);
-                                                 }
-
-                                                 #endregion
-
-                                                 var _HTTPEvents         = _EventSource.GetAllEventsGreater(Request.GetHeaderField_UInt64("Last-Event-ID")).
-                                                                                        Where (_event => IncludeFilterAtRuntime(HTTPUser,
-                                                                                                                                HTTPOrganizations,
-                                                                                                                                _event)).
-                                                                                        Select(_event => _event.ToString()).
-                                                                                        AggregateWith(Environment.NewLine) +
-                                                                           Environment.NewLine;
-
-                                        //             _ResourceContent += Environment.NewLine + "retry: " + ((UInt32)_EventSource.RetryIntervall.TotalMilliseconds) + Environment.NewLine + Environment.NewLine;
-
-
-                                                 return Task.FromResult(
-                                                     new HTTPResponse.Builder(Request) {
-                                                         HTTPStatusCode  = HTTPStatusCode.OK,
-                                                         Server          = HTTPServer.DefaultHTTPServerName,
-                                                         ContentType     = HTTPContentType.EVENTSTREAM,
-                                                         CacheControl    = "no-cache",
-                                                         Connection      = "keep-alive",
-                                                         KeepAlive       = new KeepAliveType(TimeSpan.FromSeconds(2 * _EventSource.RetryIntervall.TotalSeconds)),
-                                                         Content         = _HTTPEvents.ToUTF8Bytes()
-                                                     }.AsImmutable);
-
-                                             });
-
+                UsersSemaphore.Release();
             }
-
-            else
-                throw new ArgumentException("Event source '" + HTTPEventSourceId + "' could not be found!", nameof(HTTPEventSourceId));
 
         }
 
         #endregion
 
+        #region AddIfNotExists(User,   OnAdded = null,                   CurrentUserId = null)
 
-        #region DataLicenses
+        /// <summary>
+        /// When it has not been created before, add the given user to the API.
+        /// </summary>
+        /// <param name="User">A new user to be added to this API.</param>
+        /// <param name="OnAdded">A delegate run whenever the user had been added successfully.</param>
+        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
+        public async Task<User> AddIfNotExists(User          User,
+                                               Action<User>  OnAdded        = null,
+                                               User_Id?      CurrentUserId  = null)
+        {
+
+            try
+            {
+
+                await UsersSemaphore.WaitAsync();
+
+                if (User.API != null && User.API != this)
+                    throw new ArgumentException(nameof(User), "The given user is already attached to another API!");
+
+                if (_Users.ContainsKey(User.Id))
+                    return _Users[User.Id];
+
+                User.API = this;
+
+                await WriteToLogfileAndNotify(NotificationMessageType.Parse("addIfNotExistsUser"),
+                                              User.ToJSON(),
+                                              NoOwner,
+                                              CurrentUserId);
+
+                _Users.Add(User.Id, User);
+
+                OnAdded?.Invoke(User);
+
+                return User;
+
+            }
+            finally
+            {
+                UsersSemaphore.Release();
+            }
+
+        }
+
+        #endregion
+
+        #region AddOrUpdate   (User,   OnAdded = null, OnUpdated = null, CurrentUserId = null)
+
+        /// <summary>
+        /// Add or update the given user to/within the API.
+        /// </summary>
+        /// <param name="User">A user.</param>
+        /// <param name="OnAdded">A delegate run whenever the user had been added successfully.</param>
+        /// <param name="OnUpdated">A delegate run whenever the user had been updated successfully.</param>
+        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
+        public async Task<User> AddOrUpdate(User          User,
+                                            Action<User>  OnAdded        = null,
+                                            Action<User>  OnUpdated      = null,
+                                            User_Id?      CurrentUserId  = null)
+        {
+
+            try
+            {
+
+                await UsersSemaphore.WaitAsync();
+
+                if (User.API != null && User.API != this)
+                    throw new ArgumentException(nameof(User), "The given user is already attached to another API!");
+
+                await WriteToLogfileAndNotify(NotificationMessageType.Parse("addOrUpdateUser"),
+                                              User.ToJSON(),
+                                              NoOwner,
+                                              CurrentUserId);
+
+                User.API = this;
+
+                if (_Users.TryGetValue(User.Id, out User OldUser))
+                {
+                    _Users.Remove(OldUser.Id);
+                    OldUser.CopyAllEdgesTo(User);
+                }
+
+                _Users.Add(User.Id, User);
+
+                if (OldUser != null)
+                    OnUpdated?.Invoke(User);
+                else
+                    OnAdded?.  Invoke(User);
+
+                return User;
+
+            }
+            finally
+            {
+                UsersSemaphore.Release();
+            }
+
+        }
+
+        #endregion
+
+        #region Update        (User,                                     CurrentUserId = null)
+
+        /// <summary>
+        /// Update the given user to/within the API.
+        /// </summary>
+        /// <param name="User">A user.</param>
+        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
+        public async Task<User> Update(User      User,
+                                       User_Id?  CurrentUserId  = null)
+        {
+
+            try
+            {
+
+                await UsersSemaphore.WaitAsync();
+
+                if (User.API != null && User.API != this)
+                    throw new ArgumentException(nameof(User), "The given user is already attached to another API!");
+
+                if (!_Users.TryGetValue(User.Id, out User OldUser))
+                    throw new Exception("User '" + User.Id + "' does not exists in this API!");
+
+
+                await WriteToLogfileAndNotify(NotificationMessageType.Parse("updateUser"),
+                                              User.ToJSON(),
+                                              NoOwner,
+                                              CurrentUserId);
+
+                User.API = this;
+
+                _Users.Remove(OldUser.Id);
+                OldUser.CopyAllEdgesTo(User);
+
+                return _Users.AddAndReturnValue(User.Id, User);
+
+            }
+            finally
+            {
+                UsersSemaphore.Release();
+            }
+
+        }
+
+        #endregion
+
+        #region Update        (UserId, UpdateDelegate,                   CurrentUserId = null)
+
+        /// <summary>
+        /// Update the given user.
+        /// </summary>
+        /// <param name="UserId">An user identification.</param>
+        /// <param name="UpdateDelegate">A delegate to update the given user.</param>
+        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
+        public async Task<User> Update(User_Id               UserId,
+                                       Action<User.Builder>  UpdateDelegate,
+                                       User_Id?              CurrentUserId  = null)
+        {
+
+            try
+            {
+
+                if (UpdateDelegate == null)
+                    throw new Exception("The given update delegate must not be null!");
+
+                await UsersSemaphore.WaitAsync();
+
+                if (!_Users.TryGetValue(UserId, out User OldUser))
+                    throw new Exception("User '" + UserId + "' does not exists in this API!");
+
+                var Builder = OldUser.ToBuilder();
+                UpdateDelegate(Builder);
+                var NewUser = Builder.ToImmutable;
+
+                await WriteToLogfileAndNotify(NotificationMessageType.Parse("updateUser"),
+                                              NewUser.ToJSON(),
+                                              NoOwner,
+                                              CurrentUserId);
+
+                NewUser.API = this;
+
+                _Users.Remove(OldUser.Id);
+                OldUser.CopyAllEdgesTo(NewUser);
+
+                return _Users.AddAndReturnValue(NewUser.Id, NewUser);
+
+            }
+            finally
+            {
+                UsersSemaphore.Release();
+            }
+
+        }
+
+        #endregion
+
+
+        #region CreateUser           (Id, EMail, Password, Name = null, Description = null, PublicKeyRing = null, SecretKeyRing = null, MobilePhone = null, IsPublic = true, IsDisabled = false, IsAuthenticated = false)
+
+        /// <summary>
+        /// Create a new user.
+        /// </summary>
+        /// <param name="Id">The unique identification of the user.</param>
+        /// <param name="EMail">The primary e-mail of the user.</param>
+        /// <param name="Password">An optional password of the user.</param>
+        /// <param name="Name">An offical (multi-language) name of the user.</param>
+        /// <param name="Description">An optional (multi-language) description of the user.</param>
+        /// <param name="PublicKeyRing">An optional PGP/GPG public keyring of the user.</param>
+        /// <param name="SecretKeyRing">An optional PGP/GPG secret keyring of the user.</param>
+        /// <param name="Telephone">An optional telephone number of the user.</param>
+        /// <param name="MobilePhone">An optional mobile telephone number of the user.</param>
+        /// <param name="GeoLocation">An optional geographical location of the user.</param>
+        /// <param name="Address">An optional address of the user.</param>
+        /// <param name="PrivacyLevel">Whether the user will be shown in user listings, or not.</param>
+        /// <param name="AcceptedEULA">Timestamp when the user accepted the End-User-License-Agreement.</param>
+        /// <param name="IsAuthenticated">The user will not be shown in user listings, as its primary e-mail address is not yet authenticated.</param>
+        /// <param name="IsDisabled">The user will be shown in user listings.</param>
+        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
+        public async Task<User> CreateUser(User_Id             Id,
+                                           SimpleEMailAddress  EMail,
+                                           Password?           Password          = null,
+                                           String              Name              = null,
+                                           I18NString          Description       = null,
+                                           PgpPublicKeyRing    PublicKeyRing     = null,
+                                           PgpSecretKeyRing    SecretKeyRing     = null,
+                                           PhoneNumber?        Telephone         = null,
+                                           PhoneNumber?        MobilePhone       = null,
+                                           GeoCoordinate?      GeoLocation       = null,
+                                           Address             Address           = null,
+                                           PrivacyLevel        PrivacyLevel      = PrivacyLevel.Private,
+                                           DateTime?           AcceptedEULA      = null,
+                                           Boolean             IsAuthenticated   = false,
+                                           Boolean             IsDisabled        = false,
+                                           User_Id?            CurrentUserId     = null)
+
+            => await Add(new User(Id,
+                                  EMail,
+                                  Name,
+                                  Description,
+                                  PublicKeyRing,
+                                  SecretKeyRing,
+                                  Telephone,
+                                  MobilePhone,
+                                  GeoLocation,
+                                  Address,
+                                  PrivacyLevel,
+                                  AcceptedEULA,
+                                  IsAuthenticated,
+                                  IsDisabled),
+
+                         user => {
+
+                             if (Password.HasValue &&
+                                 !_TryChangePassword(user.Id,
+                                                     Password.Value,
+                                                     null,
+                                                     CurrentUserId).Result)
+                             {
+                                 throw new ApplicationException("The password for '" + user.Id + "' could not be changed, as the given current password does not match!");
+                             }
+
+                         },
+
+                         CurrentUserId);
+
+        #endregion
+
+        #region CreateUserIfNotExists(Id, EMail, Password, Name = null, Description = null, PublicKeyRing = null, SecretKeyRing = null, MobilePhone = null, IsPublic = true, IsDisabled = false, IsAuthenticated = false)
+
+        /// <summary>
+        /// Create a new user.
+        /// </summary>
+        /// <param name="Id">The unique identification of the user.</param>
+        /// <param name="EMail">The primary e-mail of the user.</param>
+        /// <param name="Password">An optional password of the user.</param>
+        /// <param name="Name">An offical (multi-language) name of the user.</param>
+        /// <param name="Description">An optional (multi-language) description of the user.</param>
+        /// <param name="PublicKeyRing">An optional PGP/GPG public keyring of the user.</param>
+        /// <param name="SecretKeyRing">An optional PGP/GPG secret keyring of the user.</param>
+        /// <param name="Telephone">An optional telephone number of the user.</param>
+        /// <param name="MobilePhone">An optional telephone number of the user.</param>
+        /// <param name="GeoLocation">An optional geographical location of the user.</param>
+        /// <param name="Address">An optional address of the user.</param>
+        /// <param name="PrivacyLevel">Whether the user will be shown in user listings, or not.</param>
+        /// <param name="AcceptedEULA">Timestamp when the user accepted the End-User-License-Agreement.</param>
+        /// <param name="IsAuthenticated">The user will not be shown in user listings, as its primary e-mail address is not yet authenticated.</param>
+        /// <param name="IsDisabled">The user will be shown in user listings.</param>
+        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
+        public async Task<User> CreateUserIfNotExists(User_Id             Id,
+                                                      SimpleEMailAddress  EMail,
+                                                      Password?           Password          = null,
+                                                      String              Name              = null,
+                                                      I18NString          Description       = null,
+                                                      PgpPublicKeyRing    PublicKeyRing     = null,
+                                                      PgpSecretKeyRing    SecretKeyRing     = null,
+                                                      PhoneNumber?        Telephone         = null,
+                                                      PhoneNumber?        MobilePhone       = null,
+                                                      GeoCoordinate?      GeoLocation       = null,
+                                                      Address             Address           = null,
+                                                      PrivacyLevel        PrivacyLevel      = PrivacyLevel.Private,
+                                                      DateTime?           AcceptedEULA      = null,
+                                                      Boolean             IsAuthenticated   = false,
+                                                      Boolean             IsDisabled        = false,
+                                                      User_Id?            CurrentUserId     = null)
+
+
+            => await AddIfNotExists(new User(Id,
+                                             EMail,
+                                             Name,
+                                             Description,
+                                             PublicKeyRing,
+                                             SecretKeyRing,
+                                             Telephone,
+                                             MobilePhone,
+                                             GeoLocation,
+                                             Address,
+                                             PrivacyLevel,
+                                             AcceptedEULA,
+                                             IsAuthenticated,
+                                             IsDisabled),
+
+                                    user => {
+
+                                        if (Password.HasValue &&
+                                            !_TryChangePassword(user.Id,
+                                                                Password.Value,
+                                                                null,
+                                                                CurrentUserId).Result)
+                                        {
+                                            throw new ApplicationException("The password for '" + user.Id + "' could not be changed, as the given current password does not match!");
+                                        }
+
+                                    },
+
+                                    CurrentUserId);
+
+        #endregion
+
+
+        #region ChangePassword   (Login, NewPassword, CurrentPassword = null, CurrentUserId = null)
+
+        public async Task ChangePassword(User_Id   Login,
+                                         Password  NewPassword,
+                                         String    CurrentPassword  = null,
+                                         User_Id?  CurrentUserId    = null)
+        {
+
+            try
+            {
+
+                await UsersSemaphore.WaitAsync();
+
+                if (!_TryChangePassword(Login,
+                                        NewPassword,
+                                        CurrentPassword,
+                                        CurrentUserId).Result)
+                {
+                    throw new ApplicationException("The password for '" + Login + "' could not be changed, as the given current password does not match!");
+                }
+
+            }
+            finally
+            {
+                UsersSemaphore.Release();
+            }
+
+        }
+
+        #endregion
+
+        #region TryChangePassword(Login, NewPassword, CurrentPassword = null, CurrentUserId = null)
+
+        protected async Task<Boolean> _TryChangePassword(User_Id   Login,
+                                                         Password  NewPassword,
+                                                         String    CurrentPassword  = null,
+                                                         User_Id?  CurrentUserId    = null)
+        {
+
+            #region AddPassword
+
+            if (!_LoginPasswords.TryGetValue(Login, out LoginPassword _LoginPassword))
+            {
+
+                await WriteToLogfileAndNotify(NotificationMessageType.Parse("addPassword"),
+                                              new JObject(
+                                                  new JProperty("login",         Login.ToString()),
+                                                  new JProperty("newPassword", new JObject(
+                                                      new JProperty("salt",          NewPassword.Salt.UnsecureString()),
+                                                      new JProperty("passwordHash",  NewPassword.UnsecureString)
+                                                  ))
+                                              ),
+                                              NoOwner,
+                                              this.UsersAPIPath + DefaultPasswordFile,
+                                              CurrentUserId);
+
+                _LoginPasswords.Add(Login, new LoginPassword(Login, NewPassword));
+
+                return true;
+
+            }
+
+            #endregion
+
+            #region ChangePassword
+
+            else if (CurrentPassword.IsNotNullOrEmpty() && _LoginPassword.VerifyPassword(CurrentPassword))
+            {
+
+                await WriteToLogfileAndNotify(NotificationMessageType.Parse("changePassword"),
+                                              new JObject(
+                                                  new JProperty("login",         Login.ToString()),
+                                                  new JProperty("currentPassword", new JObject(
+                                                      new JProperty("salt",          _LoginPassword.Password.Salt.UnsecureString()),
+                                                      new JProperty("passwordHash",  _LoginPassword.Password.UnsecureString)
+                                                  )),
+                                                  new JProperty("newPassword",     new JObject(
+                                                      new JProperty("salt",          NewPassword.Salt.UnsecureString()),
+                                                      new JProperty("passwordHash",  NewPassword.UnsecureString)
+                                                  ))
+                                              ),
+                                              NoOwner,
+                                              this.UsersAPIPath + DefaultPasswordFile,
+                                              CurrentUserId);
+
+                _LoginPasswords[Login] = new LoginPassword(Login, NewPassword);
+
+                return true;
+
+            }
+
+            #endregion
+
+            else
+                return false;
+
+        }
+
+        public async Task<Boolean> TryChangePassword(User_Id   Login,
+                                                     Password  NewPassword,
+                                                     String    CurrentPassword  = null,
+                                                     User_Id?  CurrentUserId    = null)
+        {
+
+            try
+            {
+
+                await UsersSemaphore.WaitAsync();
+
+                return await _TryChangePassword(Login,
+                                                NewPassword,
+                                                CurrentPassword,
+                                                CurrentUserId);
+
+            }
+            finally
+            {
+                UsersSemaphore.Release();
+            }
+
+        }
+
+        #endregion
+
+        #region VerifyPassword(Login, Password)
+
+        public Boolean VerifyPassword(User_Id  Login,
+                                      String   Password)
+        {
+
+            try
+            {
+
+                UsersSemaphore.Wait();
+
+                return _LoginPasswords.TryGetValue(Login, out LoginPassword LoginPassword) &&
+                        LoginPassword.VerifyPassword(Password);
+
+            }
+            finally
+            {
+                UsersSemaphore.Release();
+            }
+
+        }
+
+        #endregion
+
+        #region GetUser   (UserId)
+
+        /// <summary>
+        /// Get the user having the given unique identification.
+        /// </summary>
+        /// <param name="UserId">The unique identification of the user.</param>
+        public async Task<User> GetUser(User_Id  UserId)
+        {
+
+            try
+            {
+
+                await UsersSemaphore.WaitAsync();
+
+                if (_Users.TryGetValue(UserId, out User User))
+                    return User;
+
+                return null;
+
+            }
+            finally
+            {
+                UsersSemaphore.Release();
+            }
+
+        }
+
+        #endregion
+
+        #region UserExists(UserId)
+
+        /// <summary>
+        /// Get the user having the given unique identification.
+        /// </summary>
+        /// <param name="UserId">The unique identification of the user.</param>
+        public Boolean UserExists(User_Id  UserId)
+        {
+
+            try
+            {
+
+                UsersSemaphore.Wait();
+
+                return _Users.ContainsKey(UserId);
+
+            }
+            finally
+            {
+                UsersSemaphore.Release();
+            }
+
+        }
+
+        #endregion
+
+        #region TryGetUser(UserId, out User)
+
+        /// <summary>
+        /// Try to get the user having the given unique identification.
+        /// </summary>
+        /// <param name="UserId">The unique identification of the user.</param>
+        /// <param name="User">The user.</param>
+        public Boolean TryGetUser(User_Id   UserId,
+                                  out User  User)
+        {
+
+            try
+            {
+
+                UsersSemaphore.Wait();
+
+                return _Users.TryGetValue(UserId, out User);
+
+            }
+            finally
+            {
+                UsersSemaphore.Release();
+            }
+
+        }
+
+        #endregion
+
+
+        public UserContext SetUserContext(User User)
+            => new UserContext(User.Id);
+
+        public UserContext SetUserContext(User_Id UserId)
+            => new UserContext(UserId);
+
+        #endregion
+
+        #region Organizations
+
+        #region Data
+
+        protected readonly Dictionary<Organization_Id, Organization> _Organizations;
+
+        /// <summary>
+        /// Return an enumeration of all organizations.
+        /// </summary>
+        public IEnumerable<Organization> Organizations
+        {
+            get
+            {
+                try
+                {
+                    OrganizationsSemaphore.Wait();
+                    return _Organizations.Values.ToArray();
+                }
+                finally
+                {
+                    OrganizationsSemaphore.Release();
+                }
+
+            }
+        }
+
+        #endregion
+
+
+        #region Add           (Organization,   ParentOrganization = null, CurrentUserId = null)
+
+        /// <summary>
+        /// Add the given organization to the API.
+        /// </summary>
+        /// <param name="Organization">A new organization to be added to this API.</param>
+        /// <param name="ParentOrganization">The parent organization of the organization organization to be added.</param>
+        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
+        public async Task<Organization> Add(Organization  Organization,
+                                            Organization  ParentOrganization   = null,
+                                            User_Id?      CurrentUserId        = null)
+        {
+
+            try
+            {
+
+                await OrganizationsSemaphore.WaitAsync();
+
+                if (Organization.API != null && Organization.API != this)
+                    throw new ArgumentException(nameof(Organization), "The given organization is already attached to another API!");
+
+                if (_Organizations.ContainsKey(Organization.Id))
+                    throw new Exception("Organization '" + Organization.Id + "' already exists in this API!");
+
+                if (ParentOrganization != null && !_Organizations.ContainsKey(ParentOrganization.Id))
+                    throw new Exception("Parent organization '" + ParentOrganization.Id + "' does not exists in this API!");
+
+                Organization.API = this;
+
+                await WriteToLogfileAndNotify(NotificationMessageType.Parse("addOrganization"),
+                                              Organization.ToJSON(),
+                                              NoOwner,
+                                              CurrentUserId);
+
+                var NewOrg = _Organizations.AddAndReturnValue(Organization.Id, Organization);
+
+                if (ParentOrganization != null)
+                    await _LinkOrganizations(NewOrg, Organization2OrganizationEdges.IsChildOf, ParentOrganization, CurrentUserId: CurrentUserId);
+
+                return NewOrg;
+
+            }
+            finally
+            {
+                OrganizationsSemaphore.Release();
+            }
+
+        }
+
+        #endregion
+
+        #region AddIfNotExists(Organization,   ParentOrganization = null, CurrentUserId = null)
+
+        /// <summary>
+        /// When it has not been created before, add the given organization to the API.
+        /// </summary>
+        /// <param name="Organization">A new organization to be added to this API.</param>
+        /// <param name="ParentOrganization">The parent organization of the organization to be added.</param>
+        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
+        public async Task<Organization> AddIfNotExists(Organization  Organization,
+                                                       Organization  ParentOrganization   = null,
+                                                       User_Id?      CurrentUserId        = null)
+        {
+
+            try
+            {
+
+                await OrganizationsSemaphore.WaitAsync();
+
+                if (Organization.API != null && Organization.API != this)
+                    throw new ArgumentException(nameof(Organization), "The given organization is already attached to another API!");
+
+                if (_Organizations.ContainsKey(Organization.Id))
+                    return _Organizations[Organization.Id];
+
+                if (ParentOrganization != null && !_Organizations.ContainsKey(ParentOrganization.Id))
+                    throw new Exception("Parent organization '" + ParentOrganization.Id + "' does not exists in this API!");
+
+                Organization.API = this;
+
+                await WriteToLogfileAndNotify(NotificationMessageType.Parse("addIfNotExistsOrganization"),
+                                              Organization.ToJSON(),
+                                              NoOwner,
+                                              CurrentUserId);
+
+                var NewOrg = _Organizations.AddAndReturnValue(Organization.Id, Organization);
+
+                if (ParentOrganization != null)
+                    await _LinkOrganizations(NewOrg, Organization2OrganizationEdges.IsChildOf, ParentOrganization, CurrentUserId: CurrentUserId);
+
+                return NewOrg;
+
+            }
+            finally
+            {
+                OrganizationsSemaphore.Release();
+            }
+
+        }
+
+        #endregion
+
+        #region AddOrUpdate   (Organization,   ParentOrganization = null, CurrentUserId = null)
+
+        /// <summary>
+        /// Add or update the given organization to/within the API.
+        /// </summary>
+        /// <param name="Organization">A organization.</param>
+        /// <param name="ParentOrganization">The parent organization of the organization to be added.</param>
+        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
+        public async Task<Organization> AddOrUpdate(Organization  Organization,
+                                                    Organization  ParentOrganization   = null,
+                                                    User_Id?      CurrentUserId        = null)
+        {
+
+            try
+            {
+
+                await OrganizationsSemaphore.WaitAsync();
+
+                if (Organization.API != null && Organization.API != this)
+                    throw new ArgumentException(nameof(Organization), "The given organization is already attached to another API!");
+
+                if (ParentOrganization != null && !_Organizations.ContainsKey(ParentOrganization.Id))
+                    throw new Exception("Parent organization '" + ParentOrganization.Id + "' does not exists in this API!");
+
+                if (_Organizations.TryGetValue(Organization.Id, out Organization OldOrganization))
+                {
+                    _Organizations.Remove(OldOrganization.Id);
+                }
+
+                Organization.API = this;
+
+                await WriteToLogfileAndNotify(NotificationMessageType.Parse("addOrUpdateOrganization"),
+                                              Organization.ToJSON(),
+                                              Organization,
+                                              CurrentUserId);
+
+                var NewOrg = _Organizations.AddAndReturnValue(Organization.Id, Organization);
+
+                // ToDo: Copy edges!
+
+                if (ParentOrganization != null)
+                {
+                    await _LinkOrganizations(NewOrg, Organization2OrganizationEdges.IsChildOf, ParentOrganization, CurrentUserId: CurrentUserId);
+                    //ToDo: Update link to parent organization
+                }
+
+                return NewOrg;
+
+            }
+            finally
+            {
+                OrganizationsSemaphore.Release();
+            }
+
+        }
+
+        #endregion
+
+        #region Update        (Organization,                              CurrentUserId = null)
+
+        /// <summary>
+        /// Update the given organization within the API.
+        /// </summary>
+        /// <param name="Organization">A organization.</param>
+        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
+        public async Task<Organization> Update(Organization  Organization,
+                                               User_Id?      CurrentUserId  = null)
+        {
+
+            try
+            {
+
+                await OrganizationsSemaphore.WaitAsync();
+
+                if (Organization.API != null && Organization.API != this)
+                    throw new ArgumentException(nameof(Organization), "The given organization is already attached to another API!");
+
+                if (!_Organizations.TryGetValue(Organization.Id, out Organization OldOrganization))
+                    throw new Exception("Organization '" + Organization.Id + "' does not exists in this API!");
+
+                else
+                {
+
+                    _Organizations.Remove(OldOrganization.Id);
+
+                }
+
+                Organization.API = this;
+
+                await WriteToLogfileAndNotify(NotificationMessageType.Parse("updateOrganization"),
+                                              Organization.ToJSON(),
+                                              Organization,
+                                              CurrentUserId);
+
+                // ToDo: Copy edges!
+
+                return _Organizations.AddAndReturnValue(Organization.Id, Organization);
+
+            }
+            finally
+            {
+                OrganizationsSemaphore.Release();
+            }
+
+        }
+
+        #endregion
+
+        #region Update        (OrganizationId, UpdateDelegate,            CurrentUserId = null)
+
+        /// <summary>
+        /// Update the given organization.
+        /// </summary>
+        /// <param name="OrganizationId">An organization identification.</param>
+        /// <param name="UpdateDelegate">A delegate to update the given organization.</param>
+        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
+        public async Task<Organization> Update(Organization_Id               OrganizationId,
+                                               Action<Organization.Builder>  UpdateDelegate,
+                                               User_Id?                      CurrentUserId  = null)
+        {
+
+            try
+            {
+
+                if (UpdateDelegate == null)
+                    throw new Exception("The given update delegate must not be null!");
+
+                await OrganizationsSemaphore.WaitAsync();
+
+                if (!_Organizations.TryGetValue(OrganizationId, out Organization OldOrganization))
+                    throw new Exception("Organization '" + OrganizationId + "' does not exists in this API!");
+
+                var Builder = OldOrganization.ToBuilder();
+                UpdateDelegate(Builder);
+                var NewOrganization = Builder.ToImmutable;
+
+                await WriteToLogfileAndNotify(NotificationMessageType.Parse("updateOrganization"),
+                                              NewOrganization.ToJSON(),
+                                              NoOwner,
+                                              CurrentUserId);
+
+                NewOrganization.API = this;
+
+                _Organizations.Remove(OldOrganization.Id);
+                //OldOrganization.CopyAllEdgesTo(NewOrganization);
+
+                return _Organizations.AddAndReturnValue(NewOrganization.Id, NewOrganization);
+
+            }
+            finally
+            {
+                OrganizationsSemaphore.Release();
+            }
+
+        }
+
+        #endregion
+
+        #region Remove        (OrganizationId,                            CurrentUserId = null)
+
+        /// <summary>
+        /// Remove the given organization from this API.
+        /// </summary>
+        /// <param name="OrganizationId">The unique identification of the organization.</param>
+        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
+        public async Task<Organization> Remove(Organization_Id  OrganizationId,
+                                               User_Id?         CurrentUserId  = null)
+        {
+
+            try
+            {
+
+                await OrganizationsSemaphore.WaitAsync();
+
+                if (_Organizations.TryGetValue(OrganizationId, out Organization Organization))
+                {
+
+                    await WriteToLogfileAndNotify(NotificationMessageType.Parse("removeOrganization"),
+                                                  Organization.ToJSON(),
+                                                  Organization,
+                                                  CurrentUserId);
+
+                    _Organizations.Remove(OrganizationId);
+
+                    Organization.API = null;
+
+                    return Organization;
+
+                }
+
+                return null;
+
+            }
+            finally
+            {
+                OrganizationsSemaphore.Release();
+            }
+
+        }
+
+        #endregion
+
+
+        #region CreateOrganization           (Id, Name = null, Description = null, ParentOrganization = null)
+
+        public Task<Organization> CreateOrganization(Organization_Id           Id,
+                                                     I18NString                Name                 = null,
+                                                     I18NString                Description          = null,
+                                                     SimpleEMailAddress?       EMail                = null,
+                                                     String                    PublicKeyRing        = null,
+                                                     PhoneNumber?              Telephone            = null,
+                                                     GeoCoordinate?            GeoLocation          = null,
+                                                     Address                   Address              = null,
+                                                     Func<Tags.Builder, Tags>  Tags                 = null,
+                                                     PrivacyLevel              PrivacyLevel         = PrivacyLevel.Private,
+                                                     Boolean                   IsDisabled           = false,
+                                                     String                    DataSource           = "",
+                                                     Organization              ParentOrganization   = null,
+                                                     User_Id?                  CurrentUserId        = null)
+
+            => Add(new Organization(Id,
+                                    Name,
+                                    Description,
+                                    EMail,
+                                    PublicKeyRing,
+                                    Telephone,
+                                    GeoLocation,
+                                    Address,
+                                    Tags,
+                                    PrivacyLevel,
+                                    IsDisabled,
+                                    DataSource),
+                   ParentOrganization,
+                   CurrentUserId);
+
+        #endregion
+
+        #region CreateOrganizationIfNotExists(Id, Name = null, Description = null, ParentOrganization = null)
+
+        public Task<Organization> CreateOrganizationIfNotExists(Organization_Id           Id,
+                                                                I18NString                Name                 = null,
+                                                                I18NString                Description          = null,
+                                                                SimpleEMailAddress?       EMail                = null,
+                                                                String                    PublicKeyRing        = null,
+                                                                PhoneNumber?              Telephone            = null,
+                                                                GeoCoordinate?            GeoLocation          = null,
+                                                                Address                   Address              = null,
+                                                                Func<Tags.Builder, Tags>  Tags                 = null,
+                                                                PrivacyLevel              PrivacyLevel         = PrivacyLevel.Private,
+                                                                Boolean                   IsDisabled           = false,
+                                                                String                    DataSource           = "",
+                                                                Organization              ParentOrganization   = null,
+                                                                User_Id?                  CurrentUserId        = null)
+
+            => AddIfNotExists(new Organization(Id,
+                                               Name,
+                                               Description,
+                                               EMail,
+                                               PublicKeyRing,
+                                               Telephone,
+                                               GeoLocation,
+                                               Address,
+                                               Tags,
+                                               PrivacyLevel,
+                                               IsDisabled,
+                                               DataSource),
+                              ParentOrganization,
+                              CurrentUserId);
+
+        #endregion
+
+
+        #region AddToOrganization(User, Edge, Organization, PrivacyLevel = Private)
+
+        protected async Task<Boolean> _AddToOrganization(User                    User,
+                                                         User2OrganizationEdges  Edge,
+                                                         Organization            Organization,
+                                                         PrivacyLevel            PrivacyLevel   = PrivacyLevel.Private,
+                                                         User_Id?                CurrentUserId  = null)
+        {
+
+            if (!User.Edges(Organization).Any(edge => edge == Edge))
+            {
+
+                User.AddOutgoingEdge(Edge, Organization, PrivacyLevel);
+
+                if (!Organization.User2OrganizationInEdgeLabels(User).Any(edgelabel => edgelabel == Edge))
+                    Organization.LinkUser(User, Edge, PrivacyLevel);
+
+                await WriteToLogfileAndNotify(NotificationMessageType.Parse("addUserToOrganization"),
+                                              new JObject(
+                                                  new JProperty("user",          User.        Id.ToString()),
+                                                  new JProperty("edge",          Edge.           ToString()),
+                                                  new JProperty("organization",  Organization.Id.ToString()),
+                                                  PrivacyLevel.ToJSON()
+                                              ),
+                                              Organization,
+                                              CurrentUserId);
+
+                return true;
+
+            }
+
+            return false;
+
+        }
+
+        public async Task<Boolean> AddToOrganization(User                    User,
+                                                     User2OrganizationEdges  Edge,
+                                                     Organization            Organization,
+                                                     PrivacyLevel            PrivacyLevel   = PrivacyLevel.Private,
+                                                     User_Id?                CurrentUserId  = null)
+        {
+
+            try
+            {
+
+                await UsersSemaphore.        WaitAsync();
+                await OrganizationsSemaphore.WaitAsync();
+
+                return await _AddToOrganization(User,
+                                                Edge,
+                                                Organization,
+                                                PrivacyLevel,
+                                                CurrentUserId);
+
+            }
+            finally
+            {
+                OrganizationsSemaphore.Release();
+                UsersSemaphore.        Release();
+            }
+
+        }
+
+        #endregion
+
+        #region LinkOrganizations  (OrganizationOut, EdgeLabel, OrganizationIn, Privacy = Public, CurrentUserId = null)
+
+        protected async Task<Boolean> _LinkOrganizations(Organization                    OrganizationOut,
+                                                         Organization2OrganizationEdges  EdgeLabel,
+                                                         Organization                    OrganizationIn,
+                                                         PrivacyLevel                    Privacy        = PrivacyLevel.World,
+                                                         User_Id?                        CurrentUserId  = null)
+        {
+
+                if (!OrganizationOut.
+                        Organization2OrganizationOutEdges.
+                        Where(edge => edge.Target    == OrganizationIn).
+                        Any  (edge => edge.EdgeLabel == EdgeLabel))
+                {
+
+                    OrganizationOut.AddOutEdge(EdgeLabel, OrganizationIn, Privacy);
+
+                    if (!OrganizationIn.
+                            Organization2OrganizationInEdges.
+                            Where(edge => edge.Source    == OrganizationOut).
+                            Any  (edge => edge.EdgeLabel == EdgeLabel))
+                    {
+                        OrganizationIn.AddInEdge(EdgeLabel, OrganizationOut, Privacy);
+                    }
+
+                    await WriteToLogfileAndNotify(NotificationMessageType.Parse("linkOrganizations"),
+                                                  new JObject(
+                                                      new JProperty("organizationOut", OrganizationOut.Id.ToString()),
+                                                      new JProperty("edge",            EdgeLabel.         ToString()),
+                                                      new JProperty("organizationIn",  OrganizationIn. Id.ToString()),
+                                                      Privacy.ToJSON()
+                                                  ),
+                                                  OrganizationOut,
+                                                  CurrentUserId);
+
+                    return true;
+
+                }
+
+                return false;
+
+        }
+
+        public async Task<Boolean> LinkOrganizations(Organization                    OrganizationOut,
+                                                     Organization2OrganizationEdges  EdgeLabel,
+                                                     Organization                    OrganizationIn,
+                                                     PrivacyLevel                    Privacy        = PrivacyLevel.World,
+                                                     User_Id?                        CurrentUserId  = null)
+        {
+
+            try
+            {
+
+                await OrganizationsSemaphore.WaitAsync();
+
+                return await _LinkOrganizations(OrganizationOut,
+                                                EdgeLabel,
+                                                OrganizationIn,
+                                                Privacy,
+                                                CurrentUserId);
+
+            }
+            finally
+            {
+                OrganizationsSemaphore.Release();
+            }
+
+        }
+
+        #endregion
+
+        #region UnlinkOrganizations(OrganizationOut, EdgeLabel, OrganizationIn,                   CurrentUserId = null)
+
+        protected async Task<Boolean> _UnlinkOrganizations(Organization                    OrganizationOut,
+                                                           Organization2OrganizationEdges  EdgeLabel,
+                                                           Organization                    OrganizationIn,
+                                                           User_Id?                        CurrentUserId  = null)
+        {
+
+            if (OrganizationOut.
+                    Organization2OrganizationOutEdges.
+                    Where(edge => edge.Target    == OrganizationIn).
+                    Any  (edge => edge.EdgeLabel == EdgeLabel))
+            {
+
+                OrganizationOut.RemoveOutEdges(EdgeLabel, OrganizationIn);
+
+                if (OrganizationIn.
+                        Organization2OrganizationInEdges.
+                        Where(edge => edge.Source    == OrganizationOut).
+                        Any  (edge => edge.EdgeLabel == EdgeLabel))
+                {
+                    OrganizationIn.RemoveInEdges(EdgeLabel, OrganizationOut);
+                }
+
+                await WriteToLogfileAndNotify(NotificationMessageType.Parse("unlinkOrganizations"),
+                                              new JObject(
+                                                  new JProperty("organizationOut", OrganizationOut.Id.ToString()),
+                                                  new JProperty("edge",            EdgeLabel.         ToString()),
+                                                  new JProperty("organizationIn",  OrganizationIn. Id.ToString())
+                                              ),
+                                              new Organization[] { OrganizationOut, OrganizationIn },
+                                              CurrentUserId);
+
+                return true;
+
+            }
+
+            return false;
+
+        }
+
+        public async Task<Boolean> UnlinkOrganizations(Organization                    OrganizationOut,
+                                                       Organization2OrganizationEdges  EdgeLabel,
+                                                       Organization                    OrganizationIn,
+                                                       User_Id?                        CurrentUserId  = null)
+        {
+
+            try
+            {
+
+                await OrganizationsSemaphore.WaitAsync();
+
+                return await _UnlinkOrganizations(OrganizationOut,
+                                                  EdgeLabel,
+                                                  OrganizationIn,
+                                                  CurrentUserId);
+
+            }
+            finally
+            {
+                OrganizationsSemaphore.Release();
+            }
+
+        }
+
+        #endregion
+
+
+        #region (protected internal) SetOrganizationRequest (Request)
+
+        /// <summary>
+        /// An event sent whenever set organization (data) request was received.
+        /// </summary>
+        public event RequestLogHandler OnSetOrganizationRequest;
+
+        protected internal HTTPRequest SetOrganizationRequest(HTTPRequest Request)
+        {
+
+            OnSetOrganizationRequest?.Invoke(Request.Timestamp,
+                                              HTTPServer,
+                                              Request);
+
+            return Request;
+
+        }
+
+        #endregion
+
+        #region (protected internal) SetOrganizationResponse(Response)
+
+        /// <summary>
+        /// An event sent whenever a response on a set organization (data) request was sent.
+        /// </summary>
+        public event AccessLogHandler OnSetOrganizationResponse;
+
+        protected internal HTTPResponse SetOrganizationResponse(HTTPResponse Response)
+        {
+
+            OnSetOrganizationResponse?.Invoke(Response.Timestamp,
+                                               HTTPServer,
+                                               Response.HTTPRequest,
+                                               Response);
+
+            return Response;
+
+        }
+
+        #endregion
+
+
+        #region Contains      (OrganizationId)
+
+        /// <summary>
+        /// Whether this API contains a organization having the given unique identification.
+        /// </summary>
+        /// <param name="OrganizationId">The unique identification of the organization.</param>
+        public Boolean Contains(Organization_Id OrganizationId)
+        {
+
+            try
+            {
+
+                OrganizationsSemaphore.Wait();
+
+                return _Organizations.ContainsKey(OrganizationId);
+
+            }
+            finally
+            {
+                OrganizationsSemaphore.Release();
+            }
+
+        }
+
+        #endregion
+
+        #region Get           (OrganizationId)
+
+        /// <summary>
+        /// Get the organization having the given unique identification.
+        /// </summary>
+        /// <param name="OrganizationId">The unique identification of the organization.</param>
+        public async Task<Organization> Get(Organization_Id  OrganizationId)
+        {
+
+            try
+            {
+
+                await OrganizationsSemaphore.WaitAsync();
+
+                if (_Organizations.TryGetValue(OrganizationId, out Organization Organization))
+                    return Organization;
+
+                return null;
+
+            }
+            finally
+            {
+                OrganizationsSemaphore.Release();
+            }
+
+        }
+
+        #endregion
+
+        #region TryGet        (OrganizationId, out Organization)
+
+        /// <summary>
+        /// Try to get the organization having the given unique identification.
+        /// </summary>
+        /// <param name="OrganizationId">The unique identification of the organization.</param>
+        /// <param name="Organization">The organization.</param>
+        public Boolean TryGet(Organization_Id   OrganizationId,
+                              out Organization  Organization)
+        {
+
+            try
+            {
+
+                OrganizationsSemaphore.Wait();
+
+                return _Organizations.TryGetValue(OrganizationId, out Organization);
+
+            }
+            finally
+            {
+                OrganizationsSemaphore.Release();
+            }
+
+        }
+
+        #endregion
+
+        #endregion
+
+        #region Groups
+
+        #region Data
+
+        protected readonly Dictionary<Group_Id, Group> _Groups;
+
+        /// <summary>
+        /// Return an enumeration of all groups.
+        /// </summary>
+        public IEnumerable<Group> Groups
+        {
+            get
+            {
+                try
+                {
+                    GroupsSemaphore.Wait();
+                    return _Groups.Values.ToArray();
+                }
+                finally
+                {
+                    GroupsSemaphore.Release();
+                }
+
+            }
+        }
+
+        #endregion
+
+
+        #region CreateGroup           (Id, Name = null, Description = null)
+
+        public async Task<Group> CreateGroup(Group_Id   Id,
+                                             User_Id    CurrentUserId,
+                                             I18NString Name         = null,
+                                             I18NString Description  = null)
+        {
+
+            try
+            {
+
+                await GroupsSemaphore.WaitAsync();
+
+                if (_Groups.ContainsKey(Id))
+                    throw new ArgumentException("The given group identification already exists!", nameof(Id));
+
+
+                var Group = new Group(Id,
+                                      Name,
+                                      Description);
+
+                if (Group.Id.ToString() != AdminGroupName)
+                    await WriteToLogfileAndNotify(NotificationMessageType.Parse("createGroup"),
+                                                  Group.ToJSON(),
+                                                  NoOwner,
+                                                  CurrentUserId);
+
+                return _Groups.AddAndReturnValue(Group.Id, Group);
+
+            }
+            finally
+            {
+                GroupsSemaphore.Release();
+            }
+
+        }
+
+        #endregion
+
+        #region CreateGroupIfNotExists(Id, Name = null, Description = null)
+
+        public async Task<Group> CreateGroupIfNotExists(Group_Id    Id,
+                                                        User_Id     CurrentUserId,
+                                                        I18NString  Name         = null,
+                                                        I18NString  Description  = null)
+        {
+
+            try
+            {
+
+                await GroupsSemaphore.WaitAsync();
+
+                if (_Groups.ContainsKey(Id))
+                    return _Groups[Id];
+
+                var Group = new Group(Id,
+                                      Name,
+                                      Description);
+
+                if (Group.Id.ToString() != AdminGroupName)
+                    await WriteToLogfileAndNotify(NotificationMessageType.Parse("createGroup"),
+                                                  Group.ToJSON(),
+                                                  NoOwner,
+                                                  CurrentUserId);
+
+                return _Groups.AddAndReturnValue(Group.Id, Group);
+
+            }
+            finally
+            {
+                GroupsSemaphore.Release();
+            }
+
+        }
+
+        #endregion
+
+
+        #region GetGroup   (GroupId)
+
+        /// <summary>
+        /// Get the group having the given unique identification.
+        /// </summary>
+        /// <param name="GroupId">The unique identification of the group.</param>
+        public async Task<Group> GetGroup(Group_Id  GroupId)
+        {
+
+            try
+            {
+
+                await GroupsSemaphore.WaitAsync();
+
+                if (_Groups.TryGetValue(GroupId, out Group Group))
+                    return Group;
+
+                return null;
+
+            }
+            finally
+            {
+                GroupsSemaphore.Release();
+            }
+
+        }
+
+        #endregion
+
+        #region TryGetGroup(GroupId, out Group)
+
+        /// <summary>
+        /// Try to get the group having the given unique identification.
+        /// </summary>
+        /// <param name="GroupId">The unique identification of the group.</param>
+        /// <param name="Group">The group.</param>
+        public Boolean TryGetGroup(Group_Id   GroupId,
+                                   out Group  Group)
+        {
+
+            try
+            {
+
+                GroupsSemaphore.Wait();
+
+                return _Groups.TryGetValue(GroupId, out Group);
+
+            }
+            finally
+            {
+                GroupsSemaphore.Release();
+            }
+
+        }
+
+        #endregion
+
+        #region AddToGroup(User, Edge, Group, PrivacyLevel = Private)
+
+        public async Task<Boolean> AddToGroup(User             User,
+                                              User2GroupEdges  Edge,
+                                              Group            Group,
+                                              PrivacyLevel     PrivacyLevel   = PrivacyLevel.Private,
+                                              User_Id?         CurrentUserId  = null)
+
+        {
+
+            try
+            {
+
+                await UsersSemaphore.WaitAsync();
+                await GroupsSemaphore.WaitAsync();
+
+                if (!User.OutEdges(Group).Any(edge => edge == Edge))
+                {
+
+                    User.AddOutgoingEdge(Edge, Group, PrivacyLevel);
+
+                    if (!Group.Edges(Group).Any(edge => edge == Edge))
+                        Group.AddIncomingEdge(User, Edge,  PrivacyLevel);
+
+                    await WriteToLogfileAndNotify(NotificationMessageType.Parse("addUserToGroup"),
+                                                  new JObject(
+                                                      new JProperty("user",   User.Id.ToString()),
+                                                      new JProperty("edge",   Edge.   ToString()),
+                                                      new JProperty("group",  Group.  ToString()),
+                                                      PrivacyLevel.ToJSON()
+                                                  ),
+                                                  NoOwner,
+                                                  CurrentUserId);
+
+                    return true;
+
+                }
+
+                return false;
+
+            }
+            finally
+            {
+                UsersSemaphore.Release();
+                GroupsSemaphore.Release();
+            }
+
+        }
+
+        #endregion
+
+
+        #region IsAdmin(User)
+
+        /// <summary>
+        /// Check if the given user is an API admin.
+        /// </summary>
+        /// <param name="User">A user.</param>
+        public Boolean IsAdmin(User User)
+
+            => User.Groups(User2GroupEdges.IsAdmin).
+                    Contains(Admins);
+
+        #endregion
+
+        #region IsAdmin(UserId)
+
+        /// <summary>
+        /// Check if the given user is an API admin.
+        /// </summary>
+        /// <param name="UserId">A user identification.</param>
+        public Boolean IsAdmin(User_Id UserId)
+
+            => TryGetUser(UserId, out User User) &&
+               IsAdmin(User);
+
+        #endregion
+
+        #endregion
+
+        #region Reset user password
+
+        #region ResetPassword(UserId,  SecurityToken1, SecurityToken2 = null)
+
+        public PasswordReset ResetPassword(User_Id            UserId,
+                                           SecurityToken_Id   SecurityToken1,
+                                           SecurityToken_Id?  SecurityToken2 = null)
+
+            => Add(new PasswordReset(new User_Id[] { UserId },
+                                     SecurityToken1,
+                                     SecurityToken2));
+
+        #endregion
+
+        #region ResetPassword(UserIds, SecurityToken1, SecurityToken2 = null)
+
+        public PasswordReset ResetPassword(IEnumerable<User_Id>  UserIds,
+                                           SecurityToken_Id      SecurityToken1,
+                                           SecurityToken_Id?     SecurityToken2 = null)
+
+            => Add(new PasswordReset(UserIds,
+                                     SecurityToken1,
+                                     SecurityToken2));
+
+        #endregion
+
+        #region Add   (passwordReset)
+
+        public PasswordReset Add(PasswordReset passwordReset)
+        {
+
+            WriteToLogfileAndNotify(NotificationMessageType.Parse("add"),
+                                    passwordReset.ToJSON(),
+                                    NoOwner,
+                                    this.UsersAPIPath + DefaultPasswordResetsFile);
+
+            this.PasswordResets.Add(passwordReset.SecurityToken1, passwordReset);
+
+            return passwordReset;
+
+        }
+
+        #endregion
+
+        #region Remove(passwordReset)
+
+        public PasswordReset Remove(PasswordReset passwordReset)
+        {
+
+            WriteToLogfileAndNotify(NotificationMessageType.Parse("remove"),
+                                    passwordReset.ToJSON(),
+                                    NoOwner,
+                                    this.UsersAPIPath + DefaultPasswordResetsFile);
+
+            this.PasswordResets.Remove(passwordReset.SecurityToken1);
+
+            return passwordReset;
+
+        }
+
+        #endregion
+
+        #endregion
+
+        #region API Keys
+
+        protected readonly Dictionary<APIKey, APIKeyInfo> _APIKeys;
+
+        /// <summary>
+        /// Return an enumeration of all API keys.
+        /// </summary>
+        public IEnumerable<APIKeyInfo> APIKeys
+            => _APIKeys.Values;
+
+
+        #region GetAPIKeyInfo   (APIKey)
+
+        /// <summary>
+        /// Get the APIKeyInfo for the given API key.
+        /// </summary>
+        /// <param name="APIKeyInfoId">The unique APIKey.</param>
+        public APIKeyInfo GetAPIKeyInfo(APIKey  APIKeyInfoId)
+        {
+
+            lock (_APIKeys)
+            {
+
+                if (_APIKeys.TryGetValue(APIKeyInfoId, out APIKeyInfo APIKeyInfo))
+                    return APIKeyInfo;
+
+                return null;
+
+            }
+
+        }
+
+        #endregion
+
+        #region TryGetAPIKeyInfo(APIKey, out APIKeyInfo)
+
+        /// <summary>
+        /// Try to get the APIKeyInfo having the given unique identification.
+        /// </summary>
+        /// <param name="APIKey">The unique API key.</param>
+        /// <param name="APIKeyInfo">The APIKeyInfo.</param>
+        public Boolean TryGetAPIKeyInfo(APIKey          APIKey,
+                                        out APIKeyInfo  APIKeyInfo)
+        {
+
+            lock (_APIKeys)
+            {
+                return _APIKeys.TryGetValue(APIKey, out APIKeyInfo);
+            }
+
+        }
+
+        #endregion
+
+        #region IsValidAPIKey(APIKey)
+
+        public Boolean IsValidAPIKey(APIKey APIKey)
+
+            => TryGetAPIKeyInfo(APIKey, out APIKeyInfo apiKeyInfo) &&
+                   (!apiKeyInfo.NotBefore.HasValue || DateTime.UtcNow >= apiKeyInfo.NotBefore) &&
+                   (!apiKeyInfo.NotAfter. HasValue || DateTime.UtcNow <  apiKeyInfo.NotAfter)  &&
+                    !apiKeyInfo.IsDisabled;
+
+        #endregion
+
+        #region GetAPIKeysFor   (User)
+
+        /// <summary>
+        /// Return all API keys for the given user.
+        /// </summary>
+        /// <param name="User">An user.</param>
+        public IEnumerable<APIKeyInfo> GetAPIKeysFor(User User)
+        {
+
+            lock (_APIKeys)
+            {
+                return _APIKeys.Values.Where(apikey => apikey.User == User);
+            }
+
+        }
+
+        #endregion
+
+        #region AddAPIKey       (APIKey, UserId)
+
+        public async Task<APIKeyInfo> AddAPIKey(APIKeyInfo  APIKey,
+                                                User_Id     UserId)
+        {
+
+            lock (_APIKeys)
+            {
+
+                if (_APIKeys.ContainsKey(APIKey.APIKey))
+                    return _APIKeys[APIKey.APIKey];
+
+                WriteToLogfileAndNotify(NotificationMessageType.Parse("addAPIKey"),
+                                        APIKey.ToJSON(true),
+                                        NoOwner,
+                                        UserId);
+
+                return _APIKeys.AddAndReturnValue(APIKey.APIKey, APIKey);
+
+            }
+
+        }
+
+        #endregion
+
+        #endregion
+
+        #region Notifications
+
+        // ToDo: Add locks
+        // ToDo: Add logging!
+
+        #region AddNotification(User,   NotificationType,                           CurrentUserId = null)
+
+        public async Task AddNotification<T>(User      User,
+                                             T         NotificationType,
+                                             User_Id?  CurrentUserId  = null)
+
+            where T : ANotification
+
+        {
+
+            try
+            {
+
+                await UsersSemaphore.WaitAsync();
+
+                User.AddNotification(NotificationType,
+                                     async update => await WriteToLogfileAndNotify(NotificationMessageType.Parse("addNotification"),
+                                                                                   update.ToJSON(false).AddFirstAndReturn(new JProperty("userId", User.Id.ToString())),
+                                                                                   NoOwner,
+                                                                                   CurrentUserId));
+
+            }
+            finally
+            {
+                UsersSemaphore.Release();
+            }
+
+        }
+
+        #endregion
+
+        #region AddNotification(UserId, NotificationType,                           CurrentUserId = null)
+
+        public async Task AddNotification<T>(User_Id   UserId,
+                                             T         NotificationType,
+                                             User_Id?  CurrentUserId  = null)
+
+            where T : ANotification
+
+        {
+
+            try
+            {
+
+                await UsersSemaphore.WaitAsync();
+
+                if (_Users.TryGetValue(UserId, out User User))
+                {
+
+                    User.AddNotification(NotificationType,
+                                         async update => await WriteToLogfileAndNotify(NotificationMessageType.Parse("addNotification"),
+                                                                                       update.ToJSON(false).AddFirstAndReturn(new JProperty("userId", User.Id.ToString())),
+                                                                                       NoOwner,
+                                                                                       CurrentUserId));
+
+                }
+
+            }
+            finally
+            {
+                UsersSemaphore.Release();
+            }
+
+        }
+
+        #endregion
+
+        #region AddNotification(User,   NotificationType, NotificationMessageType,  CurrentUserId = null)
+
+        public async Task AddNotification<T>(User                     User,
+                                             T                        NotificationType,
+                                             NotificationMessageType  NotificationMessageType,
+                                             User_Id?                 CurrentUserId  = null)
+
+            where T : ANotification
+
+        {
+
+            try
+            {
+
+                await UsersSemaphore.WaitAsync();
+
+                User.AddNotification(NotificationType,
+                                     NotificationMessageType,
+                                     async update => await WriteToLogfileAndNotify(NotificationMessageType.Parse("addNotification"),
+                                                                                   update.ToJSON(false).AddFirstAndReturn(new JProperty("userId", User.Id.ToString())),
+                                                                                   NoOwner,
+                                                                                   CurrentUserId));
+
+            }
+            finally
+            {
+                UsersSemaphore.Release();
+            }
+
+        }
+
+        #endregion
+
+        #region AddNotification(UserId, NotificationType, NotificationMessageType,  CurrentUserId = null)
+
+        public async Task AddNotification<T>(User_Id                  UserId,
+                                             T                        NotificationType,
+                                             NotificationMessageType  NotificationMessageType,
+                                             User_Id?                 CurrentUserId  = null)
+
+            where T : ANotification
+
+        {
+
+            try
+            {
+
+                await UsersSemaphore.WaitAsync();
+
+                if (_Users.TryGetValue(UserId, out User User))
+                {
+
+                    User.AddNotification(NotificationType,
+                                         NotificationMessageType,
+                                         async update => await WriteToLogfileAndNotify(NotificationMessageType.Parse("addNotification"),
+                                                                                       update.ToJSON(false).AddFirstAndReturn(new JProperty("userId", User.Id.ToString())),
+                                                                                       NoOwner,
+                                                                                       CurrentUserId));
+
+                }
+
+                else
+                    throw new ArgumentException("The given user '" + UserId + "' is unknown!");
+
+            }
+            finally
+            {
+                UsersSemaphore.Release();
+            }
+
+        }
+
+        #endregion
+
+        #region AddNotification(User,   NotificationType, NotificationMessageTypes, CurrentUserId = null)
+
+        public async Task AddNotification<T>(User                                  User,
+                                             T                                     NotificationType,
+                                             IEnumerable<NotificationMessageType>  NotificationMessageTypes,
+                                             User_Id?                              CurrentUserId  = null)
+
+            where T : ANotification
+
+        {
+
+            try
+            {
+
+                await UsersSemaphore.WaitAsync();
+
+                User.AddNotification(NotificationType,
+                                     NotificationMessageTypes,
+                                     async update => await WriteToLogfileAndNotify(NotificationMessageType.Parse("addNotification"),
+                                                                                   update.ToJSON(false).AddFirstAndReturn(new JProperty("userId", User.Id.ToString())),
+                                                                                   NoOwner,
+                                                                                   CurrentUserId));
+
+            }
+            finally
+            {
+                UsersSemaphore.Release();
+            }
+
+        }
+
+        #endregion
+
+        #region AddNotification(UserId, NotificationType, NotificationMessageTypes, CurrentUserId = null)
+
+        public async Task AddNotification<T>(User_Id                               UserId,
+                                             T                                     NotificationType,
+                                             IEnumerable<NotificationMessageType>  NotificationMessageTypes,
+                                             User_Id?                              CurrentUserId  = null)
+
+            where T : ANotification
+
+        {
+
+            try
+            {
+
+                await UsersSemaphore.WaitAsync();
+
+                if (_Users.TryGetValue(UserId, out User User))
+                {
+
+                    User.AddNotification(NotificationType,
+                                         NotificationMessageTypes,
+                                         async update => await WriteToLogfileAndNotify(NotificationMessageType.Parse("addNotification"),
+                                                                                       update.ToJSON(false).AddFirstAndReturn(new JProperty("userId", User.Id.ToString())),
+                                                                                       NoOwner,
+                                                                                       CurrentUserId));
+
+                }
+
+                else
+                    throw new ArgumentException("The given user '" + UserId + "' is unknown!");
+
+            }
+            finally
+            {
+                UsersSemaphore.Release();
+            }
+
+        }
+
+        #endregion
+
+
+        #region GetNotifications  (User,   NotificationMessageType = null)
+
+        public IEnumerable<ANotification> GetNotifications(User                      User,
+                                                           NotificationMessageType?  NotificationMessageType = null)
+
+            => User.GetNotifications(NotificationMessageType);
+
+        #endregion
+
+        #region GetNotifications  (UserId, NotificationMessageType = null)
+
+        public IEnumerable<ANotification> GetNotifications<T>(User_Id                   UserId,
+                                                                  NotificationMessageType?  NotificationMessageType = null)
+
+            => TryGetUser(UserId, out User User)
+                   ? User.GetNotifications(NotificationMessageType)
+                   : new ANotification[0];
+
+        #endregion
+
+        #region GetNotificationsOf(User,   params NotificationMessageTypes)
+
+        public IEnumerable<T> GetNotificationsOf<T>(User                              User,
+                                                    params NotificationMessageType[]  NotificationMessageTypes)
+
+            where T : ANotification
+
+            => User.GetNotificationsOf<T>(NotificationMessageTypes);
+
+        #endregion
+
+        #region GetNotificationsOf(UserId, params NotificationMessageTypes)
+
+        public IEnumerable<T> GetNotificationsOf<T>(User_Id                           UserId,
+                                                    params NotificationMessageType[]  NotificationMessageTypes)
+
+            where T : ANotification
+
+            => TryGetUser(UserId, out User User)
+                   ? User.GetNotificationsOf<T>(NotificationMessageTypes)
+                   : new T[0];
+
+        #endregion
+
+
+        #region GetNotifications  (User,   NotificationMessageTypeFilter)
+
+        public IEnumerable<ANotification> GetNotifications(User                                    User,
+                                                           Func<NotificationMessageType, Boolean>  NotificationMessageTypeFilter)
+
+            => User.GetNotifications(NotificationMessageTypeFilter);
+
+        #endregion
+
+        #region GetNotifications  (UserId, NotificationMessageTypeFilter)
+
+        public IEnumerable<ANotification> GetNotifications(User_Id                                 UserId,
+                                                           Func<NotificationMessageType, Boolean>  NotificationMessageTypeFilter)
+
+            => TryGetUser(UserId, out User User)
+                   ? User.GetNotifications(NotificationMessageTypeFilter)
+                   : new ANotification[0];
+
+        #endregion
+
+        #region GetNotificationsOf(User,   NotificationMessageTypeFilter)
+
+        public IEnumerable<T> GetNotificationsOf<T>(User                                    User,
+                                                    Func<NotificationMessageType, Boolean>  NotificationMessageTypeFilter)
+
+            where T : ANotification
+
+            => User.GetNotificationsOf<T>(NotificationMessageTypeFilter);
+
+        #endregion
+
+        #region GetNotificationsOf(UserId, NotificationMessageTypeFilter)
+
+        public IEnumerable<T> GetNotificationsOf<T>(User_Id                                 UserId,
+                                                    Func<NotificationMessageType, Boolean>  NotificationMessageTypeFilter)
+
+            where T : ANotification
+
+            => TryGetUser(UserId, out User User)
+                   ? User.GetNotificationsOf<T>(NotificationMessageTypeFilter)
+                   : new T[0];
+
+        #endregion
+
+
+        #region RemoveNotification(User,   NotificationType,                        CurrentUserId = null)
+
+        public async Task RemoveNotification<T>(User      User,
+                                                T         NotificationType,
+                                                User_Id?  CurrentUserId  = null)
+
+            where T : ANotification
+
+        {
+
+            try
+            {
+
+                await UsersSemaphore.WaitAsync();
+
+                User.RemoveNotification(NotificationType,
+                                        async update => await WriteToLogfileAndNotify(NotificationMessageType.Parse("removeNotification"),
+                                                                                      update.ToJSON(false).AddFirstAndReturn(new JProperty("userId", User.Id.ToString())),
+                                                                                      NoOwner,
+                                                                                      CurrentUserId));
+
+            }
+            finally
+            {
+                UsersSemaphore.Release();
+            }
+
+        }
+
+        #endregion
+
+        #region RemoveNotification(UserId, NotificationType,                        CurrentUserId = null)
+
+        public async Task RemoveNotification<T>(User_Id   UserId,
+                                                T         NotificationType,
+                                                User_Id?  CurrentUserId  = null)
+
+            where T : ANotification
+
+        {
+
+            try
+            {
+
+                await UsersSemaphore.WaitAsync();
+
+                if (_Users.TryGetValue(UserId, out User User))
+                {
+
+                    User.RemoveNotification(NotificationType,
+                                            async update => await WriteToLogfileAndNotify(NotificationMessageType.Parse("removeNotification"),
+                                                                                          update.ToJSON(false).AddFirstAndReturn(new JProperty("userId", User.Id.ToString())),
+                                                                                          NoOwner,
+                                                                                          CurrentUserId));
+
+                }
+
+            }
+            finally
+            {
+                UsersSemaphore.Release();
+            }
+
+        }
+
+        #endregion
+
+        #endregion
+
+        #region Messages
+
+        protected readonly Dictionary<Message_Id, Message> _Messages;
+
+        /// <summary>
+        /// Return an enumeration of all messages.
+        /// </summary>
+        public IEnumerable<Message> Messages
+            => _Messages.Values;
+
+
+        #region CreateMessage(Id, Sender, Receivers, Headline = null, Text = null)
+
+        public async Task<Message> CreateMessage(User_Id               Sender,
+                                                 IEnumerable<User_Id>  Receivers,
+                                                 I18NString            Subject,
+                                                 I18NString            Text,
+                                                 Message_Id?           Id  = null)
+        {
+
+            var Message = new Message(Id.HasValue
+                                          ? Id.Value
+                                          : Message_Id.New,
+                                      Sender,
+                                      Receivers,
+                                      Subject,
+                                      Text);
+
+            return _Messages.AddAndReturnValue(Message.Id, Message);
+
+        }
+
+        #endregion
+
+        // Create Mailinglist
+
+        #endregion
 
         #region DataLicenses
 
         protected readonly Dictionary<DataLicense_Id, DataLicense> _DataLicenses;
 
+        /// <summary>
+        /// Return an enumeration of all data licenses.
+        /// </summary>
         public IEnumerable<DataLicense> DataLicenses
             => _DataLicenses.Values;
 
-        #endregion
 
         #region CreateDataLicense           (Id, Description, URIs)
 
@@ -6483,8 +8966,9 @@ namespace org.GraphDefined.OpenData.Users
                                                   Description,
                                                   URIs);
 
-                WriteToLogfileAndNotify("CreateDataLicense",
+                WriteToLogfileAndNotify(NotificationMessageType.Parse("createDataLicense"),
                                         DataLicense.ToJSON(),
+                                        NoOwner,
                                         Robot.Id);
 
                 return _DataLicenses.AddAndReturnValue(DataLicense.Id, DataLicense);
@@ -6567,1457 +9051,6 @@ namespace org.GraphDefined.OpenData.Users
         }
 
         #endregion
-
-        #endregion
-
-        #region Users
-
-        #region Users
-
-        protected readonly Dictionary<User_Id, User> _Users;
-
-        public IEnumerable<User> Users
-            => _Users.Values;
-
-        #endregion
-
-        #region CreateUser           (Id, EMail, Password, Name = null, Description = null, PublicKeyRing = null, SecretKeyRing = null, MobilePhone = null, IsPublic = true, IsDisabled = false, IsAuthenticated = false)
-
-        /// <summary>
-        /// Create a new user.
-        /// </summary>
-        /// <param name="Id">The unique identification of the user.</param>
-        /// <param name="EMail">The primary e-mail of the user.</param>
-        /// <param name="Password">An optional password of the user.</param>
-        /// <param name="Name">An offical (multi-language) name of the user.</param>
-        /// <param name="Description">An optional (multi-language) description of the user.</param>
-        /// <param name="PublicKeyRing">An optional PGP/GPG public keyring of the user.</param>
-        /// <param name="SecretKeyRing">An optional PGP/GPG secret keyring of the user.</param>
-        /// <param name="Telephone">An optional telephone number of the user.</param>
-        /// <param name="MobilePhone">An optional mobile telephone number of the user.</param>
-        /// <param name="GeoLocation">An optional geographical location of the user.</param>
-        /// <param name="Address">An optional address of the user.</param>
-        /// <param name="PrivacyLevel">Whether the user will be shown in user listings, or not.</param>
-        /// <param name="AcceptedEULA">Timestamp when the user accepted the End-User-License-Agreement.</param>
-        /// <param name="IsAuthenticated">The user will not be shown in user listings, as its primary e-mail address is not yet authenticated.</param>
-        /// <param name="IsDisabled">The user will be shown in user listings.</param>
-        public User CreateUser(User_Id             Id,
-                               SimpleEMailAddress  EMail,
-                               Password?           Password          = null,
-                               String              Name              = null,
-                               I18NString          Description       = null,
-                               PgpPublicKeyRing    PublicKeyRing     = null,
-                               PgpSecretKeyRing    SecretKeyRing     = null,
-                               PhoneNumber?        Telephone         = null,
-                               PhoneNumber?        MobilePhone       = null,
-                               GeoCoordinate?      GeoLocation       = null,
-                               Address             Address           = null,
-                               PrivacyLevel        PrivacyLevel      = PrivacyLevel.World,
-                               DateTime?           AcceptedEULA      = null,
-                               Boolean             IsAuthenticated   = false,
-                               Boolean             IsDisabled        = false,
-                               User_Id?            CurrentUserId     = null)
-        {
-
-            lock (_Users)
-            {
-
-                if (_Users.ContainsKey(Id))
-                    throw new ArgumentException("The given username already exists!", nameof(Id));
-
-
-                var User = new User(Id,
-                                    EMail,
-                                    Name,
-                                    Description,
-                                    PublicKeyRing,
-                                    SecretKeyRing,
-                                    Telephone,
-                                    MobilePhone,
-                                    GeoLocation,
-                                    Address,
-                                    PrivacyLevel,
-                                    AcceptedEULA,
-                                    IsAuthenticated,
-                                    IsDisabled);
-
-                WriteToLogfileAndNotify("CreateUser",
-                                        User.ToJSON(),
-                                        CurrentUserId);
-
-                if (Password.HasValue)
-                    ChangePassword(Id, Password.Value, null, CurrentUserId);
-
-                return _Users.AddAndReturnValue(User.Id, User);
-
-            }
-
-        }
-
-        #endregion
-
-        #region CreateUserIfNotExists(Id, EMail, Password, Name = null, Description = null, PublicKeyRing = null, SecretKeyRing = null, MobilePhone = null, IsPublic = true, IsDisabled = false, IsAuthenticated = false)
-
-        /// <summary>
-        /// Create a new user.
-        /// </summary>
-        /// <param name="Id">The unique identification of the user.</param>
-        /// <param name="EMail">The primary e-mail of the user.</param>
-        /// <param name="Password">An optional password of the user.</param>
-        /// <param name="Name">An offical (multi-language) name of the user.</param>
-        /// <param name="Description">An optional (multi-language) description of the user.</param>
-        /// <param name="PublicKeyRing">An optional PGP/GPG public keyring of the user.</param>
-        /// <param name="SecretKeyRing">An optional PGP/GPG secret keyring of the user.</param>
-        /// <param name="Telephone">An optional telephone number of the user.</param>
-        /// <param name="MobilePhone">An optional telephone number of the user.</param>
-        /// <param name="GeoLocation">An optional geographical location of the user.</param>
-        /// <param name="Address">An optional address of the user.</param>
-        /// <param name="PrivacyLevel">Whether the user will be shown in user listings, or not.</param>
-        /// <param name="AcceptedEULA">Timestamp when the user accepted the End-User-License-Agreement.</param>
-        /// <param name="IsAuthenticated">The user will not be shown in user listings, as its primary e-mail address is not yet authenticated.</param>
-        /// <param name="IsDisabled">The user will be shown in user listings.</param>
-        public User CreateUserIfNotExists(User_Id             Id,
-                                          SimpleEMailAddress  EMail,
-                                          Password?           Password          = null,
-                                          String              Name              = null,
-                                          I18NString          Description       = null,
-                                          PgpPublicKeyRing    PublicKeyRing     = null,
-                                          PgpSecretKeyRing    SecretKeyRing     = null,
-                                          PhoneNumber?        Telephone         = null,
-                                          PhoneNumber?        MobilePhone       = null,
-                                          GeoCoordinate?      GeoLocation       = null,
-                                          Address             Address           = null,
-                                          PrivacyLevel        PrivacyLevel      = PrivacyLevel.World,
-                                          DateTime?           AcceptedEULA      = null,
-                                          Boolean             IsAuthenticated   = false,
-                                          Boolean             IsDisabled        = false,
-                                          User_Id?            CurrentUserId     = null)
-        {
-
-            lock (_Users)
-            {
-
-                if (_Users.ContainsKey(Id))
-                    return _Users[Id];
-
-                return CreateUser(Id,
-                                  EMail,
-                                  Password,
-                                  Name,
-                                  Description,
-                                  PublicKeyRing,
-                                  SecretKeyRing,
-                                  Telephone,
-                                  MobilePhone,
-                                  GeoLocation,
-                                  Address,
-                                  PrivacyLevel,
-                                  AcceptedEULA,
-                                  IsAuthenticated,
-                                  IsDisabled,
-                                  CurrentUserId);
-
-            }
-
-        }
-
-        #endregion
-
-        #region AddOrUpdate(User, CurrentUserId = null)
-
-        /// <summary>
-        /// Add or update the given user to/within the API.
-        /// </summary>
-        /// <param name="User">A user.</param>
-        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
-        public User AddOrUpdate(User      User,
-                                User_Id?  CurrentUserId  = null)
-        {
-
-            lock (_Users)
-            {
-
-                if (User.API != null && User.API != this)
-                    throw new ArgumentException(nameof(User), "The given user is already attached to another API!");
-
-                WriteToLogfileAndNotify("addOrUpdateUser",
-                                        User.ToJSON(),
-                                        CurrentUserId);
-
-                User.API = this;
-
-                if (_Users.TryGetValue(User.Id, out User OldUser))
-                {
-                    _Users.Remove(OldUser.Id);
-                    OldUser.CopyAllEdgesTo(User);
-                }
-
-                return _Users.AddAndReturnValue(User.Id, User);
-
-            }
-
-        }
-
-        #endregion
-
-        #region Update     (User, CurrentUserId = null)
-
-        /// <summary>
-        /// Update the given user to/within the API.
-        /// </summary>
-        /// <param name="User">A user.</param>
-        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
-        public User Update(User      User,
-                           User_Id?  CurrentUserId  = null)
-        {
-
-            lock (_Users)
-            {
-
-                if (User.API != null && User.API != this)
-                    throw new ArgumentException(nameof(User), "The given user is already attached to another API!");
-
-                if (!_Users.TryGetValue(User.Id, out User OldUser))
-                    throw new Exception("User '" + User.Id + "' does not exists in this API!");
-
-
-                WriteToLogfileAndNotify("updateUser",
-                                        User.ToJSON(),
-                                        CurrentUserId);
-
-                User.API = this;
-
-                _Users.Remove(OldUser.Id);
-                OldUser.CopyAllEdgesTo(User);
-
-                return _Users.AddAndReturnValue(User.Id, User);
-
-            }
-
-        }
-
-        #endregion
-
-
-        #region ChangePassword   (Login, NewPassword, CurrentPassword = null, CurrentUserId = null)
-
-        public void ChangePassword(User_Id   Login,
-                                   Password  NewPassword,
-                                   String    CurrentPassword  = null,
-                                   User_Id?  CurrentUserId    = null)
-        {
-
-            lock (_Users)
-            {
-
-                if (!TryChangePassword(Login,
-                                       NewPassword,
-                                       CurrentPassword,
-                                       CurrentUserId))
-                {
-                    throw new ApplicationException("The password could not be changed, as the current password does not match!");
-                }
-
-            }
-
-        }
-
-        #endregion
-
-        #region TryChangePassword(Login, NewPassword, CurrentPassword = null, CurrentUserId = null)
-
-        public Boolean TryChangePassword(User_Id   Login,
-                                         Password  NewPassword,
-                                         String    CurrentPassword  = null,
-                                         User_Id?  CurrentUserId    = null)
-        {
-
-            lock (_Users)
-            {
-
-                #region AddPassword
-
-                if (!_LoginPasswords.TryGetValue(Login, out LoginPassword _LoginPassword))
-                {
-
-                    WriteToLogfileAndNotify("AddPassword",
-                                            new JObject(
-                                                new JProperty("login",         Login.ToString()),
-                                                new JProperty("newPassword", new JObject(
-                                                    new JProperty("salt",          NewPassword.Salt.UnsecureString()),
-                                                    new JProperty("passwordHash",  NewPassword.UnsecureString)
-                                                ))
-                                            ),
-                                            DefaultPasswordFile,
-                                            CurrentUserId);
-
-                    _LoginPasswords.Add(Login, new LoginPassword(Login, NewPassword));
-
-                    return true;
-
-                }
-
-                #endregion
-
-                #region ChangePassword
-
-                else if (CurrentPassword.IsNotNullOrEmpty() && _LoginPassword.VerifyPassword(CurrentPassword))
-                {
-
-                    WriteToLogfileAndNotify("ChangePassword",
-                                            new JObject(
-                                                new JProperty("login",         Login.ToString()),
-                                                new JProperty("currentPassword", new JObject(
-                                                    new JProperty("salt",          _LoginPassword.Password.Salt.UnsecureString()),
-                                                    new JProperty("passwordHash",  _LoginPassword.Password.UnsecureString)
-                                                )),
-                                                new JProperty("newPassword",     new JObject(
-                                                    new JProperty("salt",          NewPassword.Salt.UnsecureString()),
-                                                    new JProperty("passwordHash",  NewPassword.UnsecureString)
-                                                ))
-                                            ),
-                                            DefaultPasswordFile,
-                                            CurrentUserId);
-
-                    _LoginPasswords[Login] = new LoginPassword(Login, NewPassword);
-
-                    return true;
-
-                }
-
-                #endregion
-
-                else
-                    return false;
-
-            }
-
-        }
-
-        #endregion
-
-        #region VerifyPassword(Login, Password)
-
-        public Boolean VerifyPassword(User_Id  Login,
-                                      String   Password)
-        {
-
-            lock (_Users)
-            {
-
-                return _LoginPasswords.TryGetValue(Login, out LoginPassword LoginPassword) &&
-                        LoginPassword.VerifyPassword(Password);
-
-            }
-
-        }
-
-        #endregion
-
-        #region GetUser   (UserId)
-
-        /// <summary>
-        /// Get the user having the given unique identification.
-        /// </summary>
-        /// <param name="UserId">The unique identification of the user.</param>
-        public User GetUser(User_Id  UserId)
-        {
-
-            lock (_Users)
-            {
-
-                if (_Users.TryGetValue(UserId, out User User))
-                    return User;
-
-                return null;
-
-            }
-
-        }
-
-        #endregion
-
-        #region UserExists(UserId)
-
-        /// <summary>
-        /// Get the user having the given unique identification.
-        /// </summary>
-        /// <param name="UserId">The unique identification of the user.</param>
-        public Boolean UserExists(User_Id  UserId)
-        {
-
-            lock (_Users)
-            {
-                return _Users.ContainsKey(UserId);
-            }
-
-        }
-
-        #endregion
-
-        #region TryGetUser(UserId, out User)
-
-        /// <summary>
-        /// Try to get the user having the given unique identification.
-        /// </summary>
-        /// <param name="UserId">The unique identification of the user.</param>
-        /// <param name="User">The user.</param>
-        public Boolean TryGetUser(User_Id   UserId,
-                                  out User  User)
-        {
-
-            lock (_Users)
-            {
-                return _Users.TryGetValue(UserId, out User);
-            }
-
-        }
-
-        #endregion
-
-
-        public UserContext SetUserContext(User User)
-            => new UserContext(User.Id);
-
-        public UserContext SetUserContext(User_Id UserId)
-            => new UserContext(UserId);
-
-        #endregion
-
-        #region Reset user password
-
-        #region ResetPassword(UserId,  SecurityToken1, SecurityToken2 = null)
-
-        public PasswordReset ResetPassword(User_Id            UserId,
-                                           SecurityToken_Id   SecurityToken1,
-                                           SecurityToken_Id?  SecurityToken2 = null)
-
-            => Add(new PasswordReset(new User_Id[] { UserId },
-                                     SecurityToken1,
-                                     SecurityToken2));
-
-        #endregion
-
-        #region ResetPassword(UserIds, SecurityToken1, SecurityToken2 = null)
-
-        public PasswordReset ResetPassword(IEnumerable<User_Id>  UserIds,
-                                           SecurityToken_Id      SecurityToken1,
-                                           SecurityToken_Id?     SecurityToken2 = null)
-
-            => Add(new PasswordReset(UserIds,
-                                     SecurityToken1,
-                                     SecurityToken2));
-
-        #endregion
-
-        #region Add   (passwordReset)
-
-        public PasswordReset Add(PasswordReset passwordReset)
-        {
-
-            WriteToLogfileAndNotify("Add",
-                                    passwordReset.ToJSON(),
-                                    DefaultPasswordResetsFile);
-
-            this.PasswordResets.Add(passwordReset.SecurityToken1, passwordReset);
-
-            return passwordReset;
-
-        }
-
-        #endregion
-
-        #region Remove(passwordReset)
-
-        public PasswordReset Remove(PasswordReset passwordReset)
-        {
-
-            WriteToLogfileAndNotify("Remove",
-                                    passwordReset.ToJSON(),
-                                    DefaultPasswordResetsFile);
-
-            this.PasswordResets.Remove(passwordReset.SecurityToken1);
-
-            return passwordReset;
-
-        }
-
-        #endregion
-
-        #endregion
-
-        #region API Keys
-
-        #region API Keys
-
-        protected readonly Dictionary<APIKey, APIKeyInfo> _APIKeys;
-
-        public IEnumerable<APIKeyInfo> APIKeys
-            => _APIKeys.Values;
-
-        #endregion
-
-        #region GetAPIKeyInfo   (APIKey)
-
-        /// <summary>
-        /// Get the APIKeyInfo for the given API key.
-        /// </summary>
-        /// <param name="APIKeyInfoId">The unique APIKey.</param>
-        public APIKeyInfo GetAPIKeyInfo(APIKey  APIKeyInfoId)
-        {
-
-            lock (_APIKeys)
-            {
-
-                if (_APIKeys.TryGetValue(APIKeyInfoId, out APIKeyInfo APIKeyInfo))
-                    return APIKeyInfo;
-
-                return null;
-
-            }
-
-        }
-
-        #endregion
-
-        #region TryGetAPIKeyInfo(APIKey, out APIKeyInfo)
-
-        /// <summary>
-        /// Try to get the APIKeyInfo having the given unique identification.
-        /// </summary>
-        /// <param name="APIKey">The unique API key.</param>
-        /// <param name="APIKeyInfo">The APIKeyInfo.</param>
-        public Boolean TryGetAPIKeyInfo(APIKey          APIKey,
-                                        out APIKeyInfo  APIKeyInfo)
-        {
-
-            lock (_APIKeys)
-            {
-                return _APIKeys.TryGetValue(APIKey, out APIKeyInfo);
-            }
-
-        }
-
-        #endregion
-
-        #region IsValidAPIKey(APIKey)
-
-        public Boolean IsValidAPIKey(APIKey APIKey)
-
-            => TryGetAPIKeyInfo(APIKey, out APIKeyInfo apiKeyInfo) &&
-                   (!apiKeyInfo.NotBefore.HasValue || DateTime.UtcNow >= apiKeyInfo.NotBefore) &&
-                   (!apiKeyInfo.NotAfter. HasValue || DateTime.UtcNow <  apiKeyInfo.NotAfter)  &&
-                    !apiKeyInfo.IsDisabled;
-
-        #endregion
-
-        #region GetAPIKeysFor   (User)
-
-        /// <summary>
-        /// Return all API keys for the given user.
-        /// </summary>
-        /// <param name="User">An user.</param>
-        public IEnumerable<APIKeyInfo> GetAPIKeysFor(User User)
-        {
-
-            lock (_APIKeys)
-            {
-                return _APIKeys.Values.Where(apikey => apikey.User == User);
-            }
-
-        }
-
-        #endregion
-
-        #region AddAPIKey       (APIKey, UserId)
-
-        public APIKeyInfo AddAPIKey(APIKeyInfo  APIKey,
-                                    User_Id     UserId)
-        {
-
-            lock (_APIKeys)
-            {
-
-                if (_APIKeys.ContainsKey(APIKey.APIKey))
-                    return _APIKeys[APIKey.APIKey];
-
-                WriteToLogfileAndNotify("AddAPIKey",
-                                        APIKey.ToJSON(true),
-                                        UserId);
-
-                return _APIKeys.AddAndReturnValue(APIKey.APIKey, APIKey);
-
-            }
-
-        }
-
-        #endregion
-
-        #endregion
-
-        #region Groups
-
-        #region CreateGroup           (Id, Name = null, Description = null)
-
-        public Group CreateGroup(Group_Id   Id,
-                                 User_Id    CurrentUserId,
-                                 I18NString Name         = null,
-                                 I18NString Description  = null)
-        {
-
-            lock (_Groups)
-            {
-
-                if (_Groups.ContainsKey(Id))
-                    throw new ArgumentException("The given group identification already exists!", nameof(Id));
-
-
-                var Group = new Group(Id,
-                                      Name,
-                                      Description);
-
-                if (Group.Id.ToString() != AdminGroupName)
-                    WriteToLogfileAndNotify("CreateGroup",
-                                            Group.ToJSON(),
-                                            CurrentUserId);
-
-                return _Groups.AddAndReturnValue(Group.Id, Group);
-
-            }
-
-        }
-
-        #endregion
-
-        #region CreateGroupIfNotExists(Id, Name = null, Description = null)
-
-        public Group CreateGroupIfNotExists(Group_Id    Id,
-                                            User_Id     CurrentUserId,
-                                            I18NString  Name         = null,
-                                            I18NString  Description  = null)
-        {
-
-            lock (_Groups)
-            {
-
-                if (_Groups.ContainsKey(Id))
-                    return _Groups[Id];
-
-                return CreateGroup(Id,
-                                   CurrentUserId,
-                                   Name,
-                                   Description);
-
-            }
-
-        }
-
-        #endregion
-
-        #region Groups
-
-        protected readonly Dictionary<Group_Id, Group> _Groups;
-
-        public IEnumerable<Group> Groups
-            => _Groups.Values;
-
-        #endregion
-
-        #region GetGroup   (GroupId)
-
-        /// <summary>
-        /// Get the group having the given unique identification.
-        /// </summary>
-        /// <param name="GroupId">The unique identification of the group.</param>
-        public Group GetGroup(Group_Id  GroupId)
-        {
-
-            lock (_Groups)
-            {
-
-                if (_Groups.TryGetValue(GroupId, out Group Group))
-                    return Group;
-
-                return null;
-
-            }
-
-        }
-
-        #endregion
-
-        #region TryGetGroup(GroupId, out Group)
-
-        /// <summary>
-        /// Try to get the group having the given unique identification.
-        /// </summary>
-        /// <param name="GroupId">The unique identification of the group.</param>
-        /// <param name="Group">The group.</param>
-        public Boolean TryGetGroup(Group_Id   GroupId,
-                                          out Group  Group)
-        {
-
-            lock (_Groups)
-            {
-                return _Groups.TryGetValue(GroupId, out Group);
-            }
-
-        }
-
-        #endregion
-
-        #region AddToGroup(User, Edge, Group, PrivacyLevel = Private)
-
-        public Boolean AddToGroup(User             User,
-                                  User2GroupEdges  Edge,
-                                  Group            Group,
-                                  PrivacyLevel     PrivacyLevel   = PrivacyLevel.Private,
-                                  User_Id?         CurrentUserId  = null)
-
-        {
-
-            if (!User.OutEdges(Group).Any(edge => edge == Edge))
-            {
-
-                User.AddOutgoingEdge(Edge, Group, PrivacyLevel);
-
-                if (!Group.Edges(Group).Any(edge => edge == Edge))
-                    Group.AddIncomingEdge(User, Edge,  PrivacyLevel);
-
-                WriteToLogfileAndNotify("AddUserToGroup",
-                                        new JObject(
-                                            new JProperty("user",     User.Id.ToString()),
-                                            new JProperty("edge",     Edge.   ToString()),
-                                            new JProperty("group",    Group.  ToString()),
-                                            PrivacyLevel.ToJSON()
-                                        ),
-                                        CurrentUserId);
-
-                return true;
-
-            }
-
-            return false;
-
-        }
-
-        #endregion
-
-
-        #region IsAdmin(User)
-
-        /// <summary>
-        /// Check if the given user is an API admin.
-        /// </summary>
-        /// <param name="User">A user.</param>
-        public Boolean IsAdmin(User User)
-
-            => User.Groups(User2GroupEdges.IsAdmin).
-                    Contains(Admins);
-
-        #endregion
-
-        #region IsAdmin(UserId)
-
-        /// <summary>
-        /// Check if the given user is an API admin.
-        /// </summary>
-        /// <param name="UserId">A user identification.</param>
-        public Boolean IsAdmin(User_Id UserId)
-
-            => TryGetUser(UserId, out User User) &&
-               IsAdmin(User);
-
-        #endregion
-
-        #endregion
-
-        #region Organizations
-
-        protected readonly Dictionary<Organization_Id, Organization> _Organizations;
-
-        public IEnumerable<Organization> Organizations
-            => _Organizations.Values;
-
-
-        #region Add           (Organization, ParentOrganization = null, CurrentUserId = null)
-
-        /// <summary>
-        /// Add the given organization to the API.
-        /// </summary>
-        /// <param name="Organization">A new organization to be added to this API.</param>
-        /// <param name="ParentOrganization">The parent organization of the organization organization to be added.</param>
-        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
-        public Organization Add(Organization  Organization,
-                                Organization  ParentOrganization   = null,
-                                User_Id?      CurrentUserId        = null)
-        {
-
-            lock (_Organizations)
-            {
-
-                if (Organization.API != null && Organization.API != this)
-                    throw new ArgumentException(nameof(Organization), "The given organization is already attached to another API!");
-
-                if (_Organizations.ContainsKey(Organization.Id))
-                    throw new Exception("Organization '" + Organization.Id + "' already exists in this API!");
-
-                if (ParentOrganization != null && !_Organizations.ContainsKey(ParentOrganization.Id))
-                    throw new Exception("Parent organization '" + ParentOrganization.Id + "' does not exists in this API!");
-
-                Organization.API = this;
-
-                WriteToLogfileAndNotify("addOrganization",
-                                        Organization.ToJSON(),
-                                        CurrentUserId);
-
-                var NewOrg = _Organizations.AddAndReturnValue(Organization.Id, Organization);
-
-                if (ParentOrganization != null)
-                    LinkOrganizations(NewOrg, Organization2OrganizationEdges.IsChildOf, ParentOrganization, CurrentUserId: CurrentUserId);
-
-                return NewOrg;
-
-            }
-
-        }
-
-        #endregion
-
-        #region AddIfNotExists(Organization, ParentOrganization = null, CurrentUserId = null)
-
-        /// <summary>
-        /// When it has not been created before, add the given organization to the API.
-        /// </summary>
-        /// <param name="Organization">A new organization to be added to this API.</param>
-        /// <param name="ParentOrganization">The parent organization of the organization to be added.</param>
-        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
-        public Organization AddIfNotExists(Organization  Organization,
-                                           Organization  ParentOrganization   = null,
-                                           User_Id?      CurrentUserId        = null)
-        {
-
-            lock (_Organizations)
-            {
-
-                if (Organization.API != null && Organization.API != this)
-                    throw new ArgumentException(nameof(Organization), "The given organization is already attached to another API!");
-
-                if (_Organizations.ContainsKey(Organization.Id))
-                    return _Organizations[Organization.Id];
-
-                if (ParentOrganization != null && !_Organizations.ContainsKey(ParentOrganization.Id))
-                    throw new Exception("Parent organization '" + ParentOrganization.Id + "' does not exists in this API!");
-
-                Organization.API = this;
-
-                WriteToLogfileAndNotify("addIfNotExistsOrganization",
-                                        Organization.ToJSON(),
-                                        CurrentUserId);
-
-                var NewOrg = _Organizations.AddAndReturnValue(Organization.Id, Organization);
-
-                if (ParentOrganization != null)
-                    LinkOrganizations(NewOrg, Organization2OrganizationEdges.IsChildOf, ParentOrganization, CurrentUserId: CurrentUserId);
-
-                return NewOrg;
-
-            }
-
-        }
-
-        #endregion
-
-        #region AddOrUpdate   (Organization, ParentOrganization = null, CurrentUserId = null)
-
-        /// <summary>
-        /// Add or update the given organization to/within the API.
-        /// </summary>
-        /// <param name="Organization">A organization.</param>
-        /// <param name="ParentOrganization">The parent organization of the organization to be added.</param>
-        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
-        public Organization AddOrUpdate(Organization  Organization,
-                                        Organization  ParentOrganization   = null,
-                                        User_Id?      CurrentUserId        = null)
-        {
-
-            lock (_Organizations)
-            {
-
-                if (Organization.API != null && Organization.API != this)
-                    throw new ArgumentException(nameof(Organization), "The given organization is already attached to another API!");
-
-                if (ParentOrganization != null && !_Organizations.ContainsKey(ParentOrganization.Id))
-                    throw new Exception("Parent organization '" + ParentOrganization.Id + "' does not exists in this API!");
-
-                if (_Organizations.TryGetValue(Organization.Id, out Organization OldOrganization))
-                {
-                    _Organizations.Remove(OldOrganization.Id);
-                }
-
-                Organization.API = this;
-
-                WriteToLogfileAndNotify("addOrUpdateOrganization",
-                                        Organization.ToJSON(),
-                                        CurrentUserId);
-
-                var NewOrg = _Organizations.AddAndReturnValue(Organization.Id, Organization);
-
-                if (ParentOrganization != null)
-                {
-                    LinkOrganizations(NewOrg, Organization2OrganizationEdges.IsChildOf, ParentOrganization, CurrentUserId: CurrentUserId);
-                    //ToDo: Update link to parent organization
-                }
-
-                return NewOrg;
-
-            }
-
-        }
-
-        #endregion
-
-        #region Update        (Organization, CurrentUserId = null)
-
-        /// <summary>
-        /// Update the given organization within the API.
-        /// </summary>
-        /// <param name="Organization">A organization.</param>
-        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
-        public Organization Update(Organization  Organization,
-                                   User_Id?      CurrentUserId  = null)
-        {
-
-            lock (_Organizations)
-            {
-
-                if (Organization.API != null && Organization.API != this)
-                    throw new ArgumentException(nameof(Organization), "The given organization is already attached to another API!");
-
-                if (!_Organizations.TryGetValue(Organization.Id, out Organization OldOrganization))
-                    throw new Exception("Organization '" + Organization.Id + "' does not exists in this API!");
-
-                else
-                {
-
-                    _Organizations.Remove(OldOrganization.Id);
-
-                }
-
-                Organization.API = this;
-
-                WriteToLogfileAndNotify("updateOrganization",
-                                        Organization.ToJSON(),
-                                        CurrentUserId);
-
-                return _Organizations.AddAndReturnValue(Organization.Id, Organization);
-
-            }
-
-        }
-
-        #endregion
-
-        #region Remove        (OrganizationId, CurrentUserId = null)
-
-        /// <summary>
-        /// Remove the given organization from this API.
-        /// </summary>
-        /// <param name="OrganizationId">The unique identification of the organization.</param>
-        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
-        public Organization Remove(Organization_Id  OrganizationId,
-                                   User_Id?         CurrentUserId  = null)
-        {
-
-            lock (_Organizations)
-            {
-
-                if (_Organizations.TryGetValue(OrganizationId, out Organization Organization))
-                {
-
-                    WriteToLogfileAndNotify("removeOrganization",
-                                            Organization.ToJSON(),
-                                            CurrentUserId);
-
-                    _Organizations.Remove(OrganizationId);
-
-                    Organization.API = null;
-
-                    return Organization;
-
-                }
-
-                return null;
-
-            }
-
-        }
-
-        #endregion
-
-
-        #region CreateOrganization           (Id, Name = null, Description = null, ParentOrganization = null)
-
-        public Organization CreateOrganization(Organization_Id           Id,
-                                               I18NString                Name                 = null,
-                                               I18NString                Description          = null,
-                                               SimpleEMailAddress?       EMail                = null,
-                                               String                    PublicKeyRing        = null,
-                                               PhoneNumber?              Telephone            = null,
-                                               GeoCoordinate?            GeoLocation          = null,
-                                               Address                   Address              = null,
-                                               Func<Tags.Builder, Tags>  Tags                 = null,
-                                               PrivacyLevel              PrivacyLevel         = PrivacyLevel.World,
-                                               Boolean                   IsDisabled           = false,
-                                               String                    DataSource           = "",
-                                               Organization              ParentOrganization   = null,
-                                               User_Id?                  CurrentUserId        = null)
-        {
-
-            lock (_Organizations)
-            {
-
-                if (_Organizations.ContainsKey(Id))
-                    throw new ArgumentException("The given organization identification already exists!", nameof(Id));
-
-                return Add(new Organization(Id,
-                                            Name,
-                                            Description,
-                                            EMail,
-                                            PublicKeyRing,
-                                            Telephone,
-                                            GeoLocation,
-                                            Address,
-                                            Tags,
-                                            PrivacyLevel,
-                                            IsDisabled,
-                                            DataSource),
-                           ParentOrganization);
-
-            }
-
-        }
-
-        #endregion
-
-        #region CreateOrganizationIfNotExists(Id, Name = null, Description = null, ParentOrganization = null)
-
-        public Organization CreateOrganizationIfNotExists(Organization_Id           Id,
-                                                          I18NString                Name                 = null,
-                                                          I18NString                Description          = null,
-                                                          SimpleEMailAddress?       EMail                = null,
-                                                          String                    PublicKeyRing        = null,
-                                                          PhoneNumber?              Telephone            = null,
-                                                          GeoCoordinate?            GeoLocation          = null,
-                                                          Address                   Address              = null,
-                                                          Func<Tags.Builder, Tags>  Tags                 = null,
-                                                          PrivacyLevel              PrivacyLevel         = PrivacyLevel.World,
-                                                          Boolean                   IsDisabled           = false,
-                                                          String                    DataSource           = "",
-                                                          Organization              ParentOrganization   = null,
-                                                          User_Id?                  CurrentUserId        = null)
-        {
-
-            lock (_Organizations)
-            {
-
-                if (_Organizations.ContainsKey(Id))
-                    return _Organizations[Id];
-
-                return CreateOrganization(Id,
-                                          Name,
-                                          Description,
-                                          EMail,
-                                          PublicKeyRing,
-                                          Telephone,
-                                          GeoLocation,
-                                          Address,
-                                          Tags,
-                                          PrivacyLevel,
-                                          IsDisabled,
-                                          DataSource,
-                                          ParentOrganization,
-                                          CurrentUserId);
-
-            }
-
-        }
-
-        #endregion
-
-
-        #region AddToOrganization(User, Edge, Organization, PrivacyLevel = Private)
-
-        public Boolean AddToOrganization(User                    User,
-                                         User2OrganizationEdges  Edge,
-                                         Organization            Organization,
-                                         PrivacyLevel            PrivacyLevel   = PrivacyLevel.Private,
-                                         User_Id?                CurrentUserId  = null)
-        {
-
-            if (!User.Edges(Organization).Any(edge => edge == Edge))
-            {
-
-                User.AddOutgoingEdge(Edge, Organization, PrivacyLevel);
-
-                if (!Organization.User2OrganizationInEdgeLabels(User).Any(edgelabel => edgelabel == Edge))
-                    Organization.LinkUser(User, Edge, PrivacyLevel);
-
-                WriteToLogfileAndNotify("AddUserToOrganization",
-                                        new JObject(
-                                            new JProperty("user",          User.        Id.ToString()),
-                                            new JProperty("edge",          Edge.           ToString()),
-                                            new JProperty("organization",  Organization.Id.ToString()),
-                                            PrivacyLevel.ToJSON()
-                                        ),
-                                        CurrentUserId);
-
-                return true;
-
-            }
-
-            return false;
-
-        }
-
-        #endregion
-
-        #region LinkOrganizations  (OrganizationOut, EdgeLabel, OrganizationIn, Privacy = Public, CurrentUserId = null)
-
-        public Boolean LinkOrganizations(Organization                    OrganizationOut,
-                                         Organization2OrganizationEdges  EdgeLabel,
-                                         Organization                    OrganizationIn,
-                                         PrivacyLevel                    Privacy        = PrivacyLevel.World,
-                                         User_Id?                        CurrentUserId  = null)
-        {
-
-            if (!OrganizationOut.
-                    Organization2OrganizationOutEdges.
-                    Where(edge => edge.Target    == OrganizationIn).
-                    Any  (edge => edge.EdgeLabel == EdgeLabel))
-            {
-
-                OrganizationOut.AddOutEdge(EdgeLabel, OrganizationIn, Privacy);
-
-                if (!OrganizationIn.
-                        Organization2OrganizationInEdges.
-                        Where(edge => edge.Source    == OrganizationOut).
-                        Any  (edge => edge.EdgeLabel == EdgeLabel))
-                {
-                    OrganizationIn.AddInEdge(EdgeLabel, OrganizationOut, Privacy);
-                }
-
-                WriteToLogfileAndNotify("LinkOrganizations",
-                                        new JObject(
-                                            new JProperty("organizationOut", OrganizationOut.Id.ToString()),
-                                            new JProperty("edge",            EdgeLabel.         ToString()),
-                                            new JProperty("organizationIn",  OrganizationIn. Id.ToString()),
-                                            Privacy.ToJSON()
-                                        ),
-                                        CurrentUserId);
-
-                return true;
-
-            }
-
-            return false;
-
-        }
-
-        #endregion
-
-        #region UnlinkOrganizations(OrganizationOut, EdgeLabel, OrganizationIn,                   CurrentUserId = null)
-
-        public Boolean UnlinkOrganizations(Organization                    OrganizationOut,
-                                           Organization2OrganizationEdges  EdgeLabel,
-                                           Organization                    OrganizationIn,
-                                           User_Id?                        CurrentUserId  = null)
-        {
-
-            if (OrganizationOut.
-                    Organization2OrganizationOutEdges.
-                    Where(edge => edge.Target    == OrganizationIn).
-                    Any  (edge => edge.EdgeLabel == EdgeLabel))
-            {
-
-                OrganizationOut.RemoveOutEdges(EdgeLabel, OrganizationIn);
-
-                if (OrganizationIn.
-                        Organization2OrganizationInEdges.
-                        Where(edge => edge.Source    == OrganizationOut).
-                        Any  (edge => edge.EdgeLabel == EdgeLabel))
-                {
-                    OrganizationIn.RemoveInEdges(EdgeLabel, OrganizationOut);
-                }
-
-                WriteToLogfileAndNotify("UnlinkOrganizations",
-                                        new JObject(
-                                            new JProperty("organizationOut", OrganizationOut.Id.ToString()),
-                                            new JProperty("edge",            EdgeLabel.         ToString()),
-                                            new JProperty("organizationIn",  OrganizationIn. Id.ToString())
-                                        ),
-                                        CurrentUserId);
-
-                return true;
-
-            }
-
-            return false;
-
-        }
-
-        #endregion
-
-
-        #region (protected internal) SetOrganizationRequest (Request)
-
-        /// <summary>
-        /// An event sent whenever set organization (data) request was received.
-        /// </summary>
-        public event RequestLogHandler OnSetOrganizationRequest;
-
-        protected internal HTTPRequest SetOrganizationRequest(HTTPRequest Request)
-        {
-
-            OnSetOrganizationRequest?.Invoke(Request.Timestamp,
-                                              HTTPServer,
-                                              Request);
-
-            return Request;
-
-        }
-
-        #endregion
-
-        #region (protected internal) SetOrganizationResponse(Response)
-
-        /// <summary>
-        /// An event sent whenever a response on a set organization (data) request was sent.
-        /// </summary>
-        public event AccessLogHandler OnSetOrganizationResponse;
-
-        protected internal HTTPResponse SetOrganizationResponse(HTTPResponse Response)
-        {
-
-            OnSetOrganizationResponse?.Invoke(Response.Timestamp,
-                                               HTTPServer,
-                                               Response.HTTPRequest,
-                                               Response);
-
-            return Response;
-
-        }
-
-        #endregion
-
-
-        #region Contains      (OrganizationId)
-
-        /// <summary>
-        /// Whether this API contains a organization having the given unique identification.
-        /// </summary>
-        /// <param name="OrganizationId">The unique identification of the organization.</param>
-        public Boolean Contains(Organization_Id OrganizationId)
-        {
-
-            lock (_Organizations)
-            {
-                return _Organizations.ContainsKey(OrganizationId);
-            }
-
-        }
-
-        #endregion
-
-        #region Get           (OrganizationId)
-
-        /// <summary>
-        /// Get the organization having the given unique identification.
-        /// </summary>
-        /// <param name="OrganizationId">The unique identification of the organization.</param>
-        public Organization Get(Organization_Id  OrganizationId)
-        {
-
-            lock (_Organizations)
-            {
-
-                if (_Organizations.TryGetValue(OrganizationId, out Organization Organization))
-                    return Organization;
-
-                return null;
-
-            }
-
-        }
-
-        #endregion
-
-        #region TryGet        (OrganizationId, out Organization)
-
-        /// <summary>
-        /// Try to get the organization having the given unique identification.
-        /// </summary>
-        /// <param name="OrganizationId">The unique identification of the organization.</param>
-        /// <param name="Organization">The organization.</param>
-        public Boolean TryGet(Organization_Id   OrganizationId,
-                              out Organization  Organization)
-        {
-
-            lock (_Organizations)
-            {
-                return _Organizations.TryGetValue(OrganizationId, out Organization);
-            }
-
-        }
-
-        #endregion
-
-        #endregion
-
-        #region Messages
-
-        #region CreateMessage(Id, Sender, Receivers, Headline = null, Text = null)
-
-        public Message CreateMessage(User_Id               Sender,
-                                     IEnumerable<User_Id>  Receivers,
-                                     I18NString            Subject,
-                                     I18NString            Text,
-                                     Message_Id?           Id  = null)
-        {
-
-            var Message = new Message(Id.HasValue
-                                          ? Id.Value
-                                          : Message_Id.New,
-                                      Sender,
-                                      Receivers,
-                                      Subject,
-                                      Text);
-
-            return _Messages.AddAndReturnValue(Message.Id, Message);
-
-        }
-
-        #endregion
-
-        #region Messages
-
-        protected readonly Dictionary<Message_Id, Message> _Messages;
-
-        /// <summary>
-        /// A collection of message.
-        /// </summary>
-        public IEnumerable<Message> Messages
-            => _Messages.Values;
-
-        #endregion
-
-        // Create Mailinglist
-
-        #endregion
-
-        #region Notifications
-
-        public Notifications RegisterNotification<T>(User                 User,
-                                                     T                    NotificationType,
-                                                     Func<T, T, Boolean>  EqualityComparer)
-
-            where T : ANotificationType
-
-            => _Notifications.Add(User,
-                                  NotificationType,
-                                  EqualityComparer);
-
-        public Notifications RegisterNotification<T>(User_Id              User,
-                                                     T                    NotificationType,
-                                                     Func<T, T, Boolean>  EqualityComparer)
-
-            where T : ANotificationType
-
-            => _Notifications.Add(User,
-                                  NotificationType,
-                                  EqualityComparer);
-
-
-        public Notifications RegisterNotification<T>(User                 User,
-                                                     Notification_Id      NotificationId,
-                                                     T                    NotificationType,
-                                                     Func<T, T, Boolean>  EqualityComparer)
-
-            where T : ANotificationType
-
-            => _Notifications.Add(User,
-                                  NotificationId,
-                                  NotificationType,
-                                  EqualityComparer);
-
-        public Notifications RegisterNotification<T>(User_Id              User,
-                                                     Notification_Id      NotificationId,
-                                                     T                    NotificationType,
-                                                     Func<T, T, Boolean>  EqualityComparer)
-
-            where T : ANotificationType
-
-            => _Notifications.Add(User,
-                                  NotificationId,
-                                  NotificationType,
-                                  EqualityComparer);
-
-
-
-        public IEnumerable<T> GetNotifications<T>(User             User,
-                                                  Notification_Id  NotificationId)
-
-            where T : ANotificationType
-
-            => _Notifications.GetNotifications<T>(User,
-                                                  NotificationId);
-
-        public IEnumerable<T> GetNotifications<T>(User_Id          User,
-                                                  Notification_Id  NotificationId)
-
-            where T : ANotificationType
-
-            => _Notifications.GetNotifications<T>(User,
-                                                  NotificationId);
-
-
-
-        public Notifications UnregisterNotification<T>(User              User,
-                                                       Func<T, Boolean>  EqualityComparer)
-
-            where T : ANotificationType
-
-            => _Notifications.Remove(User,
-                                     EqualityComparer);
-
-        public Notifications UnregisterNotification<T>(User_Id           User,
-                                                       Func<T, Boolean>  EqualityComparer)
-
-            where T : ANotificationType
-
-            => _Notifications.Remove(User,
-                                     EqualityComparer);
-
-
-        public Notifications UnregisterNotification<T>(User              User,
-                                                       Notification_Id   NotificationId,
-                                                       Func<T, Boolean>  EqualityComparer)
-
-            where T : ANotificationType
-
-            => _Notifications.Remove(User,
-                                     NotificationId,
-                                     EqualityComparer);
-
-        public Notifications UnregisterNotification<T>(User_Id           User,
-                                                       Notification_Id   NotificationId,
-                                                       Func<T, Boolean>  EqualityComparer)
-
-            where T : ANotificationType
-
-            => _Notifications.Remove(User,
-                                     NotificationId,
-                                     EqualityComparer);
 
         #endregion
 
