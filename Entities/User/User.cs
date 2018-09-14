@@ -1001,7 +1001,7 @@ namespace org.GraphDefined.OpenData.Users
             catch (Exception e)
             {
                 ErrorResponse  = e.Message;
-                User  = null;
+                User           = null;
                 return false;
             }
 
