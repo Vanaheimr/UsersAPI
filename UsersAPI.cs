@@ -2227,12 +2227,12 @@ namespace org.GraphDefined.OpenData.Users
 
                                              }
 
-                                             var idJSON = JSONObj["id"].Value<String>();
+                                             var UserIdOrEMailJSON = JSONObj["id"].Value<String>();
 
-                                             if (idJSON != null)
-                                                 idJSON = idJSON.Trim();
+                                             if (UserIdOrEMailJSON != null)
+                                                 UserIdOrEMailJSON = UserIdOrEMailJSON.Trim();
 
-                                             if (idJSON.IsNullOrEmpty() || idJSON.Length < 4)
+                                             if (UserIdOrEMailJSON.IsNullOrEmpty() || UserIdOrEMailJSON.Length < 4)
                                              {
 
                                                  // Slow down attackers!
@@ -2257,15 +2257,15 @@ namespace org.GraphDefined.OpenData.Users
 
                                              var Users = new HashSet<User>();
 
-                                             if (User_Id.TryParse(idJSON, out User_Id UserId) &&
+                                             if (User_Id.TryParse(UserIdOrEMailJSON, out User_Id UserId) &&
                                                  TryGetUser(UserId, out User User))
                                              {
                                                  Users.Add(User);
                                              }
 
-                                             if (SimpleEMailAddress.TryParse(idJSON, out SimpleEMailAddress EMailAddress))
+                                             if (SimpleEMailAddress.TryParse(UserIdOrEMailJSON, out SimpleEMailAddress EMailAddress))
                                              {
-                                                 foreach (var user in Users)
+                                                 foreach (var user in _Users.Values)
                                                  {
                                                      if (user.EMail.Address == EMailAddress)
                                                          Users.Add(user);
