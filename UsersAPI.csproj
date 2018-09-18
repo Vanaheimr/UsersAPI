@@ -240,6 +240,7 @@
     <EmbeddedResource Include="HTTPRoot\profile\notifications.scss" />
     <EmbeddedResource Include="HTTPRoot\profile\APIKeys.scss" />
     <EmbeddedResource Include="HTTPRoot\profile\password.scss" />
+    <EmbeddedResource Include="HTTPRoot\organization\organization.scss" />
     <None Include="README.md" />
     <None Include="tsconfig.json" />
   </ItemGroup>

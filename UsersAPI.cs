@@ -467,7 +467,7 @@ namespace org.GraphDefined.OpenData.Users
         public  const             String                              AdminGroupName                 = "Admins";
 
 
-        private readonly          SMSAPI                              _SMSAPI;
+        protected readonly SMSAPI                                      _SMSAPI;
 
         protected readonly Dictionary<SecurityToken_Id, SecurityToken> HTTPCookies;
         protected readonly Dictionary<SecurityToken_Id, PasswordReset> PasswordResets;
