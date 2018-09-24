@@ -3220,77 +3220,69 @@ namespace org.GraphDefined.OpenData.Users
             // ------------------------------------------------------------------------
             // curl -v -H "Accept: application/json" http://127.0.0.1:2100/users/ahzf
             // ------------------------------------------------------------------------
-            HTTPServer.ITEM_GET<User_Id, User>(UriTemplate:         URIPrefix + "users/{UserId}",
-                                               ParseIdDelegate:     User_Id.TryParse,
-                                               ParseIdError:        Text => "Invalid user identification '" + Text + "'!",
-                                               TryGetItemDelegate:  _Users.TryGetValue,
-                                               ItemFilterDelegate:  user   => user.PrivacyLevel == PrivacyLevel.World,
-                                               TryGetItemError:     userId => "Unknown user '" + userId + "'!",
-                                               ToJSONDelegate:      user   => user.ToJSON(IncludeCryptoHash: true));
+            //HTTPServer.ITEM_GET<User_Id, User>(UriTemplate:         URIPrefix + "users/{UserId}",
+            //                                   ParseIdDelegate:     User_Id.TryParse,
+            //                                   ParseIdError:        Text => "Invalid user identification '" + Text + "'!",
+            //                                   TryGetItemDelegate:  _Users.TryGetValue,
+            //                                   ItemFilterDelegate:  user   => user.PrivacyLevel == PrivacyLevel.World,
+            //                                   TryGetItemError:     userId => "Unknown user '" + userId + "'!",
+            //                                   ToJSONDelegate:      user   => user.ToJSON(IncludeCryptoHash: true));
 
-            //HTTPServer.AddMethodCallback(Hostname,
-            //                             HTTPMethod.GET,
-            //                             URIPrefix + "users/{UserId}",
-            //                             HTTPContentType.JSON_UTF8,
-            //                             HTTPDelegate: Request => {
+            HTTPServer.AddMethodCallback(Hostname,
+                                         HTTPMethod.GET,
+                                         URIPrefix + "users/{UserId}",
+                                         HTTPContentType.JSON_UTF8,
+                                         HTTPDelegate: Request => {
 
-            //                                 #region Get HTTP user and its organizations
+                                             #region Get HTTP user and its organizations
 
-            //                                 // Will return HTTP 401 Unauthorized, when the HTTP user is unknown!
-            //                                 TryGetHTTPUser(Request,
-            //                                                out User                       HTTPUser,
-            //                                                out IEnumerable<Organization>  HTTPOrganizations,
-            //                                                Recursive: true);
+                                             // Will return HTTP 401 Unauthorized, when the HTTP user is unknown!
+                                             TryGetHTTPUser(Request,
+                                                            out User                       HTTPUser,
+                                                            out IEnumerable<Organization>  HTTPOrganizations,
+                                                            Recursive: true);
 
-            //                                 #endregion
+                                             #endregion
 
-            //                                 #region Check DefibrillatorId URI parameter
+                                             #region Check UserId URI parameter
 
-            //                                 if (!Request.ParseUser(this,
-            //                                                        out User_Id?      DefibrillatorId,
-            //                                                        out User          Defibrillator,
-            //                                                        out HTTPResponse  HTTPResponse))
-            //                                 {
-            //                                     return Task.FromResult(HTTPResponse);
-            //                                 }
+                                             if (!Request.ParseUser(this,
+                                                                    out User_Id?      UserId,
+                                                                    out User          User,
+                                                                    out HTTPResponse  HTTPResponse))
+                                             {
+                                                 return Task.FromResult(HTTPResponse);
+                                             }
 
-            //                                 #endregion
-
-            //                                 if (Organizations.Contains(Defibrillator.Owner) ||
-            //                                     Admins.InEdges(HTTPUser).Any(edgelabel => edgelabel == User2GroupEdges.IsAdmin))
-            //                                 {
-
-            //                                     return Task.FromResult(
-            //                                         new HTTPResponse.Builder(Request) {
-            //                                                          HTTPStatusCode             = HTTPStatusCode.OK,
-            //                                                          Server                     = HTTPServer.DefaultServerName,
-            //                                                          Date                       = DateTime.UtcNow,
-            //                                                          AccessControlAllowOrigin   = "*",
-            //                                                          AccessControlAllowMethods  = "GET, SET",
-            //                                                          AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
-            //                                                          ETag                       = "1",
-            //                                                          ContentType                = HTTPContentType.HTML_UTF8,
-            //                                                          Content                    = Template.Replace("<%= content %>",   _MemoryStream2.ToArray().ToUTF8String()).
-            //                                                                                                Replace("<%= logoimage %>", String.Concat(@"<img src=""", LogoImage, @""" /> ")).
-            //                                                                                                ToUTF8Bytes(),
-            //                                                          Connection                 = "close"
-            //                                                      }.AsImmutable);
+                                             #endregion
 
 
-            //                                 }
+                                             if (HTTPUser.Id == UserId.Value || User.PrivacyLevel == PrivacyLevel.World)
+                                                 return Task.FromResult(
+                                                     new HTTPResponse.Builder(Request) {
+                                                         HTTPStatusCode  = HTTPStatusCode.OK,
+                                                         Server          = HTTPServer.DefaultServerName,
+                                                         ContentType     = HTTPContentType.JSON_UTF8,
+                                                         Content         = User.ToJSON().ToUTF8Bytes(),
+                                                         //ETag            = "1",
+                                                         CacheControl    = "public",
+                                                         //Expires         = "Mon, 25 Jun 2015 21:31:12 GMT",
+                                                         Connection      = "close"
+                                                     }.AsImmutable);
 
-            //                                 else return Task.FromResult(
-            //                                                  new HTTPResponse.Builder(Request) {
-            //                                                            HTTPStatusCode             = HTTPStatusCode.Unauthorized,
-            //                                                            Server                     = HTTPServer.DefaultServerName,
-            //                                                            Date                       = DateTime.UtcNow,
-            //                                                            AccessControlAllowOrigin   = "*",
-            //                                                            AccessControlAllowMethods  = "GET, SET",
-            //                                                            AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
-            //                                                            Connection                 = "close"
-            //                                                        }.AsImmutable);
 
-            //                             });
+                                             return Task.FromResult(
+                                                              new HTTPResponse.Builder(Request) {
+                                                                        HTTPStatusCode             = HTTPStatusCode.Unauthorized,
+                                                                        Server                     = HTTPServer.DefaultServerName,
+                                                                        Date                       = DateTime.UtcNow,
+                                                                        AccessControlAllowOrigin   = "*",
+                                                                        AccessControlAllowMethods  = "GET, SET",
+                                                                        AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
+                                                                        Connection                 = "close"
+                                                                    }.AsImmutable);
+
+                                         });
 
 
             #region Get HTTP user and its organizations
