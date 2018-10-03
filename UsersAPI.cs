@@ -1598,7 +1598,11 @@ namespace org.GraphDefined.OpenData.Users
 
         #region (private) CheckImpersonate(currentOrg, Astronaut, AstronautFound, Member, VetoUsers)
 
-        private Boolean? CheckImpersonate(Organization currentOrg, User Astronaut, Boolean AstronautFound, User Member, HashSet<User> VetoUsers)
+        private Boolean? CheckImpersonate(Organization   currentOrg,
+                                          User           Astronaut,
+                                          Boolean        AstronautFound,
+                                          User           Member,
+                                          HashSet<User>  VetoUsers)
         {
 
             var currentUsers = new HashSet<User>(currentOrg.User2OrganizationEdges.Select(edge => edge.Source));
@@ -1644,7 +1648,8 @@ namespace org.GraphDefined.OpenData.Users
 
         #region CanImpersonate(Astronaut, Member)
 
-        public Boolean CanImpersonate(User Astronaut, User Member)
+        public Boolean CanImpersonate(User  Astronaut,
+                                      User  Member)
         {
 
             if (Astronaut == Member)
@@ -3883,7 +3888,7 @@ namespace org.GraphDefined.OpenData.Users
                                              #endregion
 
 
-                                             #region Register security token
+                                             #region Switch back to astronaut user identification...
 
                                              var SHA256Hash       = new SHA256Managed();
                                              var SecurityTokenId  = SecurityToken_Id.Parse(SHA256Hash.ComputeHash(
@@ -3902,7 +3907,7 @@ namespace org.GraphDefined.OpenData.Users
                                                                                    Expires));
 
                                                  File.AppendAllText(this.UsersAPIPath + DefaultHTTPCookiesFile,
-                                                                    SecurityTokenId + ";" + UserURI.Id + ";" + Expires.ToIso8601() + Environment.NewLine);
+                                                                    SecurityTokenId + ";" + Astronaut.Id + ";" + Expires.ToIso8601() + Environment.NewLine);
 
                                              }
 
