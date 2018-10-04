@@ -45,6 +45,7 @@ namespace org.GraphDefined.OpenData.Users
 
     public enum Access_Levels
     {
+        None,
         ReadOnly,
         ReadWrite,
         Admin
@@ -789,13 +790,13 @@ namespace org.GraphDefined.OpenData.Users
             var _Groups = RequireReadWriteAccess
 
                                      ? _User2Group_OutEdges.
-                                           Where (edge => edge.EdgeLabel == User2GroupEdges.IsAdmin ||
+                                           Where (edge => edge.EdgeLabel == User2GroupEdges.IsAdmin_ReadWrite ||
                                                           edge.EdgeLabel == User2GroupEdges.IsMember).
                                            Select(edge => edge.Target).
                                            ToList()
 
                                      : _User2Group_OutEdges.
-                                           Where (edge => edge.EdgeLabel == User2GroupEdges.IsAdmin  ||
+                                           Where (edge => edge.EdgeLabel == User2GroupEdges.IsAdmin_ReadWrite  ||
                                                           edge.EdgeLabel == User2GroupEdges.IsMember ||
                                                           edge.EdgeLabel == User2GroupEdges.IsVisitor).
                                            Select(edge => edge.Target).

@@ -3,7 +3,7 @@ var SignInUser    = "";
 var Username      = "";
 var UserEMail     = "";
 var Astronaut     = "";
-var isAdmin       = false;
+var isAdmin       = "";
 
 function HideElement(DivName) {
 
@@ -566,7 +566,7 @@ function checkSignedIn(RedirectUnkownUsers: Boolean) {
 
                cookie => {
 
-                   isAdmin   = false;
+                   isAdmin   = "false";
                    Astronaut = "";
 
                    // Crumbs are base64 encoded!
@@ -584,8 +584,14 @@ function checkSignedIn(RedirectUnkownUsers: Boolean) {
                        if (crumb.indexOf("astronaut") >= 0)
                            Astronaut = atob(crumb.split("=")[1]);
 
-                       if (crumb.indexOf("isAdmin")   >= 0) {
-                           isAdmin = true;
+                       if (crumb.indexOf("isAdminRO")   >= 0) {
+                           isAdmin = "readOnly";
+                           ShowElement('#admin');
+                           ShowElement('.admin');
+                       }
+
+                       if (crumb.indexOf("isAdminRW")   >= 0) {
+                           isAdmin = "readWrite";
                            ShowElement('#admin');
                            ShowElement('.admin');
                        }

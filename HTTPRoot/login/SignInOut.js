@@ -2,7 +2,7 @@ var SignInUser = "";
 var Username = "";
 var UserEMail = "";
 var Astronaut = "";
-var isAdmin = false;
+var isAdmin = "";
 function HideElement(DivName) {
     var div = document.querySelector(DivName);
     if (div != null)
@@ -366,7 +366,7 @@ function SignIn() {
 }
 function checkSignedIn(RedirectUnkownUsers) {
     WithCookie(HTTPCookieId, function (cookie) {
-        isAdmin = false;
+        isAdmin = "false";
         Astronaut = "";
         // Crumbs are base64 encoded!
         cookie.split(":").forEach(function (crumb) {
@@ -378,8 +378,13 @@ function checkSignedIn(RedirectUnkownUsers) {
                 UserEMail = atob(crumb.split("=")[1]);
             if (crumb.indexOf("astronaut") >= 0)
                 Astronaut = atob(crumb.split("=")[1]);
-            if (crumb.indexOf("isAdmin") >= 0) {
-                isAdmin = true;
+            if (crumb.indexOf("isAdminRO") >= 0) {
+                isAdmin = "readOnly";
+                ShowElement('#admin');
+                ShowElement('.admin');
+            }
+            if (crumb.indexOf("isAdminRW") >= 0) {
+                isAdmin = "readWrite";
                 ShowElement('#admin');
                 ShowElement('.admin');
             }

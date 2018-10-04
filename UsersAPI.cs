@@ -2165,7 +2165,8 @@ namespace org.GraphDefined.OpenData.Users
                                                       SetCookie       = CookieName + "=login=" + _LoginPassword.Login.ToString().ToBase64() +
                                                                                   ":username=" + _User.Name.ToBase64() +
                                                                                   ":email="    + _User.EMail.Address.ToString().ToBase64() +
-                                                                                (IsAdmin(_User) ? ":isAdmin" : "") +
+                                                                                (IsAdmin(_User) == Access_Levels.ReadOnly  ? ":isAdminRO" : "") +
+                                                                                (IsAdmin(_User) == Access_Levels.ReadWrite ? ":isAdminRW" : "") +
                                                                              ":securitytoken=" + SecurityTokenId +
                                                                                   "; Expires=" + Expires.ToRfc1123() +
                                                                                    (HTTPCookieDomain.IsNotNullOrEmpty()
@@ -3659,7 +3660,8 @@ namespace org.GraphDefined.OpenData.Users
                                                          CacheControl    = "private",
                                                          SetCookie       = CookieName + "=login="    + _LoginPassword.Login.ToString().ToBase64() +
                                                                                      ":username=" + _User.Name.ToBase64() +
-                                                                                   (IsAdmin(_User) ? ":isAdmin" : "") +
+                                                                                   (IsAdmin(_User) == Access_Levels.ReadOnly  ? ":isAdminRO" : "") +
+                                                                                   (IsAdmin(_User) == Access_Levels.ReadWrite ? ":isAdminRW" : "") +
                                                                                 ":securitytoken=" + SecurityToken +
                                                                                      "; Expires=" + DateTime.UtcNow.Add(SignInSessionLifetime).ToRfc1123() +
                                                                                       (HTTPCookieDomain.IsNotNullOrEmpty()
@@ -3802,7 +3804,8 @@ namespace org.GraphDefined.OpenData.Users
                                                         SetCookie       = CookieName + "=login="    + UserURI.Id.ToString().ToBase64() +
                                                                                     ":astronaut=" + Astronaut.Id.ToString().ToBase64() +
                                                                                     ":username=" + UserURI.Name.ToBase64() +
-                                                                                  (IsAdmin(Astronaut) ? ":isAdmin" : "") +
+                                                                                  (IsAdmin(UserURI) == Access_Levels.ReadOnly  ? ":isAdminRO" : "") +
+                                                                                  (IsAdmin(UserURI) == Access_Levels.ReadWrite ? ":isAdminRW" : "") +
                                                                                ":securitytoken=" + SecurityTokenId +
                                                                                     "; Expires=" + DateTime.UtcNow.Add(SignInSessionLifetime).ToRfc1123() +
                                                                                      (HTTPCookieDomain.IsNotNullOrEmpty()
@@ -3927,7 +3930,8 @@ namespace org.GraphDefined.OpenData.Users
                                                      CacheControl    = "private",
                                                      SetCookie       = CookieName + "=login="    + Astronaut.Id.ToString().ToBase64() +
                                                                                  ":username=" + Astronaut.Name.ToBase64() +
-                                                                               (IsAdmin(Astronaut) ? ":isAdmin" : "") +
+                                                                               (IsAdmin(Astronaut) == Access_Levels.ReadOnly  ? ":isAdminRO" : "") +
+                                                                               (IsAdmin(Astronaut) == Access_Levels.ReadWrite ? ":isAdminRW" : "") +
                                                                             ":securitytoken=" + SecurityTokenId +
                                                                                  "; Expires=" + DateTime.UtcNow.Add(SignInSessionLifetime).ToRfc1123() +
                                                                                   (HTTPCookieDomain.IsNotNullOrEmpty()
@@ -6292,7 +6296,7 @@ namespace org.GraphDefined.OpenData.Users
                 if (Request.HTTPSource.IPAddress.IsIPv4 &&
                     Request.HTTPSource.IPAddress.IsLocalhost)
                 {
-                    User           = Admins.User2GroupInEdges(edgelabel => edgelabel == User2GroupEdges.IsAdmin).FirstOrDefault()?.Source;
+                    User           = Admins.User2GroupInEdges(edgelabel => edgelabel == User2GroupEdges.IsAdmin_ReadWrite).FirstOrDefault()?.Source;
                     Organizations  = User.Organizations(AccessLevel, Recursive);
                     return;
                 }
@@ -8314,10 +8318,24 @@ namespace org.GraphDefined.OpenData.Users
         /// Check if the given user is an API admin.
         /// </summary>
         /// <param name="User">A user.</param>
-        public Boolean IsAdmin(User User)
+        public Access_Levels IsAdmin(User User)
+        {
 
-            => User.Groups(User2GroupEdges.IsAdmin).
-                    Contains(Admins);
+            if (User.Groups(User2GroupEdges.IsAdmin_ReadOnly).
+                     Contains(Admins))
+            {
+                return Access_Levels.ReadOnly;
+            }
+
+            if (User.Groups(User2GroupEdges.IsAdmin_ReadWrite).
+                     Contains(Admins))
+            {
+                return Access_Levels.ReadWrite;
+            }
+
+            return Access_Levels.None;
+
+        }
 
         #endregion
 
@@ -8327,10 +8345,15 @@ namespace org.GraphDefined.OpenData.Users
         /// Check if the given user is an API admin.
         /// </summary>
         /// <param name="UserId">A user identification.</param>
-        public Boolean IsAdmin(User_Id UserId)
+        public Access_Levels IsAdmin(User_Id UserId)
+        {
 
-            => TryGetUser(UserId, out User User) &&
-               IsAdmin(User);
+            if (TryGetUser(UserId, out User User))
+                return IsAdmin(User);
+
+            return Access_Levels.None;
+
+        }
 
         #endregion
 
