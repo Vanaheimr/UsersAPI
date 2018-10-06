@@ -44,62 +44,6 @@ namespace org.GraphDefined.OpenData.Users
     public delegate Boolean UserProviderDelegate(User_Id UserId, out User User);
 
     /// <summary>
-    /// Extention methods for the User.
-    /// </summary>
-    public static class UserExtentions
-    {
-
-        #region CopyAllEdgesTo(this OldUser, NewUser)
-
-        public static void CopyAllEdgesTo(this User  OldUser,
-                                          User       NewUser)
-        {
-
-            if (OldUser.__User2UserEdges.Any() && !NewUser.__User2UserEdges.Any())
-            {
-
-                NewUser.Add(OldUser.__User2UserEdges);
-
-                foreach (var edge in NewUser.__User2UserEdges)
-                    edge.Source = NewUser;
-
-            }
-
-            if (OldUser.User2Organization_OutEdges.Any() && !NewUser.User2Organization_OutEdges.Any())
-            {
-
-                NewUser.Add(OldUser.User2Organization_OutEdges);
-
-                foreach (var edge in NewUser.User2Organization_OutEdges)
-                    edge.Source = NewUser;
-
-            }
-
-            if (OldUser.User2Group_OutEdges.Any() && !NewUser.User2Group_OutEdges.Any())
-            {
-
-                NewUser.Add(OldUser.User2Group_OutEdges);
-
-                foreach (var edge in NewUser.User2Group_OutEdges)
-                    edge.Source = NewUser;
-
-            }
-
-            if (OldUser.GetNotifications().Any() && !NewUser.GetNotifications().Any())
-            {
-
-                foreach (var notification in OldUser.GetNotifications())
-                    NewUser.AddNotification(notification);
-
-            }
-
-        }
-
-        #endregion
-
-    }
-
-    /// <summary>
     /// An Open Data user.
     /// </summary>
     public class User : ADistributedEntity<User_Id>,
@@ -1177,6 +1121,54 @@ namespace org.GraphDefined.OpenData.Users
                 ErrorResponse  = e.Message;
                 User           = null;
                 return false;
+            }
+
+        }
+
+        #endregion
+
+
+        #region CopyAllEdgesTo(NewUser)
+
+        public void CopyAllEdgesTo(User NewUser)
+        {
+
+            if (__User2UserEdges.Any() && !NewUser.__User2UserEdges.Any())
+            {
+
+                NewUser.Add(__User2UserEdges);
+
+                foreach (var edge in NewUser.__User2UserEdges)
+                    edge.Source = NewUser;
+
+            }
+
+            if (User2Organization_OutEdges.Any() && !NewUser.User2Organization_OutEdges.Any())
+            {
+
+                NewUser.Add(User2Organization_OutEdges);
+
+                foreach (var edge in NewUser.User2Organization_OutEdges)
+                    edge.Source = NewUser;
+
+            }
+
+            if (User2Group_OutEdges.Any() && !NewUser.User2Group_OutEdges.Any())
+            {
+
+                NewUser.Add(User2Group_OutEdges);
+
+                foreach (var edge in NewUser.User2Group_OutEdges)
+                    edge.Source = NewUser;
+
+            }
+
+            if (GetNotifications().Any() && !NewUser.GetNotifications().Any())
+            {
+
+                foreach (var notification in GetNotifications())
+                    NewUser.AddNotification(notification);
+
             }
 
         }

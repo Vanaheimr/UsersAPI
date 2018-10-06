@@ -412,6 +412,46 @@ namespace org.GraphDefined.OpenData.Users
         #endregion
 
 
+        #region CopyAllEdgesTo(NewGroup)
+
+        public void CopyAllEdgesTo(Group NewGroup)
+        {
+
+            //if (_User2Organization_InEdges.Any() && !NewGroup._User2Organization_InEdges.Any())
+            //{
+
+            //    NewGroup.Add(_User2Organization_InEdges);
+
+            //    foreach (var edge in NewGroup._User2Organization_InEdges)
+            //        edge.Target = NewGroup;
+
+            //}
+
+            //if (_Organization2Organization_InEdges.Any() && !NewGroup._Organization2Organization_InEdges.Any())
+            //{
+
+            //    NewGroup.AddInEdges(_Organization2Organization_InEdges);
+
+            //    foreach (var edge in NewGroup._Organization2Organization_InEdges)
+            //        edge.Target = NewGroup;
+
+            //}
+
+            //if (_Organization2Organization_OutEdges.Any() && !NewGroup._Organization2Organization_OutEdges.Any())
+            //{
+
+            //    NewGroup.AddOutEdges(_Organization2Organization_OutEdges);
+
+            //    foreach (var edge in NewGroup._Organization2Organization_OutEdges)
+            //        edge.Source = NewGroup;
+
+            //}
+
+        }
+
+        #endregion
+
+
         #region Operator overloading
 
         #region Operator == (GroupId1, GroupId2)

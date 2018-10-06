@@ -260,9 +260,9 @@ namespace org.GraphDefined.OpenData.Users
             this.IsDisabled     = IsDisabled;
 
             // Init edges
-            this._User2Organization_InEdges           = User2OrganizationInEdges.           IsNeitherNullNorEmpty() ? new ReactiveSet<MiniEdge<User, User2OrganizationEdges, Organization>>                (User2OrganizationInEdges)            : new ReactiveSet<MiniEdge<User, User2OrganizationEdges, Organization>>();
-            this._Organization2Organization_InEdges   = Organization2OrganizationInEdges. IsNeitherNullNorEmpty() ? new ReactiveSet<MiniEdge<Organization, Organization2OrganizationEdges, Organization>>(Organization2OrganizationInEdges)  : new ReactiveSet<MiniEdge<Organization, Organization2OrganizationEdges, Organization>>();
-            this._Organization2Organization_OutEdges  = Organization2OrganizationOutEdges.IsNeitherNullNorEmpty() ? new ReactiveSet<MiniEdge<Organization, Organization2OrganizationEdges, Organization>>(Organization2OrganizationOutEdges) : new ReactiveSet<MiniEdge<Organization, Organization2OrganizationEdges, Organization>>();
+            this._User2Organization_InEdges           = User2OrganizationInEdges.           IsNeitherNullNorEmpty() ? new List<MiniEdge<User, User2OrganizationEdges, Organization>>                (User2OrganizationInEdges)            : new List<MiniEdge<User, User2OrganizationEdges, Organization>>();
+            this._Organization2Organization_InEdges   = Organization2OrganizationInEdges. IsNeitherNullNorEmpty() ? new List<MiniEdge<Organization, Organization2OrganizationEdges, Organization>>(Organization2OrganizationInEdges)  : new List<MiniEdge<Organization, Organization2OrganizationEdges, Organization>>();
+            this._Organization2Organization_OutEdges  = Organization2OrganizationOutEdges.IsNeitherNullNorEmpty() ? new List<MiniEdge<Organization, Organization2OrganizationEdges, Organization>>(Organization2OrganizationOutEdges) : new List<MiniEdge<Organization, Organization2OrganizationEdges, Organization>>();
 
             CalcHash();
 
@@ -273,7 +273,7 @@ namespace org.GraphDefined.OpenData.Users
 
         #region User          -> Organization edges
 
-        protected readonly ReactiveSet<MiniEdge<User, User2OrganizationEdges, Organization>> _User2Organization_InEdges;
+        protected readonly List<MiniEdge<User, User2OrganizationEdges, Organization>> _User2Organization_InEdges;
 
         public IEnumerable<MiniEdge<User, User2OrganizationEdges, Organization>> User2OrganizationEdges
             => _User2Organization_InEdges;
@@ -285,7 +285,7 @@ namespace org.GraphDefined.OpenData.Users
 
             LinkUser(MiniEdge<User, User2OrganizationEdges, Organization> Edge)
 
-            => _User2Organization_InEdges.AddAndReturn(Edge);
+            => _User2Organization_InEdges.AddAndReturnElement(Edge);
 
         #endregion
 
@@ -298,10 +298,10 @@ namespace org.GraphDefined.OpenData.Users
                      PrivacyLevel            PrivacyLevel = PrivacyLevel.World)
 
             => _User2Organization_InEdges.
-                   AddAndReturn(new MiniEdge<User, User2OrganizationEdges, Organization>(Source,
-                                                                                         EdgeLabel,
-                                                                                         this,
-                                                                                         PrivacyLevel));
+                   AddAndReturnElement(new MiniEdge<User, User2OrganizationEdges, Organization>(Source,
+                                                                                                EdgeLabel,
+                                                                                                this,
+                                                                                                PrivacyLevel));
 
         #endregion
 
@@ -331,6 +331,12 @@ namespace org.GraphDefined.OpenData.Users
 
         #endregion
 
+        public IEnumerable<MiniEdge<User, User2OrganizationEdges, Organization>>
+
+            Add(IEnumerable<MiniEdge<User, User2OrganizationEdges, Organization>> Edges)
+
+                => _User2Organization_InEdges.AddAndReturnList(Edges);
+
 
         #region UnlinkUser(EdgeLabel, User)
 
@@ -354,17 +360,10 @@ namespace org.GraphDefined.OpenData.Users
 
         #region Organization <-> Organization edges
 
-        protected readonly ReactiveSet<MiniEdge<Organization, Organization2OrganizationEdges, Organization>> _Organization2Organization_InEdges;
+        protected readonly List<MiniEdge<Organization, Organization2OrganizationEdges, Organization>> _Organization2Organization_InEdges;
 
         public IEnumerable<MiniEdge<Organization, Organization2OrganizationEdges, Organization>> Organization2OrganizationInEdges
             => _Organization2Organization_InEdges;
-
-
-        protected readonly ReactiveSet<MiniEdge<Organization, Organization2OrganizationEdges, Organization>> _Organization2Organization_OutEdges;
-
-        public IEnumerable<MiniEdge<Organization, Organization2OrganizationEdges, Organization>> Organization2OrganizationOutEdges
-            => _Organization2Organization_OutEdges;
-
 
         #region AddInEdge (Edge)
 
@@ -372,7 +371,7 @@ namespace org.GraphDefined.OpenData.Users
 
             AddInEdge(MiniEdge<Organization, Organization2OrganizationEdges, Organization> Edge)
 
-            => _Organization2Organization_InEdges.AddAndReturn(Edge);
+            => _Organization2Organization_InEdges.AddAndReturnElement(Edge);
 
         #endregion
 
@@ -384,12 +383,43 @@ namespace org.GraphDefined.OpenData.Users
                        Organization                    SourceOrganization,
                        PrivacyLevel                    PrivacyLevel = PrivacyLevel.World)
 
-            => _Organization2Organization_InEdges. AddAndReturn(new MiniEdge<Organization, Organization2OrganizationEdges, Organization>(SourceOrganization,
-                                                                                                                                        EdgeLabel,
-                                                                                                                                        this,
-                                                                                                                                        PrivacyLevel));
+            => _Organization2Organization_InEdges. AddAndReturnElement(new MiniEdge<Organization, Organization2OrganizationEdges, Organization>(SourceOrganization,
+                                                                                                                                                EdgeLabel,
+                                                                                                                                                this,
+                                                                                                                                                PrivacyLevel));
 
         #endregion
+
+        public IEnumerable<MiniEdge<Organization, Organization2OrganizationEdges, Organization>>
+
+            AddInEdges(IEnumerable<MiniEdge<Organization, Organization2OrganizationEdges, Organization>> Edges)
+
+                => _Organization2Organization_InEdges.AddAndReturnList(Edges);
+
+        #region RemoveInEdges (EdgeLabel, SourceOrganization)
+
+        public void RemoveInEdges(Organization2OrganizationEdges EdgeLabel,
+                                  Organization SourceOrganization)
+        {
+
+            var edges = _Organization2Organization_OutEdges.
+                            Where(edge => edge.EdgeLabel == EdgeLabel &&
+                                          edge.Source == SourceOrganization).
+                            ToArray();
+
+            foreach (var edge in edges)
+                _Organization2Organization_InEdges.Remove(edge);
+
+        }
+
+        #endregion
+
+
+
+        protected readonly List<MiniEdge<Organization, Organization2OrganizationEdges, Organization>> _Organization2Organization_OutEdges;
+
+        public IEnumerable<MiniEdge<Organization, Organization2OrganizationEdges, Organization>> Organization2OrganizationOutEdges
+            => _Organization2Organization_OutEdges;
 
         #region AddOutEdge(Edge)
 
@@ -397,7 +427,7 @@ namespace org.GraphDefined.OpenData.Users
 
             AddOutEdge(MiniEdge<Organization, Organization2OrganizationEdges, Organization> Edge)
 
-            => _Organization2Organization_OutEdges.AddAndReturn(Edge);
+            => _Organization2Organization_OutEdges.AddAndReturnElement(Edge);
 
         #endregion
 
@@ -409,31 +439,18 @@ namespace org.GraphDefined.OpenData.Users
                        Organization                    TargetOrganization,
                        PrivacyLevel                    PrivacyLevel = PrivacyLevel.World)
 
-            => _Organization2Organization_OutEdges.AddAndReturn(new MiniEdge<Organization, Organization2OrganizationEdges, Organization>(this,
-                                                                                                                                        EdgeLabel,
-                                                                                                                                        TargetOrganization,
-                                                                                                                                        PrivacyLevel));
+            => _Organization2Organization_OutEdges.AddAndReturnElement(new MiniEdge<Organization, Organization2OrganizationEdges, Organization>(this,
+                                                                                                                                                EdgeLabel,
+                                                                                                                                                TargetOrganization,
+                                                                                                                                                PrivacyLevel));
 
         #endregion
 
+        public IEnumerable<MiniEdge<Organization, Organization2OrganizationEdges, Organization>>
 
-        #region RemoveInEdges (EdgeLabel, SourceOrganization)
+            AddOutEdges(IEnumerable<MiniEdge<Organization, Organization2OrganizationEdges, Organization>> Edges)
 
-        public void RemoveInEdges(Organization2OrganizationEdges  EdgeLabel,
-                                  Organization                    SourceOrganization)
-        {
-
-            var edges = _Organization2Organization_OutEdges.
-                            Where(edge => edge.EdgeLabel == EdgeLabel &&
-                                          edge.Source    == SourceOrganization).
-                            ToArray();
-
-            foreach (var edge in edges)
-                _Organization2Organization_InEdges.Remove(edge);
-
-        }
-
-        #endregion
+                => _Organization2Organization_OutEdges.AddAndReturnList(Edges);
 
         #region RemoveOutEdges(EdgeLabel, TargetOrganization)
 
@@ -741,6 +758,46 @@ namespace org.GraphDefined.OpenData.Users
                 ErrorResponse  = e.Message;
                 Organization  = null;
                 return false;
+            }
+
+        }
+
+        #endregion
+
+
+        #region CopyAllEdgesTo(NewOrganization)
+
+        public void CopyAllEdgesTo(Organization NewOrganization)
+        {
+
+            if (_User2Organization_InEdges.Any() && !NewOrganization._User2Organization_InEdges.Any())
+            {
+
+                NewOrganization.Add(_User2Organization_InEdges);
+
+                foreach (var edge in NewOrganization._User2Organization_InEdges)
+                    edge.Target = NewOrganization;
+
+            }
+
+            if (_Organization2Organization_InEdges.Any() && !NewOrganization._Organization2Organization_InEdges.Any())
+            {
+
+                NewOrganization.AddInEdges(_Organization2Organization_InEdges);
+
+                foreach (var edge in NewOrganization._Organization2Organization_InEdges)
+                    edge.Target = NewOrganization;
+
+            }
+
+            if (_Organization2Organization_OutEdges.Any() && !NewOrganization._Organization2Organization_OutEdges.Any())
+            {
+
+                NewOrganization.AddOutEdges(_Organization2Organization_OutEdges);
+
+                foreach (var edge in NewOrganization._Organization2Organization_OutEdges)
+                    edge.Source = NewOrganization;
+
             }
 
         }
@@ -1079,25 +1136,25 @@ namespace org.GraphDefined.OpenData.Users
 
             #region Edges
 
-            protected readonly ReactiveSet<MiniEdge<User, User2OrganizationEdges, Organization>> _User2Organization_InEdges;
+            protected readonly List<MiniEdge<User, User2OrganizationEdges, Organization>> _User2Organization_InEdges;
 
             public IEnumerable<MiniEdge<User, User2OrganizationEdges, Organization>> User2OrganizationEdges
                 => _User2Organization_InEdges;
 
 
-            protected readonly ReactiveSet<MiniEdge<Organization, Organization2UserEdges, User>> _Organization2UserEdges;
+            protected readonly List<MiniEdge<Organization, Organization2UserEdges, User>> _Organization2UserEdges;
 
             public IEnumerable<MiniEdge<Organization, Organization2UserEdges, User>> Organization2UserEdges
                 => _Organization2UserEdges;
 
 
-            protected readonly ReactiveSet<MiniEdge<Organization, Organization2OrganizationEdges, Organization>> _Organization2Organization_InEdges;
+            protected readonly List<MiniEdge<Organization, Organization2OrganizationEdges, Organization>> _Organization2Organization_InEdges;
 
             public IEnumerable<MiniEdge<Organization, Organization2OrganizationEdges, Organization>> Organization2OrganizationInEdges
                 => _Organization2Organization_InEdges;
 
 
-            protected readonly ReactiveSet<MiniEdge<Organization, Organization2OrganizationEdges, Organization>> _Organization2Organization_OutEdges;
+            protected readonly List<MiniEdge<Organization, Organization2OrganizationEdges, Organization>> _Organization2Organization_OutEdges;
 
             public IEnumerable<MiniEdge<Organization, Organization2OrganizationEdges, Organization>> Organization2OrganizationOutEdges
                 => _Organization2Organization_OutEdges;
@@ -1154,9 +1211,9 @@ namespace org.GraphDefined.OpenData.Users
                 this.DataSource      = DataSource;
 
                 // Init edges
-                this._User2Organization_InEdges           = User2OrganizationInEdges.           IsNeitherNullNorEmpty() ? new ReactiveSet<MiniEdge<User, User2OrganizationEdges, Organization>>                (User2OrganizationInEdges)            : new ReactiveSet<MiniEdge<User, User2OrganizationEdges, Organization>>();
-                this._Organization2Organization_InEdges   = Organization2OrganizationInEdges. IsNeitherNullNorEmpty() ? new ReactiveSet<MiniEdge<Organization, Organization2OrganizationEdges, Organization>>(Organization2OrganizationInEdges)  : new ReactiveSet<MiniEdge<Organization, Organization2OrganizationEdges, Organization>>();
-                this._Organization2Organization_OutEdges  = Organization2OrganizationOutEdges.IsNeitherNullNorEmpty() ? new ReactiveSet<MiniEdge<Organization, Organization2OrganizationEdges, Organization>>(Organization2OrganizationOutEdges) : new ReactiveSet<MiniEdge<Organization, Organization2OrganizationEdges, Organization>>();
+                this._User2Organization_InEdges           = User2OrganizationInEdges.           IsNeitherNullNorEmpty() ? new List<MiniEdge<User, User2OrganizationEdges, Organization>>                (User2OrganizationInEdges)            : new List<MiniEdge<User, User2OrganizationEdges, Organization>>();
+                this._Organization2Organization_InEdges   = Organization2OrganizationInEdges. IsNeitherNullNorEmpty() ? new List<MiniEdge<Organization, Organization2OrganizationEdges, Organization>>(Organization2OrganizationInEdges)  : new List<MiniEdge<Organization, Organization2OrganizationEdges, Organization>>();
+                this._Organization2Organization_OutEdges  = Organization2OrganizationOutEdges.IsNeitherNullNorEmpty() ? new List<MiniEdge<Organization, Organization2OrganizationEdges, Organization>>(Organization2OrganizationOutEdges) : new List<MiniEdge<Organization, Organization2OrganizationEdges, Organization>>();
 
             }
 
