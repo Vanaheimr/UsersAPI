@@ -52,7 +52,7 @@ namespace org.GraphDefined.OpenData.Users
         /// The length of the message identification.
         /// </summary>
         public UInt64 Length
-            => (UInt64) InternalId.Length;
+            => (UInt64) InternalId?.Length;
 
         #endregion
 

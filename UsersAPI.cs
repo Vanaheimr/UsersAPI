@@ -467,7 +467,7 @@ namespace org.GraphDefined.OpenData.Users
         public  const             String                              AdminGroupName                 = "Admins";
 
 
-        private readonly          SMSAPI                              _SMSAPI;
+        protected readonly SMSAPI                                      _SMSAPI;
 
         protected readonly Dictionary<SecurityToken_Id, SecurityToken> HTTPCookies;
         protected readonly Dictionary<SecurityToken_Id, PasswordReset> PasswordResets;
@@ -1598,7 +1598,11 @@ namespace org.GraphDefined.OpenData.Users
 
         #region (private) CheckImpersonate(currentOrg, Astronaut, AstronautFound, Member, VetoUsers)
 
-        private Boolean? CheckImpersonate(Organization currentOrg, User Astronaut, Boolean AstronautFound, User Member, HashSet<User> VetoUsers)
+        private Boolean? CheckImpersonate(Organization   currentOrg,
+                                          User           Astronaut,
+                                          Boolean        AstronautFound,
+                                          User           Member,
+                                          HashSet<User>  VetoUsers)
         {
 
             var currentUsers = new HashSet<User>(currentOrg.User2OrganizationEdges.Select(edge => edge.Source));
@@ -1644,7 +1648,8 @@ namespace org.GraphDefined.OpenData.Users
 
         #region CanImpersonate(Astronaut, Member)
 
-        public Boolean CanImpersonate(User Astronaut, User Member)
+        public Boolean CanImpersonate(User  Astronaut,
+                                      User  Member)
         {
 
             if (Astronaut == Member)
@@ -2160,7 +2165,8 @@ namespace org.GraphDefined.OpenData.Users
                                                       SetCookie       = CookieName + "=login=" + _LoginPassword.Login.ToString().ToBase64() +
                                                                                   ":username=" + _User.Name.ToBase64() +
                                                                                   ":email="    + _User.EMail.Address.ToString().ToBase64() +
-                                                                                (IsAdmin(_User) ? ":isAdmin" : "") +
+                                                                                (IsAdmin(_User) == Access_Levels.ReadOnly  ? ":isAdminRO" : "") +
+                                                                                (IsAdmin(_User) == Access_Levels.ReadWrite ? ":isAdminRW" : "") +
                                                                              ":securitytoken=" + SecurityTokenId +
                                                                                   "; Expires=" + Expires.ToRfc1123() +
                                                                                    (HTTPCookieDomain.IsNotNullOrEmpty()
@@ -2227,12 +2233,12 @@ namespace org.GraphDefined.OpenData.Users
 
                                              }
 
-                                             var idJSON = JSONObj["id"].Value<String>();
+                                             var UserIdOrEMailJSON = JSONObj["id"].Value<String>();
 
-                                             if (idJSON != null)
-                                                 idJSON = idJSON.Trim();
+                                             if (UserIdOrEMailJSON != null)
+                                                 UserIdOrEMailJSON = UserIdOrEMailJSON.Trim();
 
-                                             if (idJSON.IsNullOrEmpty() || idJSON.Length < 4)
+                                             if (UserIdOrEMailJSON.IsNullOrEmpty() || UserIdOrEMailJSON.Length < 4)
                                              {
 
                                                  // Slow down attackers!
@@ -2257,15 +2263,15 @@ namespace org.GraphDefined.OpenData.Users
 
                                              var Users = new HashSet<User>();
 
-                                             if (User_Id.TryParse(idJSON, out User_Id UserId) &&
+                                             if (User_Id.TryParse(UserIdOrEMailJSON, out User_Id UserId) &&
                                                  TryGetUser(UserId, out User User))
                                              {
                                                  Users.Add(User);
                                              }
 
-                                             if (SimpleEMailAddress.TryParse(idJSON, out SimpleEMailAddress EMailAddress))
+                                             if (SimpleEMailAddress.TryParse(UserIdOrEMailJSON, out SimpleEMailAddress EMailAddress))
                                              {
-                                                 foreach (var user in Users)
+                                                 foreach (var user in _Users.Values)
                                                  {
                                                      if (user.EMail.Address == EMailAddress)
                                                          Users.Add(user);
@@ -3220,77 +3226,69 @@ namespace org.GraphDefined.OpenData.Users
             // ------------------------------------------------------------------------
             // curl -v -H "Accept: application/json" http://127.0.0.1:2100/users/ahzf
             // ------------------------------------------------------------------------
-            HTTPServer.ITEM_GET<User_Id, User>(UriTemplate:         URIPrefix + "users/{UserId}",
-                                               ParseIdDelegate:     User_Id.TryParse,
-                                               ParseIdError:        Text => "Invalid user identification '" + Text + "'!",
-                                               TryGetItemDelegate:  _Users.TryGetValue,
-                                               ItemFilterDelegate:  user   => user.PrivacyLevel == PrivacyLevel.World,
-                                               TryGetItemError:     userId => "Unknown user '" + userId + "'!",
-                                               ToJSONDelegate:      user   => user.ToJSON(IncludeCryptoHash: true));
+            //HTTPServer.ITEM_GET<User_Id, User>(UriTemplate:         URIPrefix + "users/{UserId}",
+            //                                   ParseIdDelegate:     User_Id.TryParse,
+            //                                   ParseIdError:        Text => "Invalid user identification '" + Text + "'!",
+            //                                   TryGetItemDelegate:  _Users.TryGetValue,
+            //                                   ItemFilterDelegate:  user   => user.PrivacyLevel == PrivacyLevel.World,
+            //                                   TryGetItemError:     userId => "Unknown user '" + userId + "'!",
+            //                                   ToJSONDelegate:      user   => user.ToJSON(IncludeCryptoHash: true));
 
-            //HTTPServer.AddMethodCallback(Hostname,
-            //                             HTTPMethod.GET,
-            //                             URIPrefix + "users/{UserId}",
-            //                             HTTPContentType.JSON_UTF8,
-            //                             HTTPDelegate: Request => {
+            HTTPServer.AddMethodCallback(Hostname,
+                                         HTTPMethod.GET,
+                                         URIPrefix + "users/{UserId}",
+                                         HTTPContentType.JSON_UTF8,
+                                         HTTPDelegate: Request => {
 
-            //                                 #region Get HTTP user and its organizations
+                                             #region Get HTTP user and its organizations
 
-            //                                 // Will return HTTP 401 Unauthorized, when the HTTP user is unknown!
-            //                                 TryGetHTTPUser(Request,
-            //                                                out User                       HTTPUser,
-            //                                                out IEnumerable<Organization>  HTTPOrganizations,
-            //                                                Recursive: true);
+                                             // Will return HTTP 401 Unauthorized, when the HTTP user is unknown!
+                                             TryGetHTTPUser(Request,
+                                                            out User                       HTTPUser,
+                                                            out IEnumerable<Organization>  HTTPOrganizations,
+                                                            Recursive: true);
 
-            //                                 #endregion
+                                             #endregion
 
-            //                                 #region Check DefibrillatorId URI parameter
+                                             #region Check UserId URI parameter
 
-            //                                 if (!Request.ParseUser(this,
-            //                                                        out User_Id?      DefibrillatorId,
-            //                                                        out User          Defibrillator,
-            //                                                        out HTTPResponse  HTTPResponse))
-            //                                 {
-            //                                     return Task.FromResult(HTTPResponse);
-            //                                 }
+                                             if (!Request.ParseUser(this,
+                                                                    out User_Id?      UserId,
+                                                                    out User          User,
+                                                                    out HTTPResponse  HTTPResponse))
+                                             {
+                                                 return Task.FromResult(HTTPResponse);
+                                             }
 
-            //                                 #endregion
-
-            //                                 if (Organizations.Contains(Defibrillator.Owner) ||
-            //                                     Admins.InEdges(HTTPUser).Any(edgelabel => edgelabel == User2GroupEdges.IsAdmin))
-            //                                 {
-
-            //                                     return Task.FromResult(
-            //                                         new HTTPResponse.Builder(Request) {
-            //                                                          HTTPStatusCode             = HTTPStatusCode.OK,
-            //                                                          Server                     = HTTPServer.DefaultServerName,
-            //                                                          Date                       = DateTime.UtcNow,
-            //                                                          AccessControlAllowOrigin   = "*",
-            //                                                          AccessControlAllowMethods  = "GET, SET",
-            //                                                          AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
-            //                                                          ETag                       = "1",
-            //                                                          ContentType                = HTTPContentType.HTML_UTF8,
-            //                                                          Content                    = Template.Replace("<%= content %>",   _MemoryStream2.ToArray().ToUTF8String()).
-            //                                                                                                Replace("<%= logoimage %>", String.Concat(@"<img src=""", LogoImage, @""" /> ")).
-            //                                                                                                ToUTF8Bytes(),
-            //                                                          Connection                 = "close"
-            //                                                      }.AsImmutable);
+                                             #endregion
 
 
-            //                                 }
+                                             if (HTTPUser.Id == UserId.Value || User.PrivacyLevel == PrivacyLevel.World)
+                                                 return Task.FromResult(
+                                                     new HTTPResponse.Builder(Request) {
+                                                         HTTPStatusCode  = HTTPStatusCode.OK,
+                                                         Server          = HTTPServer.DefaultServerName,
+                                                         ContentType     = HTTPContentType.JSON_UTF8,
+                                                         Content         = User.ToJSON().ToUTF8Bytes(),
+                                                         //ETag            = "1",
+                                                         CacheControl    = "public",
+                                                         //Expires         = "Mon, 25 Jun 2015 21:31:12 GMT",
+                                                         Connection      = "close"
+                                                     }.AsImmutable);
 
-            //                                 else return Task.FromResult(
-            //                                                  new HTTPResponse.Builder(Request) {
-            //                                                            HTTPStatusCode             = HTTPStatusCode.Unauthorized,
-            //                                                            Server                     = HTTPServer.DefaultServerName,
-            //                                                            Date                       = DateTime.UtcNow,
-            //                                                            AccessControlAllowOrigin   = "*",
-            //                                                            AccessControlAllowMethods  = "GET, SET",
-            //                                                            AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
-            //                                                            Connection                 = "close"
-            //                                                        }.AsImmutable);
 
-            //                             });
+                                             return Task.FromResult(
+                                                              new HTTPResponse.Builder(Request) {
+                                                                        HTTPStatusCode             = HTTPStatusCode.Unauthorized,
+                                                                        Server                     = HTTPServer.DefaultServerName,
+                                                                        Date                       = DateTime.UtcNow,
+                                                                        AccessControlAllowOrigin   = "*",
+                                                                        AccessControlAllowMethods  = "GET, SET",
+                                                                        AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
+                                                                        Connection                 = "close"
+                                                                    }.AsImmutable);
+
+                                         });
 
 
             #region Get HTTP user and its organizations
@@ -3662,7 +3660,8 @@ namespace org.GraphDefined.OpenData.Users
                                                          CacheControl    = "private",
                                                          SetCookie       = CookieName + "=login="    + _LoginPassword.Login.ToString().ToBase64() +
                                                                                      ":username=" + _User.Name.ToBase64() +
-                                                                                   (IsAdmin(_User) ? ":isAdmin" : "") +
+                                                                                   (IsAdmin(_User) == Access_Levels.ReadOnly  ? ":isAdminRO" : "") +
+                                                                                   (IsAdmin(_User) == Access_Levels.ReadWrite ? ":isAdminRW" : "") +
                                                                                 ":securitytoken=" + SecurityToken +
                                                                                      "; Expires=" + DateTime.UtcNow.Add(SignInSessionLifetime).ToRfc1123() +
                                                                                       (HTTPCookieDomain.IsNotNullOrEmpty()
@@ -3805,7 +3804,8 @@ namespace org.GraphDefined.OpenData.Users
                                                         SetCookie       = CookieName + "=login="    + UserURI.Id.ToString().ToBase64() +
                                                                                     ":astronaut=" + Astronaut.Id.ToString().ToBase64() +
                                                                                     ":username=" + UserURI.Name.ToBase64() +
-                                                                                  (IsAdmin(Astronaut) ? ":isAdmin" : "") +
+                                                                                  (IsAdmin(UserURI) == Access_Levels.ReadOnly  ? ":isAdminRO" : "") +
+                                                                                  (IsAdmin(UserURI) == Access_Levels.ReadWrite ? ":isAdminRW" : "") +
                                                                                ":securitytoken=" + SecurityTokenId +
                                                                                     "; Expires=" + DateTime.UtcNow.Add(SignInSessionLifetime).ToRfc1123() +
                                                                                      (HTTPCookieDomain.IsNotNullOrEmpty()
@@ -3891,7 +3891,7 @@ namespace org.GraphDefined.OpenData.Users
                                              #endregion
 
 
-                                             #region Register security token
+                                             #region Switch back to astronaut user identification...
 
                                              var SHA256Hash       = new SHA256Managed();
                                              var SecurityTokenId  = SecurityToken_Id.Parse(SHA256Hash.ComputeHash(
@@ -3910,7 +3910,7 @@ namespace org.GraphDefined.OpenData.Users
                                                                                    Expires));
 
                                                  File.AppendAllText(this.UsersAPIPath + DefaultHTTPCookiesFile,
-                                                                    SecurityTokenId + ";" + UserURI.Id + ";" + Expires.ToIso8601() + Environment.NewLine);
+                                                                    SecurityTokenId + ";" + Astronaut.Id + ";" + Expires.ToIso8601() + Environment.NewLine);
 
                                              }
 
@@ -3930,7 +3930,8 @@ namespace org.GraphDefined.OpenData.Users
                                                      CacheControl    = "private",
                                                      SetCookie       = CookieName + "=login="    + Astronaut.Id.ToString().ToBase64() +
                                                                                  ":username=" + Astronaut.Name.ToBase64() +
-                                                                               (IsAdmin(Astronaut) ? ":isAdmin" : "") +
+                                                                               (IsAdmin(Astronaut) == Access_Levels.ReadOnly  ? ":isAdminRO" : "") +
+                                                                               (IsAdmin(Astronaut) == Access_Levels.ReadWrite ? ":isAdminRW" : "") +
                                                                             ":securitytoken=" + SecurityTokenId +
                                                                                  "; Expires=" + DateTime.UtcNow.Add(SignInSessionLifetime).ToRfc1123() +
                                                                                   (HTTPCookieDomain.IsNotNullOrEmpty()
@@ -6295,7 +6296,7 @@ namespace org.GraphDefined.OpenData.Users
                 if (Request.HTTPSource.IPAddress.IsIPv4 &&
                     Request.HTTPSource.IPAddress.IsLocalhost)
                 {
-                    User           = Admins.User2GroupInEdges(edgelabel => edgelabel == User2GroupEdges.IsAdmin).FirstOrDefault()?.Source;
+                    User           = Admins.User2GroupInEdges(edgelabel => edgelabel == User2GroupEdges.IsAdmin_ReadWrite).FirstOrDefault()?.Source;
                     Organizations  = User.Organizations(AccessLevel, Recursive);
                     return;
                 }
@@ -8317,10 +8318,24 @@ namespace org.GraphDefined.OpenData.Users
         /// Check if the given user is an API admin.
         /// </summary>
         /// <param name="User">A user.</param>
-        public Boolean IsAdmin(User User)
+        public Access_Levels IsAdmin(User User)
+        {
 
-            => User.Groups(User2GroupEdges.IsAdmin).
-                    Contains(Admins);
+            if (User.Groups(User2GroupEdges.IsAdmin_ReadOnly).
+                     Contains(Admins))
+            {
+                return Access_Levels.ReadOnly;
+            }
+
+            if (User.Groups(User2GroupEdges.IsAdmin_ReadWrite).
+                     Contains(Admins))
+            {
+                return Access_Levels.ReadWrite;
+            }
+
+            return Access_Levels.None;
+
+        }
 
         #endregion
 
@@ -8330,10 +8345,15 @@ namespace org.GraphDefined.OpenData.Users
         /// Check if the given user is an API admin.
         /// </summary>
         /// <param name="UserId">A user identification.</param>
-        public Boolean IsAdmin(User_Id UserId)
+        public Access_Levels IsAdmin(User_Id UserId)
+        {
 
-            => TryGetUser(UserId, out User User) &&
-               IsAdmin(User);
+            if (TryGetUser(UserId, out User User))
+                return IsAdmin(User);
+
+            return Access_Levels.None;
+
+        }
 
         #endregion
 

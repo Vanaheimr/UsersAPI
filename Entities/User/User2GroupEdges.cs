@@ -27,7 +27,9 @@ namespace org.GraphDefined.OpenData.Users
     [Flags]
     public enum User2GroupEdges
     {
-        IsAdmin,
+        IsRoot,
+        IsAdmin_ReadOnly,
+        IsAdmin_ReadWrite,
         IsMember,
         IsVisitor
     }

@@ -52,7 +52,7 @@ namespace org.GraphDefined.OpenData.Notifications
         /// The length of the notification identification.
         /// </summary>
         public UInt64 Length
-            => (UInt64) InternalId.Length;
+            => (UInt64) InternalId?.Length;
 
         #endregion
 
