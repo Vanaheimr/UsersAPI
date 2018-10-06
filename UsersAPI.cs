@@ -6994,6 +6994,7 @@ namespace org.GraphDefined.OpenData.Users
         /// <param name="SecretKeyRing">An optional PGP/GPG secret keyring of the user.</param>
         /// <param name="Telephone">An optional telephone number of the user.</param>
         /// <param name="MobilePhone">An optional mobile telephone number of the user.</param>
+        /// <param name="Homepage">The homepage of the user.</param>
         /// <param name="GeoLocation">An optional geographical location of the user.</param>
         /// <param name="Address">An optional address of the user.</param>
         /// <param name="PrivacyLevel">Whether the user will be shown in user listings, or not.</param>
@@ -7010,6 +7011,7 @@ namespace org.GraphDefined.OpenData.Users
                                            PgpSecretKeyRing    SecretKeyRing     = null,
                                            PhoneNumber?        Telephone         = null,
                                            PhoneNumber?        MobilePhone       = null,
+                                           String              Homepage          = null,
                                            GeoCoordinate?      GeoLocation       = null,
                                            Address             Address           = null,
                                            PrivacyLevel        PrivacyLevel      = PrivacyLevel.Private,
@@ -7026,6 +7028,7 @@ namespace org.GraphDefined.OpenData.Users
                                   SecretKeyRing,
                                   Telephone,
                                   MobilePhone,
+                                  Homepage,
                                   GeoLocation,
                                   Address,
                                   PrivacyLevel,
@@ -7064,6 +7067,7 @@ namespace org.GraphDefined.OpenData.Users
         /// <param name="SecretKeyRing">An optional PGP/GPG secret keyring of the user.</param>
         /// <param name="Telephone">An optional telephone number of the user.</param>
         /// <param name="MobilePhone">An optional telephone number of the user.</param>
+        /// <param name="Homepage">The homepage of the user.</param>
         /// <param name="GeoLocation">An optional geographical location of the user.</param>
         /// <param name="Address">An optional address of the user.</param>
         /// <param name="PrivacyLevel">Whether the user will be shown in user listings, or not.</param>
@@ -7080,6 +7084,7 @@ namespace org.GraphDefined.OpenData.Users
                                                       PgpSecretKeyRing    SecretKeyRing     = null,
                                                       PhoneNumber?        Telephone         = null,
                                                       PhoneNumber?        MobilePhone       = null,
+                                                      String              Homepage          = null,
                                                       GeoCoordinate?      GeoLocation       = null,
                                                       Address             Address           = null,
                                                       PrivacyLevel        PrivacyLevel      = PrivacyLevel.Private,
@@ -7097,6 +7102,7 @@ namespace org.GraphDefined.OpenData.Users
                                              SecretKeyRing,
                                              Telephone,
                                              MobilePhone,
+                                             Homepage,
                                              GeoLocation,
                                              Address,
                                              PrivacyLevel,

@@ -11,6 +11,7 @@ interface IUserProfile {
     email:            string;
     telephone:        string;
     mobilePhone:      string;
+    homepage:         string;
     description:      Object;
     publicKeyRing:    string;
     privacyLevel:     string;

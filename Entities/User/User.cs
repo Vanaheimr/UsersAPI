@@ -43,14 +43,6 @@ namespace org.GraphDefined.OpenData.Users
 
     public delegate Boolean UserProviderDelegate(User_Id UserId, out User User);
 
-    public enum Access_Levels
-    {
-        None,
-        ReadOnly,
-        ReadWrite,
-        Admin
-    }
-
     /// <summary>
     /// Extention methods for the User.
     /// </summary>
@@ -197,6 +189,12 @@ namespace org.GraphDefined.OpenData.Users
         /// </summary>
         [Optional]
         public PhoneNumber?        MobilePhone          { get; }
+
+        /// <summary>
+        /// The homepage of the user.
+        /// </summary>
+        [Optional]
+        public String              Homepage             { get; }
 
         /// <summary>
         /// An optional (multi-language) description of the user.
@@ -363,6 +361,7 @@ namespace org.GraphDefined.OpenData.Users
         /// <param name="SecretKeyRing">An optional PGP/GPG secret keyring of the user.</param>
         /// <param name="Telephone">An optional telephone number of the user.</param>
         /// <param name="MobilePhone">An optional mobile telephone number of the user.</param>
+        /// <param name="Homepage">The homepage of the user.</param>
         /// <param name="GeoLocation">An optional geographical location of the user.</param>
         /// <param name="Address">An optional address of the user.</param>
         /// <param name="PrivacyLevel">Whether the user will be shown in user listings, or not.</param>
@@ -378,6 +377,7 @@ namespace org.GraphDefined.OpenData.Users
                       PgpSecretKeyRing                                                   SecretKeyRing            = null,
                       PhoneNumber?                                                       Telephone                = null,
                       PhoneNumber?                                                       MobilePhone              = null,
+                      String                                                             Homepage                 = null,
                       GeoCoordinate?                                                     GeoLocation              = null,
                       Address                                                            Address                  = null,
                       PrivacyLevel?                                                      PrivacyLevel             = null,
@@ -413,6 +413,7 @@ namespace org.GraphDefined.OpenData.Users
             this.SecretKeyRing                = SecretKeyRing;
             this.Telephone                    = Telephone;
             this.MobilePhone                  = MobilePhone;
+            this.Homepage                     = Homepage;
             this.Description                  = Description  ?? new I18NString();
             this.GeoLocation                  = GeoLocation;
             this.Address                      = Address;
@@ -875,6 +876,10 @@ namespace org.GraphDefined.OpenData.Users
                        ? new JProperty("mobilePhone",    MobilePhone.ToString())
                        : null,
 
+                   Homepage.IsNotNullOrEmpty()
+                       ? new JProperty("homepage",       Homepage.ToString())
+                       : null,
+
                    PrivacyLevel.ToJSON(),
 
                    AcceptedEULA.HasValue
@@ -1054,6 +1059,19 @@ namespace org.GraphDefined.OpenData.Users
 
                 #endregion
 
+                #region Parse Homepage         [optional]
+
+                if (JSONObject.ParseOptional("homepage",
+                                             out String Homepage))
+                {
+
+                    //if (ErrorResponse != null)
+                    //    return false;
+
+                }
+
+                #endregion
+
                 #region Parse GeoLocation      [optional]
 
                 if (!JSONObject.ParseOptionalN("geoLocation",
@@ -1141,6 +1159,7 @@ namespace org.GraphDefined.OpenData.Users
                                 SecretKeyRing,
                                 Telephone,
                                 MobilePhone,
+                                Homepage,
                                 GeoLocation,
                                 Address,
                                 PrivacyLevel,
@@ -1398,8 +1417,9 @@ namespace org.GraphDefined.OpenData.Users
                            Description,
                            PublicKeyRing,
                            SecretKeyRing,
-                           MobilePhone,
                            Telephone,
+                           MobilePhone,
+                           Homepage,
                            GeoLocation,
                            Address,
                            PrivacyLevel,
@@ -1470,6 +1490,12 @@ namespace org.GraphDefined.OpenData.Users
             /// </summary>
             [Optional]
             public PhoneNumber?        MobilePhone          { get; set; }
+
+            /// <summary>
+            /// An optional homepage of the user.
+            /// </summary>
+            [Optional]
+            public String              Homepage             { get; set; }
 
             /// <summary>
             /// The geographical location of this organization.
@@ -1610,6 +1636,7 @@ namespace org.GraphDefined.OpenData.Users
             /// <param name="SecretKeyRing">An optional PGP/GPG secret keyring of the user.</param>
             /// <param name="Telephone">An optional telephone number of the user.</param>
             /// <param name="MobilePhone">An optional telephone number of the user.</param>
+            /// <param name="Homepage">The homepage of the user.</param>
             /// <param name="GeoLocation">An optional geographical location of the user.</param>
             /// <param name="Address">An optional address of the user.</param>
             /// <param name="PrivacyLevel">Whether the user will be shown in user listings, or not.</param>
@@ -1625,6 +1652,7 @@ namespace org.GraphDefined.OpenData.Users
                            PgpSecretKeyRing                                                   SecretKeyRing            = null,
                            PhoneNumber?                                                       Telephone                = null,
                            PhoneNumber?                                                       MobilePhone              = null,
+                           String                                                             Homepage                 = null,
                            GeoCoordinate?                                                     GeoLocation              = null,
                            Address                                                            Address                  = null,
                            PrivacyLevel                                                       PrivacyLevel             = PrivacyLevel.World,
@@ -1651,6 +1679,7 @@ namespace org.GraphDefined.OpenData.Users
                 this.SecretKeyRing            = SecretKeyRing;
                 this.Telephone                = Telephone;
                 this.MobilePhone              = MobilePhone;
+                this.Homepage                 = Homepage;
                 this.GeoLocation              = GeoLocation;
                 this.Address                  = Address;
                 this.PrivacyLevel             = PrivacyLevel;
@@ -1693,6 +1722,7 @@ namespace org.GraphDefined.OpenData.Users
                             SecretKeyRing,
                             Telephone,
                             MobilePhone,
+                            Homepage,
                             GeoLocation,
                             Address,
                             PrivacyLevel,
