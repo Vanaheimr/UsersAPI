@@ -5715,7 +5715,7 @@ namespace org.GraphDefined.OpenData.Users
                         {
                             _Organizations.Remove(OldOrganization.Id);
                             _Organization.API = this;
-                            //OldOrganization.CopyAllEdgesTo(_Organization);
+                            OldOrganization.CopyAllEdgesTo(_Organization);
                         }
 
                         _Organizations.Add(_Organization.Id, _Organization);
@@ -5743,7 +5743,7 @@ namespace org.GraphDefined.OpenData.Users
 
                             _Organizations.Remove(OldOrganization.Id);
                             _Organization.API = this;
-                            //OldOrganization.CopyAllEdgesTo(_Organization);
+                            OldOrganization.CopyAllEdgesTo(_Organization);
 
                             _Organizations.Add(_Organization.Id, _Organization);
 
@@ -7636,7 +7636,7 @@ namespace org.GraphDefined.OpenData.Users
                 NewOrganization.API = this;
 
                 _Organizations.Remove(OldOrganization.Id);
-                //OldOrganization.CopyAllEdgesTo(NewOrganization);
+                OldOrganization.CopyAllEdgesTo(NewOrganization);
 
                 return _Organizations.AddAndReturnValue(NewOrganization.Id, NewOrganization);
 
