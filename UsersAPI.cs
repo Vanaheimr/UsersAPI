@@ -485,6 +485,8 @@ namespace org.GraphDefined.OpenData.Users
 
         #region Properties
 
+        public HashSet<String>           DevMachines                { get; set; }
+
         public String                    LoggingPath                { get; }
         public String                    UsersAPIPath               { get; }
         public String                    HTTPSSEPath                { get; }
@@ -1323,6 +1325,7 @@ namespace org.GraphDefined.OpenData.Users
             if (!this.LoggingPath.EndsWith(Path.DirectorySeparatorChar.ToString()))
                 this.LoggingPath += Path.DirectorySeparatorChar;
 
+            this.DevMachines                  = new HashSet<String>();
             this.UsersAPIPath                 = this.LoggingPath + "UsersAPI"      + Path.DirectorySeparatorChar;
             this.HTTPRequestsPath             = this.LoggingPath + "HTTPRequests"  + Path.DirectorySeparatorChar;
             this.HTTPResponsesPath            = this.LoggingPath + "HTTPResponses" + Path.DirectorySeparatorChar;
@@ -6759,6 +6762,9 @@ namespace org.GraphDefined.OpenData.Users
                 if (_Users.ContainsKey(User.Id))
                     throw new Exception("User '" + User.Id + "' already exists in this API!");
 
+                if (User.Id.Length < MinLoginLenght)
+                    throw new Exception("User '" + User.Id + "' is too short!");
+
                 User.API = this;
 
                 await WriteToLogfileAndNotify(NotificationMessageType.Parse("addUser"),
@@ -6806,6 +6812,9 @@ namespace org.GraphDefined.OpenData.Users
                 if (_Users.ContainsKey(User.Id))
                     return _Users[User.Id];
 
+                if (User.Id.Length < MinLoginLenght)
+                    throw new Exception("User '" + User.Id + "' is too short!");
+
                 User.API = this;
 
                 await WriteToLogfileAndNotify(NotificationMessageType.Parse("addIfNotExistsUser"),
@@ -6851,6 +6860,9 @@ namespace org.GraphDefined.OpenData.Users
 
                 if (User.API != null && User.API != this)
                     throw new ArgumentException(nameof(User), "The given user is already attached to another API!");
+
+                if (User.Id.Length < MinLoginLenght)
+                    throw new Exception("User '" + User.Id + "' is too short!");
 
                 await WriteToLogfileAndNotify(NotificationMessageType.Parse("addOrUpdateUser"),
                                               User.ToJSON(),
@@ -6905,6 +6917,9 @@ namespace org.GraphDefined.OpenData.Users
 
                 if (!_Users.TryGetValue(User.Id, out User OldUser))
                     throw new Exception("User '" + User.Id + "' does not exists in this API!");
+
+                if (User.Id.Length < MinLoginLenght)
+                    throw new Exception("User '" + User.Id + "' is too short!");
 
 
                 await WriteToLogfileAndNotify(NotificationMessageType.Parse("updateUser"),
@@ -7128,9 +7143,9 @@ namespace org.GraphDefined.OpenData.Users
         #endregion
 
 
-        #region ChangePassword   (Login, NewPassword, CurrentPassword = null, CurrentUserId = null)
+        #region ChangePassword   (UserId, NewPassword, CurrentPassword = null, CurrentUserId = null)
 
-        public async Task ChangePassword(User_Id   Login,
+        public async Task ChangePassword(User_Id   UserId,
                                          Password  NewPassword,
                                          String    CurrentPassword  = null,
                                          User_Id?  CurrentUserId    = null)
@@ -7139,14 +7154,17 @@ namespace org.GraphDefined.OpenData.Users
             try
             {
 
+                if (UserId.Length < MinLoginLenght)
+                    throw new Exception("UserId '" + UserId + "' is too short!");
+
                 await UsersSemaphore.WaitAsync();
 
-                if (!_TryChangePassword(Login,
+                if (!_TryChangePassword(UserId,
                                         NewPassword,
                                         CurrentPassword,
                                         CurrentUserId).Result)
                 {
-                    throw new ApplicationException("The password for '" + Login + "' could not be changed, as the given current password does not match!");
+                    throw new ApplicationException("The password for '" + UserId + "' could not be changed, as the given current password does not match!");
                 }
 
             }
@@ -7159,22 +7177,25 @@ namespace org.GraphDefined.OpenData.Users
 
         #endregion
 
-        #region TryChangePassword(Login, NewPassword, CurrentPassword = null, CurrentUserId = null)
+        #region TryChangePassword(UserId, NewPassword, CurrentPassword = null, CurrentUserId = null)
 
-        protected async Task<Boolean> _TryChangePassword(User_Id   Login,
+        protected async Task<Boolean> _TryChangePassword(User_Id   UserId,
                                                          Password  NewPassword,
                                                          String    CurrentPassword  = null,
                                                          User_Id?  CurrentUserId    = null)
         {
 
+            if (UserId.Length < MinLoginLenght)
+                throw new Exception("UserId '" + UserId + "' is too short!");
+
             #region AddPassword
 
-            if (!_LoginPasswords.TryGetValue(Login, out LoginPassword _LoginPassword))
+            if (!_LoginPasswords.TryGetValue(UserId, out LoginPassword _LoginPassword))
             {
 
                 await WriteToLogfileAndNotify(NotificationMessageType.Parse("addPassword"),
                                               new JObject(
-                                                  new JProperty("login",         Login.ToString()),
+                                                  new JProperty("login",         UserId.ToString()),
                                                   new JProperty("newPassword", new JObject(
                                                       new JProperty("salt",          NewPassword.Salt.UnsecureString()),
                                                       new JProperty("passwordHash",  NewPassword.UnsecureString)
@@ -7184,7 +7205,7 @@ namespace org.GraphDefined.OpenData.Users
                                               this.UsersAPIPath + DefaultPasswordFile,
                                               CurrentUserId);
 
-                _LoginPasswords.Add(Login, new LoginPassword(Login, NewPassword));
+                _LoginPasswords.Add(UserId, new LoginPassword(UserId, NewPassword));
 
                 return true;
 
@@ -7199,7 +7220,7 @@ namespace org.GraphDefined.OpenData.Users
 
                 await WriteToLogfileAndNotify(NotificationMessageType.Parse("changePassword"),
                                               new JObject(
-                                                  new JProperty("login",         Login.ToString()),
+                                                  new JProperty("login",         UserId.ToString()),
                                                   new JProperty("currentPassword", new JObject(
                                                       new JProperty("salt",          _LoginPassword.Password.Salt.UnsecureString()),
                                                       new JProperty("passwordHash",  _LoginPassword.Password.UnsecureString)
@@ -7213,7 +7234,7 @@ namespace org.GraphDefined.OpenData.Users
                                               this.UsersAPIPath + DefaultPasswordFile,
                                               CurrentUserId);
 
-                _LoginPasswords[Login] = new LoginPassword(Login, NewPassword);
+                _LoginPasswords[UserId] = new LoginPassword(UserId, NewPassword);
 
                 return true;
 
@@ -7252,18 +7273,21 @@ namespace org.GraphDefined.OpenData.Users
 
         #endregion
 
-        #region VerifyPassword(Login, Password)
+        #region VerifyPassword   (UserId, Password)
 
-        public Boolean VerifyPassword(User_Id  Login,
+        public Boolean VerifyPassword(User_Id  UserId,
                                       String   Password)
         {
 
             try
             {
 
+                if (UserId.Length < MinLoginLenght)
+                    throw new Exception("UserId '" + UserId + "' is too short!");
+
                 UsersSemaphore.Wait();
 
-                return _LoginPasswords.TryGetValue(Login, out LoginPassword LoginPassword) &&
+                return _LoginPasswords.TryGetValue(UserId, out LoginPassword LoginPassword) &&
                         LoginPassword.VerifyPassword(Password);
 
             }
@@ -7276,7 +7300,7 @@ namespace org.GraphDefined.OpenData.Users
 
         #endregion
 
-        #region GetUser   (UserId)
+        #region GetUser          (UserId)
 
         /// <summary>
         /// Get the user having the given unique identification.
@@ -7305,7 +7329,7 @@ namespace org.GraphDefined.OpenData.Users
 
         #endregion
 
-        #region UserExists(UserId)
+        #region UserExists       (UserId)
 
         /// <summary>
         /// Get the user having the given unique identification.
@@ -7331,7 +7355,7 @@ namespace org.GraphDefined.OpenData.Users
 
         #endregion
 
-        #region TryGetUser(UserId, out User)
+        #region TryGetUser       (UserId, out User)
 
         /// <summary>
         /// Try to get the user having the given unique identification.

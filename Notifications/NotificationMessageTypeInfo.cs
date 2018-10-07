@@ -30,20 +30,32 @@ using org.GraphDefined.Vanaheimr.Aegir;
 namespace org.GraphDefined.OpenData.Notifications
 {
 
+    public enum NotificationVisibility
+    {
+        System,
+        Customers
+    }
+
     public class NotificationMessageTypeInfo
     {
 
-        public NotificationMessageType Id            { get; }
-        public String                  Text          { get; }
-        public I18NString              Description   { get; }
+        public NotificationMessageType  Id             { get; }
+
+        public String                   Text           { get; }
+
+        public NotificationVisibility   Visibility     { get; }
+
+        public I18NString               Description    { get; }
 
         public NotificationMessageTypeInfo(NotificationMessageType  Id,
                                            String                   Text,
+                                           NotificationVisibility   Visibility,
                                            I18NString               Description)
         {
 
             this.Id           = Id;
             this.Text         = Text;
+            this.Visibility   = Visibility;
             this.Description  = Description;
 
         }
@@ -53,6 +65,7 @@ namespace org.GraphDefined.OpenData.Notifications
             => JSONObject.Create(
                    new JProperty("@id",          Id.ToString()),
                    new JProperty("text",         Text),
+                   new JProperty("visibility",   Visibility.ToString().ToLower()),
                    new JProperty("description",  Description.ToJSON())
                );
 
