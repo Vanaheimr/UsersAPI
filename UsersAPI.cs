@@ -4580,6 +4580,27 @@ namespace org.GraphDefined.OpenData.Users
             #endregion
 
 
+            #region GET    .well-known/openpgpkey/policy
+
+            #endregion
+
+            #region HEAD   .well-known/openpgpkey/hu/{Id}
+
+            #endregion
+
+            #region GET    .well-known/openpgpkey/hu/{Id}
+
+            // application/octet-string
+
+            // EMailAddress.toLower().SHA1().ZBase32() == 32 octet string
+            // Z-Base-32 method RFC 6189 section 5.1.6
+
+            // https://www.ietf.org/id/draft-koch-openpgp-webkey-service-06.txt
+            // The server MUST NOT return an ASCII armored version of the key.
+
+            #endregion
+
+
             #region GET         ~/organizations
 
             #region GET         ~/organizations
