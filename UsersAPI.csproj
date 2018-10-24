@@ -301,6 +301,9 @@
       <DependentUpon>views.ts</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="HTTPRoot\js\moment-with-locales.min.js" />
+    <EmbeddedResource Include="HTTPRoot\libs\crypto\elliptic.js" />
+    <EmbeddedResource Include="HTTPRoot\libs\crypto\elliptic.min.js" />
+    <EmbeddedResource Include="HTTPRoot\libs\crypto\sha256.js" />
     <Content Include="HTTPRoot\libs\EventSource.js">
       <DependentUpon>EventSource.ts</DependentUpon>
     </Content>
