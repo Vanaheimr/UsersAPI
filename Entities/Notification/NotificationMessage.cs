@@ -284,7 +284,7 @@ namespace org.GraphDefined.OpenData.Notifications
 
                 #region Parse PrivacyLevel            [mandatory]
 
-                if (!JSONObject.ParseMandatory("privacyLevel",
+                if (!JSONObject.ParseMandatoryEnum("privacyLevel",
                                                "privacy level",
                                                out PrivacyLevel PrivacyLevel,
                                                out ErrorResponse))
