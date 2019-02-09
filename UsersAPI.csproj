@@ -53,6 +53,7 @@
     <Compile Include="CommonTypes\MiniEdge.cs" />
     <Compile Include="CommonTypes\PrivacyLevel.cs" />
     <Compile Include="CommonTypes\VerificationToken.cs" />
+    <Compile Include="Entities\BlogPosting\BlogPostingSignature.cs" />
     <Compile Include="Entities\Group\UserGroup2GroupEdges.cs" />
     <Compile Include="Entities\Notification\ANotification.cs" />
     <Compile Include="Entities\Notification\HTTPSNotification.cs" />
@@ -72,6 +73,8 @@
     <Compile Include="Entities\Group\Group_Id.cs" />
     <Compile Include="Entities\Message\Message.cs" />
     <Compile Include="Entities\Message\Message_Id.cs" />
+    <Compile Include="Entities\BlogPosting\BlogPosting.cs" />
+    <Compile Include="Entities\BlogPosting\BlogPosting_Id.cs" />
     <Compile Include="Entities\SecurityToken\SecurityToken.cs" />
     <Compile Include="Entities\SecurityToken\SecurityToken_Id.cs" />
     <Compile Include="Entities\Tag\Tag.cs" />

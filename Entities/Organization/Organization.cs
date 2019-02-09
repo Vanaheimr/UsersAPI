@@ -58,7 +58,7 @@ namespace org.GraphDefined.OpenData.Users
         /// <param name="Organizations">An enumeration of organizations.</param>
         /// <param name="Skip">The optional number of organizations to skip.</param>
         /// <param name="Take">The optional number of organizations to return.</param>
-        /// <param name="Embedded">Whether this data is embedded into another data structure, e.g. into a defibrillator.</param>
+        /// <param name="Embedded">Whether this data is embedded into another data structure.</param>
         public static JArray ToJSON(this IEnumerable<Organization>  Organizations,
                                     UInt64?                         Skip                 = null,
                                     UInt64?                         Take                 = null,
@@ -1054,7 +1054,7 @@ namespace org.GraphDefined.OpenData.Users
         #region (class) Builder
 
         /// <summary>
-        /// An organization builder.
+        /// An Open Data organization builder.
         /// </summary>
         public class Builder
         {

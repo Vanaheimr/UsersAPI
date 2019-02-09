@@ -229,6 +229,32 @@ namespace org.GraphDefined.OpenData
 
     }
 
+    public struct TagRelevance
+    {
+
+        public Tag           Tag     { get; }
+        public Single        Value   { get; }
+
+        public TagRelevance(Tag     Tag,
+                            Single  Value)
+        {
+            this.Tag    = Tag;
+            this.Value  = Value;
+        }
+
+
+        public JToken ToJSON(InfoStatus ExpandTags = InfoStatus.ShowIdOnly)
+
+            => ExpandTags.Switch(this,
+
+                   info => new JObject(new JProperty("tag",       info.Tag.ToJSON(true, ExpandDescription: InfoStatus.Expand)),
+                                       new JProperty("relevance", info.Value)),
+
+                   info => new JArray(info.Tag.Id.ToString(),
+                                      info.Value));
+
+    }
+
     public struct TagInfo
     {
 

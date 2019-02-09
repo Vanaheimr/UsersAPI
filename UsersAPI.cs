@@ -30,6 +30,7 @@ using System.Security.Cryptography;
 using System.Text.RegularExpressions;
 
 using Newtonsoft.Json.Linq;
+using SMSApi.Api;
 
 using Org.BouncyCastle.Bcpg.OpenPgp;
 
@@ -45,7 +46,7 @@ using org.GraphDefined.Vanaheimr.Hermod.Sockets;
 using org.GraphDefined.Vanaheimr.Aegir;
 using org.GraphDefined.Vanaheimr.Warden;
 
-using SMSApi.Api;
+using org.GraphDefined.OpenData.Postings;
 using org.GraphDefined.OpenData.Notifications;
 
 #endregion
@@ -725,6 +726,9 @@ namespace org.GraphDefined.OpenData.Users
 
 
         public Warden        Warden                     { get; }
+
+        public List<BlogPosting> BlogPostings           { get; }
+
 
         #endregion
 
@@ -1428,6 +1432,8 @@ namespace org.GraphDefined.OpenData.Users
 
             this.Warden = new Warden(InitialDelay: TimeSpan.FromMinutes(3));
 
+            this.BlogPostings = new List<BlogPosting>();
+
             if (!SkipURITemplates)
                 RegisterURITemplates();
 
@@ -1571,7 +1577,7 @@ namespace org.GraphDefined.OpenData.Users
         #endregion
 
 
-        #region (private) GetOrganizationSerializator (User)
+        #region (private) GetOrganizationSerializator(User)
 
         private OrganizationToJSONDelegate GetOrganizationSerializator(User User)
         {
@@ -1591,6 +1597,33 @@ namespace org.GraphDefined.OpenData.Users
                             => Organization.ToJSON(Embedded,
                                                    ExpandTags,
                                                    IncludeCryptoHash);
+
+            }
+
+        }
+
+        #endregion
+
+        #region (private) GetBlogPostingSerializator (User)
+
+        private BlogPostingToJSONDelegate GetBlogPostingSerializator(User User)
+        {
+
+            switch (User?.Id.ToString())
+            {
+
+                //case __issapi:
+                //    return ISSNotificationExtentions.ToISSJSON;
+
+                default:
+                    return (BlogPosting,
+                            Embedded,
+                            ExpandTags,
+                            IncludeCryptoHash)
+
+                            => BlogPosting.ToJSON(Embedded,
+                                                  ExpandTags,
+                                                  IncludeCryptoHash);
 
             }
 
@@ -5125,6 +5158,68 @@ namespace org.GraphDefined.OpenData.Users
             #region ~/tags
 
             #endregion
+
+
+            #region GET         ~/blogPostings
+
+            // --------------------------------------------------------------------------
+            // curl -v -H "Accept: application/json" http://127.0.0.1:3001/blogPostings
+            // --------------------------------------------------------------------------
+            HTTPServer.AddMethodCallback(Hostname,
+                                         HTTPMethod.GET,
+                                         URIPrefix + "blogPostings",
+                                         HTTPContentType.JSON_UTF8,
+                                         HTTPDelegate: async Request => {
+
+                                             #region Get HTTP user and its organizations
+
+                                             TryGetHTTPUser(Request,
+                                                            out User                       HTTPUser,
+                                                            out IEnumerable<Organization>  HTTPOrganizations,
+                                                            out HTTPResponse               Response,
+                                                            Recursive: true);
+
+                                             #endregion
+
+                                             var skip                    = Request.QueryString.GetUInt64  ("skip");
+                                             var take                    = Request.QueryString.GetUInt64  ("take");
+                                             var since                   = Request.QueryString.GetDateTime("since");
+
+                                             var includeCryptoHash       = Request.QueryString.GetBoolean ("includeCryptoHash", true);
+
+                                             var expand                  = Request.QueryString.GetStrings ("expand", true);
+                                             var expandTags              = expand.Contains("tags")         ? InfoStatus.Expand : InfoStatus.ShowIdOnly;
+
+
+                                             return new HTTPResponse.Builder(Request) {
+                                                        HTTPStatusCode                = HTTPStatusCode.OK,
+                                                        Server                        = HTTPServer.DefaultServerName,
+                                                        Date                          = DateTime.UtcNow,
+                                                        AccessControlAllowOrigin      = "*",
+                                                        AccessControlAllowMethods     = "GET",
+                                                        AccessControlAllowHeaders     = "Content-Type, Accept, Authorization",
+                                                        ContentType                   = HTTPContentType.JSON_UTF8,
+                                                        Content                       = BlogPostings.
+                                                                                            OrderBy(posting => posting.PublicationDate).
+                                                                                            Where  (posting => !since.HasValue || posting.PublicationDate >= since.Value).
+                                                                                            //Where  (organization => HTTPOrganizations.Contains(organization.Owner) ||
+                                                                                            //                            Admins.InEdges(HTTPUser).
+                                                                                            //                                   Any(edgelabel => edgelabel == User2GroupEdges.IsAdmin)).
+                                                                                            ToJSON(skip,
+                                                                                                   take,
+                                                                                                   false, //Embedded
+                                                                                                   expandTags,
+                                                                                                   GetBlogPostingSerializator(HTTPUser),
+                                                                                                   includeCryptoHash).
+                                                                                            ToUTF8Bytes(),
+                                                        Connection                    = "close"
+                                                    };
+
+                                         });
+
+            #endregion
+
+
 
         }
 
