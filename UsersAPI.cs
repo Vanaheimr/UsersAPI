@@ -2694,11 +2694,11 @@ namespace org.GraphDefined.OpenData.Users
 
                                               // Will return HTTP 401 Unauthorized, when the HTTP user is unknown!
                                               if (!TryGetHTTPUser(Request,
-                                                                  out User                       HTTPUser,
-                                                                  out IEnumerable<Organization>  HTTPOrganizations,
-                                                                  out HTTPResponse               ErrorResponse,
-                                                                  AccessLevel:                   Access_Levels.ReadWrite,
-                                                                  Recursive:                     true))
+                                                                  out User                   HTTPUser,
+                                                                  out HashSet<Organization>  HTTPOrganizations,
+                                                                  out HTTPResponse           ErrorResponse,
+                                                                  AccessLevel:               Access_Levels.ReadWrite,
+                                                                  Recursive:                 true))
                                               {
                                                   return ErrorResponse;
                                               }
@@ -3280,8 +3280,8 @@ namespace org.GraphDefined.OpenData.Users
 
                                              // Will return HTTP 401 Unauthorized, when the HTTP user is unknown!
                                              TryGetHTTPUser(Request,
-                                                            out User                       HTTPUser,
-                                                            out IEnumerable<Organization>  HTTPOrganizations,
+                                                            out User                   HTTPUser,
+                                                            out HashSet<Organization>  HTTPOrganizations,
                                                             Recursive: true);
 
                                              #endregion
@@ -3331,9 +3331,9 @@ namespace org.GraphDefined.OpenData.Users
 
             // Will return HTTP 401 Unauthorized, when the HTTP user is unknown!
             //if (!TryGetHTTPUser(Request,
-            //                    out User                       HTTPUser,
-            //                    out IEnumerable<Organization>  HTTPOrganizations,
-            //                    out HTTPResponse               Response,
+            //                    out User                   HTTPUser,
+            //                    out HashSet<Organization>  HTTPOrganizations,
+            //                    out HTTPResponse           Response,
             //                    Recursive: true))
             //{
             //    return Task.FromResult(Response);
@@ -3381,11 +3381,11 @@ namespace org.GraphDefined.OpenData.Users
 
                                              // Will return HTTP 401 Unauthorized, when the HTTP user is unknown!
                                              if (!TryGetHTTPUser(Request,
-                                                                 out User                       HTTPUser,
-                                                                 out IEnumerable<Organization>  HTTPOrganizations,
-                                                                 out HTTPResponse               Response,
-                                                                 AccessLevel:                   Access_Levels.ReadWrite,
-                                                                 Recursive:                     true))
+                                                                 out User                   HTTPUser,
+                                                                 out HashSet<Organization>  HTTPOrganizations,
+                                                                 out HTTPResponse           Response,
+                                                                 AccessLevel:               Access_Levels.ReadWrite,
+                                                                 Recursive:                 true))
                                              {
                                                  return Response;
                                              }
@@ -3750,7 +3750,7 @@ namespace org.GraphDefined.OpenData.Users
                                              if (!TryGetAstronaut(Request,
                                                                   out User                       Astronaut,
                                                                   out IEnumerable<Organization>  AstronautOrganizations,
-                                                                  out HTTPResponse               Response,
+                                                                  out HTTPResponse           Response,
                                                                   Recursive: true))
                                              {
                                                  return Response;
@@ -3870,7 +3870,7 @@ namespace org.GraphDefined.OpenData.Users
                                              if (!TryGetAstronaut(Request,
                                                                   out User                       Astronaut,
                                                                   out IEnumerable<Organization>  AstronautOrganizations,
-                                                                  out HTTPResponse               Response,
+                                                                  out HTTPResponse           Response,
                                                                   Recursive: true))
                                              {
                                                  return Task.FromResult(Response);
@@ -4007,9 +4007,9 @@ namespace org.GraphDefined.OpenData.Users
 
                                              // Will return HTTP 401 Unauthorized, when the HTTP user is unknown!
                                              if (!TryGetHTTPUser(Request,
-                                                                 out User                       HTTPUser,
-                                                                 out IEnumerable<Organization>  HTTPOrganizations,
-                                                                 out HTTPResponse               Response,
+                                                                 out User                   HTTPUser,
+                                                                 out HashSet<Organization>  HTTPOrganizations,
+                                                                 out HTTPResponse           Response,
                                                                  Recursive: true))
                                              {
                                                  return Task.FromResult(Response);
@@ -4056,11 +4056,11 @@ namespace org.GraphDefined.OpenData.Users
 
                                              // Will return HTTP 401 Unauthorized, when the HTTP user is unknown!
                                              if (!TryGetHTTPUser(Request,
-                                                                 out User                       HTTPUser,
-                                                                 out IEnumerable<Organization>  HTTPOrganizations,
+                                                                 out User                   HTTPUser,
+                                                                 out HashSet<Organization>  HTTPOrganizations,
                                                                  out HTTPResponse               HTTPResponse,
-                                                                 AccessLevel:                   Access_Levels.ReadWrite,
-                                                                 Recursive:                     true))
+                                                                 AccessLevel:               Access_Levels.ReadWrite,
+                                                                 Recursive:                 true))
                                              {
                                                  return HTTPResponse;
                                              }
@@ -4228,11 +4228,11 @@ namespace org.GraphDefined.OpenData.Users
 
                                              // Will return HTTP 401 Unauthorized, when the HTTP user is unknown!
                                              if (!TryGetHTTPUser(Request,
-                                                                 out User                       HTTPUser,
-                                                                 out IEnumerable<Organization>  HTTPOrganizations,
+                                                                 out User                   HTTPUser,
+                                                                 out HashSet<Organization>  HTTPOrganizations,
                                                                  out HTTPResponse               HTTPResponse,
-                                                                 AccessLevel:                   Access_Levels.ReadWrite,
-                                                                 Recursive:                     true))
+                                                                 AccessLevel:               Access_Levels.ReadWrite,
+                                                                 Recursive:                 true))
                                              {
                                                  return HTTPResponse;
                                              }
@@ -4393,9 +4393,9 @@ namespace org.GraphDefined.OpenData.Users
 
                                              // Will return HTTP 401 Unauthorized, when the HTTP user is unknown!
                                              if (!TryGetHTTPUser(Request,
-                                                                 out User                       HTTPUser,
-                                                                 out IEnumerable<Organization>  HTTPOrganizations,
-                                                                 out HTTPResponse               Response,
+                                                                 out User                   HTTPUser,
+                                                                 out HashSet<Organization>  HTTPOrganizations,
+                                                                 out HTTPResponse           Response,
                                                                  Recursive: true))
                                              {
                                                  return Task.FromResult(Response);
@@ -4437,9 +4437,9 @@ namespace org.GraphDefined.OpenData.Users
 
                                              // Will return HTTP 401 Unauthorized, when the HTTP user is unknown!
                                              if (!TryGetHTTPUser(Request,
-                                                                 out User                       HTTPUser,
-                                                                 out IEnumerable<Organization>  HTTPOrganizations,
-                                                                 out HTTPResponse               Response,
+                                                                 out User                   HTTPUser,
+                                                                 out HashSet<Organization>  HTTPOrganizations,
+                                                                 out HTTPResponse           Response,
                                                                  Recursive: true))
                                              {
                                                  return Task.FromResult(Response);
@@ -4499,11 +4499,11 @@ namespace org.GraphDefined.OpenData.Users
 
                                              // Will return HTTP 401 Unauthorized, when the HTTP user is unknown!
                                              if (!TryGetHTTPUser(Request,
-                                                                 out User                       HTTPUser,
-                                                                 out IEnumerable<Organization>  HTTPOrganizations,
-                                                                 out HTTPResponse               Response,
-                                                                 AccessLevel:                   Access_Levels.ReadWrite,
-                                                                 Recursive:                     true))
+                                                                 out User                   HTTPUser,
+                                                                 out HashSet<Organization>  HTTPOrganizations,
+                                                                 out HTTPResponse           Response,
+                                                                 AccessLevel:               Access_Levels.ReadWrite,
+                                                                 Recursive:                 true))
                                              {
                                                  return Response;
                                              }
@@ -4650,9 +4650,9 @@ namespace org.GraphDefined.OpenData.Users
                                              #region Try to get HTTP user and its organizations
 
                                              TryGetHTTPUser(Request,
-                                                            out User                       HTTPUser,
-                                                            out IEnumerable<Organization>  HTTPOrganizations,
-                                                            out HTTPResponse               Response,
+                                                            out User                   HTTPUser,
+                                                            out HashSet<Organization>  HTTPOrganizations,
+                                                            out HTTPResponse           Response,
                                                             Recursive: true);
 
                                              #endregion
@@ -4714,9 +4714,9 @@ namespace org.GraphDefined.OpenData.Users
 
                                              // Will return HTTP 401 Unauthorized, when the HTTP user is unknown!
                                              if (!TryGetHTTPUser(Request,
-                                                                 out User                       HTTPUser,
-                                                                 out IEnumerable<Organization>  HTTPOrganizations,
-                                                                 out HTTPResponse               Response,
+                                                                 out User                   HTTPUser,
+                                                                 out HashSet<Organization>  HTTPOrganizations,
+                                                                 out HTTPResponse           Response,
                                                                  Recursive: true))
                                              {
                                                  return Task.FromResult(Response);
@@ -4759,9 +4759,9 @@ namespace org.GraphDefined.OpenData.Users
                                              #region Try to get HTTP user and its organizations
 
                                              TryGetHTTPUser(Request,
-                                                            out User                       HTTPUser,
-                                                            out IEnumerable<Organization>  HTTPOrganizations,
-                                                            out HTTPResponse               Response,
+                                                            out User                   HTTPUser,
+                                                            out HashSet<Organization>  HTTPOrganizations,
+                                                            out HTTPResponse           Response,
                                                             Recursive: true);
 
                                              #endregion
@@ -4821,9 +4821,9 @@ namespace org.GraphDefined.OpenData.Users
                                              #region Try to get HTTP user and its organizations
 
                                              TryGetHTTPUser(Request,
-                                                            out User                       HTTPUser,
-                                                            out IEnumerable<Organization>  HTTPOrganizations,
-                                                            out HTTPResponse               Response,
+                                                            out User                   HTTPUser,
+                                                            out HashSet<Organization>  HTTPOrganizations,
+                                                            out HTTPResponse           Response,
                                                             Recursive: true);
 
                                              #endregion
@@ -4895,11 +4895,11 @@ namespace org.GraphDefined.OpenData.Users
 
                                              // Will return HTTP 401 Unauthorized, when the HTTP user is unknown!
                                              if (!TryGetHTTPUser(Request,
-                                                                 out User                       HTTPUser,
-                                                                 out IEnumerable<Organization>  HTTPOrganizations,
-                                                                 out HTTPResponse               Response,
-                                                                 AccessLevel:                   Access_Levels.ReadWrite,
-                                                                 Recursive:                     true))
+                                                                 out User                   HTTPUser,
+                                                                 out HashSet<Organization>  HTTPOrganizations,
+                                                                 out HTTPResponse           Response,
+                                                                 AccessLevel:               Access_Levels.ReadWrite,
+                                                                 Recursive:                 true))
                                              {
                                                  return Response;
                                              }
@@ -5174,9 +5174,9 @@ namespace org.GraphDefined.OpenData.Users
                                              #region Get HTTP user and its organizations
 
                                              TryGetHTTPUser(Request,
-                                                            out User                       HTTPUser,
-                                                            out IEnumerable<Organization>  HTTPOrganizations,
-                                                            out HTTPResponse               Response,
+                                                            out User                   HTTPUser,
+                                                            out HashSet<Organization>  HTTPOrganizations,
+                                                            out HTTPResponse           Response,
                                                             Recursive: true);
 
                                              #endregion
@@ -6314,12 +6314,12 @@ namespace org.GraphDefined.OpenData.Users
 
         #region (protected) TryGetHTTPUser (Request, User, Organizations, Response, AccessLevel = ReadOnly, Recursive = false)
 
-        protected Boolean TryGetHTTPUser(HTTPRequest                    Request,
-                                         out User                       User,
-                                         out IEnumerable<Organization>  Organizations,
-                                         out HTTPResponse               Response,
-                                         Access_Levels                  AccessLevel  = Access_Levels.ReadOnly,
-                                         Boolean                        Recursive    = false)
+        protected Boolean TryGetHTTPUser(HTTPRequest                Request,
+                                         out User                   User,
+                                         out HashSet<Organization>  Organizations,
+                                         out HTTPResponse           Response,
+                                         Access_Levels              AccessLevel  = Access_Levels.ReadOnly,
+                                         Boolean                    Recursive    = false)
         {
 
             if (!TryGetHTTPUser(Request, out User))
@@ -6334,7 +6334,8 @@ namespace org.GraphDefined.OpenData.Users
                 //    return true;
                 //}
 
-                Organizations  = new Organization[0];
+                Organizations  = new HashSet<Organization>();
+
                 Response       = new HTTPResponse.Builder(Request) {
                                      HTTPStatusCode  = HTTPStatusCode.Unauthorized,
                                      Location        = URIPrefix + "login",
@@ -6348,8 +6349,12 @@ namespace org.GraphDefined.OpenData.Users
 
             }
 
-            Organizations = User?.Organizations(AccessLevel, Recursive) ?? new Organization[0];
-            Response      = null;
+            Organizations  = User != null
+                                 ? new HashSet<Organization>(User.Organizations(AccessLevel, Recursive))
+                                 : new HashSet<Organization>();
+
+            Response       = null;
+
             return true;
 
         }
@@ -6361,7 +6366,7 @@ namespace org.GraphDefined.OpenData.Users
         protected Boolean TryGetAstronaut(HTTPRequest                    Request,
                                           out User                       User,
                                           out IEnumerable<Organization>  Organizations,
-                                          out HTTPResponse               Response,
+                                          out HTTPResponse           Response,
                                           Access_Levels                  AccessLevel  = Access_Levels.ReadOnly,
                                           Boolean                        Recursive    = false)
         {
@@ -6402,11 +6407,11 @@ namespace org.GraphDefined.OpenData.Users
 
         #region (protected) TryGetHTTPUser (Request, User, Organizations,           AccessLevel = ReadOnly, Recursive = false)
 
-        protected void TryGetHTTPUser(HTTPRequest                    Request,
-                                      out User                       User,
-                                      out IEnumerable<Organization>  Organizations,
-                                      Access_Levels                  AccessLevel  = Access_Levels.ReadOnly,
-                                      Boolean                        Recursive    = false)
+        protected void TryGetHTTPUser(HTTPRequest                Request,
+                                      out User                   User,
+                                      out HashSet<Organization>  Organizations,
+                                      Access_Levels              AccessLevel  = Access_Levels.ReadOnly,
+                                      Boolean                    Recursive    = false)
         {
 
             if (!TryGetHTTPUser(Request, out User))
@@ -6416,7 +6421,7 @@ namespace org.GraphDefined.OpenData.Users
                     Request.HTTPSource.IPAddress.IsLocalhost)
                 {
                     User           = Admins.User2GroupInEdges(edgelabel => edgelabel == User2GroupEdges.IsAdmin_ReadWrite).FirstOrDefault()?.Source;
-                    Organizations  = User.Organizations(AccessLevel, Recursive);
+                    Organizations  = new HashSet<Organization>(User.Organizations(AccessLevel, Recursive));
                     return;
                 }
 
@@ -6425,78 +6430,240 @@ namespace org.GraphDefined.OpenData.Users
 
             }
 
-            Organizations = User?.Organizations(AccessLevel, Recursive);
+            Organizations  = User != null
+                                 ? new HashSet<Organization>(User.Organizations(AccessLevel, Recursive))
+                                 : new HashSet<Organization>();
 
         }
 
         #endregion
 
 
-        #region WriteToLogfileAndNotify(MessageType, JSONData, Owner,  CurrentUserId = null)
+        #region WriteToLogfileAndNotify(MessageType, JSONData, User,  CurrentUserId = null)
 
         public Task WriteToLogfileAndNotify(NotificationMessageType  MessageType,
                                             JObject                  JSONData,
-                                            Organization             Owner,
+                                            User                     User,
                                             User_Id?                 CurrentUserId = null)
 
             => WriteToLogfileAndNotify(MessageType,
                                        JSONData,
-                                       Owner != null ? new Organization[] { Owner } : new Organization[0],
+                                       User != null ? new User[] { User } : new User[0],
                                        this.UsersAPIPath + DefaultUsersAPIFile,
                                        CurrentUserId);
 
         #endregion
 
-        #region WriteToLogfileAndNotify(MessageType, JSONData, Owners, CurrentUserId = null)
-
-        public Task WriteToLogfileAndNotify(NotificationMessageType    MessageType,
-                                            JObject                    JSONData,
-                                            IEnumerable<Organization>  Owners,
-                                            User_Id?                   CurrentUserId = null)
-
-            => WriteToLogfileAndNotify(MessageType,
-                                       JSONData,
-                                       Owners,
-                                       this.UsersAPIPath + DefaultUsersAPIFile,
-                                       CurrentUserId);
-
-        #endregion
-
-        #region WriteToLogfileAndNotify(MessageType, JSONData, Owner,  Logfilename = DefaultUsersAPIFile, CurrentUserId = null)
+        #region WriteToLogfileAndNotify(MessageType, JSONData, Users, CurrentUserId = null)
 
         public Task WriteToLogfileAndNotify(NotificationMessageType  MessageType,
                                             JObject                  JSONData,
-                                            Organization             Owner,
+                                            IEnumerable<User>        Users,
+                                            User_Id?                 CurrentUserId = null)
+
+            => WriteToLogfileAndNotify(MessageType,
+                                       JSONData,
+                                       Users,
+                                       this.UsersAPIPath + DefaultUsersAPIFile,
+                                       CurrentUserId);
+
+        #endregion
+
+        #region WriteToLogfileAndNotify(MessageType, JSONData, User,  Logfilename = DefaultUsersAPIFile, CurrentUserId = null)
+
+        public Task WriteToLogfileAndNotify(NotificationMessageType  MessageType,
+                                            JObject                  JSONData,
+                                            User                     User,
                                             String                   Logfilename    = DefaultUsersAPIFile,
                                             User_Id?                 CurrentUserId  = null)
 
             => WriteToLogfileAndNotify(MessageType,
                                        JSONData,
-                                       Owner != null ? new Organization[] { Owner } : new Organization[0],
+                                       User != null ? new User[] { User } : new User[0],
                                        Logfilename,
                                        CurrentUserId);
 
         #endregion
 
-        //protected virtual IEnumerable<EMailAddress> GetNotificationEMailAddresses22(NotificationMessageType    MessageType,
-        //                                                                            IEnumerable<Organization>  Owners)
-        //{
-        //    return EMailAddressList.Empty;
-        //}
-
-        #region WriteToLogfileAndNotify(MessageType, JSONData, Owners, Logfilename = DefaultUsersAPIFile, CurrentUserId = null)
+        #region WriteToLogfileAndNotify(MessageType, JSONData, Users, Logfilename = DefaultUsersAPIFile, CurrentUserId = null)
 
         /// <summary>
         /// Write data to a log file and send notifications.
         /// </summary>
         /// <param name="MessageType">The type of the message.</param>
         /// <param name="JSONData">The JSON data of the message.</param>
-        /// <param name="Owners">The owner of this information.</param>
+        /// <param name="Users">The owner of this information.</param>
+        /// <param name="Logfilename">An optional log file name.</param>
+        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
+        public async Task WriteToLogfileAndNotify(NotificationMessageType  MessageType,
+                                                  JObject                  JSONData,
+                                                  IEnumerable<User>        Users,
+                                                  String                   Logfilename    = DefaultUsersAPIFile,
+                                                  User_Id?                 CurrentUserId  = null)
+        {
+
+            if (!DisableLogfile || !DisableNotifications)
+            {
+
+                var Now          = DateTime.UtcNow;
+
+                var JSONMessage  = new JObject(
+                                       new JProperty(MessageType.ToString(),  JSONData),
+                                       new JProperty("userId",                (CurrentUserId ?? CurrentAsyncLocalUserId.Value ?? Robot.Id).ToString()),
+                                       new JProperty("systemId",              SystemId.ToString()),
+                                       new JProperty("timestamp",             Now.ToIso8601()),
+                                       new JProperty("sha256hash",            new JObject(
+                                           new JProperty("nonce",                 Guid.NewGuid().ToString().Replace("-", "")),
+                                           new JProperty("parentHash",            CurrentDatabaseHashValue)
+                                       ))
+                                   );
+
+                var SHA256                = new SHA256Managed();
+                CurrentDatabaseHashValue  = SHA256.ComputeHash(Encoding.Unicode.GetBytes(JSONWhitespaceRegEx.Replace(JSONMessage.ToString(), " "))).
+                                                   Select(value => String.Format("{0:x2}", value)).
+                                                   Aggregate();
+
+                (JSONMessage["sha256hash"] as JObject)?.Add(new JProperty("hashValue",  CurrentDatabaseHashValue));
+
+                #region Write to logfile
+
+                if (!DisableLogfile)
+                {
+
+                    try
+                    {
+
+                        await LogFileSemaphore.WaitAsync();
+
+                        var retry       = 0;
+                        var maxRetries  = 23;
+
+                        do
+                        {
+
+                            try
+                            {
+
+                                File.AppendAllText(Logfilename,
+                                                   JSONWhitespaceRegEx.Replace(JSONMessage.ToString(), " ") + Environment.NewLine);
+
+                                retry = maxRetries;
+
+                            }
+                            catch (IOException ioEx)
+                            {
+                                DebugX.Log("Retry " + retry + ": Could not write message '" + MessageType + "' to logfile '" + Logfilename + "': " + ioEx.Message);
+                                await Task.Delay(10);
+                                retry++;
+                            }
+                            catch (Exception e)
+                            {
+                                DebugX.Log("Retry " + retry + ": Could not write message '" + MessageType + "' to logfile '" + Logfilename + "': " + e.Message);
+                                await Task.Delay(10);
+                                retry++;
+                            }
+
+                        } while (retry < maxRetries);
+
+                    }
+                    finally
+                    {
+                        LogFileSemaphore.Release();
+                    }
+
+                }
+
+                #endregion
+
+                #region Send notifications
+
+                if (!DisableNotifications)
+                {
+                    try
+                    {
+
+                        await NotificationsSemaphore.WaitAsync();
+
+                        _NotificationMessages.Enqueue(new NotificationMessage(Now,
+                                                                              MessageType,
+                                                                              JSONMessage,
+                                                                              Users.SafeSelectMany(user => user.Organizations(Access_Levels.ReadOnly, true)).Distinct()));
+
+                    }
+                    finally
+                    {
+                        NotificationsSemaphore.Release();
+                    }
+                }
+
+                #endregion
+
+            }
+
+        }
+
+        #endregion
+
+
+        #region WriteToLogfileAndNotify(MessageType, JSONData, Organization,  CurrentUserId = null)
+
+        public Task WriteToLogfileAndNotify(NotificationMessageType  MessageType,
+                                            JObject                  JSONData,
+                                            Organization             Organization,
+                                            User_Id?                 CurrentUserId = null)
+
+            => WriteToLogfileAndNotify(MessageType,
+                                       JSONData,
+                                       Organization != null ? new Organization[] { Organization } : new Organization[0],
+                                       this.UsersAPIPath + DefaultUsersAPIFile,
+                                       CurrentUserId);
+
+        #endregion
+
+        #region WriteToLogfileAndNotify(MessageType, JSONData, Organizations, CurrentUserId = null)
+
+        public Task WriteToLogfileAndNotify(NotificationMessageType    MessageType,
+                                            JObject                    JSONData,
+                                            IEnumerable<Organization>  Organizations,
+                                            User_Id?                   CurrentUserId = null)
+
+            => WriteToLogfileAndNotify(MessageType,
+                                       JSONData,
+                                       Organizations,
+                                       this.UsersAPIPath + DefaultUsersAPIFile,
+                                       CurrentUserId);
+
+        #endregion
+
+        #region WriteToLogfileAndNotify(MessageType, JSONData, Organization,  Logfilename = DefaultUsersAPIFile, CurrentUserId = null)
+
+        public Task WriteToLogfileAndNotify(NotificationMessageType  MessageType,
+                                            JObject                  JSONData,
+                                            Organization             Organization,
+                                            String                   Logfilename    = DefaultUsersAPIFile,
+                                            User_Id?                 CurrentUserId  = null)
+
+            => WriteToLogfileAndNotify(MessageType,
+                                       JSONData,
+                                       Organization != null ? new Organization[] { Organization } : new Organization[0],
+                                       Logfilename,
+                                       CurrentUserId);
+
+        #endregion
+
+        #region WriteToLogfileAndNotify(MessageType, JSONData, Organizations, Logfilename = DefaultUsersAPIFile, CurrentUserId = null)
+
+        /// <summary>
+        /// Write data to a log file and send notifications.
+        /// </summary>
+        /// <param name="MessageType">The type of the message.</param>
+        /// <param name="JSONData">The JSON data of the message.</param>
+        /// <param name="Organizations">The owner of this information.</param>
         /// <param name="Logfilename">An optional log file name.</param>
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
         public async Task WriteToLogfileAndNotify(NotificationMessageType    MessageType,
                                                   JObject                    JSONData,
-                                                  IEnumerable<Organization>  Owners,
+                                                  IEnumerable<Organization>  Organizations,
                                                   String                     Logfilename    = DefaultUsersAPIFile,
                                                   User_Id?                   CurrentUserId  = null)
         {
@@ -6586,7 +6753,7 @@ namespace org.GraphDefined.OpenData.Users
                         _NotificationMessages.Enqueue(new NotificationMessage(Now,
                                                                               MessageType,
                                                                               JSONMessage,
-                                                                              Owners));
+                                                                              Organizations));
 
                     }
                     finally
@@ -6700,11 +6867,11 @@ namespace org.GraphDefined.OpenData.Users
 
                                                  // Will return HTTP 401 Unauthorized, when the HTTP user is unknown!
                                                  if (!TryGetHTTPUser(Request,
-                                                                     out User                       HTTPUser,
-                                                                     out IEnumerable<Organization>  HTTPOrganizations,
-                                                                     out HTTPResponse               Response,
-                                                                     AccessLevel:                   Access_Levels.ReadWrite,
-                                                                     Recursive:                     true))
+                                                                     out User                   HTTPUser,
+                                                                     out HashSet<Organization>  HTTPOrganizations,
+                                                                     out HTTPResponse           Response,
+                                                                     AccessLevel:               Access_Levels.ReadWrite,
+                                                                     Recursive:                 true))
                                                  {
                                                      return Task.FromResult(Response);
                                                  }
@@ -6778,11 +6945,11 @@ namespace org.GraphDefined.OpenData.Users
 
                                                  // Will return HTTP 401 Unauthorized, when the HTTP user is unknown!
                                                  if (!TryGetHTTPUser(Request,
-                                                                     out User                       HTTPUser,
-                                                                     out IEnumerable<Organization>  HTTPOrganizations,
-                                                                     out HTTPResponse               Response,
-                                                                     AccessLevel:                   Access_Levels.ReadWrite,
-                                                                     Recursive:                     true))
+                                                                     out User                   HTTPUser,
+                                                                     out HashSet<Organization>  HTTPOrganizations,
+                                                                     out HTTPResponse           Response,
+                                                                     AccessLevel:               Access_Levels.ReadWrite,
+                                                                     Recursive:                 true))
                                                  {
                                                      return Task.FromResult(Response);
                                                  }
