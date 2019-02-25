@@ -25,6 +25,9 @@ $Shadow:                    2px 2px 7px #828282      !default;
 $CITMBlue95:                rgba(247, 186,  61, .95) !default;
 /*$CITMGray:                  rgba(143, 145, 149,   1);*/
 
+.fa, .far, .fas {
+    font-style: normal;
+}
 
 .buttons {
     display:                    flex;
