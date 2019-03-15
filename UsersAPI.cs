@@ -3307,7 +3307,7 @@ namespace org.GraphDefined.OpenData.Users
                                                          Date                       = DateTime.UtcNow,
                                                          AccessControlAllowOrigin   = "*",
                                                          AccessControlAllowMethods  = "GET, SET",
-                                                         AccessControlAllowHeaders  = "X-PINGOTHER, Content-Type, Accept, Authorization",
+                                                         AccessControlAllowHeaders  = "X-PINGOTHER, Content-Type, Accept, Authorization, X-App-Version",
                                                          AccessControlMaxAge        = 3600,
                                                          //ETag                       = "1",
                                                          CacheControl               = "public",
