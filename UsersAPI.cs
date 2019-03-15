@@ -3273,7 +3273,6 @@ namespace org.GraphDefined.OpenData.Users
             HTTPServer.AddMethodCallback(Hostname,
                                          HTTPMethod.OPTIONS,
                                          URIPrefix + "users/{UserId}",
-                                         HTTPContentType.JSON_UTF8,
                                          HTTPDelegate: Request => {
 
                                              return Task.FromResult(
