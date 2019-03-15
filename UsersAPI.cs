@@ -3257,6 +3257,97 @@ namespace org.GraphDefined.OpenData.Users
 
             #endregion
 
+            #region OPTIONS     ~/users/{UserId}
+
+            // -----------------------------------------------------------------------------------
+            // curl -X OPTIONS -v -H "Accept: application/json" http://127.0.0.1:2100/users/ahzf
+            // -----------------------------------------------------------------------------------
+            //HTTPServer.ITEM_GET<User_Id, User>(UriTemplate:         URIPrefix + "users/{UserId}",
+            //                                   ParseIdDelegate:     User_Id.TryParse,
+            //                                   ParseIdError:        Text => "Invalid user identification '" + Text + "'!",
+            //                                   TryGetItemDelegate:  _Users.TryGetValue,
+            //                                   ItemFilterDelegate:  user   => user.PrivacyLevel == PrivacyLevel.World,
+            //                                   TryGetItemError:     userId => "Unknown user '" + userId + "'!",
+            //                                   ToJSONDelegate:      user   => user.ToJSON(IncludeCryptoHash: true));
+
+            HTTPServer.AddMethodCallback(Hostname,
+                                         HTTPMethod.OPTIONS,
+                                         URIPrefix + "users/{UserId}",
+                                         HTTPContentType.JSON_UTF8,
+                                         HTTPDelegate: Request => {
+
+                                             #region Get HTTP user and its organizations
+
+                                             // Will return HTTP 401 Unauthorized, when the HTTP user is unknown!
+                                             TryGetHTTPUser(Request,
+                                                            out User                   HTTPUser,
+                                                            out HashSet<Organization>  HTTPOrganizations,
+                                                            Recursive: true);
+
+                                             #endregion
+
+                                             #region Check UserId URI parameter
+
+                                             if (!Request.ParseUser(this,
+                                                                    out User_Id?      UserId,
+                                                                    out User          User,
+                                                                    out HTTPResponse  HTTPResponse))
+                                             {
+                                                 return Task.FromResult(HTTPResponse);
+                                             }
+
+                                             #endregion
+
+
+                                             if (HTTPUser.Id == UserId.Value || User.PrivacyLevel == PrivacyLevel.World)
+                                                 return Task.FromResult(
+                                                     new HTTPResponse.Builder(Request) {
+                                                         HTTPStatusCode             = HTTPStatusCode.OK,
+                                                         Server                     = HTTPServer.DefaultServerName,
+                                                         ContentType                = HTTPContentType.JSON_UTF8,
+                                                         Content                    = User.ToJSON().ToUTF8Bytes(),
+                                                         AccessControlAllowOrigin   = "*",
+                                                         AccessControlAllowMethods  = "GET, SET",
+                                                         AccessControlAllowHeaders  = "X-PINGOTHER, Content-Type, Accept, Authorization",
+                                                         AccessControlMaxAge        = 3600,
+                                                         //ETag                       = "1",
+                                                         CacheControl               = "public",
+                                                         //Expires                    = "Mon, 25 Jun 2015 21:31:12 GMT",
+                                                         Connection                 = "close"
+                                                     }.AsImmutable);
+
+
+                                             return Task.FromResult(
+                                                              new HTTPResponse.Builder(Request) {
+                                                                        HTTPStatusCode             = HTTPStatusCode.Unauthorized,
+                                                                        Server                     = HTTPServer.DefaultServerName,
+                                                                        Date                       = DateTime.UtcNow,
+                                                                        AccessControlAllowOrigin   = "*",
+                                                                        AccessControlAllowMethods  = "GET, SET",
+                                                                        AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
+                                                                        Connection                 = "close"
+                                                                    }.AsImmutable);
+
+                                         });
+
+
+            #region Get HTTP user and its organizations
+
+            // Will return HTTP 401 Unauthorized, when the HTTP user is unknown!
+            //if (!TryGetHTTPUser(Request,
+            //                    out User                   HTTPUser,
+            //                    out HashSet<Organization>  HTTPOrganizations,
+            //                    out HTTPResponse           Response,
+            //                    Recursive: true))
+            //{
+            //    return Task.FromResult(Response);
+            //}
+
+            #endregion
+
+
+            #endregion
+
             #region GET         ~/users/{UserId}
 
             // ------------------------------------------------------------------------
