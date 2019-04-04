@@ -1576,6 +1576,38 @@ namespace org.GraphDefined.OpenData.Users
 
         #endregion
 
+        #region (protected) MixWithHTMLTemplate(ResourceName)
+
+        String HTMLTemplate = null;
+
+        protected String MixWithHTMLTemplate(String ResourceName)
+        {
+
+            if (HTMLTemplate == null)
+            {
+
+                var OutputStream    = new MemoryStream();
+                var TemplateStream  = GetType().Assembly.GetManifestResourceStream(HTTPRoot + "template.html");
+
+                TemplateStream.Seek(0, SeekOrigin.Begin);
+                TemplateStream.CopyTo(OutputStream);
+
+                HTMLTemplate = OutputStream.ToArray().ToUTF8String();
+
+            }
+
+            var HTMLStream      = new MemoryStream();
+            var ResourceStream  = GetType().Assembly.GetManifestResourceStream(HTTPRoot + ResourceName);
+
+            ResourceStream.Seek(3, SeekOrigin.Begin);
+            ResourceStream.CopyTo(HTMLStream);
+
+            return HTMLTemplate.Replace("<%= content %>", HTMLStream.ToArray().ToUTF8String());
+
+        }
+
+        #endregion
+
 
         #region (private) GetOrganizationSerializator(User)
 
