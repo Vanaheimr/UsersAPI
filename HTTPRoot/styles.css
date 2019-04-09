@@ -1,6 +1,9 @@
 ﻿/*background: lighten($bg-color, 10%);*/
 /*$CITMBlue:                  rgba( 86, 132, 204,   1);*/
 /*$CITMGray:                  rgba(143, 145, 149,   1);*/
+.fa, .far, .fas {
+  font-style: normal; }
+
 .buttons {
   display: flex;
   margin-top: 30px; }
@@ -164,6 +167,9 @@ body {
         font-size: 140%;
         width: 60px;
         line-height: 50px;
+        text-align: center;
+        display: inline-block;
+        width: 44px;
         text-align: center; }
     #navigation ul li:hover {
       color: #f7e3b9;
@@ -283,4 +289,3 @@ select[disabled] {
 
 span.hidden {
   display: none; }
-

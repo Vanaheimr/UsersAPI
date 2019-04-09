@@ -189,7 +189,9 @@ body {
                     width:          $NavigationWidth;
                     line-height:    50px;
                     text-align:     center;
-
+                    display:        inline-block;
+                    width:          44px;
+                    text-align:     center;
                 }
 
             }

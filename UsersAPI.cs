@@ -1576,6 +1576,38 @@ namespace org.GraphDefined.OpenData.Users
 
         #endregion
 
+        #region (protected) MixWithHTMLTemplate(ResourceName)
+
+        String HTMLTemplate = null;
+
+        protected String MixWithHTMLTemplate(String ResourceName)
+        {
+
+            if (HTMLTemplate == null)
+            {
+
+                var OutputStream    = new MemoryStream();
+                var TemplateStream  = GetType().Assembly.GetManifestResourceStream(HTTPRoot + "template.html");
+
+                TemplateStream.Seek(0, SeekOrigin.Begin);
+                TemplateStream.CopyTo(OutputStream);
+
+                HTMLTemplate = OutputStream.ToArray().ToUTF8String();
+
+            }
+
+            var HTMLStream      = new MemoryStream();
+            var ResourceStream  = GetType().Assembly.GetManifestResourceStream(HTTPRoot + ResourceName);
+
+            ResourceStream.Seek(3, SeekOrigin.Begin);
+            ResourceStream.CopyTo(HTMLStream);
+
+            return HTMLTemplate.Replace("<%= content %>", HTMLStream.ToArray().ToUTF8String());
+
+        }
+
+        #endregion
+
 
         #region (private) GetOrganizationSerializator(User)
 
@@ -3257,6 +3289,59 @@ namespace org.GraphDefined.OpenData.Users
 
             #endregion
 
+            #region OPTIONS     ~/users/{UserId}
+
+            // -----------------------------------------------------------------------------------
+            // curl -X OPTIONS -v -H "Accept: application/json" http://127.0.0.1:2100/users/ahzf
+            // -----------------------------------------------------------------------------------
+            //HTTPServer.ITEM_GET<User_Id, User>(UriTemplate:         URIPrefix + "users/{UserId}",
+            //                                   ParseIdDelegate:     User_Id.TryParse,
+            //                                   ParseIdError:        Text => "Invalid user identification '" + Text + "'!",
+            //                                   TryGetItemDelegate:  _Users.TryGetValue,
+            //                                   ItemFilterDelegate:  user   => user.PrivacyLevel == PrivacyLevel.World,
+            //                                   TryGetItemError:     userId => "Unknown user '" + userId + "'!",
+            //                                   ToJSONDelegate:      user   => user.ToJSON(IncludeCryptoHash: true));
+
+            HTTPServer.AddMethodCallback(Hostname,
+                                         HTTPMethod.OPTIONS,
+                                         URIPrefix + "users/{UserId}",
+                                         HTTPDelegate: Request => {
+
+                                             return Task.FromResult(
+                                                 new HTTPResponse.Builder(Request) {
+                                                     HTTPStatusCode             = HTTPStatusCode.OK,
+                                                     Server                     = HTTPServer.DefaultServerName,
+                                                     Date                       = DateTime.UtcNow,
+                                                     AccessControlAllowOrigin   = "*",
+                                                     AccessControlAllowMethods  = "GET, SET",
+                                                     AccessControlAllowHeaders  = "X-PINGOTHER, Content-Type, Accept, Authorization, X-App-Version",
+                                                     AccessControlMaxAge        = 3600,
+                                                     //ETag                       = "1",
+                                                     CacheControl               = "public",
+                                                     //Expires                    = "Mon, 25 Jun 2015 21:31:12 GMT",
+                                                     Connection                 = "close"
+                                                 }.AsImmutable);
+
+                                         });
+
+
+            #region Get HTTP user and its organizations
+
+            // Will return HTTP 401 Unauthorized, when the HTTP user is unknown!
+            //if (!TryGetHTTPUser(Request,
+            //                    out User                   HTTPUser,
+            //                    out HashSet<Organization>  HTTPOrganizations,
+            //                    out HTTPResponse           Response,
+            //                    Recursive: true))
+            //{
+            //    return Task.FromResult(Response);
+            //}
+
+            #endregion
+
+
+            #endregion
+
             #region GET         ~/users/{UserId}
 
             // ------------------------------------------------------------------------
@@ -3302,14 +3387,16 @@ namespace org.GraphDefined.OpenData.Users
                                              if (HTTPUser.Id == UserId.Value || User.PrivacyLevel == PrivacyLevel.World)
                                                  return Task.FromResult(
                                                      new HTTPResponse.Builder(Request) {
-                                                         HTTPStatusCode  = HTTPStatusCode.OK,
-                                                         Server          = HTTPServer.DefaultServerName,
-                                                         ContentType     = HTTPContentType.JSON_UTF8,
-                                                         Content         = User.ToJSON().ToUTF8Bytes(),
-                                                         //ETag            = "1",
-                                                         CacheControl    = "public",
-                                                         //Expires         = "Mon, 25 Jun 2015 21:31:12 GMT",
-                                                         Connection      = "close"
+                                                         HTTPStatusCode             = HTTPStatusCode.OK,
+                                                         Server                     = HTTPServer.DefaultServerName,
+                                                         AccessControlAllowOrigin   = "*",
+                                                         AccessControlAllowMethods  = "GET, SET",
+                                                         ContentType                = HTTPContentType.JSON_UTF8,
+                                                         Content                    = User.ToJSON().ToUTF8Bytes(),
+                                                         //ETag                       = "1",
+                                                         CacheControl               = "public",
+                                                         //Expires                    = "Mon, 25 Jun 2015 21:31:12 GMT",
+                                                         Connection                 = "close"
                                                      }.AsImmutable);
 
 
