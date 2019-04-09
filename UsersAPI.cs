@@ -1576,6 +1576,38 @@ namespace org.GraphDefined.OpenData.Users
 
         #endregion
 
+        #region (protected) MixWithHTMLTemplate(ResourceName)
+
+        String HTMLTemplate = null;
+
+        protected String MixWithHTMLTemplate(String ResourceName)
+        {
+
+            if (HTMLTemplate == null)
+            {
+
+                var OutputStream    = new MemoryStream();
+                var TemplateStream  = GetType().Assembly.GetManifestResourceStream(HTTPRoot + "template.html");
+
+                TemplateStream.Seek(0, SeekOrigin.Begin);
+                TemplateStream.CopyTo(OutputStream);
+
+                HTMLTemplate = OutputStream.ToArray().ToUTF8String();
+
+            }
+
+            var HTMLStream      = new MemoryStream();
+            var ResourceStream  = GetType().Assembly.GetManifestResourceStream(HTTPRoot + ResourceName);
+
+            ResourceStream.Seek(3, SeekOrigin.Begin);
+            ResourceStream.CopyTo(HTMLStream);
+
+            return HTMLTemplate.Replace("<%= content %>", HTMLStream.ToArray().ToUTF8String());
+
+        }
+
+        #endregion
+
 
         #region (private) GetOrganizationSerializator(User)
 
@@ -3257,6 +3289,59 @@ namespace org.GraphDefined.OpenData.Users
 
             #endregion
 
+            #region OPTIONS     ~/users/{UserId}
+
+            // -----------------------------------------------------------------------------------
+            // curl -X OPTIONS -v -H "Accept: application/json" http://127.0.0.1:2100/users/ahzf
+            // -----------------------------------------------------------------------------------
+            //HTTPServer.ITEM_GET<User_Id, User>(UriTemplate:         URIPrefix + "users/{UserId}",
+            //                                   ParseIdDelegate:     User_Id.TryParse,
+            //                                   ParseIdError:        Text => "Invalid user identification '" + Text + "'!",
+            //                                   TryGetItemDelegate:  _Users.TryGetValue,
+            //                                   ItemFilterDelegate:  user   => user.PrivacyLevel == PrivacyLevel.World,
+            //                                   TryGetItemError:     userId => "Unknown user '" + userId + "'!",
+            //                                   ToJSONDelegate:      user   => user.ToJSON(IncludeCryptoHash: true));
+
+            HTTPServer.AddMethodCallback(Hostname,
+                                         HTTPMethod.OPTIONS,
+                                         URIPrefix + "users/{UserId}",
+                                         HTTPDelegate: Request => {
+
+                                             return Task.FromResult(
+                                                 new HTTPResponse.Builder(Request) {
+                                                     HTTPStatusCode             = HTTPStatusCode.OK,
+                                                     Server                     = HTTPServer.DefaultServerName,
+                                                     Date                       = DateTime.UtcNow,
+                                                     AccessControlAllowOrigin   = "*",
+                                                     AccessControlAllowMethods  = "GET, SET",
+                                                     AccessControlAllowHeaders  = "X-PINGOTHER, Content-Type, Accept, Authorization, X-App-Version",
+                                                     AccessControlMaxAge        = 3600,
+                                                     //ETag                       = "1",
+                                                     CacheControl               = "public",
+                                                     //Expires                    = "Mon, 25 Jun 2015 21:31:12 GMT",
+                                                     Connection                 = "close"
+                                                 }.AsImmutable);
+
+                                         });
+
+
+            #region Get HTTP user and its organizations
+
+            // Will return HTTP 401 Unauthorized, when the HTTP user is unknown!
+            //if (!TryGetHTTPUser(Request,
+            //                    out User                   HTTPUser,
+            //                    out HashSet<Organization>  HTTPOrganizations,
+            //                    out HTTPResponse           Response,
+            //                    Recursive: true))
+            //{
+            //    return Task.FromResult(Response);
+            //}
+
+            #endregion
+
+
+            #endregion
+
             #region GET         ~/users/{UserId}
 
             // ------------------------------------------------------------------------
@@ -3302,14 +3387,16 @@ namespace org.GraphDefined.OpenData.Users
                                              if (HTTPUser.Id == UserId.Value || User.PrivacyLevel == PrivacyLevel.World)
                                                  return Task.FromResult(
                                                      new HTTPResponse.Builder(Request) {
-                                                         HTTPStatusCode  = HTTPStatusCode.OK,
-                                                         Server          = HTTPServer.DefaultServerName,
-                                                         ContentType     = HTTPContentType.JSON_UTF8,
-                                                         Content         = User.ToJSON().ToUTF8Bytes(),
-                                                         //ETag            = "1",
-                                                         CacheControl    = "public",
-                                                         //Expires         = "Mon, 25 Jun 2015 21:31:12 GMT",
-                                                         Connection      = "close"
+                                                         HTTPStatusCode             = HTTPStatusCode.OK,
+                                                         Server                     = HTTPServer.DefaultServerName,
+                                                         AccessControlAllowOrigin   = "*",
+                                                         AccessControlAllowMethods  = "GET, SET",
+                                                         ContentType                = HTTPContentType.JSON_UTF8,
+                                                         Content                    = User.ToJSON().ToUTF8Bytes(),
+                                                         //ETag                       = "1",
+                                                         CacheControl               = "public",
+                                                         //Expires                    = "Mon, 25 Jun 2015 21:31:12 GMT",
+                                                         Connection                 = "close"
                                                      }.AsImmutable);
 
 
@@ -6505,98 +6592,118 @@ namespace org.GraphDefined.OpenData.Users
             if (!DisableLogfile || !DisableNotifications)
             {
 
-                var Now          = DateTime.UtcNow;
-
-                var JSONMessage  = new JObject(
-                                       new JProperty(MessageType.ToString(),  JSONData),
-                                       new JProperty("userId",                (CurrentUserId ?? CurrentAsyncLocalUserId.Value ?? Robot.Id).ToString()),
-                                       new JProperty("systemId",              SystemId.ToString()),
-                                       new JProperty("timestamp",             Now.ToIso8601()),
-                                       new JProperty("sha256hash",            new JObject(
-                                           new JProperty("nonce",                 Guid.NewGuid().ToString().Replace("-", "")),
-                                           new JProperty("parentHash",            CurrentDatabaseHashValue)
-                                       ))
-                                   );
-
-                var SHA256                = new SHA256Managed();
-                CurrentDatabaseHashValue  = SHA256.ComputeHash(Encoding.Unicode.GetBytes(JSONWhitespaceRegEx.Replace(JSONMessage.ToString(), " "))).
-                                                   Select(value => String.Format("{0:x2}", value)).
-                                                   Aggregate();
-
-                (JSONMessage["sha256hash"] as JObject)?.Add(new JProperty("hashValue",  CurrentDatabaseHashValue));
-
-                #region Write to logfile
-
-                if (!DisableLogfile)
+                try
                 {
 
-                    try
+                    var Now          = DateTime.UtcNow;
+
+                    var JSONMessage  = new JObject(
+                                           new JProperty(MessageType.ToString(),  JSONData),
+                                           new JProperty("userId",                (CurrentUserId ?? CurrentAsyncLocalUserId.Value ?? Robot.Id).ToString()),
+                                           new JProperty("systemId",              SystemId.ToString()),
+                                           new JProperty("timestamp",             Now.ToIso8601()),
+                                           new JProperty("sha256hash",            new JObject(
+                                               new JProperty("nonce",                 Guid.NewGuid().ToString().Replace("-", "")),
+                                               new JProperty("parentHash",            CurrentDatabaseHashValue)
+                                           ))
+                                       );
+
+                    var SHA256                = new SHA256Managed();
+                    CurrentDatabaseHashValue  = SHA256.ComputeHash(Encoding.Unicode.GetBytes(JSONWhitespaceRegEx.Replace(JSONMessage.ToString(), " "))).
+                                                       Select(value => String.Format("{0:x2}", value)).
+                                                       Aggregate();
+
+                    (JSONMessage["sha256hash"] as JObject)?.Add(new JProperty("hashValue",  CurrentDatabaseHashValue));
+
+
+                    #region Write to logfile
+
+                    if (!DisableLogfile)
                     {
 
-                        await LogFileSemaphore.WaitAsync();
-
-                        var retry       = 0;
-                        var maxRetries  = 23;
-
-                        do
+                        try
                         {
 
-                            try
+                            await LogFileSemaphore.WaitAsync();
+
+                            var retry       = 0;
+                            var maxRetries  = 23;
+
+                            do
                             {
 
-                                File.AppendAllText(Logfilename,
-                                                   JSONWhitespaceRegEx.Replace(JSONMessage.ToString(), " ") + Environment.NewLine);
+                                try
+                                {
 
-                                retry = maxRetries;
+                                    File.AppendAllText(Logfilename,
+                                                       JSONWhitespaceRegEx.Replace(JSONMessage.ToString(), " ") + Environment.NewLine);
 
-                            }
-                            catch (IOException ioEx)
-                            {
-                                DebugX.Log("Retry " + retry + ": Could not write message '" + MessageType + "' to logfile '" + Logfilename + "': " + ioEx.Message);
-                                await Task.Delay(10);
-                                retry++;
-                            }
-                            catch (Exception e)
-                            {
-                                DebugX.Log("Retry " + retry + ": Could not write message '" + MessageType + "' to logfile '" + Logfilename + "': " + e.Message);
-                                await Task.Delay(10);
-                                retry++;
-                            }
+                                    retry = maxRetries;
 
-                        } while (retry < maxRetries);
+                                }
+                                catch (IOException ioEx)
+                                {
+                                    DebugX.Log("Retry " + retry + ": Could not write message '" + MessageType + "' to logfile '" + Logfilename + "': " + ioEx.Message);
+                                    await Task.Delay(10);
+                                    retry++;
+                                }
+                                catch (Exception e)
+                                {
+                                    DebugX.Log("Retry " + retry + ": Could not write message '" + MessageType + "' to logfile '" + Logfilename + "': " + e.Message);
+                                    await Task.Delay(10);
+                                    retry++;
+                                }
+
+                            } while (retry < maxRetries);
+
+                        }
+                        catch (Exception e)
+                        {
+                            //ToDo: Handle WriteToLogfileAndNotify(...Write to logfile...) exceptions!
+                        }
+                        finally
+                        {
+                            LogFileSemaphore.Release();
+                        }
 
                     }
-                    finally
+
+                    #endregion
+
+                    #region Send notifications
+
+                    if (!DisableNotifications)
                     {
-                        LogFileSemaphore.Release();
+
+                        try
+                        {
+
+                            await NotificationsSemaphore.WaitAsync();
+
+                            _NotificationMessages.Enqueue(new NotificationMessage(Now,
+                                                                                  MessageType,
+                                                                                  JSONMessage,
+                                                                                  Users.SafeSelectMany(user => user.Organizations(Access_Levels.ReadOnly, true)).Distinct()));
+
+                        }
+                        catch (Exception e)
+                        {
+                            //ToDo: Handle _NotificationMessages.Enqueue(...) exceptions!
+                        }
+                        finally
+                        {
+                            NotificationsSemaphore.Release();
+                        }
+
                     }
+
+                    #endregion
 
                 }
-
-                #endregion
-
-                #region Send notifications
-
-                if (!DisableNotifications)
+                catch (Exception e)
                 {
-                    try
-                    {
-
-                        await NotificationsSemaphore.WaitAsync();
-
-                        _NotificationMessages.Enqueue(new NotificationMessage(Now,
-                                                                              MessageType,
-                                                                              JSONMessage,
-                                                                              Users.SafeSelectMany(user => user.Organizations(Access_Levels.ReadOnly, true)).Distinct()));
-
-                    }
-                    finally
-                    {
-                        NotificationsSemaphore.Release();
-                    }
+                    //ToDo: Handle WriteToLogfileAndNotify(...) exceptions!
                 }
-
-                #endregion
 
             }
 
@@ -6671,98 +6778,116 @@ namespace org.GraphDefined.OpenData.Users
             if (!DisableLogfile || !DisableNotifications)
             {
 
-                var Now          = DateTime.UtcNow;
-
-                var JSONMessage  = new JObject(
-                                       new JProperty(MessageType.ToString(),  JSONData),
-                                       new JProperty("userId",                (CurrentUserId ?? CurrentAsyncLocalUserId.Value ?? Robot.Id).ToString()),
-                                       new JProperty("systemId",              SystemId.ToString()),
-                                       new JProperty("timestamp",             Now.ToIso8601()),
-                                       new JProperty("sha256hash",            new JObject(
-                                           new JProperty("nonce",                 Guid.NewGuid().ToString().Replace("-", "")),
-                                           new JProperty("parentHash",            CurrentDatabaseHashValue)
-                                       ))
-                                   );
-
-                var SHA256                = new SHA256Managed();
-                CurrentDatabaseHashValue  = SHA256.ComputeHash(Encoding.Unicode.GetBytes(JSONWhitespaceRegEx.Replace(JSONMessage.ToString(), " "))).
-                                                   Select(value => String.Format("{0:x2}", value)).
-                                                   Aggregate();
-
-                (JSONMessage["sha256hash"] as JObject)?.Add(new JProperty("hashValue",  CurrentDatabaseHashValue));
-
-                #region Write to logfile
-
-                if (!DisableLogfile)
+                try
                 {
 
-                    try
+                    var Now          = DateTime.UtcNow;
+
+                    var JSONMessage  = new JObject(
+                                           new JProperty(MessageType.ToString(),  JSONData),
+                                           new JProperty("userId",                (CurrentUserId ?? CurrentAsyncLocalUserId.Value ?? Robot.Id).ToString()),
+                                           new JProperty("systemId",              SystemId.ToString()),
+                                           new JProperty("timestamp",             Now.ToIso8601()),
+                                           new JProperty("sha256hash",            new JObject(
+                                               new JProperty("nonce",                 Guid.NewGuid().ToString().Replace("-", "")),
+                                               new JProperty("parentHash",            CurrentDatabaseHashValue)
+                                           ))
+                                       );
+
+                    var SHA256                = new SHA256Managed();
+                    CurrentDatabaseHashValue  = SHA256.ComputeHash(Encoding.Unicode.GetBytes(JSONWhitespaceRegEx.Replace(JSONMessage.ToString(), " "))).
+                                                       Select(value => String.Format("{0:x2}", value)).
+                                                       Aggregate();
+
+                    (JSONMessage["sha256hash"] as JObject)?.Add(new JProperty("hashValue",  CurrentDatabaseHashValue));
+
+
+                    #region Write to logfile
+
+                    if (!DisableLogfile)
                     {
 
-                        await LogFileSemaphore.WaitAsync();
-
-                        var retry       = 0;
-                        var maxRetries  = 23;
-
-                        do
+                        try
                         {
 
-                            try
+                            await LogFileSemaphore.WaitAsync();
+
+                            var retry       = 0;
+                            var maxRetries  = 23;
+
+                            do
                             {
 
-                                File.AppendAllText(Logfilename,
-                                                   JSONWhitespaceRegEx.Replace(JSONMessage.ToString(), " ") + Environment.NewLine);
+                                try
+                                {
 
-                                retry = maxRetries;
+                                    File.AppendAllText(Logfilename,
+                                                       JSONWhitespaceRegEx.Replace(JSONMessage.ToString(), " ") + Environment.NewLine);
 
-                            }
-                            catch (IOException ioEx)
-                            {
-                                DebugX.Log("Retry " + retry + ": Could not write message '" + MessageType + "' to logfile '" + Logfilename + "': " + ioEx.Message);
-                                await Task.Delay(10);
-                                retry++;
-                            }
-                            catch (Exception e)
-                            {
-                                DebugX.Log("Retry " + retry + ": Could not write message '" + MessageType + "' to logfile '" + Logfilename + "': " + e.Message);
-                                await Task.Delay(10);
-                                retry++;
-                            }
+                                    retry = maxRetries;
 
-                        } while (retry < maxRetries);
+                                }
+                                catch (IOException ioEx)
+                                {
+                                    DebugX.Log("Retry " + retry + ": Could not write message '" + MessageType + "' to logfile '" + Logfilename + "': " + ioEx.Message);
+                                    await Task.Delay(10);
+                                    retry++;
+                                }
+                                catch (Exception e)
+                                {
+                                    DebugX.Log("Retry " + retry + ": Could not write message '" + MessageType + "' to logfile '" + Logfilename + "': " + e.Message);
+                                    await Task.Delay(10);
+                                    retry++;
+                                }
+
+                            } while (retry < maxRetries);
+
+                        }
+                        catch (Exception e)
+                        {
+                            //ToDo: Handle WriteToLogfileAndNotify(...Write to logfile...) exceptions!
+                        }
+                        finally
+                        {
+                            LogFileSemaphore.Release();
+                        }
 
                     }
-                    finally
+
+                    #endregion
+
+                    #region Send notifications
+
+                    if (!DisableNotifications)
                     {
-                        LogFileSemaphore.Release();
+                        try
+                        {
+
+                            await NotificationsSemaphore.WaitAsync();
+
+                            _NotificationMessages.Enqueue(new NotificationMessage(Now,
+                                                                                  MessageType,
+                                                                                  JSONMessage,
+                                                                                  Organizations));
+
+                        }
+                        catch (Exception e)
+                        {
+                            //ToDo: Handle _NotificationMessages.Enqueue(...) exceptions!
+                        }
+                        finally
+                        {
+                            NotificationsSemaphore.Release();
+                        }
                     }
+
+                    #endregion
 
                 }
-
-                #endregion
-
-                #region Send notifications
-
-                if (!DisableNotifications)
+                catch (Exception e)
                 {
-                    try
-                    {
-
-                        await NotificationsSemaphore.WaitAsync();
-
-                        _NotificationMessages.Enqueue(new NotificationMessage(Now,
-                                                                              MessageType,
-                                                                              JSONMessage,
-                                                                              Organizations));
-
-                    }
-                    finally
-                    {
-                        NotificationsSemaphore.Release();
-                    }
+                    //ToDo: Handle WriteToLogfileAndNotify(...) exceptions!
                 }
-
-                #endregion
 
             }
 
@@ -6817,6 +6942,10 @@ namespace org.GraphDefined.OpenData.Users
 
                     } while (retry < maxRetries);
 
+                }
+                catch (Exception e)
+                {
+                    //ToDo: Handle WriteToCustomLogfile(...) exceptions!
                 }
                 finally
                 {
