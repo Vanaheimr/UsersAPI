@@ -23,6 +23,7 @@ namespace org.GraphDefined.OpenData
         Private,
         Internal,
         Friends,
+        Plattform,
         City,
         Country,
         GDPR,
