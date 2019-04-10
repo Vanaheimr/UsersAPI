@@ -1599,8 +1599,11 @@ namespace org.GraphDefined.OpenData.Users
             var HTMLStream      = new MemoryStream();
             var ResourceStream  = GetType().Assembly.GetManifestResourceStream(HTTPRoot + ResourceName);
 
-            ResourceStream.Seek(3, SeekOrigin.Begin);
-            ResourceStream.CopyTo(HTMLStream);
+            if (ResourceStream != null)
+            {
+                ResourceStream.Seek(3, SeekOrigin.Begin);
+                ResourceStream.CopyTo(HTMLStream);
+            }
 
             return HTMLTemplate.Replace("<%= content %>", HTMLStream.ToArray().ToUTF8String());
 
