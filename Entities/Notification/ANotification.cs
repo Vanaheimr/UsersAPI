@@ -64,7 +64,7 @@ namespace org.GraphDefined.OpenData.Notifications
         /// <summary>
         /// A helper for sorting.
         /// </summary>
-        public abstract String  SortKey        { get; }
+        public          String  SortKey        { get; }
 
         #endregion
 
@@ -74,7 +74,8 @@ namespace org.GraphDefined.OpenData.Notifications
         /// Create an new abstract notification.
         /// </summary>
         protected ANotification(IEnumerable<NotificationMessageType>  NotificationMessageTypes,
-                                String                                Description)
+                                String                                Description,
+                                String                                SortKey)
         {
 
             this._NotificationMessageTypes  = new HashSet<NotificationMessageType>();
@@ -84,6 +85,7 @@ namespace org.GraphDefined.OpenData.Notifications
                     _NotificationMessageTypes.Add(notificationMessageType);
 
             this.Description                = Description;
+            this.SortKey                    = SortKey;
 
         }
 
