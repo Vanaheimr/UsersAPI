@@ -350,7 +350,7 @@ namespace org.GraphDefined.OpenData.Notifications
                                                      JSON["basicAuth"     ]?["login"   ]?.Value<String>(),
                                                      JSON["basicAuth"     ]?["password"]?.Value<String>(),
                                                      JSON["APIKey"        ]?.Value<String>(),
-                                                     JSON["RequestTimeout"] != null ? TimeSpan.FromSeconds((Double) JSON["RequestTimeout"]?.Value<Int32>()) : new TimeSpan?(TimeSpan.Zero),
+                                                     JSON["RequestTimeout"] != null ? TimeSpan.FromSeconds((Double) JSON["RequestTimeout"]?.Value<Int32>()) : new TimeSpan?(),
                                                      (JSON["messageTypes" ] as JArray)?.SafeSelect(element => NotificationMessageType.Parse(element.Value<String>())),
                                                      JSON["description"   ]?.Value<String>());
 
