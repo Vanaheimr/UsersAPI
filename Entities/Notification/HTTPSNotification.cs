@@ -446,10 +446,15 @@ namespace org.GraphDefined.OpenData.Notifications
         public Int32 CompareTo(HTTPSNotification other)
         {
 
-            if (URL.CompareTo(other.URL) != 0)
-                return URL.CompareTo(other.URL);
+            var c = URL.CompareTo(other.URL);
+            if (c != 0)
+                return c;
 
-            return TCPPort.CompareTo(other.TCPPort);
+            c = TCPPort.CompareTo(other.TCPPort);
+            if (c != 0)
+                return c;
+
+            return Method.CompareTo(other.Method);
 
         }
 
@@ -470,9 +475,9 @@ namespace org.GraphDefined.OpenData.Notifications
 
         public Boolean Equals(HTTPSNotification other)
 
-            => Method. Equals(other.Method) &&
-               URL.    Equals(other.URL)    &&
-               TCPPort.Equals(other.URL);
+            => URL.    Equals(other.URL)     &&
+               TCPPort.Equals(other.TCPPort) &&
+               Method. Equals(other.Method);
 
         #endregion
 
