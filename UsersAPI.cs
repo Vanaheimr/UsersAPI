@@ -4792,7 +4792,7 @@ namespace org.GraphDefined.OpenData.Users
                                                                                                 take,
                                                                                                 false, //Embedded
                                                                                                 expandTags,
-                                                                                                GetOrganizationSerializator(HTTPUser),
+                                                                                                GetOrganizationSerializator(Request, HTTPUser),
                                                                                                 includeCryptoHash).
                                                                                          ToUTF8Bytes(),
                                                      X_ExpectedTotalNumberOfItems  = _ExpectedCount,
@@ -5313,7 +5313,7 @@ namespace org.GraphDefined.OpenData.Users
                                                                                                    take,
                                                                                                    false, //Embedded
                                                                                                    expandTags,
-                                                                                                   GetBlogPostingSerializator(HTTPUser),
+                                                                                                   GetBlogPostingSerializator(Request, HTTPUser),
                                                                                                    includeCryptoHash).
                                                                                             ToUTF8Bytes(),
                                                         Connection                    = "close"
