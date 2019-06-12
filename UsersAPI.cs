@@ -1130,7 +1130,7 @@ namespace org.GraphDefined.OpenData.Users
         public UsersAPI(String                               HTTPServerName                     = DefaultHTTPServerName,
                         IPPort?                              HTTPServerPort                     = null,
                         HTTPHostname?                        HTTPHostname                       = null,
-                        HTTPURI?                             URIPrefix                          = null,
+                        HTTPPath?                             URIPrefix                          = null,
 
                         ServerCertificateSelectorDelegate    ServerCertificateSelector          = null,
                         RemoteCertificateValidationCallback  ClientCertificateValidator         = null,
@@ -1273,7 +1273,7 @@ namespace org.GraphDefined.OpenData.Users
         /// <param name="LogfileName">The name of the logfile for this API.</param>
         protected UsersAPI(HTTPServer                           HTTPServer,
                            HTTPHostname?                        HTTPHostname                  = null,
-                           HTTPURI?                             URIPrefix                     = null,
+                           HTTPPath?                             URIPrefix                     = null,
 
                            String                               ServiceName                   = DefaultServiceName,
                            EMailAddress                         APIEMailAddress               = null,
@@ -1481,7 +1481,7 @@ namespace org.GraphDefined.OpenData.Users
         /// <param name="LogfileName">The name of the logfile for this API.</param>
         public static UsersAPI AttachToHTTPAPI(HTTPServer                           HTTPServer,
                                                HTTPHostname?                        HTTPHostname                  = null,
-                                               HTTPURI?                             URIPrefix                     = null,
+                                               HTTPPath?                             URIPrefix                     = null,
 
                                                String                               ServiceName                   = DefaultServiceName,
                                                EMailAddress                         APIEMailAddress               = null,
@@ -1598,6 +1598,35 @@ namespace org.GraphDefined.OpenData.Users
 
             var HTMLStream      = new MemoryStream();
             var ResourceStream  = GetType().Assembly.GetManifestResourceStream(HTTPRoot + ResourceName);
+
+            if (ResourceStream != null)
+            {
+                ResourceStream.Seek(3, SeekOrigin.Begin);
+                ResourceStream.CopyTo(HTMLStream);
+            }
+
+            return HTMLTemplate.Replace("<%= content %>", HTMLStream.ToArray().ToUTF8String());
+
+        }
+
+        protected String MixWithHTMLTemplate(String HTTPRoot2, String ResourceName)
+        {
+
+            if (HTMLTemplate == null)
+            {
+
+                var OutputStream    = new MemoryStream();
+                var TemplateStream  = GetType().Assembly.GetManifestResourceStream(HTTPRoot2 + "template.html");
+
+                TemplateStream.Seek(0, SeekOrigin.Begin);
+                TemplateStream.CopyTo(OutputStream);
+
+                HTMLTemplate = OutputStream.ToArray().ToUTF8String();
+
+            }
+
+            var HTMLStream      = new MemoryStream();
+            var ResourceStream  = GetType().Assembly.GetManifestResourceStream(HTTPRoot2 + ResourceName);
 
             if (ResourceStream != null)
             {
@@ -1851,7 +1880,7 @@ namespace org.GraphDefined.OpenData.Users
             // -------------------------------------------------------------
             HTTPServer.AddMethodCallback(HTTPHostname.Any,
                                           HTTPMethod.GET,
-                                          new HTTPURI[] { URIPrefix + "signup" },
+                                          new HTTPPath[] { URIPrefix + "signup" },
                                           HTTPContentType.HTML_UTF8,
                                           HTTPDelegate: async Request => {
 
@@ -1889,7 +1918,7 @@ namespace org.GraphDefined.OpenData.Users
             // ----------------------------------------------------------------------------------------------
             HTTPServer.AddMethodCallback(HTTPHostname.Any,
                                          HTTPMethod.GET,
-                                         HTTPURI.Parse("/verificationtokens/{VerificationToken}"),
+                                         HTTPPath.Parse("/verificationtokens/{VerificationToken}"),
                                          HTTPContentType.HTML_UTF8,
                                          HTTPDelegate: Request => {
 
@@ -2015,7 +2044,7 @@ namespace org.GraphDefined.OpenData.Users
 
             HTTPServer.AddMethodCallback(HTTPHostname.Any,
                                          HTTPMethod.POST,
-                                         HTTPURI.Parse("/login"),
+                                         HTTPPath.Parse("/login"),
                                          HTTPContentType.XWWWFormUrlEncoded,
                                          HTTPDelegate: Request => {
 
@@ -2708,7 +2737,7 @@ namespace org.GraphDefined.OpenData.Users
 
             HTTPServer.AddMethodCallback(HTTPHostname.Any,
                                           HTTPMethod.DEAUTH,
-                                          HTTPURI.Parse("/users"),
+                                          HTTPPath.Parse("/users"),
                                           HTTPContentType.JSON_UTF8,
                                           HTTPDelegate: Request =>
 
@@ -2733,7 +2762,7 @@ namespace org.GraphDefined.OpenData.Users
             // -------------------------------------------------------------------------------
             HTTPServer.AddMethodCallback(HTTPHostname.Any,
                                           HTTPMethod.ADD,
-                                          HTTPURI.Parse("/users/{UserId}"),
+                                          HTTPPath.Parse("/users/{UserId}"),
                                           HTTPContentType.JSON_UTF8,
                                           HTTPRequestLogger:   AddUserRequest,
                                           HTTPResponseLogger:  AddUserResponse,
@@ -3578,7 +3607,7 @@ namespace org.GraphDefined.OpenData.Users
 
             HTTPServer.AddMethodCallback(HTTPHostname.Any,
                                           HTTPMethod.AUTH,
-                                          HTTPURI.Parse("/users/{UserId}"),
+                                          HTTPPath.Parse("/users/{UserId}"),
                                           HTTPContentType.JSON_UTF8,
                                           HTTPDelegate:  async Request => {
 
@@ -3820,7 +3849,7 @@ namespace org.GraphDefined.OpenData.Users
 
             HTTPServer.AddMethodCallback(HTTPHostname.Any,
                                           HTTPMethod.DEAUTH,
-                                          HTTPURI.Parse("/users/{UserId}"),
+                                          HTTPPath.Parse("/users/{UserId}"),
                                           HTTPContentType.JSON_UTF8,
                                           HTTPDelegate: Request =>
 
@@ -3842,7 +3871,7 @@ namespace org.GraphDefined.OpenData.Users
 
             HTTPServer.AddMethodCallback(HTTPHostname.Any,
                                          HTTPMethod.IMPERSONATE,
-                                         HTTPURI.Parse("/users/{UserId}"),
+                                         HTTPPath.Parse("/users/{UserId}"),
                                          HTTPContentType.JSON_UTF8,
                                          HTTPRequestLogger:   ImpersonateUserRequest,
                                          HTTPResponseLogger:  ImpersonateUserResponse,
@@ -3964,7 +3993,7 @@ namespace org.GraphDefined.OpenData.Users
 
             HTTPServer.AddMethodCallback(HTTPHostname.Any,
                                          HTTPMethod.DEPERSONATE,
-                                         HTTPURI.Parse("/users/{UserId}"),
+                                         HTTPPath.Parse("/users/{UserId}"),
                                          HTTPContentType.JSON_UTF8,
                                          HTTPDelegate: Request => {
 
@@ -6979,7 +7008,7 @@ namespace org.GraphDefined.OpenData.Users
         #region AddEventSource(HTTPEventSourceId, URITemplate, IncludeFilterAtRuntime, CreateState, ...)
 
         public void AddEventSource<TState>(HTTPEventSource_Id                      HTTPEventSourceId,
-                                           HTTPURI                                 URITemplate,
+                                           HTTPPath                                 URITemplate,
 
                                            Func<TState, User, HTTPEvent, Boolean>  IncludeFilterAtRuntime,
                                            Func<TState>                            CreateState,
@@ -7057,7 +7086,7 @@ namespace org.GraphDefined.OpenData.Users
         }
 
         public void AddEventSource<TState>(HTTPEventSource_Id                                                 HTTPEventSourceId,
-                                           HTTPURI                                                            URITemplate,
+                                           HTTPPath                                                            URITemplate,
 
                                            Func<TState, User, IEnumerable<Organization>, HTTPEvent, Boolean>  IncludeFilterAtRuntime,
                                            Func<TState>                                                       CreateState,
