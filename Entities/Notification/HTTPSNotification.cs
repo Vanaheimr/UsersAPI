@@ -52,8 +52,8 @@ namespace org.GraphDefined.OpenData.Notifications
                                                 String         APIKey              = null)
 
             => UsersAPI.AddNotification(User,
-                                        new HTTPSNotification(Method ?? HTTPMethod.POST,
-                                                              URL,
+                                        new HTTPSNotification(URL,
+                                                              Method,
                                                               TCPPort,
                                                               BasicAuth_Login,
                                                               BasicAuth_Password,
@@ -73,8 +73,8 @@ namespace org.GraphDefined.OpenData.Notifications
                                                 String         APIKey              = null)
 
             => UsersAPI.AddNotification(UserId,
-                                        new HTTPSNotification(Method ?? HTTPMethod.POST,
-                                                              URL,
+                                        new HTTPSNotification(URL,
+                                                              Method,
                                                               TCPPort,
                                                               BasicAuth_Login,
                                                               BasicAuth_Password,
@@ -95,8 +95,8 @@ namespace org.GraphDefined.OpenData.Notifications
                                                 String                   APIKey              = null)
 
             => UsersAPI.AddNotification(User,
-                                        new HTTPSNotification(Method ?? HTTPMethod.POST,
-                                                              URL,
+                                        new HTTPSNotification(URL,
+                                                              Method,
                                                               TCPPort,
                                                               BasicAuth_Login,
                                                               BasicAuth_Password,
@@ -118,8 +118,8 @@ namespace org.GraphDefined.OpenData.Notifications
                                                 String                   APIKey              = null)
 
             => UsersAPI.AddNotification(UserId,
-                                        new HTTPSNotification(Method ?? HTTPMethod.POST,
-                                                              URL,
+                                        new HTTPSNotification(URL,
+                                                              Method,
                                                               TCPPort,
                                                               BasicAuth_Login,
                                                               BasicAuth_Password,
@@ -141,8 +141,8 @@ namespace org.GraphDefined.OpenData.Notifications
                                                 String                                APIKey              = null)
 
             => UsersAPI.AddNotification(User,
-                                        new HTTPSNotification(Method ?? HTTPMethod.POST,
-                                                              URL,
+                                        new HTTPSNotification(URL,
+                                                              Method,
                                                               TCPPort,
                                                               BasicAuth_Login,
                                                               BasicAuth_Password,
@@ -164,8 +164,8 @@ namespace org.GraphDefined.OpenData.Notifications
                                                 String                                APIKey              = null)
 
             => UsersAPI.AddNotification(UserId,
-                                        new HTTPSNotification(Method ?? HTTPMethod.POST,
-                                                              URL,
+                                        new HTTPSNotification(URL,
+                                                              Method,
                                                               TCPPort,
                                                               BasicAuth_Login,
                                                               BasicAuth_Password,
@@ -278,14 +278,7 @@ namespace org.GraphDefined.OpenData.Notifications
         public String     BasicAuth_Login      { get; }
         public String     BasicAuth_Password   { get; }
         public String     APIKey               { get; }
-
-
-        public override String SortKey
-
-            => String.Concat(nameof(EMailNotification),
-                             URL,
-                             Method,
-                             TCPPort);
+        public TimeSpan?  RequestTimeout       { get; }
 
         #endregion
 
@@ -294,26 +287,32 @@ namespace org.GraphDefined.OpenData.Notifications
         /// <summary>
         /// Create a new  HTTPS notification.
         /// </summary>
-        public HTTPSNotification(HTTPMethod                            Method,
-                                 String                                URL,
+        public HTTPSNotification(String                                URL,
+                                 HTTPMethod?                           Method                    = null,
                                  IPPort?                               TCPPort                   = null,
                                  String                                BasicAuth_Login           = null,
                                  String                                BasicAuth_Password        = null,
                                  String                                APIKey                    = null,
+                                 TimeSpan?                             RequestTimeout            = null,
                                  IEnumerable<NotificationMessageType>  NotificationMessageTypes  = null,
                                  String                                Description               = null)
 
             : base(NotificationMessageTypes,
-                   Description)
+                   Description,
+                   String.Concat(nameof(HTTPSNotification),
+                                 URL,
+                                 Method  ?? HTTPMethod.POST,
+                                 TCPPort ?? IPPort.HTTPS))
 
         {
 
-            this.Method              = Method;
             this.URL                 = URL;
+            this.Method              = Method  ?? HTTPMethod.POST;
             this.TCPPort             = TCPPort ?? IPPort.HTTPS;
             this.BasicAuth_Login     = BasicAuth_Login;
             this.BasicAuth_Password  = BasicAuth_Password;
             this.APIKey              = APIKey;
+            this.RequestTimeout      = RequestTimeout;
 
         }
 
@@ -345,14 +344,15 @@ namespace org.GraphDefined.OpenData.Notifications
                 url.IsNotNullOrEmpty())
             {
 
-                Notification = new HTTPSNotification(JSON["method"       ] != null ? HTTPMethod.ParseString(JSON["method"].Value<String>()) : HTTPMethod.POST,
-                                                     JSON["URL"          ]?.Value<String>(),
-                                                     JSON["TCPPort"      ] != null ? IPPort.Parse(JSON["TCPPort"].Value<String>()) : IPPort.HTTPS,
-                                                     JSON["basicAuth"    ]?["login"   ]?.Value<String>(),
-                                                     JSON["basicAuth"    ]?["password"]?.Value<String>(),
-                                                     JSON["APIKey"       ]?.Value<String>(),
-                                                     (JSON["messageTypes"] as JArray)?.SafeSelect(element => NotificationMessageType.Parse(element.Value<String>())),
-                                                     JSON["description"  ]?.Value<String>());
+                Notification = new HTTPSNotification(JSON["URL"           ]?.Value<String>(),
+                                                     JSON["method"        ] != null ? HTTPMethod.ParseString(JSON["method"].Value<String>()) : HTTPMethod.POST,
+                                                     JSON["TCPPort"       ] != null ? IPPort.Parse(JSON["TCPPort"].Value<String>()) : IPPort.HTTPS,
+                                                     JSON["basicAuth"     ]?["login"   ]?.Value<String>(),
+                                                     JSON["basicAuth"     ]?["password"]?.Value<String>(),
+                                                     JSON["APIKey"        ]?.Value<String>(),
+                                                     JSON["RequestTimeout"] != null ? TimeSpan.FromSeconds((Double) JSON["RequestTimeout"]?.Value<Int32>()) : new TimeSpan?(),
+                                                     (JSON["messageTypes" ] as JArray)?.SafeSelect(element => NotificationMessageType.Parse(element.Value<String>())),
+                                                     JSON["description"   ]?.Value<String>());
 
                 return true;
 
@@ -372,12 +372,12 @@ namespace org.GraphDefined.OpenData.Notifications
             => JSONObject.Create(
 
                    !Embedded
-                       ? new JProperty("@context",      JSONLDContext)
+                       ? new JProperty("@context",          JSONLDContext)
                        : null,
 
-                   new JProperty("method",              Method.ToString()),
-                   new JProperty("URL",                 URL),
-                   new JProperty("TCPPort",             TCPPort.ToUInt16()),
+                   new JProperty("method",                Method.ToString()),
+                   new JProperty("URL",                   URL),
+                   new JProperty("TCPPort",               TCPPort.ToUInt16()),
 
                    BasicAuth_Login.   IsNotNullOrEmpty() &&
                    BasicAuth_Password.IsNotNullOrEmpty()
@@ -390,15 +390,19 @@ namespace org.GraphDefined.OpenData.Notifications
                        : null,
 
                    APIKey.IsNotNullOrEmpty()
-                       ? new JProperty("APIKey",        APIKey)
+                       ? new JProperty("APIKey",          APIKey)
+                       : null,
+
+                   RequestTimeout.HasValue
+                       ? new JProperty("RequestTimeout",  RequestTimeout.Value.TotalSeconds)
                        : null,
 
                    NotificationMessageTypes.SafeAny()
-                       ? new JProperty("messageTypes",  new JArray(NotificationMessageTypes.Select(msgType => msgType.ToString())))
+                       ? new JProperty("messageTypes",    new JArray(NotificationMessageTypes.Select(msgType => msgType.ToString())))
                        : null,
 
                    Description.IsNotNullOrEmpty()
-                       ? new JProperty("description",   Description)
+                       ? new JProperty("description",     Description)
                        : null
 
                );
@@ -442,10 +446,15 @@ namespace org.GraphDefined.OpenData.Notifications
         public Int32 CompareTo(HTTPSNotification other)
         {
 
-            if (URL.CompareTo(other.URL) != 0)
-                return URL.CompareTo(other.URL);
+            var c = URL.CompareTo(other.URL);
+            if (c != 0)
+                return c;
 
-            return TCPPort.CompareTo(other.TCPPort);
+            c = TCPPort.CompareTo(other.TCPPort);
+            if (c != 0)
+                return c;
+
+            return Method.CompareTo(other.Method);
 
         }
 
@@ -466,9 +475,9 @@ namespace org.GraphDefined.OpenData.Notifications
 
         public Boolean Equals(HTTPSNotification other)
 
-            => Method. Equals(other.Method) &&
-               URL.    Equals(other.URL)    &&
-               TCPPort.Equals(other.URL);
+            => URL.    Equals(other.URL)     &&
+               TCPPort.Equals(other.TCPPort) &&
+               Method. Equals(other.Method);
 
         #endregion
 

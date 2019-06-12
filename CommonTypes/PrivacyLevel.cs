@@ -21,8 +21,10 @@ namespace org.GraphDefined.OpenData
     public enum PrivacyLevel
     {
         Private,
+        Public,
         Internal,
         Friends,
+        Plattform,
         City,
         Country,
         GDPR,

@@ -258,7 +258,12 @@ namespace org.GraphDefined.OpenData.Notifications
                                  String                                Description               = null)
 
             : base(NotificationMessageTypes,
-                   Description)
+                   Description,
+                   String.Concat(nameof(EMailNotification),
+                                 EMailAddress,
+                                 Subject,
+                                 SubjectPrefix,
+                                 ListId))
 
         {
 
@@ -373,18 +378,6 @@ namespace org.GraphDefined.OpenData.Notifications
 
         #endregion
 
-
-        #region SortKey
-
-        public override String SortKey
-
-            => String.Concat(nameof(EMailNotification),
-                             EMailAddress,
-                             Subject,
-                             SubjectPrefix,
-                             ListId);
-
-        #endregion
 
         #region IComparable<EMailNotification> Members
 

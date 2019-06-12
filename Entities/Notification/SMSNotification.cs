@@ -147,8 +147,6 @@ namespace org.GraphDefined.OpenData.Notifications
         #endregion
 
 
-
-
         //public static Notifications UnregisterSMSNotification(this UsersAPI  UsersAPI,
         //                                                      User           User,
         //                                                      PhoneNumber   Phonenumber)
@@ -207,17 +205,20 @@ namespace org.GraphDefined.OpenData.Notifications
 
         #region Constructor(s)
 
-        public SMSNotification(PhoneNumber                           Phonenumber,
+        public SMSNotification(PhoneNumber                           PhoneNumber,
                                String                                TextTemplate              = null,
                                IEnumerable<NotificationMessageType>  NotificationMessageTypes  = null,
                                String                                Description               = null)
 
             : base(NotificationMessageTypes,
-                   Description)
+                   Description,
+                   String.Concat(nameof(EMailNotification),
+                                 PhoneNumber,
+                                 TextTemplate))
 
         {
 
-            this.PhoneNumber   = Phonenumber;
+            this.PhoneNumber   = PhoneNumber;
             this.TextTemplate  = TextTemplate;
 
         }
@@ -310,16 +311,6 @@ namespace org.GraphDefined.OpenData.Notifications
 
         #endregion
 
-
-        #region SortKey
-
-        public override String SortKey
-
-            => String.Concat(nameof(EMailNotification),
-                             PhoneNumber,
-                             TextTemplate);
-
-        #endregion
 
         #region IComparable<SMSNotification> Members
 

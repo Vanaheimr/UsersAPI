@@ -200,32 +200,42 @@ namespace org.GraphDefined.OpenData
 
         #region ToJSON(this Privacylevel)
 
-        public static JProperty ToJSON(this PrivacyLevel Privacylevel)
+        public static JProperty ToJSON(this PrivacyLevel  Privacylevel,
+                                       String             PropertyKey = "privacyLevel")
         {
+
+            if (PropertyKey != null)
+                PropertyKey = PropertyKey.Trim();
+
+            if (PropertyKey.IsNullOrEmpty())
+                PropertyKey = "privacyLevel";
 
             switch (Privacylevel)
             {
 
                 case PrivacyLevel.Private:
-                    return new JProperty("privacyLevel",  "private");
+                    return new JProperty(PropertyKey,  "private");
 
                 case PrivacyLevel.Internal:
-                    return new JProperty("privacyLevel",  "internal");
+                    return new JProperty(PropertyKey,  "internal");
+
+                case PrivacyLevel.Public:
+                    return new JProperty(PropertyKey,  "public");
 
                 case PrivacyLevel.Friends:
-                    return new JProperty("privacyLevel",  "friends");
+                    return new JProperty(PropertyKey,  "friends");
 
                 case PrivacyLevel.City:
-                    return new JProperty("privacyLevel",  "city");
+                    return new JProperty(PropertyKey,  "city");
 
                 case PrivacyLevel.Country:
-                    return new JProperty("privacyLevel",  "country");
+                    return new JProperty(PropertyKey,  "country");
 
                 case PrivacyLevel.GDPR:
-                    return new JProperty("privacyLevel",  "GDPR");
+                    return new JProperty(PropertyKey,  "GDPR");
 
                 default:
-                    return new JProperty("privacyLevel",  "world");
+                    return new JProperty(PropertyKey,  "world");
 
             }
 
@@ -243,6 +253,9 @@ namespace org.GraphDefined.OpenData
 
                 case "world":
                     return PrivacyLevel.World;
+
+                case "public":
+                    return PrivacyLevel.Public;
 
                 case "internal":
                     return PrivacyLevel.Internal;
@@ -279,6 +292,9 @@ namespace org.GraphDefined.OpenData
 
                 case "world":
                     return PrivacyLevel.World;
+
+                case "public":
+                    return PrivacyLevel.Public;
 
                 case "internal":
                     return PrivacyLevel.Internal;
@@ -322,6 +338,11 @@ namespace org.GraphDefined.OpenData
                 case "world":
                     PrivacyLevel   = PrivacyLevel.World;
                     ErrorResponse  = String.Empty;
+                    return true;
+
+                case "public":
+                    PrivacyLevel = PrivacyLevel.Public;
+                    ErrorResponse = String.Empty;
                     return true;
 
                 case "gdpr":
@@ -380,6 +401,10 @@ namespace org.GraphDefined.OpenData
                     PrivacyLevel  = PrivacyLevel.World;
                     return true;
 
+                case "public":
+                    PrivacyLevel  = PrivacyLevel.Public;
+                    return true;
+
                 case "gdpr":
                     PrivacyLevel  = PrivacyLevel.GDPR;
                     return true;
@@ -426,6 +451,9 @@ namespace org.GraphDefined.OpenData
                 case "world":
                     return PrivacyLevel.World;
 
+                case "public":
+                    return PrivacyLevel.Public;
+
                 case "gdpr":
                     return PrivacyLevel.GDPR;
 
@@ -447,8 +475,6 @@ namespace org.GraphDefined.OpenData
             }
 
         }
-
-
 
         #endregion
 
