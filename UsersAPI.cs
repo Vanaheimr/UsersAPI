@@ -1580,34 +1580,34 @@ namespace org.GraphDefined.OpenData.Users
 
         String HTMLTemplate = null;
 
-        protected String MixWithHTMLTemplate(String ResourceName)
-        {
+        //protected String MixWithHTMLTemplate(String ResourceName)
+        //{
 
-            if (HTMLTemplate == null)
-            {
+        //    if (HTMLTemplate == null)
+        //    {
 
-                var OutputStream    = new MemoryStream();
-                var TemplateStream  = GetType().Assembly.GetManifestResourceStream(HTTPRoot + "template.html");
+        //        var OutputStream    = new MemoryStream();
+        //        var TemplateStream  = GetType().Assembly.GetManifestResourceStream(HTTPRoot + "template.html");
 
-                TemplateStream.Seek(0, SeekOrigin.Begin);
-                TemplateStream.CopyTo(OutputStream);
+        //        TemplateStream.Seek(0, SeekOrigin.Begin);
+        //        TemplateStream.CopyTo(OutputStream);
 
-                HTMLTemplate = OutputStream.ToArray().ToUTF8String();
+        //        HTMLTemplate = OutputStream.ToArray().ToUTF8String();
 
-            }
+        //    }
 
-            var HTMLStream      = new MemoryStream();
-            var ResourceStream  = GetType().Assembly.GetManifestResourceStream(HTTPRoot + ResourceName);
+        //    var HTMLStream      = new MemoryStream();
+        //    var ResourceStream  = GetType().Assembly.GetManifestResourceStream(HTTPRoot + ResourceName);
 
-            if (ResourceStream != null)
-            {
-                ResourceStream.Seek(3, SeekOrigin.Begin);
-                ResourceStream.CopyTo(HTMLStream);
-            }
+        //    if (ResourceStream != null)
+        //    {
+        //        ResourceStream.Seek(3, SeekOrigin.Begin);
+        //        ResourceStream.CopyTo(HTMLStream);
+        //    }
 
-            return HTMLTemplate.Replace("<%= content %>", HTMLStream.ToArray().ToUTF8String());
+        //    return HTMLTemplate.Replace("<%= content %>", HTMLStream.ToArray().ToUTF8String());
 
-        }
+        //}
 
         protected String MixWithHTMLTemplate(String HTTPRoot2, String ResourceName)
         {
