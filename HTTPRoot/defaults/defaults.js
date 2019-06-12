@@ -554,6 +554,11 @@ function parseLocalDate(DateString) {
     if (_date.isValid())
         return _date.toISOString();
 }
+function parseUTCDateWithDayOfWeek(UTCString) {
+    moment.locale(window.navigator.language);
+    var date = moment.utc(UTCString).local();
+    return date.format('ddd') + " " + date.format('ll');
+}
 function parseUTCDate(UTCString) {
     moment.locale(window.navigator.language);
     return moment.utc(UTCString).local().format('ll');
