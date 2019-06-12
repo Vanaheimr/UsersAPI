@@ -1577,9 +1577,10 @@ namespace org.GraphDefined.OpenData.Users
         #endregion
 
 
-        #region (private) GetOrganizationSerializator(User)
+        #region (private) GetOrganizationSerializator(Request, User)
 
-        private OrganizationToJSONDelegate GetOrganizationSerializator(User User)
+        private OrganizationToJSONDelegate GetOrganizationSerializator(HTTPRequest  Request,
+                                                                       User         User)
         {
 
             switch (User?.Id.ToString())
@@ -1604,9 +1605,10 @@ namespace org.GraphDefined.OpenData.Users
 
         #endregion
 
-        #region (private) GetBlogPostingSerializator (User)
+        #region (private) GetBlogPostingSerializator (Request, User)
 
-        private BlogPostingToJSONDelegate GetBlogPostingSerializator(User User)
+        private BlogPostingToJSONDelegate GetBlogPostingSerializator(HTTPRequest  Request,
+                                                                     User         User)
         {
 
             switch (User?.Id.ToString())
@@ -2540,6 +2542,12 @@ namespace org.GraphDefined.OpenData.Users
                                                             AccessControlAllowOrigin   = "*",
                                                             AccessControlAllowMethods  = "SET",
                                                             AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
+                                                            ContentType                = HTTPContentType.JSONLD_UTF8,
+                                                            Content                    = JSONObject.Create(
+                                                                                             new JProperty(
+                                                                                                 "description",
+                                                                                                 "Unknown security token 1!")
+                                                                                         ).ToUTF8Bytes(),
                                                             Connection                 = "close"
                                                         }.AsImmutable;
 
@@ -2561,6 +2569,12 @@ namespace org.GraphDefined.OpenData.Users
                                                             AccessControlAllowOrigin   = "*",
                                                             AccessControlAllowMethods  = "SET",
                                                             AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
+                                                            ContentType                = HTTPContentType.JSONLD_UTF8,
+                                                            Content                    = JSONObject.Create(
+                                                                                             new JProperty(
+                                                                                                 "description",
+                                                                                                 "Invalid security token 2!")
+                                                                                         ).ToUTF8Bytes(),
                                                             Connection                 = "close"
                                                         }.AsImmutable;
 
