@@ -556,8 +556,11 @@ function parseLocalDate(DateString) {
 }
 function parseUTCDateWithDayOfWeek(UTCString) {
     moment.locale(window.navigator.language);
-    var date = moment.utc(UTCString).local();
-    return date.format('ddd') + " " + date.format('ll');
+    return moment.utc(UTCString).local().format('ddd ll');
+}
+function parseUTCDateWithDayOfWeekShort(UTCString) {
+    moment.locale(window.navigator.language);
+    return moment.utc(UTCString).local().format('dd, LLL');
 }
 function parseUTCDate(UTCString) {
     moment.locale(window.navigator.language);
