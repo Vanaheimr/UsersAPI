@@ -165,13 +165,16 @@ namespace org.GraphDefined.OpenData
 
                 // Verify that a given tag identification
                 //   is at least valid.
-                if (!JSONObject.ParseOptionalN("@id",
-                                               "tag identification",
-                                               Tag_Id.TryParse,
-                                               out Tag_Id? TagIdBody,
-                                               out ErrorResponse))
+                if (JSONObject.ParseOptionalStruct("@id",
+                                                   "tag identification",
+                                                   Tag_Id.TryParse,
+                                                   out Tag_Id? TagIdBody,
+                                                   out ErrorResponse))
                 {
-                    return false;
+
+                    if (ErrorResponse != null)
+                        return false;
+
                 }
 
                 if (!TagIdURI.HasValue && !TagIdBody.HasValue)
@@ -209,12 +212,15 @@ namespace org.GraphDefined.OpenData
 
                 #region Parse Description      [optional]
 
-                if (!JSONObject.ParseOptional("description",
-                                              "description",
-                                              out I18NString Description,
-                                              out ErrorResponse))
+                if (JSONObject.ParseOptional("description",
+                                             "description",
+                                             out I18NString Description,
+                                             out ErrorResponse))
                 {
-                    return false;
+
+                    if (ErrorResponse != null)
+                        return false;
+
                 }
 
                 #endregion

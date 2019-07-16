@@ -860,13 +860,16 @@ namespace org.GraphDefined.OpenData.Users
 
                 // Verify that a given user identification
                 //   is at least valid.
-                if (!JSONObject.ParseOptionalN("@id",
-                                               "user identification",
-                                               User_Id.TryParse,
-                                               out User_Id? UserIdBody,
-                                               out ErrorResponse))
+                if (JSONObject.ParseOptionalStruct("@id",
+                                                   "user identification",
+                                                   User_Id.TryParse,
+                                                   out User_Id? UserIdBody,
+                                                   out ErrorResponse))
                 {
-                    return false;
+
+                    if (ErrorResponse != null)
+                        return false;
+
                 }
 
                 if (!UserIdURI.HasValue && !UserIdBody.HasValue)
@@ -916,12 +919,15 @@ namespace org.GraphDefined.OpenData.Users
 
                 #region Parse Description      [optional]
 
-                if (!JSONObject.ParseOptional("description",
-                                              "user description",
-                                              out I18NString Description,
-                                              out ErrorResponse))
+                if (JSONObject.ParseOptional("description",
+                                             "user description",
+                                             out I18NString Description,
+                                             out ErrorResponse))
                 {
-                    return false;
+
+                    if (ErrorResponse != null)
+                        return false;
+
                 }
 
                 #endregion
@@ -1006,11 +1012,12 @@ namespace org.GraphDefined.OpenData.Users
                 #region Parse Homepage         [optional]
 
                 if (JSONObject.ParseOptional("homepage",
-                                             out String Homepage))
+                                             out String Homepage,
+                                             out ErrorResponse))
                 {
 
-                    //if (ErrorResponse != null)
-                    //    return false;
+                    if (ErrorResponse != null)
+                        return false;
 
                 }
 
@@ -1018,11 +1025,11 @@ namespace org.GraphDefined.OpenData.Users
 
                 #region Parse GeoLocation      [optional]
 
-                if (!JSONObject.ParseOptionalN("geoLocation",
-                                               "Geo location",
-                                               GeoCoordinate.TryParseJSON,
-                                               out GeoCoordinate? GeoLocation,
-                                               out ErrorResponse))
+                if (JSONObject.ParseOptionalStruct("geoLocation",
+                                                   "Geo location",
+                                                   GeoCoordinate.TryParseJSON,
+                                                   out GeoCoordinate? GeoLocation,
+                                                   out ErrorResponse))
                 {
 
                     if (ErrorResponse != null)
@@ -1036,7 +1043,7 @@ namespace org.GraphDefined.OpenData.Users
 
                 if (JSONObject.ParseOptional("address",
                                              "address",
-                                             Vanaheimr.Illias.Address.Parse,
+                                             Vanaheimr.Illias.Address.TryParse,
                                              out Address Address,
                                              out ErrorResponse))
                 {
@@ -1065,10 +1072,10 @@ namespace org.GraphDefined.OpenData.Users
 
                 #region Parse AcceptedEULA     [optional]
 
-                if (!JSONObject.ParseOptional("acceptedEULA",
-                                              "accepted EULA",
-                                              out DateTime? AcceptedEULA,
-                                              out ErrorResponse))
+                if (JSONObject.ParseOptional("acceptedEULA",
+                                             "accepted EULA",
+                                             out DateTime? AcceptedEULA,
+                                             out ErrorResponse))
                 {
 
                     if (ErrorResponse != null)

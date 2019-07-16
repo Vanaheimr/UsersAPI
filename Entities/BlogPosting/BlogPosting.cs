@@ -350,13 +350,16 @@ namespace org.GraphDefined.OpenData.Postings
 
                 // Verify that a given Posting identification
                 //   is at least valid.
-                if (!JSONObject.ParseOptionalN("@id",
-                                               "Posting identification",
-                                               BlogPosting_Id.TryParse,
-                                               out BlogPosting_Id? PostingIdBody,
-                                               out ErrorResponse))
+                if (JSONObject.ParseOptionalStruct("@id",
+                                                   "Posting identification",
+                                                   BlogPosting_Id.TryParse,
+                                                   out BlogPosting_Id? PostingIdBody,
+                                                   out ErrorResponse))
                 {
-                    return false;
+
+                    if (ErrorResponse != null)
+                        return false;
+
                 }
 
                 if (!PostingIdURI.HasValue && !PostingIdBody.HasValue)
@@ -392,7 +395,7 @@ namespace org.GraphDefined.OpenData.Postings
 
                 #endregion
 
-                #region Parse Text             [optional]
+                #region Parse Text             [mandatory]
 
                 if (!JSONObject.ParseMandatory("text",
                                                "blog posting text",
@@ -408,11 +411,11 @@ namespace org.GraphDefined.OpenData.Postings
 
                 #region Parse GeoLocation      [optional]
 
-                if (!JSONObject.ParseOptionalN("geoLocation",
-                                               "Geo location",
-                                               GeoCoordinate.TryParseJSON,
-                                               out GeoCoordinate? GeoLocation,
-                                               out ErrorResponse))
+                if (JSONObject.ParseOptionalStruct("geoLocation",
+                                                   "Geo location",
+                                                   GeoCoordinate.TryParseJSON,
+                                                   out GeoCoordinate? GeoLocation,
+                                                   out ErrorResponse))
                 {
 
                     if (ErrorResponse != null)

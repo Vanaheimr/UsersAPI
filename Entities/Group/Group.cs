@@ -289,17 +289,20 @@ namespace org.GraphDefined.OpenData.Users
 
                 Group = null;
 
-                #region Parse GroupId   [optional]
+                #region Parse GroupId          [optional]
 
                 // Verify that a given group identification
                 //   is at least valid.
-                if (!JSONObject.ParseOptionalN("@id",
-                                               "group identification",
-                                               Group_Id.TryParse,
-                                               out Group_Id? GroupIdBody,
-                                               out ErrorResponse))
+                if (JSONObject.ParseOptionalStruct("@id",
+                                                   "group identification",
+                                                   Group_Id.TryParse,
+                                                   out Group_Id? GroupIdBody,
+                                                   out ErrorResponse))
                 {
-                    return false;
+
+                    if (ErrorResponse != null)
+                        return false;
+
                 }
 
                 if (!GroupIdURI.HasValue && !GroupIdBody.HasValue)
@@ -337,24 +340,30 @@ namespace org.GraphDefined.OpenData.Users
 
                 #region Parse Name             [optional]
 
-                if (!JSONObject.ParseOptional("name",
-                                              "name",
-                                              out I18NString Name,
-                                              out ErrorResponse))
+                if (JSONObject.ParseOptional("name",
+                                             "name",
+                                             out I18NString Name,
+                                             out ErrorResponse))
                 {
-                    return false;
+
+                    if (ErrorResponse != null)
+                        return false;
+
                 }
 
                 #endregion
 
                 #region Parse Description      [optional]
 
-                if (!JSONObject.ParseOptional("description",
-                                              "description",
-                                              out I18NString Description,
-                                              out ErrorResponse))
+                if (JSONObject.ParseOptional("description",
+                                             "description",
+                                             out I18NString Description,
+                                             out ErrorResponse))
                 {
-                    return false;
+
+                    if (ErrorResponse != null)
+                        return false;
+
                 }
 
                 #endregion

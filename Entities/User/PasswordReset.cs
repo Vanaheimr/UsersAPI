@@ -243,13 +243,16 @@ namespace org.GraphDefined.OpenData.Users
 
                 #region Parse SecurityToken2   [optional]
 
-                if (!JSONObject.ParseOptionalN("securityToken2",
-                                               "security token #2",
-                                               SecurityToken_Id.TryParse,
-                                               out SecurityToken_Id? SecurityToken2,
-                                               out ErrorResponse))
+                if (JSONObject.ParseOptionalStruct("securityToken2",
+                                                   "security token #2",
+                                                   SecurityToken_Id.TryParse,
+                                                   out SecurityToken_Id? SecurityToken2,
+                                                   out ErrorResponse))
                 {
-                    return false;
+
+                    if (ErrorResponse != null)
+                        return false;
+
                 }
 
                 #endregion

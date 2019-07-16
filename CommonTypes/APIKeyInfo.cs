@@ -195,11 +195,11 @@ namespace org.GraphDefined.OpenData.Users
                 #region Parse APIKey           [optional]
 
                 // Verify that a given API key is at least valid.
-                if (!JSONObject.ParseOptionalN("@id",
-                                               "API key",
-                                               APIKey.TryParse,
-                                               out APIKey? APIKeyBody,
-                                               out ErrorResponse))
+                if (!JSONObject.ParseOptionalStruct("@id",
+                                                    "API key",
+                                                    APIKey.TryParse,
+                                                    out APIKey? APIKeyBody,
+                                                    out ErrorResponse))
                 {
                     return false;
                 }
@@ -260,12 +260,15 @@ namespace org.GraphDefined.OpenData.Users
 
                 #region Parse Description      [optional]
 
-                if (!JSONObject.ParseOptional("description",
-                                              "description",
-                                              out I18NString Description,
-                                              out ErrorResponse))
+                if (JSONObject.ParseOptional("description",
+                                             "description",
+                                             out I18NString Description,
+                                             out ErrorResponse))
                 {
-                    return false;
+
+                    if (ErrorResponse != null)
+                        return false;
+
                 }
 
                 #endregion
@@ -297,24 +300,30 @@ namespace org.GraphDefined.OpenData.Users
 
                 #region Parse NotBefore        [optional]
 
-                if (!JSONObject.ParseOptional("NotBefore",
-                                              "'not-valid-before'-timestamp",
-                                              out DateTime? NotBefore,
-                                              out ErrorResponse))
+                if (JSONObject.ParseOptional("NotBefore",
+                                             "'not-valid-before'-timestamp",
+                                             out DateTime? NotBefore,
+                                             out ErrorResponse))
                 {
-                    return false;
+
+                    if (ErrorResponse != null)
+                        return false;
+
                 }
 
                 #endregion
 
                 #region Parse NotAfter         [optional]
 
-                if (!JSONObject.ParseOptional("NotAfter",
-                                              "'not-valid-after'-timestamp",
-                                              out DateTime? NotAfter,
-                                              out ErrorResponse))
+                if (JSONObject.ParseOptional("NotAfter",
+                                             "'not-valid-after'-timestamp",
+                                             out DateTime? NotAfter,
+                                             out ErrorResponse))
                 {
-                    return false;
+
+                    if (ErrorResponse != null)
+                        return false;
+
                 }
 
                 #endregion

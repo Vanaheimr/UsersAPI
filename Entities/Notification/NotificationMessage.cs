@@ -215,13 +215,16 @@ namespace org.GraphDefined.OpenData.Notifications
 
                 // Verify that a given NotificationMessage identification
                 //   is at least valid.
-                if (!JSONObject.ParseOptionalN("@id",
-                                               "NotificationMessage identification",
-                                               NotificationMessage_Id.TryParse,
-                                               out NotificationMessage_Id? NotificationMessageIdBody,
-                                               out ErrorResponse))
+                if (JSONObject.ParseOptionalStruct("@id",
+                                                   "NotificationMessage identification",
+                                                   NotificationMessage_Id.TryParse,
+                                                   out NotificationMessage_Id? NotificationMessageIdBody,
+                                                   out ErrorResponse))
                 {
-                    return false;
+
+                    if (ErrorResponse != null)
+                        return false;
+
                 }
 
                 if (!NotificationMessageIdURI.HasValue && !NotificationMessageIdBody.HasValue)
@@ -348,12 +351,15 @@ namespace org.GraphDefined.OpenData.Notifications
 
                 #region Parse Signatures              [optional]
 
-                if (!JSONObject.ParseOptional("signatures",
-                                              "Signatures",
-                                              out JArray Signatures,
-                                              out ErrorResponse))
+                if (JSONObject.ParseOptional("signatures",
+                                             "Signatures",
+                                             out JArray Signatures,
+                                             out ErrorResponse))
                 {
-                    return false;
+
+                    if (ErrorResponse != null)
+                        return false;
+
                 }
 
                 #endregion

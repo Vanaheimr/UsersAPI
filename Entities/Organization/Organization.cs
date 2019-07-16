@@ -561,13 +561,16 @@ namespace org.GraphDefined.OpenData.Users
 
                 // Verify that a given organization identification
                 //   is at least valid.
-                if (!JSONObject.ParseOptionalN("@id",
-                                               "organization identification",
-                                               Organization_Id.TryParse,
-                                               out Organization_Id? OrganizationIdBody,
-                                               out ErrorResponse))
+                if (JSONObject.ParseOptionalStruct("@id",
+                                                   "organization identification",
+                                                   Organization_Id.TryParse,
+                                                   out Organization_Id? OrganizationIdBody,
+                                                   out ErrorResponse))
                 {
-                    return false;
+
+                    if (ErrorResponse != null)
+                        return false;
+
                 }
 
                 if (!OrganizationIdURI.HasValue && !OrganizationIdBody.HasValue)
@@ -617,10 +620,10 @@ namespace org.GraphDefined.OpenData.Users
 
                 #region Parse Description      [optional]
 
-                if (!JSONObject.ParseOptional("description",
-                                              "description",
-                                              out I18NString Description,
-                                              out ErrorResponse))
+                if (JSONObject.ParseOptional("description",
+                                             "description",
+                                             out I18NString Description,
+                                             out ErrorResponse))
                 {
 
                     if (ErrorResponse != null)
@@ -632,11 +635,11 @@ namespace org.GraphDefined.OpenData.Users
 
                 #region Parse E-Mail           [optional]
 
-                if (!JSONObject.ParseOptionalN("email",
-                                               "e-mail address",
-                                               SimpleEMailAddress.TryParse,
-                                               out SimpleEMailAddress? EMail,
-                                               out ErrorResponse))
+                if (JSONObject.ParseOptionalStruct("email",
+                                                   "e-mail address",
+                                                   SimpleEMailAddress.TryParse,
+                                                   out SimpleEMailAddress? EMail,
+                                                   out ErrorResponse))
                 {
 
                     if (ErrorResponse != null)
@@ -648,21 +651,25 @@ namespace org.GraphDefined.OpenData.Users
 
                 #region Parse PublicKey        [optional]
 
-                if (!JSONObject.ParseOptional("publicKey",
-                                              out String PublicKey))
+                if (JSONObject.ParseOptional("publicKey",
+                                             out String PublicKey,
+                                             out ErrorResponse))
                 {
-                    return false;
+
+                    if (ErrorResponse != null)
+                        return false;
+
                 }
 
                 #endregion
 
                 #region Parse Telephone        [optional]
 
-                if (!JSONObject.ParseOptional("telephone",
-                                              "phone number",
-                                              PhoneNumber.TryParse,
-                                              out PhoneNumber? Telephone,
-                                              out ErrorResponse))
+                if (JSONObject.ParseOptional("telephone",
+                                             "phone number",
+                                             PhoneNumber.TryParse,
+                                             out PhoneNumber? Telephone,
+                                             out ErrorResponse))
                 {
 
                     if (ErrorResponse != null)
@@ -674,11 +681,11 @@ namespace org.GraphDefined.OpenData.Users
 
                 #region Parse GeoLocation      [optional]
 
-                if (!JSONObject.ParseOptionalN("geoLocation",
-                                               "geo location",
-                                               GeoCoordinate.TryParseJSON,
-                                               out GeoCoordinate? GeoLocation,
-                                               out ErrorResponse))
+                if (JSONObject.ParseOptionalStruct("geoLocation",
+                                                   "geo location",
+                                                   GeoCoordinate.TryParseJSON,
+                                                   out GeoCoordinate? GeoLocation,
+                                                   out ErrorResponse))
                 {
 
                     if (ErrorResponse != null)
@@ -692,7 +699,7 @@ namespace org.GraphDefined.OpenData.Users
 
                 if (JSONObject.ParseOptional("address",
                                              "address",
-                                             Vanaheimr.Illias.Address.Parse,
+                                             Vanaheimr.Illias.Address.TryParse,
                                              out Address Address,
                                              out ErrorResponse))
                 {

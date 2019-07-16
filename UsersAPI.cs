@@ -2540,13 +2540,13 @@ namespace org.GraphDefined.OpenData.Users
 
                                              #region Parse SecurityToken2   [optional]
 
-                                             if (!JSONObj.ParseOptionalN("securityToken2",
-                                                                         "security token #2",
-                                                                         HTTPServer.DefaultServerName,
-                                                                         SecurityToken_Id.TryParse,
-                                                                         out SecurityToken_Id? SecurityToken2,
-                                                                         Request,
-                                                                         out ErrorResponse))
+                                             if (!JSONObj.ParseOptionalStruct("securityToken2",
+                                                                              "security token #2",
+                                                                              HTTPServer.DefaultServerName,
+                                                                              SecurityToken_Id.TryParse,
+                                                                              out SecurityToken_Id? SecurityToken2,
+                                                                              Request,
+                                                                              out ErrorResponse))
                                              {
                                                  return HTTPResponse;
                                              }
@@ -2803,13 +2803,13 @@ namespace org.GraphDefined.OpenData.Users
 
                                               // Verify that a given user identification
                                               //   is at least valid.
-                                              if (JSONObj.ParseOptionalN("@id",
-                                                                         "user identification",
-                                                                         HTTPServer.DefaultHTTPServerName,
-                                                                         User_Id.TryParse,
-                                                                         out User_Id? UserIdBody,
-                                                                         Request,
-                                                                         out ErrorResponse))
+                                              if (JSONObj.ParseOptionalStruct("@id",
+                                                                              "user identification",
+                                                                              HTTPServer.DefaultHTTPServerName,
+                                                                              User_Id.TryParse,
+                                                                              out User_Id? UserIdBody,
+                                                                              Request,
+                                                                              out ErrorResponse))
                                               {
 
                                                   if (ErrorResponse != null)
@@ -3097,13 +3097,13 @@ namespace org.GraphDefined.OpenData.Users
 
                                               // Verify that a given user identification
                                               //   is at least valid.
-                                              if (JSONObj.ParseOptionalN("organization",
-                                                                         "organization",
-                                                                         HTTPServer.DefaultHTTPServerName,
-                                                                         Organization_Id.TryParse,
-                                                                         out Organization_Id? OrganizationId,
-                                                                         Request,
-                                                                         out ErrorResponse))
+                                              if (JSONObj.ParseOptionalStruct("organization",
+                                                                              "organization",
+                                                                              HTTPServer.DefaultHTTPServerName,
+                                                                              Organization_Id.TryParse,
+                                                                              out Organization_Id? OrganizationId,
+                                                                              Request,
+                                                                              out ErrorResponse))
                                               {
 
                                                   if (ErrorResponse != null)
