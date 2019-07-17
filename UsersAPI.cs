@@ -2540,7 +2540,7 @@ namespace org.GraphDefined.OpenData.Users
 
                                              #region Parse SecurityToken2   [optional]
 
-                                             if (!JSONObj.ParseOptionalStruct("securityToken2",
+                                             if (!JSONObj.ParseOptionalStruct2("securityToken2",
                                                                               "security token #2",
                                                                               HTTPServer.DefaultServerName,
                                                                               SecurityToken_Id.TryParse,
@@ -2803,7 +2803,7 @@ namespace org.GraphDefined.OpenData.Users
 
                                               // Verify that a given user identification
                                               //   is at least valid.
-                                              if (JSONObj.ParseOptionalStruct("@id",
+                                              if (JSONObj.ParseOptionalStruct2("@id",
                                                                               "user identification",
                                                                               HTTPServer.DefaultHTTPServerName,
                                                                               User_Id.TryParse,
@@ -3097,7 +3097,7 @@ namespace org.GraphDefined.OpenData.Users
 
                                               // Verify that a given user identification
                                               //   is at least valid.
-                                              if (JSONObj.ParseOptionalStruct("organization",
+                                              if (JSONObj.ParseOptionalStruct2("organization",
                                                                               "organization",
                                                                               HTTPServer.DefaultHTTPServerName,
                                                                               Organization_Id.TryParse,
