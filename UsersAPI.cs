@@ -193,7 +193,7 @@ namespace org.GraphDefined.OpenData.Users
 
             }
 
-            if (!UsersAPI.TryGetUser(UserId.Value, out User)) {
+            if (!UsersAPI.TryGet(UserId.Value, out User)) {
 
                 HTTPResponse = new HTTPResponse.Builder(HTTPRequest) {
                     HTTPStatusCode  = HTTPStatusCode.NotFound,
@@ -2366,7 +2366,7 @@ namespace org.GraphDefined.OpenData.Users
                                              var Users = new HashSet<User>();
 
                                              if (User_Id.TryParse(UserIdOrEMailJSON, out User_Id UserId) &&
-                                                 TryGetUser(UserId, out User User))
+                                                 TryGet(UserId, out User User))
                                              {
                                                  Users.Add(User);
                                              }
@@ -2680,7 +2680,7 @@ namespace org.GraphDefined.OpenData.Users
                                                  #region Send e-mail...
 
                                                  var MailSentResult = MailSentStatus.failed;
-                                                 var user           = await GetUser(userId);
+                                                 var user           = Get(userId);
 
                                                  var MailResultTask = APISMTPClient.Send(PasswordChangedEMailCreator(user.Id,
                                                                                                                      user.EMail,
@@ -3900,7 +3900,7 @@ namespace org.GraphDefined.OpenData.Users
                                                  return HTTPResponse;
                                              }
 
-                                             if (!TryGetUser(UserIdURI.Value, out User UserURI))
+                                             if (!TryGet(UserIdURI.Value, out User UserURI))
                                              {
 
                                                  return new HTTPResponse.Builder(Request) {
@@ -4020,7 +4020,7 @@ namespace org.GraphDefined.OpenData.Users
                                                  return Task.FromResult(HTTPResponse);
                                              }
 
-                                             if (!TryGetUser(UserIdURI.Value, out User UserURI))
+                                             if (!TryGet(UserIdURI.Value, out User UserURI))
                                              {
 
                                                  return Task.FromResult(
@@ -5153,7 +5153,7 @@ namespace org.GraphDefined.OpenData.Users
 
                                                      }
 
-                                                     Admin = await GetUser(admin.Value);
+                                                     Admin = Get(admin.Value);
 
                                                      if (Admin == null)
                                                      {
@@ -6061,7 +6061,7 @@ namespace org.GraphDefined.OpenData.Users
                         break;
                     }
 
-                    if (!TryGetUser(U2O_UserId, out User U2O_User))
+                    if (!TryGet(U2O_UserId, out User U2O_User))
                     {
                         DebugX.Log(String.Concat(nameof(UsersAPI), " ", Command, ": ", "Unknown user '" + U2O_UserId + "'!"));
                         break;
@@ -6163,7 +6163,7 @@ namespace org.GraphDefined.OpenData.Users
                     if (JSONObject["userId"  ]?.Value<String>().IsNotNullOrEmpty() == true &&
                         JSONObject["@context"]?.Value<String>().IsNotNullOrEmpty() == true &&
                         User_Id.TryParse(JSONObject["userId"]?.Value<String>(), out UserId) &&
-                        TryGetUser(UserId, out _User))
+                        TryGet(UserId, out _User))
                     {
 
                         switch (JSONObject["@context"]?.Value<String>())
@@ -6225,7 +6225,7 @@ namespace org.GraphDefined.OpenData.Users
                     if (JSONObject["userId"  ]?.Value<String>().IsNotNullOrEmpty() == true &&
                         JSONObject["@context"]?.Value<String>().IsNotNullOrEmpty() == true &&
                         User_Id.TryParse(JSONObject["userId"]?.Value<String>(), out UserId) &&
-                        TryGetUser(UserId, out _User))
+                        TryGet(UserId, out _User))
                     {
 
                         switch (JSONObject["@context"]?.Value<String>())
@@ -6378,7 +6378,7 @@ namespace org.GraphDefined.OpenData.Users
                 SecurityToken_Id.TryParse   (Value,                  out SecurityToken_Id  SecurityTokenId)     &&
                 HTTPCookies.     TryGetValue(SecurityTokenId,        out SecurityToken     SecurityInformation) &&
                 DateTime.UtcNow < SecurityInformation.Expires                                                   &&
-                TryGetUser(SecurityInformation.UserId, out User))
+                TryGet(SecurityInformation.UserId, out User))
             {
                 return true;
             }
@@ -6389,7 +6389,7 @@ namespace org.GraphDefined.OpenData.Users
 
             if (Request.Authorization?.HTTPCredentialType == HTTPAuthenticationTypes.Basic &&
                 User_Id.TryParse(Request.Authorization.Username, out User_Id UserId)       &&
-                TryGetUser                 (UserId, out User)                              &&
+                TryGet                 (UserId, out User)                              &&
                 _LoginPasswords.TryGetValue(UserId, out LoginPassword Password)            &&
                 Password.VerifyPassword(Request.Authorization.Password))
             {
@@ -6431,7 +6431,7 @@ namespace org.GraphDefined.OpenData.Users
                 SecurityToken_Id.TryParse   (Value,                  out SecurityToken_Id  SecurityTokenId)     &&
                 HTTPCookies.     TryGetValue(SecurityTokenId,        out SecurityToken     SecurityInformation) &&
                 DateTime.UtcNow < SecurityInformation.Expires                                                   &&
-                TryGetUser(SecurityInformation.Astronaut ?? SecurityInformation.UserId, out User))
+                TryGet(SecurityInformation.Astronaut ?? SecurityInformation.UserId, out User))
             {
                 return true;
             }
@@ -7758,19 +7758,19 @@ namespace org.GraphDefined.OpenData.Users
 
         #endregion
 
-        #region GetUser          (UserId)
+        #region Get              (UserId)
 
         /// <summary>
         /// Get the user having the given unique identification.
         /// </summary>
         /// <param name="UserId">The unique identification of the user.</param>
-        public async Task<User> GetUser(User_Id  UserId)
+        public User Get(User_Id  UserId)
         {
 
             try
             {
 
-                await UsersSemaphore.WaitAsync();
+                UsersSemaphore.Wait();
 
                 if (_Users.TryGetValue(UserId, out User User))
                     return User;
@@ -7786,6 +7786,74 @@ namespace org.GraphDefined.OpenData.Users
         }
 
         #endregion
+
+        #region SearchUsersByName(Username)
+
+        /// <summary>
+        /// Find all users having the given user name.
+        /// </summary>
+        /// <param name="Username">The name of a user (might not be unique).</param>
+        public IEnumerable<User> SearchUsersByName(String  Username)
+        {
+
+            try
+            {
+
+                UsersSemaphore.Wait();
+
+                var FoundUsers = new List<User>();
+
+                foreach (var user in _Users.Values)
+                    if (user.Name == Username)
+                        FoundUsers.Add(user);
+
+                return FoundUsers;
+
+            }
+            finally
+            {
+                UsersSemaphore.Release();
+            }
+
+        }
+
+        #endregion
+
+        #region SearchUsersByName(Username, out Users)
+
+        /// <summary>
+        /// Find all users having the given user name.
+        /// </summary>
+        /// <param name="Username">The name of a user (might not be unique).</param>
+        /// <param name="Users">An enumeration of matching users.</param>
+        public Boolean SearchUsersByName(String Username, out IEnumerable<User> Users)
+        {
+
+            try
+            {
+
+                UsersSemaphore.Wait();
+
+                var FoundUsers = new List<User>();
+
+                foreach (var user in _Users.Values)
+                    if (user.Name == Username)
+                        FoundUsers.Add(user);
+
+                Users = FoundUsers;
+
+                return FoundUsers.Count > 0;
+
+            }
+            finally
+            {
+                UsersSemaphore.Release();
+            }
+
+        }
+
+        #endregion
+
 
         #region UserExists       (UserId)
 
@@ -7813,15 +7881,15 @@ namespace org.GraphDefined.OpenData.Users
 
         #endregion
 
-        #region TryGetUser       (UserId, out User)
+        #region TryGet           (UserId, out User)
 
         /// <summary>
         /// Try to get the user having the given unique identification.
         /// </summary>
         /// <param name="UserId">The unique identification of the user.</param>
         /// <param name="User">The user.</param>
-        public Boolean TryGetUser(User_Id   UserId,
-                                  out User  User)
+        public Boolean TryGet(User_Id   UserId,
+                              out User  User)
         {
 
             try
@@ -8253,6 +8321,258 @@ namespace org.GraphDefined.OpenData.Users
         #endregion
 
 
+        #region (protected internal) SetOrganizationRequest (Request)
+
+        /// <summary>
+        /// An event sent whenever set organization (data) request was received.
+        /// </summary>
+        public event RequestLogHandler OnSetOrganizationRequest;
+
+        protected internal HTTPRequest SetOrganizationRequest(HTTPRequest Request)
+        {
+
+            OnSetOrganizationRequest?.Invoke(Request.Timestamp,
+                                              HTTPServer,
+                                              Request);
+
+            return Request;
+
+        }
+
+        #endregion
+
+        #region (protected internal) SetOrganizationResponse(Response)
+
+        /// <summary>
+        /// An event sent whenever a response on a set organization (data) request was sent.
+        /// </summary>
+        public event AccessLogHandler OnSetOrganizationResponse;
+
+        protected internal HTTPResponse SetOrganizationResponse(HTTPResponse Response)
+        {
+
+            OnSetOrganizationResponse?.Invoke(Response.Timestamp,
+                                               HTTPServer,
+                                               Response.HTTPRequest,
+                                               Response);
+
+            return Response;
+
+        }
+
+        #endregion
+
+
+        #region Contains      (OrganizationId)
+
+        /// <summary>
+        /// Whether this API contains a organization having the given unique identification.
+        /// </summary>
+        /// <param name="OrganizationId">The unique identification of the organization.</param>
+        public Boolean Contains(Organization_Id OrganizationId)
+        {
+
+            try
+            {
+
+                OrganizationsSemaphore.Wait();
+
+                return _Organizations.ContainsKey(OrganizationId);
+
+            }
+            finally
+            {
+                OrganizationsSemaphore.Release();
+            }
+
+        }
+
+        #endregion
+
+        #region Get           (OrganizationId)
+
+        /// <summary>
+        /// Get the organization having the given unique identification.
+        /// </summary>
+        /// <param name="OrganizationId">The unique identification of the organization.</param>
+        public async Task<Organization> Get(Organization_Id  OrganizationId)
+        {
+
+            try
+            {
+
+                await OrganizationsSemaphore.WaitAsync();
+
+                if (_Organizations.TryGetValue(OrganizationId, out Organization Organization))
+                    return Organization;
+
+                return null;
+
+            }
+            finally
+            {
+                OrganizationsSemaphore.Release();
+            }
+
+        }
+
+        #endregion
+
+        #region TryGet        (OrganizationId, out Organization)
+
+        /// <summary>
+        /// Try to get the organization having the given unique identification.
+        /// </summary>
+        /// <param name="OrganizationId">The unique identification of the organization.</param>
+        /// <param name="Organization">The organization.</param>
+        public Boolean TryGet(Organization_Id   OrganizationId,
+                              out Organization  Organization)
+        {
+
+            try
+            {
+
+                OrganizationsSemaphore.Wait();
+
+                return _Organizations.TryGetValue(OrganizationId, out Organization);
+
+            }
+            finally
+            {
+                OrganizationsSemaphore.Release();
+            }
+
+        }
+
+        #endregion
+
+        #region SearchOrganizationsByName(OrganizationName)
+
+        /// <summary>
+        /// Find all organizations having the given name.
+        /// </summary>
+        /// <param name="OrganizationName">The name of an organization (might not be unique).</param>
+        public IEnumerable<Organization> SearchOrganizationsByName(String OrganizationName)
+        {
+
+            try
+            {
+
+                OrganizationsSemaphore.Wait();
+
+                var FoundOrganizations = new List<Organization>();
+
+                foreach (var organization in _Organizations.Values)
+                    if (organization.Name.Any(i18npair => i18npair.Text == OrganizationName))
+                        FoundOrganizations.Add(organization);
+
+                return FoundOrganizations;
+
+            }
+            finally
+            {
+                OrganizationsSemaphore.Release();
+            }
+
+        }
+
+        /// <summary>
+        /// Find all organizations having the given name.
+        /// </summary>
+        /// <param name="OrganizationName">The name of an organization (might not be unique).</param>
+        public IEnumerable<Organization> SearchOrganizationsByName(I18NString OrganizationName)
+        {
+
+            try
+            {
+
+                OrganizationsSemaphore.Wait();
+
+                var FoundOrganizations = new List<Organization>();
+
+                foreach (var organization in _Organizations.Values)
+                    if (organization.Name == OrganizationName)
+                        FoundOrganizations.Add(organization);
+
+                return FoundOrganizations;
+
+            }
+            finally
+            {
+                OrganizationsSemaphore.Release();
+            }
+
+        }
+
+        #endregion
+
+        #region SearchOrganizationsByName(OrganizationName, out Organizations)
+
+        /// <summary>
+        /// Find all organizations having the given name.
+        /// </summary>
+        /// <param name="OrganizationName">The name of an organization (might not be unique).</param>
+        /// <param name="Organizations">An enumeration of matching organizations.</param>
+        public Boolean SearchOrganizationsByName(String OrganizationName, out IEnumerable<Organization> Organizations)
+        {
+
+            try
+            {
+
+                OrganizationsSemaphore.Wait();
+
+                var FoundOrganizations = new List<Organization>();
+
+                foreach (var organization in _Organizations.Values)
+                    if (organization.Name.Any(i18npair => i18npair.Text == OrganizationName))
+                        FoundOrganizations.Add(organization);
+
+                Organizations = FoundOrganizations;
+
+                return FoundOrganizations.Count > 0;
+
+            }
+            finally
+            {
+                OrganizationsSemaphore.Release();
+            }
+
+        }
+
+        /// <summary>
+        /// Find all organizations having the given name.
+        /// </summary>
+        /// <param name="OrganizationName">The name of an organization (might not be unique).</param>
+        /// <param name="Organizations">An enumeration of matching organizations.</param>
+        public Boolean SearchOrganizationsByName(I18NString OrganizationName, out IEnumerable<Organization> Organizations)
+        {
+
+            try
+            {
+
+                OrganizationsSemaphore.Wait();
+
+                var FoundOrganizations = new List<Organization>();
+
+                foreach (var organization in _Organizations.Values)
+                    if (organization.Name == OrganizationName)
+                        FoundOrganizations.Add(organization);
+
+                Organizations = FoundOrganizations;
+
+                return FoundOrganizations.Count > 0;
+
+            }
+            finally
+            {
+                OrganizationsSemaphore.Release();
+            }
+
+        }
+
+        #endregion
+
+
         #region AddToOrganization(User, Edge, Organization, PrivacyLevel = Private)
 
         protected async Task<Boolean> _AddToOrganization(User                    User,
@@ -8456,132 +8776,6 @@ namespace org.GraphDefined.OpenData.Users
 
         #endregion
 
-
-        #region (protected internal) SetOrganizationRequest (Request)
-
-        /// <summary>
-        /// An event sent whenever set organization (data) request was received.
-        /// </summary>
-        public event RequestLogHandler OnSetOrganizationRequest;
-
-        protected internal HTTPRequest SetOrganizationRequest(HTTPRequest Request)
-        {
-
-            OnSetOrganizationRequest?.Invoke(Request.Timestamp,
-                                              HTTPServer,
-                                              Request);
-
-            return Request;
-
-        }
-
-        #endregion
-
-        #region (protected internal) SetOrganizationResponse(Response)
-
-        /// <summary>
-        /// An event sent whenever a response on a set organization (data) request was sent.
-        /// </summary>
-        public event AccessLogHandler OnSetOrganizationResponse;
-
-        protected internal HTTPResponse SetOrganizationResponse(HTTPResponse Response)
-        {
-
-            OnSetOrganizationResponse?.Invoke(Response.Timestamp,
-                                               HTTPServer,
-                                               Response.HTTPRequest,
-                                               Response);
-
-            return Response;
-
-        }
-
-        #endregion
-
-
-        #region Contains      (OrganizationId)
-
-        /// <summary>
-        /// Whether this API contains a organization having the given unique identification.
-        /// </summary>
-        /// <param name="OrganizationId">The unique identification of the organization.</param>
-        public Boolean Contains(Organization_Id OrganizationId)
-        {
-
-            try
-            {
-
-                OrganizationsSemaphore.Wait();
-
-                return _Organizations.ContainsKey(OrganizationId);
-
-            }
-            finally
-            {
-                OrganizationsSemaphore.Release();
-            }
-
-        }
-
-        #endregion
-
-        #region Get           (OrganizationId)
-
-        /// <summary>
-        /// Get the organization having the given unique identification.
-        /// </summary>
-        /// <param name="OrganizationId">The unique identification of the organization.</param>
-        public async Task<Organization> Get(Organization_Id  OrganizationId)
-        {
-
-            try
-            {
-
-                await OrganizationsSemaphore.WaitAsync();
-
-                if (_Organizations.TryGetValue(OrganizationId, out Organization Organization))
-                    return Organization;
-
-                return null;
-
-            }
-            finally
-            {
-                OrganizationsSemaphore.Release();
-            }
-
-        }
-
-        #endregion
-
-        #region TryGet        (OrganizationId, out Organization)
-
-        /// <summary>
-        /// Try to get the organization having the given unique identification.
-        /// </summary>
-        /// <param name="OrganizationId">The unique identification of the organization.</param>
-        /// <param name="Organization">The organization.</param>
-        public Boolean TryGet(Organization_Id   OrganizationId,
-                              out Organization  Organization)
-        {
-
-            try
-            {
-
-                OrganizationsSemaphore.Wait();
-
-                return _Organizations.TryGetValue(OrganizationId, out Organization);
-
-            }
-            finally
-            {
-                OrganizationsSemaphore.Release();
-            }
-
-        }
-
-        #endregion
-
         #endregion
 
         #region Groups
@@ -8748,6 +8942,133 @@ namespace org.GraphDefined.OpenData.Users
 
         #endregion
 
+        #region SearchGroupsByName(GroupName)
+
+        /// <summary>
+        /// Find all groups having the given name.
+        /// </summary>
+        /// <param name="GroupName">The name of an group (might not be unique).</param>
+        public IEnumerable<Group> SearchGroupsByName(String GroupName)
+        {
+
+            try
+            {
+
+                GroupsSemaphore.Wait();
+
+                var FoundGroups = new List<Group>();
+
+                foreach (var group in _Groups.Values)
+                    if (group.Name.Any(i18npair => i18npair.Text == GroupName))
+                        FoundGroups.Add(group);
+
+                return FoundGroups;
+
+            }
+            finally
+            {
+                GroupsSemaphore.Release();
+            }
+
+        }
+
+        /// <summary>
+        /// Find all groups having the given name.
+        /// </summary>
+        /// <param name="GroupName">The name of an group (might not be unique).</param>
+        public IEnumerable<Group> SearchGroupsByName(I18NString GroupName)
+        {
+
+            try
+            {
+
+                GroupsSemaphore.Wait();
+
+                var FoundGroups = new List<Group>();
+
+                foreach (var group in _Groups.Values)
+                    if (group.Name == GroupName)
+                        FoundGroups.Add(group);
+
+                return FoundGroups;
+
+            }
+            finally
+            {
+                GroupsSemaphore.Release();
+            }
+
+        }
+
+        #endregion
+
+        #region SearchGroupsByName(GroupName, out Groups)
+
+        /// <summary>
+        /// Find all groups having the given name.
+        /// </summary>
+        /// <param name="GroupName">The name of an group (might not be unique).</param>
+        /// <param name="Groups">An enumeration of matching groups.</param>
+        public Boolean SearchGroupsByName(String GroupName, out IEnumerable<Group> Groups)
+        {
+
+            try
+            {
+
+                GroupsSemaphore.Wait();
+
+                var FoundGroups = new List<Group>();
+
+                foreach (var group in _Groups.Values)
+                    if (group.Name.Any(i18npair => i18npair.Text == GroupName))
+                        FoundGroups.Add(group);
+
+                Groups = FoundGroups;
+
+                return FoundGroups.Count > 0;
+
+            }
+            finally
+            {
+                GroupsSemaphore.Release();
+            }
+
+        }
+
+        /// <summary>
+        /// Find all groups having the given name.
+        /// </summary>
+        /// <param name="GroupName">The name of an group (might not be unique).</param>
+        /// <param name="Groups">An enumeration of matching groups.</param>
+        public Boolean SearchGroupsByName(I18NString GroupName, out IEnumerable<Group> Groups)
+        {
+
+            try
+            {
+
+                GroupsSemaphore.Wait();
+
+                var FoundGroups = new List<Group>();
+
+                foreach (var group in _Groups.Values)
+                    if (group.Name == GroupName)
+                        FoundGroups.Add(group);
+
+                Groups = FoundGroups;
+
+                return FoundGroups.Count > 0;
+
+            }
+            finally
+            {
+                GroupsSemaphore.Release();
+            }
+
+        }
+
+        #endregion
+
+
         #region AddToGroup(User, Edge, Group, PrivacyLevel = Private)
 
         public async Task<Boolean> AddToGroup(User             User,
@@ -8836,7 +9157,7 @@ namespace org.GraphDefined.OpenData.Users
         public Access_Levels IsAdmin(User_Id UserId)
         {
 
-            if (TryGetUser(UserId, out User User))
+            if (TryGet(UserId, out User User))
                 return IsAdmin(User);
 
             return Access_Levels.None;
@@ -9256,7 +9577,7 @@ namespace org.GraphDefined.OpenData.Users
         public IEnumerable<ANotification> GetNotifications<T>(User_Id                   UserId,
                                                                   NotificationMessageType?  NotificationMessageType = null)
 
-            => TryGetUser(UserId, out User User)
+            => TryGet(UserId, out User User)
                    ? User.GetNotifications(NotificationMessageType)
                    : new ANotification[0];
 
@@ -9280,7 +9601,7 @@ namespace org.GraphDefined.OpenData.Users
 
             where T : ANotification
 
-            => TryGetUser(UserId, out User User)
+            => TryGet(UserId, out User User)
                    ? User.GetNotificationsOf<T>(NotificationMessageTypes)
                    : new T[0];
 
@@ -9301,7 +9622,7 @@ namespace org.GraphDefined.OpenData.Users
         public IEnumerable<ANotification> GetNotifications(User_Id                                 UserId,
                                                            Func<NotificationMessageType, Boolean>  NotificationMessageTypeFilter)
 
-            => TryGetUser(UserId, out User User)
+            => TryGet(UserId, out User User)
                    ? User.GetNotifications(NotificationMessageTypeFilter)
                    : new ANotification[0];
 
@@ -9325,7 +9646,7 @@ namespace org.GraphDefined.OpenData.Users
 
             where T : ANotification
 
-            => TryGetUser(UserId, out User User)
+            => TryGet(UserId, out User User)
                    ? User.GetNotificationsOf<T>(NotificationMessageTypeFilter)
                    : new T[0];
 

@@ -37,6 +37,8 @@ namespace org.GraphDefined.OpenData.Users
 
         #region Data
 
+        private static readonly Random _random = new Random(DateTime.Now.Millisecond);
+
         /// <summary>
         /// The internal identification.
         /// </summary>
@@ -80,6 +82,18 @@ namespace org.GraphDefined.OpenData.Users
 
         #endregion
 
+
+        #region (static) Random(Length)
+
+        /// <summary>
+        /// Create a new user identification.
+        /// </summary>
+        /// <param name="Length">The expected length of the user identification.</param>
+        public static User_Id Random(Byte Length = 15)
+
+            => new User_Id(_random.RandomString(Length).ToUpper());
+
+        #endregion
 
         #region (static) Parse   (Text, Realm = null)
 
