@@ -37,6 +37,11 @@ namespace org.GraphDefined.OpenData.Users
         #region Data
 
         /// <summary>
+        /// Private non-cryptographic random number generator.
+        /// </summary>
+        private static readonly Random _random = new Random(DateTime.Now.Millisecond);
+
+        /// <summary>
         /// The internal identification.
         /// </summary>
         private readonly String InternalId;
@@ -66,6 +71,18 @@ namespace org.GraphDefined.OpenData.Users
 
         #endregion
 
+
+        #region (static) Random(Length)
+
+        /// <summary>
+        /// Create a new group identification.
+        /// </summary>
+        /// <param name="Length">The expected length of the group identification.</param>
+        public static Group_Id Random(Byte Length = 15)
+
+            => new Group_Id(_random.RandomString(Length).ToUpper());
+
+        #endregion
 
         #region (static) Parse(Text)
 

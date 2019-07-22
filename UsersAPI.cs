@@ -7474,6 +7474,7 @@ namespace org.GraphDefined.OpenData.Users
         /// <param name="AcceptedEULA">Timestamp when the user accepted the End-User-License-Agreement.</param>
         /// <param name="IsAuthenticated">The user will not be shown in user listings, as its primary e-mail address is not yet authenticated.</param>
         /// <param name="IsDisabled">The user will be shown in user listings.</param>
+        /// <param name="DataSource">The source of all this data, e.g. an automatic importer.</param>
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
         public async Task<User> CreateUser(User_Id             Id,
                                            SimpleEMailAddress  EMail,
@@ -7491,6 +7492,7 @@ namespace org.GraphDefined.OpenData.Users
                                            DateTime?           AcceptedEULA      = null,
                                            Boolean             IsAuthenticated   = false,
                                            Boolean             IsDisabled        = false,
+                                           String              DataSource        = "",
                                            User_Id?            CurrentUserId     = null)
 
             => await Add(new User(Id,
@@ -7507,7 +7509,8 @@ namespace org.GraphDefined.OpenData.Users
                                   PrivacyLevel,
                                   AcceptedEULA,
                                   IsAuthenticated,
-                                  IsDisabled),
+                                  IsDisabled,
+                                  DataSource),
 
                          user => {
 
@@ -7547,6 +7550,7 @@ namespace org.GraphDefined.OpenData.Users
         /// <param name="AcceptedEULA">Timestamp when the user accepted the End-User-License-Agreement.</param>
         /// <param name="IsAuthenticated">The user will not be shown in user listings, as its primary e-mail address is not yet authenticated.</param>
         /// <param name="IsDisabled">The user will be shown in user listings.</param>
+        /// <param name="DataSource">The source of all this data, e.g. an automatic importer.</param>
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
         public async Task<User> CreateUserIfNotExists(User_Id             Id,
                                                       SimpleEMailAddress  EMail,
@@ -7564,6 +7568,7 @@ namespace org.GraphDefined.OpenData.Users
                                                       DateTime?           AcceptedEULA      = null,
                                                       Boolean             IsAuthenticated   = false,
                                                       Boolean             IsDisabled        = false,
+                                                      String              DataSource        = "",
                                                       User_Id?            CurrentUserId     = null)
 
 
@@ -7581,7 +7586,8 @@ namespace org.GraphDefined.OpenData.Users
                                              PrivacyLevel,
                                              AcceptedEULA,
                                              IsAuthenticated,
-                                             IsDisabled),
+                                             IsDisabled,
+                                             DataSource),
 
                                     user => {
 

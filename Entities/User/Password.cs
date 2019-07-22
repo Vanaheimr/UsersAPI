@@ -40,7 +40,7 @@ namespace org.GraphDefined.OpenData.Users
         /// <summary>
         /// Private non-cryptographic random number generator.
         /// </summary>
-        private static readonly Random _Random = new Random(DateTime.Now.Millisecond);
+        private static readonly Random _random = new Random(DateTime.Now.Millisecond);
 
         /// <summary>
         /// The internal identification.
@@ -91,6 +91,21 @@ namespace org.GraphDefined.OpenData.Users
         #endregion
 
 
+        #region (static) Random  (PasswordLength = 16, LengthOfSalt = 16)
+
+        /// <summary>
+        /// Create a new random password.
+        /// </summary>
+        /// <param name="PasswordLength">The expected length of the password.</param>
+        /// <param name="LengthOfSalt">The optional length of the random salt.</param>
+        public static Password Random(Byte PasswordLength  = 16,
+                                      Byte LengthOfSalt    = 16)
+
+            => Parse(_random.RandomString(PasswordLength),
+                     LengthOfSalt);
+
+        #endregion
+
         #region (static) Parse   (Text, LengthOfSalt = 16)
 
         /// <summary>
@@ -113,7 +128,7 @@ namespace org.GraphDefined.OpenData.Users
             #endregion
 
             // Salt...
-            var Salt            = _Random.RandomString(LengthOfSalt);
+            var Salt            = _random.RandomString(LengthOfSalt);
             var SecureSalt      = new SecureString();
 
             foreach (var character in Salt)

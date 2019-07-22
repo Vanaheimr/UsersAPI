@@ -36,6 +36,9 @@ namespace org.GraphDefined.OpenData.Users
 
         #region Data
 
+        /// <summary>
+        /// Private non-cryptographic random number generator.
+        /// </summary>
         private static readonly Random _random = new Random(DateTime.Now.Millisecond);
 
         /// <summary>
