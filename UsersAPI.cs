@@ -473,8 +473,6 @@ namespace org.GraphDefined.OpenData.Users
         protected readonly Dictionary<SecurityToken_Id, SecurityToken> HTTPCookies;
         protected readonly Dictionary<SecurityToken_Id, PasswordReset> PasswordResets;
 
-        public static readonly Regex JSONWhitespaceRegEx = new Regex(@"(\s)+", RegexOptions.IgnorePatternWhitespace);
-
         public static Organization NoOwner;
 
         private readonly Queue<NotificationMessage> _NotificationMessages;
@@ -6655,7 +6653,7 @@ namespace org.GraphDefined.OpenData.Users
                                        );
 
                     var SHA256                = new SHA256Managed();
-                    CurrentDatabaseHashValue  = SHA256.ComputeHash(Encoding.Unicode.GetBytes(JSONWhitespaceRegEx.Replace(JSONMessage.ToString(), " "))).
+                    CurrentDatabaseHashValue  = SHA256.ComputeHash(Encoding.Unicode.GetBytes(JSONMessage.ToString(Newtonsoft.Json.Formatting.None))).
                                                        Select(value => String.Format("{0:x2}", value)).
                                                        Aggregate();
 
@@ -6682,7 +6680,7 @@ namespace org.GraphDefined.OpenData.Users
                                 {
 
                                     File.AppendAllText(Logfilename,
-                                                       JSONWhitespaceRegEx.Replace(JSONMessage.ToString(), " ") + Environment.NewLine);
+                                                       JSONMessage.ToString(Newtonsoft.Json.Formatting.None) + Environment.NewLine);
 
                                     retry = maxRetries;
 
@@ -6841,7 +6839,7 @@ namespace org.GraphDefined.OpenData.Users
                                        );
 
                     var SHA256                = new SHA256Managed();
-                    CurrentDatabaseHashValue  = SHA256.ComputeHash(Encoding.Unicode.GetBytes(JSONWhitespaceRegEx.Replace(JSONMessage.ToString(), " "))).
+                    CurrentDatabaseHashValue  = SHA256.ComputeHash(Encoding.Unicode.GetBytes(JSONMessage.ToString(Newtonsoft.Json.Formatting.None))).
                                                        Select(value => String.Format("{0:x2}", value)).
                                                        Aggregate();
 
@@ -6868,7 +6866,7 @@ namespace org.GraphDefined.OpenData.Users
                                 {
 
                                     File.AppendAllText(Logfilename,
-                                                       JSONWhitespaceRegEx.Replace(JSONMessage.ToString(), " ") + Environment.NewLine);
+                                                       JSONMessage.ToString(Newtonsoft.Json.Formatting.None) + Environment.NewLine);
 
                                     retry = maxRetries;
 
@@ -8528,6 +8526,8 @@ namespace org.GraphDefined.OpenData.Users
                 OrganizationsSemaphore.Wait();
 
                 var FoundOrganizations = new List<Organization>();
+
+                var sss = _Organizations.Where(o => o.Value.Name?.FirstText()?.StartsWith("P") == true);
 
                 foreach (var organization in _Organizations.Values)
                     if (organization.Name.Any(i18npair => i18npair.Text == OrganizationName))
