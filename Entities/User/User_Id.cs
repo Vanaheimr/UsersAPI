@@ -57,6 +57,12 @@ namespace org.GraphDefined.OpenData.Users
         #region Properties
 
         /// <summary>
+        /// Indicates whether this identification is null or empty.
+        /// </summary>
+        public Boolean IsNullOrEmpty
+            => InternalId.IsNullOrEmpty();
+
+        /// <summary>
         /// The length of the user identification.
         /// </summary>
         public UInt64 Length
