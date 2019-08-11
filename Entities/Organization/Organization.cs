@@ -812,6 +812,41 @@ namespace org.GraphDefined.OpenData.Users
         #endregion
 
 
+        #region (private) _GetAllParents(ref Parents)
+
+        private void _GetAllParents(ref HashSet<Organization> Parents)
+        {
+
+            var parents = _Organization2Organization_OutEdges.Where(edge => edge.Source == this && edge.EdgeLabel == Organization2OrganizationEdges.IsChildOf).Select(edge => edge.Target).ToArray();
+
+            foreach (var parent in parents)
+            {
+                // Detect loops!
+                if (Parents.Add(parent))
+                    parent._GetAllParents(ref Parents);
+            }
+
+        }
+
+        #endregion
+
+        #region GetAllParents(Filter = null)
+
+        public IEnumerable<Organization> GetAllParents(Func<Organization, Boolean> Include = null)
+        {
+
+            var parents = new HashSet<Organization>();
+            _GetAllParents(ref parents);
+
+            return Include != null
+                       ? parents.Where(Include)
+                       : parents;
+
+        }
+
+        #endregion
+
+
         #region Operator overloading
 
         #region Operator == (OrganizationId1, OrganizationId2)
