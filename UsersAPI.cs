@@ -7131,16 +7131,19 @@ namespace org.GraphDefined.OpenData.Users
 
                                                  var State        = CreateState != null ? CreateState() : default(TState);
                                                  var _HTTPEvents  = _EventSource.GetAllEventsGreater(Request.GetHeaderField_UInt64("Last-Event-ID")).
-                                                                        Where (_event => IncludeFilterAtRuntime(State,
-                                                                                                                HTTPUser,
-                                                                                                                HTTPOrganizations,
-                                                                                                                _event)).
-                                                                        Select(_event => _event.ToString()).
+                                                                        Where (httpEvent => IncludeFilterAtRuntime(State,
+                                                                                                                   HTTPUser,
+                                                                                                                   HTTPOrganizations,
+                                                                                                                   httpEvent)).
+                                                                        Reverse().
+                                                                        Skip(Request.QueryString.GetUInt64("skip")).
+                                                                        Take(Request.QueryString.GetUInt64("take")).
+                                                                        Reverse().
+                                                                        Select(httpEevent => httpEevent.ToString()).
                                                                         AggregateWith(Environment.NewLine) +
                                                                         Environment.NewLine;
 
-                                        //             _ResourceContent += Environment.NewLine + "retry: " + ((UInt32)_EventSource.RetryIntervall.TotalMilliseconds) + Environment.NewLine + Environment.NewLine;
-
+                                                 //_ResourceContent += Environment.NewLine + "retry: " + ((UInt32)_EventSource.RetryIntervall.TotalMilliseconds) + Environment.NewLine + Environment.NewLine;
 
                                                  return Task.FromResult(
                                                      new HTTPResponse.Builder(Request) {
