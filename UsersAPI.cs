@@ -7006,7 +7006,7 @@ namespace org.GraphDefined.OpenData.Users
         #region AddEventSource(HTTPEventSourceId, URITemplate, IncludeFilterAtRuntime, CreateState, ...)
 
         public void AddEventSource<TState>(HTTPEventSource_Id                      HTTPEventSourceId,
-                                           HTTPPath                                 URITemplate,
+                                           HTTPPath                                URITemplate,
 
                                            Func<TState, User, HTTPEvent, Boolean>  IncludeFilterAtRuntime,
                                            Func<TState>                            CreateState,
@@ -7056,12 +7056,17 @@ namespace org.GraphDefined.OpenData.Users
                                                                                  Where (_event => IncludeFilterAtRuntime(State,
                                                                                                                          HTTPUser,
                                                                                                                          _event)).
-                                                                                 Select(_event => _event.ToString()).
-                                                                                 AggregateWith(Environment.NewLine) +
-                                                                                 Environment.NewLine;
-
-                                        //             _ResourceContent += Environment.NewLine + "retry: " + ((UInt32)_EventSource.RetryIntervall.TotalMilliseconds) + Environment.NewLine + Environment.NewLine;
-
+                                                                                 Reverse().
+                                                                                 Skip(Request.QueryString.GetUInt64("skip")).
+                                                                                 Take(Request.QueryString.GetUInt64("take")).
+                                                                                 Reverse().
+                                                                                 Select(httpEvent => httpEvent.ToString()).
+                                                                                 Aggregate(new StringBuilder(), (sb, x) => sb.Append(x).Append(Environment.NewLine)).
+                                                                                 Append(Environment.NewLine).
+                                                                                 Append("retry: ").Append((UInt32) _EventSource.RetryIntervall.TotalMilliseconds).
+                                                                                 Append(Environment.NewLine).
+                                                                                 Append(Environment.NewLine).
+                                                                                 ToString();
 
                                                  return Task.FromResult(
                                                      new HTTPResponse.Builder(Request) {
@@ -7084,7 +7089,7 @@ namespace org.GraphDefined.OpenData.Users
         }
 
         public void AddEventSource<TState>(HTTPEventSource_Id                                                 HTTPEventSourceId,
-                                           HTTPPath                                                            URITemplate,
+                                           HTTPPath                                                           URITemplate,
 
                                            Func<TState, User, IEnumerable<Organization>, HTTPEvent, Boolean>  IncludeFilterAtRuntime,
                                            Func<TState>                                                       CreateState,
@@ -7139,11 +7144,13 @@ namespace org.GraphDefined.OpenData.Users
                                                                         Skip(Request.QueryString.GetUInt64("skip")).
                                                                         Take(Request.QueryString.GetUInt64("take")).
                                                                         Reverse().
-                                                                        Select(httpEevent => httpEevent.ToString()).
-                                                                        AggregateWith(Environment.NewLine) +
-                                                                        Environment.NewLine;
-
-                                                 //_ResourceContent += Environment.NewLine + "retry: " + ((UInt32)_EventSource.RetryIntervall.TotalMilliseconds) + Environment.NewLine + Environment.NewLine;
+                                                                        Select(httpEvent => httpEvent.ToString()).
+                                                                        Aggregate(new StringBuilder(), (sb, x) => sb.Append(x).Append(Environment.NewLine)).
+                                                                        Append(Environment.NewLine).
+                                                                        Append("retry: ").Append((UInt32) _EventSource.RetryIntervall.TotalMilliseconds).
+                                                                        Append(Environment.NewLine).
+                                                                        Append(Environment.NewLine).
+                                                                        ToString();
 
                                                  return Task.FromResult(
                                                      new HTTPResponse.Builder(Request) {
