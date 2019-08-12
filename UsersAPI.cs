@@ -7060,7 +7060,7 @@ namespace org.GraphDefined.OpenData.Users
                                                                                  Skip(Request.QueryString.GetUInt64("skip")).
                                                                                  Take(Request.QueryString.GetUInt64("take")).
                                                                                  Reverse().
-                                                                                 Select(httpEvent => httpEvent.ToString()).
+                                                                                 Select(httpEvent => httpEvent.SerializedData).
                                                                                  Aggregate(new StringBuilder(), (sb, x) => sb.Append(x).Append(Environment.NewLine)).
                                                                                  Append(Environment.NewLine).
                                                                                  Append("retry: ").Append((UInt32) _EventSource.RetryIntervall.TotalMilliseconds).
@@ -7148,7 +7148,7 @@ namespace org.GraphDefined.OpenData.Users
                                                                                  Skip(Request.QueryString.GetUInt64("skip")).
                                                                                  Take(Request.QueryString.GetUInt64("take")).
                                                                                  Reverse().
-                                                                                 Select(httpEvent => httpEvent.ToString()).
+                                                                                 Select(httpEvent => httpEvent.SerializedData).
                                                                                  Aggregate(new StringBuilder(), (sb, x) => sb.Append(x).Append(Environment.NewLine)).
                                                                                  Append(Environment.NewLine).
                                                                                  Append("retry: ").Append((UInt32) _EventSource.RetryIntervall.TotalMilliseconds).
