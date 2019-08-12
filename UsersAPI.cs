@@ -7005,26 +7005,26 @@ namespace org.GraphDefined.OpenData.Users
 
         #region AddEventSource(HTTPEventSourceId, URITemplate, IncludeFilterAtRuntime, CreateState, ...)
 
-        public void AddEventSource<TState>(HTTPEventSource_Id                      HTTPEventSourceId,
-                                           HTTPPath                                URITemplate,
+        public void AddEventSource<TData, TState>(HTTPEventSource_Id                             HTTPEventSourceId,
+                                                  HTTPPath                                       URITemplate,
 
-                                           Func<TState, User, HTTPEvent, Boolean>  IncludeFilterAtRuntime,
-                                           Func<TState>                            CreateState,
+                                                  Func<TState, User, HTTPEvent<TData>, Boolean>  IncludeFilterAtRuntime,
+                                                  Func<TState>                                   CreatePerRequestState,
 
-                                           HTTPHostname?                           Hostname                   = null,
-                                           HTTPMethod?                             HttpMethod                 = null,
-                                           HTTPContentType                         HTTPContentType            = null,
+                                                  HTTPHostname?                                  Hostname                   = null,
+                                                  HTTPMethod?                                    HttpMethod                 = null,
+                                                  HTTPContentType                                HTTPContentType            = null,
 
-                                           HTTPAuthentication                      URIAuthentication          = null,
-                                           HTTPAuthentication                      HTTPMethodAuthentication   = null,
+                                                  HTTPAuthentication                             URIAuthentication          = null,
+                                                  HTTPAuthentication                             HTTPMethodAuthentication   = null,
 
-                                           HTTPDelegate                            DefaultErrorHandler        = null)
+                                                  HTTPDelegate                                   DefaultErrorHandler        = null)
         {
 
             if (IncludeFilterAtRuntime == null)
                 IncludeFilterAtRuntime = (s, u, e) => true;
 
-            if (TryGet(HTTPEventSourceId, out IHTTPEventSource _EventSource))
+            if (TryGet(HTTPEventSourceId, out IHTTPEventSource<TData> _EventSource))
             {
 
                 HTTPServer.AddMethodCallback(Hostname        ?? HTTPHostname.Any,
@@ -7051,7 +7051,7 @@ namespace org.GraphDefined.OpenData.Users
 
                                                  #endregion
 
-                                                 var State        = CreateState != null ? CreateState() : default(TState);
+                                                 var State        = CreatePerRequestState != null ? CreatePerRequestState() : default(TState);
                                                  var _HTTPEvents  = _EventSource.GetAllEventsGreater(Request.GetHeaderField_UInt64("Last-Event-ID")).
                                                                                  Where (_event => IncludeFilterAtRuntime(State,
                                                                                                                          HTTPUser,
@@ -7088,26 +7088,30 @@ namespace org.GraphDefined.OpenData.Users
 
         }
 
-        public void AddEventSource<TState>(HTTPEventSource_Id                                                 HTTPEventSourceId,
-                                           HTTPPath                                                           URITemplate,
+        #endregion
 
-                                           Func<TState, User, IEnumerable<Organization>, HTTPEvent, Boolean>  IncludeFilterAtRuntime,
-                                           Func<TState>                                                       CreateState,
+        #region AddEventSource(HTTPEventSourceId, URITemplate, IncludeFilterAtRuntime, CreateState, ...)
 
-                                           HTTPHostname?                                                      Hostname                   = null,
-                                           HTTPMethod?                                                        HttpMethod                 = null,
-                                           HTTPContentType                                                    HTTPContentType            = null,
+        public void AddEventSource<TData, TState>(HTTPEventSource_Id                                                        HTTPEventSourceId,
+                                                  HTTPPath                                                                  URITemplate,
 
-                                           HTTPAuthentication                                                 URIAuthentication          = null,
-                                           HTTPAuthentication                                                 HTTPMethodAuthentication   = null,
+                                                  Func<TState, User, IEnumerable<Organization>, HTTPEvent<TData>, Boolean>  IncludeFilterAtRuntime,
+                                                  Func<TState>                                                              CreatePerRequestState,
 
-                                           HTTPDelegate                                                       DefaultErrorHandler        = null)
+                                                  HTTPHostname?                                                             Hostname                   = null,
+                                                  HTTPMethod?                                                               HttpMethod                 = null,
+                                                  HTTPContentType                                                           HTTPContentType            = null,
+
+                                                  HTTPAuthentication                                                        URIAuthentication          = null,
+                                                  HTTPAuthentication                                                        HTTPMethodAuthentication   = null,
+
+                                                  HTTPDelegate                                                              DefaultErrorHandler        = null)
         {
 
             if (IncludeFilterAtRuntime == null)
                 IncludeFilterAtRuntime = (s, u, o, e) => true;
 
-            if (TryGet(HTTPEventSourceId, out IHTTPEventSource _EventSource))
+            if (TryGet<TData>(HTTPEventSourceId, out IHTTPEventSource<TData> _EventSource))
             {
 
                 HTTPServer.AddMethodCallback(Hostname        ?? HTTPHostname.Any,
@@ -7134,23 +7138,23 @@ namespace org.GraphDefined.OpenData.Users
 
                                                  #endregion
 
-                                                 var State        = CreateState != null ? CreateState() : default(TState);
+                                                 var State        = CreatePerRequestState != null ? CreatePerRequestState() : default(TState);
                                                  var _HTTPEvents  = _EventSource.GetAllEventsGreater(Request.GetHeaderField_UInt64("Last-Event-ID")).
-                                                                        Where (httpEvent => IncludeFilterAtRuntime(State,
-                                                                                                                   HTTPUser,
-                                                                                                                   HTTPOrganizations,
-                                                                                                                   httpEvent)).
-                                                                        Reverse().
-                                                                        Skip(Request.QueryString.GetUInt64("skip")).
-                                                                        Take(Request.QueryString.GetUInt64("take")).
-                                                                        Reverse().
-                                                                        Select(httpEvent => httpEvent.ToString()).
-                                                                        Aggregate(new StringBuilder(), (sb, x) => sb.Append(x).Append(Environment.NewLine)).
-                                                                        Append(Environment.NewLine).
-                                                                        Append("retry: ").Append((UInt32) _EventSource.RetryIntervall.TotalMilliseconds).
-                                                                        Append(Environment.NewLine).
-                                                                        Append(Environment.NewLine).
-                                                                        ToString();
+                                                                                 Where (httpEvent => IncludeFilterAtRuntime(State,
+                                                                                                                            HTTPUser,
+                                                                                                                            HTTPOrganizations,
+                                                                                                                            httpEvent)).
+                                                                                 Reverse().
+                                                                                 Skip(Request.QueryString.GetUInt64("skip")).
+                                                                                 Take(Request.QueryString.GetUInt64("take")).
+                                                                                 Reverse().
+                                                                                 Select(httpEvent => httpEvent.ToString()).
+                                                                                 Aggregate(new StringBuilder(), (sb, x) => sb.Append(x).Append(Environment.NewLine)).
+                                                                                 Append(Environment.NewLine).
+                                                                                 Append("retry: ").Append((UInt32) _EventSource.RetryIntervall.TotalMilliseconds).
+                                                                                 Append(Environment.NewLine).
+                                                                                 Append(Environment.NewLine).
+                                                                                 ToString();
 
                                                  return Task.FromResult(
                                                      new HTTPResponse.Builder(Request) {
