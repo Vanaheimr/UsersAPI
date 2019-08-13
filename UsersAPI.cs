@@ -7115,10 +7115,14 @@ namespace org.GraphDefined.OpenData.Users
                                                                                  Skip (Request.QueryString.GetUInt64("skip")).
                                                                                  Take (Request.QueryString.GetUInt64("take")).
                                                                                  Aggregate(new StringBuilder().AppendLine("["),
-                                                                                           (stringBuilder, httpEvent) => stringBuilder.Append    (httpEvent.SerializedData).
-                                                                                                                                       AppendLine(",")).
-                                                                                 AppendLine("]").
-                                                                                 ToString();
+                                                                                           (stringBuilder, httpEvent) => stringBuilder.Append    (@"[""").
+                                                                                                                                       Append    (httpEvent.Subevent ?? "").
+                                                                                                                                       Append    (@""",").
+                                                                                                                                       Append    (httpEvent.SerializedData).
+                                                                                                                                       AppendLine("],")).
+                                                                                 ToString().
+                                                                                 TrimEnd();
+
 
                                                  return Task.FromResult(
                                                      new HTTPResponse.Builder(Request) {
@@ -7128,7 +7132,9 @@ namespace org.GraphDefined.OpenData.Users
                                                          CacheControl    = "no-cache",
                                                          Connection      = "keep-alive",
                                                          KeepAlive       = new KeepAliveType(TimeSpan.FromSeconds(2 * _EventSource.RetryIntervall.TotalSeconds)),
-                                                         Content         = _HTTPEvents.ToUTF8Bytes()
+                                                         Content         = (_HTTPEvents.Length > 1
+                                                                                ? _HTTPEvents.Remove(_HTTPEvents.Length - 1, 1) + Environment.NewLine + "]"
+                                                                                : "]").ToUTF8Bytes()
                                                      }.AsImmutable);
 
                                              });
@@ -7257,10 +7263,14 @@ namespace org.GraphDefined.OpenData.Users
                                                                                  Skip (Request.QueryString.GetUInt64("skip")).
                                                                                  Take (Request.QueryString.GetUInt64("take")).
                                                                                  Aggregate(new StringBuilder().AppendLine("["),
-                                                                                           (stringBuilder, httpEvent) => stringBuilder.Append    (httpEvent.SerializedData).
-                                                                                                                                       AppendLine(",")).
-                                                                                 AppendLine("]").
-                                                                                 ToString();
+                                                                                           (stringBuilder, httpEvent) => stringBuilder.Append(@"[""").
+                                                                                                                                       Append(httpEvent.Subevent ?? "").
+                                                                                                                                       Append(@""",").
+                                                                                                                                       Append(httpEvent.SerializedData).
+                                                                                                                                       AppendLine("],")).
+                                                                                 ToString().
+                                                                                 TrimEnd();
+
 
                                                  return Task.FromResult(
                                                      new HTTPResponse.Builder(Request) {
@@ -7270,7 +7280,9 @@ namespace org.GraphDefined.OpenData.Users
                                                          CacheControl    = "no-cache",
                                                          Connection      = "keep-alive",
                                                          KeepAlive       = new KeepAliveType(TimeSpan.FromSeconds(2 * _EventSource.RetryIntervall.TotalSeconds)),
-                                                         Content         = _HTTPEvents.ToUTF8Bytes()
+                                                         Content         = (_HTTPEvents.Length > 1
+                                                                                ? _HTTPEvents.Remove(_HTTPEvents.Length - 1, 1) + Environment.NewLine + "]"
+                                                                                : "]").ToUTF8Bytes()
                                                      }.AsImmutable);
 
                                              });
