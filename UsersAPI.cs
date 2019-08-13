@@ -7053,15 +7053,17 @@ namespace org.GraphDefined.OpenData.Users
 
                                                  var State        = CreatePerRequestState != null ? CreatePerRequestState() : default(TState);
                                                  var _HTTPEvents  = _EventSource.GetAllEventsGreater(Request.GetHeaderField_UInt64("Last-Event-ID")).
-                                                                                 Where (_event => IncludeFilterAtRuntime(State,
-                                                                                                                         HTTPUser,
-                                                                                                                         _event)).
+                                                                                 Where  (_event => IncludeFilterAtRuntime(State,
+                                                                                                                          HTTPUser,
+                                                                                                                          _event)).
                                                                                  Reverse().
-                                                                                 Skip(Request.QueryString.GetUInt64("skip")).
-                                                                                 Take(Request.QueryString.GetUInt64("take")).
+                                                                                 Skip   (Request.QueryString.GetUInt64("skip")).
+                                                                                 Take   (Request.QueryString.GetUInt64("take")).
                                                                                  Reverse().
-                                                                                 Select(httpEvent => httpEvent.SerializedData).
-                                                                                 Aggregate(new StringBuilder(), (sb, x) => sb.Append(x).Append(Environment.NewLine)).
+                                                                                 Aggregate(new StringBuilder(),
+                                                                                           (stringBuilder, httpEvent) => stringBuilder.Append(httpEvent.SerializedHeader).
+                                                                                                                                       AppendLine(httpEvent.SerializedData).
+                                                                                                                                       AppendLine()).
                                                                                  Append(Environment.NewLine).
                                                                                  Append("retry: ").Append((UInt32) _EventSource.RetryIntervall.TotalMilliseconds).
                                                                                  Append(Environment.NewLine).
@@ -7073,6 +7075,56 @@ namespace org.GraphDefined.OpenData.Users
                                                          HTTPStatusCode  = HTTPStatusCode.OK,
                                                          Server          = HTTPServer.DefaultHTTPServerName,
                                                          ContentType     = HTTPContentType.EVENTSTREAM,
+                                                         CacheControl    = "no-cache",
+                                                         Connection      = "keep-alive",
+                                                         KeepAlive       = new KeepAliveType(TimeSpan.FromSeconds(2 * _EventSource.RetryIntervall.TotalSeconds)),
+                                                         Content         = _HTTPEvents.ToUTF8Bytes()
+                                                     }.AsImmutable);
+
+                                             });
+
+
+                HTTPServer.AddMethodCallback(Hostname        ?? HTTPHostname.Any,
+                                             HttpMethod      ?? HTTPMethod.GET,
+                                             URITemplate,
+                                             HTTPContentType ?? HTTPContentType.JSON_UTF8,
+                                             URIAuthentication:         URIAuthentication,
+                                             HTTPMethodAuthentication:  HTTPMethodAuthentication,
+                                             DefaultErrorHandler:       DefaultErrorHandler,
+                                             HTTPDelegate:              Request => {
+
+                                                 #region Get HTTP user and its organizations
+
+                                                 // Will return HTTP 401 Unauthorized, when the HTTP user is unknown!
+                                                 if (!TryGetHTTPUser(Request,
+                                                                     out User                   HTTPUser,
+                                                                     out HashSet<Organization>  HTTPOrganizations,
+                                                                     out HTTPResponse           Response,
+                                                                     AccessLevel:               Access_Levels.ReadWrite,
+                                                                     Recursive:                 true))
+                                                 {
+                                                     return Task.FromResult(Response);
+                                                 }
+
+                                                 #endregion
+
+                                                 var State        = CreatePerRequestState != null ? CreatePerRequestState() : default(TState);
+                                                 var _HTTPEvents  = _EventSource.Where(httpEvent => IncludeFilterAtRuntime(State,
+                                                                                                                           HTTPUser,
+                                                                                                                           httpEvent)).
+                                                                                 Skip (Request.QueryString.GetUInt64("skip")).
+                                                                                 Take (Request.QueryString.GetUInt64("take")).
+                                                                                 Aggregate(new StringBuilder().AppendLine("["),
+                                                                                           (stringBuilder, httpEvent) => stringBuilder.Append    (httpEvent.SerializedData).
+                                                                                                                                       AppendLine(",")).
+                                                                                 AppendLine("]").
+                                                                                 ToString();
+
+                                                 return Task.FromResult(
+                                                     new HTTPResponse.Builder(Request) {
+                                                         HTTPStatusCode  = HTTPStatusCode.OK,
+                                                         Server          = HTTPServer.DefaultHTTPServerName,
+                                                         ContentType     = HTTPContentType.JSON_UTF8,
                                                          CacheControl    = "no-cache",
                                                          Connection      = "keep-alive",
                                                          KeepAlive       = new KeepAliveType(TimeSpan.FromSeconds(2 * _EventSource.RetryIntervall.TotalSeconds)),
@@ -7140,16 +7192,18 @@ namespace org.GraphDefined.OpenData.Users
 
                                                  var State        = CreatePerRequestState != null ? CreatePerRequestState() : default(TState);
                                                  var _HTTPEvents  = _EventSource.GetAllEventsGreater(Request.GetHeaderField_UInt64("Last-Event-ID")).
-                                                                                 Where (httpEvent => IncludeFilterAtRuntime(State,
-                                                                                                                            HTTPUser,
-                                                                                                                            HTTPOrganizations,
-                                                                                                                            httpEvent)).
+                                                                                 Where  (httpEvent => IncludeFilterAtRuntime(State,
+                                                                                                                             HTTPUser,
+                                                                                                                             HTTPOrganizations,
+                                                                                                                             httpEvent)).
                                                                                  Reverse().
-                                                                                 Skip(Request.QueryString.GetUInt64("skip")).
-                                                                                 Take(Request.QueryString.GetUInt64("take")).
+                                                                                 Skip   (Request.QueryString.GetUInt64("skip")).
+                                                                                 Take   (Request.QueryString.GetUInt64("take")).
                                                                                  Reverse().
-                                                                                 Select(httpEvent => httpEvent.SerializedData).
-                                                                                 Aggregate(new StringBuilder(), (sb, x) => sb.Append(x).Append(Environment.NewLine)).
+                                                                                 Aggregate(new StringBuilder(),
+                                                                                           (stringBuilder, httpEvent) => stringBuilder.Append(httpEvent.SerializedHeader).
+                                                                                                                                       AppendLine(httpEvent.SerializedData).
+                                                                                                                                       AppendLine()).
                                                                                  Append(Environment.NewLine).
                                                                                  Append("retry: ").Append((UInt32) _EventSource.RetryIntervall.TotalMilliseconds).
                                                                                  Append(Environment.NewLine).
@@ -7161,6 +7215,58 @@ namespace org.GraphDefined.OpenData.Users
                                                          HTTPStatusCode  = HTTPStatusCode.OK,
                                                          Server          = HTTPServer.DefaultHTTPServerName,
                                                          ContentType     = HTTPContentType.EVENTSTREAM,
+                                                         CacheControl    = "no-cache",
+                                                         Connection      = "keep-alive",
+                                                         KeepAlive       = new KeepAliveType(TimeSpan.FromSeconds(2 * _EventSource.RetryIntervall.TotalSeconds)),
+                                                         Content         = _HTTPEvents.ToUTF8Bytes()
+                                                     }.AsImmutable);
+
+                                             });
+
+
+
+                HTTPServer.AddMethodCallback(Hostname        ?? HTTPHostname.Any,
+                                             HttpMethod      ?? HTTPMethod.GET,
+                                             URITemplate,
+                                             HTTPContentType ?? HTTPContentType.JSON_UTF8,
+                                             URIAuthentication:         URIAuthentication,
+                                             HTTPMethodAuthentication:  HTTPMethodAuthentication,
+                                             DefaultErrorHandler:       DefaultErrorHandler,
+                                             HTTPDelegate:              Request => {
+
+                                                 #region Get HTTP user and its organizations
+
+                                                 // Will return HTTP 401 Unauthorized, when the HTTP user is unknown!
+                                                 if (!TryGetHTTPUser(Request,
+                                                                     out User                   HTTPUser,
+                                                                     out HashSet<Organization>  HTTPOrganizations,
+                                                                     out HTTPResponse           Response,
+                                                                     AccessLevel:               Access_Levels.ReadWrite,
+                                                                     Recursive:                 true))
+                                                 {
+                                                     return Task.FromResult(Response);
+                                                 }
+
+                                                 #endregion
+
+                                                 var State        = CreatePerRequestState != null ? CreatePerRequestState() : default(TState);
+                                                 var _HTTPEvents  = _EventSource.Where(httpEvent => IncludeFilterAtRuntime(State,
+                                                                                                                           HTTPUser,
+                                                                                                                           HTTPOrganizations,
+                                                                                                                           httpEvent)).
+                                                                                 Skip (Request.QueryString.GetUInt64("skip")).
+                                                                                 Take (Request.QueryString.GetUInt64("take")).
+                                                                                 Aggregate(new StringBuilder().AppendLine("["),
+                                                                                           (stringBuilder, httpEvent) => stringBuilder.Append    (httpEvent.SerializedData).
+                                                                                                                                       AppendLine(",")).
+                                                                                 AppendLine("]").
+                                                                                 ToString();
+
+                                                 return Task.FromResult(
+                                                     new HTTPResponse.Builder(Request) {
+                                                         HTTPStatusCode  = HTTPStatusCode.OK,
+                                                         Server          = HTTPServer.DefaultHTTPServerName,
+                                                         ContentType     = HTTPContentType.JSON_UTF8,
                                                          CacheControl    = "no-cache",
                                                          Connection      = "keep-alive",
                                                          KeepAlive       = new KeepAliveType(TimeSpan.FromSeconds(2 * _EventSource.RetryIntervall.TotalSeconds)),
