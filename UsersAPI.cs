@@ -6065,6 +6065,7 @@ namespace org.GraphDefined.OpenData.Users
                         break;
                     }
 
+
                     if (!Organization_Id.TryParse(JSONObject["organization"]?.Value<String>(), out Organization_Id U2O_OrganizationId))
                     {
                         DebugX.Log(String.Concat(nameof(UsersAPI), " ", Command, ": ", "Invalid organization identification '" + JSONObject["user"]?.Value<String>() + "'!"));
@@ -6077,14 +6078,17 @@ namespace org.GraphDefined.OpenData.Users
                         break;
                     }
 
-                    var U2O_Edge     = (User2OrganizationEdges) Enum.Parse(typeof(User2OrganizationEdges), JSONObject["edge"].Value<String>());
-                    var U2O_Privacy  = JSONObject.ParseMandatory_PrivacyLevel();
 
-                    if (!U2O_User.Edges(U2O_Organization).Any(edgelabel => edgelabel == U2O_Edge))
-                        U2O_User.AddOutgoingEdge(U2O_Edge, U2O_Organization, U2O_Privacy);
+                    if (!Enum.TryParse(JSONObject["edge"].Value<String>(), out User2OrganizationEdges U2O_EdgeLabel))
+                    {
+                        DebugX.Log(String.Concat(nameof(UsersAPI), " ", Command, ": ", "Unknown edge label '" + JSONObject["edge"].Value<String>() + "'!"));
+                        break;
+                    }
 
-                    if (!U2O_Organization.User2OrganizationInEdgeLabels(U2O_User).Any(edgelabel => edgelabel == U2O_Edge))
-                        U2O_Organization.LinkUser(U2O_User, U2O_Edge, U2O_Privacy);
+
+                    U2O_Organization.LinkUser(U2O_User.AddOutgoingEdge(U2O_EdgeLabel,
+                                                                       U2O_Organization,
+                                                                       JSONObject.ParseMandatory_PrivacyLevel()));
 
                     break;
 
@@ -6095,16 +6099,42 @@ namespace org.GraphDefined.OpenData.Users
                 case "linkOrganizations":
                 case "LinkOrganizations":
 
-                    var O2O_OrganizationOut  = _Organizations[Organization_Id.Parse(JSONObject["organizationOut"].Value<String>())];
-                    var O2O_OrganizationIn   = _Organizations[Organization_Id.Parse(JSONObject["organizationIn" ].Value<String>())];
-                    var O2O_EdgeLabel        = (Organization2OrganizationEdges) Enum.Parse(typeof(Organization2OrganizationEdges), JSONObject["edge"].   Value<String>());
-                    var O2O_Privacy          = JSONObject.ParseMandatory_PrivacyLevel();
+                    if (!Organization_Id.TryParse(JSONObject["organizationOut"]?.Value<String>(), out Organization_Id O2O_OrganizationIdOut))
+                    {
+                        DebugX.Log(String.Concat(nameof(UsersAPI), " ", Command, ": ", "Invalid outgoing organization identification '" + JSONObject["user"]?.Value<String>() + "'!"));
+                        break;
+                    }
 
-                    if (!O2O_OrganizationOut.Organization2OrganizationOutEdges.Any(edge => edge.EdgeLabel == O2O_EdgeLabel && edge.Target == O2O_OrganizationIn))
-                        O2O_OrganizationOut.AddOutEdge(O2O_EdgeLabel, O2O_OrganizationIn,  O2O_Privacy);
+                    if (!TryGet(O2O_OrganizationIdOut, out Organization O2O_OrganizationOut))
+                    {
+                        DebugX.Log(String.Concat(nameof(UsersAPI), " ", Command, ": ", "Unknown outgoing organization '" + O2O_OrganizationIdOut + "'!"));
+                        break;
+                    }
 
-                    if (!O2O_OrganizationIn. Organization2OrganizationInEdges. Any(edge => edge.EdgeLabel == O2O_EdgeLabel && edge.Source == O2O_OrganizationOut))
-                        O2O_OrganizationIn. AddInEdge (O2O_EdgeLabel, O2O_OrganizationOut, O2O_Privacy);
+
+                    if (!Organization_Id.TryParse(JSONObject["organizationIn"]?.Value<String>(), out Organization_Id O2O_OrganizationIdIn))
+                    {
+                        DebugX.Log(String.Concat(nameof(UsersAPI), " ", Command, ": ", "Invalid incoming organization identification '" + JSONObject["user"]?.Value<String>() + "'!"));
+                        break;
+                    }
+
+                    if (!TryGet(O2O_OrganizationIdIn, out Organization O2O_OrganizationIn))
+                    {
+                        DebugX.Log(String.Concat(nameof(UsersAPI), " ", Command, ": ", "Unknown incoming organization '" + O2O_OrganizationIdIn + "'!"));
+                        break;
+                    }
+
+
+                    if (!Enum.TryParse(JSONObject["edge"].Value<String>(), out Organization2OrganizationEdges O2O_EdgeLabel))
+                    {
+                        DebugX.Log(String.Concat(nameof(UsersAPI), " ", Command, ": ", "Unknown edge label '" + JSONObject["edge"].Value<String>() + "'!"));
+                        break;
+                    }
+
+
+                    O2O_OrganizationIn.AddInEdge(O2O_OrganizationOut.AddOutEdge(O2O_EdgeLabel,
+                                                                                O2O_OrganizationIn,
+                                                                                JSONObject.ParseMandatory_PrivacyLevel()));
 
                     break;
 
@@ -6137,16 +6167,42 @@ namespace org.GraphDefined.OpenData.Users
                 case "addUserToGroup":
                 case "AddUserToGroup":
 
-                    var U2G_User     = _Users [User_Id. Parse(JSONObject["user" ].Value<String>())];
-                    var U2G_Group    = _Groups[Group_Id.Parse(JSONObject["group"].Value<String>())];
-                    var U2G_Edge     = (User2GroupEdges) Enum.Parse(typeof(User2GroupEdges), JSONObject["edge"].        Value<String>());
-                    var U2G_Privacy  = JSONObject.ParseMandatory_PrivacyLevel();
+                    if (!User_Id.TryParse(JSONObject["user"]?.Value<String>(), out User_Id U2G_UserId))
+                    {
+                        DebugX.Log(String.Concat(nameof(UsersAPI), " ", Command, ": ", "Invalid user identification '" + JSONObject["user"]?.Value<String>() + "'!"));
+                        break;
+                    }
 
-                    if (!U2G_User.OutEdges(U2G_Group).Any(edge => edge == U2G_Edge))
-                        U2G_User.AddOutgoingEdge(U2G_Edge, U2G_Group, U2G_Privacy);
+                    if (!TryGet(U2G_UserId, out User U2G_User))
+                    {
+                        DebugX.Log(String.Concat(nameof(UsersAPI), " ", Command, ": ", "Unknown user '" + U2G_UserId + "'!"));
+                        break;
+                    }
 
-                    if (!U2G_Group.Edges(U2G_Group).Any(edge => edge == U2G_Edge))
-                        U2G_Group.AddIncomingEdge(U2G_User, U2G_Edge, U2G_Privacy);
+
+                    if (!Group_Id.TryParse(JSONObject["group"]?.Value<String>(), out Group_Id U2G_GroupId))
+                    {
+                        DebugX.Log(String.Concat(nameof(UsersAPI), " ", Command, ": ", "Invalid group identification '" + JSONObject["user"]?.Value<String>() + "'!"));
+                        break;
+                    }
+
+                    if (!TryGet(U2G_GroupId, out Group U2G_Group))
+                    {
+                        DebugX.Log(String.Concat(nameof(UsersAPI), " ", Command, ": ", "Unknown group '" + U2G_GroupId + "'!"));
+                        break;
+                    }
+
+
+                    if (!Enum.TryParse(JSONObject["edge"].Value<String>(), out User2GroupEdges U2G_EdgeLabel))
+                    {
+                        DebugX.Log(String.Concat(nameof(UsersAPI), " ", Command, ": ", "Unknown edge label '" + JSONObject["edge"].Value<String>() + "'!"));
+                        break;
+                    }
+
+
+                    U2G_Group.AddIncomingEdge(U2G_User.AddOutgoingEdge(U2G_EdgeLabel,
+                                                                       U2G_Group,
+                                                                       JSONObject.ParseMandatory_PrivacyLevel()));
 
                     break;
 
@@ -8723,10 +8779,10 @@ namespace org.GraphDefined.OpenData.Users
             if (!User.Edges(Organization).Any(edge => edge == Edge))
             {
 
-                User.AddOutgoingEdge(Edge, Organization, PrivacyLevel);
+                var edge = User.AddOutgoingEdge(Edge, Organization, PrivacyLevel);
 
                 if (!Organization.User2OrganizationInEdgeLabels(User).Any(edgelabel => edgelabel == Edge))
-                    Organization.LinkUser(User, Edge, PrivacyLevel);
+                    Organization.LinkUser(edge);// User, Edge, PrivacyLevel);
 
                 await WriteToLogfileAndNotify(NotificationMessageType.Parse("addUserToOrganization"),
                                               new JObject(
@@ -9023,13 +9079,39 @@ namespace org.GraphDefined.OpenData.Users
         #endregion
 
 
-        #region GetGroup   (GroupId)
+        #region Contains(GroupId)
+
+        /// <summary>
+        /// Whether this API contains a group having the given unique identification.
+        /// </summary>
+        /// <param name="GroupId">The unique identification of the group.</param>
+        public Boolean Contains(Group_Id GroupId)
+        {
+
+            try
+            {
+
+                GroupsSemaphore.Wait();
+
+                return _Groups.ContainsKey(GroupId);
+
+            }
+            finally
+            {
+                GroupsSemaphore.Release();
+            }
+
+        }
+
+        #endregion
+
+        #region Get     (GroupId)
 
         /// <summary>
         /// Get the group having the given unique identification.
         /// </summary>
         /// <param name="GroupId">The unique identification of the group.</param>
-        public async Task<Group> GetGroup(Group_Id  GroupId)
+        public async Task<Group> Get(Group_Id  GroupId)
         {
 
             try
@@ -9052,15 +9134,15 @@ namespace org.GraphDefined.OpenData.Users
 
         #endregion
 
-        #region TryGetGroup(GroupId, out Group)
+        #region TryGet  (GroupId, out Group)
 
         /// <summary>
         /// Try to get the group having the given unique identification.
         /// </summary>
         /// <param name="GroupId">The unique identification of the group.</param>
         /// <param name="Group">The group.</param>
-        public Boolean TryGetGroup(Group_Id   GroupId,
-                                   out Group  Group)
+        public Boolean TryGet(Group_Id   GroupId,
+                              out Group  Group)
         {
 
             try
