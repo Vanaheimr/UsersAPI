@@ -1092,14 +1092,15 @@ namespace org.GraphDefined.OpenData.Users
         /// <param name="HTTPServerName">The default HTTP servername, used whenever no HTTP Host-header had been given.</param>
         /// <param name="HTTPServerPort">A TCP port to listen on.</param>
         /// <param name="HTTPHostname">The HTTP hostname for all URIs within this API.</param>
-        /// <param name="URIPrefix">A common prefix for all URIs.</param>
+        /// <param name="ServiceName">The name of the service.</param>
+        /// <param name="BaseURL">The base url of the service.</param>
+        /// <param name="URLPathPrefix">A common prefix for all URLs.</param>
         /// 
         /// <param name="ServerCertificateSelector">An optional delegate to select a SSL/TLS server certificate.</param>
         /// <param name="ClientCertificateValidator">An optional delegate to verify the SSL/TLS client certificate used for authentication.</param>
         /// <param name="ClientCertificateSelector">An optional delegate to select the SSL/TLS client certificate used for authentication.</param>
         /// <param name="AllowedTLSProtocols">The SSL/TLS protocol(s) allowed for this connection.</param>
         /// 
-        /// <param name="ServiceName">The name of the service.</param>
         /// <param name="APIEMailAddress">An e-mail address for this API.</param>
         /// <param name="APIPassphrase">A GPG passphrase for this API.</param>
         /// <param name="APIAdminEMails">A list of admin e-mail addresses.</param>
@@ -1128,14 +1129,15 @@ namespace org.GraphDefined.OpenData.Users
         public UsersAPI(String                               HTTPServerName                     = DefaultHTTPServerName,
                         IPPort?                              HTTPServerPort                     = null,
                         HTTPHostname?                        HTTPHostname                       = null,
-                        HTTPPath?                            URIPrefix                          = null,
+                        String                               ServiceName                        = DefaultServiceName,
+                        String                               BaseURL                            = "",
+                        HTTPPath?                            URLPathPrefix                      = null,
 
                         ServerCertificateSelectorDelegate    ServerCertificateSelector          = null,
                         RemoteCertificateValidationCallback  ClientCertificateValidator         = null,
                         LocalCertificateSelectionCallback    ClientCertificateSelector          = null,
                         SslProtocols                         AllowedTLSProtocols                = SslProtocols.Tls12,
 
-                        String                               ServiceName                        = DefaultServiceName,
                         EMailAddress                         APIEMailAddress                    = null,
                         String                               APIPassphrase                      = null,
                         EMailAddressList                     APIAdminEMails                     = null,
@@ -1196,9 +1198,10 @@ namespace org.GraphDefined.OpenData.Users
                                   Autostart:                         false),
 
                    HTTPHostname,
-                   URIPrefix,
-
                    ServiceName,
+                   BaseURL,
+                   URLPathPrefix,
+
                    APIEMailAddress,
                    APIPassphrase,
                    APIAdminEMails,
@@ -1243,9 +1246,10 @@ namespace org.GraphDefined.OpenData.Users
         /// </summary>
         /// <param name="HTTPServer">An existing HTTP server.</param>
         /// <param name="HTTPHostname">The HTTP hostname for all URIs within this API.</param>
-        /// <param name="URIPrefix">A common prefix for all URIs.</param>
-        /// 
         /// <param name="ServiceName">The name of the service.</param>
+        /// <param name="BaseURL">The base URL of the service.</param>
+        /// <param name="URLPathPrefix">A common prefix for all URLs.</param>
+        /// 
         /// <param name="APIEMailAddress">An e-mail address for this API.</param>
         /// <param name="APIPassphrase">A GPG passphrase for this API.</param>
         /// <param name="APIAdminEMails">A list of admin e-mail addresses.</param>
@@ -1271,9 +1275,10 @@ namespace org.GraphDefined.OpenData.Users
         /// <param name="LogfileName">The name of the logfile for this API.</param>
         protected UsersAPI(HTTPServer                           HTTPServer,
                            HTTPHostname?                        HTTPHostname                  = null,
-                           HTTPPath?                            URIPrefix                     = null,
-
                            String                               ServiceName                   = DefaultServiceName,
+                           String                               BaseURL                       = "",
+                           HTTPPath?                            URLPathPrefix                 = null,
+
                            EMailAddress                         APIEMailAddress               = null,
                            String                               APIPassphrase                 = null,
                            EMailAddressList                     APIAdminEMails                = null,
@@ -1302,23 +1307,11 @@ namespace org.GraphDefined.OpenData.Users
 
             : base(HTTPServer,
                    HTTPHostname,
-                   URIPrefix,
-                   ServiceName)
+                   ServiceName,
+                   BaseURL,
+                   URLPathPrefix)
 
         {
-
-            #region Initial checks
-
-            if (NewUserSignUpEMailCreator  == null)
-                throw new ArgumentNullException(nameof(NewUserSignUpEMailCreator),   "NewUserSignUpEMailCreator!");
-
-            if (NewUserWelcomeEMailCreator == null)
-                throw new ArgumentNullException(nameof(NewUserWelcomeEMailCreator),  "NewUserWelcomeEMailCreator!");
-
-            if (ResetPasswordEMailCreator  == null)
-                throw new ArgumentNullException(nameof(ResetPasswordEMailCreator),   "ResetPasswordEMailCreator!");
-
-            #endregion
 
             #region Init data
 
@@ -1364,9 +1357,9 @@ namespace org.GraphDefined.OpenData.Users
             this.CookieName                   = CookieName ?? DefaultCookieName;
             this.Language                     = Language;
             this._LogoImage                   = LogoImage;
-            this.NewUserSignUpEMailCreator    = NewUserSignUpEMailCreator;
-            this.NewUserWelcomeEMailCreator   = NewUserWelcomeEMailCreator;
-            this.ResetPasswordEMailCreator    = ResetPasswordEMailCreator;
+            this.NewUserSignUpEMailCreator    = NewUserSignUpEMailCreator  ?? throw new ArgumentNullException(nameof(NewUserSignUpEMailCreator),   "NewUserSignUpEMailCreator!");
+            this.NewUserWelcomeEMailCreator   = NewUserWelcomeEMailCreator ?? throw new ArgumentNullException(nameof(NewUserWelcomeEMailCreator),  "NewUserWelcomeEMailCreator!");
+            this.ResetPasswordEMailCreator    = ResetPasswordEMailCreator  ?? throw new ArgumentNullException(nameof(ResetPasswordEMailCreator),   "ResetPasswordEMailCreator!");
             this.PasswordChangedEMailCreator  = PasswordChangedEMailCreator;
             this.MinLoginLenght               = MinUserNameLenght;
             this.MinRealmLenght               = MinRealmLenght;
@@ -1451,9 +1444,10 @@ namespace org.GraphDefined.OpenData.Users
         /// </summary>
         /// <param name="HTTPServer">An existing HTTP server.</param>
         /// <param name="HTTPHostname">The HTTP hostname for all URIs within this API.</param>
-        /// <param name="URIPrefix">A common prefix for all URIs.</param>
-        /// 
         /// <param name="ServiceName">The name of the service.</param>
+        /// <param name="BaseURL">The base URL of the service.</param>
+        /// <param name="URLPathPrefix">A common prefix for all URIs.</param>
+        /// 
         /// <param name="APIEMailAddress">An e-mail address for this API.</param>
         /// <param name="APIPassphrase">A GPG passphrase for this API.</param>
         /// <param name="APIAdminEMails">A list of admin e-mail addresses.</param>
@@ -1479,9 +1473,10 @@ namespace org.GraphDefined.OpenData.Users
         /// <param name="LogfileName">The name of the logfile for this API.</param>
         public static UsersAPI AttachToHTTPAPI(HTTPServer                           HTTPServer,
                                                HTTPHostname?                        HTTPHostname                  = null,
-                                               HTTPPath?                             URIPrefix                     = null,
-
                                                String                               ServiceName                   = DefaultServiceName,
+                                               String                               BaseURL                       = "",
+                                               HTTPPath?                            URLPathPrefix                 = null,
+
                                                EMailAddress                         APIEMailAddress               = null,
                                                String                               APIPassphrase                 = null,
                                                EMailAddressList                     APIAdminEMails                = null,
@@ -1510,9 +1505,10 @@ namespace org.GraphDefined.OpenData.Users
 
             => new UsersAPI(HTTPServer,
                             HTTPHostname,
-                            URIPrefix,
-
                             ServiceName,
+                            BaseURL,
+                            URLPathPrefix,
+
                             APIEMailAddress,
                             APIPassphrase,
                             APIAdminEMails,
@@ -1862,7 +1858,7 @@ namespace org.GraphDefined.OpenData.Users
             #region /shared/UsersAPI
 
             HTTPServer.RegisterResourcesFolder(HTTPHostname.Any,
-                                               URIPrefix + "shared/UsersAPI",
+                                               URLPathPrefix + "shared/UsersAPI",
                                                HTTPRoot.Substring(0, HTTPRoot.Length - 1),
                                                typeof(UsersAPI).Assembly);
 
@@ -1878,7 +1874,7 @@ namespace org.GraphDefined.OpenData.Users
             // -------------------------------------------------------------
             HTTPServer.AddMethodCallback(HTTPHostname.Any,
                                           HTTPMethod.GET,
-                                          new HTTPPath[] { URIPrefix + "signup" },
+                                          new HTTPPath[] { URLPathPrefix + "signup" },
                                           HTTPContentType.HTML_UTF8,
                                           HTTPDelegate: async Request => {
 
@@ -2289,7 +2285,7 @@ namespace org.GraphDefined.OpenData.Users
             // -------------------------------------------------------------------
             HTTPServer.AddMethodCallback(HTTPHostname.Any,
                                          HTTPMethod.GET,
-                                         URIPrefix + "lostpassword",
+                                         URLPathPrefix + "lostpassword",
                                          HTTPContentType.HTML_UTF8,
                                          HTTPDelegate: Request =>
 
@@ -2317,7 +2313,7 @@ namespace org.GraphDefined.OpenData.Users
             // --------------------------------------------------------------------
             HTTPServer.AddMethodCallback(HTTPHostname.Any,
                                          HTTPMethod.SET,
-                                         URIPrefix + "resetPassword",
+                                         URLPathPrefix + "resetPassword",
                                          HTTPContentType.JSON_UTF8,
                                          HTTPDelegate: Request => {
 
@@ -2505,7 +2501,7 @@ namespace org.GraphDefined.OpenData.Users
             // ------------------------------------------------------------------
             HTTPServer.AddMethodCallback(HTTPHostname.Any,
                                          HTTPMethod.SET,
-                                         URIPrefix + "setPassword",
+                                         URLPathPrefix + "setPassword",
                                          HTTPContentType.JSON_UTF8,
                                          HTTPDelegate:        async Request => {
 
@@ -2724,7 +2720,7 @@ namespace org.GraphDefined.OpenData.Users
             // -------------------------------------------------------------------
             // curl -v -H "Accept: application/json" http://127.0.0.1:2100/users
             // -------------------------------------------------------------------
-            HTTPServer.ITEMS_GET(UriTemplate: URIPrefix + "users",
+            HTTPServer.ITEMS_GET(UriTemplate: URLPathPrefix + "users",
                                  Dictionary: _Users,
                                  Filter: user => user.PrivacyLevel == PrivacyLevel.World,
                                  ToJSONDelegate: JSON_IO.ToJSON);
@@ -3324,7 +3320,7 @@ namespace org.GraphDefined.OpenData.Users
             // ---------------------------------------------------------------------------------
             // curl -v -X EXITS -H "Accept: application/json" http://127.0.0.1:2100/users/ahzf
             // ---------------------------------------------------------------------------------
-            HTTPServer.ITEM_EXISTS<User_Id, User>(UriTemplate: URIPrefix + "users/{UserId}",
+            HTTPServer.ITEM_EXISTS<User_Id, User>(UriTemplate: URLPathPrefix + "users/{UserId}",
                                                   ParseIdDelegate: User_Id.TryParse,
                                                   ParseIdError: Text => "Invalid user identification '" + Text + "'!",
                                                   TryGetItemDelegate: _Users.TryGetValue,
@@ -3348,7 +3344,7 @@ namespace org.GraphDefined.OpenData.Users
 
             HTTPServer.AddMethodCallback(Hostname,
                                          HTTPMethod.OPTIONS,
-                                         URIPrefix + "users/{UserId}",
+                                         URLPathPrefix + "users/{UserId}",
                                          HTTPDelegate: Request => {
 
                                              return Task.FromResult(
@@ -3401,7 +3397,7 @@ namespace org.GraphDefined.OpenData.Users
 
             HTTPServer.AddMethodCallback(Hostname,
                                          HTTPMethod.GET,
-                                         URIPrefix + "users/{UserId}",
+                                         URLPathPrefix + "users/{UserId}",
                                          HTTPContentType.JSON_UTF8,
                                          HTTPDelegate: Request => {
 
@@ -3502,7 +3498,7 @@ namespace org.GraphDefined.OpenData.Users
             // ---------------------------------------------------------------------------------------------
             HTTPServer.AddMethodCallback(Hostname,
                                          HTTPMethod.SET,
-                                         URIPrefix + "users/{UserId}",
+                                         URLPathPrefix + "users/{UserId}",
                                          HTTPContentType.JSON_UTF8,
                                          HTTPRequestLogger:   SetUserRequest,
                                          HTTPResponseLogger:  SetUserResponse,
@@ -4117,7 +4113,7 @@ namespace org.GraphDefined.OpenData.Users
             #region GET         ~/users/{UserId}/profilephoto
 
             HTTPServer.RegisterFilesystemFile(HTTPHostname.Any,
-                                              URIPrefix + "users/{UserId}/profilephoto",
+                                              URLPathPrefix + "users/{UserId}/profilephoto",
                                               URIParams => "LocalHTTPRoot/data/Users/" + URIParams[0] + ".png",
                                               DefaultFile: "HTTPRoot/images/defaults/DefaultUser.png");
 
@@ -4130,7 +4126,7 @@ namespace org.GraphDefined.OpenData.Users
             // --------------------------------------------------------------------------------------
             HTTPServer.AddMethodCallback(Hostname,
                                          HTTPMethod.GET,
-                                         URIPrefix + "users/{UserId}/notifications",
+                                         URLPathPrefix + "users/{UserId}/notifications",
                                          HTTPContentType.JSON_UTF8,
                                          HTTPDelegate: Request => {
 
@@ -4177,7 +4173,7 @@ namespace org.GraphDefined.OpenData.Users
             // ---------------------------------------------------------------------------------------------
             HTTPServer.AddMethodCallback(Hostname,
                                          HTTPMethod.SET,
-                                         URIPrefix + "users/{UserId}/notifications",
+                                         URLPathPrefix + "users/{UserId}/notifications",
                                          HTTPContentType.JSON_UTF8,
                                          HTTPRequestLogger:   SetUserNotificationsRequest,
                                          HTTPResponseLogger:  SetUserNotificationsResponse,
@@ -4349,7 +4345,7 @@ namespace org.GraphDefined.OpenData.Users
             // ---------------------------------------------------------------------------------------------
             HTTPServer.AddMethodCallback(Hostname,
                                          HTTPMethod.DELETE,
-                                         URIPrefix + "users/{UserId}/notifications",
+                                         URLPathPrefix + "users/{UserId}/notifications",
                                          HTTPContentType.JSON_UTF8,
                                          HTTPRequestLogger:   DeleteUserNotificationsRequest,
                                          HTTPResponseLogger:  DeleteUserNotificationsResponse,
@@ -4516,7 +4512,7 @@ namespace org.GraphDefined.OpenData.Users
             // ------------------------------------------------------------------------------------------
             HTTPServer.AddMethodCallback(Hostname,
                                          HTTPMethod.GET,
-                                         URIPrefix + "users/{UserId}/organizations",
+                                         URLPathPrefix + "users/{UserId}/organizations",
                                          HTTPContentType.JSON_UTF8,
                                          HTTPDelegate: Request => {
 
@@ -4560,7 +4556,7 @@ namespace org.GraphDefined.OpenData.Users
             // --------------------------------------------------------------------------------
             HTTPServer.AddMethodCallback(Hostname,
                                          HTTPMethod.GET,
-                                         URIPrefix + "users/{UserId}/APIKeys",
+                                         URLPathPrefix + "users/{UserId}/APIKeys",
                                          HTTPContentType.JSON_UTF8,
                                          HTTPDelegate: Request => {
 
@@ -4620,7 +4616,7 @@ namespace org.GraphDefined.OpenData.Users
 
             HTTPServer.AddMethodCallback(Hostname,
                                          HTTPMethod.SET,
-                                         URIPrefix + "users/{UserId}/password",
+                                         URLPathPrefix + "users/{UserId}/password",
                                          HTTPContentType.JSON_UTF8,
                                          HTTPRequestLogger:   ChangePasswordRequest,
                                          HTTPResponseLogger:  ChangePasswordResponse,
@@ -4774,7 +4770,7 @@ namespace org.GraphDefined.OpenData.Users
             // ---------------------------------------------------------------------------
             HTTPServer.AddMethodCallback(Hostname,
                                          HTTPMethod.GET,
-                                         URIPrefix + "organizations",
+                                         URLPathPrefix + "organizations",
                                          HTTPContentType.JSON_UTF8,
                                          HTTPDelegate: Request => {
 
@@ -4837,7 +4833,7 @@ namespace org.GraphDefined.OpenData.Users
             // ------------------------------------------------------------------------------------
             HTTPServer.AddMethodCallback(Hostname,
                                          HTTPMethod.COUNT,
-                                         URIPrefix + "organizations",
+                                         URLPathPrefix + "organizations",
                                          HTTPContentType.JSON_UTF8,
                                          HTTPDelegate: Request => {
 
@@ -4883,7 +4879,7 @@ namespace org.GraphDefined.OpenData.Users
             // -------------------------------------------------------------------------------------
             HTTPServer.AddMethodCallback(Hostname,
                                          HTTPMethod.GET,
-                                         URIPrefix + "organizations/{OrganizationId}",
+                                         URLPathPrefix + "organizations/{OrganizationId}",
                                          HTTPContentType.JSON_UTF8,
                                          HTTPDelegate: Request => {
 
@@ -4946,7 +4942,7 @@ namespace org.GraphDefined.OpenData.Users
             // ---------------------------------------------------------
             HTTPServer.AddMethodCallback(Hostname,
                                          HTTPMethod.EXISTS,
-                                         URIPrefix + "organizations/{OrganizationId}",
+                                         URLPathPrefix + "organizations/{OrganizationId}",
                                          HTTPDelegate: Request => {
 
                                              #region Try to get HTTP user and its organizations
@@ -5016,7 +5012,7 @@ namespace org.GraphDefined.OpenData.Users
             // ---------------------------------------------------------------------------------------------
             HTTPServer.AddMethodCallback(Hostname,
                                          HTTPMethod.ADD,
-                                         URIPrefix + "organizations/{organizationId}",
+                                         URLPathPrefix + "organizations/{organizationId}",
                                          HTTPContentType.JSON_UTF8,
                                          HTTPRequestLogger:  AddOrganizationRequest,
                                          HTTPResponseLogger: AddOrganizationResponse,
@@ -5247,7 +5243,7 @@ namespace org.GraphDefined.OpenData.Users
             // ------------------------------------------------------------------
             // curl -v -H "Accept: application/json" http://127.0.0.1:2100/groups
             // ------------------------------------------------------------------
-            HTTPServer.ITEMS_GET(UriTemplate: URIPrefix + "groups",
+            HTTPServer.ITEMS_GET(UriTemplate: URLPathPrefix + "groups",
                                  Dictionary: _Groups,
                                  Filter: group => group.PrivacyLevel == PrivacyLevel.World,
                                  ToJSONDelegate: JSON_IO.ToJSON);
@@ -5260,7 +5256,7 @@ namespace org.GraphDefined.OpenData.Users
             // -------------------------------------------------------------------------------------------
             // curl -v -X EXITS -H "Accept: application/json" http://127.0.0.1:2100/groups/OK-Lab%20Jena
             // -------------------------------------------------------------------------------------------
-            HTTPServer.ITEM_EXISTS<Group_Id, Group>(UriTemplate: URIPrefix + "groups/{GroupId}",
+            HTTPServer.ITEM_EXISTS<Group_Id, Group>(UriTemplate: URLPathPrefix + "groups/{GroupId}",
                                                     ParseIdDelegate: Group_Id.TryParse,
                                                     ParseIdError: Text => "Invalid group identification '" + Text + "'!",
                                                     TryGetItemDelegate: _Groups.TryGetValue,
@@ -5274,7 +5270,7 @@ namespace org.GraphDefined.OpenData.Users
             // ----------------------------------------------------------------------------------
             // curl -v -H "Accept: application/json" http://127.0.0.1:2100/groups/OK-Lab%20Jena
             // ----------------------------------------------------------------------------------
-            HTTPServer.ITEM_GET<Group_Id, Group>(UriTemplate:         URIPrefix + "groups/{GroupId}",
+            HTTPServer.ITEM_GET<Group_Id, Group>(UriTemplate:         URLPathPrefix + "groups/{GroupId}",
                                                  ParseIdDelegate:     Group_Id.TryParse,
                                                  ParseIdError:        Text => "Invalid group identification '" + Text + "'!",
                                                  TryGetItemDelegate:  _Groups.TryGetValue,
@@ -5298,7 +5294,7 @@ namespace org.GraphDefined.OpenData.Users
             // --------------------------------------------------------------------------
             HTTPServer.AddMethodCallback(Hostname,
                                          HTTPMethod.GET,
-                                         URIPrefix + "blogPostings",
+                                         URLPathPrefix + "blogPostings",
                                          HTTPContentType.JSON_UTF8,
                                          HTTPDelegate: async Request => {
 
@@ -6525,7 +6521,7 @@ namespace org.GraphDefined.OpenData.Users
 
                 Response       = new HTTPResponse.Builder(Request) {
                                      HTTPStatusCode  = HTTPStatusCode.Unauthorized,
-                                     Location        = URIPrefix + "login",
+                                     Location        = URLPathPrefix + "login",
                                      Date            = DateTime.Now,
                                      Server          = HTTPServer.DefaultServerName,
                                      CacheControl    = "private, max-age=0, no-cache",
@@ -6573,7 +6569,7 @@ namespace org.GraphDefined.OpenData.Users
                 Organizations  = new Organization[0];
                 Response       = new HTTPResponse.Builder(Request) {
                                      HTTPStatusCode  = HTTPStatusCode.Unauthorized,
-                                     Location        = URIPrefix + "login",
+                                     Location        = URLPathPrefix + "login",
                                      Date            = DateTime.Now,
                                      Server          = HTTPServer.DefaultServerName,
                                      CacheControl    = "private, max-age=0, no-cache",
