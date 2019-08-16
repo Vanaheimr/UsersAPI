@@ -715,7 +715,7 @@ namespace org.GraphDefined.OpenData.Users
         /// <summary>
         /// Disable external notifications.
         /// </summary>
-        public Boolean       DisableNotifications       { get; }
+        public Boolean       DisableNotifications       { get; set; }
 
         /// <summary>
         /// The logfile of this API.
