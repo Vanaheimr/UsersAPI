@@ -602,7 +602,7 @@ namespace org.GraphDefined.OpenData.Users
         /// A delegate for sending a sign-up e-mail to a new user.
         /// </summary>
         public delegate EMail NewUserSignUpEMailCreatorDelegate(User_Id           UserId,
-                                                                EMailAddress      EMail,
+                                                                EMailAddress      EMailAddress,
                                                                 String            Username,
                                                                 SecurityToken_Id  SecurityToken,
                                                                 Boolean           Use2FactorAuth,
@@ -638,7 +638,7 @@ namespace org.GraphDefined.OpenData.Users
         /// A delegate for sending a reset password e-mail to a user.
         /// </summary>
         public delegate EMail ResetPasswordEMailCreatorDelegate(User_Id           UserId,
-                                                                EMailAddress      EMail,
+                                                                EMailAddress      EMailAddress,
                                                                 String            Username,
                                                                 SecurityToken_Id  SecurityToken,
                                                                 Boolean           Use2FactorAuth,
