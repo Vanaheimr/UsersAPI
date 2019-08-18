@@ -54,6 +54,9 @@ using org.GraphDefined.OpenData.Notifications;
 namespace org.GraphDefined.OpenData.Users
 {
 
+    public delegate Single PasswordQualityCheckDelegate(String Password);
+
+
     /// <summary>
     /// Extention method for the Users API.
     /// </summary>
@@ -435,7 +438,7 @@ namespace org.GraphDefined.OpenData.Users
 
         public  const             Byte                                DefaultMinUserNameLenght       = 4;
         public  const             Byte                                DefaultMinRealmLenght          = 2;
-        public  const             Byte                                DefaultMinPasswordLenght       = 8;
+        public  static readonly   PasswordQualityCheckDelegate        DefaultPasswordQualityCheck    = password => password.Length > 8 ? 1.0f : 0;
 
         public  static readonly   TimeSpan                            DefaultSignInSessionLifetime   = TimeSpan.FromDays(30);
 
@@ -694,9 +697,9 @@ namespace org.GraphDefined.OpenData.Users
         #region MinPasswordLenght
 
         /// <summary>
-        /// The minimal password length.
+        /// A delegate to ensure a minimal password quality.
         /// </summary>
-        public Byte MinPasswordLenght { get; }
+        public PasswordQualityCheckDelegate PasswordQualityCheck { get; }
 
         #endregion
 
@@ -1117,7 +1120,7 @@ namespace org.GraphDefined.OpenData.Users
         /// <param name="ResetPasswordEMailCurrentUserId">A delegate for sending a reset password e-mail to a user.</param>
         /// <param name="MinUserNameLenght">The minimal user name length.</param>
         /// <param name="MinRealmLenght">The minimal realm length.</param>
-        /// <param name="MinPasswordLenght">The minimal password length.</param>
+        /// <param name="PasswordQualityCheck">A delegate to ensure a minimal password quality.</param>
         /// <param name="SignInSessionLifetime">The sign-in session lifetime.</param>
         /// 
         /// <param name="SkipURITemplates">Skip URI templates.</param>
@@ -1155,7 +1158,7 @@ namespace org.GraphDefined.OpenData.Users
                         PasswordChangedEMailCreatorDelegate  PasswordChangedEMailCreator        = null,
                         Byte                                 MinUserNameLenght                  = DefaultMinUserNameLenght,
                         Byte                                 MinRealmLenght                     = DefaultMinRealmLenght,
-                        Byte                                 MinPasswordLenght                  = DefaultMinPasswordLenght,
+                        PasswordQualityCheckDelegate         PasswordQualityCheck               = null,
                         TimeSpan?                            SignInSessionLifetime              = null,
 
                         String                               ServerThreadName                   = null,
@@ -1219,7 +1222,7 @@ namespace org.GraphDefined.OpenData.Users
                    PasswordChangedEMailCreator,
                    MinUserNameLenght,
                    MinRealmLenght,
-                   MinPasswordLenght,
+                   PasswordQualityCheck,
                    SignInSessionLifetime,
 
                    SkipURITemplates,
@@ -1266,7 +1269,7 @@ namespace org.GraphDefined.OpenData.Users
         /// <param name="ResetPasswordEMailCurrentUserId">A delegate for sending a reset password e-mail to a user.</param>
         /// <param name="MinUserNameLenght">The minimal user name length.</param>
         /// <param name="MinRealmLenght">The minimal realm length.</param>
-        /// <param name="MinPasswordLenght">The minimal password length.</param>
+        /// <param name="PasswordQualityCheck">A delegate to ensure a minimal password quality.</param>
         /// <param name="SignInSessionLifetime">The sign-in session lifetime.</param>
         /// 
         /// <param name="SkipURITemplates">Skip URI templates.</param>
@@ -1296,7 +1299,7 @@ namespace org.GraphDefined.OpenData.Users
                            PasswordChangedEMailCreatorDelegate  PasswordChangedEMailCreator   = null,
                            Byte                                 MinUserNameLenght             = DefaultMinUserNameLenght,
                            Byte                                 MinRealmLenght                = DefaultMinRealmLenght,
-                           Byte                                 MinPasswordLenght             = DefaultMinPasswordLenght,
+                           PasswordQualityCheckDelegate         PasswordQualityCheck          = null,
                            TimeSpan?                            SignInSessionLifetime         = null,
 
                            Boolean                              SkipURITemplates              = false,
@@ -1354,7 +1357,7 @@ namespace org.GraphDefined.OpenData.Users
             this.APIAdminEMails               = APIAdminEMails;
             this.APISMTPClient                = APISMTPClient;
 
-            this.CookieName                   = CookieName ?? DefaultCookieName;
+            this.CookieName                   = CookieName                 ?? DefaultCookieName;
             this.Language                     = Language;
             this._LogoImage                   = LogoImage;
             this.NewUserSignUpEMailCreator    = NewUserSignUpEMailCreator  ?? throw new ArgumentNullException(nameof(NewUserSignUpEMailCreator),   "NewUserSignUpEMailCreator!");
@@ -1363,8 +1366,8 @@ namespace org.GraphDefined.OpenData.Users
             this.PasswordChangedEMailCreator  = PasswordChangedEMailCreator;
             this.MinLoginLenght               = MinUserNameLenght;
             this.MinRealmLenght               = MinRealmLenght;
-            this.MinPasswordLenght            = MinPasswordLenght;
-            this.SignInSessionLifetime        = SignInSessionLifetime ?? DefaultSignInSessionLifetime;
+            this.PasswordQualityCheck         = PasswordQualityCheck       ?? DefaultPasswordQualityCheck;
+            this.SignInSessionLifetime        = SignInSessionLifetime      ?? DefaultSignInSessionLifetime;
 
             this._DataLicenses                = new Dictionary<DataLicense_Id,  DataLicense>();
             this._Users                       = new Dictionary<User_Id,         User>();
@@ -1494,7 +1497,7 @@ namespace org.GraphDefined.OpenData.Users
                                                PasswordChangedEMailCreatorDelegate  PasswordChangedEMailCreator   = null,
                                                Byte                                 MinUserNameLenght             = DefaultMinUserNameLenght,
                                                Byte                                 MinRealmLenght                = DefaultMinRealmLenght,
-                                               Byte                                 MinPasswordLenght             = DefaultMinPasswordLenght,
+                                               PasswordQualityCheckDelegate         PasswordQualityCheck          = null,
                                                TimeSpan?                            SignInSessionLifetime         = null,
 
                                                Boolean                              SkipURITemplates              = false,
@@ -1526,7 +1529,7 @@ namespace org.GraphDefined.OpenData.Users
                             PasswordChangedEMailCreator,
                             MinUserNameLenght,
                             MinRealmLenght,
-                            MinPasswordLenght,
+                            PasswordQualityCheck,
                             SignInSessionLifetime,
 
                             SkipURITemplates,
@@ -2139,7 +2142,7 @@ namespace org.GraphDefined.OpenData.Users
 
                                               Password = HTTPTools.URLDecode(Password);
 
-                                              if (Password.Length < MinPasswordLenght)
+                                              if (PasswordQualityCheck(Password) < 1.0)
                                               {
 
                                                   return Task.FromResult(
@@ -2151,7 +2154,7 @@ namespace org.GraphDefined.OpenData.Users
                                                                                 new JProperty("@context",     SignInOutContext),
                                                                                 new JProperty("statuscode",   400),
                                                                                 new JProperty("property",     "password"),
-                                                                                new JProperty("description",  "The password is too short!")
+                                                                                new JProperty("description",  "The password does not match the password quality criteria!")
                                                                            ).ToString().ToUTF8Bytes(),
                                                           CacheControl    = "private",
                                                           Connection      = "close"
@@ -3704,7 +3707,7 @@ namespace org.GraphDefined.OpenData.Users
 
                                               }
 
-                                              if (LoginData.GetString("password").Length < MinPasswordLenght)
+                                              if (PasswordQualityCheck(LoginData.GetString("password")) < 1.0)
                                               {
 
                                                   return new HTTPResponse.Builder(Request) {
@@ -3715,7 +3718,7 @@ namespace org.GraphDefined.OpenData.Users
                                                                                    new JProperty("@context",     SignInOutContext),
                                                                                    new JProperty("statuscode",   400),
                                                                                    new JProperty("property",     "password"),
-                                                                                   new JProperty("description",  "The password is too short!")
+                                                                                   new JProperty("description",  "The password does not match the password quality criteria!")
                                                                               ).ToString().ToUTF8Bytes(),
                                                              CacheControl    = "private",
                                                              Connection      = "close"
