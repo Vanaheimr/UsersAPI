@@ -2493,7 +2493,7 @@ namespace org.GraphDefined.OpenData.Users
             #region SET         ~/setPassword
 
             // ------------------------------------------------------------------
-            // curl -v -X SET
+            // curl -v -X SET \
             //      -H 'Accept:       application/json; charset=UTF-8' \
             //      -H 'Content-Type: application/json; charset=UTF-8' \
             //      -d "{ \
@@ -2537,15 +2537,16 @@ namespace org.GraphDefined.OpenData.Users
 
                                              #region Parse SecurityToken2   [optional]
 
-                                             if (!JSONObj.ParseOptionalStruct2("securityToken2",
-                                                                              "security token #2",
-                                                                              HTTPServer.DefaultServerName,
-                                                                              SecurityToken_Id.TryParse,
-                                                                              out SecurityToken_Id? SecurityToken2,
-                                                                              Request,
-                                                                              out ErrorResponse))
+                                             if (JSONObj.ParseOptional("securityToken2",
+                                                                       "security token #2",
+                                                                       HTTPServer.DefaultServerName,
+                                                                       SecurityToken_Id.TryParse,
+                                                                       out SecurityToken_Id? SecurityToken2,
+                                                                       Request,
+                                                                       out ErrorResponse))
                                              {
-                                                 return HTTPResponse;
+                                                 if (ErrorResponse != null)
+                                                    return HTTPResponse;
                                              }
 
                                              #endregion
