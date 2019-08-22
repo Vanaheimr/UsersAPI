@@ -2506,7 +2506,7 @@ namespace org.GraphDefined.OpenData.Users
                                          HTTPMethod.SET,
                                          URLPathPrefix + "setPassword",
                                          HTTPContentType.JSON_UTF8,
-                                         HTTPDelegate:        async Request => {
+                                         HTTPDelegate: async Request => {
 
                                              #region Parse JSON
 
@@ -3131,39 +3131,6 @@ namespace org.GraphDefined.OpenData.Users
 
                                               PgpPublicKeyRing _PublicKeyRing = null;
 
-                                              #region Parse password???
-
-                                              Password? UserPassword = null;
-
-                                              //if (!NewUserData.Contains("password"))
-                                              //    return new HTTPResponse.Builder(Request) {
-                                              //        HTTPStatusCode = HTTPStatusCode.BadRequest,
-                                              //        Server = HTTPServer.DefaultServerName,
-                                              //        ContentType = HTTPContentType.JSON_UTF8,
-                                              //        Content = new JObject(
-                                              //                               new JProperty("@context",     SignUpContext),
-                                              //                               new JProperty("description",  "Missing \"password\" property!")
-                                              //                          ).ToString().ToUTF8Bytes(),
-                                              //        CacheControl = "public",
-                                              //        Connection = "close"
-                                              //    };
-
-                                              //if (NewUserData.GetString("password").Length < MinPasswordLenght)
-                                              //    return new HTTPResponse.Builder(Request) {
-                                              //        HTTPStatusCode = HTTPStatusCode.BadRequest,
-                                              //        Server = HTTPServer.DefaultServerName,
-                                              //        ContentType = HTTPContentType.JSON_UTF8,
-                                              //        Content = new JObject(
-                                              //                               new JProperty("@context",     SignUpContext),
-                                              //                               new JProperty("property",     "name"),
-                                              //                               new JProperty("description",  "The password is too short!")
-                                              //                          ).ToString().ToUTF8Bytes(),
-                                              //        CacheControl = "public",
-                                              //        Connection = "close"
-                                              //    };
-
-                                              #endregion
-
                                               #endregion
 
 
@@ -3218,7 +3185,6 @@ namespace org.GraphDefined.OpenData.Users
                                                                                      EMail:          UserEMail,
                                                                                      MobilePhone:    MobilePhone,
                                                                                      Description:    Description,
-                                                                                 //    Password:       Password.Parse(NewUserData.GetString("password")),
                                                                                      PublicKeyRing:  _PublicKeyRing,
                                                                                      CurrentUserId:  HTTPUser.Id);
 
