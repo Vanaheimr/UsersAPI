@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright (c) 2014-2018, Achim 'ahzf' Friedland <achim@graphdefined.org>
+ * Copyright (c) 2014-2019, Achim 'ahzf' Friedland <achim@graphdefined.org>
  * This file is part of OpenDataAPI <http://www.github.com/GraphDefined/OpenDataAPI>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -1123,9 +1123,20 @@ namespace org.GraphDefined.OpenData.Users
         /// <param name="PasswordQualityCheck">A delegate to ensure a minimal password quality.</param>
         /// <param name="SignInSessionLifetime">The sign-in session lifetime.</param>
         /// 
-        /// <param name="SkipURITemplates">Skip URI templates.</param>
+        /// <param name="ServerThreadName">The optional name of the TCP server thread.</param>
+        /// <param name="ServerThreadPriority">The optional priority of the TCP server thread.</param>
+        /// <param name="ServerThreadIsBackground">Whether the TCP server thread is a background thread or not.</param>
+        /// <param name="ConnectionIdBuilder">An optional delegate to build a connection identification based on IP socket information.</param>
+        /// <param name="ConnectionThreadsNameBuilder">An optional delegate to set the name of the TCP connection threads.</param>
+        /// <param name="ConnectionThreadsPriorityBuilder">An optional delegate to set the priority of the TCP connection threads.</param>
+        /// <param name="ConnectionThreadsAreBackground">Whether the TCP connection threads are background threads or not (default: yes).</param>
+        /// <param name="ConnectionTimeout">The TCP client timeout for all incoming client connections in seconds (default: 30 sec).</param>
+        /// <param name="MaxClientConnections">The maximum number of concurrent TCP client connections (default: 4096).</param>
+        /// 
+        /// <param name="SkipURLTemplates">Skip URL templates.</param>
         /// <param name="DisableNotifications">Disable external notifications.</param>
         /// <param name="DisableLogfile">Disable the log file.</param>
+        /// <param name="LoggingPath">The path for all logfiles.</param>
         /// <param name="LogfileName">The name of the logfile for this API.</param>
         /// <param name="DNSClient">The DNS client of the API.</param>
         /// <param name="Autostart">Whether to start the API automatically.</param>
@@ -1171,7 +1182,7 @@ namespace org.GraphDefined.OpenData.Users
                         TimeSpan?                            ConnectionTimeout                  = null,
                         UInt32                               MaxClientConnections               = TCPServer.__DefaultMaxClientConnections,
 
-                        Boolean                              SkipURITemplates                   = false,
+                        Boolean                              SkipURLTemplates                   = false,
                         Boolean                              DisableNotifications               = false,
                         Boolean                              DisableLogfile                     = false,
                         String                               LoggingPath                        = null,
@@ -1225,7 +1236,7 @@ namespace org.GraphDefined.OpenData.Users
                    PasswordQualityCheck,
                    SignInSessionLifetime,
 
-                   SkipURITemplates,
+                   SkipURLTemplates,
                    DisableNotifications,
                    DisableLogfile,
                    LoggingPath,
@@ -1272,7 +1283,7 @@ namespace org.GraphDefined.OpenData.Users
         /// <param name="PasswordQualityCheck">A delegate to ensure a minimal password quality.</param>
         /// <param name="SignInSessionLifetime">The sign-in session lifetime.</param>
         /// 
-        /// <param name="SkipURITemplates">Skip URI templates.</param>
+        /// <param name="SkipURLTemplates">Skip URI templates.</param>
         /// <param name="DisableNotifications">Disable external notifications.</param>
         /// <param name="DisableLogfile">Disable the log file.</param>
         /// <param name="LogfileName">The name of the logfile for this API.</param>
@@ -1302,7 +1313,7 @@ namespace org.GraphDefined.OpenData.Users
                            PasswordQualityCheckDelegate         PasswordQualityCheck          = null,
                            TimeSpan?                            SignInSessionLifetime         = null,
 
-                           Boolean                              SkipURITemplates              = false,
+                           Boolean                              SkipURLTemplates              = false,
                            Boolean                              DisableNotifications          = false,
                            Boolean                              DisableLogfile                = false,
                            String                               LoggingPath                   = null,
@@ -1428,7 +1439,7 @@ namespace org.GraphDefined.OpenData.Users
 
             this.BlogPostings = new List<BlogPosting>();
 
-            if (!SkipURITemplates)
+            if (!SkipURLTemplates)
                 RegisterURITemplates();
 
             DebugX.Log("UsersAPI started...");
@@ -1470,7 +1481,7 @@ namespace org.GraphDefined.OpenData.Users
         /// <param name="MinPasswordLenght">The minimal password length.</param>
         /// <param name="SignInSessionLifetime">The sign-in session lifetime.</param>
         /// 
-        /// <param name="SkipURITemplates">Skip URI templates.</param>
+        /// <param name="SkipURLTemplates">Skip URI templates.</param>
         /// <param name="DisableNotifications">Disable external notifications.</param>
         /// <param name="DisableLogfile">Disable the log file.</param>
         /// <param name="LogfileName">The name of the logfile for this API.</param>
@@ -1500,7 +1511,7 @@ namespace org.GraphDefined.OpenData.Users
                                                PasswordQualityCheckDelegate         PasswordQualityCheck          = null,
                                                TimeSpan?                            SignInSessionLifetime         = null,
 
-                                               Boolean                              SkipURITemplates              = false,
+                                               Boolean                              SkipURLTemplates              = false,
                                                Boolean                              DisableNotifications          = false,
                                                Boolean                              DisableLogfile                = false,
                                                String                               LogfileName                   = DefaultLogfileName)
@@ -1532,7 +1543,7 @@ namespace org.GraphDefined.OpenData.Users
                             PasswordQualityCheck,
                             SignInSessionLifetime,
 
-                            SkipURITemplates,
+                            SkipURLTemplates,
                             DisableNotifications,
                             DisableLogfile,
                             LogfileName);
