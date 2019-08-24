@@ -1460,7 +1460,7 @@ namespace org.GraphDefined.OpenData.Users
         /// <param name="HTTPHostname">The HTTP hostname for all URIs within this API.</param>
         /// <param name="ServiceName">The name of the service.</param>
         /// <param name="BaseURL">The base URL of the service.</param>
-        /// <param name="URLPathPrefix">A common prefix for all URIs.</param>
+        /// <param name="URLPathPrefix">A common prefix for all URLs.</param>
         /// 
         /// <param name="APIEMailAddress">An e-mail address for this API.</param>
         /// <param name="APIPassphrase">A GPG passphrase for this API.</param>
