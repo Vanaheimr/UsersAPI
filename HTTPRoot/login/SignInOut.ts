@@ -101,7 +101,6 @@ function VerifyLogin() {
     function VerifyPassword() : boolean {
 
         var ResponseText = HTTPAuth("/users/" + _login.value,
-                                    "APIKey",
                                     {
                                         "login":        _login.value,
                                         "password":     _password.value,
@@ -246,7 +245,6 @@ function LostPassword() {
         responseDiv.innerHTML = '<i class="fa fa-spinner faa-spin animated"></i> Verifying your login... please wait!';
 
         HTTPSet("/resetPassword",
-                "APIKey",
                 {
                     "id":  _id.value
                 },
@@ -408,7 +406,6 @@ function SetPassword() {
             SetPasswordJSON["securityToken2"] = securityToken2.value;
 
         HTTPSet("/setPassword",
-                "APIKey",
                 SetPasswordJSON,
 
                 (HTTPStatus, ResponseText) => {
@@ -539,7 +536,6 @@ function SignIn() {
 
     SendJSON("AUTH",
              "/users/" + Username,
-             "",
              {
                  "realm":      Realm,
                  "password":   Password,
@@ -757,15 +753,14 @@ function GetEMail(): string {
 function SignOut() {
 
     SendJSON("DEAUTH",
-                           "/users",
-                           "",
-                           "",
+             "/users",
+             null,
 
-                           function (HTTPStatus, ResponseText) {
-                           },
+             function (HTTPStatus, ResponseText) {
+             },
 
-                           function (HTTPStatus, StatusText, ResponseText) {
-                           });
+             function (HTTPStatus, StatusText, ResponseText) {
+             });
 
     DeleteCookie(HTTPCookieId);
 

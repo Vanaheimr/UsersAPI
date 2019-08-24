@@ -1,4 +1,5 @@
 var HTTPCookieId = "UsersAPI";
+var APIKey = null;
 var CurrentlyHighlightedMenuItem = "";
 var CurrentlyHighlightedSubmenuItem = "";
 var UserProfileJSON;
@@ -42,7 +43,7 @@ function SubmenuHighlight(name, subname, NoURIupdate) {
 }
 // #endregion
 // #region SendJSON(HTTPVerb, URI, APIKey, Data, OnSuccess, OnError)
-function SendJSON(HTTPVerb, URI, APIKey, Data, OnSuccess, OnError) {
+function SendJSON(HTTPVerb, URI, Data, OnSuccess, OnError) {
     var ajax = new XMLHttpRequest();
     ajax.open(HTTPVerb, URI, true); // , user, password);
     ajax.setRequestHeader("Accept", "application/json; charset=UTF-8");
@@ -96,7 +97,7 @@ function UpdateI18NDescription(DescriptionDiv, JSON) {
     }
 }
 // #region HTTPSet(Method, RessourceURI, APIKey, Data, OnSuccess, OnError)
-function HTTP(Method, RessourceURI, APIKey, Data, OnSuccess, OnError) {
+function HTTP(Method, RessourceURI, Data, OnSuccess, OnError) {
     // #region Make HTTP call
     var ajax = new XMLHttpRequest();
     ajax.open(Method, RessourceURI, true);
@@ -127,16 +128,16 @@ function HTTP(Method, RessourceURI, APIKey, Data, OnSuccess, OnError) {
     // #endregion
 }
 // #endregion
-// #region HTTPGet(RessourceURI, APIKey, Data, OnSuccess, OnError)
-function HTTPGet(RessourceURI, APIKey, Data, OnSuccess, OnError) {
+// #region HTTPGet(RessourceURI, OnSuccess, OnError)
+function HTTPGet(RessourceURI, OnSuccess, OnError) {
     // #region Make HTTP call
     var ajax = new XMLHttpRequest();
     ajax.open("GET", RessourceURI, true);
     ajax.setRequestHeader("Accept", "application/json; charset=UTF-8");
     ajax.setRequestHeader("X-Portal", "true");
     //ajax.setRequestHeader("Content-Type", "application/json; charset=UTF-8");
-    if (APIKey != null)
-        ajax.setRequestHeader("APIKey", APIKey);
+    //if (APIKey != null)
+    //    ajax.setRequestHeader("APIKey", APIKey);
     ajax.onreadystatechange = function () {
         // 0 UNSENT | 1 OPENED | 2 HEADERS_RECEIVED | 3 LOADING | 4 DONE
         if (this.readyState == 4) {
@@ -153,15 +154,12 @@ function HTTPGet(RessourceURI, APIKey, Data, OnSuccess, OnError) {
                 OnError(this.status, this.statusText, ajax.responseText);
         }
     };
-    if (Data != null)
-        ajax.send(JSON.stringify(Data));
-    else
-        ajax.send();
+    ajax.send();
     // #endregion
 }
 // #endregion
-// #region HTTPCount(RessourceURI, APIKey, Data, OnSuccess, OnError)
-function HTTPCount(RessourceURI, APIKey, Data, OnSuccess, OnError) {
+// #region HTTPCount(RessourceURI, Data, OnSuccess, OnError)
+function HTTPCount(RessourceURI, Data, OnSuccess, OnError) {
     // #region Make HTTP call
     var ajax = new XMLHttpRequest();
     ajax.open("COUNT", RessourceURI, true); // , user, password);
@@ -192,8 +190,8 @@ function HTTPCount(RessourceURI, APIKey, Data, OnSuccess, OnError) {
     // #endregion
 }
 // #endregion
-// #region Exists (RessourceURI, APIKey, OnSuccess, OnError)
-function Exists(RessourceURI, APIKey, OnSuccess, OnError) {
+// #region Exists (RessourceURI, OnSuccess, OnError)
+function Exists(RessourceURI, OnSuccess, OnError) {
     // #region Make HTTP call
     var ajax = new XMLHttpRequest();
     ajax.open("GET", RessourceURI, true); // , user, password);
@@ -221,8 +219,8 @@ function Exists(RessourceURI, APIKey, OnSuccess, OnError) {
     // #endregion
 }
 // #endregion
-// #region HTTPSet(RessourceURI, APIKey, Data, OnSuccess, OnError)
-function HTTPSet(RessourceURI, APIKey, Data, OnSuccess, OnError) {
+// #region HTTPSet(RessourceURI, Data, OnSuccess, OnError)
+function HTTPSet(RessourceURI, Data, OnSuccess, OnError) {
     // #region Make HTTP call
     var ajax = new XMLHttpRequest();
     ajax.open("SET", RessourceURI, true);
@@ -253,8 +251,8 @@ function HTTPSet(RessourceURI, APIKey, Data, OnSuccess, OnError) {
     // #endregion
 }
 // #endregion
-// #region HTTPAdd(RessourceURI, APIKey, Data, OnSuccess, OnError)
-function HTTPAdd(RessourceURI, APIKey, Data, OnSuccess, OnError) {
+// #region HTTPAdd(RessourceURI, Data, OnSuccess, OnError)
+function HTTPAdd(RessourceURI, Data, OnSuccess, OnError) {
     // #region Make HTTP call
     var ajax = new XMLHttpRequest();
     ajax.open("ADD", RessourceURI, true); // , user, password);
@@ -285,8 +283,8 @@ function HTTPAdd(RessourceURI, APIKey, Data, OnSuccess, OnError) {
     // #endregion
 }
 // #endregion
-// #region HTTPAddIfNotExists(RessourceURI, APIKey, Data, OnSuccess, OnError)
-function HTTPAddIfNotExists(RessourceURI, APIKey, Data, OnSuccess, OnError) {
+// #region HTTPAddIfNotExists(RessourceURI, Data, OnSuccess, OnError)
+function HTTPAddIfNotExists(RessourceURI, Data, OnSuccess, OnError) {
     // #region Make HTTP call
     var ajax = new XMLHttpRequest();
     ajax.open("ADDIFNOTEXISTS", RessourceURI, true); // , user, password);
@@ -317,8 +315,8 @@ function HTTPAddIfNotExists(RessourceURI, APIKey, Data, OnSuccess, OnError) {
     // #endregion
 }
 // #endregion
-// #region HTTPChown(RessourceURI, APIKey, Data, OnSuccess, OnError)
-function HTTPChown(RessourceURI, APIKey, Data, OnSuccess, OnError) {
+// #region HTTPChown(RessourceURI, Data, OnSuccess, OnError)
+function HTTPChown(RessourceURI, Data, OnSuccess, OnError) {
     // #region Make HTTP call
     var ajax = new XMLHttpRequest();
     ajax.open("CHOWN", RessourceURI, true); // , user, password);
@@ -349,8 +347,8 @@ function HTTPChown(RessourceURI, APIKey, Data, OnSuccess, OnError) {
     // #endregion
 }
 // #endregion
-// #region HTTPCheck(RessourceURI, APIKey, Data, OnSuccess, OnError)
-function HTTPCheck(RessourceURI, APIKey, Data, OnSuccess, OnError) {
+// #region HTTPCheck(RessourceURI, Data, OnSuccess, OnError)
+function HTTPCheck(RessourceURI, Data, OnSuccess, OnError) {
     var ajax = new XMLHttpRequest();
     ajax.open("CHECK", RessourceURI, true); // , user, password);
     ajax.setRequestHeader("Accept", "application/json; charset=UTF-8");
@@ -379,8 +377,8 @@ function HTTPCheck(RessourceURI, APIKey, Data, OnSuccess, OnError) {
         ajax.send();
 }
 // #endregion
-// #region HTTPAuth(RessourceURI, APIKey, Data)
-function HTTPAuth(RessourceURI, APIKey, Data) {
+// #region HTTPAuth(RessourceURI, Data)
+function HTTPAuth(RessourceURI, Data) {
     var ajax = new XMLHttpRequest();
     ajax.open("AUTH", RessourceURI, false); // NOT ASYNC!
     ajax.setRequestHeader("Accept", "application/json; charset=UTF-8");
@@ -440,8 +438,8 @@ function HTTPDepersonate(RessourceURI, OnSuccess, OnError) {
     ajax.send();
 }
 // #endregion
-// #region HTTPSet__SYNCED(RessourceURI, APIKey, Data)
-function HTTPSet__SYNCED(RessourceURI, APIKey, Data) {
+// #region HTTPSet__SYNCED(RessourceURI, Data)
+function HTTPSet__SYNCED(RessourceURI, Data) {
     var ajax = new XMLHttpRequest();
     ajax.open("SET", RessourceURI, false); // NOT ASYNC!
     ajax.setRequestHeader("Accept", "application/json; charset=UTF-8");
@@ -516,8 +514,22 @@ function PrintProperties(id, properties, recursionLevel, CSSClassNames) {
     return propertiesDiv;
 }
 // #endregion
-// #region GetI18N(I18NString, CSSClassNames?)
-function GetI18N(I18NString, CSSClassNames) {
+// #region ShowI18N(I18NString)
+function ShowI18N(I18NString) {
+    var I18NDiv = document.createElement('div');
+    for (var I18NKey in I18NString) {
+        var propertyKeyDiv = I18NDiv.appendChild(document.createElement('div'));
+        propertyKeyDiv.className = "I18NLanguage";
+        propertyKeyDiv.innerText = I18NKey;
+        var propertyValueDiv = I18NDiv.appendChild(document.createElement('div'));
+        propertyValueDiv.className = "I18NValue";
+        propertyValueDiv.innerText = I18NString[I18NKey];
+    }
+    return I18NDiv.innerHTML;
+}
+// #endregion
+// #region CreateI18NDiv(I18NString, CSSClassNames?)
+function CreateI18NDiv(I18NString, CSSClassNames) {
     var I18NDiv = document.createElement('div');
     I18NDiv.className = "I18N" + (CSSClassNames ? " " + CSSClassNames : "");
     for (var I18NKey in I18NString) {
@@ -529,6 +541,14 @@ function GetI18N(I18NString, CSSClassNames) {
         propertyValueDiv.innerText = I18NString[I18NKey];
     }
     return I18NDiv;
+}
+// #endregion
+// #region CreateDiv(Content, CSSClassNames?)
+function CreateDiv(Content, CSSClassNames) {
+    var newDiv = document.createElement('div');
+    newDiv.className = (CSSClassNames ? CSSClassNames : "");
+    newDiv.innerHTML = Content;
+    return newDiv;
 }
 // #endregion
 var months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
