@@ -22,6 +22,19 @@ interface IUserProfile {
     hash:             string;
 }
 
+let OrganizationJSON: IOrganization;
+
+interface IOrganization {
+    id:               string;
+    name:             string;
+    description:      Object;
+    parent:           Array<string>;
+
+    privacyLevel:     string;
+    isDisabled:       boolean;
+    hash:             string;
+}
+
 interface IAddress {
     city:             any;
     street:           string;
@@ -162,24 +175,25 @@ function firstValue(obj) {
     for (var a in obj) return obj[a];
 }
 
-function UpdateI18NDescription(DescriptionDiv: HTMLDivElement,
-                               JSON:           Object) {
+function UpdateI18N(Div:  HTMLDivElement,
+                    JSON: Object) {
 
-    if (firstValue(JSON["description"]) != null)
+    if (Div              != null &&
+        JSON             != null &&
+        firstValue(JSON) != null)
     {
 
         var opt = document.createElement('option') as HTMLOptionElement;
-        opt.value     = firstKey(JSON["description"]);
-        opt.innerHTML = firstKey(JSON["description"]);
+        opt.value     = firstKey(JSON);
+        opt.innerHTML = firstKey(JSON);
         opt.selected  = true;
-        (DescriptionDiv.querySelector("#language")    as HTMLSelectElement).appendChild(opt);
 
-        (DescriptionDiv.querySelector("#description") as HTMLTextAreaElement).value = firstValue(JSON["description"]);
+        (Div.querySelector("select")   as HTMLSelectElement).appendChild(opt);
+        (Div.querySelector("textarea") as HTMLTextAreaElement).value = firstValue(JSON);
 
     }
 
 }
-
 
 
 // #region HTTPSet(Method, RessourceURI, APIKey, Data, OnSuccess, OnError)

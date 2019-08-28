@@ -3,6 +3,7 @@ var APIKey = null;
 var CurrentlyHighlightedMenuItem = "";
 var CurrentlyHighlightedSubmenuItem = "";
 var UserProfileJSON;
+var OrganizationJSON;
 // #region MenuHighlight(name, NoURIupdate?)
 function MenuHighlight(name, NoURIupdate) {
     if (CurrentlyHighlightedMenuItem != "") {
@@ -86,14 +87,16 @@ function firstValue(obj) {
     for (var a in obj)
         return obj[a];
 }
-function UpdateI18NDescription(DescriptionDiv, JSON) {
-    if (firstValue(JSON["description"]) != null) {
+function UpdateI18N(Div, JSON) {
+    if (Div != null &&
+        JSON != null &&
+        firstValue(JSON) != null) {
         var opt = document.createElement('option');
-        opt.value = firstKey(JSON["description"]);
-        opt.innerHTML = firstKey(JSON["description"]);
+        opt.value = firstKey(JSON);
+        opt.innerHTML = firstKey(JSON);
         opt.selected = true;
-        DescriptionDiv.querySelector("#language").appendChild(opt);
-        DescriptionDiv.querySelector("#description").value = firstValue(JSON["description"]);
+        Div.querySelector("select").appendChild(opt);
+        Div.querySelector("textarea").value = firstValue(JSON);
     }
 }
 // #region HTTPSet(Method, RessourceURI, APIKey, Data, OnSuccess, OnError)
