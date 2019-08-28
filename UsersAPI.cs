@@ -30,7 +30,6 @@ using System.Security.Cryptography;
 using System.Text.RegularExpressions;
 
 using Newtonsoft.Json.Linq;
-using SMSApi.Api;
 
 using Org.BouncyCastle.Bcpg.OpenPgp;
 
@@ -48,6 +47,9 @@ using org.GraphDefined.Vanaheimr.Warden;
 
 using org.GraphDefined.OpenData.Postings;
 using org.GraphDefined.OpenData.Notifications;
+
+using com.GraphDefined.SMSApi.API;
+using com.GraphDefined.SMSApi.API.Response;
 
 #endregion
 
@@ -532,15 +534,24 @@ namespace org.GraphDefined.OpenData.Users
         #endregion
 
 
+        #region SMSAPI
+
         /// <summary>
         /// The credentials used for the SMS API.
         /// </summary>
         public Credentials               SMSAPICredentials          { get; }
 
         /// <summary>
+        /// The (default) SMS sender name.
+        /// </summary>
+        public String                    SMSSenderName              { get; }
+
+        /// <summary>
         /// A list of admin SMS phonenumbers.
         /// </summary>
         public IEnumerable<PhoneNumber>  APIAdminSMS                { get; }
+
+        #endregion
 
 
         #region DNSClient
@@ -694,7 +705,7 @@ namespace org.GraphDefined.OpenData.Users
 
         #endregion
 
-        #region MinPasswordLenght
+        #region PasswordQualityCheck
 
         /// <summary>
         /// A delegate to ensure a minimal password quality.
@@ -1110,6 +1121,7 @@ namespace org.GraphDefined.OpenData.Users
         /// <param name="APISMTPClient">A SMTP client for sending e-mails.</param>
         /// 
         /// <param name="SMSAPICredentials">The credentials for the SMS API.</param>
+        /// <param name="SMSSenderName">The (default) SMS sender name.</param>
         /// <param name="APIAdminSMS">A list of admin SMS phonenumbers.</param>
         /// 
         /// <param name="CookieName">The name of the HTTP Cookie for authentication.</param>
@@ -1158,6 +1170,7 @@ namespace org.GraphDefined.OpenData.Users
                         SMTPClient                           APISMTPClient                      = null,
 
                         Credentials                          SMSAPICredentials                  = null,
+                        String                               SMSSenderName                      = null,
                         IEnumerable<PhoneNumber>             APIAdminSMS                        = null,
 
                         HTTPCookieName?                      CookieName                         = null,
@@ -1222,6 +1235,7 @@ namespace org.GraphDefined.OpenData.Users
                    APISMTPClient,
 
                    SMSAPICredentials,
+                   SMSSenderName,
                    APIAdminSMS,
 
                    CookieName,
@@ -1270,6 +1284,7 @@ namespace org.GraphDefined.OpenData.Users
         /// <param name="APISMTPClient">A SMTP client for sending e-mails.</param>
         /// 
         /// <param name="SMSAPICredentials">The credentials for the SMS API.</param>
+        /// <param name="SMSSenderName">The (default) SMS sender name.</param>
         /// <param name="APIAdminSMS">A list of admin SMS phonenumbers.</param>
         /// 
         /// <param name="CookieName">The name of the HTTP Cookie for authentication.</param>
@@ -1299,6 +1314,7 @@ namespace org.GraphDefined.OpenData.Users
                            SMTPClient                           APISMTPClient                 = null,
 
                            Credentials                          SMSAPICredentials             = null,
+                           String                               SMSSenderName                 = null,
                            IEnumerable<PhoneNumber>             APIAdminSMS                   = null,
 
                            HTTPCookieName?                      CookieName                    = null,
@@ -1432,7 +1448,9 @@ namespace org.GraphDefined.OpenData.Users
             if (SMSAPICredentials != null)
             {
                 this.SMSAPICredentials  = SMSAPICredentials;
-                this._SMSAPI            = new SMSAPI(this.SMSAPICredentials);
+                this._SMSAPI            = new SMSAPI(Credentials: this.SMSAPICredentials);
+                this.SMSSenderName      = SMSSenderName;
+                this.APIAdminSMS        = APIAdminSMS;
             }
 
             this.Warden = new Warden(InitialDelay: TimeSpan.FromMinutes(3));
@@ -1468,6 +1486,7 @@ namespace org.GraphDefined.OpenData.Users
         /// <param name="APISMTPClient">A SMTP client for sending e-mails.</param>
         /// 
         /// <param name="SMSAPICredentials">The credentials for the SMS API.</param>
+        /// <param name="SMSSenderName">The (default) SMS sender name.</param>
         /// <param name="APIAdminSMS">A list of admin SMS phonenumbers.</param>
         /// 
         /// <param name="CookieName">The name of the HTTP Cookie for authentication.</param>
@@ -1497,6 +1516,7 @@ namespace org.GraphDefined.OpenData.Users
                                                SMTPClient                           APISMTPClient                 = null,
 
                                                Credentials                          SMSAPICredentials             = null,
+                                               String                               SMSSenderName                 = null,
                                                IEnumerable<PhoneNumber>             APIAdminSMS                   = null,
 
                                                HTTPCookieName?                      CookieName                    = null,
@@ -1529,6 +1549,7 @@ namespace org.GraphDefined.OpenData.Users
                             APISMTPClient,
 
                             SMSAPICredentials,
+                            SMSSenderName,
                             APIAdminSMS,
 
                             CookieName,
@@ -1834,6 +1855,53 @@ namespace org.GraphDefined.OpenData.Users
 
             // The member was not found within the organizational hierarchy!
             return false;
+
+        }
+
+        #endregion
+
+
+        #region SendSMS(Text, To, Sender = null)
+
+        /// <summary>
+        /// Send a SMS to the given phone number.
+        /// </summary>
+        /// <param name="Text">The text of the SMS.</param>
+        /// <param name="To">The phone number of the recipient.</param>
+        /// <param name="Sender">An optional sender name.</param>
+        public virtual SMSAPIResponseStatus SendSMS(String  Text,
+                                                    String  To,
+                                                    String  Sender  = null)
+        {
+
+            if (_SMSAPI != null)
+                return _SMSAPI.Send(Text,
+                                    To).
+                               SetSender(Sender ?? SMSSenderName).
+                               Execute();
+
+            return SMSAPIResponseStatus.Failed("No SMSAPI defined!");
+
+        }
+
+        /// <summary>
+        /// Send a SMS to the given phone number.
+        /// </summary>
+        /// <param name="Text">The text of the SMS.</param>
+        /// <param name="To">The phone numbers of the recipients.</param>
+        /// <param name="Sender">An optional sender name.</param>
+        public SMSAPIResponseStatus SendSMS(String    Text,
+                                            String[]  To,
+                                            String    Sender  = null)
+        {
+
+            if (_SMSAPI != null)
+                return _SMSAPI.Send(Text,
+                                    To).
+                               SetSender(Sender ?? SMSSenderName).
+                               Execute();
+
+            return SMSAPIResponseStatus.Failed("No SMSAPI defined!");
 
         }
 
@@ -2419,7 +2487,7 @@ namespace org.GraphDefined.OpenData.Users
                                                                                   SecurityToken_Id.Parse(_Random.RandomString(5) + "-" + _Random.RandomString(5)));
 
                                              var MailSentResults  = new List<MailSentStatus>();
-                                             var SMSSentResults   = new List<SMSApi.Api.Response.Status>();
+                                             var SMSSentResults   = new List<SMSAPIResponseStatus>();
 
                                              try
                                              {
@@ -3146,7 +3214,7 @@ namespace org.GraphDefined.OpenData.Users
 
 
                                               var MailSentResult = MailSentStatus.failed;
-                                              SMSApi.Api.Response.Status SMSSentResult = null;
+                                              com.GraphDefined.SMSApi.API.Response.SMSAPIResponseStatus SMSSentResult = null;
 
                                               try
                                               {
