@@ -1685,10 +1685,14 @@ namespace org.GraphDefined.OpenData.Users
                 default:
                     return (Organization,
                             Embedded,
+                            ExpandParents,
+                            ExpandChilds,
                             ExpandTags,
                             IncludeCryptoHash)
 
                             => Organization.ToJSON(Embedded,
+                                                   ExpandParents,
+                                                   ExpandChilds,
                                                    ExpandTags,
                                                    IncludeCryptoHash);
 
@@ -2797,6 +2801,8 @@ namespace org.GraphDefined.OpenData.Users
 
             #endregion
 
+
+            #region ~/users
 
             #region GET         ~/users
 
@@ -4788,27 +4794,9 @@ namespace org.GraphDefined.OpenData.Users
 
             #endregion
 
-
-            #region GET    .well-known/openpgpkey/policy
-
             #endregion
 
-            #region HEAD   .well-known/openpgpkey/hu/{Id}
-
-            #endregion
-
-            #region GET    .well-known/openpgpkey/hu/{Id}
-
-            // application/octet-string
-
-            // EMailAddress.toLower().SHA1().ZBase32() == 32 octet string
-            // Z-Base-32 method RFC 6189 section 5.1.6
-
-            // https://www.ietf.org/id/draft-koch-openpgp-webkey-service-06.txt
-            // The server MUST NOT return an ASCII armored version of the key.
-
-            #endregion
-
+            #region ~/organizations
 
             #region GET         ~/organizations
 
@@ -4839,7 +4827,9 @@ namespace org.GraphDefined.OpenData.Users
                                              var includeCryptoHash       = Request.QueryString.GetBoolean("includeCryptoHash", true);
 
                                              var expand                  = Request.QueryString.GetStrings("expand", true);
-                                             var expandTags              = expand.Contains("tags")         ? InfoStatus.Expand : InfoStatus.ShowIdOnly;
+                                             var expandParents           = expand.Contains("parents") ? InfoStatus.Expand : InfoStatus.ShowIdOnly;
+                                             var expandChilds            = expand.Contains("childs")  ? InfoStatus.Expand : InfoStatus.ShowIdOnly;
+                                             var expandTags              = expand.Contains("tags")    ? InfoStatus.Expand : InfoStatus.ShowIdOnly;
 
 
                                              //ToDo: Getting the expected total count might be very expensive!
@@ -4847,28 +4837,31 @@ namespace org.GraphDefined.OpenData.Users
 
                                              return Task.FromResult(
                                                  new HTTPResponse.Builder(Request) {
-                                                     HTTPStatusCode                = HTTPStatusCode.OK,
-                                                     Server                        = HTTPServer.DefaultServerName,
-                                                     Date                          = DateTime.UtcNow,
-                                                     AccessControlAllowOrigin      = "*",
-                                                     AccessControlAllowMethods     = "GET, COUNT, OPTIONS",
-                                                     AccessControlAllowHeaders     = "Content-Type, Accept, Authorization",
-                                                     ETag                          = "1",
-                                                     ContentType                   = HTTPContentType.JSON_UTF8,
-                                                     Content                       = Organizations.
-                                                                                         OrderBy(organization => organization.Id).
-                                                                                         //Where  (organization => HTTPOrganizations.Contains(organization.Owner) ||
-                                                                                         //                            Admins.InEdges(HTTPUser).
-                                                                                         //                                   Any(edgelabel => edgelabel == User2GroupEdges.IsAdmin)).
-                                                                                         ToJSON(skip,
-                                                                                                take,
-                                                                                                false, //Embedded
-                                                                                                expandTags,
-                                                                                                GetOrganizationSerializator(Request, HTTPUser),
-                                                                                                includeCryptoHash).
-                                                                                         ToUTF8Bytes(),
-                                                     X_ExpectedTotalNumberOfItems  = _ExpectedCount,
-                                                     Connection                    = "close"
+                                                     HTTPStatusCode                 = HTTPStatusCode.OK,
+                                                     Server                         = HTTPServer.DefaultServerName,
+                                                     Date                           = DateTime.UtcNow,
+                                                     AccessControlAllowOrigin       = "*",
+                                                     AccessControlAllowMethods      = "GET, COUNT, OPTIONS",
+                                                     AccessControlAllowHeaders      = "Content-Type, Accept, Authorization",
+                                                     ETag                           = "1",
+                                                     ContentType                    = HTTPContentType.JSON_UTF8,
+                                                     Content                        = Organizations.
+                                                                                          OrderBy(organization => organization.Id).
+                                                                                          //Where  (organization => HTTPOrganizations.Contains(organization.Owner) ||
+                                                                                          //                            Admins.InEdges(HTTPUser).
+                                                                                          //                                   Any(edgelabel => edgelabel == User2GroupEdges.IsAdmin)).
+                                                                                          ToJSON(skip,
+                                                                                                 take,
+                                                                                                 false, //Embedded
+                                                                                                 expandParents,
+                                                                                                 expandChilds,
+                                                                                                 expandTags,
+                                                                                                 GetOrganizationSerializator(Request, HTTPUser),
+                                                                                                 includeCryptoHash).
+                                                                                          ToUTF8Bytes(),
+                                                     X_ExpectedTotalNumberOfItems   = _ExpectedCount,
+                                                     Connection                     = "close",
+                                                     Vary                           = "Accept"
                                                  }.AsImmutable);
 
                                          });
@@ -4954,9 +4947,16 @@ namespace org.GraphDefined.OpenData.Users
 
                                              #endregion
 
+                                             var expand             = Request.QueryString.GetStrings("expand", false);
+                                             var expandParents      = expand.Contains("parents") ? InfoStatus.Expand : InfoStatus.ShowIdOnly;
+                                             var expandChilds       = expand.Contains("childs")  ? InfoStatus.Expand : InfoStatus.ShowIdOnly;
+                                             var expandTags         = expand.Contains("tags")    ? InfoStatus.Expand : InfoStatus.ShowIdOnly;
+
+                                             var includeCryptoHash  = Request.QueryString.GetBoolean("includeCryptoHash", true);
 
                                              return Task.FromResult(
-                                                        (Organization.PrivacyLevel == PrivacyLevel.Private && !HTTPOrganizations.Contains(Organization))
+                                                        (Organization.PrivacyLevel == PrivacyLevel.Private &&
+                                                         !HTTPOrganizations.Contains(Organization))
 
                                                             ? new HTTPResponse.Builder(Request) {
                                                                   HTTPStatusCode             = HTTPStatusCode.Unauthorized,
@@ -4976,8 +4976,13 @@ namespace org.GraphDefined.OpenData.Users
                                                                   AccessControlAllowMethods  = "GET, EXISTS",
                                                                   AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
                                                                   ContentType                = HTTPContentType.JSON_UTF8,
-                                                                  Content                    = Organization.ToJSON().ToUTF8Bytes(),
-                                                                  Connection                 = "close"
+                                                                  Content                    = Organization.ToJSON(false,
+                                                                                                                   expandParents,
+                                                                                                                   expandChilds,
+                                                                                                                   expandTags,
+                                                                                                                   includeCryptoHash).ToUTF8Bytes(),
+                                                                  Connection                 = "close",
+                                                                  Vary                       = "Accept"
                                                               }.AsImmutable);
 
                                          });
@@ -5285,6 +5290,7 @@ namespace org.GraphDefined.OpenData.Users
 
             #endregion
 
+            #endregion
 
 
             #region GET         ~/groups
@@ -5396,6 +5402,25 @@ namespace org.GraphDefined.OpenData.Users
             #endregion
 
 
+            #region GET    .well-known/openpgpkey/policy
+
+            #endregion
+
+            #region HEAD   .well-known/openpgpkey/hu/{Id}
+
+            #endregion
+
+            #region GET    .well-known/openpgpkey/hu/{Id}
+
+            // application/octet-string
+
+            // EMailAddress.toLower().SHA1().ZBase32() == 32 octet string
+            // Z-Base-32 method RFC 6189 section 5.1.6
+
+            // https://www.ietf.org/id/draft-koch-openpgp-webkey-service-06.txt
+            // The server MUST NOT return an ASCII armored version of the key.
+
+            #endregion
 
         }
 
@@ -8494,8 +8519,8 @@ namespace org.GraphDefined.OpenData.Users
         public Task<Organization> CreateOrganization(Organization_Id           Id,
                                                      I18NString                Name                 = null,
                                                      I18NString                Description          = null,
-                                                     SimpleEMailAddress?       EMail                = null,
-                                                     String                    PublicKeyRing        = null,
+                                                     String                    Website              = null,
+                                                     EMailAddress              EMail                = null,
                                                      PhoneNumber?              Telephone            = null,
                                                      GeoCoordinate?            GeoLocation          = null,
                                                      Address                   Address              = null,
@@ -8509,8 +8534,8 @@ namespace org.GraphDefined.OpenData.Users
             => Add(new Organization(Id,
                                     Name,
                                     Description,
+                                    Website,
                                     EMail,
-                                    PublicKeyRing,
                                     Telephone,
                                     GeoLocation,
                                     Address,
@@ -8528,8 +8553,8 @@ namespace org.GraphDefined.OpenData.Users
         public Task<Organization> CreateOrganizationIfNotExists(Organization_Id           Id,
                                                                 I18NString                Name                 = null,
                                                                 I18NString                Description          = null,
-                                                                SimpleEMailAddress?       EMail                = null,
-                                                                String                    PublicKeyRing        = null,
+                                                                String                    Website              = null,
+                                                                EMailAddress              EMail                = null,
                                                                 PhoneNumber?              Telephone            = null,
                                                                 GeoCoordinate?            GeoLocation          = null,
                                                                 Address                   Address              = null,
@@ -8543,8 +8568,8 @@ namespace org.GraphDefined.OpenData.Users
             => AddIfNotExists(new Organization(Id,
                                                Name,
                                                Description,
+                                               Website,
                                                EMail,
-                                               PublicKeyRing,
                                                Telephone,
                                                GeoLocation,
                                                Address,

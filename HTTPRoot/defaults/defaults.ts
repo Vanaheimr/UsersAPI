@@ -28,7 +28,10 @@ interface IOrganization {
     id:               string;
     name:             string;
     description:      Object;
-    parent:           Array<string>;
+    website:          string;
+    email:            string;
+    parents:          Array<string>|Array<object>;
+    childs:           Array<string>|Array<object>;
 
     privacyLevel:     string;
     isDisabled:       boolean;

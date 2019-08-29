@@ -40,6 +40,8 @@ namespace org.GraphDefined.OpenData.Users
 
     public delegate JObject OrganizationToJSONDelegate(Organization  Organization,
                                                        Boolean       Embedded            = false,
+                                                       InfoStatus    ExpandParents       = InfoStatus.ShowIdOnly,
+                                                       InfoStatus    ExpandChilds        = InfoStatus.ShowIdOnly,
                                                        InfoStatus    ExpandTags          = InfoStatus.ShowIdOnly,
                                                        Boolean       IncludeCryptoHash   = true);
 
@@ -63,6 +65,8 @@ namespace org.GraphDefined.OpenData.Users
                                     UInt64?                         Skip                 = null,
                                     UInt64?                         Take                 = null,
                                     Boolean                         Embedded             = false,
+                                    InfoStatus                      ExpandParents        = InfoStatus.ShowIdOnly,
+                                    InfoStatus                      ExpandChilds         = InfoStatus.ShowIdOnly,
                                     InfoStatus                      ExpandTags           = InfoStatus.ShowIdOnly,
                                     OrganizationToJSONDelegate      OrganizationToJSON   = null,
                                     Boolean                         IncludeCryptoHash    = true)
@@ -79,10 +83,14 @@ namespace org.GraphDefined.OpenData.Users
                                     SafeSelect(organization => OrganizationToJSON != null
                                                                     ? OrganizationToJSON (organization,
                                                                                           Embedded,
+                                                                                          ExpandParents,
+                                                                                          ExpandChilds,
                                                                                           ExpandTags,
                                                                                           IncludeCryptoHash)
 
                                                                     : organization.ToJSON(Embedded,
+                                                                                          ExpandParents,
+                                                                                          ExpandChilds,
                                                                                           ExpandTags,
                                                                                           IncludeCryptoHash)));
 
@@ -156,16 +164,16 @@ namespace org.GraphDefined.OpenData.Users
         public I18NString           Description          { get; }
 
         /// <summary>
+        /// The website of the organization.
+        /// </summary>
+        [Optional]
+        public String               Website              { get; }
+
+        /// <summary>
         /// The primary E-Mail address of the organization.
         /// </summary>
         [Optional]
-        public SimpleEMailAddress?  EMail                { get; }
-
-        /// <summary>
-        /// The PGP/GPG public keyring of the organization.
-        /// </summary>
-        [Optional]
-        public String               PublicKeyRing        { get; }
+        public EMailAddress         EMail                { get; }
 
         /// <summary>
         /// The telephone number of the organization.
@@ -216,8 +224,8 @@ namespace org.GraphDefined.OpenData.Users
         /// <param name="Id">The unique identification of the organization.</param>
         /// <param name="Name">The offical (multi-language) name of the organization.</param>
         /// <param name="Description">An optional (multi-language) description of the organization.</param>
+        /// <param name="Website">The website of the organization.</param>
         /// <param name="EMail">The primary e-mail of the organisation.</param>
-        /// <param name="PublicKeyRing">An optional PGP/GPG public keyring of the organisation.</param>
         /// <param name="Telephone">An optional telephone number of the organisation.</param>
         /// <param name="GeoLocation">An optional geographical location of the organisation.</param>
         /// <param name="Address">An optional address of the organisation.</param>
@@ -227,8 +235,8 @@ namespace org.GraphDefined.OpenData.Users
         public Organization(Organization_Id                                                                    Id,
                             I18NString                                                                         Name                                = null,
                             I18NString                                                                         Description                         = null,
-                            SimpleEMailAddress?                                                                EMail                               = null,
-                            String                                                                             PublicKeyRing                       = null,
+                            String                                                                             Website                             = null,
+                            EMailAddress                                                                       EMail                               = null,
                             PhoneNumber?                                                                       Telephone                           = null,
                             GeoCoordinate?                                                                     GeoLocation                         = null,
                             Address                                                                            Address                             = null,
@@ -248,9 +256,9 @@ namespace org.GraphDefined.OpenData.Users
 
             this.Name           = Name         ?? new I18NString();
             this.Description    = Description  ?? new I18NString();
+            this.Website        = Website;
             this.EMail          = EMail;
             this.Address        = Address;
-            this.PublicKeyRing  = PublicKeyRing;
             this.Telephone      = Telephone;
             this.GeoLocation    = GeoLocation;
             this.Address        = Address;
@@ -480,10 +488,12 @@ namespace org.GraphDefined.OpenData.Users
         /// </summary>
         /// <param name="Embedded">Whether this data is embedded into another data structure.</param>
         /// <param name="IncludeCryptoHash">Include the crypto hash value of this object.</param>
-        public override JObject ToJSON(Boolean Embedded           = false,
-                                       Boolean IncludeCryptoHash  = false)
+        public override JObject ToJSON(Boolean  Embedded           = false,
+                                       Boolean  IncludeCryptoHash  = false)
 
             => ToJSON(Embedded:            false,
+                      ExpandParents:       InfoStatus.ShowIdOnly,
+                      ExpandChilds:        InfoStatus.ShowIdOnly,
                       ExpandTags:          InfoStatus.ShowIdOnly,
                       IncludeCryptoHash:   true);
 
@@ -494,6 +504,8 @@ namespace org.GraphDefined.OpenData.Users
         /// <param name="Embedded">Whether this data is embedded into another data structure.</param>
         /// <param name="IncludeCryptoHash">Include the crypto hash value of this object.</param>
         public JObject ToJSON(Boolean     Embedded           = false,
+                              InfoStatus  ExpandParents      = InfoStatus.ShowIdOnly,
+                              InfoStatus  ExpandChilds       = InfoStatus.ShowIdOnly,
                               InfoStatus  ExpandTags         = InfoStatus.ShowIdOnly,
                               Boolean     IncludeCryptoHash  = true)
 
@@ -511,12 +523,22 @@ namespace org.GraphDefined.OpenData.Users
                        ? new JProperty("description",   Description.    ToJSON())
                        : null,
 
-                   new JProperty("parent",              Organization2OrganizationOutEdges.
+                   new JProperty("parents",             Organization2OrganizationOutEdges.
                                                             Where     (edge => edge.EdgeLabel == Organization2OrganizationEdges.IsChildOf).
-                                                            SafeSelect(edge => edge.Target.Id.ToString())),
+                                                            SafeSelect(edge => ExpandParents.Switch(edge,
+                                                                                                    _edge => _edge.Target.Id.ToString(),
+                                                                                                    _edge => _edge.Target.ToJSON()))),
 
-                   EMail.HasValue
-                       ? new JProperty("email",         EMail.Value.    ToString())
+                   Organization2OrganizationInEdges.SafeAny(edge => edge.EdgeLabel == Organization2OrganizationEdges.IsChildOf)
+                       ? new JProperty("childs",        Organization2OrganizationInEdges.
+                                                            Where     (edge => edge.EdgeLabel == Organization2OrganizationEdges.IsChildOf).
+                                                            SafeSelect(edge => ExpandChilds.Switch(edge,
+                                                                                                   _edge => _edge.Source.Id.ToString(),
+                                                                                                   _edge => _edge.Source.ToJSON())))
+                       : null,
+
+                   EMail != null
+                       ? new JProperty("email",         EMail.          ToString())
                        : null,
 
                    // PublicKeyRing
@@ -633,13 +655,11 @@ namespace org.GraphDefined.OpenData.Users
 
                 #endregion
 
-                #region Parse E-Mail           [optional]
+                #region Parse Website          [optional]
 
-                if (JSONObject.ParseOptionalStruct("email",
-                                                   "e-mail address",
-                                                   SimpleEMailAddress.TryParse,
-                                                   out SimpleEMailAddress? EMail,
-                                                   out ErrorResponse))
+                if (JSONObject.ParseOptional("website",
+                                             out String Website,
+                                             out ErrorResponse))
                 {
 
                     if (ErrorResponse != null)
@@ -649,11 +669,13 @@ namespace org.GraphDefined.OpenData.Users
 
                 #endregion
 
-                #region Parse PublicKey        [optional]
+                #region Parse E-Mail           [optional]
 
-                if (JSONObject.ParseOptional("publicKey",
-                                             out String PublicKey,
-                                             out ErrorResponse))
+                if (JSONObject.ParseOptionalStruct("email",
+                                                   "e-mail address",
+                                                   SimpleEMailAddress.TryParse,
+                                                   out SimpleEMailAddress? EMail,
+                                                   out ErrorResponse))
                 {
 
                     if (ErrorResponse != null)
@@ -746,8 +768,8 @@ namespace org.GraphDefined.OpenData.Users
                 Organization = new Organization(OrganizationIdBody ?? OrganizationIdURI.Value,
                                                 Name,
                                                 Description,
+                                                Website,
                                                 EMail,
-                                                PublicKey,
                                                 Telephone,
                                                 GeoLocation,
                                                 Address,
@@ -1077,8 +1099,8 @@ namespace org.GraphDefined.OpenData.Users
             => new Builder(NewOrganizationId ?? Id,
                            Name,
                            Description,
+                           Website,
                            EMail,
-                           PublicKeyRing,
                            Telephone,
                            GeoLocation,
                            Address,
@@ -1121,16 +1143,16 @@ namespace org.GraphDefined.OpenData.Users
             public I18NString           Description          { get; set; }
 
             /// <summary>
-            /// The primary E-Mail address of the organization.
-            /// </summary>
-            [Mandatory]
-            public SimpleEMailAddress?  EMail                { get; set; }
-
-            /// <summary>
-            /// The PGP/GPG public keyring of the organization.
+            /// The website of the organization.
             /// </summary>
             [Optional]
-            public String               PublicKeyRing        { get; set; }
+            public String               Website              { get; set; }
+
+            /// <summary>
+            /// The primary E-Mail address of the organization.
+            /// </summary>
+            [Optional]
+            public EMailAddress         EMail                { get; set; }
 
             /// <summary>
             /// The telephone number of the organization.
@@ -1211,8 +1233,8 @@ namespace org.GraphDefined.OpenData.Users
             /// <param name="Id">The unique identification of the organization.</param>
             /// <param name="Name">The offical (multi-language) name of the organization.</param>
             /// <param name="Description">An optional (multi-language) description of the organization.</param>
+            /// <param name="Website">The website of the organization.</param>
             /// <param name="EMail">The primary e-mail of the organisation.</param>
-            /// <param name="PublicKeyRing">An optional PGP/GPG public keyring of the organisation.</param>
             /// <param name="Telephone">An optional telephone number of the organisation.</param>
             /// <param name="GeoLocation">An optional geographical location of the organisation.</param>
             /// <param name="Address">An optional address of the organisation.</param>
@@ -1222,8 +1244,8 @@ namespace org.GraphDefined.OpenData.Users
             public Builder(Organization_Id                                                                    Id,
                            I18NString                                                                         Name                                = null,
                            I18NString                                                                         Description                         = null,
-                           SimpleEMailAddress?                                                                EMail                               = null,
-                           String                                                                             PublicKeyRing                       = null,
+                           String                                                                             Website                             = null,
+                           EMailAddress                                                                       EMail                               = null,
                            PhoneNumber?                                                                       Telephone                           = null,
                            GeoCoordinate?                                                                     GeoLocation                         = null,
                            Address                                                                            Address                             = null,
@@ -1240,9 +1262,9 @@ namespace org.GraphDefined.OpenData.Users
                 this.Id              = Id;
                 this.Name            = Name        ?? new I18NString();
                 this.Description     = Description ?? new I18NString();
+                this.Website         = Website;
                 this.EMail           = EMail;
                 this.Address         = Address;
-                this.PublicKeyRing   = PublicKeyRing;
                 this.Telephone       = Telephone;
                 this.GeoLocation     = GeoLocation;
                 this.Address         = Address;
@@ -1281,8 +1303,8 @@ namespace org.GraphDefined.OpenData.Users
                 => new Organization(Id,
                                     Name,
                                     Description,
+                                    Website,
                                     EMail,
-                                    PublicKeyRing,
                                     Telephone,
                                     GeoLocation,
                                     Address,

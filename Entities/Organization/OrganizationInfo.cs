@@ -94,8 +94,8 @@ namespace org.GraphDefined.OpenData.Users
             : base(organization.Id,
                    organization.Name,
                    organization.Description,
+                   organization.Website,
                    organization.EMail,
-                   organization.PublicKeyRing,
                    organization.Telephone,
                    organization.GeoLocation,
                    organization.Address,
@@ -194,7 +194,7 @@ namespace org.GraphDefined.OpenData.Users
             if (YouAreMember)
                 org.Add("members",                     JSONArray.Create(Members.SafeSelect(user => user.ToJSON())));
 
-            org.Add("childs",                          new JArray(Childs.OrderBy(child => child.Id).Select(child => child.ToJSON())));
+            org.Add("_childs",                         new JArray(Childs.OrderBy(child => child.Id).Select(child => child.ToJSON())));
 
             return org;
 
