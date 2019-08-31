@@ -48,7 +48,7 @@ namespace org.GraphDefined.OpenData.Users
             if (OrganizationInfos?.Any() == false)
                 return new JArray();
 
-            return JSONArray.Create(OrganizationInfos.Select(orgInfo => orgInfo.ToJSON()));
+            return JSONArray.Create(OrganizationInfos.Select(orgInfo => orgInfo.ToJSON(ExpandMembers: InfoStatus.Expand)));
 
         }
 
@@ -199,10 +199,10 @@ namespace org.GraphDefined.OpenData.Users
             org.Add("youAreMember",                    YouAreMember);
             org.Add("youCanAddMembers",                YouCanAddMembers);
             org.Add("youCanCreateChildOrganizations",  YouCanCreateChildOrganizations);
-            org.Add("admins",                          JSONArray.Create(Admins. SafeSelect(user => user.ToJSON())));
+            //org.Add("admins",                          JSONArray.Create(Admins. SafeSelect(user => user.ToJSON())));
 
-            if (YouAreMember)
-                org.Add("members",                     JSONArray.Create(Members.SafeSelect(user => user.ToJSON())));
+            //if (YouAreMember)
+            //    org.Add("members",                     JSONArray.Create(Members.SafeSelect(user => user.ToJSON())));
 
             org.Add("_childs",                         new JArray(Childs.OrderBy(child => child.Id).Select(child => child.ToJSON())));
 
