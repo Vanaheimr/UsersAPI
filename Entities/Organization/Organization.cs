@@ -516,71 +516,71 @@ namespace org.GraphDefined.OpenData.Users
 
             => JSONObject.Create(
 
-                   new JProperty("@id",                 Id.             ToString()),
+                   new JProperty("@id",                     Id.             ToString()),
 
                    !Embedded
-                       ? new JProperty("@context",      JSONLDContext)
+                       ? new JProperty("@context",          JSONLDContext)
                        : null,
 
-                   new JProperty("name",                Name.           ToJSON()),
+                   new JProperty("name",                    Name.           ToJSON()),
 
                    Description.IsNeitherNullNorEmpty()
-                       ? new JProperty("description",   Description.    ToJSON())
+                       ? new JProperty("description",       Description.    ToJSON())
                        : null,
 
                    EMail != null
-                       ? new JProperty("email",         EMail.          ToString())
+                       ? new JProperty("email",             EMail.          ToString())
                        : null,
 
                    // PublicKeyRing
 
                    Telephone.HasValue
-                       ? new JProperty("telephone",     Telephone.Value.ToString())
+                       ? new JProperty("telephone",         Telephone.Value.ToString())
                        : null,
 
                    GeoLocation?.ToJSON("geoLocation"),
                    Address?.    ToJSON("address"),
 
                    Tags.Any()
-                       ? new JProperty("tags", Tags.ToJSON(ExpandTags))
+                       ? new JProperty("tags",              Tags.ToJSON(ExpandTags))
                        : null,
 
                    PrivacyLevel.ToJSON(),
 
 
-                   new JProperty("parents",             Organization2OrganizationOutEdges.
-                                                            Where     (edge => edge.EdgeLabel == Organization2OrganizationEdges.IsChildOf).
-                                                            SafeSelect(edge => ExpandParents.Switch(edge,
-                                                                                                    _edge => _edge.Target.Id.ToString(),
-                                                                                                    _edge => _edge.Target.ToJSON()))),
+                   new JProperty("parents",                 Organization2OrganizationOutEdges.
+                                                                Where     (edge => edge.EdgeLabel == Organization2OrganizationEdges.IsChildOf).
+                                                                SafeSelect(edge => ExpandParents.Switch(edge,
+                                                                                                        _edge => _edge.Target.Id.ToString(),
+                                                                                                        _edge => _edge.Target.ToJSON()))),
 
                    Organization2OrganizationInEdges.SafeAny(edge => edge.EdgeLabel == Organization2OrganizationEdges.IsChildOf)
-                       ? new JProperty("childs",        Organization2OrganizationInEdges.
-                                                            Where     (edge => edge.EdgeLabel == Organization2OrganizationEdges.IsChildOf).
-                                                            SafeSelect(edge => ExpandSubOrganizations.Switch(edge,
-                                                                                                   _edge => _edge.Source.Id.ToString(),
-                                                                                                   _edge => _edge.Source.ToJSON())))
+                       ? new JProperty("subOrganizations",  Organization2OrganizationInEdges.
+                                                                Where     (edge => edge.EdgeLabel == Organization2OrganizationEdges.IsChildOf).
+                                                                SafeSelect(edge => ExpandSubOrganizations.Switch(edge,
+                                                                                                       _edge => _edge.Source.Id.ToString(),
+                                                                                                       _edge => _edge.Source.ToJSON())))
                        : null,
 
                    Admins.SafeAny()
-                       ? new JProperty("admins",        Admins.
-                                                            SafeSelect(user => ExpandMembers.Switch(user,
-                                                                                                   _user => _user.Id.ToString(),
-                                                                                                   _user => _user.ToJSON())))
+                       ? new JProperty("admins",            Admins.
+                                                                SafeSelect(user => ExpandMembers.Switch(user,
+                                                                                                       _user => _user.Id.ToString(),
+                                                                                                       _user => _user.ToJSON())))
                        : null,
 
                    Members.SafeAny()
-                       ? new JProperty("members",       Members.
-                                                            SafeSelect(user => ExpandMembers.Switch(user,
-                                                                                                   _user => _user.Id.ToString(),
-                                                                                                   _user => _user.ToJSON())))
+                       ? new JProperty("members",           Members.
+                                                                SafeSelect(user => ExpandMembers.Switch(user,
+                                                                                                       _user => _user.Id.ToString(),
+                                                                                                       _user => _user.ToJSON())))
                        : null,
 
 
-                   new JProperty("isDisabled",          IsDisabled),
+                   new JProperty("isDisabled",              IsDisabled),
 
                    IncludeCryptoHash
-                       ? new JProperty("cryptoHash",    CurrentCryptoHash)
+                       ? new JProperty("cryptoHash",        CurrentCryptoHash)
                        : null
 
                );

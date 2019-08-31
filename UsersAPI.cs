@@ -4829,10 +4829,10 @@ namespace org.GraphDefined.OpenData.Users
                                              var includeCryptoHash       = Request.QueryString.GetBoolean("includeCryptoHash", true);
 
                                              var expand                  = Request.QueryString.GetStrings("expand", true);
-                                             var expandMembers           = expand.Contains("members") ? InfoStatus.Expand : InfoStatus.ShowIdOnly;
-                                             var expandParents           = expand.Contains("parents") ? InfoStatus.Expand : InfoStatus.ShowIdOnly;
-                                             var expandChilds            = expand.Contains("childs")  ? InfoStatus.Expand : InfoStatus.ShowIdOnly;
-                                             var expandTags              = expand.Contains("tags")    ? InfoStatus.Expand : InfoStatus.ShowIdOnly;
+                                             var expandMembers           = expand.Contains("members")           ? InfoStatus.Expand : InfoStatus.ShowIdOnly;
+                                             var expandParents           = expand.Contains("parents")           ? InfoStatus.Expand : InfoStatus.ShowIdOnly;
+                                             var expandSubOrganizations  = expand.Contains("subOrganizations")  ? InfoStatus.Expand : InfoStatus.ShowIdOnly;
+                                             var expandTags              = expand.Contains("tags")              ? InfoStatus.Expand : InfoStatus.ShowIdOnly;
 
 
                                              //ToDo: Getting the expected total count might be very expensive!
@@ -4858,7 +4858,7 @@ namespace org.GraphDefined.OpenData.Users
                                                                                                  false, //Embedded
                                                                                                  expandMembers,
                                                                                                  expandParents,
-                                                                                                 expandChilds,
+                                                                                                 expandSubOrganizations,
                                                                                                  expandTags,
                                                                                                  GetOrganizationSerializator(Request, HTTPUser),
                                                                                                  includeCryptoHash).
@@ -4951,15 +4951,15 @@ namespace org.GraphDefined.OpenData.Users
 
                                              #endregion
 
-                                             var showMgt            = Request.QueryString.GetBoolean("showMgt", false);
+                                             var showMgt                 = Request.QueryString.GetBoolean("showMgt", false);
 
-                                             var expand             = Request.QueryString.GetStrings("expand",  false);
-                                             var expandMembers      = expand.Contains("members") ? InfoStatus.Expand : InfoStatus.ShowIdOnly;
-                                             var expandParents      = expand.Contains("parents") ? InfoStatus.Expand : InfoStatus.ShowIdOnly;
-                                             var expandChilds       = expand.Contains("childs")  ? InfoStatus.Expand : InfoStatus.ShowIdOnly;
-                                             var expandTags         = expand.Contains("tags")    ? InfoStatus.Expand : InfoStatus.ShowIdOnly;
+                                             var expand                  = Request.QueryString.GetStrings("expand",  false);
+                                             var expandMembers           = expand.Contains("members")           ? InfoStatus.Expand : InfoStatus.ShowIdOnly;
+                                             var expandParents           = expand.Contains("parents")           ? InfoStatus.Expand : InfoStatus.ShowIdOnly;
+                                             var expandSubOrganizations  = expand.Contains("subOrganizations")  ? InfoStatus.Expand : InfoStatus.ShowIdOnly;
+                                             var expandTags              = expand.Contains("tags")              ? InfoStatus.Expand : InfoStatus.ShowIdOnly;
 
-                                             var includeCryptoHash  = Request.QueryString.GetBoolean("includeCryptoHash", true);
+                                             var includeCryptoHash       = Request.QueryString.GetBoolean("includeCryptoHash", true);
 
                                              return Task.FromResult(
                                                         (Organization.PrivacyLevel == PrivacyLevel.Private &&
@@ -4988,13 +4988,13 @@ namespace org.GraphDefined.OpenData.Users
                                                                                                                            HTTPUser).ToJSON(false,
                                                                                                                                             expandMembers,
                                                                                                                                             expandParents,
-                                                                                                                                            expandChilds,
+                                                                                                                                            expandSubOrganizations,
                                                                                                                                             expandTags,
                                                                                                                                             includeCryptoHash)
                                                                                                     : Organization.ToJSON(false,
                                                                                                                           expandMembers,
                                                                                                                           expandParents,
-                                                                                                                          expandChilds,
+                                                                                                                          expandSubOrganizations,
                                                                                                                           expandTags,
                                                                                                                           includeCryptoHash)).ToUTF8Bytes(),
                                                                   Connection                 = "close",

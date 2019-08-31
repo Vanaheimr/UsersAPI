@@ -26,14 +26,14 @@ let OrganizationJSON: IOrganization;
 
 interface IOrganization {
     id:                              string;
-    name:                            string;
+    name:                            Object;
     description:                     Object;
     website:                         string;
     email:                           string;
     admins:                          Array<string> | Array<IUserProfile>;
     members:                         Array<string> | Array<IUserProfile>;
     parents:                         Array<string> | Array<object>;
-    childs:                          Array<string> | Array<object>;
+    subOrganizations:                Array<string> | Array<object>;
     youAreMember:                    boolean
     youCanAddMembers:                boolean;
     youCanCreateChildOrganizations:  boolean;
