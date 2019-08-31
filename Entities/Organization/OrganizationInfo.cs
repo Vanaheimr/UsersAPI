@@ -179,10 +179,20 @@ namespace org.GraphDefined.OpenData.Users
         #endregion
 
 
-        public JObject ToJSON()
+        public JObject ToJSON(Boolean     Embedded                 = false,
+                              InfoStatus  ExpandMembers            = InfoStatus.ShowIdOnly,
+                              InfoStatus  ExpandParents            = InfoStatus.ShowIdOnly,
+                              InfoStatus  ExpandSubOrganizations   = InfoStatus.ShowIdOnly,
+                              InfoStatus  ExpandTags               = InfoStatus.ShowIdOnly,
+                              Boolean     IncludeCryptoHash        = true)
         {
 
-            var org      = base.ToJSON();
+            var org      = base.ToJSON(Embedded,
+                                       ExpandMembers,
+                                       ExpandParents,
+                                       ExpandSubOrganizations,
+                                       ExpandTags,
+                                       IncludeCryptoHash);
 
             org["@context"] = JSONLDContext;
 

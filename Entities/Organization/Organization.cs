@@ -39,11 +39,12 @@ namespace org.GraphDefined.OpenData.Users
     public delegate Boolean OrganizationProviderDelegate(Organization_Id OrganizationId, out Organization Organization);
 
     public delegate JObject OrganizationToJSONDelegate(Organization  Organization,
-                                                       Boolean       Embedded            = false,
-                                                       InfoStatus    ExpandParents       = InfoStatus.ShowIdOnly,
-                                                       InfoStatus    ExpandChilds        = InfoStatus.ShowIdOnly,
-                                                       InfoStatus    ExpandTags          = InfoStatus.ShowIdOnly,
-                                                       Boolean       IncludeCryptoHash   = true);
+                                                       Boolean       Embedded                 = false,
+                                                       InfoStatus    ExpandMembers            = InfoStatus.ShowIdOnly,
+                                                       InfoStatus    ExpandParents            = InfoStatus.ShowIdOnly,
+                                                       InfoStatus    ExpandSubOrganizations   = InfoStatus.ShowIdOnly,
+                                                       InfoStatus    ExpandTags               = InfoStatus.ShowIdOnly,
+                                                       Boolean       IncludeCryptoHash        = true);
 
 
     /// <summary>
@@ -62,14 +63,15 @@ namespace org.GraphDefined.OpenData.Users
         /// <param name="Take">The optional number of organizations to return.</param>
         /// <param name="Embedded">Whether this data is embedded into another data structure.</param>
         public static JArray ToJSON(this IEnumerable<Organization>  Organizations,
-                                    UInt64?                         Skip                 = null,
-                                    UInt64?                         Take                 = null,
-                                    Boolean                         Embedded             = false,
-                                    InfoStatus                      ExpandParents        = InfoStatus.ShowIdOnly,
-                                    InfoStatus                      ExpandChilds         = InfoStatus.ShowIdOnly,
-                                    InfoStatus                      ExpandTags           = InfoStatus.ShowIdOnly,
-                                    OrganizationToJSONDelegate      OrganizationToJSON   = null,
-                                    Boolean                         IncludeCryptoHash    = true)
+                                    UInt64?                         Skip                     = null,
+                                    UInt64?                         Take                     = null,
+                                    Boolean                         Embedded                 = false,
+                                    InfoStatus                      ExpandMembers            = InfoStatus.ShowIdOnly,
+                                    InfoStatus                      ExpandParents            = InfoStatus.ShowIdOnly,
+                                    InfoStatus                      ExpandSubOrganizations   = InfoStatus.ShowIdOnly,
+                                    InfoStatus                      ExpandTags               = InfoStatus.ShowIdOnly,
+                                    OrganizationToJSONDelegate      OrganizationToJSON       = null,
+                                    Boolean                         IncludeCryptoHash        = true)
 
 
             => Organizations?.Any() != true
@@ -83,14 +85,16 @@ namespace org.GraphDefined.OpenData.Users
                                     SafeSelect(organization => OrganizationToJSON != null
                                                                     ? OrganizationToJSON (organization,
                                                                                           Embedded,
+                                                                                          ExpandMembers,
                                                                                           ExpandParents,
-                                                                                          ExpandChilds,
+                                                                                          ExpandSubOrganizations,
                                                                                           ExpandTags,
                                                                                           IncludeCryptoHash)
 
                                                                     : organization.ToJSON(Embedded,
+                                                                                          ExpandMembers,
                                                                                           ExpandParents,
-                                                                                          ExpandChilds,
+                                                                                          ExpandSubOrganizations,
                                                                                           ExpandTags,
                                                                                           IncludeCryptoHash)));
 
@@ -268,7 +272,7 @@ namespace org.GraphDefined.OpenData.Users
             this.IsDisabled     = IsDisabled;
 
             // Init edges
-            this._User2Organization_InEdges           = User2OrganizationInEdges.           IsNeitherNullNorEmpty() ? new List<MiniEdge<User, User2OrganizationEdges, Organization>>                (User2OrganizationInEdges)            : new List<MiniEdge<User, User2OrganizationEdges, Organization>>();
+            this._User2Organization_InEdges           = User2OrganizationInEdges.         IsNeitherNullNorEmpty() ? new List<MiniEdge<User, User2OrganizationEdges, Organization>>                (User2OrganizationInEdges)          : new List<MiniEdge<User, User2OrganizationEdges, Organization>>();
             this._Organization2Organization_InEdges   = Organization2OrganizationInEdges. IsNeitherNullNorEmpty() ? new List<MiniEdge<Organization, Organization2OrganizationEdges, Organization>>(Organization2OrganizationInEdges)  : new List<MiniEdge<Organization, Organization2OrganizationEdges, Organization>>();
             this._Organization2Organization_OutEdges  = Organization2OrganizationOutEdges.IsNeitherNullNorEmpty() ? new List<MiniEdge<Organization, Organization2OrganizationEdges, Organization>>(Organization2OrganizationOutEdges) : new List<MiniEdge<Organization, Organization2OrganizationEdges, Organization>>();
 
@@ -493,7 +497,7 @@ namespace org.GraphDefined.OpenData.Users
 
             => ToJSON(Embedded:            false,
                       ExpandParents:       InfoStatus.ShowIdOnly,
-                      ExpandChilds:        InfoStatus.ShowIdOnly,
+                      ExpandSubOrganizations:        InfoStatus.ShowIdOnly,
                       ExpandTags:          InfoStatus.ShowIdOnly,
                       IncludeCryptoHash:   true);
 
@@ -503,11 +507,12 @@ namespace org.GraphDefined.OpenData.Users
         /// </summary>
         /// <param name="Embedded">Whether this data is embedded into another data structure.</param>
         /// <param name="IncludeCryptoHash">Include the crypto hash value of this object.</param>
-        public JObject ToJSON(Boolean     Embedded           = false,
-                              InfoStatus  ExpandParents      = InfoStatus.ShowIdOnly,
-                              InfoStatus  ExpandChilds       = InfoStatus.ShowIdOnly,
-                              InfoStatus  ExpandTags         = InfoStatus.ShowIdOnly,
-                              Boolean     IncludeCryptoHash  = true)
+        public JObject ToJSON(Boolean     Embedded                = false,
+                              InfoStatus  ExpandMembers           = InfoStatus.ShowIdOnly,
+                              InfoStatus  ExpandParents           = InfoStatus.ShowIdOnly,
+                              InfoStatus  ExpandSubOrganizations  = InfoStatus.ShowIdOnly,
+                              InfoStatus  ExpandTags              = InfoStatus.ShowIdOnly,
+                              Boolean     IncludeCryptoHash       = true)
 
             => JSONObject.Create(
 
@@ -521,20 +526,6 @@ namespace org.GraphDefined.OpenData.Users
 
                    Description.IsNeitherNullNorEmpty()
                        ? new JProperty("description",   Description.    ToJSON())
-                       : null,
-
-                   new JProperty("parents",             Organization2OrganizationOutEdges.
-                                                            Where     (edge => edge.EdgeLabel == Organization2OrganizationEdges.IsChildOf).
-                                                            SafeSelect(edge => ExpandParents.Switch(edge,
-                                                                                                    _edge => _edge.Target.Id.ToString(),
-                                                                                                    _edge => _edge.Target.ToJSON()))),
-
-                   Organization2OrganizationInEdges.SafeAny(edge => edge.EdgeLabel == Organization2OrganizationEdges.IsChildOf)
-                       ? new JProperty("childs",        Organization2OrganizationInEdges.
-                                                            Where     (edge => edge.EdgeLabel == Organization2OrganizationEdges.IsChildOf).
-                                                            SafeSelect(edge => ExpandChilds.Switch(edge,
-                                                                                                   _edge => _edge.Source.Id.ToString(),
-                                                                                                   _edge => _edge.Source.ToJSON())))
                        : null,
 
                    EMail != null
@@ -555,6 +546,36 @@ namespace org.GraphDefined.OpenData.Users
                        : null,
 
                    PrivacyLevel.ToJSON(),
+
+
+                   new JProperty("parents",             Organization2OrganizationOutEdges.
+                                                            Where     (edge => edge.EdgeLabel == Organization2OrganizationEdges.IsChildOf).
+                                                            SafeSelect(edge => ExpandParents.Switch(edge,
+                                                                                                    _edge => _edge.Target.Id.ToString(),
+                                                                                                    _edge => _edge.Target.ToJSON()))),
+
+                   Organization2OrganizationInEdges.SafeAny(edge => edge.EdgeLabel == Organization2OrganizationEdges.IsChildOf)
+                       ? new JProperty("childs",        Organization2OrganizationInEdges.
+                                                            Where     (edge => edge.EdgeLabel == Organization2OrganizationEdges.IsChildOf).
+                                                            SafeSelect(edge => ExpandSubOrganizations.Switch(edge,
+                                                                                                   _edge => _edge.Source.Id.ToString(),
+                                                                                                   _edge => _edge.Source.ToJSON())))
+                       : null,
+
+                   Admins.SafeAny()
+                       ? new JProperty("admins",        Admins.
+                                                            SafeSelect(user => ExpandMembers.Switch(user,
+                                                                                                   _user => _user.Id.ToString(),
+                                                                                                   _user => _user.ToJSON())))
+                       : null,
+
+                   Members.SafeAny()
+                       ? new JProperty("members",       Members.
+                                                            SafeSelect(user => ExpandMembers.Switch(user,
+                                                                                                   _user => _user.Id.ToString(),
+                                                                                                   _user => _user.ToJSON())))
+                       : null,
+
 
                    new JProperty("isDisabled",          IsDisabled),
 
@@ -867,6 +888,22 @@ namespace org.GraphDefined.OpenData.Users
         }
 
         #endregion
+
+
+        public IEnumerable<User> Admins
+            => _User2Organization_InEdges.Where(_ => _.EdgeLabel == Users.User2OrganizationEdges.IsAdmin). SafeSelect(edge => edge.Source).ToArray();
+
+        public IEnumerable<User> Members
+            => _User2Organization_InEdges.Where(_ => _.EdgeLabel == Users.User2OrganizationEdges.IsMember).SafeSelect(edge => edge.Source).ToArray();
+
+        public IEnumerable<Organization> Parents
+            => _Organization2Organization_OutEdges.Where(edge => edge.Source == this && edge.EdgeLabel == Organization2OrganizationEdges.IsChildOf).Select(edge => edge.Target).ToArray();
+
+        /// <summary>
+        /// A relationship between two organizations where the first includes the second, e.g., as a subsidiary. See also: the more specific 'department' property.
+        /// </summary>
+        public IEnumerable<Organization> SubOrganizations
+            => _Organization2Organization_InEdges.Where(edge => edge.Source == this && edge.EdgeLabel == Organization2OrganizationEdges.IsChildOf).Select(edge => edge.Source).ToArray();
 
 
         #region Operator overloading

@@ -25,17 +25,22 @@ interface IUserProfile {
 let OrganizationJSON: IOrganization;
 
 interface IOrganization {
-    id:               string;
-    name:             string;
-    description:      Object;
-    website:          string;
-    email:            string;
-    parents:          Array<string>|Array<object>;
-    childs:           Array<string>|Array<object>;
+    id:                              string;
+    name:                            string;
+    description:                     Object;
+    website:                         string;
+    email:                           string;
+    admins:                          Array<string> | Array<IUserProfile>;
+    members:                         Array<string> | Array<IUserProfile>;
+    parents:                         Array<string> | Array<object>;
+    childs:                          Array<string> | Array<object>;
+    youAreMember:                    boolean
+    youCanAddMembers:                boolean;
+    youCanCreateChildOrganizations:  boolean;
 
-    privacyLevel:     string;
-    isDisabled:       boolean;
-    hash:             string;
+    privacyLevel:                    string;
+    isDisabled:                      boolean;
+    hash:                            string;
 }
 
 interface IAddress {

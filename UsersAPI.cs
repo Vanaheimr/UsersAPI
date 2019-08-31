@@ -1685,14 +1685,16 @@ namespace org.GraphDefined.OpenData.Users
                 default:
                     return (Organization,
                             Embedded,
+                            ExpandMembers,
                             ExpandParents,
-                            ExpandChilds,
+                            ExpandSubOrganizations,
                             ExpandTags,
                             IncludeCryptoHash)
 
                             => Organization.ToJSON(Embedded,
+                                                   ExpandMembers,
                                                    ExpandParents,
-                                                   ExpandChilds,
+                                                   ExpandSubOrganizations,
                                                    ExpandTags,
                                                    IncludeCryptoHash);
 
@@ -4827,6 +4829,7 @@ namespace org.GraphDefined.OpenData.Users
                                              var includeCryptoHash       = Request.QueryString.GetBoolean("includeCryptoHash", true);
 
                                              var expand                  = Request.QueryString.GetStrings("expand", true);
+                                             var expandMembers           = expand.Contains("members") ? InfoStatus.Expand : InfoStatus.ShowIdOnly;
                                              var expandParents           = expand.Contains("parents") ? InfoStatus.Expand : InfoStatus.ShowIdOnly;
                                              var expandChilds            = expand.Contains("childs")  ? InfoStatus.Expand : InfoStatus.ShowIdOnly;
                                              var expandTags              = expand.Contains("tags")    ? InfoStatus.Expand : InfoStatus.ShowIdOnly;
@@ -4853,6 +4856,7 @@ namespace org.GraphDefined.OpenData.Users
                                                                                           ToJSON(skip,
                                                                                                  take,
                                                                                                  false, //Embedded
+                                                                                                 expandMembers,
                                                                                                  expandParents,
                                                                                                  expandChilds,
                                                                                                  expandTags,
@@ -4947,7 +4951,10 @@ namespace org.GraphDefined.OpenData.Users
 
                                              #endregion
 
-                                             var expand             = Request.QueryString.GetStrings("expand", false);
+                                             var showMgt            = Request.QueryString.GetBoolean("showMgt", false);
+
+                                             var expand             = Request.QueryString.GetStrings("expand",  false);
+                                             var expandMembers      = expand.Contains("members") ? InfoStatus.Expand : InfoStatus.ShowIdOnly;
                                              var expandParents      = expand.Contains("parents") ? InfoStatus.Expand : InfoStatus.ShowIdOnly;
                                              var expandChilds       = expand.Contains("childs")  ? InfoStatus.Expand : InfoStatus.ShowIdOnly;
                                              var expandTags         = expand.Contains("tags")    ? InfoStatus.Expand : InfoStatus.ShowIdOnly;
@@ -4976,11 +4983,20 @@ namespace org.GraphDefined.OpenData.Users
                                                                   AccessControlAllowMethods  = "GET, EXISTS",
                                                                   AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
                                                                   ContentType                = HTTPContentType.JSON_UTF8,
-                                                                  Content                    = Organization.ToJSON(false,
-                                                                                                                   expandParents,
-                                                                                                                   expandChilds,
-                                                                                                                   expandTags,
-                                                                                                                   includeCryptoHash).ToUTF8Bytes(),
+                                                                  Content                    = (showMgt == true
+                                                                                                    ? new OrganizationInfo2(Organization,
+                                                                                                                           HTTPUser).ToJSON(false,
+                                                                                                                                            expandMembers,
+                                                                                                                                            expandParents,
+                                                                                                                                            expandChilds,
+                                                                                                                                            expandTags,
+                                                                                                                                            includeCryptoHash)
+                                                                                                    : Organization.ToJSON(false,
+                                                                                                                          expandMembers,
+                                                                                                                          expandParents,
+                                                                                                                          expandChilds,
+                                                                                                                          expandTags,
+                                                                                                                          includeCryptoHash)).ToUTF8Bytes(),
                                                                   Connection                 = "close",
                                                                   Vary                       = "Accept"
                                                               }.AsImmutable);
