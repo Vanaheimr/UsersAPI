@@ -204,7 +204,7 @@ namespace org.GraphDefined.OpenData.Users
             //if (YouAreMember)
             //    org.Add("members",                     JSONArray.Create(Members.SafeSelect(user => user.ToJSON())));
 
-            org.Add("_childs",                         new JArray(Childs.OrderBy(child => child.Id).Select(child => child.ToJSON())));
+            org.Add("_childs",                         new JArray(Childs.OrderBy(child => child.Id).Select(child => child.ToJSON(ExpandMembers: InfoStatus.Expand))));
 
             return org;
 
