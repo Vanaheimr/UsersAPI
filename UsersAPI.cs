@@ -5195,13 +5195,24 @@ namespace org.GraphDefined.OpenData.Users
 
                                                  #endregion
 
-
                                                  try
                                                  {
 
                                                      var _NewChildOrganization = await Add(newOrganization,
                                                                                            ParentOrganization: ParentOrganization,
                                                                                            CurrentUserId:      HTTPUser.Id);
+
+                                                     return new HTTPResponse.Builder(Request) {
+                                                                HTTPStatusCode              = HTTPStatusCode.Created,
+                                                                Server                      = HTTPServer.DefaultServerName,
+                                                                Date                        = DateTime.UtcNow,
+                                                                AccessControlAllowOrigin    = "*",
+                                                                AccessControlAllowMethods   = "GET, SET",
+                                                                AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
+                                                                ContentType                 = HTTPContentType.JSON_UTF8,
+                                                                Content                     = _NewChildOrganization.ToJSON().ToUTF8Bytes(),
+                                                                Connection                  = "close"
+                                                            }.AsImmutable;
 
                                                  }
                                                  catch (Exception e)
@@ -5221,16 +5232,6 @@ namespace org.GraphDefined.OpenData.Users
                                                             }.AsImmutable;
 
                                                  }
-
-                                                 return new HTTPResponse.Builder(Request) {
-                                                            HTTPStatusCode              = HTTPStatusCode.Created,
-                                                            Server                      = HTTPServer.DefaultServerName,
-                                                            Date                        = DateTime.UtcNow,
-                                                            AccessControlAllowOrigin    = "*",
-                                                            AccessControlAllowMethods   = "GET, SET",
-                                                            AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
-                                                            Connection                  = "close"
-                                                        }.AsImmutable;
 
                                              }
 
