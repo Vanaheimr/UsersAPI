@@ -368,6 +368,9 @@ namespace org.GraphDefined.OpenData.Users
 
         #endregion
 
+        public Boolean RemoveInEdge(MiniEdge<User, User2OrganizationEdges, Organization> Edge)
+            => _User2Organization_InEdges.Remove(Edge);
+
         #endregion
 
         #region Organization <-> Organization edges
@@ -407,6 +410,13 @@ namespace org.GraphDefined.OpenData.Users
             AddInEdges(IEnumerable<MiniEdge<Organization, Organization2OrganizationEdges, Organization>> Edges)
 
                 => _Organization2Organization_InEdges.AddAndReturnList(Edges);
+
+        #region RemoveInEdges(EdgeLabel, TargetOrganization)
+
+        public Boolean RemoveInEdge(MiniEdge<Organization, Organization2OrganizationEdges, Organization> Edge)
+            => _Organization2Organization_InEdges.Remove(Edge);
+
+        #endregion
 
         #region RemoveInEdges (EdgeLabel, SourceOrganization)
 
@@ -463,6 +473,13 @@ namespace org.GraphDefined.OpenData.Users
             AddOutEdges(IEnumerable<MiniEdge<Organization, Organization2OrganizationEdges, Organization>> Edges)
 
                 => _Organization2Organization_OutEdges.AddAndReturnList(Edges);
+
+        #region RemoveOutEdges(EdgeLabel, TargetOrganization)
+
+        public Boolean RemoveOutEdge(MiniEdge<Organization, Organization2OrganizationEdges, Organization> Edge)
+            => _Organization2Organization_OutEdges.Remove(Edge);
+
+        #endregion
 
         #region RemoveOutEdges(EdgeLabel, TargetOrganization)
 

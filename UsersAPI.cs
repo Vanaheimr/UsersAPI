@@ -1094,6 +1094,56 @@ namespace org.GraphDefined.OpenData.Users
 
         #endregion
 
+
+        #region (protected internal) DeleteOrganizationRequest (Request)
+
+        /// <summary>
+        /// An event sent whenever delete organization request was received.
+        /// </summary>
+        public HTTPRequestLogEvent OnDeleteOrganizationRequest = new HTTPRequestLogEvent();
+
+        /// <summary>
+        /// An event sent whenever delete organization request was received.
+        /// </summary>
+        /// <param name="Timestamp">The timestamp of the request.</param>
+        /// <param name="API">The HTTP API.</param>
+        /// <param name="Request">A HTTP request.</param>
+        protected internal Task DeleteOrganizationRequest(DateTime     Timestamp,
+                                                       HTTPAPI      API,
+                                                       HTTPRequest  Request)
+
+            => OnDeleteOrganizationRequest?.WhenAll(Timestamp,
+                                                 API ?? this,
+                                                 Request);
+
+        #endregion
+
+        #region (protected internal) DeleteOrganizationResponse(Response)
+
+        /// <summary>
+        /// An event sent whenever a response on a delete organization request was sent.
+        /// </summary>
+        public HTTPResponseLogEvent OnDeleteOrganizationResponse = new HTTPResponseLogEvent();
+
+        /// <summary>
+        /// An event sent whenever a response on a delete organization request was sent.
+        /// </summary>
+        /// <param name="Timestamp">The timestamp of the request.</param>
+        /// <param name="API">The HTTP API.</param>
+        /// <param name="Request">A HTTP request.</param>
+        /// <param name="Response">A HTTP response.</param>
+        protected internal Task DeleteOrganizationResponse(DateTime      Timestamp,
+                                                        HTTPAPI       API,
+                                                        HTTPRequest   Request,
+                                                        HTTPResponse  Response)
+
+            => OnDeleteOrganizationResponse?.WhenAll(Timestamp,
+                                                  API ?? this,
+                                                  Request,
+                                                  Response);
+
+        #endregion
+
         #endregion
 
         #region Constructor(s)
@@ -5055,6 +5105,155 @@ namespace org.GraphDefined.OpenData.Users
 
             #endregion
 
+            #region Add         ~/organizations
+
+            // ---------------------------------------------------------------------------------------------
+            // curl -v -X Add \
+            //      -H "Accept:       application/json; charset=utf-8" \
+            //      -H "Content-Type: application/json; charset=utf-8" \
+            //      -d "{ \
+            //              \"@context\" :             \"https://cardi-link.cloud/contexts/cardidb+json/user\", \
+            //              \"name\" :                 { \"deu\" : \"ACME Inc.\" },\
+            //              \"description\" :          { \"deu\" : \"Testing123!\" },\
+            //              \"parentOrganization\" :   \"GraphDefined\", \
+            //              \"address\" :         { \
+            //                                      \"country\" :      \"Germany\",
+            //                                      \"postalCode\" :   \"00749\",
+            //                                      \"city\" :         { \"deu\": \"Jena\" },
+            //                                      \"street\" :       \"Biberweg 18\",
+            //                                      \"houseNumber\" :  \"18\",
+            //                                      \"floorLevel\" :   \"2\"
+            //                                    }, \
+            //              \"privacyLevel\" :    \"World\" \
+            //          }" \
+            //      http://127.0.0.1:2000/organizations
+            // ---------------------------------------------------------------------------------------------
+            HTTPServer.AddMethodCallback(Hostname,
+                                         HTTPMethod.ADD,
+                                         URLPathPrefix + "organizations",
+                                         HTTPContentType.JSON_UTF8,
+                                         HTTPRequestLogger:  AddOrganizationRequest,
+                                         HTTPResponseLogger: AddOrganizationResponse,
+                                         HTTPDelegate:       async Request => {
+
+                                             #region Get HTTP user and its organizations
+
+                                             // Will return HTTP 401 Unauthorized, when the HTTP user is unknown!
+                                             if (!TryGetHTTPUser(Request,
+                                                                 out User                   HTTPUser,
+                                                                 out HashSet<Organization>  HTTPOrganizations,
+                                                                 out HTTPResponse           Response,
+                                                                 AccessLevel:               Access_Levels.ReadWrite,
+                                                                 Recursive:                 true))
+                                             {
+                                                 return Response;
+                                             }
+
+                                             #endregion
+
+                                             #region Parse JSON and create the new child organization...
+
+                                             if (!Request.TryParseJObjectRequestBody(out JObject JSONObj, out HTTPResponse HTTPResponse))
+                                                 return HTTPResponse;
+
+                                             if (Organization.TryParseJSON(JSONObj,
+                                                                           out Organization    newOrganization,
+                                                                           out String          ErrorResponse,
+                                                                           OrganizationIdURI:  Organization_Id.Random()))
+                                             {
+
+                                                 #region Parse parent organization
+
+                                                 if (!JSONObj.ParseMandatory("parentOrganization",
+                                                                             "parent organization",
+                                                                             HTTPServer.DefaultHTTPServerName,
+                                                                             Organization_Id.TryParse,
+                                                                             out Organization_Id ParentOrganizationId,
+                                                                             Request,
+                                                                             out HTTPResponse))
+                                                 {
+                                                     return HTTPResponse;
+                                                 }
+
+                                                 if (!_Organizations.TryGetValue(ParentOrganizationId, out Organization ParentOrganization))
+                                                 {
+
+                                                     return new HTTPResponse.Builder(Request) {
+                                                                HTTPStatusCode             = HTTPStatusCode.BadRequest,
+                                                                Server                     = HTTPServer.DefaultServerName,
+                                                                Date                       = DateTime.UtcNow,
+                                                                AccessControlAllowOrigin   = "*",
+                                                                AccessControlAllowMethods  = "GET, SET",
+                                                                AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
+                                                                ContentType                = HTTPContentType.JSON_UTF8,
+                                                                Content                    = JSONObject.Create(
+                                                                                                 new JProperty("description",  "Unknown parent organization!")
+                                                                                             ).ToUTF8Bytes()
+                                                            }.AsImmutable;
+
+                                                 }
+
+                                                 #endregion
+
+
+                                                 try
+                                                 {
+
+                                                     var _NewChildOrganization = await Add(newOrganization,
+                                                                                           ParentOrganization: ParentOrganization,
+                                                                                           CurrentUserId:      HTTPUser.Id);
+
+                                                 }
+                                                 catch (Exception e)
+                                                 {
+
+                                                     return new HTTPResponse.Builder(Request) {
+                                                                HTTPStatusCode             = HTTPStatusCode.BadRequest,
+                                                                Server                     = HTTPServer.DefaultServerName,
+                                                                Date                       = DateTime.UtcNow,
+                                                                AccessControlAllowOrigin   = "*",
+                                                                AccessControlAllowMethods  = "GET, SET",
+                                                                AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
+                                                                ContentType                = HTTPContentType.JSON_UTF8,
+                                                                Content                    = JSONObject.Create(
+                                                                                                 new JProperty("description",  "Could not create the given child organization! " + e.Message)
+                                                                                             ).ToUTF8Bytes()
+                                                            }.AsImmutable;
+
+                                                 }
+
+                                                 return new HTTPResponse.Builder(Request) {
+                                                            HTTPStatusCode              = HTTPStatusCode.Created,
+                                                            Server                      = HTTPServer.DefaultServerName,
+                                                            Date                        = DateTime.UtcNow,
+                                                            AccessControlAllowOrigin    = "*",
+                                                            AccessControlAllowMethods   = "GET, SET",
+                                                            AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
+                                                            Connection                  = "close"
+                                                        }.AsImmutable;
+
+                                             }
+
+                                             #endregion
+
+                                             return new HTTPResponse.Builder(Request) {
+                                                        HTTPStatusCode             = HTTPStatusCode.BadRequest,
+                                                        Server                     = HTTPServer.DefaultServerName,
+                                                        Date                       = DateTime.UtcNow,
+                                                        AccessControlAllowOrigin   = "*",
+                                                        AccessControlAllowMethods  = "GET, SET",
+                                                        AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
+                                                        ContentType                = HTTPContentType.JSON_UTF8,
+                                                        Content                    = JSONObject.Create(
+                                                                                         new JProperty("description",  "Could not parse the given child organization data!")
+                                                                                     ).ToUTF8Bytes()
+                                                    }.AsImmutable;
+
+                                         });
+
+            #endregion
+
+
             #region Add         ~/organizations/{organizationId}
 
             // ---------------------------------------------------------------------------------------------
@@ -5303,6 +5502,106 @@ namespace org.GraphDefined.OpenData.Users
                                                     }.AsImmutable;
 
                                          });
+
+            #endregion
+
+            #region DELETE     ~/organizations/{organizationId}
+
+            // ---------------------------------------------------------------------------------------------
+            // curl -v -X DELETE \
+            //      -H "Accept:       application/json; charset=utf-8" \
+            //      -H "Content-Type: application/json; charset=utf-8" \
+            //      http://127.0.0.1:2000/organizations/214080158
+            // ---------------------------------------------------------------------------------------------
+            HTTPServer.AddMethodCallback(Hostname,
+                                         HTTPMethod.DELETE,
+                                         URLPathPrefix + "organizations/{organizationId}",
+                                         HTTPContentType.JSON_UTF8,
+                                         HTTPRequestLogger:  DeleteOrganizationRequest,
+                                         HTTPResponseLogger: DeleteOrganizationResponse,
+                                         HTTPDelegate:       async Request => {
+
+                                             #region Get HTTP user and its organizations
+
+                                             // Will return HTTP 401 Unauthorized, when the HTTP user is unknown!
+                                             if (!TryGetHTTPUser(Request,
+                                                                 out User                   HTTPUser,
+                                                                 out HashSet<Organization>  HTTPOrganizations,
+                                                                 out HTTPResponse           Response,
+                                                                 AccessLevel:               Access_Levels.ReadWrite,
+                                                                 Recursive:                 true))
+                                             {
+                                                 return Response;
+                                             }
+
+                                             #endregion
+
+                                             #region Check Organization
+
+                                             if (!Request.ParseOrganization(this,
+                                                                            out Organization_Id?  OrganizationIdURI,
+                                                                            out Organization      Organization,
+                                                                            out HTTPResponse      HTTPResponse))
+                                             {
+                                                 return HTTPResponse;
+                                             }
+
+                                             #endregion
+
+                                             //ToDo: Check admin!
+
+                                             if (!HTTPOrganizations.Contains(Organization))
+                                                 return new HTTPResponse.Builder(Request) {
+                                                                HTTPStatusCode             = HTTPStatusCode.Unauthorized,
+                                                                Server                     = HTTPServer.DefaultServerName,
+                                                                Date                       = DateTime.UtcNow,
+                                                                AccessControlAllowOrigin   = "*",
+                                                                AccessControlAllowMethods  = "GET, SET, DELETE",
+                                                                AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
+                                                                ContentType                = HTTPContentType.JSON_UTF8,
+                                                                Content                    = JSONObject.Create(
+                                                                                                 new JProperty("description",  "Unknown parent organization!")
+                                                                                             ).ToUTF8Bytes()
+                                                            }.AsImmutable;
+
+
+
+                                             try
+                                             {
+
+                                                 var _NewChildOrganization = await Remove(OrganizationIdURI.Value,
+                                                                                          CurrentUserId:  HTTPUser.Id);
+
+                                             }
+                                             catch (Exception e)
+                                             {
+
+                                                 return new HTTPResponse.Builder(Request) {
+                                                         HTTPStatusCode             = HTTPStatusCode.BadRequest,
+                                                         Server                     = HTTPServer.DefaultServerName,
+                                                         Date                       = DateTime.UtcNow,
+                                                         AccessControlAllowOrigin   = "*",
+                                                         AccessControlAllowMethods  = "GET, SET",
+                                                         AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
+                                                         ContentType                = HTTPContentType.JSON_UTF8,
+                                                         Content                    = JSONObject.Create(
+                                                                                             new JProperty("description",  "Could not delete the given organization! " + e.Message)
+                                                                                         ).ToUTF8Bytes()
+                                                     }.AsImmutable;
+
+                                             }
+
+                                             return new HTTPResponse.Builder(Request) {
+                                                     HTTPStatusCode              = HTTPStatusCode.OK,
+                                                     Server                      = HTTPServer.DefaultServerName,
+                                                     Date                        = DateTime.UtcNow,
+                                                     AccessControlAllowOrigin    = "*",
+                                                     AccessControlAllowMethods   = "GET, SET",
+                                                     AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
+                                                     Connection                  = "close"
+                                                 }.AsImmutable;
+
+                                     });
 
             #endregion
 
@@ -5937,7 +6236,18 @@ namespace org.GraphDefined.OpenData.Users
                                           out _User,
                                           out ErrorResponse))
                     {
+
+                        if (TryGet(_User.Id, out User __User))
+                        {
+
+                            // this --edge--> organization
+                            foreach (var edge in __User.User2Organization_OutEdges)
+                                edge.Target.RemoveInEdge(edge);
+
+                        }
+
                         _Users.Remove(_User.Id);
+
                     }
 
                     else
@@ -5957,7 +6267,18 @@ namespace org.GraphDefined.OpenData.Users
                                                  out User_Id UserId,
                                                  out ErrorResponse))
                     {
+
+                        if (TryGet(UserId, out User __User))
+                        {
+
+                            // this --edge--> organization
+                            foreach (var edge in __User.User2Organization_OutEdges)
+                                edge.Target.RemoveInEdge(edge);
+
+                        }
+
                         _Users.Remove(UserId);
+
                     }
 
                     else
@@ -6103,7 +6424,26 @@ namespace org.GraphDefined.OpenData.Users
                                                   out _Organization,
                                                   out ErrorResponse))
                     {
+
+                        if (TryGet(_Organization.Id, out Organization __Organization))
+                        {
+
+                            // this --edge--> other_organization
+                            foreach (var edge in __Organization.Organization2OrganizationOutEdges)
+                                edge.Target.RemoveInEdge(edge);
+
+                            // this <--edge-- other_organization
+                            foreach (var edge in __Organization.Organization2OrganizationInEdges)
+                                edge.Source.RemoveOutEdge(edge);
+
+                            // this <--edge-- user
+                            foreach (var edge in __Organization.User2OrganizationEdges)
+                                edge.Source.RemoveOutEdge(edge);
+
+                        }
+
                         _Organizations.Remove(_Organization.Id);
+
                     }
 
                     else
@@ -6123,7 +6463,26 @@ namespace org.GraphDefined.OpenData.Users
                                                  out Organization_Id OrganizationId,
                                                  out ErrorResponse))
                     {
+
+                        if (TryGet(OrganizationId, out Organization __Organization))
+                        {
+
+                            // this --edge--> other_organization
+                            foreach (var edge in __Organization.Organization2OrganizationOutEdges)
+                                edge.Target.RemoveInEdge(edge);
+
+                            // this <--edge-- other_organization
+                            foreach (var edge in __Organization.Organization2OrganizationInEdges)
+                                edge.Source.RemoveOutEdge(edge);
+
+                            // this <--edge-- user
+                            foreach (var edge in __Organization.User2OrganizationEdges)
+                                edge.Source.RemoveOutEdge(edge);
+
+                        }
+
                         _Organizations.Remove(OrganizationId);
+
                     }
 
                     else
@@ -8254,17 +8613,33 @@ namespace org.GraphDefined.OpenData.Users
 
                 Organization.API = this;
 
+
+                // Check Admin!
+                if (CurrentUserId.HasValue)
+                {
+                    if (!Get(CurrentUserId.Value).
+                             Organizations(Access_Levels.ReadWrite, true).
+                             Contains(ParentOrganization))
+                    {
+                        throw new Exception("Not allowed!");
+                    }
+                }
+
+
                 await WriteToLogfileAndNotify(NotificationMessageType.Parse("addOrganization"),
                                               Organization.ToJSON(),
                                               NoOwner,
                                               CurrentUserId);
 
-                var NewOrg = _Organizations.AddAndReturnValue(Organization.Id, Organization);
+                var newOrganization = _Organizations.AddAndReturnValue(Organization.Id, Organization);
 
                 if (ParentOrganization != null)
-                    await _LinkOrganizations(NewOrg, Organization2OrganizationEdges.IsChildOf, ParentOrganization, CurrentUserId: CurrentUserId);
+                    await _LinkOrganizations(newOrganization,
+                                             Organization2OrganizationEdges.IsChildOf,
+                                             ParentOrganization,
+                                             CurrentUserId:  CurrentUserId);
 
-                return NewOrg;
+                return newOrganization;
 
             }
             finally
@@ -8504,6 +8879,19 @@ namespace org.GraphDefined.OpenData.Users
                 if (_Organizations.TryGetValue(OrganizationId, out Organization Organization))
                 {
 
+                    // this --edge--> other_organization
+                    foreach (var edge in Organization.Organization2OrganizationOutEdges)
+                        edge.Target.RemoveInEdge(edge);
+
+                    // this <--edge-- other_organization
+                    foreach (var edge in Organization.Organization2OrganizationInEdges)
+                        edge.Source.RemoveOutEdge(edge);
+
+                    // this <--edge-- user
+                    foreach (var edge in Organization.User2OrganizationEdges)
+                        edge.Source.RemoveOutEdge(edge);
+
+
                     await WriteToLogfileAndNotify(NotificationMessageType.Parse("removeOrganization"),
                                                   Organization.ToJSON(),
                                                   Organization,
@@ -8511,7 +8899,7 @@ namespace org.GraphDefined.OpenData.Users
 
                     _Organizations.Remove(OrganizationId);
 
-                    Organization.API = null;
+                    //Organization.API = null;
 
                     return Organization;
 
