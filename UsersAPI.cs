@@ -3531,20 +3531,42 @@ namespace org.GraphDefined.OpenData.Users
                                              #endregion
 
 
-                                             if (HTTPUser.Id == UserId.Value || User.PrivacyLevel == PrivacyLevel.World)
+                                             #region 1. UserId is unknown
+
+                                             if (User == null)
                                                  return Task.FromResult(
                                                      new HTTPResponse.Builder(Request) {
-                                                         HTTPStatusCode             = HTTPStatusCode.OK,
-                                                         Server                     = HTTPServer.DefaultServerName,
-                                                         AccessControlAllowOrigin   = "*",
-                                                         AccessControlAllowMethods  = "GET, SET",
-                                                         ContentType                = HTTPContentType.JSON_UTF8,
-                                                         Content                    = User.ToJSON().ToUTF8Bytes(),
-                                                         //ETag                       = "1",
-                                                         CacheControl               = "public",
-                                                         //Expires                    = "Mon, 25 Jun 2015 21:31:12 GMT",
-                                                         Connection                 = "close"
+                                                         HTTPStatusCode              = HTTPStatusCode.NotFound,
+                                                         Server                      = HTTPServer.DefaultServerName,
+                                                         Date                        = DateTime.UtcNow,
+                                                         AccessControlAllowOrigin    = "*",
+                                                         AccessControlAllowMethods   = "GET",
+                                                         AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
+                                                         Connection                  = "close",
+                                                         Vary                        = "Accept"
                                                      }.AsImmutable);
+
+                                             #endregion
+
+                                             #region 2. You request _your own_ or a _public_ profile or you are a valid _admin_
+
+                                             if (HTTPUser.Id == User.Id || User.PrivacyLevel == PrivacyLevel.World || CanImpersonate(HTTPUser, User))
+                                                 return Task.FromResult(
+                                                     new HTTPResponse.Builder(Request) {
+                                                         HTTPStatusCode              = HTTPStatusCode.OK,
+                                                         Server                      = HTTPServer.DefaultServerName,
+                                                         Date                        = DateTime.UtcNow,
+                                                         AccessControlAllowOrigin    = "*",
+                                                         AccessControlAllowMethods   = "GET, SET",
+                                                         AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
+                                                         ContentType                 = HTTPContentType.HTML_UTF8,
+                                                         Content                     = User.ToJSON().ToUTF8Bytes(),
+                                                         Connection                  = "close",
+                                                         Vary                        = "Accept"
+                                                     }.AsImmutable);
+
+                                             #endregion
+
 
 
                                              return Task.FromResult(
