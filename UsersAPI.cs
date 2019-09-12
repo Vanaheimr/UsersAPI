@@ -3510,7 +3510,6 @@ namespace org.GraphDefined.OpenData.Users
 
                                              #region Get HTTP user and its organizations
 
-                                             // Will return HTTP 401 Unauthorized, when the HTTP user is unknown!
                                              TryGetHTTPUser(Request,
                                                             out User                   HTTPUser,
                                                             out HashSet<Organization>  HTTPOrganizations,
@@ -3520,16 +3519,57 @@ namespace org.GraphDefined.OpenData.Users
 
                                              #region Check UserId URI parameter
 
-                                             if (!Request.ParseUser(this,
-                                                                    out User_Id?      UserId,
-                                                                    out User          User,
-                                                                    out HTTPResponse  HTTPResponse))
-                                             {
-                                                 return Task.FromResult(HTTPResponse);
-                                             }
+                                             Request.ParseUser(this,
+                                                               out User_Id?      UserId,
+                                                               out User          User,
+                                                               out HTTPResponse  HTTPResponse);
 
                                              #endregion
 
+
+                                             // Anonymous HTTP user
+                                             if (HTTPUser == null)
+                                             {
+
+                                                 #region 1. UserId is unknown or not a public profile
+
+                                                 if (User == null || User.PrivacyLevel != PrivacyLevel.World)
+                                                     return Task.FromResult(
+                                                         new HTTPResponse.Builder(Request) {
+                                                             HTTPStatusCode              = HTTPStatusCode.NotFound,
+                                                             Server                      = HTTPServer.DefaultServerName,
+                                                             Date                        = DateTime.UtcNow,
+                                                             AccessControlAllowOrigin    = "*",
+                                                             AccessControlAllowMethods   = "GET",
+                                                             AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
+                                                             Connection                  = "close",
+                                                             Vary                        = "Accept"
+                                                         }.AsImmutable);
+
+                                                 #endregion
+
+                                                 #region 2. A public profile
+
+                                                 return Task.FromResult(
+                                                     new HTTPResponse.Builder(Request) {
+                                                         HTTPStatusCode              = HTTPStatusCode.OK,
+                                                         Server                      = HTTPServer.DefaultServerName,
+                                                         Date                        = DateTime.UtcNow,
+                                                         AccessControlAllowOrigin    = "*",
+                                                         AccessControlAllowMethods   = "GET, SET",
+                                                         AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
+                                                         ContentType                 = HTTPContentType.HTML_UTF8,
+                                                         Content                     = User.ToJSON().ToUTF8Bytes(),
+                                                         Connection                  = "close",
+                                                         Vary                        = "Accept"
+                                                     }.AsImmutable);
+
+                                                 #endregion
+
+                                             }
+
+
+                                             // Authenticated HTTP user
 
                                              #region 1. UserId is unknown
 
@@ -3548,9 +3588,11 @@ namespace org.GraphDefined.OpenData.Users
 
                                              #endregion
 
-                                             #region 2. You request _your own_ or a _public_ profile or you are a valid _admin_
+                                             var UserJSON = User.ToJSON();
 
-                                             if (HTTPUser.Id == User.Id || User.PrivacyLevel == PrivacyLevel.World || CanImpersonate(HTTPUser, User))
+                                             #region 2. You request _your own_ or you are a valid _admin_ => r/w access
+
+                                             if (HTTPUser.Id == User.Id || CanImpersonate(HTTPUser, User))
                                                  return Task.FromResult(
                                                      new HTTPResponse.Builder(Request) {
                                                          HTTPStatusCode              = HTTPStatusCode.OK,
@@ -3560,13 +3602,35 @@ namespace org.GraphDefined.OpenData.Users
                                                          AccessControlAllowMethods   = "GET, SET",
                                                          AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
                                                          ContentType                 = HTTPContentType.HTML_UTF8,
-                                                         Content                     = User.ToJSON().ToUTF8Bytes(),
+                                                         Content                     = UserJSON.
+                                                                                           AddAndReturn(new JProperty("youCanEdit", true)).
+                                                                                           ToUTF8Bytes(),
                                                          Connection                  = "close",
                                                          Vary                        = "Accept"
                                                      }.AsImmutable);
 
                                              #endregion
 
+                                             // same org/sub-orgs
+
+                                             #region 3. A public profile => r/o access
+
+                                             if (User.PrivacyLevel == PrivacyLevel.Plattform)
+                                                 return Task.FromResult(
+                                                     new HTTPResponse.Builder(Request) {
+                                                         HTTPStatusCode              = HTTPStatusCode.OK,
+                                                         Server                      = HTTPServer.DefaultServerName,
+                                                         Date                        = DateTime.UtcNow,
+                                                         AccessControlAllowOrigin    = "*",
+                                                         AccessControlAllowMethods   = "GET, SET",
+                                                         AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
+                                                         ContentType                 = HTTPContentType.HTML_UTF8,
+                                                         Content                     = UserJSON.ToUTF8Bytes(),
+                                                         Connection                  = "close",
+                                                         Vary                        = "Accept"
+                                                     }.AsImmutable);
+
+                                             #endregion
 
 
                                              return Task.FromResult(
