@@ -48,6 +48,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="UsersAPILogger.cs" />
     <Compile Include="CommonTypes\APIKeyRights.cs" />
     <Compile Include="CommonTypes\APIKeyInfo.cs" />
     <Compile Include="CommonTypes\LoginPassword.cs" />

@@ -23,13 +23,13 @@ using System.Collections.Generic;
 
 using Newtonsoft.Json.Linq;
 
+using org.GraphDefined.Vanaheimr.Aegir;
 using org.GraphDefined.Vanaheimr.Illias;
 using org.GraphDefined.Vanaheimr.Hermod;
 using org.GraphDefined.Vanaheimr.Styx.Arrows;
 using org.GraphDefined.Vanaheimr.Hermod.Distributed;
 using org.GraphDefined.Vanaheimr.Hermod.HTTP;
 using org.GraphDefined.Vanaheimr.Hermod.Mail;
-using org.GraphDefined.Vanaheimr.Aegir;
 
 #endregion
 
@@ -186,15 +186,15 @@ namespace org.GraphDefined.OpenData.Users
         public PhoneNumber?         Telephone            { get; }
 
         /// <summary>
-        /// The geographical location of this organization.
-        /// </summary>
-        public GeoCoordinate?       GeoLocation          { get; }
-
-        /// <summary>
         /// The optional address of the organization.
         /// </summary>
         [Optional]
         public Address              Address              { get; }
+
+        /// <summary>
+        /// The geographical location of this organization.
+        /// </summary>
+        public GeoCoordinate?       GeoLocation          { get; }
 
         /// <summary>
         /// An collection of multi-language tags and their relevance.
@@ -231,8 +231,8 @@ namespace org.GraphDefined.OpenData.Users
         /// <param name="Website">The website of the organization.</param>
         /// <param name="EMail">The primary e-mail of the organisation.</param>
         /// <param name="Telephone">An optional telephone number of the organisation.</param>
-        /// <param name="GeoLocation">An optional geographical location of the organisation.</param>
         /// <param name="Address">An optional address of the organisation.</param>
+        /// <param name="GeoLocation">An optional geographical location of the organisation.</param>
         /// <param name="PrivacyLevel">Whether the organization will be shown in organization listings, or not.</param>
         /// <param name="IsDisabled">The organization is disabled.</param>
         /// <param name="DataSource">The source of all this data, e.g. an automatic importer.</param>
@@ -242,8 +242,8 @@ namespace org.GraphDefined.OpenData.Users
                             String                                                                             Website                             = null,
                             EMailAddress                                                                       EMail                               = null,
                             PhoneNumber?                                                                       Telephone                           = null,
-                            GeoCoordinate?                                                                     GeoLocation                         = null,
                             Address                                                                            Address                             = null,
+                            GeoCoordinate?                                                                     GeoLocation                         = null,
                             Func<Tags.Builder, Tags>                                                           Tags                                = null,
                             PrivacyLevel                                                                       PrivacyLevel                        = OpenData.PrivacyLevel.World,
                             Boolean                                                                            IsDisabled                          = false,
@@ -258,18 +258,17 @@ namespace org.GraphDefined.OpenData.Users
 
         {
 
-            this.Name           = Name         ?? new I18NString();
-            this.Description    = Description  ?? new I18NString();
-            this.Website        = Website;
-            this.EMail          = EMail;
-            this.Address        = Address;
-            this.Telephone      = Telephone;
-            this.GeoLocation    = GeoLocation;
-            this.Address        = Address;
-            var _TagsBuilder = new Tags.Builder();
-            this.Tags           = Tags != null ? Tags(_TagsBuilder) : _TagsBuilder;
-            this.PrivacyLevel   = PrivacyLevel;
-            this.IsDisabled     = IsDisabled;
+            this.Name          = Name         ?? new I18NString();
+            this.Description   = Description  ?? new I18NString();
+            this.Website       = Website;
+            this.EMail         = EMail;
+            this.Telephone     = Telephone;
+            this.Address       = Address;
+            this.GeoLocation   = GeoLocation;
+            var _TagsBuilder   = new Tags.Builder();
+            this.Tags          = Tags != null ? Tags(_TagsBuilder) : _TagsBuilder;
+            this.PrivacyLevel  = PrivacyLevel;
+            this.IsDisabled    = IsDisabled;
 
             // Init edges
             this._User2Organization_InEdges           = User2OrganizationInEdges.         IsNeitherNullNorEmpty() ? new List<MiniEdge<User, User2OrganizationEdges, Organization>>                (User2OrganizationInEdges)          : new List<MiniEdge<User, User2OrganizationEdges, Organization>>();
@@ -545,18 +544,20 @@ namespace org.GraphDefined.OpenData.Users
                        ? new JProperty("description",       Description.    ToJSON())
                        : null,
 
-                   EMail != null
-                       ? new JProperty("email",             EMail.          ToString())
+                   Website.IsNeitherNullNorEmpty()
+                       ? new JProperty("website",           Website)
                        : null,
 
-                   // PublicKeyRing
+                   EMail != null
+                       ? new JProperty("email",             EMail.Address.  ToString())
+                       : null,
 
                    Telephone.HasValue
                        ? new JProperty("telephone",         Telephone.Value.ToString())
                        : null,
 
-                   GeoLocation?.ToJSON("geoLocation"),
                    Address?.    ToJSON("address"),
+                   GeoLocation?.ToJSON("geoLocation"),
 
                    Tags.Any()
                        ? new JProperty("tags",              Tags.ToJSON(ExpandTags))
@@ -809,8 +810,8 @@ namespace org.GraphDefined.OpenData.Users
                                                 Website,
                                                 EMail,
                                                 Telephone,
-                                                GeoLocation,
                                                 Address,
+                                                GeoLocation,
                                                 _ => Tags,
                                                 PrivacyLevel ?? OpenData.PrivacyLevel.World,
                                                 IsDisabled ?? false,
@@ -1156,8 +1157,8 @@ namespace org.GraphDefined.OpenData.Users
                            Website,
                            EMail,
                            Telephone,
-                           GeoLocation,
                            Address,
+                           GeoLocation,
                            _ => Tags,
                            PrivacyLevel,
                            IsDisabled,
@@ -1215,15 +1216,15 @@ namespace org.GraphDefined.OpenData.Users
             public PhoneNumber?         Telephone            { get; set; }
 
             /// <summary>
-            /// The geographical location of this organization.
-            /// </summary>
-            public GeoCoordinate?       GeoLocation          { get; set; }
-
-            /// <summary>
             /// The optional address of the organization.
             /// </summary>
             [Optional]
             public Address              Address              { get; set; }
+
+            /// <summary>
+            /// The geographical location of this organization.
+            /// </summary>
+            public GeoCoordinate?       GeoLocation          { get; set; }
 
             /// <summary>
             /// An collection of multi-language tags and their relevance.
@@ -1301,8 +1302,8 @@ namespace org.GraphDefined.OpenData.Users
                            String                                                                             Website                             = null,
                            EMailAddress                                                                       EMail                               = null,
                            PhoneNumber?                                                                       Telephone                           = null,
-                           GeoCoordinate?                                                                     GeoLocation                         = null,
                            Address                                                                            Address                             = null,
+                           GeoCoordinate?                                                                     GeoLocation                         = null,
                            Func<Tags.Builder, Tags>                                                           Tags                                = null,
                            PrivacyLevel                                                                       PrivacyLevel                        = OpenData.PrivacyLevel.Private,
                            Boolean                                                                            IsDisabled                          = false,
@@ -1313,23 +1314,22 @@ namespace org.GraphDefined.OpenData.Users
                            IEnumerable<MiniEdge<Organization, Organization2OrganizationEdges, Organization>>  Organization2OrganizationOutEdges   = null)
             {
 
-                this.Id              = Id;
-                this.Name            = Name        ?? new I18NString();
-                this.Description     = Description ?? new I18NString();
-                this.Website         = Website;
-                this.EMail           = EMail;
-                this.Address         = Address;
-                this.Telephone       = Telephone;
-                this.GeoLocation     = GeoLocation;
-                this.Address         = Address;
-                var _TagsBuilder = new Tags.Builder();
-                this.Tags            = Tags != null ? Tags(_TagsBuilder) : _TagsBuilder;
-                this.PrivacyLevel    = PrivacyLevel;
-                this.IsDisabled      = IsDisabled;
-                this.DataSource      = DataSource;
+                this.Id               = Id;
+                this.Name             = Name        ?? new I18NString();
+                this.Description      = Description ?? new I18NString();
+                this.Website          = Website;
+                this.EMail            = EMail;
+                this.Telephone        = Telephone;
+                this.Address          = Address;
+                this.GeoLocation      = GeoLocation;
+                var _TagsBuilder      = new Tags.Builder();
+                this.Tags             = Tags != null ? Tags(_TagsBuilder) : _TagsBuilder;
+                this.PrivacyLevel     = PrivacyLevel;
+                this.IsDisabled       = IsDisabled;
+                this.DataSource       = DataSource;
 
                 // Init edges
-                this._User2Organization_InEdges           = User2OrganizationInEdges.           IsNeitherNullNorEmpty() ? new List<MiniEdge<User, User2OrganizationEdges, Organization>>                (User2OrganizationInEdges)            : new List<MiniEdge<User, User2OrganizationEdges, Organization>>();
+                this._User2Organization_InEdges           = User2OrganizationInEdges.         IsNeitherNullNorEmpty() ? new List<MiniEdge<User, User2OrganizationEdges, Organization>>                (User2OrganizationInEdges)          : new List<MiniEdge<User,         User2OrganizationEdges,         Organization>>();
                 this._Organization2Organization_InEdges   = Organization2OrganizationInEdges. IsNeitherNullNorEmpty() ? new List<MiniEdge<Organization, Organization2OrganizationEdges, Organization>>(Organization2OrganizationInEdges)  : new List<MiniEdge<Organization, Organization2OrganizationEdges, Organization>>();
                 this._Organization2Organization_OutEdges  = Organization2OrganizationOutEdges.IsNeitherNullNorEmpty() ? new List<MiniEdge<Organization, Organization2OrganizationEdges, Organization>>(Organization2OrganizationOutEdges) : new List<MiniEdge<Organization, Organization2OrganizationEdges, Organization>>();
 
@@ -1360,8 +1360,8 @@ namespace org.GraphDefined.OpenData.Users
                                     Website,
                                     EMail,
                                     Telephone,
-                                    GeoLocation,
                                     Address,
+                                    GeoLocation,
                                     _ => Tags,
                                     PrivacyLevel,
                                     IsDisabled,

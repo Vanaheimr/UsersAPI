@@ -30,6 +30,9 @@ interface IOrganization {
     description:                     Object;
     website:                         string;
     email:                           string;
+    telephone:                       string;
+    address:                         IAddress;
+    geoLocation:                     IGeoLocation;
     admins:                          Array<string> | Array<IUserProfile>;
     members:                         Array<string> | Array<IUserProfile>;
     parents:                         Array<string> | Array<object>;
@@ -44,13 +47,27 @@ interface IOrganization {
 }
 
 interface IAddress {
-    city:             any;
-    street:           string;
-    houseNumber:      string;
-    floorLevel:       string;
-    postalCode:       string;
-    country:          string;
-    comment:          any;
+    city:                            any;
+    street:                          string;
+    houseNumber:                     string;
+    floorLevel:                      string;
+    postalCode:                      string;
+    country:                         string;
+    comment:                         any;
+}
+
+interface IGeoLocation {
+    lat:                             number;
+    lng:                             number;
+}
+
+interface IGeoFence {
+    type:                            string;
+    radius:                          string;
+}
+
+interface IOwner {
+    Id:                              string;
 }
 
 // #region MenuHighlight(name, NoURIupdate?)
