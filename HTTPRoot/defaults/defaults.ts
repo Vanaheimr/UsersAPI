@@ -1099,6 +1099,9 @@ function parseLocalDate(DateString: string): string {
 
 function parseUTCDateWithDayOfWeek(UTCString: string): string {
 
+    if (UTCString === "")
+        return "";
+
     moment.locale(window.navigator.language);
 
     return moment.utc(UTCString).local().format('ddd ll');
@@ -1106,6 +1109,9 @@ function parseUTCDateWithDayOfWeek(UTCString: string): string {
 }
 
 function parseUTCDateWithDayOfWeekShort(UTCString: string): string {
+
+    if (UTCString === "")
+        return "";
 
     moment.locale(window.navigator.language);
 
@@ -1115,6 +1121,9 @@ function parseUTCDateWithDayOfWeekShort(UTCString: string): string {
 
 function parseUTCDate(UTCString: string): string {
 
+    if (UTCString === "")
+        return "";
+
     moment.locale(window.navigator.language);
 
     return moment.utc(UTCString).local().format('ll');
@@ -1122,6 +1131,9 @@ function parseUTCDate(UTCString: string): string {
 }
 
 function parseUTCTimestamp(UTCString: string): string {
+
+    if (UTCString === "")
+        return "";
 
     moment.locale(window.navigator.language);
 

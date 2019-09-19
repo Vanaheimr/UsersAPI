@@ -606,18 +606,26 @@ function parseLocalDate(DateString) {
         return _date.toISOString();
 }
 function parseUTCDateWithDayOfWeek(UTCString) {
+    if (UTCString === "")
+        return "";
     moment.locale(window.navigator.language);
     return moment.utc(UTCString).local().format('ddd ll');
 }
 function parseUTCDateWithDayOfWeekShort(UTCString) {
+    if (UTCString === "")
+        return "";
     moment.locale(window.navigator.language);
     return moment.utc(UTCString).local().format('dd, LLL');
 }
 function parseUTCDate(UTCString) {
+    if (UTCString === "")
+        return "";
     moment.locale(window.navigator.language);
     return moment.utc(UTCString).local().format('ll');
 }
 function parseUTCTimestamp(UTCString) {
+    if (UTCString === "")
+        return "";
     moment.locale(window.navigator.language);
     return moment.utc(UTCString).local().format('LLLL');
 }
