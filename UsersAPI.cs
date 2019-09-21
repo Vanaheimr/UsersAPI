@@ -31,6 +31,7 @@ using System.Text.RegularExpressions;
 
 using Newtonsoft.Json.Linq;
 using SMSApi.Api;
+using Telegram.Bot;
 
 using Org.BouncyCastle.Bcpg.OpenPgp;
 
@@ -502,7 +503,7 @@ namespace org.GraphDefined.OpenData.Users
         /// </summary>
         protected internal static AsyncLocal<User_Id?> CurrentAsyncLocalUserId = new AsyncLocal<User_Id?>();
 
-        public User          Robot        { get; }
+        public User                      Robot                      { get; }
 
         #region APIPassphrase
 
@@ -541,6 +542,17 @@ namespace org.GraphDefined.OpenData.Users
         /// A list of admin SMS phonenumbers.
         /// </summary>
         public IEnumerable<PhoneNumber>  APIAdminSMS                { get; }
+
+
+        /// <summary>
+        /// The Telegram API access token of the bot.
+        /// </summary>
+        public String                    TelegramBotToken           { get; }
+
+        /// <summary>
+        /// The Telegram API client.
+        /// </summary>
+        public TelegramBotClient         TelegramAPI                { get; }
 
 
         #region DNSClient
@@ -1112,6 +1124,8 @@ namespace org.GraphDefined.OpenData.Users
         /// <param name="SMSAPICredentials">The credentials for the SMS API.</param>
         /// <param name="APIAdminSMS">A list of admin SMS phonenumbers.</param>
         /// 
+        /// <param name="TelegramBotToken">The Telegram API access token of the bot.</param>
+        /// 
         /// <param name="CookieName">The name of the HTTP Cookie for authentication.</param>
         /// <param name="Language">The main language of the API.</param>
         /// <param name="LogoImage">The logo of the website.</param>
@@ -1159,6 +1173,8 @@ namespace org.GraphDefined.OpenData.Users
 
                         Credentials                          SMSAPICredentials                  = null,
                         IEnumerable<PhoneNumber>             APIAdminSMS                        = null,
+
+                        String                               TelegramBotToken                   = null,
 
                         HTTPCookieName?                      CookieName                         = null,
                         Languages                            Language                           = DefaultLanguage,
@@ -1224,6 +1240,8 @@ namespace org.GraphDefined.OpenData.Users
                    SMSAPICredentials,
                    APIAdminSMS,
 
+                   TelegramBotToken,
+
                    CookieName,
                    Language,
                    LogoImage,
@@ -1272,6 +1290,8 @@ namespace org.GraphDefined.OpenData.Users
         /// <param name="SMSAPICredentials">The credentials for the SMS API.</param>
         /// <param name="APIAdminSMS">A list of admin SMS phonenumbers.</param>
         /// 
+        /// <param name="TelegramBotToken">The Telegram API access token of the bot.</param>
+        /// 
         /// <param name="CookieName">The name of the HTTP Cookie for authentication.</param>
         /// <param name="Language">The main language of the API.</param>
         /// <param name="LogoImage">The logo of the website.</param>
@@ -1300,6 +1320,8 @@ namespace org.GraphDefined.OpenData.Users
 
                            Credentials                          SMSAPICredentials             = null,
                            IEnumerable<PhoneNumber>             APIAdminSMS                   = null,
+
+                           String                               TelegramBotToken              = null,
 
                            HTTPCookieName?                      CookieName                    = null,
                            Languages                            Language                      = DefaultLanguage,
@@ -1433,7 +1455,18 @@ namespace org.GraphDefined.OpenData.Users
             {
                 this.SMSAPICredentials  = SMSAPICredentials;
                 this._SMSAPI            = new SMSAPI(this.SMSAPICredentials);
+                this.APIAdminSMS        = APIAdminSMS;
             }
+
+            this.TelegramBotToken       = TelegramBotToken;
+
+            if (this.TelegramBotToken.IsNeitherNullNorEmpty())
+            {
+                this.TelegramAPI        = new TelegramBotClient(this.TelegramBotToken);
+                this.TelegramAPI.OnMessage += ReceiveTelegramMessage;
+                this.TelegramAPI.StartReceiving();
+            }
+
 
             this.Warden = new Warden(InitialDelay: TimeSpan.FromMinutes(3));
 
@@ -1499,6 +1532,8 @@ namespace org.GraphDefined.OpenData.Users
                                                Credentials                          SMSAPICredentials             = null,
                                                IEnumerable<PhoneNumber>             APIAdminSMS                   = null,
 
+                                               String                               TelegramBotToken              = null,
+
                                                HTTPCookieName?                      CookieName                    = null,
                                                Languages                            DefaultLanguage               = Languages.eng,
                                                String                               LogoImage                     = null,
@@ -1530,6 +1565,8 @@ namespace org.GraphDefined.OpenData.Users
 
                             SMSAPICredentials,
                             APIAdminSMS,
+
+                            TelegramBotToken,
 
                             CookieName,
                             DefaultLanguage,
@@ -6353,6 +6390,22 @@ namespace org.GraphDefined.OpenData.Users
             => GetType().Assembly.GetManifestResourceStream(HTTPRoot + Ressource);
 
         #endregion
+
+
+        async void ReceiveTelegramMessage(Object Sender, Telegram.Bot.Args.MessageEventArgs e)
+        {
+            if (e?.Message?.Text.IsNotNullOrEmpty() == true)
+            {
+
+                Console.WriteLine($"Received a telegram text message from {e.Message.From.Username} in chat {e.Message.Chat.Id}.");
+
+                await this.TelegramAPI.SendTextMessageAsync(
+                    chatId:  e.Message.Chat,
+                    text:    "Hello " + e.Message.From.FirstName + " " + e.Message.From.LastName + "!\nYou said:\n" + e.Message.Text
+                );
+
+            }
+        }
 
 
         #region (protected) TryGetSecurityTokenFromCookie(Request)
