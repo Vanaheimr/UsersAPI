@@ -48,6 +48,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="UsersAPILogger.cs" />
     <Compile Include="CommonTypes\APIKeyRights.cs" />
     <Compile Include="CommonTypes\APIKeyInfo.cs" />
     <Compile Include="CommonTypes\LoginPassword.cs" />
@@ -64,6 +65,7 @@
     <Compile Include="Entities\Notification\SMSNotification.cs" />
     <Compile Include="Entities\Notification\NotificationStore.cs" />
     <Compile Include="Entities\Notification\NotificationMessageType.cs" />
+    <Compile Include="Entities\Organization\OrganizationInfo2.cs" />
     <Compile Include="Entities\Organization\OrganizationInfo.cs" />
     <Compile Include="Entities\Organization\Organization.cs" />
     <Compile Include="Entities\Organization\Organization2OrganizationEdges.cs" />
@@ -254,6 +256,7 @@
     <Content Include="HTTPRoot\admin\admin.css">
       <DependentUpon>admin.scss</DependentUpon>
     </Content>
+    <EmbeddedResource Include="HTTPRoot\images\building-2696768_640.png" />
     <Content Include="HTTPRoot\libs\qrcode\qrcode.js" />
     <EmbeddedResource Include="HTTPRoot\libs\qrcode\qrcode.min.js" />
     <EmbeddedResource Include="HTTPRoot\profile\password.css">

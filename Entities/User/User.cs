@@ -283,7 +283,6 @@ namespace org.GraphDefined.OpenData.Users
 
         #endregion
 
-
         private readonly NotificationStore _Notifications;
 
         #endregion
@@ -631,7 +630,7 @@ namespace org.GraphDefined.OpenData.Users
         #region Organizations(RequireAdminAccess, RequireReadWriteAccess, Recursive)
 
         public IEnumerable<Organization> Organizations(Access_Levels  AccessLevel,
-                                                       Boolean       Recursive)
+                                                       Boolean        Recursive)
         {
 
             var AllMyOrganizations = new HashSet<Organization>();
@@ -699,6 +698,9 @@ namespace org.GraphDefined.OpenData.Users
         }
 
         #endregion
+
+        public Boolean RemoveOutEdge(MiniEdge<User, User2OrganizationEdges, Organization> Edge)
+            => _User2Organization_OutEdges.Remove(Edge);
 
         #endregion
 
@@ -774,6 +776,9 @@ namespace org.GraphDefined.OpenData.Users
         }
 
         #endregion
+
+        public Boolean RemoveOutEdge(MiniEdge<User, User2GroupEdges, Group> Edge)
+            => _User2Group_OutEdges.Remove(Edge);
 
         #endregion
 

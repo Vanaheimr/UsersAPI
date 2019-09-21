@@ -1,5 +1,6 @@
 ﻿
 var HTTPCookieId: string = "UsersAPI";
+var APIKey:       string = null;
 var CurrentlyHighlightedMenuItem     = "";
 var CurrentlyHighlightedSubmenuItem  = "";
 
@@ -21,14 +22,52 @@ interface IUserProfile {
     hash:             string;
 }
 
+let OrganizationJSON: IOrganization;
+
+interface IOrganization {
+    id:                              string;
+    name:                            Object;
+    description:                     Object;
+    website:                         string;
+    email:                           string;
+    telephone:                       string;
+    address:                         IAddress;
+    geoLocation:                     IGeoLocation;
+    admins:                          Array<string> | Array<IUserProfile>;
+    members:                         Array<string> | Array<IUserProfile>;
+    parents:                         Array<string> | Array<object>;
+    subOrganizations:                Array<string> | Array<object>;
+    youAreMember:                    boolean
+    youCanAddMembers:                boolean;
+    youCanCreateChildOrganizations:  boolean;
+
+    privacyLevel:                    string;
+    isDisabled:                      boolean;
+    hash:                            string;
+}
+
 interface IAddress {
-    city:             any;
-    street:           string;
-    houseNumber:      string;
-    floorLevel:       string;
-    postalCode:       string;
-    country:          string;
-    comment:          any;
+    city:                            any;
+    street:                          string;
+    houseNumber:                     string;
+    floorLevel:                      string;
+    postalCode:                      string;
+    country:                         string;
+    comment:                         any;
+}
+
+interface IGeoLocation {
+    lat:                             number;
+    lng:                             number;
+}
+
+interface IGeoFence {
+    type:                            string;
+    radius:                          string;
+}
+
+interface IOwner {
+    Id:                              string;
 }
 
 // #region MenuHighlight(name, NoURIupdate?)
@@ -95,7 +134,7 @@ function SubmenuHighlight(name: string, subname: string, NoURIupdate?: boolean) 
 
 // #region SendJSON(HTTPVerb, URI, APIKey, Data, OnSuccess, OnError)
 
-function SendJSON(HTTPVerb, URI, APIKey, Data, OnSuccess, OnError) {
+function SendJSON(HTTPVerb, URI, Data, OnSuccess, OnError) {
 
     var ajax = new XMLHttpRequest();
     ajax.open(HTTPVerb, URI, true); // , user, password);
@@ -161,31 +200,31 @@ function firstValue(obj) {
     for (var a in obj) return obj[a];
 }
 
-function UpdateI18NDescription(DescriptionDiv: HTMLDivElement,
-                               JSON:           Object) {
+function UpdateI18N(Div:  HTMLDivElement,
+                    JSON: Object) {
 
-    if (firstValue(JSON["description"]) != null)
+    if (Div              != null &&
+        JSON             != null &&
+        firstValue(JSON) != null)
     {
 
         var opt = document.createElement('option') as HTMLOptionElement;
-        opt.value     = firstKey(JSON["description"]);
-        opt.innerHTML = firstKey(JSON["description"]);
+        opt.value     = firstKey(JSON);
+        opt.innerHTML = firstKey(JSON);
         opt.selected  = true;
-        (DescriptionDiv.querySelector("#language")    as HTMLSelectElement).appendChild(opt);
 
-        (DescriptionDiv.querySelector("#description") as HTMLTextAreaElement).value = firstValue(JSON["description"]);
+        (Div.querySelector("select")   as HTMLSelectElement).appendChild(opt);
+        (Div.querySelector("textarea") as HTMLTextAreaElement).value = firstValue(JSON);
 
     }
 
 }
 
 
-
 // #region HTTPSet(Method, RessourceURI, APIKey, Data, OnSuccess, OnError)
 
 function HTTP(Method:       string,
               RessourceURI: string,
-              APIKey:       string,
               Data,
               OnSuccess,
               OnError) {
@@ -238,11 +277,9 @@ function HTTP(Method:       string,
 // #endregion
 
 
-// #region HTTPGet(RessourceURI, APIKey, Data, OnSuccess, OnError)
+// #region HTTPGet(RessourceURI, OnSuccess, OnError)
 
 function HTTPGet(RessourceURI: string,
-                 APIKey:       string,
-                 Data,
                  OnSuccess,
                  OnError) {
 
@@ -254,8 +291,8 @@ function HTTPGet(RessourceURI: string,
     ajax.setRequestHeader("X-Portal", "true");
     //ajax.setRequestHeader("Content-Type", "application/json; charset=UTF-8");
 
-    if (APIKey != null)
-        ajax.setRequestHeader("APIKey", APIKey);
+    //if (APIKey != null)
+    //    ajax.setRequestHeader("APIKey", APIKey);
 
     ajax.onreadystatechange = function () {
 
@@ -283,10 +320,7 @@ function HTTPGet(RessourceURI: string,
 
     }
 
-    if (Data != null)
-        ajax.send(JSON.stringify(Data));
-    else
-        ajax.send();
+    ajax.send();
 
     // #endregion
 
@@ -294,10 +328,9 @@ function HTTPGet(RessourceURI: string,
 
 // #endregion
 
-// #region HTTPCount(RessourceURI, APIKey, Data, OnSuccess, OnError)
+// #region HTTPCount(RessourceURI, Data, OnSuccess, OnError)
 
 function HTTPCount(RessourceURI: string,
-                   APIKey:       string,
                    Data,
                    OnSuccess,
                    OnError) {
@@ -349,10 +382,9 @@ function HTTPCount(RessourceURI: string,
 
 // #endregion
 
-// #region Exists (RessourceURI, APIKey, OnSuccess, OnError)
+// #region Exists (RessourceURI, OnSuccess, OnError)
 
 function Exists(RessourceURI: string,
-                APIKey:       string,
                 OnSuccess,
                 OnError) {
 
@@ -400,10 +432,9 @@ function Exists(RessourceURI: string,
 
 // #endregion
 
-// #region HTTPSet(RessourceURI, APIKey, Data, OnSuccess, OnError)
+// #region HTTPSet(RessourceURI, Data, OnSuccess, OnError)
 
 function HTTPSet(RessourceURI: string,
-                 APIKey:       string,
                  Data,
                  OnSuccess,
                  OnError) {
@@ -455,10 +486,9 @@ function HTTPSet(RessourceURI: string,
 
 // #endregion
 
-// #region HTTPAdd(RessourceURI, APIKey, Data, OnSuccess, OnError)
+// #region HTTPAdd(RessourceURI, Data, OnSuccess, OnError)
 
 function HTTPAdd(RessourceURI: string,
-                 APIKey:       string,
                  Data,
                  OnSuccess,
                  OnError) {
@@ -510,10 +540,9 @@ function HTTPAdd(RessourceURI: string,
 
 // #endregion
 
-// #region HTTPAddIfNotExists(RessourceURI, APIKey, Data, OnSuccess, OnError)
+// #region HTTPAddIfNotExists(RessourceURI, Data, OnSuccess, OnError)
 
 function HTTPAddIfNotExists(RessourceURI: string,
-                            APIKey:       string,
                             Data,
                             OnSuccess,
                             OnError) {
@@ -565,10 +594,58 @@ function HTTPAddIfNotExists(RessourceURI: string,
 
 // #endregion
 
-// #region HTTPChown(RessourceURI, APIKey, Data, OnSuccess, OnError)
+// #region HTTPDelete(RessourceURI, OnSuccess, OnError)
+
+function HTTPDelete(RessourceURI: string,
+                    OnSuccess,
+                    OnError) {
+
+    // #region Make HTTP call
+
+    let ajax = new XMLHttpRequest();
+    ajax.open("DELETE", RessourceURI, true); // , user, password);
+    ajax.setRequestHeader("Accept",       "application/json; charset=UTF-8");
+
+    if (APIKey != null)
+        ajax.setRequestHeader("APIKey", APIKey);
+
+    ajax.onreadystatechange = function () {
+
+        // 0 UNSENT | 1 OPENED | 2 HEADERS_RECEIVED | 3 LOADING | 4 DONE
+        if (this.readyState == 4) {
+
+            // Ok
+            if (this.status >= 100 && this.status < 300) {
+
+                //alert(ajax.getAllResponseHeaders());
+                //alert(ajax.getResponseHeader("Date"));
+                //alert(ajax.getResponseHeader("Cache-control"));
+                //alert(ajax.getResponseHeader("ETag"));
+
+                if (OnSuccess && typeof OnSuccess === 'function')
+                    OnSuccess(this.status, ajax.responseText);
+
+            }
+
+            else
+                if (OnError && typeof OnError === 'function')
+                    OnError(this.status, this.statusText, ajax.responseText);
+
+        }
+
+    }
+
+    ajax.send();
+
+    // #endregion
+
+}
+
+// #endregion
+
+// #region HTTPChown(RessourceURI, Data, OnSuccess, OnError)
 
 function HTTPChown(RessourceURI: string,
-                   APIKey:       string,
                    Data,
                    OnSuccess,
                    OnError) {
@@ -620,10 +697,9 @@ function HTTPChown(RessourceURI: string,
 
 // #endregion
 
-// #region HTTPCheck(RessourceURI, APIKey, Data, OnSuccess, OnError)
+// #region HTTPCheck(RessourceURI, Data, OnSuccess, OnError)
 
 function HTTPCheck(RessourceURI: string,
-                   APIKey:       string,
                    Data,
                    OnSuccess,
                    OnError) {
@@ -671,10 +747,9 @@ function HTTPCheck(RessourceURI: string,
 
 // #endregion
 
-// #region HTTPAuth(RessourceURI, APIKey, Data)
+// #region HTTPAuth(RessourceURI, Data)
 
 function HTTPAuth(RessourceURI: string,
-                  APIKey:       string,
                   Data) : string {
 
     let ajax = new XMLHttpRequest();
@@ -778,10 +853,9 @@ function HTTPDepersonate(RessourceURI: string,
 
 // #endregion
 
-// #region HTTPSet__SYNCED(RessourceURI, APIKey, Data)
+// #region HTTPSet__SYNCED(RessourceURI, Data)
 
 function HTTPSet__SYNCED(RessourceURI: string,
-                         APIKey:       string,
                          Data):        string {
 
     let ajax = new XMLHttpRequest();
@@ -920,11 +994,35 @@ function PrintProperties(id:              string,
 
 // #endregion
 
-// #region GetI18N(I18NString, CSSClassNames?)
+// #region ShowI18N(I18NString)
 
-function GetI18N(I18NString: object, CSSClassNames?: string) : HTMLDivElement {
+function ShowI18N(I18NString: object): string {
 
-    let I18NDiv = <HTMLDivElement> document.createElement('div');
+    let I18NDiv = document.createElement('div') as HTMLDivElement;
+
+    for (var I18NKey in I18NString) {
+
+        let propertyKeyDiv          = <HTMLDivElement> I18NDiv.appendChild(document.createElement('div'));
+        propertyKeyDiv.className    = "I18NLanguage";
+        propertyKeyDiv.innerText    = I18NKey;
+
+        let propertyValueDiv        = <HTMLDivElement> I18NDiv.appendChild(document.createElement('div'));
+        propertyValueDiv.className  = "I18NValue";
+        propertyValueDiv.innerText  = I18NString[I18NKey];
+
+    }
+
+    return I18NDiv.innerHTML;
+
+}
+
+// #endregion
+
+// #region CreateI18NDiv(I18NString, CSSClassNames?)
+
+function CreateI18NDiv(I18NString: object, CSSClassNames?: string) : HTMLDivElement {
+
+    let I18NDiv = document.createElement('div') as HTMLDivElement;
     I18NDiv.className = "I18N" + (CSSClassNames ? " " + CSSClassNames : "");
 
     for (var I18NKey in I18NString) {
@@ -940,6 +1038,20 @@ function GetI18N(I18NString: object, CSSClassNames?: string) : HTMLDivElement {
     }
 
     return I18NDiv;
+
+}
+
+// #endregion
+
+// #region CreateDiv(Content, CSSClassNames?)
+
+function CreateDiv(Content: string, CSSClassNames?: string): HTMLDivElement {
+
+    let newDiv = document.createElement('div') as HTMLDivElement;
+    newDiv.className = (CSSClassNames ? CSSClassNames : "");
+    newDiv.innerHTML = Content;
+
+    return newDiv;
 
 }
 
@@ -987,6 +1099,9 @@ function parseLocalDate(DateString: string): string {
 
 function parseUTCDateWithDayOfWeek(UTCString: string): string {
 
+    if (UTCString === "")
+        return "";
+
     moment.locale(window.navigator.language);
 
     return moment.utc(UTCString).local().format('ddd ll');
@@ -994,6 +1109,9 @@ function parseUTCDateWithDayOfWeek(UTCString: string): string {
 }
 
 function parseUTCDateWithDayOfWeekShort(UTCString: string): string {
+
+    if (UTCString === "")
+        return "";
 
     moment.locale(window.navigator.language);
 
@@ -1003,6 +1121,9 @@ function parseUTCDateWithDayOfWeekShort(UTCString: string): string {
 
 function parseUTCDate(UTCString: string): string {
 
+    if (UTCString === "")
+        return "";
+
     moment.locale(window.navigator.language);
 
     return moment.utc(UTCString).local().format('ll');
@@ -1010,6 +1131,9 @@ function parseUTCDate(UTCString: string): string {
 }
 
 function parseUTCTimestamp(UTCString: string): string {
+
+    if (UTCString === "")
+        return "";
 
     moment.locale(window.navigator.language);
 

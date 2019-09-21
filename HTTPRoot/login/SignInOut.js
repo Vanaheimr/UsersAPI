@@ -53,7 +53,7 @@ function VerifyLogin() {
             loginInput.classList.add("error");
     }
     function VerifyPassword() {
-        var ResponseText = HTTPAuth("/users/" + _login.value, "APIKey", {
+        var ResponseText = HTTPAuth("/users/" + _login.value, {
             "login": _login.value,
             "password": _password.value,
             "acceptsEULA": acceptsEULA
@@ -154,7 +154,7 @@ function LostPassword() {
     function ResetPassword() {
         responseDiv.style.display = 'block';
         responseDiv.innerHTML = '<i class="fa fa-spinner faa-spin animated"></i> Verifying your login... please wait!';
-        HTTPSet("/resetPassword", "APIKey", {
+        HTTPSet("/resetPassword", {
             "id": _id.value
         }, function (HTTPStatus, ResponseText) {
             try {
@@ -265,7 +265,7 @@ function SetPassword() {
         };
         if (securityToken2.value != "")
             SetPasswordJSON["securityToken2"] = securityToken2.value;
-        HTTPSet("/setPassword", "APIKey", SetPasswordJSON, function (HTTPStatus, ResponseText) {
+        HTTPSet("/setPassword", SetPasswordJSON, function (HTTPStatus, ResponseText) {
             try {
                 var responseJSON = JSON.parse(ResponseText);
                 if (responseJSON.numberOfAccountsFound != null) {
@@ -352,7 +352,7 @@ function SignIn() {
     var SignInErrors = SignInPanel.querySelector('#errors');
     SignInErrors.style.display = "none";
     SignInErrors.innerText = "";
-    SendJSON("AUTH", "/users/" + Username, "", {
+    SendJSON("AUTH", "/users/" + Username, {
         "realm": Realm,
         "password": Password,
         "rememberme": RememberMe
@@ -474,7 +474,7 @@ function GetEMail() {
     return Username;
 }
 function SignOut() {
-    SendJSON("DEAUTH", "/users", "", "", function (HTTPStatus, ResponseText) {
+    SendJSON("DEAUTH", "/users", null, function (HTTPStatus, ResponseText) {
     }, function (HTTPStatus, StatusText, ResponseText) {
     });
     DeleteCookie(HTTPCookieId);

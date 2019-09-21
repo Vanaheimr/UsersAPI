@@ -23,13 +23,13 @@ using System.Collections.Generic;
 
 using Newtonsoft.Json.Linq;
 
+using org.GraphDefined.Vanaheimr.Aegir;
 using org.GraphDefined.Vanaheimr.Illias;
 using org.GraphDefined.Vanaheimr.Hermod;
 using org.GraphDefined.Vanaheimr.Styx.Arrows;
 using org.GraphDefined.Vanaheimr.Hermod.Distributed;
 using org.GraphDefined.Vanaheimr.Hermod.HTTP;
 using org.GraphDefined.Vanaheimr.Hermod.Mail;
-using org.GraphDefined.Vanaheimr.Aegir;
 
 #endregion
 
@@ -39,9 +39,12 @@ namespace org.GraphDefined.OpenData.Users
     public delegate Boolean OrganizationProviderDelegate(Organization_Id OrganizationId, out Organization Organization);
 
     public delegate JObject OrganizationToJSONDelegate(Organization  Organization,
-                                                       Boolean       Embedded            = false,
-                                                       InfoStatus    ExpandTags          = InfoStatus.ShowIdOnly,
-                                                       Boolean       IncludeCryptoHash   = true);
+                                                       Boolean       Embedded                 = false,
+                                                       InfoStatus    ExpandMembers            = InfoStatus.ShowIdOnly,
+                                                       InfoStatus    ExpandParents            = InfoStatus.ShowIdOnly,
+                                                       InfoStatus    ExpandSubOrganizations   = InfoStatus.ShowIdOnly,
+                                                       InfoStatus    ExpandTags               = InfoStatus.ShowIdOnly,
+                                                       Boolean       IncludeCryptoHash        = true);
 
 
     /// <summary>
@@ -60,12 +63,15 @@ namespace org.GraphDefined.OpenData.Users
         /// <param name="Take">The optional number of organizations to return.</param>
         /// <param name="Embedded">Whether this data is embedded into another data structure.</param>
         public static JArray ToJSON(this IEnumerable<Organization>  Organizations,
-                                    UInt64?                         Skip                 = null,
-                                    UInt64?                         Take                 = null,
-                                    Boolean                         Embedded             = false,
-                                    InfoStatus                      ExpandTags           = InfoStatus.ShowIdOnly,
-                                    OrganizationToJSONDelegate      OrganizationToJSON   = null,
-                                    Boolean                         IncludeCryptoHash    = true)
+                                    UInt64?                         Skip                     = null,
+                                    UInt64?                         Take                     = null,
+                                    Boolean                         Embedded                 = false,
+                                    InfoStatus                      ExpandMembers            = InfoStatus.ShowIdOnly,
+                                    InfoStatus                      ExpandParents            = InfoStatus.ShowIdOnly,
+                                    InfoStatus                      ExpandSubOrganizations   = InfoStatus.ShowIdOnly,
+                                    InfoStatus                      ExpandTags               = InfoStatus.ShowIdOnly,
+                                    OrganizationToJSONDelegate      OrganizationToJSON       = null,
+                                    Boolean                         IncludeCryptoHash        = true)
 
 
             => Organizations?.Any() != true
@@ -79,10 +85,16 @@ namespace org.GraphDefined.OpenData.Users
                                     SafeSelect(organization => OrganizationToJSON != null
                                                                     ? OrganizationToJSON (organization,
                                                                                           Embedded,
+                                                                                          ExpandMembers,
+                                                                                          ExpandParents,
+                                                                                          ExpandSubOrganizations,
                                                                                           ExpandTags,
                                                                                           IncludeCryptoHash)
 
                                                                     : organization.ToJSON(Embedded,
+                                                                                          ExpandMembers,
+                                                                                          ExpandParents,
+                                                                                          ExpandSubOrganizations,
                                                                                           ExpandTags,
                                                                                           IncludeCryptoHash)));
 
@@ -156,16 +168,16 @@ namespace org.GraphDefined.OpenData.Users
         public I18NString           Description          { get; }
 
         /// <summary>
+        /// The website of the organization.
+        /// </summary>
+        [Optional]
+        public String               Website              { get; }
+
+        /// <summary>
         /// The primary E-Mail address of the organization.
         /// </summary>
         [Optional]
-        public SimpleEMailAddress?  EMail                { get; }
-
-        /// <summary>
-        /// The PGP/GPG public keyring of the organization.
-        /// </summary>
-        [Optional]
-        public String               PublicKeyRing        { get; }
+        public EMailAddress         EMail                { get; }
 
         /// <summary>
         /// The telephone number of the organization.
@@ -174,15 +186,15 @@ namespace org.GraphDefined.OpenData.Users
         public PhoneNumber?         Telephone            { get; }
 
         /// <summary>
-        /// The geographical location of this organization.
-        /// </summary>
-        public GeoCoordinate?       GeoLocation          { get; }
-
-        /// <summary>
         /// The optional address of the organization.
         /// </summary>
         [Optional]
         public Address              Address              { get; }
+
+        /// <summary>
+        /// The geographical location of this organization.
+        /// </summary>
+        public GeoCoordinate?       GeoLocation          { get; }
 
         /// <summary>
         /// An collection of multi-language tags and their relevance.
@@ -216,22 +228,22 @@ namespace org.GraphDefined.OpenData.Users
         /// <param name="Id">The unique identification of the organization.</param>
         /// <param name="Name">The offical (multi-language) name of the organization.</param>
         /// <param name="Description">An optional (multi-language) description of the organization.</param>
+        /// <param name="Website">The website of the organization.</param>
         /// <param name="EMail">The primary e-mail of the organisation.</param>
-        /// <param name="PublicKeyRing">An optional PGP/GPG public keyring of the organisation.</param>
         /// <param name="Telephone">An optional telephone number of the organisation.</param>
-        /// <param name="GeoLocation">An optional geographical location of the organisation.</param>
         /// <param name="Address">An optional address of the organisation.</param>
+        /// <param name="GeoLocation">An optional geographical location of the organisation.</param>
         /// <param name="PrivacyLevel">Whether the organization will be shown in organization listings, or not.</param>
         /// <param name="IsDisabled">The organization is disabled.</param>
         /// <param name="DataSource">The source of all this data, e.g. an automatic importer.</param>
         public Organization(Organization_Id                                                                    Id,
                             I18NString                                                                         Name                                = null,
                             I18NString                                                                         Description                         = null,
-                            SimpleEMailAddress?                                                                EMail                               = null,
-                            String                                                                             PublicKeyRing                       = null,
+                            String                                                                             Website                             = null,
+                            EMailAddress                                                                       EMail                               = null,
                             PhoneNumber?                                                                       Telephone                           = null,
-                            GeoCoordinate?                                                                     GeoLocation                         = null,
                             Address                                                                            Address                             = null,
+                            GeoCoordinate?                                                                     GeoLocation                         = null,
                             Func<Tags.Builder, Tags>                                                           Tags                                = null,
                             PrivacyLevel                                                                       PrivacyLevel                        = OpenData.PrivacyLevel.World,
                             Boolean                                                                            IsDisabled                          = false,
@@ -246,21 +258,20 @@ namespace org.GraphDefined.OpenData.Users
 
         {
 
-            this.Name           = Name         ?? new I18NString();
-            this.Description    = Description  ?? new I18NString();
-            this.EMail          = EMail;
-            this.Address        = Address;
-            this.PublicKeyRing  = PublicKeyRing;
-            this.Telephone      = Telephone;
-            this.GeoLocation    = GeoLocation;
-            this.Address        = Address;
-            var _TagsBuilder = new Tags.Builder();
-            this.Tags           = Tags != null ? Tags(_TagsBuilder) : _TagsBuilder;
-            this.PrivacyLevel   = PrivacyLevel;
-            this.IsDisabled     = IsDisabled;
+            this.Name          = Name         ?? new I18NString();
+            this.Description   = Description  ?? new I18NString();
+            this.Website       = Website;
+            this.EMail         = EMail;
+            this.Telephone     = Telephone;
+            this.Address       = Address;
+            this.GeoLocation   = GeoLocation;
+            var _TagsBuilder   = new Tags.Builder();
+            this.Tags          = Tags != null ? Tags(_TagsBuilder) : _TagsBuilder;
+            this.PrivacyLevel  = PrivacyLevel;
+            this.IsDisabled    = IsDisabled;
 
             // Init edges
-            this._User2Organization_InEdges           = User2OrganizationInEdges.           IsNeitherNullNorEmpty() ? new List<MiniEdge<User, User2OrganizationEdges, Organization>>                (User2OrganizationInEdges)            : new List<MiniEdge<User, User2OrganizationEdges, Organization>>();
+            this._User2Organization_InEdges           = User2OrganizationInEdges.         IsNeitherNullNorEmpty() ? new List<MiniEdge<User, User2OrganizationEdges, Organization>>                (User2OrganizationInEdges)          : new List<MiniEdge<User, User2OrganizationEdges, Organization>>();
             this._Organization2Organization_InEdges   = Organization2OrganizationInEdges. IsNeitherNullNorEmpty() ? new List<MiniEdge<Organization, Organization2OrganizationEdges, Organization>>(Organization2OrganizationInEdges)  : new List<MiniEdge<Organization, Organization2OrganizationEdges, Organization>>();
             this._Organization2Organization_OutEdges  = Organization2OrganizationOutEdges.IsNeitherNullNorEmpty() ? new List<MiniEdge<Organization, Organization2OrganizationEdges, Organization>>(Organization2OrganizationOutEdges) : new List<MiniEdge<Organization, Organization2OrganizationEdges, Organization>>();
 
@@ -356,6 +367,9 @@ namespace org.GraphDefined.OpenData.Users
 
         #endregion
 
+        public Boolean RemoveInEdge(MiniEdge<User, User2OrganizationEdges, Organization> Edge)
+            => _User2Organization_InEdges.Remove(Edge);
+
         #endregion
 
         #region Organization <-> Organization edges
@@ -395,6 +409,13 @@ namespace org.GraphDefined.OpenData.Users
             AddInEdges(IEnumerable<MiniEdge<Organization, Organization2OrganizationEdges, Organization>> Edges)
 
                 => _Organization2Organization_InEdges.AddAndReturnList(Edges);
+
+        #region RemoveInEdges(EdgeLabel, TargetOrganization)
+
+        public Boolean RemoveInEdge(MiniEdge<Organization, Organization2OrganizationEdges, Organization> Edge)
+            => _Organization2Organization_InEdges.Remove(Edge);
+
+        #endregion
 
         #region RemoveInEdges (EdgeLabel, SourceOrganization)
 
@@ -454,6 +475,13 @@ namespace org.GraphDefined.OpenData.Users
 
         #region RemoveOutEdges(EdgeLabel, TargetOrganization)
 
+        public Boolean RemoveOutEdge(MiniEdge<Organization, Organization2OrganizationEdges, Organization> Edge)
+            => _Organization2Organization_OutEdges.Remove(Edge);
+
+        #endregion
+
+        #region RemoveOutEdges(EdgeLabel, TargetOrganization)
+
         public void RemoveOutEdges(Organization2OrganizationEdges  EdgeLabel,
                                    Organization                    TargetOrganization)
         {
@@ -480,10 +508,12 @@ namespace org.GraphDefined.OpenData.Users
         /// </summary>
         /// <param name="Embedded">Whether this data is embedded into another data structure.</param>
         /// <param name="IncludeCryptoHash">Include the crypto hash value of this object.</param>
-        public override JObject ToJSON(Boolean Embedded           = false,
-                                       Boolean IncludeCryptoHash  = false)
+        public override JObject ToJSON(Boolean  Embedded           = false,
+                                       Boolean  IncludeCryptoHash  = false)
 
             => ToJSON(Embedded:            false,
+                      ExpandParents:       InfoStatus.ShowIdOnly,
+                      ExpandSubOrganizations:        InfoStatus.ShowIdOnly,
                       ExpandTags:          InfoStatus.ShowIdOnly,
                       IncludeCryptoHash:   true);
 
@@ -493,51 +523,82 @@ namespace org.GraphDefined.OpenData.Users
         /// </summary>
         /// <param name="Embedded">Whether this data is embedded into another data structure.</param>
         /// <param name="IncludeCryptoHash">Include the crypto hash value of this object.</param>
-        public JObject ToJSON(Boolean     Embedded           = false,
-                              InfoStatus  ExpandTags         = InfoStatus.ShowIdOnly,
-                              Boolean     IncludeCryptoHash  = true)
+        public JObject ToJSON(Boolean     Embedded                = false,
+                              InfoStatus  ExpandMembers           = InfoStatus.ShowIdOnly,
+                              InfoStatus  ExpandParents           = InfoStatus.ShowIdOnly,
+                              InfoStatus  ExpandSubOrganizations  = InfoStatus.ShowIdOnly,
+                              InfoStatus  ExpandTags              = InfoStatus.ShowIdOnly,
+                              Boolean     IncludeCryptoHash       = true)
 
             => JSONObject.Create(
 
-                   new JProperty("@id",                 Id.             ToString()),
+                   new JProperty("@id",                     Id.             ToString()),
 
                    !Embedded
-                       ? new JProperty("@context",      JSONLDContext)
+                       ? new JProperty("@context",          JSONLDContext)
                        : null,
 
-                   new JProperty("name",                Name.           ToJSON()),
+                   new JProperty("name",                    Name.           ToJSON()),
 
                    Description.IsNeitherNullNorEmpty()
-                       ? new JProperty("description",   Description.    ToJSON())
+                       ? new JProperty("description",       Description.    ToJSON())
                        : null,
 
-                   new JProperty("parent",              Organization2OrganizationOutEdges.
-                                                            Where     (edge => edge.EdgeLabel == Organization2OrganizationEdges.IsChildOf).
-                                                            SafeSelect(edge => edge.Target.Id.ToString())),
-
-                   EMail.HasValue
-                       ? new JProperty("email",         EMail.Value.    ToString())
+                   Website.IsNeitherNullNorEmpty()
+                       ? new JProperty("website",           Website)
                        : null,
 
-                   // PublicKeyRing
+                   EMail != null
+                       ? new JProperty("email",             EMail.Address.  ToString())
+                       : null,
 
                    Telephone.HasValue
-                       ? new JProperty("telephone",     Telephone.Value.ToString())
+                       ? new JProperty("telephone",         Telephone.Value.ToString())
                        : null,
 
-                   GeoLocation?.ToJSON("geoLocation"),
                    Address?.    ToJSON("address"),
+                   GeoLocation?.ToJSON("geoLocation"),
 
                    Tags.Any()
-                       ? new JProperty("tags", Tags.ToJSON(ExpandTags))
+                       ? new JProperty("tags",              Tags.ToJSON(ExpandTags))
                        : null,
 
                    PrivacyLevel.ToJSON(),
 
-                   new JProperty("isDisabled",          IsDisabled),
+
+                   new JProperty("parents",                 Organization2OrganizationOutEdges.
+                                                                Where     (edge => edge.EdgeLabel == Organization2OrganizationEdges.IsChildOf).
+                                                                SafeSelect(edge => ExpandParents.Switch(edge,
+                                                                                                        _edge => _edge.Target.Id.ToString(),
+                                                                                                        _edge => _edge.Target.ToJSON()))),
+
+                   Organization2OrganizationInEdges.SafeAny(edge => edge.EdgeLabel == Organization2OrganizationEdges.IsChildOf)
+                       ? new JProperty("subOrganizations",  Organization2OrganizationInEdges.
+                                                                Where     (edge => edge.EdgeLabel == Organization2OrganizationEdges.IsChildOf).
+                                                                SafeSelect(edge => ExpandSubOrganizations.Switch(edge,
+                                                                                                       _edge => _edge.Source.Id.ToString(),
+                                                                                                       _edge => _edge.Source.ToJSON())))
+                       : null,
+
+                   Admins.SafeAny()
+                       ? new JProperty("admins",            Admins.
+                                                                SafeSelect(user => ExpandMembers.Switch(user,
+                                                                                                       _user => _user.Id.ToString(),
+                                                                                                       _user => _user.ToJSON())))
+                       : null,
+
+                   Members.SafeAny()
+                       ? new JProperty("members",           Members.
+                                                                SafeSelect(user => ExpandMembers.Switch(user,
+                                                                                                       _user => _user.Id.ToString(),
+                                                                                                       _user => _user.ToJSON())))
+                       : null,
+
+
+                   new JProperty("isDisabled",              IsDisabled),
 
                    IncludeCryptoHash
-                       ? new JProperty("cryptoHash",    CurrentCryptoHash)
+                       ? new JProperty("cryptoHash",        CurrentCryptoHash)
                        : null
 
                );
@@ -633,13 +694,11 @@ namespace org.GraphDefined.OpenData.Users
 
                 #endregion
 
-                #region Parse E-Mail           [optional]
+                #region Parse Website          [optional]
 
-                if (JSONObject.ParseOptionalStruct("email",
-                                                   "e-mail address",
-                                                   SimpleEMailAddress.TryParse,
-                                                   out SimpleEMailAddress? EMail,
-                                                   out ErrorResponse))
+                if (JSONObject.ParseOptional("website",
+                                             out String Website,
+                                             out ErrorResponse))
                 {
 
                     if (ErrorResponse != null)
@@ -649,11 +708,13 @@ namespace org.GraphDefined.OpenData.Users
 
                 #endregion
 
-                #region Parse PublicKey        [optional]
+                #region Parse E-Mail           [optional]
 
-                if (JSONObject.ParseOptional("publicKey",
-                                             out String PublicKey,
-                                             out ErrorResponse))
+                if (JSONObject.ParseOptionalStruct("email",
+                                                   "e-mail address",
+                                                   SimpleEMailAddress.TryParse,
+                                                   out SimpleEMailAddress? EMail,
+                                                   out ErrorResponse))
                 {
 
                     if (ErrorResponse != null)
@@ -746,11 +807,11 @@ namespace org.GraphDefined.OpenData.Users
                 Organization = new Organization(OrganizationIdBody ?? OrganizationIdURI.Value,
                                                 Name,
                                                 Description,
+                                                Website,
                                                 EMail,
-                                                PublicKey,
                                                 Telephone,
-                                                GeoLocation,
                                                 Address,
+                                                GeoLocation,
                                                 _ => Tags,
                                                 PrivacyLevel ?? OpenData.PrivacyLevel.World,
                                                 IsDisabled ?? false,
@@ -845,6 +906,22 @@ namespace org.GraphDefined.OpenData.Users
         }
 
         #endregion
+
+
+        public IEnumerable<User> Admins
+            => _User2Organization_InEdges.Where(_ => _.EdgeLabel == Users.User2OrganizationEdges.IsAdmin). SafeSelect(edge => edge.Source).ToArray();
+
+        public IEnumerable<User> Members
+            => _User2Organization_InEdges.Where(_ => _.EdgeLabel == Users.User2OrganizationEdges.IsMember).SafeSelect(edge => edge.Source).ToArray();
+
+        public IEnumerable<Organization> Parents
+            => _Organization2Organization_OutEdges.Where(edge => edge.Source == this && edge.EdgeLabel == Organization2OrganizationEdges.IsChildOf).Select(edge => edge.Target).ToArray();
+
+        /// <summary>
+        /// A relationship between two organizations where the first includes the second, e.g., as a subsidiary. See also: the more specific 'department' property.
+        /// </summary>
+        public IEnumerable<Organization> SubOrganizations
+            => _Organization2Organization_InEdges.Where(edge => edge.Source == this && edge.EdgeLabel == Organization2OrganizationEdges.IsChildOf).Select(edge => edge.Source).ToArray();
 
 
         #region Operator overloading
@@ -1077,11 +1154,11 @@ namespace org.GraphDefined.OpenData.Users
             => new Builder(NewOrganizationId ?? Id,
                            Name,
                            Description,
+                           Website,
                            EMail,
-                           PublicKeyRing,
                            Telephone,
-                           GeoLocation,
                            Address,
+                           GeoLocation,
                            _ => Tags,
                            PrivacyLevel,
                            IsDisabled,
@@ -1121,16 +1198,16 @@ namespace org.GraphDefined.OpenData.Users
             public I18NString           Description          { get; set; }
 
             /// <summary>
-            /// The primary E-Mail address of the organization.
-            /// </summary>
-            [Mandatory]
-            public SimpleEMailAddress?  EMail                { get; set; }
-
-            /// <summary>
-            /// The PGP/GPG public keyring of the organization.
+            /// The website of the organization.
             /// </summary>
             [Optional]
-            public String               PublicKeyRing        { get; set; }
+            public String               Website              { get; set; }
+
+            /// <summary>
+            /// The primary E-Mail address of the organization.
+            /// </summary>
+            [Optional]
+            public EMailAddress         EMail                { get; set; }
 
             /// <summary>
             /// The telephone number of the organization.
@@ -1139,15 +1216,15 @@ namespace org.GraphDefined.OpenData.Users
             public PhoneNumber?         Telephone            { get; set; }
 
             /// <summary>
-            /// The geographical location of this organization.
-            /// </summary>
-            public GeoCoordinate?       GeoLocation          { get; set; }
-
-            /// <summary>
             /// The optional address of the organization.
             /// </summary>
             [Optional]
             public Address              Address              { get; set; }
+
+            /// <summary>
+            /// The geographical location of this organization.
+            /// </summary>
+            public GeoCoordinate?       GeoLocation          { get; set; }
 
             /// <summary>
             /// An collection of multi-language tags and their relevance.
@@ -1211,8 +1288,8 @@ namespace org.GraphDefined.OpenData.Users
             /// <param name="Id">The unique identification of the organization.</param>
             /// <param name="Name">The offical (multi-language) name of the organization.</param>
             /// <param name="Description">An optional (multi-language) description of the organization.</param>
+            /// <param name="Website">The website of the organization.</param>
             /// <param name="EMail">The primary e-mail of the organisation.</param>
-            /// <param name="PublicKeyRing">An optional PGP/GPG public keyring of the organisation.</param>
             /// <param name="Telephone">An optional telephone number of the organisation.</param>
             /// <param name="GeoLocation">An optional geographical location of the organisation.</param>
             /// <param name="Address">An optional address of the organisation.</param>
@@ -1222,11 +1299,11 @@ namespace org.GraphDefined.OpenData.Users
             public Builder(Organization_Id                                                                    Id,
                            I18NString                                                                         Name                                = null,
                            I18NString                                                                         Description                         = null,
-                           SimpleEMailAddress?                                                                EMail                               = null,
-                           String                                                                             PublicKeyRing                       = null,
+                           String                                                                             Website                             = null,
+                           EMailAddress                                                                       EMail                               = null,
                            PhoneNumber?                                                                       Telephone                           = null,
-                           GeoCoordinate?                                                                     GeoLocation                         = null,
                            Address                                                                            Address                             = null,
+                           GeoCoordinate?                                                                     GeoLocation                         = null,
                            Func<Tags.Builder, Tags>                                                           Tags                                = null,
                            PrivacyLevel                                                                       PrivacyLevel                        = OpenData.PrivacyLevel.Private,
                            Boolean                                                                            IsDisabled                          = false,
@@ -1237,23 +1314,22 @@ namespace org.GraphDefined.OpenData.Users
                            IEnumerable<MiniEdge<Organization, Organization2OrganizationEdges, Organization>>  Organization2OrganizationOutEdges   = null)
             {
 
-                this.Id              = Id;
-                this.Name            = Name        ?? new I18NString();
-                this.Description     = Description ?? new I18NString();
-                this.EMail           = EMail;
-                this.Address         = Address;
-                this.PublicKeyRing   = PublicKeyRing;
-                this.Telephone       = Telephone;
-                this.GeoLocation     = GeoLocation;
-                this.Address         = Address;
-                var _TagsBuilder = new Tags.Builder();
-                this.Tags            = Tags != null ? Tags(_TagsBuilder) : _TagsBuilder;
-                this.PrivacyLevel    = PrivacyLevel;
-                this.IsDisabled      = IsDisabled;
-                this.DataSource      = DataSource;
+                this.Id               = Id;
+                this.Name             = Name        ?? new I18NString();
+                this.Description      = Description ?? new I18NString();
+                this.Website          = Website;
+                this.EMail            = EMail;
+                this.Telephone        = Telephone;
+                this.Address          = Address;
+                this.GeoLocation      = GeoLocation;
+                var _TagsBuilder      = new Tags.Builder();
+                this.Tags             = Tags != null ? Tags(_TagsBuilder) : _TagsBuilder;
+                this.PrivacyLevel     = PrivacyLevel;
+                this.IsDisabled       = IsDisabled;
+                this.DataSource       = DataSource;
 
                 // Init edges
-                this._User2Organization_InEdges           = User2OrganizationInEdges.           IsNeitherNullNorEmpty() ? new List<MiniEdge<User, User2OrganizationEdges, Organization>>                (User2OrganizationInEdges)            : new List<MiniEdge<User, User2OrganizationEdges, Organization>>();
+                this._User2Organization_InEdges           = User2OrganizationInEdges.         IsNeitherNullNorEmpty() ? new List<MiniEdge<User, User2OrganizationEdges, Organization>>                (User2OrganizationInEdges)          : new List<MiniEdge<User,         User2OrganizationEdges,         Organization>>();
                 this._Organization2Organization_InEdges   = Organization2OrganizationInEdges. IsNeitherNullNorEmpty() ? new List<MiniEdge<Organization, Organization2OrganizationEdges, Organization>>(Organization2OrganizationInEdges)  : new List<MiniEdge<Organization, Organization2OrganizationEdges, Organization>>();
                 this._Organization2Organization_OutEdges  = Organization2OrganizationOutEdges.IsNeitherNullNorEmpty() ? new List<MiniEdge<Organization, Organization2OrganizationEdges, Organization>>(Organization2OrganizationOutEdges) : new List<MiniEdge<Organization, Organization2OrganizationEdges, Organization>>();
 
@@ -1281,11 +1357,11 @@ namespace org.GraphDefined.OpenData.Users
                 => new Organization(Id,
                                     Name,
                                     Description,
+                                    Website,
                                     EMail,
-                                    PublicKeyRing,
                                     Telephone,
-                                    GeoLocation,
                                     Address,
+                                    GeoLocation,
                                     _ => Tags,
                                     PrivacyLevel,
                                     IsDisabled,

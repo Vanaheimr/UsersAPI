@@ -39,22 +39,22 @@ namespace org.GraphDefined.OpenData.Users
     /// <summary>
     /// Extention methods for OrganizationInfos.
     /// </summary>
-    public static class OrganizationInfoExtentions
+    public static class Organization2InfoExtentions
     {
 
-        public static JArray ToJSON(this IEnumerable<OrganizationInfo> OrganizationInfos)
+        public static JArray ToJSON(this IEnumerable<OrganizationInfo2> OrganizationInfos)
         {
 
             if (OrganizationInfos?.Any() == false)
                 return new JArray();
 
-            return JSONArray.Create(OrganizationInfos.Select(orgInfo => orgInfo.ToJSON(ExpandMembers: InfoStatus.Expand)));
+            return JSONArray.Create(OrganizationInfos.Select(orgInfo => orgInfo.ToJSON()));
 
         }
 
     }
 
-    public class OrganizationInfo : Organization
+    public class OrganizationInfo2 : Organization
     {
 
         #region Data
@@ -85,11 +85,8 @@ namespace org.GraphDefined.OpenData.Users
 
         #region Constructor(s)
 
-        public OrganizationInfo(Organization  organization,
-                                User          You,
-                                Boolean       YouAreMember                    = false,
-                                Boolean       YouCanAddMembers                = false,
-                                Boolean       YouCanCreateChildOrganizations  = false)
+        public OrganizationInfo2(Organization  organization,
+                                 User          You)
 
             : base(organization.Id,
                    organization.Name,
@@ -114,9 +111,45 @@ namespace org.GraphDefined.OpenData.Users
             this.Admins                          = _User2Organization_InEdges.Where(_ => _.EdgeLabel == Users.User2OrganizationEdges.IsAdmin). SafeSelect(edge => edge.Source).ToArray();
             this.Members                         = _User2Organization_InEdges.Where(_ => _.EdgeLabel == Users.User2OrganizationEdges.IsMember).SafeSelect(edge => edge.Source).ToArray();
 
-            this.YouAreMember                    = YouAreMember                   || Admins.Contains(You) || Members.Contains(You);
-            this.YouCanAddMembers                = YouCanAddMembers               || Admins.Contains(You);
-            this.YouCanCreateChildOrganizations  = YouCanCreateChildOrganizations || Admins.Contains(You);
+
+            void CheckAccessRights(Organization  OOORg,
+                                   ref Boolean  _YouAreMemberRecursion,
+                                   ref Boolean  _YouCanAddMembersRecursion,
+                                   ref Boolean  _YouCanCreateChildOrganizationsRecursion)
+            {
+
+                foreach (var parent in OOORg.Parents)
+                {
+                    CheckAccessRights(parent,
+                                 ref _YouAreMemberRecursion,
+                                 ref _YouCanAddMembersRecursion,
+                                 ref _YouCanCreateChildOrganizationsRecursion);
+                }
+
+                if (_YouAreMemberRecursion == false && (OOORg.Members.Contains(You) || OOORg.Admins.Contains(You)))
+                    _YouAreMemberRecursion = true;
+
+                if (_YouCanAddMembersRecursion == false && OOORg.Admins.Contains(You))
+                    _YouCanAddMembersRecursion = true;
+
+                if (_YouCanCreateChildOrganizationsRecursion == false && OOORg.Admins.Contains(You))
+                    _YouCanCreateChildOrganizationsRecursion = true;
+
+            }
+
+
+            var __YouAreMemberRecursion                    = false;
+            var __YouCanAddMembersRecursion                = false;
+            var __YouCanCreateChildOrganizationsRecursion  = false;
+
+            CheckAccessRights(this,
+                              ref __YouAreMemberRecursion,
+                              ref __YouCanAddMembersRecursion,
+                              ref __YouCanCreateChildOrganizationsRecursion);
+
+            this.YouAreMember                    = __YouAreMemberRecursion                   || Admins.Contains(You) || Members.Contains(You);
+            this.YouCanAddMembers                = __YouCanAddMembersRecursion               || Admins.Contains(You);
+            this.YouCanCreateChildOrganizations  = __YouCanCreateChildOrganizationsRecursion || Admins.Contains(You);
 
             #region GetChilds(Org, ...)
 
@@ -179,12 +212,12 @@ namespace org.GraphDefined.OpenData.Users
         #endregion
 
 
-        public JObject ToJSON(Boolean     Embedded                 = false,
-                              InfoStatus  ExpandMembers            = InfoStatus.ShowIdOnly,
-                              InfoStatus  ExpandParents            = InfoStatus.ShowIdOnly,
-                              InfoStatus  ExpandSubOrganizations   = InfoStatus.ShowIdOnly,
-                              InfoStatus  ExpandTags               = InfoStatus.ShowIdOnly,
-                              Boolean     IncludeCryptoHash        = true)
+        public JObject ToJSON(Boolean     Embedded                = false,
+                              InfoStatus  ExpandMembers           = InfoStatus.ShowIdOnly,
+                              InfoStatus  ExpandParents           = InfoStatus.ShowIdOnly,
+                              InfoStatus  ExpandSubOrganizations  = InfoStatus.ShowIdOnly,
+                              InfoStatus  ExpandTags              = InfoStatus.ShowIdOnly,
+                              Boolean     IncludeCryptoHash       = true)
         {
 
             var org      = base.ToJSON(Embedded,
@@ -204,7 +237,7 @@ namespace org.GraphDefined.OpenData.Users
             //if (YouAreMember)
             //    org.Add("members",                     JSONArray.Create(Members.SafeSelect(user => user.ToJSON())));
 
-            org.Add("_childs",                         new JArray(Childs.OrderBy(child => child.Id).Select(child => child.ToJSON(ExpandMembers: InfoStatus.Expand))));
+            //org.Add("_childs",                         new JArray(Childs.OrderBy(child => child.Id).Select(child => child.ToJSON())));
 
             return org;
 
