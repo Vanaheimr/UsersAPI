@@ -907,6 +907,23 @@ namespace org.GraphDefined.OpenData.Users
 
         #endregion
 
+        #region GetMeAndAllMyParents(Filter = null)
+
+        public IEnumerable<Organization> GetMeAndAllMyParents(Func<Organization, Boolean> Include = null)
+        {
+
+            var parentsAndMe = new HashSet<Organization>();
+            parentsAndMe.Add(this);
+            _GetAllParents(ref parentsAndMe);
+
+            return Include != null
+                       ? parentsAndMe.Where(Include)
+                       : parentsAndMe;
+
+        }
+
+        #endregion
+
 
         public IEnumerable<User> Admins
             => _User2Organization_InEdges.Where(_ => _.EdgeLabel == Users.User2OrganizationEdges.IsAdmin). SafeSelect(edge => edge.Source).ToArray();

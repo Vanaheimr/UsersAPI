@@ -566,6 +566,11 @@ namespace org.GraphDefined.OpenData.Users
         /// </summary>
         public TelegramBotClient         TelegramAPI                { get; }
 
+        /// <summary>
+        /// The Telegram user store.
+        /// </summary>
+        public TelegramStore             TelegramStore              { get; }
+
 
         #region DNSClient
 
@@ -1580,6 +1585,8 @@ namespace org.GraphDefined.OpenData.Users
             if (this.TelegramBotToken.IsNeitherNullNorEmpty())
             {
                 this.TelegramAPI        = new TelegramBotClient(this.TelegramBotToken);
+                this.TelegramStore      = new TelegramStore    (this.TelegramAPI);
+                this.TelegramAPI.OnMessage += TelegramStore.ReceiveTelegramMessage;
                 this.TelegramAPI.OnMessage += ReceiveTelegramMessage;
                 this.TelegramAPI.StartReceiving();
             }
@@ -4560,6 +4567,15 @@ namespace org.GraphDefined.OpenData.Users
                                                              await AddNotification(HTTPUser, httpsNotification, HTTPUser.Id);
                                                              break;
 
+                                                         case TelegramNotification.JSONLDContext:
+                                                             if (!TelegramNotification.TryParse(JSONObject, out TelegramNotification telegramNotification))
+                                                             {
+                                                                 ErrorString = "Could not parse Telegram notification!";
+                                                                 goto fail;
+                                                             }
+                                                             await AddNotification(HTTPUser, telegramNotification, HTTPUser.Id);
+                                                             break;
+
                                                          default:
                                                              goto fail;
 
@@ -7003,6 +7019,19 @@ namespace org.GraphDefined.OpenData.Users
 
                                 break;
 
+
+                            case TelegramNotification.JSONLDContext:
+
+                                var telegramNotification = TelegramNotification.Parse(JSONObject);
+
+                                if (telegramNotification != null)
+                                    _User.AddNotification(telegramNotification);
+
+                                else
+                                    DebugX.Log(String.Concat(nameof(UsersAPI), " Could not parse the given Telegram notification!"));
+
+                                break;
+
                         }
 
                     }
@@ -7122,15 +7151,35 @@ namespace org.GraphDefined.OpenData.Users
 
         async void ReceiveTelegramMessage(Object Sender, Telegram.Bot.Args.MessageEventArgs e)
         {
-            if (e?.Message?.Text.IsNotNullOrEmpty() == true)
+
+            var messageText = e?.Message?.Text;
+
+            if (messageText.IsNeitherNullNorEmpty())
+                messageText.Trim();
+
+            if (messageText.IsNotNullOrEmpty())
             {
 
-                Console.WriteLine($"Received a telegram text message from {e.Message.From.Username} in chat {e.Message.Chat.Id}.");
+                var command = messageText.Split(' ');
 
-                await this.TelegramAPI.SendTextMessageAsync(
-                    chatId:  e.Message.Chat,
-                    text:    "Hello " + e.Message.From.FirstName + " " + e.Message.From.LastName + "!\nYou said:\n" + e.Message.Text
-                );
+                switch (command[0])
+                {
+
+                    case "/system":
+                        await this.TelegramAPI.SendTextMessageAsync(
+                            chatId:  e.Message.Chat,
+                            text:    "I'm running on: " + Environment.MachineName + " and use " + (Environment.WorkingSet / 1024 /1024) + " MBytes RAM"
+                        );
+                        break;
+
+                    default:
+                        await this.TelegramAPI.SendTextMessageAsync(
+                            chatId:  e.Message.Chat,
+                            text:    "Hello " + e.Message.From.FirstName + " " + e.Message.From.LastName + "!\nYou said:\n" + e.Message.Text
+                        );
+                        break;
+
+                }
 
             }
         }
