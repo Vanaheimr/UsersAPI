@@ -539,11 +539,6 @@ namespace org.GraphDefined.OpenData.Users
         #region SMSAPI
 
         /// <summary>
-        /// The credentials used for the SMS API.
-        /// </summary>
-        public Credentials               SMSAPICredentials          { get; }
-
-        /// <summary>
         /// The (default) SMS sender name.
         /// </summary>
         public String                    SMSSenderName              { get; }
@@ -1575,7 +1570,7 @@ namespace org.GraphDefined.OpenData.Users
 
             if (SMSAPICredentials != null)
             {
-                this._SMSAPI            = new SMSAPI(Credentials: this.SMSAPICredentials);
+                this._SMSAPI            = new SMSAPI(Credentials: SMSAPICredentials);
                 this.SMSSenderName      = SMSSenderName;
                 this.APIAdminSMS        = APIAdminSMS;
             }
