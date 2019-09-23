@@ -93,26 +93,33 @@ namespace org.GraphDefined.OpenData.Users
             this.ByUsername   = new Dictionary<String, TelegramUser>();
             this.ByChatId     = new Dictionary<Int64,  TelegramUser>();
 
-            foreach (var line in File.ReadLines("TelegramStore.csv"))
+            try
             {
-                if (line.IsNotNullOrEmpty() && !line.StartsWith("//") && !line.StartsWith("#"))
+
+                foreach (var line in File.ReadLines("TelegramStore.csv"))
                 {
-                    try
+                    if (line.IsNotNullOrEmpty() && !line.StartsWith("//") && !line.StartsWith("#"))
                     {
+                        try
+                        {
 
-                        var elements = line.Trim().Split(US);
+                            var elements = line.Trim().Split(US);
 
-                        UpdateUser(Int32.Parse(elements[0]),
-                                   elements[1],
-                                   elements[2],
-                                   elements[3],
-                                   Int64.Parse(elements[4]));
+                            UpdateUser(Int32.Parse(elements[0]),
+                                       elements[1],
+                                       elements[2],
+                                       elements[3],
+                                       Int64.Parse(elements[4]));
 
+                        }
+                        catch (Exception)
+                        { }
                     }
-                    catch (Exception)
-                    { }
                 }
+
             }
+            catch (Exception)
+            { }
 
         }
 
