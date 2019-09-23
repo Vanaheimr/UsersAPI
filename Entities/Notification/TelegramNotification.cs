@@ -122,11 +122,11 @@ namespace org.GraphDefined.OpenData.Notifications
         #endregion
 
 
-        #region GetTelegramNotifications(this UsersAPI, User,   params NotificationMessageTypes)
+        #region GetTelegramNotifications(this UsersAPI, User,           params NotificationMessageTypes)
 
         public static IEnumerable<TelegramNotification> GetTelegramNotifications(this UsersAPI                     UsersAPI,
-                                                                       User                              User,
-                                                                       params NotificationMessageType[]  NotificationMessageTypes)
+                                                                                 User                              User,
+                                                                                 params NotificationMessageType[]  NotificationMessageTypes)
 
 
             => UsersAPI.GetNotificationsOf<TelegramNotification>(User,
@@ -134,15 +134,39 @@ namespace org.GraphDefined.OpenData.Notifications
 
         #endregion
 
-        #region GetTelegramNotifications(this UsersAPI, UserId, params NotificationMessageTypes)
+        #region GetTelegramNotifications(this UsersAPI, UserId,         params NotificationMessageTypes)
 
         public static IEnumerable<TelegramNotification> GetTelegramNotifications(this UsersAPI                     UsersAPI,
-                                                                       User_Id                           UserId,
-                                                                       params NotificationMessageType[]  NotificationMessageTypes)
+                                                                                 User_Id                           UserId,
+                                                                                 params NotificationMessageType[]  NotificationMessageTypes)
 
 
             => UsersAPI.GetNotificationsOf<TelegramNotification>(UserId,
+                                                                 NotificationMessageTypes);
+
+        #endregion
+
+        #region GetTelegramNotifications(this UsersAPI, Organization,   params NotificationMessageTypes)
+
+        public static IEnumerable<TelegramNotification> GetTelegramNotifications(this UsersAPI                     UsersAPI,
+                                                                                 Organization                      Organization,
+                                                                                 params NotificationMessageType[]  NotificationMessageTypes)
+
+
+            => UsersAPI.GetNotificationsOf<TelegramNotification>(Organization,
                                                             NotificationMessageTypes);
+
+        #endregion
+
+        #region GetTelegramNotifications(this UsersAPI, OrganizationId, params NotificationMessageTypes)
+
+        public static IEnumerable<TelegramNotification> GetTelegramNotifications(this UsersAPI                     UsersAPI,
+                                                                                 Organization_Id                   OrganizationId,
+                                                                                 params NotificationMessageType[]  NotificationMessageTypes)
+
+
+            => UsersAPI.GetNotificationsOf<TelegramNotification>(OrganizationId,
+                                                                 NotificationMessageTypes);
 
         #endregion
 

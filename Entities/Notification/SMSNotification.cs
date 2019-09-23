@@ -122,7 +122,7 @@ namespace org.GraphDefined.OpenData.Notifications
         #endregion
 
 
-        #region GetSMSNotifications(this UsersAPI, User,   params NotificationMessageTypes)
+        #region GetSMSNotifications(this UsersAPI, User,           params NotificationMessageTypes)
 
         public static IEnumerable<SMSNotification> GetSMSNotifications(this UsersAPI                     UsersAPI,
                                                                        User                              User,
@@ -134,7 +134,7 @@ namespace org.GraphDefined.OpenData.Notifications
 
         #endregion
 
-        #region GetSMSNotifications(this UsersAPI, UserId, params NotificationMessageTypes)
+        #region GetSMSNotifications(this UsersAPI, UserId,         params NotificationMessageTypes)
 
         public static IEnumerable<SMSNotification> GetSMSNotifications(this UsersAPI                     UsersAPI,
                                                                        User_Id                           UserId,
@@ -142,6 +142,30 @@ namespace org.GraphDefined.OpenData.Notifications
 
 
             => UsersAPI.GetNotificationsOf<SMSNotification>(UserId,
+                                                            NotificationMessageTypes);
+
+        #endregion
+
+        #region GetSMSNotifications(this UsersAPI, Organization,   params NotificationMessageTypes)
+
+        public static IEnumerable<SMSNotification> GetSMSNotifications(this UsersAPI                     UsersAPI,
+                                                                       Organization                      Organization,
+                                                                       params NotificationMessageType[]  NotificationMessageTypes)
+
+
+            => UsersAPI.GetNotificationsOf<SMSNotification>(Organization,
+                                                            NotificationMessageTypes);
+
+        #endregion
+
+        #region GetSMSNotifications(this UsersAPI, OrganizationId, params NotificationMessageTypes)
+
+        public static IEnumerable<SMSNotification> GetSMSNotifications(this UsersAPI                     UsersAPI,
+                                                                       Organization_Id                   OrganizationId,
+                                                                       params NotificationMessageType[]  NotificationMessageTypes)
+
+
+            => UsersAPI.GetNotificationsOf<SMSNotification>(OrganizationId,
                                                             NotificationMessageTypes);
 
         #endregion

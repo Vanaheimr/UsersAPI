@@ -175,7 +175,7 @@ namespace org.GraphDefined.OpenData.Notifications
         #endregion
 
 
-        #region GetHTTPSNotifications(this UsersAPI, User,   params NotificationMessageTypes)
+        #region GetHTTPSNotifications(this UsersAPI, User,           params NotificationMessageTypes)
 
         public static IEnumerable<HTTPSNotification> GetHTTPSNotifications(this UsersAPI                     UsersAPI,
                                                                            User                              User,
@@ -187,7 +187,7 @@ namespace org.GraphDefined.OpenData.Notifications
 
         #endregion
 
-        #region GetHTTPSNotifications(this UsersAPI, UserId, params NotificationMessageTypes)
+        #region GetHTTPSNotifications(this UsersAPI, UserId,         params NotificationMessageTypes)
 
         public static IEnumerable<HTTPSNotification> GetHTTPSNotifications(this UsersAPI                     UsersAPI,
                                                                            User_Id                           UserId,
@@ -195,6 +195,30 @@ namespace org.GraphDefined.OpenData.Notifications
 
 
             => UsersAPI.GetNotificationsOf<HTTPSNotification>(UserId,
+                                                              NotificationMessageTypes);
+
+        #endregion
+
+        #region GetHTTPSNotifications(this UsersAPI, Organization,   params NotificationMessageTypes)
+
+        public static IEnumerable<HTTPSNotification> GetHTTPSNotifications(this UsersAPI                     UsersAPI,
+                                                                           Organization                      Organization,
+                                                                           params NotificationMessageType[]  NotificationMessageTypes)
+
+
+            => UsersAPI.GetNotificationsOf<HTTPSNotification>(Organization,
+                                                              NotificationMessageTypes);
+
+        #endregion
+
+        #region GetHTTPSNotifications(this UsersAPI, OrganizationId, params NotificationMessageTypes)
+
+        public static IEnumerable<HTTPSNotification> GetHTTPSNotifications(this UsersAPI                     UsersAPI,
+                                                                           Organization_Id                   OrganizationId,
+                                                                           params NotificationMessageType[]  NotificationMessageTypes)
+
+
+            => UsersAPI.GetNotificationsOf<HTTPSNotification>(OrganizationId,
                                                               NotificationMessageTypes);
 
         #endregion

@@ -10664,6 +10664,33 @@ namespace org.GraphDefined.OpenData.Users
         #endregion
 
 
+        #region GetNotificationsOf(Organization,   params NotificationMessageTypes)
+
+        public IEnumerable<T> GetNotificationsOf<T>(Organization                      Organization,
+                                                    params NotificationMessageType[]  NotificationMessageTypes)
+            where T : ANotification
+
+            => Organization.
+                   GetMeAndAllMyParents(parent => parent != NoOwner).
+                   SelectMany          (parent => parent.User2OrganizationEdges).
+                   SelectMany          (edge   => GetNotificationsOf<T>(edge.Source.Id, NotificationMessageTypes));
+
+        #endregion
+
+        #region GetNotificationsOf(OrganizationId, params NotificationMessageTypes)
+
+        public IEnumerable<T> GetNotificationsOf<T>(Organization_Id                   OrganizationId,
+                                                    params NotificationMessageType[]  NotificationMessageTypes)
+
+            where T : ANotification
+
+            => TryGet(OrganizationId, out Organization Organization)
+                   ? GetNotificationsOf<T>(Organization, NotificationMessageTypes)
+                   : new T[0];
+
+        #endregion
+
+
         #region GetNotifications  (User,   NotificationMessageTypeFilter)
 
         public IEnumerable<ANotification> GetNotifications(User                                    User,
