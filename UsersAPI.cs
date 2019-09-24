@@ -7167,7 +7167,7 @@ namespace org.GraphDefined.OpenData.Users
                         );
                         break;
 
-                    default:
+                    case "/echo":
                         await this.TelegramAPI.SendTextMessageAsync(
                             chatId:  e.Message.Chat,
                             text:    "Hello " + e.Message.From.FirstName + " " + e.Message.From.LastName + "!\nYou said:\n" + e.Message.Text

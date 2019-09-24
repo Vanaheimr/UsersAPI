@@ -59,18 +59,42 @@ namespace org.GraphDefined.OpenData.Users
         }
 
 
+        public class TelegramGroup
+        {
+            public Int64   ChatId        { get; }
+            public String  Title         { get; }
+            public String  InviteLink    { get; }
+
+            public TelegramGroup(Int64   ChatId,
+                                 String  Title,
+                                 String  InviteLink)
+            {
+
+                this.ChatId      = ChatId;
+                this.Title       = Title;
+                this.InviteLink  = InviteLink;
+
+            }
+
+        }
+
+
         #region Data
 
         /// <summary>
         /// ASCII unit/cell separator
         /// </summary>
-        protected const  Char                              US = (Char) 0x1F;
+        protected const  Char                               US = (Char) 0x1F;
 
-        private readonly TelegramBotClient                 TelegramAPI;
+        private readonly TelegramBotClient                  TelegramAPI;
 
-        private readonly Dictionary<String, TelegramUser>  ByUsername;
+        private readonly Dictionary<String, TelegramUser>   UserByUsername;
 
-        private readonly Dictionary<Int64,  TelegramUser>  ByChatId;
+        private readonly Dictionary<Int64,  TelegramUser>   UserByChatId;
+
+        private readonly Dictionary<String, TelegramGroup>  GroupByTitle;
+
+        private readonly Dictionary<Int64,  TelegramGroup>  GroupByChatId;
 
         #endregion
 
@@ -89,9 +113,11 @@ namespace org.GraphDefined.OpenData.Users
 
         {
 
-            this.TelegramAPI  = TelegramAPI;
-            this.ByUsername   = new Dictionary<String, TelegramUser>();
-            this.ByChatId     = new Dictionary<Int64,  TelegramUser>();
+            this.TelegramAPI     = TelegramAPI;
+            this.UserByUsername  = new Dictionary<String, TelegramUser>();
+            this.UserByChatId    = new Dictionary<Int64,  TelegramUser>();
+            this.GroupByTitle    = new Dictionary<String, TelegramGroup>();
+            this.GroupByChatId   = new Dictionary<Int64,  TelegramGroup>();
 
             try
             {
@@ -105,11 +131,26 @@ namespace org.GraphDefined.OpenData.Users
 
                             var elements = line.Trim().Split(US);
 
-                            UpdateUser(Int32.Parse(elements[0]),
-                                       elements[1],
-                                       elements[2],
-                                       elements[3],
-                                       Int64.Parse(elements[4]));
+                            switch (elements[0])
+                            {
+
+                                case "updateUser":
+                                    UpdateUser(Int32.Parse(elements[1]),
+                                               elements[2],
+                                               elements[3],
+                                               elements[4],
+                                               Int64.Parse(elements[5]));
+                                    break;
+
+                                case "updateGroup":
+                                    UpdateUser(Int32.Parse(elements[1]),
+                                               elements[2],
+                                               elements[3],
+                                               elements[4],
+                                               Int64.Parse(elements[5]));
+                                    break;
+
+                            }
 
                         }
                         catch (Exception)
@@ -126,6 +167,7 @@ namespace org.GraphDefined.OpenData.Users
         #endregion
 
 
+        #region UpdateUser(...)
 
         public void UpdateUser(Int32   UserId,
                                String  Username,
@@ -134,12 +176,12 @@ namespace org.GraphDefined.OpenData.Users
                                Int64   ChatId)
         {
 
-            lock (ByUsername)
+            lock (UserByUsername)
             {
-                lock (ByChatId)
+                lock (UserByChatId)
                 {
 
-                    if (!ByUsername.TryGetValue(Username, out TelegramUser existingTelegramUser))
+                    if (!UserByUsername.TryGetValue(Username, out TelegramUser existingTelegramUser))
                     {
 
                         var newTelegramUser = new TelegramUser(UserId,
@@ -148,15 +190,15 @@ namespace org.GraphDefined.OpenData.Users
                                                                Lastname,
                                                                ChatId);
 
-                        ByUsername.Add(Username, newTelegramUser);
+                        UserByUsername.Add(Username, newTelegramUser);
 
-                        if (ByChatId.ContainsKey(ChatId))
-                            ByChatId.Remove(ChatId);
+                        if (UserByChatId.ContainsKey(ChatId))
+                            UserByChatId.Remove(ChatId);
 
-                        ByChatId.Add(ChatId, newTelegramUser);
+                        UserByChatId.Add(ChatId, newTelegramUser);
 
                         File.AppendAllText("TelegramStore.csv",
-                                           String.Concat(UserId, US, Username, US, Firstname, US, Lastname, US, ChatId, Environment.NewLine));
+                                           String.Concat("UpdateUser", US, UserId, US, Username, US, Firstname, US, Lastname, US, ChatId, Environment.NewLine));
 
                     }
 
@@ -166,8 +208,8 @@ namespace org.GraphDefined.OpenData.Users
                         if (existingTelegramUser.ChatId != ChatId)
                         {
 
-                            ByUsername.Remove(Username);
-                            ByChatId.Remove(existingTelegramUser.ChatId);
+                            UserByUsername.Remove(Username);
+                            UserByChatId.Remove(existingTelegramUser.ChatId);
 
                             var newTelegramUser = new TelegramUser(UserId,
                                                                    Username,
@@ -175,12 +217,12 @@ namespace org.GraphDefined.OpenData.Users
                                                                    Lastname,
                                                                    ChatId);
 
-                            ByUsername.Add(Username, newTelegramUser);
+                            UserByUsername.Add(Username, newTelegramUser);
 
-                            if (ByChatId.ContainsKey(ChatId))
-                                ByChatId.Remove(ChatId);
+                            if (UserByChatId.ContainsKey(ChatId))
+                                UserByChatId.Remove(ChatId);
 
-                            ByChatId.Add(ChatId, newTelegramUser);
+                            UserByChatId.Add(ChatId, newTelegramUser);
 
                             File.AppendAllText("TelegramStore.csv",
                                                String.Concat(UserId, US, Username, US, Firstname, US, Lastname, US, ChatId, Environment.NewLine));
@@ -194,31 +236,124 @@ namespace org.GraphDefined.OpenData.Users
 
         }
 
+        #endregion
+
+        #region UpdateGroup(...)
+
+        public void UpdateGroup(Int64   ChatId,
+                                String  Title,
+                                String  InviteLink)
+        {
+
+            lock (GroupByTitle)
+            {
+                lock (GroupByChatId)
+                {
+
+                    if (Title.IsNeitherNullNorEmpty())
+                        Title = Title.Trim();
+
+                    if (!GroupByChatId.TryGetValue(ChatId, out TelegramGroup existingTelegramGroup))
+                    {
+
+                        var newTelegramGroup = new TelegramGroup(ChatId,
+                                                                 Title,
+                                                                 InviteLink);
+
+                        GroupByChatId.Add(ChatId, newTelegramGroup);
+
+                        if (GroupByTitle.ContainsKey(Title))
+                            GroupByTitle.Remove(Title);
+
+                        GroupByTitle.Add(Title, newTelegramGroup);
+
+                        File.AppendAllText("TelegramStore.csv",
+                                           String.Concat("UpdateGroup", US, ChatId, US, Title, US, InviteLink, Environment.NewLine));
+
+                    }
+
+                    else
+                    {
+
+                        if (existingTelegramGroup.Title      != Title ||
+                            existingTelegramGroup.InviteLink != InviteLink)
+                        {
+
+                            GroupByChatId.Remove(ChatId);
+                            GroupByTitle.Remove(existingTelegramGroup.Title);
+
+                            var newTelegramGroup = new TelegramGroup(ChatId,
+                                                                     Title,
+                                                                     InviteLink);
+
+                            GroupByChatId.Add(ChatId, newTelegramGroup);
+
+                            if (GroupByTitle.ContainsKey(Title))
+                                GroupByTitle.Remove(Title);
+
+                            GroupByTitle.Add(Title, newTelegramGroup);
+
+                            File.AppendAllText("TelegramStore.csv",
+                                               String.Concat("UpdateGroup", US, ChatId, US, Title, US, InviteLink, Environment.NewLine));
+
+                        }
+
+                    }
+
+                }
+            }
+
+        }
+
+        #endregion
+
 
         internal async void ReceiveTelegramMessage(Object Sender, Telegram.Bot.Args.MessageEventArgs e)
         {
 
-            var messageText = e?.Message?.Text;
+            var messageFrom = e?.Message?.From;
             var messageChat = e?.Message?.Chat;
+            var messageText = e?.Message?.Text;
 
             if (messageText.IsNeitherNullNorEmpty())
                 messageText.Trim();
 
-            if (messageText.IsNotNullOrEmpty())
+            if (messageChat != null)
             {
 
-                Console.WriteLine($"Received a telegram text message from {e.Message.From.Username} in chat {e.Message.Chat.Id}.");
+                if (messageChat.Id >= 0)
+                {
 
-                UpdateUser(e.Message.From.Id,
-                           e.Message.From.Username,
-                           e.Message.From.FirstName,
-                           e.Message.From.LastName,
-                           e.Message.Chat.Id);
+                    Console.WriteLine($"Received a telegram text message from {e.Message.From.Username} in chat {e.Message.Chat.Id}.");
 
-                //await this.TelegramAPI.SendTextMessageAsync(
-                //    chatId:  messageChat.Id,
-                //    text:    "Hello " + e.Message.From.FirstName + " " + e.Message.From.LastName + "!\nYou said:\n" + e.Message.Text
-                //);
+                    UpdateUser(messageFrom.Id,
+                               messageFrom.Username,
+                               messageFrom.FirstName,
+                               messageFrom.LastName,
+                               messageChat.Id);
+
+                    //await this.TelegramAPI.SendTextMessageAsync(
+                    //    chatId:  messageChat.Id,
+                    //    text:    "Hello " + e.Message.From.FirstName + " " + e.Message.From.LastName + "!\nYou said:\n" + e.Message.Text
+                    //);
+
+                }
+
+                else
+                {
+
+                    Console.WriteLine($"Received a telegram text message from {e.Message.From.Username} in group chat '{e.Message.Chat.Title}' / {e.Message.Chat.Id}.");
+
+                    UpdateGroup(messageChat.Id,
+                                messageChat.Title,
+                                messageChat.InviteLink);
+
+                    //await this.TelegramAPI.SendTextMessageAsync(
+                    //    chatId:  messageChat.Id,
+                    //    text:    "Hello " + e.Message.From.FirstName + " " + e.Message.From.LastName + "!\nYou said:\n" + e.Message.Text
+                    //);
+
+                }
 
             }
         }
@@ -230,7 +365,7 @@ namespace org.GraphDefined.OpenData.Users
 
             foreach (var username in Usernames)
             {
-                if (ByUsername.TryGetValue(username, out TelegramUser User))
+                if (UserByUsername.TryGetValue(username, out TelegramUser User))
                 {
                     await this.TelegramAPI.SendTextMessageAsync(
                         chatId:  User.ChatId,
