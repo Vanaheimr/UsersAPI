@@ -415,7 +415,7 @@ namespace org.GraphDefined.OpenData.Users
         #region Data
 
         private static readonly SemaphoreSlim  LogFileSemaphore        = new SemaphoreSlim(1, 1);
-        private static readonly SemaphoreSlim  NotificationsSemaphore  = new SemaphoreSlim(1, 1);
+        //private static readonly SemaphoreSlim  NotificationsSemaphore  = new SemaphoreSlim(1, 1);
         private static readonly SemaphoreSlim  UsersSemaphore          = new SemaphoreSlim(1, 1);
         private static readonly SemaphoreSlim  OrganizationsSemaphore  = new SemaphoreSlim(1, 1);
         private static readonly SemaphoreSlim  GroupsSemaphore         = new SemaphoreSlim(1, 1);
@@ -2541,7 +2541,7 @@ namespace org.GraphDefined.OpenData.Users
                                          HTTPMethod.SET,
                                          URLPathPrefix + "resetPassword",
                                          HTTPContentType.JSON_UTF8,
-                                         HTTPDelegate: Request => {
+                                         HTTPDelegate: async Request => {
 
                                              #region Parse JSON
 
@@ -2551,7 +2551,7 @@ namespace org.GraphDefined.OpenData.Users
                                                  // Slow down attackers!
                                                  Thread.Sleep(5000);
 
-                                                 return Task.FromResult(HTTPResponse);
+                                                 return HTTPResponse;
 
                                              }
 
@@ -2566,16 +2566,15 @@ namespace org.GraphDefined.OpenData.Users
                                                  // Slow down attackers!
                                                  Thread.Sleep(5000);
 
-                                                 return Task.FromResult(
-                                                            new HTTPResponse.Builder(Request) {
-                                                                HTTPStatusCode             = HTTPStatusCode.BadRequest,
-                                                                Server                     = HTTPServer.DefaultServerName,
-                                                                Date                       = DateTime.UtcNow,
-                                                                AccessControlAllowOrigin   = "*",
-                                                                AccessControlAllowMethods  = "SET",
-                                                                AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
-                                                                Connection                 = "close"
-                                                            }.AsImmutable);
+                                                 return new HTTPResponse.Builder(Request) {
+                                                            HTTPStatusCode             = HTTPStatusCode.BadRequest,
+                                                            Server                     = HTTPServer.DefaultServerName,
+                                                            Date                       = DateTime.UtcNow,
+                                                            AccessControlAllowOrigin   = "*",
+                                                            AccessControlAllowMethods  = "SET",
+                                                            AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
+                                                            Connection                 = "close"
+                                                        };
 
                                              }
 
@@ -2610,25 +2609,24 @@ namespace org.GraphDefined.OpenData.Users
                                                  // Slow down attackers!
                                                  Thread.Sleep(5000);
 
-                                                 return Task.FromResult(
-                                                            new HTTPResponse.Builder(Request) {
-                                                                HTTPStatusCode             = HTTPStatusCode.NotFound,
-                                                                Server                     = HTTPServer.DefaultServerName,
-                                                                Date                       = DateTime.UtcNow,
-                                                                AccessControlAllowOrigin   = "*",
-                                                                AccessControlAllowMethods  = "SET",
-                                                                AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
-                                                                Connection                 = "close"
-                                                            }.AsImmutable);
+                                                 return new HTTPResponse.Builder(Request) {
+                                                            HTTPStatusCode             = HTTPStatusCode.NotFound,
+                                                            Server                     = HTTPServer.DefaultServerName,
+                                                            Date                       = DateTime.UtcNow,
+                                                            AccessControlAllowOrigin   = "*",
+                                                            AccessControlAllowMethods  = "SET",
+                                                            AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
+                                                            Connection                 = "close"
+                                                        };
 
                                              }
 
                                              #endregion
 
 
-                                             var PasswordReset    = ResetPassword(Users.Select(user => user.Id),
-                                                                                  SecurityToken_Id.Random(40, _Random),
-                                                                                  SecurityToken_Id.Parse(_Random.RandomString(5) + "-" + _Random.RandomString(5)));
+                                             var PasswordReset    = await ResetPassword(Users.Select(user => user.Id),
+                                                                                        SecurityToken_Id.Random(40, _Random),
+                                                                                        SecurityToken_Id.Parse(_Random.RandomString(5) + "-" + _Random.RandomString(5)));
 
                                              var MailSentResults  = new List<MailSentStatus>();
                                              var SMSSentResults   = new List<SMSAPIResponseStatus>();
@@ -2674,8 +2672,7 @@ namespace org.GraphDefined.OpenData.Users
                                              catch (Exception e)
                                              {
 
-                                                 return Task.FromResult(
-                                                        new HTTPResponse.Builder(Request) {
+                                                 return new HTTPResponse.Builder(Request) {
                                                             HTTPStatusCode             = HTTPStatusCode.InternalServerError,
                                                             Server                     = HTTPServer.DefaultServerName,
                                                             Date                       = DateTime.UtcNow,
@@ -2687,25 +2684,24 @@ namespace org.GraphDefined.OpenData.Users
                                                                                              new JProperty("description", "Could not reset your password! " + e.Message)
                                                                                          ).ToUTF8Bytes(),
                                                             Connection                 = "close"
-                                                        }.AsImmutable);
+                                                        };
 
                                              }
 
 
-                                             return Task.FromResult(
-                                                        new HTTPResponse.Builder(Request) {
-                                                            HTTPStatusCode             = HTTPStatusCode.OK,
-                                                            Server                     = HTTPServer.DefaultServerName,
-                                                            Date                       = DateTime.UtcNow,
-                                                            AccessControlAllowOrigin   = "*",
-                                                            AccessControlAllowMethods  = "SET",
-                                                            AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
-                                                            ContentType                = HTTPContentType.JSON_UTF8,
-                                                            Content                    = JSONObject.Create(
-                                                                                             new JProperty("numberOfAccountsFound", Users.Count)
-                                                                                         ).ToUTF8Bytes(),
-                                                            Connection                 = "close"
-                                                        }.AsImmutable);
+                                             return new HTTPResponse.Builder(Request) {
+                                                        HTTPStatusCode             = HTTPStatusCode.OK,
+                                                        Server                     = HTTPServer.DefaultServerName,
+                                                        Date                       = DateTime.UtcNow,
+                                                        AccessControlAllowOrigin   = "*",
+                                                        AccessControlAllowMethods  = "SET",
+                                                        AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
+                                                        ContentType                = HTTPContentType.JSON_UTF8,
+                                                        Content                    = JSONObject.Create(
+                                                                                         new JProperty("numberOfAccountsFound", Users.Count)
+                                                                                     ).ToUTF8Bytes(),
+                                                        Connection                 = "close"
+                                                    };
 
                                              },
 
@@ -2871,32 +2867,31 @@ namespace org.GraphDefined.OpenData.Users
                                              foreach (var userId in _PasswordReset.UserIds)
                                              {
 
-                                                 await WriteToLogfileAndNotify(NotificationMessageType.Parse("resetPassword"),
-                                                                               JSONObject.Create(
+                                                 await WriteToLogfile(NotificationMessageType.Parse("resetPassword"),
+                                                                      JSONObject.Create(
 
-                                                                                   new JProperty("login",                 userId.ToString()),
+                                                                          new JProperty("login",                 userId.ToString()),
 
-                                                                                   new JProperty("newPassword", new JObject(
-                                                                                       new JProperty("salt",              NewPassword.Salt.UnsecureString()),
-                                                                                       new JProperty("passwordHash",      NewPassword.UnsecureString)
-                                                                                   )),
+                                                                          new JProperty("newPassword", new JObject(
+                                                                              new JProperty("salt",              NewPassword.Salt.UnsecureString()),
+                                                                              new JProperty("passwordHash",      NewPassword.UnsecureString)
+                                                                          )),
 
-                                                                                   new JProperty("securityToken1",        SecurityToken1.ToString()),
+                                                                          new JProperty("securityToken1",        SecurityToken1.ToString()),
 
-                                                                                   SecurityToken2.HasValue
-                                                                                       ? new JProperty("securityToken2",  SecurityToken2.ToString())
-                                                                                       : null
+                                                                          SecurityToken2.HasValue
+                                                                              ? new JProperty("securityToken2",  SecurityToken2.ToString())
+                                                                              : null
 
-                                                                               ),
-                                                                               NoOwner,
-                                                                               this.UsersAPIPath + DefaultPasswordFile,
-                                                                               Robot.Id);
+                                                                      ),
+                                                                      this.UsersAPIPath + DefaultPasswordFile,
+                                                                      Robot.Id);
 
                                                  _LoginPasswords.Remove(userId);
 
                                                  _LoginPasswords.Add(userId, new LoginPassword(userId, NewPassword));
 
-                                                 Remove(_PasswordReset);
+                                                 await Remove(_PasswordReset);
 
                                                  #region Send e-mail...
 
@@ -3365,9 +3360,9 @@ namespace org.GraphDefined.OpenData.Users
                                               try
                                               {
 
-                                                  var SetPasswordRequest  = ResetPassword(UserIdURI.Value,
-                                                                                          SecurityToken_Id.Random(40, _Random),
-                                                                                          SecurityToken_Id.Parse(_Random.RandomString(5) + "-" + _Random.RandomString(5)));
+                                                  var SetPasswordRequest  = await ResetPassword(UserIdURI.Value,
+                                                                                                SecurityToken_Id.Random(40, _Random),
+                                                                                                SecurityToken_Id.Parse(_Random.RandomString(5) + "-" + _Random.RandomString(5)));
 
                                                   #region Send e-mail...
 
@@ -7437,67 +7432,38 @@ namespace org.GraphDefined.OpenData.Users
         #endregion
 
 
-        #region WriteToLogfileAndNotify(MessageType, JSONData, User,  CurrentUserId = null)
-
-        public Task WriteToLogfileAndNotify(NotificationMessageType  MessageType,
-                                            JObject                  JSONData,
-                                            User                     User,
-                                            User_Id?                 CurrentUserId = null)
-
-            => WriteToLogfileAndNotify(MessageType,
-                                       JSONData,
-                                       User != null ? new User[] { User } : new User[0],
-                                       this.UsersAPIPath + DefaultUsersAPIFile,
-                                       CurrentUserId);
-
-        #endregion
-
-        #region WriteToLogfileAndNotify(MessageType, JSONData, Users, CurrentUserId = null)
-
-        public Task WriteToLogfileAndNotify(NotificationMessageType  MessageType,
-                                            JObject                  JSONData,
-                                            IEnumerable<User>        Users,
-                                            User_Id?                 CurrentUserId = null)
-
-            => WriteToLogfileAndNotify(MessageType,
-                                       JSONData,
-                                       Users,
-                                       this.UsersAPIPath + DefaultUsersAPIFile,
-                                       CurrentUserId);
-
-        #endregion
-
-        #region WriteToLogfileAndNotify(MessageType, JSONData, User,  Logfilename = DefaultUsersAPIFile, CurrentUserId = null)
-
-        public Task WriteToLogfileAndNotify(NotificationMessageType  MessageType,
-                                            JObject                  JSONData,
-                                            User                     User,
-                                            String                   Logfilename    = DefaultUsersAPIFile,
-                                            User_Id?                 CurrentUserId  = null)
-
-            => WriteToLogfileAndNotify(MessageType,
-                                       JSONData,
-                                       User != null ? new User[] { User } : new User[0],
-                                       Logfilename,
-                                       CurrentUserId);
-
-        #endregion
-
-        #region WriteToLogfileAndNotify(MessageType, JSONData, Users, Logfilename = DefaultUsersAPIFile, CurrentUserId = null)
+        #region WriteToLogfile(MessageType, JSONData,                                    CurrentUserId = null)
 
         /// <summary>
-        /// Write data to a log file and send notifications.
+        /// Write data to a log file.
         /// </summary>
         /// <param name="MessageType">The type of the message.</param>
         /// <param name="JSONData">The JSON data of the message.</param>
-        /// <param name="Users">The owner of this information.</param>
+        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
+        public Task WriteToLogfile(NotificationMessageType  MessageType,
+                                   JObject                  JSONData,
+                                   User_Id?                 CurrentUserId  = null)
+
+            => WriteToLogfile(MessageType,
+                              JSONData,
+                              DefaultUsersAPIFile,
+                              CurrentUserId);
+
+        #endregion
+
+        #region WriteToLogfile(MessageType, JSONData, Logfilename = DefaultUsersAPIFile, CurrentUserId = null)
+
+        /// <summary>
+        /// Write data to a log file.
+        /// </summary>
+        /// <param name="MessageType">The type of the message.</param>
+        /// <param name="JSONData">The JSON data of the message.</param>
         /// <param name="Logfilename">An optional log file name.</param>
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
-        public async Task WriteToLogfileAndNotify(NotificationMessageType  MessageType,
-                                                  JObject                  JSONData,
-                                                  IEnumerable<User>        Users,
-                                                  String                   Logfilename    = DefaultUsersAPIFile,
-                                                  User_Id?                 CurrentUserId  = null)
+        public async Task WriteToLogfile(NotificationMessageType  MessageType,
+                                         JObject                  JSONData,
+                                         String                   Logfilename    = DefaultUsersAPIFile,
+                                         User_Id?                 CurrentUserId  = null)
         {
 
             if (!DisableLogfile || !DisableNotifications)
@@ -7578,219 +7544,6 @@ namespace org.GraphDefined.OpenData.Users
                         }
 
                     }
-
-                    #endregion
-
-                    #region Send notifications
-
-                    //if (!DisableNotifications)
-                    //{
-
-                    //    try
-                    //    {
-
-                    //        await NotificationsSemaphore.WaitAsync();
-
-                    //        _NotificationMessages.Enqueue(new NotificationMessage(Now,
-                    //                                                              MessageType,
-                    //                                                              JSONMessage,
-                    //                                                              Users.SafeSelectMany(user => user.Organizations(Access_Levels.ReadOnly, true)).Distinct()));
-
-                    //    }
-                    //    catch (Exception e)
-                    //    {
-                    //        //ToDo: Handle _NotificationMessages.Enqueue(...) exceptions!
-                    //    }
-                    //    finally
-                    //    {
-                    //        NotificationsSemaphore.Release();
-                    //    }
-
-                    //}
-
-                    #endregion
-
-                }
-                catch (Exception e)
-                {
-                    //ToDo: Handle WriteToLogfileAndNotify(...) exceptions!
-                }
-
-            }
-
-        }
-
-        #endregion
-
-
-        #region WriteToLogfileAndNotify(MessageType, JSONData, Organization,  CurrentUserId = null)
-
-        public Task WriteToLogfileAndNotify(NotificationMessageType  MessageType,
-                                            JObject                  JSONData,
-                                            Organization             Organization,
-                                            User_Id?                 CurrentUserId = null)
-
-            => WriteToLogfileAndNotify(MessageType,
-                                       JSONData,
-                                       Organization != null ? new Organization[] { Organization } : new Organization[0],
-                                       this.UsersAPIPath + DefaultUsersAPIFile,
-                                       CurrentUserId);
-
-        #endregion
-
-        #region WriteToLogfileAndNotify(MessageType, JSONData, Organizations, CurrentUserId = null)
-
-        public Task WriteToLogfileAndNotify(NotificationMessageType    MessageType,
-                                            JObject                    JSONData,
-                                            IEnumerable<Organization>  Organizations,
-                                            User_Id?                   CurrentUserId = null)
-
-            => WriteToLogfileAndNotify(MessageType,
-                                       JSONData,
-                                       Organizations,
-                                       this.UsersAPIPath + DefaultUsersAPIFile,
-                                       CurrentUserId);
-
-        #endregion
-
-        #region WriteToLogfileAndNotify(MessageType, JSONData, Organization,  Logfilename = DefaultUsersAPIFile, CurrentUserId = null)
-
-        public Task WriteToLogfileAndNotify(NotificationMessageType  MessageType,
-                                            JObject                  JSONData,
-                                            Organization             Organization,
-                                            String                   Logfilename    = DefaultUsersAPIFile,
-                                            User_Id?                 CurrentUserId  = null)
-
-            => WriteToLogfileAndNotify(MessageType,
-                                       JSONData,
-                                       Organization != null ? new Organization[] { Organization } : new Organization[0],
-                                       Logfilename,
-                                       CurrentUserId);
-
-        #endregion
-
-        #region WriteToLogfileAndNotify(MessageType, JSONData, Organizations, Logfilename = DefaultUsersAPIFile, CurrentUserId = null)
-
-        /// <summary>
-        /// Write data to a log file and send notifications.
-        /// </summary>
-        /// <param name="MessageType">The type of the message.</param>
-        /// <param name="JSONData">The JSON data of the message.</param>
-        /// <param name="Organizations">The owner of this information.</param>
-        /// <param name="Logfilename">An optional log file name.</param>
-        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
-        public async Task WriteToLogfileAndNotify(NotificationMessageType    MessageType,
-                                                  JObject                    JSONData,
-                                                  IEnumerable<Organization>  Organizations,
-                                                  String                     Logfilename    = DefaultUsersAPIFile,
-                                                  User_Id?                   CurrentUserId  = null)
-        {
-
-            if (!DisableLogfile || !DisableNotifications)
-            {
-
-                try
-                {
-
-                    var Now          = DateTime.UtcNow;
-
-                    var JSONMessage  = new JObject(
-                                           new JProperty(MessageType.ToString(),  JSONData),
-                                           new JProperty("userId",                (CurrentUserId ?? CurrentAsyncLocalUserId.Value ?? Robot.Id).ToString()),
-                                           new JProperty("systemId",              SystemId.ToString()),
-                                           new JProperty("timestamp",             Now.ToIso8601()),
-                                           new JProperty("sha256hash",            new JObject(
-                                               new JProperty("nonce",                 Guid.NewGuid().ToString().Replace("-", "")),
-                                               new JProperty("parentHash",            CurrentDatabaseHashValue)
-                                           ))
-                                       );
-
-                    var SHA256                = new SHA256Managed();
-                    CurrentDatabaseHashValue  = SHA256.ComputeHash(Encoding.Unicode.GetBytes(JSONMessage.ToString(Newtonsoft.Json.Formatting.None))).
-                                                       Select(value => String.Format("{0:x2}", value)).
-                                                       Aggregate();
-
-                    (JSONMessage["sha256hash"] as JObject)?.Add(new JProperty("hashValue",  CurrentDatabaseHashValue));
-
-
-                    #region Write to logfile
-
-                    if (!DisableLogfile)
-                    {
-
-                        try
-                        {
-
-                            await LogFileSemaphore.WaitAsync();
-
-                            var retry       = 0;
-                            var maxRetries  = 23;
-
-                            do
-                            {
-
-                                try
-                                {
-
-                                    File.AppendAllText(Logfilename,
-                                                       JSONMessage.ToString(Newtonsoft.Json.Formatting.None) + Environment.NewLine);
-
-                                    retry = maxRetries;
-
-                                }
-                                catch (IOException ioEx)
-                                {
-                                    DebugX.Log("Retry " + retry + ": Could not write message '" + MessageType + "' to logfile '" + Logfilename + "': " + ioEx.Message);
-                                    await Task.Delay(10);
-                                    retry++;
-                                }
-                                catch (Exception e)
-                                {
-                                    DebugX.Log("Retry " + retry + ": Could not write message '" + MessageType + "' to logfile '" + Logfilename + "': " + e.Message);
-                                    await Task.Delay(10);
-                                    retry++;
-                                }
-
-                            } while (retry < maxRetries);
-
-                        }
-                        catch (Exception e)
-                        {
-                            //ToDo: Handle WriteToLogfileAndNotify(...Write to logfile...) exceptions!
-                        }
-                        finally
-                        {
-                            LogFileSemaphore.Release();
-                        }
-
-                    }
-
-                    #endregion
-
-                    #region Send notifications
-
-                    //if (!DisableNotifications)
-                    //{
-                    //    try
-                    //    {
-
-                    //        await NotificationsSemaphore.WaitAsync();
-
-                    //        _NotificationMessages.Enqueue(new NotificationMessage(Now,
-                    //                                                              MessageType,
-                    //                                                              JSONMessage,
-                    //                                                              Organizations));
-
-                    //    }
-                    //    catch (Exception e)
-                    //    {
-                    //        //ToDo: Handle _NotificationMessages.Enqueue(...) exceptions!
-                    //    }
-                    //    finally
-                    //    {
-                    //        NotificationsSemaphore.Release();
-                    //    }
-                    //}
 
                     #endregion
 
@@ -8222,10 +7975,9 @@ namespace org.GraphDefined.OpenData.Users
 
                 User.API = this;
 
-                await WriteToLogfileAndNotify(NotificationMessageType.Parse("addUser"),
-                                              User.ToJSON(),
-                                              NoOwner,
-                                              CurrentUserId);
+                await WriteToLogfile(NotificationMessageType.Parse("addUser"),
+                                     User.ToJSON(),
+                                     CurrentUserId);
 
                 _Users.Add(User.Id, User);
 
@@ -8272,10 +8024,9 @@ namespace org.GraphDefined.OpenData.Users
 
                 User.API = this;
 
-                await WriteToLogfileAndNotify(NotificationMessageType.Parse("addIfNotExistsUser"),
-                                              User.ToJSON(),
-                                              NoOwner,
-                                              CurrentUserId);
+                await WriteToLogfile(NotificationMessageType.Parse("addIfNotExistsUser"),
+                                     User.ToJSON(),
+                                     CurrentUserId);
 
                 _Users.Add(User.Id, User);
 
@@ -8319,10 +8070,9 @@ namespace org.GraphDefined.OpenData.Users
                 if (User.Id.Length < MinLoginLenght)
                     throw new Exception("User '" + User.Id + "' is too short!");
 
-                await WriteToLogfileAndNotify(NotificationMessageType.Parse("addOrUpdateUser"),
-                                              User.ToJSON(),
-                                              NoOwner,
-                                              CurrentUserId);
+                await WriteToLogfile(NotificationMessageType.Parse("addOrUpdateUser"),
+                                     User.ToJSON(),
+                                     CurrentUserId);
 
                 User.API = this;
 
@@ -8377,10 +8127,9 @@ namespace org.GraphDefined.OpenData.Users
                     throw new Exception("User '" + User.Id + "' is too short!");
 
 
-                await WriteToLogfileAndNotify(NotificationMessageType.Parse("updateUser"),
-                                              User.ToJSON(),
-                                              NoOwner,
-                                              CurrentUserId);
+                await WriteToLogfile(NotificationMessageType.Parse("updateUser"),
+                                     User.ToJSON(),
+                                     CurrentUserId);
 
                 User.API = this;
 
@@ -8427,10 +8176,9 @@ namespace org.GraphDefined.OpenData.Users
                 UpdateDelegate(Builder);
                 var NewUser = Builder.ToImmutable;
 
-                await WriteToLogfileAndNotify(NotificationMessageType.Parse("updateUser"),
-                                              NewUser.ToJSON(),
-                                              NoOwner,
-                                              CurrentUserId);
+                await WriteToLogfile(NotificationMessageType.Parse("updateUser"),
+                                     NewUser.ToJSON(),
+                                     CurrentUserId);
 
                 NewUser.API = this;
 
@@ -8654,17 +8402,16 @@ namespace org.GraphDefined.OpenData.Users
             if (!_LoginPasswords.TryGetValue(UserId, out LoginPassword _LoginPassword))
             {
 
-                await WriteToLogfileAndNotify(NotificationMessageType.Parse("addPassword"),
-                                              new JObject(
-                                                  new JProperty("login",         UserId.ToString()),
-                                                  new JProperty("newPassword", new JObject(
-                                                      new JProperty("salt",          NewPassword.Salt.UnsecureString()),
-                                                      new JProperty("passwordHash",  NewPassword.UnsecureString)
-                                                  ))
-                                              ),
-                                              NoOwner,
-                                              this.UsersAPIPath + DefaultPasswordFile,
-                                              CurrentUserId);
+                await WriteToLogfile(NotificationMessageType.Parse("addPassword"),
+                                     new JObject(
+                                         new JProperty("login",         UserId.ToString()),
+                                         new JProperty("newPassword", new JObject(
+                                             new JProperty("salt",          NewPassword.Salt.UnsecureString()),
+                                             new JProperty("passwordHash",  NewPassword.UnsecureString)
+                                         ))
+                                     ),
+                                     this.UsersAPIPath + DefaultPasswordFile,
+                                     CurrentUserId);
 
                 _LoginPasswords.Add(UserId, new LoginPassword(UserId, NewPassword));
 
@@ -8679,21 +8426,20 @@ namespace org.GraphDefined.OpenData.Users
             else if (CurrentPassword.IsNotNullOrEmpty() && _LoginPassword.VerifyPassword(CurrentPassword))
             {
 
-                await WriteToLogfileAndNotify(NotificationMessageType.Parse("changePassword"),
-                                              new JObject(
-                                                  new JProperty("login",         UserId.ToString()),
-                                                  new JProperty("currentPassword", new JObject(
-                                                      new JProperty("salt",          _LoginPassword.Password.Salt.UnsecureString()),
-                                                      new JProperty("passwordHash",  _LoginPassword.Password.UnsecureString)
-                                                  )),
-                                                  new JProperty("newPassword",     new JObject(
-                                                      new JProperty("salt",          NewPassword.Salt.UnsecureString()),
-                                                      new JProperty("passwordHash",  NewPassword.UnsecureString)
-                                                  ))
-                                              ),
-                                              NoOwner,
-                                              this.UsersAPIPath + DefaultPasswordFile,
-                                              CurrentUserId);
+                await WriteToLogfile(NotificationMessageType.Parse("changePassword"),
+                                     new JObject(
+                                         new JProperty("login",         UserId.ToString()),
+                                         new JProperty("currentPassword", new JObject(
+                                             new JProperty("salt",          _LoginPassword.Password.Salt.UnsecureString()),
+                                             new JProperty("passwordHash",  _LoginPassword.Password.UnsecureString)
+                                         )),
+                                         new JProperty("newPassword",     new JObject(
+                                             new JProperty("salt",          NewPassword.Salt.UnsecureString()),
+                                             new JProperty("passwordHash",  NewPassword.UnsecureString)
+                                         ))
+                                     ),
+                                     this.UsersAPIPath + DefaultPasswordFile,
+                                     CurrentUserId);
 
                 _LoginPasswords[UserId] = new LoginPassword(UserId, NewPassword);
 
@@ -8992,10 +8738,9 @@ namespace org.GraphDefined.OpenData.Users
                 }
 
 
-                await WriteToLogfileAndNotify(NotificationMessageType.Parse("addOrganization"),
-                                              Organization.ToJSON(),
-                                              NoOwner,
-                                              CurrentUserId);
+                await WriteToLogfile(NotificationMessageType.Parse("addOrganization"),
+                                     Organization.ToJSON(),
+                                     CurrentUserId);
 
                 var newOrganization = _Organizations.AddAndReturnValue(Organization.Id, Organization);
 
@@ -9046,10 +8791,9 @@ namespace org.GraphDefined.OpenData.Users
 
                 Organization.API = this;
 
-                await WriteToLogfileAndNotify(NotificationMessageType.Parse("addIfNotExistsOrganization"),
-                                              Organization.ToJSON(),
-                                              NoOwner,
-                                              CurrentUserId);
+                await WriteToLogfile(NotificationMessageType.Parse("addIfNotExistsOrganization"),
+                                     Organization.ToJSON(),
+                                     CurrentUserId);
 
                 var NewOrg = _Organizations.AddAndReturnValue(Organization.Id, Organization);
 
@@ -9099,10 +8843,9 @@ namespace org.GraphDefined.OpenData.Users
 
                 Organization.API = this;
 
-                await WriteToLogfileAndNotify(NotificationMessageType.Parse("addOrUpdateOrganization"),
-                                              Organization.ToJSON(),
-                                              Organization,
-                                              CurrentUserId);
+                await WriteToLogfile(NotificationMessageType.Parse("addOrUpdateOrganization"),
+                                     Organization.ToJSON(),
+                                     CurrentUserId);
 
                 var NewOrg = _Organizations.AddAndReturnValue(Organization.Id, Organization);
 
@@ -9157,10 +8900,9 @@ namespace org.GraphDefined.OpenData.Users
 
                 Organization.API = this;
 
-                await WriteToLogfileAndNotify(NotificationMessageType.Parse("updateOrganization"),
-                                              Organization.ToJSON(),
-                                              Organization,
-                                              CurrentUserId);
+                await WriteToLogfile(NotificationMessageType.Parse("updateOrganization"),
+                                     Organization.ToJSON(),
+                                     CurrentUserId);
 
                 OldOrganization.CopyAllEdgesTo(Organization);
 
@@ -9204,10 +8946,9 @@ namespace org.GraphDefined.OpenData.Users
                 UpdateDelegate(Builder);
                 var NewOrganization = Builder.ToImmutable;
 
-                await WriteToLogfileAndNotify(NotificationMessageType.Parse("updateOrganization"),
-                                              NewOrganization.ToJSON(),
-                                              NoOwner,
-                                              CurrentUserId);
+                await WriteToLogfile(NotificationMessageType.Parse("updateOrganization"),
+                                     NewOrganization.ToJSON(),
+                                     CurrentUserId);
 
                 NewOrganization.API = this;
 
@@ -9258,10 +8999,9 @@ namespace org.GraphDefined.OpenData.Users
                         edge.Source.RemoveOutEdge(edge);
 
 
-                    await WriteToLogfileAndNotify(NotificationMessageType.Parse("removeOrganization"),
-                                                  Organization.ToJSON(),
-                                                  Organization,
-                                                  CurrentUserId);
+                    await WriteToLogfile(NotificationMessageType.Parse("removeOrganization"),
+                                         Organization.ToJSON(),
+                                         CurrentUserId);
 
                     _Organizations.Remove(OrganizationId);
 
@@ -9624,15 +9364,14 @@ namespace org.GraphDefined.OpenData.Users
                 if (!Organization.User2OrganizationInEdgeLabels(User).Any(edgelabel => edgelabel == Edge))
                     Organization.LinkUser(edge);// User, Edge, PrivacyLevel);
 
-                await WriteToLogfileAndNotify(NotificationMessageType.Parse("addUserToOrganization"),
-                                              new JObject(
-                                                  new JProperty("user",          User.        Id.ToString()),
-                                                  new JProperty("edge",          Edge.           ToString()),
-                                                  new JProperty("organization",  Organization.Id.ToString()),
-                                                  PrivacyLevel.ToJSON()
-                                              ),
-                                              Organization,
-                                              CurrentUserId);
+                await WriteToLogfile(NotificationMessageType.Parse("addUserToOrganization"),
+                                     new JObject(
+                                         new JProperty("user",          User.        Id.ToString()),
+                                         new JProperty("edge",          Edge.           ToString()),
+                                         new JProperty("organization",  Organization.Id.ToString()),
+                                         PrivacyLevel.ToJSON()
+                                     ),
+                                     CurrentUserId);
 
                 return true;
 
@@ -9697,15 +9436,14 @@ namespace org.GraphDefined.OpenData.Users
                         OrganizationIn.AddInEdge(EdgeLabel, OrganizationOut, Privacy);
                     }
 
-                    await WriteToLogfileAndNotify(NotificationMessageType.Parse("linkOrganizations"),
-                                                  new JObject(
-                                                      new JProperty("organizationOut", OrganizationOut.Id.ToString()),
-                                                      new JProperty("edge",            EdgeLabel.         ToString()),
-                                                      new JProperty("organizationIn",  OrganizationIn. Id.ToString()),
-                                                      Privacy.ToJSON()
-                                                  ),
-                                                  OrganizationOut,
-                                                  CurrentUserId);
+                    await WriteToLogfile(NotificationMessageType.Parse("linkOrganizations"),
+                                         new JObject(
+                                             new JProperty("organizationOut", OrganizationOut.Id.ToString()),
+                                             new JProperty("edge",            EdgeLabel.         ToString()),
+                                             new JProperty("organizationIn",  OrganizationIn. Id.ToString()),
+                                             Privacy.ToJSON()
+                                         ),
+                                         CurrentUserId);
 
                     return true;
 
@@ -9767,14 +9505,13 @@ namespace org.GraphDefined.OpenData.Users
                     OrganizationIn.RemoveInEdges(EdgeLabel, OrganizationOut);
                 }
 
-                await WriteToLogfileAndNotify(NotificationMessageType.Parse("unlinkOrganizations"),
-                                              new JObject(
-                                                  new JProperty("organizationOut", OrganizationOut.Id.ToString()),
-                                                  new JProperty("edge",            EdgeLabel.         ToString()),
-                                                  new JProperty("organizationIn",  OrganizationIn. Id.ToString())
-                                              ),
-                                              new Organization[] { OrganizationOut, OrganizationIn },
-                                              CurrentUserId);
+                await WriteToLogfile(NotificationMessageType.Parse("unlinkOrganizations"),
+                                     new JObject(
+                                         new JProperty("organizationOut", OrganizationOut.Id.ToString()),
+                                         new JProperty("edge",            EdgeLabel.         ToString()),
+                                         new JProperty("organizationIn",  OrganizationIn. Id.ToString())
+                                     ),
+                                     CurrentUserId);
 
                 return true;
 
@@ -9863,10 +9600,9 @@ namespace org.GraphDefined.OpenData.Users
                                       Description);
 
                 if (Group.Id.ToString() != AdminGroupName)
-                    await WriteToLogfileAndNotify(NotificationMessageType.Parse("createGroup"),
-                                                  Group.ToJSON(),
-                                                  NoOwner,
-                                                  CurrentUserId);
+                    await WriteToLogfile(NotificationMessageType.Parse("createGroup"),
+                                         Group.ToJSON(),
+                                         CurrentUserId);
 
                 return _Groups.AddAndReturnValue(Group.Id, Group);
 
@@ -9901,10 +9637,9 @@ namespace org.GraphDefined.OpenData.Users
                                       Description);
 
                 if (Group.Id.ToString() != AdminGroupName)
-                    await WriteToLogfileAndNotify(NotificationMessageType.Parse("createGroup"),
-                                                  Group.ToJSON(),
-                                                  NoOwner,
-                                                  CurrentUserId);
+                    await WriteToLogfile(NotificationMessageType.Parse("createGroup"),
+                                         Group.ToJSON(),
+                                         CurrentUserId);
 
                 return _Groups.AddAndReturnValue(Group.Id, Group);
 
@@ -10153,15 +9888,14 @@ namespace org.GraphDefined.OpenData.Users
                     if (!Group.Edges(Group).Any(edge => edge == Edge))
                         Group.AddIncomingEdge(User, Edge,  PrivacyLevel);
 
-                    await WriteToLogfileAndNotify(NotificationMessageType.Parse("addUserToGroup"),
-                                                  new JObject(
-                                                      new JProperty("user",   User.Id.ToString()),
-                                                      new JProperty("edge",   Edge.   ToString()),
-                                                      new JProperty("group",  Group.  ToString()),
-                                                      PrivacyLevel.ToJSON()
-                                                  ),
-                                                  NoOwner,
-                                                  CurrentUserId);
+                    await WriteToLogfile(NotificationMessageType.Parse("addUserToGroup"),
+                                         new JObject(
+                                             new JProperty("user",   User.Id.ToString()),
+                                             new JProperty("edge",   Edge.   ToString()),
+                                             new JProperty("group",  Group.  ToString()),
+                                             PrivacyLevel.ToJSON()
+                                         ),
+                                         CurrentUserId);
 
                     return true;
 
@@ -10232,9 +9966,9 @@ namespace org.GraphDefined.OpenData.Users
 
         #region ResetPassword(UserId,  SecurityToken1, SecurityToken2 = null)
 
-        public PasswordReset ResetPassword(User_Id            UserId,
-                                           SecurityToken_Id   SecurityToken1,
-                                           SecurityToken_Id?  SecurityToken2 = null)
+        public Task<PasswordReset> ResetPassword(User_Id            UserId,
+                                                 SecurityToken_Id   SecurityToken1,
+                                                 SecurityToken_Id?  SecurityToken2 = null)
 
             => Add(new PasswordReset(new User_Id[] { UserId },
                                      SecurityToken1,
@@ -10244,9 +9978,9 @@ namespace org.GraphDefined.OpenData.Users
 
         #region ResetPassword(UserIds, SecurityToken1, SecurityToken2 = null)
 
-        public PasswordReset ResetPassword(IEnumerable<User_Id>  UserIds,
-                                           SecurityToken_Id      SecurityToken1,
-                                           SecurityToken_Id?     SecurityToken2 = null)
+        public Task<PasswordReset> ResetPassword(IEnumerable<User_Id>  UserIds,
+                                                 SecurityToken_Id      SecurityToken1,
+                                                 SecurityToken_Id?     SecurityToken2 = null)
 
             => Add(new PasswordReset(UserIds,
                                      SecurityToken1,
@@ -10256,17 +9990,27 @@ namespace org.GraphDefined.OpenData.Users
 
         #region Add   (passwordReset)
 
-        public PasswordReset Add(PasswordReset passwordReset)
+        public async Task<PasswordReset> Add(PasswordReset passwordReset)
         {
 
-            WriteToLogfileAndNotify(NotificationMessageType.Parse("add"),
-                                    passwordReset.ToJSON(),
-                                    NoOwner,
-                                    this.UsersAPIPath + DefaultPasswordResetsFile);
+            try
+            {
 
-            this.PasswordResets.Add(passwordReset.SecurityToken1, passwordReset);
+                await UsersSemaphore.WaitAsync();
 
-            return passwordReset;
+                await WriteToLogfile(NotificationMessageType.Parse("add"),
+                                     passwordReset.ToJSON(),
+                                     this.UsersAPIPath + DefaultPasswordResetsFile);
+
+                this.PasswordResets.Add(passwordReset.SecurityToken1, passwordReset);
+
+                return passwordReset;
+
+            }
+            finally
+            {
+                UsersSemaphore.Release();
+            }
 
         }
 
@@ -10274,17 +10018,27 @@ namespace org.GraphDefined.OpenData.Users
 
         #region Remove(passwordReset)
 
-        public PasswordReset Remove(PasswordReset passwordReset)
+        public async Task<PasswordReset> Remove(PasswordReset passwordReset)
         {
 
-            WriteToLogfileAndNotify(NotificationMessageType.Parse("remove"),
-                                    passwordReset.ToJSON(),
-                                    NoOwner,
-                                    this.UsersAPIPath + DefaultPasswordResetsFile);
+            try
+            {
 
-            this.PasswordResets.Remove(passwordReset.SecurityToken1);
+                await UsersSemaphore.WaitAsync();
 
-            return passwordReset;
+                await WriteToLogfile(NotificationMessageType.Parse("remove"),
+                                     passwordReset.ToJSON(),
+                                     this.UsersAPIPath + DefaultPasswordResetsFile);
+
+                this.PasswordResets.Remove(passwordReset.SecurityToken1);
+
+                return passwordReset;
+
+            }
+            finally
+            {
+                UsersSemaphore.Release();
+            }
 
         }
 
@@ -10381,19 +10135,24 @@ namespace org.GraphDefined.OpenData.Users
                                                 User_Id     UserId)
         {
 
-            lock (_APIKeys)
+            try
             {
+
+                await UsersSemaphore.WaitAsync();
 
                 if (_APIKeys.ContainsKey(APIKey.APIKey))
                     return _APIKeys[APIKey.APIKey];
 
-                WriteToLogfileAndNotify(NotificationMessageType.Parse("addAPIKey"),
-                                        APIKey.ToJSON(true),
-                                        NoOwner,
-                                        UserId);
+                await WriteToLogfile(NotificationMessageType.Parse("addAPIKey"),
+                                     APIKey.ToJSON(true),
+                                     UserId);
 
                 return _APIKeys.AddAndReturnValue(APIKey.APIKey, APIKey);
 
+            }
+            finally
+            {
+                UsersSemaphore.Release();
             }
 
         }
@@ -10423,10 +10182,9 @@ namespace org.GraphDefined.OpenData.Users
                 await UsersSemaphore.WaitAsync();
 
                 User.AddNotification(NotificationType,
-                                     async update => await WriteToLogfileAndNotify(NotificationMessageType.Parse("addNotification"),
-                                                                                   update.ToJSON(false).AddFirstAndReturn(new JProperty("userId", User.Id.ToString())),
-                                                                                   NoOwner,
-                                                                                   CurrentUserId));
+                                     async update => await WriteToLogfile(NotificationMessageType.Parse("addNotification"),
+                                                                          update.ToJSON(false).AddFirstAndReturn(new JProperty("userId", User.Id.ToString())),
+                                                                          CurrentUserId));
 
             }
             finally
@@ -10457,10 +10215,9 @@ namespace org.GraphDefined.OpenData.Users
                 {
 
                     User.AddNotification(NotificationType,
-                                         async update => await WriteToLogfileAndNotify(NotificationMessageType.Parse("addNotification"),
-                                                                                       update.ToJSON(false).AddFirstAndReturn(new JProperty("userId", User.Id.ToString())),
-                                                                                       NoOwner,
-                                                                                       CurrentUserId));
+                                         async update => await WriteToLogfile(NotificationMessageType.Parse("addNotification"),
+                                                                              update.ToJSON(false).AddFirstAndReturn(new JProperty("userId", User.Id.ToString())),
+                                                                              CurrentUserId));
 
                 }
 
@@ -10492,10 +10249,9 @@ namespace org.GraphDefined.OpenData.Users
 
                 User.AddNotification(NotificationType,
                                      NotificationMessageType,
-                                     async update => await WriteToLogfileAndNotify(NotificationMessageType.Parse("addNotification"),
-                                                                                   update.ToJSON(false).AddFirstAndReturn(new JProperty("userId", User.Id.ToString())),
-                                                                                   NoOwner,
-                                                                                   CurrentUserId));
+                                     async update => await WriteToLogfile(NotificationMessageType.Parse("addNotification"),
+                                                                          update.ToJSON(false).AddFirstAndReturn(new JProperty("userId", User.Id.ToString())),
+                                                                          CurrentUserId));
 
             }
             finally
@@ -10528,10 +10284,9 @@ namespace org.GraphDefined.OpenData.Users
 
                     User.AddNotification(NotificationType,
                                          NotificationMessageType,
-                                         async update => await WriteToLogfileAndNotify(NotificationMessageType.Parse("addNotification"),
-                                                                                       update.ToJSON(false).AddFirstAndReturn(new JProperty("userId", User.Id.ToString())),
-                                                                                       NoOwner,
-                                                                                       CurrentUserId));
+                                         async update => await WriteToLogfile(NotificationMessageType.Parse("addNotification"),
+                                                                              update.ToJSON(false).AddFirstAndReturn(new JProperty("userId", User.Id.ToString())),
+                                                                              CurrentUserId));
 
                 }
 
@@ -10566,10 +10321,9 @@ namespace org.GraphDefined.OpenData.Users
 
                 User.AddNotification(NotificationType,
                                      NotificationMessageTypes,
-                                     async update => await WriteToLogfileAndNotify(NotificationMessageType.Parse("addNotification"),
-                                                                                   update.ToJSON(false).AddFirstAndReturn(new JProperty("userId", User.Id.ToString())),
-                                                                                   NoOwner,
-                                                                                   CurrentUserId));
+                                     async update => await WriteToLogfile(NotificationMessageType.Parse("addNotification"),
+                                                                          update.ToJSON(false).AddFirstAndReturn(new JProperty("userId", User.Id.ToString())),
+                                                                          CurrentUserId));
 
             }
             finally
@@ -10602,10 +10356,9 @@ namespace org.GraphDefined.OpenData.Users
 
                     User.AddNotification(NotificationType,
                                          NotificationMessageTypes,
-                                         async update => await WriteToLogfileAndNotify(NotificationMessageType.Parse("addNotification"),
-                                                                                       update.ToJSON(false).AddFirstAndReturn(new JProperty("userId", User.Id.ToString())),
-                                                                                       NoOwner,
-                                                                                       CurrentUserId));
+                                         async update => await WriteToLogfile(NotificationMessageType.Parse("addNotification"),
+                                                                              update.ToJSON(false).AddFirstAndReturn(new JProperty("userId", User.Id.ToString())),
+                                                                              CurrentUserId));
 
                 }
 
@@ -10756,10 +10509,9 @@ namespace org.GraphDefined.OpenData.Users
                 await UsersSemaphore.WaitAsync();
 
                 User.RemoveNotification(NotificationType,
-                                        async update => await WriteToLogfileAndNotify(NotificationMessageType.Parse("removeNotification"),
-                                                                                      update.ToJSON(false).AddFirstAndReturn(new JProperty("userId", User.Id.ToString())),
-                                                                                      NoOwner,
-                                                                                      CurrentUserId));
+                                        async update => await WriteToLogfile(NotificationMessageType.Parse("removeNotification"),
+                                                                             update.ToJSON(false).AddFirstAndReturn(new JProperty("userId", User.Id.ToString())),
+                                                                             CurrentUserId));
 
             }
             finally
@@ -10790,10 +10542,9 @@ namespace org.GraphDefined.OpenData.Users
                 {
 
                     User.RemoveNotification(NotificationType,
-                                            async update => await WriteToLogfileAndNotify(NotificationMessageType.Parse("removeNotification"),
-                                                                                          update.ToJSON(false).AddFirstAndReturn(new JProperty("userId", User.Id.ToString())),
-                                                                                          NoOwner,
-                                                                                          CurrentUserId));
+                                            async update => await WriteToLogfile(NotificationMessageType.Parse("removeNotification"),
+                                                                                 update.ToJSON(false).AddFirstAndReturn(new JProperty("userId", User.Id.ToString())),
+                                                                                 CurrentUserId));
 
                 }
 
@@ -10882,10 +10633,9 @@ namespace org.GraphDefined.OpenData.Users
                                                   Description,
                                                   URIs);
 
-                WriteToLogfileAndNotify(NotificationMessageType.Parse("createDataLicense"),
-                                        DataLicense.ToJSON(),
-                                        NoOwner,
-                                        Robot.Id);
+                WriteToLogfile(NotificationMessageType.Parse("createDataLicense"),
+                               DataLicense.ToJSON(),
+                               Robot.Id);
 
                 return _DataLicenses.AddAndReturnValue(DataLicense.Id, DataLicense);
 
