@@ -198,7 +198,7 @@ namespace org.GraphDefined.OpenData.Users
                         UserByChatId.Add(ChatId, newTelegramUser);
 
                         File.AppendAllText("TelegramStore.csv",
-                                           String.Concat("UpdateUser", US, UserId, US, Username, US, Firstname, US, Lastname, US, ChatId, Environment.NewLine));
+                                           String.Concat("updateUser", US, UserId, US, Username, US, Firstname, US, Lastname, US, ChatId, Environment.NewLine));
 
                     }
 
@@ -225,7 +225,7 @@ namespace org.GraphDefined.OpenData.Users
                             UserByChatId.Add(ChatId, newTelegramUser);
 
                             File.AppendAllText("TelegramStore.csv",
-                                               String.Concat(UserId, US, Username, US, Firstname, US, Lastname, US, ChatId, Environment.NewLine));
+                                               String.Concat("updateUser", US, UserId, US, Username, US, Firstname, US, Lastname, US, ChatId, Environment.NewLine));
 
                         }
 
@@ -268,7 +268,7 @@ namespace org.GraphDefined.OpenData.Users
                         GroupByTitle.Add(Title, newTelegramGroup);
 
                         File.AppendAllText("TelegramStore.csv",
-                                           String.Concat("UpdateGroup", US, ChatId, US, Title, US, InviteLink, Environment.NewLine));
+                                           String.Concat("updateGroup", US, ChatId, US, Title, US, InviteLink, Environment.NewLine));
 
                     }
 
@@ -294,7 +294,7 @@ namespace org.GraphDefined.OpenData.Users
                             GroupByTitle.Add(Title, newTelegramGroup);
 
                             File.AppendAllText("TelegramStore.csv",
-                                               String.Concat("UpdateGroup", US, ChatId, US, Title, US, InviteLink, Environment.NewLine));
+                                               String.Concat("updateGroup", US, ChatId, US, Title, US, InviteLink, Environment.NewLine));
 
                         }
 
