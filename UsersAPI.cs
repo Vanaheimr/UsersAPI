@@ -482,10 +482,10 @@ namespace org.GraphDefined.OpenData.Users
 
         public static Organization NoOwner;
 
-        private readonly Queue<NotificationMessage> _NotificationMessages;
+        //private readonly Queue<NotificationMessage> _NotificationMessages;
 
-        public IEnumerable<NotificationMessage> NotificationMessages
-            => _NotificationMessages;
+        //public IEnumerable<NotificationMessage> NotificationMessages
+        //    => _NotificationMessages;
 
         #endregion
 
@@ -1539,7 +1539,7 @@ namespace org.GraphDefined.OpenData.Users
 
             this._APIKeys                     = new Dictionary<APIKey, APIKeyInfo>();
 
-            this._NotificationMessages        = new Queue<NotificationMessage>();
+            //this._NotificationMessages        = new Queue<NotificationMessage>();
 
             #endregion
 
@@ -4716,13 +4716,13 @@ namespace org.GraphDefined.OpenData.Users
                                                      switch (context)
                                                      {
 
-                                                         case EMailNotification.JSONLDContext:
-                                                             if (!EMailNotification.TryParse(JSONObject, out EMailNotification eMailNotification))
+                                                         case TelegramNotification.JSONLDContext:
+                                                             if (!TelegramNotification.TryParse(JSONObject, out TelegramNotification telegramNotification))
                                                              {
-                                                                 ErrorString = "Could not parse e-mail notification!";
+                                                                 ErrorString = "Could not parse Telegram notification!";
                                                                  goto fail;
                                                              }
-                                                             await RemoveNotification(HTTPUser, eMailNotification, HTTPUser.Id);
+                                                             await RemoveNotification(HTTPUser, telegramNotification, HTTPUser.Id);
                                                              break;
 
                                                          case SMSNotification.JSONLDContext:
@@ -4741,6 +4741,15 @@ namespace org.GraphDefined.OpenData.Users
                                                                  goto fail;
                                                              }
                                                              await RemoveNotification(HTTPUser, httpsNotification, HTTPUser.Id);
+                                                             break;
+
+                                                         case EMailNotification.JSONLDContext:
+                                                             if (!EMailNotification.TryParse(JSONObject, out EMailNotification eMailNotification))
+                                                             {
+                                                                 ErrorString = "Could not parse e-mail notification!";
+                                                                 goto fail;
+                                                             }
+                                                             await RemoveNotification(HTTPUser, eMailNotification, HTTPUser.Id);
                                                              break;
 
                                                          default:
@@ -7574,30 +7583,30 @@ namespace org.GraphDefined.OpenData.Users
 
                     #region Send notifications
 
-                    if (!DisableNotifications)
-                    {
+                    //if (!DisableNotifications)
+                    //{
 
-                        try
-                        {
+                    //    try
+                    //    {
 
-                            await NotificationsSemaphore.WaitAsync();
+                    //        await NotificationsSemaphore.WaitAsync();
 
-                            _NotificationMessages.Enqueue(new NotificationMessage(Now,
-                                                                                  MessageType,
-                                                                                  JSONMessage,
-                                                                                  Users.SafeSelectMany(user => user.Organizations(Access_Levels.ReadOnly, true)).Distinct()));
+                    //        _NotificationMessages.Enqueue(new NotificationMessage(Now,
+                    //                                                              MessageType,
+                    //                                                              JSONMessage,
+                    //                                                              Users.SafeSelectMany(user => user.Organizations(Access_Levels.ReadOnly, true)).Distinct()));
 
-                        }
-                        catch (Exception e)
-                        {
-                            //ToDo: Handle _NotificationMessages.Enqueue(...) exceptions!
-                        }
-                        finally
-                        {
-                            NotificationsSemaphore.Release();
-                        }
+                    //    }
+                    //    catch (Exception e)
+                    //    {
+                    //        //ToDo: Handle _NotificationMessages.Enqueue(...) exceptions!
+                    //    }
+                    //    finally
+                    //    {
+                    //        NotificationsSemaphore.Release();
+                    //    }
 
-                    }
+                    //}
 
                     #endregion
 
@@ -7760,28 +7769,28 @@ namespace org.GraphDefined.OpenData.Users
 
                     #region Send notifications
 
-                    if (!DisableNotifications)
-                    {
-                        try
-                        {
+                    //if (!DisableNotifications)
+                    //{
+                    //    try
+                    //    {
 
-                            await NotificationsSemaphore.WaitAsync();
+                    //        await NotificationsSemaphore.WaitAsync();
 
-                            _NotificationMessages.Enqueue(new NotificationMessage(Now,
-                                                                                  MessageType,
-                                                                                  JSONMessage,
-                                                                                  Organizations));
+                    //        _NotificationMessages.Enqueue(new NotificationMessage(Now,
+                    //                                                              MessageType,
+                    //                                                              JSONMessage,
+                    //                                                              Organizations));
 
-                        }
-                        catch (Exception e)
-                        {
-                            //ToDo: Handle _NotificationMessages.Enqueue(...) exceptions!
-                        }
-                        finally
-                        {
-                            NotificationsSemaphore.Release();
-                        }
-                    }
+                    //    }
+                    //    catch (Exception e)
+                    //    {
+                    //        //ToDo: Handle _NotificationMessages.Enqueue(...) exceptions!
+                    //    }
+                    //    finally
+                    //    {
+                    //        NotificationsSemaphore.Release();
+                    //    }
+                    //}
 
                     #endregion
 
