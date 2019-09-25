@@ -7446,7 +7446,7 @@ namespace org.GraphDefined.OpenData.Users
 
             => WriteToLogfile(MessageType,
                               JSONData,
-                              DefaultUsersAPIFile,
+                              this.UsersAPIPath + DefaultUsersAPIFile,
                               CurrentUserId);
 
         #endregion
@@ -8334,7 +8334,7 @@ namespace org.GraphDefined.OpenData.Users
                                              IsDisabled,
                                              DataSource),
 
-                                    user => {
+                                    async user => {
 
                                         if (Password.HasValue &&
                                             !_TryChangePassword(user.Id,
@@ -8345,12 +8345,19 @@ namespace org.GraphDefined.OpenData.Users
                                             throw new ApplicationException("The password for '" + user.Id + "' could not be changed, as the given current password does not match!");
                                         }
 
+                                        //if (Password.HasValue &&
+                                        //    !await _TrySetToPassword(user.Id,
+                                        //                             Password.Value,
+                                        //                             CurrentUserId))
+                                        //{
+                                        //    throw new ApplicationException("The password for '" + user.Id + "' could not be set!");
+                                        //}
+
                                     },
 
                                     CurrentUserId);
 
         #endregion
-
 
         #region ChangePassword   (UserId, NewPassword, CurrentPassword = null, CurrentUserId = null)
 
