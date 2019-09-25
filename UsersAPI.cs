@@ -8359,44 +8359,6 @@ namespace org.GraphDefined.OpenData.Users
 
         #endregion
 
-
-        #region _TrySetToPassword(UserId, NewPassword, CurrentUserId = null)
-
-        //protected async Task<Boolean> _TrySetToPassword(User_Id   UserId,
-        //                                                Password  NewPassword,
-        //                                                User_Id?  CurrentUserId    = null)
-        //{
-
-        //    if (UserId.Length < MinLoginLenght)
-        //        return false;
-
-        //    if (_LoginPasswords.ContainsKey(UserId))
-        //    {
-
-        //        await WriteToLogfile(NotificationMessageType.Parse("addPassword"),
-        //                             new JObject(
-        //                                 new JProperty("login",         UserId.ToString()),
-        //                                 new JProperty("newPassword", new JObject(
-        //                                     new JProperty("salt",          NewPassword.Salt.UnsecureString()),
-        //                                     new JProperty("passwordHash",  NewPassword.UnsecureString)
-        //                                 ))
-        //                             ),
-        //                             this.UsersAPIPath + DefaultPasswordFile,
-        //                             CurrentUserId);
-
-        //        _LoginPasswords.Remove(UserId);
-        //        _LoginPasswords.Add(UserId, new LoginPassword(UserId, NewPassword));
-
-        //        return true;
-
-        //    }
-
-        //    return false;
-
-        //}
-
-        #endregion
-
         #region ChangePassword   (UserId, NewPassword, CurrentPassword = null, CurrentUserId = null)
 
         public async Task ChangePassword(User_Id   UserId,
