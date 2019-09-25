@@ -7446,7 +7446,7 @@ namespace org.GraphDefined.OpenData.Users
 
             => WriteToLogfile(MessageType,
                               JSONData,
-                              DefaultUsersAPIFile,
+                              this.UsersAPIPath + DefaultUsersAPIFile,
                               CurrentUserId);
 
         #endregion
@@ -8334,7 +8334,7 @@ namespace org.GraphDefined.OpenData.Users
                                              IsDisabled,
                                              DataSource),
 
-                                    user => {
+                                    async user => {
 
                                         if (Password.HasValue &&
                                             !_TryChangePassword(user.Id,
@@ -8345,12 +8345,57 @@ namespace org.GraphDefined.OpenData.Users
                                             throw new ApplicationException("The password for '" + user.Id + "' could not be changed, as the given current password does not match!");
                                         }
 
+                                        //if (Password.HasValue &&
+                                        //    !await _TrySetToPassword(user.Id,
+                                        //                             Password.Value,
+                                        //                             CurrentUserId))
+                                        //{
+                                        //    throw new ApplicationException("The password for '" + user.Id + "' could not be set!");
+                                        //}
+
                                     },
 
                                     CurrentUserId);
 
         #endregion
 
+
+        #region _TrySetToPassword(UserId, NewPassword, CurrentUserId = null)
+
+        //protected async Task<Boolean> _TrySetToPassword(User_Id   UserId,
+        //                                                Password  NewPassword,
+        //                                                User_Id?  CurrentUserId    = null)
+        //{
+
+        //    if (UserId.Length < MinLoginLenght)
+        //        return false;
+
+        //    if (_LoginPasswords.ContainsKey(UserId))
+        //    {
+
+        //        await WriteToLogfile(NotificationMessageType.Parse("addPassword"),
+        //                             new JObject(
+        //                                 new JProperty("login",         UserId.ToString()),
+        //                                 new JProperty("newPassword", new JObject(
+        //                                     new JProperty("salt",          NewPassword.Salt.UnsecureString()),
+        //                                     new JProperty("passwordHash",  NewPassword.UnsecureString)
+        //                                 ))
+        //                             ),
+        //                             this.UsersAPIPath + DefaultPasswordFile,
+        //                             CurrentUserId);
+
+        //        _LoginPasswords.Remove(UserId);
+        //        _LoginPasswords.Add(UserId, new LoginPassword(UserId, NewPassword));
+
+        //        return true;
+
+        //    }
+
+        //    return false;
+
+        //}
+
+        #endregion
 
         #region ChangePassword   (UserId, NewPassword, CurrentPassword = null, CurrentUserId = null)
 
