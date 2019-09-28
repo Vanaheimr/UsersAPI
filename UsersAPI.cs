@@ -6980,6 +6980,19 @@ namespace org.GraphDefined.OpenData.Users
                         switch (JSONObject["@context"]?.Value<String>())
                         {
 
+                            case TelegramNotification.JSONLDContext:
+
+                                var telegramNotification = TelegramNotification.Parse(JSONObject);
+
+                                if (telegramNotification != null)
+                                    _User.AddNotification(telegramNotification);
+
+                                else
+                                    DebugX.Log(String.Concat(nameof(UsersAPI), " Could not parse the given Telegram notification!"));
+
+                                break;
+
+
                             case EMailNotification.JSONLDContext:
 
                                 var emailnotification = EMailNotification.Parse(JSONObject);
@@ -7019,18 +7032,6 @@ namespace org.GraphDefined.OpenData.Users
                                 break;
 
 
-                            case TelegramNotification.JSONLDContext:
-
-                                var telegramNotification = TelegramNotification.Parse(JSONObject);
-
-                                if (telegramNotification != null)
-                                    _User.AddNotification(telegramNotification);
-
-                                else
-                                    DebugX.Log(String.Concat(nameof(UsersAPI), " Could not parse the given Telegram notification!"));
-
-                                break;
-
                         }
 
                     }
@@ -7054,6 +7055,19 @@ namespace org.GraphDefined.OpenData.Users
 
                         switch (JSONObject["@context"]?.Value<String>())
                         {
+
+                            case TelegramNotification.JSONLDContext:
+
+                                var telegramNotification = TelegramNotification.Parse(JSONObject);
+
+                                if (telegramNotification != null)
+                                    _User.RemoveNotification(telegramNotification);
+
+                                else
+                                    DebugX.Log(String.Concat(nameof(UsersAPI), " Could not parse the given Telegram notification!"));
+
+                                break;
+
 
                             case EMailNotification.JSONLDContext:
 

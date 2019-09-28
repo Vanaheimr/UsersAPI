@@ -322,15 +322,16 @@ namespace org.GraphDefined.OpenData.Users
         #endregion
 
 
-        internal async void ReceiveTelegramMessage(Object Sender, Telegram.Bot.Args.MessageEventArgs e)
+        internal async void ReceiveTelegramMessage(Object                              Sender,
+                                                   Telegram.Bot.Args.MessageEventArgs  Telegram)
         {
 
             try
             {
 
-                var messageFrom = e?.Message?.From;
-                var messageChat = e?.Message?.Chat;
-                var messageText = e?.Message?.Text;
+                var messageFrom = Telegram?.Message?.From;
+                var messageChat = Telegram?.Message?.Chat;
+                var messageText = Telegram?.Message?.Text;
 
                 if (messageText.IsNeitherNullNorEmpty())
                     messageText.Trim();
@@ -341,7 +342,7 @@ namespace org.GraphDefined.OpenData.Users
                     if (messageChat.Id >= 0)
                     {
 
-                        Console.WriteLine($"Received a telegram text message from {e.Message.From.Username} in chat {e.Message.Chat.Id}.");
+                        Console.WriteLine($"Received a telegram text message from {Telegram.Message.From.Username} in chat {Telegram.Message.Chat.Id}.");
 
                         UpdateUser(messageFrom.Id,
                                    messageFrom.Username,
@@ -359,7 +360,7 @@ namespace org.GraphDefined.OpenData.Users
                     else
                     {
 
-                        Console.WriteLine($"Received a telegram text message from {e.Message.From.Username} in group chat '{e.Message.Chat.Title}' / {e.Message.Chat.Id}.");
+                        Console.WriteLine($"Received a telegram text message from {Telegram.Message.From.Username} in group chat '{Telegram.Message.Chat.Title}' / {Telegram.Message.Chat.Id}.");
 
                         UpdateGroup(messageChat.Id,
                                     messageChat.Title,

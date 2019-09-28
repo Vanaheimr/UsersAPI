@@ -511,7 +511,7 @@ namespace org.GraphDefined.OpenData.Users
         #endregion
 
 
-        #region User <-> User edges
+        #region User <-> User         edges
 
         private readonly List<MiniEdge<User, User2UserEdges, User>> _User2UserEdges;
 
