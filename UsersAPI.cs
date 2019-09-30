@@ -1821,20 +1821,20 @@ namespace org.GraphDefined.OpenData.Users
                 //    return ISSNotificationExtentions.ToISSJSON;
 
                 default:
-                    return (Organization,
-                            Embedded,
-                            ExpandMembers,
-                            ExpandParents,
-                            ExpandSubOrganizations,
-                            ExpandTags,
-                            IncludeCryptoHash)
+                    return (organization,
+                            embedded,
+                            expandMembers,
+                            expandParents,
+                            expandSubOrganizations,
+                            expandTags,
+                            includeCryptoHash)
 
-                            => Organization.ToJSON(Embedded,
-                                                   ExpandMembers,
-                                                   ExpandParents,
-                                                   ExpandSubOrganizations,
-                                                   ExpandTags,
-                                                   IncludeCryptoHash);
+                            => organization.ToJSON(embedded,
+                                                   expandMembers,
+                                                   expandParents,
+                                                   expandSubOrganizations,
+                                                   expandTags,
+                                                   includeCryptoHash);
 
             }
 
@@ -1855,12 +1855,12 @@ namespace org.GraphDefined.OpenData.Users
                 //    return ISSNotificationExtentions.ToISSJSON;
 
                 default:
-                    return (User,
-                            Embedded,
-                            IncludeCryptoHash)
+                    return (user,
+                            embedded,
+                            includeCryptoHash)
 
-                            => User.ToJSON(Embedded,
-                                           IncludeCryptoHash);
+                            => user.ToJSON(embedded,
+                                           includeCryptoHash);
 
             }
 
