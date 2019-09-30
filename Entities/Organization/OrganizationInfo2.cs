@@ -108,8 +108,8 @@ namespace org.GraphDefined.OpenData.Users
         {
 
             this.You                             = You;
-            this.Admins                          = _User2Organization_InEdges.Where(_ => _.EdgeLabel == Users.User2OrganizationEdges.IsAdmin). SafeSelect(edge => edge.Source).ToArray();
-            this.Members                         = _User2Organization_InEdges.Where(_ => _.EdgeLabel == Users.User2OrganizationEdges.IsMember).SafeSelect(edge => edge.Source).ToArray();
+            this.Admins                          = _User2Organization_InEdges.Where(_ => _.EdgeLabel == OpenData.Users.User2OrganizationEdges.IsAdmin). SafeSelect(edge => edge.Source).ToArray();
+            this.Members                         = _User2Organization_InEdges.Where(_ => _.EdgeLabel == OpenData.Users.User2OrganizationEdges.IsMember).SafeSelect(edge => edge.Source).ToArray();
 
 
             void CheckAccessRights(Organization  OOORg,

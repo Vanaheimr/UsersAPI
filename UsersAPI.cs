@@ -1842,6 +1842,32 @@ namespace org.GraphDefined.OpenData.Users
 
         #endregion
 
+        #region (private) GetUserSerializator(Request, User)
+
+        private UserToJSONDelegate GetUserSerializator(HTTPRequest  Request,
+                                                       User         User)
+        {
+
+            switch (User?.Id.ToString())
+            {
+
+                //case __issapi:
+                //    return ISSNotificationExtentions.ToISSJSON;
+
+                default:
+                    return (User,
+                            Embedded,
+                            IncludeCryptoHash)
+
+                            => User.ToJSON(Embedded,
+                                           IncludeCryptoHash);
+
+            }
+
+        }
+
+        #endregion
+
         #region (private) GetBlogPostingSerializator (Request, User)
 
         private BlogPostingToJSONDelegate GetBlogPostingSerializator(HTTPRequest  Request,
@@ -2942,14 +2968,79 @@ namespace org.GraphDefined.OpenData.Users
             #region GET         ~/users
 
             // -------------------------------------------------------------------
-            // curl -v -H "Accept: application/json" http://127.0.0.1:2100/users
+            // curl -v -H "Accept: application/json" http://127.0.0.1:2000/users
             // -------------------------------------------------------------------
-            HTTPServer.ITEMS_GET(UriTemplate: URLPathPrefix + "users",
-                                 Dictionary: _Users,
-                                 Filter: user => user.PrivacyLevel == PrivacyLevel.World,
-                                 ToJSONDelegate: JSON_IO.ToJSON);
+            HTTPServer.AddMethodCallback(Hostname,
+                                         HTTPMethod.GET,
+                                         URLPathPrefix + "users",
+                                         HTTPContentType.JSON_UTF8,
+                                         HTTPDelegate: Request => {
+
+                                             #region Try to get HTTP user and its organizations
+
+                                             TryGetHTTPUser(Request,
+                                                            out User                   HTTPUser,
+                                                            out HashSet<Organization>  HTTPOrganizations,
+                                                            out HTTPResponse           Response,
+                                                            Recursive: true);
+
+                                             #endregion
+
+
+                                             var includeFilter           = Request.QueryString.CreateStringFilter<User>("include",
+                                                                                                                        (user, include) => user.Id.ToString().Contains(include) ||
+                                                                                                                                           user.Name.IndexOf(include, StringComparison.OrdinalIgnoreCase) >= 0 ||
+                                                                                                                                           user.Description.Matches(include, IgnoreCase: true));
+
+                                             var skip                    = Request.QueryString.GetUInt64 ("skip");
+                                             var take                    = Request.QueryString.GetUInt64 ("take");
+
+                                             var includeCryptoHash       = Request.QueryString.GetBoolean("includeCryptoHash", true);
+
+                                             var expand                  = Request.QueryString.GetStrings("expand", true);
+                                             //var expandTags              = expand.Contains("tags")              ? InfoStatus.Expand : InfoStatus.ShowIdOnly;
+
+
+                                             //ToDo: Getting the expected total count might be very expensive!
+                                             var _ExpectedCount = Organizations.ULongCount();
+
+                                             return Task.FromResult(
+                                                 new HTTPResponse.Builder(Request) {
+                                                     HTTPStatusCode                 = HTTPStatusCode.OK,
+                                                     Server                         = HTTPServer.DefaultServerName,
+                                                     Date                           = DateTime.UtcNow,
+                                                     AccessControlAllowOrigin       = "*",
+                                                     AccessControlAllowMethods      = "GET, COUNT, OPTIONS",
+                                                     AccessControlAllowHeaders      = "Content-Type, Accept, Authorization",
+                                                     ETag                           = "1",
+                                                     ContentType                    = HTTPContentType.JSON_UTF8,
+                                                     Content                        = HTTPOrganizations.
+                                                                                          SafeSelectMany(organization => organization.Users).
+                                                                                          Distinct      ().
+                                                                                          Where         (includeFilter).
+                                                                                          OrderBy       (user => user.Name).
+                                                                                          ToJSON        (skip,
+                                                                                                         take,
+                                                                                                         false, //Embedded
+                                                                                                         GetUserSerializator(Request, HTTPUser),
+                                                                                                         includeCryptoHash).
+                                                                                          ToUTF8Bytes(),
+                                                     X_ExpectedTotalNumberOfItems   = _ExpectedCount,
+                                                     Connection                     = "close",
+                                                     Vary                           = "Accept"
+                                                 }.AsImmutable);
+
+                                         });
 
             #endregion
+
+            // -------------------------------------------------------------------
+            // curl -v -H "Accept: application/json" http://127.0.0.1:2100/users
+            // -------------------------------------------------------------------
+            //HTTPServer.ITEMS_GET(UriTemplate: URLPathPrefix + "users",
+            //                     Dictionary: _Users,
+            //                     Filter: user => user.PrivacyLevel == PrivacyLevel.World,
+            //                     ToJSONDelegate: JSON_IO.ToJSON);
 
             #region DEAUTH      ~/users
 
@@ -5039,8 +5130,6 @@ namespace org.GraphDefined.OpenData.Users
 
             #region GET         ~/organizations
 
-            #region GET         ~/organizations
-
             // ---------------------------------------------------------------------------
             // curl -v -H "Accept: application/json" http://127.0.0.1:2000/organizations
             // ---------------------------------------------------------------------------
@@ -5059,6 +5148,11 @@ namespace org.GraphDefined.OpenData.Users
                                                             Recursive: true);
 
                                              #endregion
+
+                                             var includeFilter           = Request.QueryString.CreateStringFilter<Organization>("include",
+                                                                                                                                (organization, include) => organization.Id.ToString().Contains(include) ||
+                                                                                                                                                           organization.Name.       Matches(include, IgnoreCase: true) ||
+                                                                                                                                                           organization.Description.Matches(include, IgnoreCase: true));
 
                                              var skip                    = Request.QueryString.GetUInt64 ("skip");
                                              var take                    = Request.QueryString.GetUInt64 ("take");
@@ -5085,20 +5179,18 @@ namespace org.GraphDefined.OpenData.Users
                                                      AccessControlAllowHeaders      = "Content-Type, Accept, Authorization",
                                                      ETag                           = "1",
                                                      ContentType                    = HTTPContentType.JSON_UTF8,
-                                                     Content                        = Organizations.
-                                                                                          OrderBy(organization => organization.Id).
-                                                                                          //Where  (organization => HTTPOrganizations.Contains(organization.Owner) ||
-                                                                                          //                            Admins.InEdges(HTTPUser).
-                                                                                          //                                   Any(edgelabel => edgelabel == User2GroupEdges.IsAdmin)).
-                                                                                          ToJSON(skip,
-                                                                                                 take,
-                                                                                                 false, //Embedded
-                                                                                                 expandMembers,
-                                                                                                 expandParents,
-                                                                                                 expandSubOrganizations,
-                                                                                                 expandTags,
-                                                                                                 GetOrganizationSerializator(Request, HTTPUser),
-                                                                                                 includeCryptoHash).
+                                                     Content                        = HTTPOrganizations.
+                                                                                          OrderBy(organization => organization.Name.FirstText()).
+                                                                                          Where  (includeFilter).
+                                                                                          ToJSON (skip,
+                                                                                                  take,
+                                                                                                  false, //Embedded
+                                                                                                  expandMembers,
+                                                                                                  expandParents,
+                                                                                                  expandSubOrganizations,
+                                                                                                  expandTags,
+                                                                                                  GetOrganizationSerializator(Request, HTTPUser),
+                                                                                                  includeCryptoHash).
                                                                                           ToUTF8Bytes(),
                                                      X_ExpectedTotalNumberOfItems   = _ExpectedCount,
                                                      Connection                     = "close",
@@ -5151,144 +5243,6 @@ namespace org.GraphDefined.OpenData.Users
                                                  }.AsImmutable);
 
                                          });
-
-            #endregion
-
-
-            #region GET         ~/organizations/{OrganizationId}
-
-            // -------------------------------------------------------------------------------------
-            // curl -v -H "Accept: application/json" http://127.0.0.1:2000/organizations/214080158
-            // -------------------------------------------------------------------------------------
-            HTTPServer.AddMethodCallback(Hostname,
-                                         HTTPMethod.GET,
-                                         URLPathPrefix + "organizations/{OrganizationId}",
-                                         HTTPContentType.JSON_UTF8,
-                                         HTTPDelegate: Request => {
-
-                                             #region Try to get HTTP user and its organizations
-
-                                             TryGetHTTPUser(Request,
-                                                            out User                   HTTPUser,
-                                                            out HashSet<Organization>  HTTPOrganizations,
-                                                            out HTTPResponse           Response,
-                                                            Recursive: true);
-
-                                             #endregion
-
-                                             #region Check OrganizationId URI parameter
-
-                                             if (!Request.ParseOrganization(this,
-                                                                            out Organization_Id?  OrganizationId,
-                                                                            out Organization      Organization,
-                                                                            out HTTPResponse      HTTPResponse))
-                                             {
-                                                 return Task.FromResult(HTTPResponse);
-                                             }
-
-                                             #endregion
-
-                                             var showMgt                 = Request.QueryString.GetBoolean("showMgt", false);
-
-                                             var expand                  = Request.QueryString.GetStrings("expand",  false);
-                                             var expandMembers           = expand.Contains("members")           ? InfoStatus.Expand : InfoStatus.ShowIdOnly;
-                                             var expandParents           = expand.Contains("parents")           ? InfoStatus.Expand : InfoStatus.ShowIdOnly;
-                                             var expandSubOrganizations  = expand.Contains("subOrganizations")  ? InfoStatus.Expand : InfoStatus.ShowIdOnly;
-                                             var expandTags              = expand.Contains("tags")              ? InfoStatus.Expand : InfoStatus.ShowIdOnly;
-
-                                             var includeCryptoHash       = Request.QueryString.GetBoolean("includeCryptoHash", true);
-
-                                             return Task.FromResult(
-                                                        (Organization.PrivacyLevel == PrivacyLevel.Private &&
-                                                         !HTTPOrganizations.Contains(Organization))
-
-                                                            ? new HTTPResponse.Builder(Request) {
-                                                                  HTTPStatusCode             = HTTPStatusCode.Unauthorized,
-                                                                  Server                     = HTTPServer.DefaultServerName,
-                                                                  Date                       = DateTime.UtcNow,
-                                                                  AccessControlAllowOrigin   = "*",
-                                                                  AccessControlAllowMethods  = "GET, EXISTS",
-                                                                  AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
-                                                                  Connection                 = "close"
-                                                              }.AsImmutable
-
-                                                            : new HTTPResponse.Builder(Request) {
-                                                                  HTTPStatusCode             = HTTPStatusCode.OK,
-                                                                  Server                     = HTTPServer.DefaultServerName,
-                                                                  Date                       = DateTime.UtcNow,
-                                                                  AccessControlAllowOrigin   = "*",
-                                                                  AccessControlAllowMethods  = "GET, EXISTS",
-                                                                  AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
-                                                                  ContentType                = HTTPContentType.JSON_UTF8,
-                                                                  Content                    = (showMgt == true
-                                                                                                    ? new OrganizationInfo2(Organization,
-                                                                                                                           HTTPUser).ToJSON(false,
-                                                                                                                                            expandMembers,
-                                                                                                                                            expandParents,
-                                                                                                                                            expandSubOrganizations,
-                                                                                                                                            expandTags,
-                                                                                                                                            includeCryptoHash)
-                                                                                                    : Organization.ToJSON(false,
-                                                                                                                          expandMembers,
-                                                                                                                          expandParents,
-                                                                                                                          expandSubOrganizations,
-                                                                                                                          expandTags,
-                                                                                                                          includeCryptoHash)).ToUTF8Bytes(),
-                                                                  Connection                 = "close",
-                                                                  Vary                       = "Accept"
-                                                              }.AsImmutable);
-
-                                         });
-
-            #endregion
-
-            #region EXISTS      ~/organizations/{OrganizationId}
-
-            // ---------------------------------------------------------
-            // curl -v -X EXISTS http://127.0.0.1:2000/organizations/7
-            // ---------------------------------------------------------
-            HTTPServer.AddMethodCallback(Hostname,
-                                         HTTPMethod.EXISTS,
-                                         URLPathPrefix + "organizations/{OrganizationId}",
-                                         HTTPDelegate: Request => {
-
-                                             #region Try to get HTTP user and its organizations
-
-                                             TryGetHTTPUser(Request,
-                                                            out User                   HTTPUser,
-                                                            out HashSet<Organization>  HTTPOrganizations,
-                                                            out HTTPResponse           Response,
-                                                            Recursive: true);
-
-                                             #endregion
-
-                                             #region Check OrganizationId URI parameter
-
-                                             if (!Request.ParseOrganization(this,
-                                                                            out Organization_Id?  OrganizationId,
-                                                                            out Organization      Organization,
-                                                                            out HTTPResponse      HTTPResponse))
-                                             {
-                                                 return Task.FromResult(HTTPResponse);
-                                             }
-
-                                             #endregion
-
-
-                                             return Task.FromResult(
-                                                        new HTTPResponse.Builder(Request) {
-                                                                HTTPStatusCode             = HTTPStatusCode.OK,
-                                                                Server                     = HTTPServer.DefaultServerName,
-                                                                Date                       = DateTime.UtcNow,
-                                                                AccessControlAllowOrigin   = "*",
-                                                                AccessControlAllowMethods  = "GET, EXISTS",
-                                                                AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
-                                                                Connection                 = "close"
-                                                            }.AsImmutable);
-
-                                         });
-
-            #endregion
 
             #endregion
 
@@ -5441,6 +5395,144 @@ namespace org.GraphDefined.OpenData.Users
 
             #endregion
 
+            #endregion
+
+            #region ~/organizations/{OrganizationId}
+
+            #region GET         ~/organizations/{OrganizationId}
+
+            // -------------------------------------------------------------------------------------
+            // curl -v -H "Accept: application/json" http://127.0.0.1:2000/organizations/214080158
+            // -------------------------------------------------------------------------------------
+            HTTPServer.AddMethodCallback(Hostname,
+                                         HTTPMethod.GET,
+                                         URLPathPrefix + "organizations/{OrganizationId}",
+                                         HTTPContentType.JSON_UTF8,
+                                         HTTPDelegate: Request => {
+
+                                             #region Try to get HTTP user and its organizations
+
+                                             TryGetHTTPUser(Request,
+                                                            out User                   HTTPUser,
+                                                            out HashSet<Organization>  HTTPOrganizations,
+                                                            out HTTPResponse           Response,
+                                                            Recursive: true);
+
+                                             #endregion
+
+                                             #region Check OrganizationId URI parameter
+
+                                             if (!Request.ParseOrganization(this,
+                                                                            out Organization_Id?  OrganizationId,
+                                                                            out Organization      Organization,
+                                                                            out HTTPResponse      HTTPResponse))
+                                             {
+                                                 return Task.FromResult(HTTPResponse);
+                                             }
+
+                                             #endregion
+
+                                             var showMgt                 = Request.QueryString.GetBoolean("showMgt", false);
+
+                                             var expand                  = Request.QueryString.GetStrings("expand",  false);
+                                             var expandMembers           = expand.Contains("members")           ? InfoStatus.Expand : InfoStatus.ShowIdOnly;
+                                             var expandParents           = expand.Contains("parents")           ? InfoStatus.Expand : InfoStatus.ShowIdOnly;
+                                             var expandSubOrganizations  = expand.Contains("subOrganizations")  ? InfoStatus.Expand : InfoStatus.ShowIdOnly;
+                                             var expandTags              = expand.Contains("tags")              ? InfoStatus.Expand : InfoStatus.ShowIdOnly;
+
+                                             var includeCryptoHash       = Request.QueryString.GetBoolean("includeCryptoHash", true);
+
+                                             return Task.FromResult(
+                                                        (Organization.PrivacyLevel == PrivacyLevel.Private &&
+                                                         !HTTPOrganizations.Contains(Organization))
+
+                                                            ? new HTTPResponse.Builder(Request) {
+                                                                  HTTPStatusCode             = HTTPStatusCode.Unauthorized,
+                                                                  Server                     = HTTPServer.DefaultServerName,
+                                                                  Date                       = DateTime.UtcNow,
+                                                                  AccessControlAllowOrigin   = "*",
+                                                                  AccessControlAllowMethods  = "GET, EXISTS",
+                                                                  AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
+                                                                  Connection                 = "close"
+                                                              }.AsImmutable
+
+                                                            : new HTTPResponse.Builder(Request) {
+                                                                  HTTPStatusCode             = HTTPStatusCode.OK,
+                                                                  Server                     = HTTPServer.DefaultServerName,
+                                                                  Date                       = DateTime.UtcNow,
+                                                                  AccessControlAllowOrigin   = "*",
+                                                                  AccessControlAllowMethods  = "GET, EXISTS",
+                                                                  AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
+                                                                  ContentType                = HTTPContentType.JSON_UTF8,
+                                                                  Content                    = (showMgt == true
+                                                                                                    ? new OrganizationInfo2(Organization,
+                                                                                                                           HTTPUser).ToJSON(false,
+                                                                                                                                            expandMembers,
+                                                                                                                                            expandParents,
+                                                                                                                                            expandSubOrganizations,
+                                                                                                                                            expandTags,
+                                                                                                                                            includeCryptoHash)
+                                                                                                    : Organization.ToJSON(false,
+                                                                                                                          expandMembers,
+                                                                                                                          expandParents,
+                                                                                                                          expandSubOrganizations,
+                                                                                                                          expandTags,
+                                                                                                                          includeCryptoHash)).ToUTF8Bytes(),
+                                                                  Connection                 = "close",
+                                                                  Vary                       = "Accept"
+                                                              }.AsImmutable);
+
+                                         });
+
+            #endregion
+
+            #region EXISTS      ~/organizations/{OrganizationId}
+
+            // ---------------------------------------------------------
+            // curl -v -X EXISTS http://127.0.0.1:2000/organizations/7
+            // ---------------------------------------------------------
+            HTTPServer.AddMethodCallback(Hostname,
+                                         HTTPMethod.EXISTS,
+                                         URLPathPrefix + "organizations/{OrganizationId}",
+                                         HTTPDelegate: Request => {
+
+                                             #region Try to get HTTP user and its organizations
+
+                                             TryGetHTTPUser(Request,
+                                                            out User                   HTTPUser,
+                                                            out HashSet<Organization>  HTTPOrganizations,
+                                                            out HTTPResponse           Response,
+                                                            Recursive: true);
+
+                                             #endregion
+
+                                             #region Check OrganizationId URI parameter
+
+                                             if (!Request.ParseOrganization(this,
+                                                                            out Organization_Id?  OrganizationId,
+                                                                            out Organization      Organization,
+                                                                            out HTTPResponse      HTTPResponse))
+                                             {
+                                                 return Task.FromResult(HTTPResponse);
+                                             }
+
+                                             #endregion
+
+
+                                             return Task.FromResult(
+                                                        new HTTPResponse.Builder(Request) {
+                                                                HTTPStatusCode             = HTTPStatusCode.OK,
+                                                                Server                     = HTTPServer.DefaultServerName,
+                                                                Date                       = DateTime.UtcNow,
+                                                                AccessControlAllowOrigin   = "*",
+                                                                AccessControlAllowMethods  = "GET, EXISTS",
+                                                                AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
+                                                                Connection                 = "close"
+                                                            }.AsImmutable);
+
+                                         });
+
+            #endregion
 
             #region ADD         ~/organizations/{organizationId}
 

@@ -43,6 +43,56 @@ namespace org.GraphDefined.OpenData.Users
 
     public delegate Boolean UserProviderDelegate(User_Id UserId, out User User);
 
+    public delegate JObject UserToJSONDelegate(User     User,
+                                               Boolean  Embedded            = false,
+                                               Boolean  IncludeCryptoHash   = true);
+
+
+    /// <summary>
+    /// Extention methods for Users.
+    /// </summary>
+    public static class UserExtentions
+    {
+
+        #region ToJSON(this Users, Skip = null, Take = null, Embedded = false, ...)
+
+        /// <summary>
+        /// Return a JSON representation for the given enumeration of Users.
+        /// </summary>
+        /// <param name="Users">An enumeration of Users.</param>
+        /// <param name="Skip">The optional number of Users to skip.</param>
+        /// <param name="Take">The optional number of Users to return.</param>
+        /// <param name="Embedded">Whether this data is embedded into another data structure.</param>
+        public static JArray ToJSON(this IEnumerable<User>  Users,
+                                    UInt64?                 Skip                = null,
+                                    UInt64?                 Take                = null,
+                                    Boolean                 Embedded            = false,
+                                    UserToJSONDelegate      UserToJSON          = null,
+                                    Boolean                 IncludeCryptoHash   = true)
+
+
+            => Users?.Any() != true
+
+                   ? new JArray()
+
+                   : new JArray(Users.
+                                    Where     (dataSet =>  dataSet != null).
+                                    OrderBy   (dataSet => dataSet.Id).
+                                    SkipTakeFilter(Skip, Take).
+                                    SafeSelect(User => UserToJSON != null
+                                                                    ? UserToJSON (User,
+                                                                                  Embedded,
+                                                                                  IncludeCryptoHash)
+
+                                                                    : User.ToJSON(Embedded,
+                                                                                  IncludeCryptoHash)));
+
+        #endregion
+
+    }
+
+
+
     /// <summary>
     /// An Open Data user.
     /// </summary>

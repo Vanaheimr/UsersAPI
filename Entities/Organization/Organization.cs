@@ -926,10 +926,20 @@ namespace org.GraphDefined.OpenData.Users
 
 
         public IEnumerable<User> Admins
-            => _User2Organization_InEdges.Where(_ => _.EdgeLabel == Users.User2OrganizationEdges.IsAdmin). SafeSelect(edge => edge.Source).ToArray();
+            => _User2Organization_InEdges.Where(_ => _.EdgeLabel == OpenData.Users.User2OrganizationEdges.IsAdmin).
+                                          SafeSelect(edge => edge.Source).
+                                          Distinct();
 
         public IEnumerable<User> Members
-            => _User2Organization_InEdges.Where(_ => _.EdgeLabel == Users.User2OrganizationEdges.IsMember).SafeSelect(edge => edge.Source).ToArray();
+            => _User2Organization_InEdges.Where(_ => _.EdgeLabel == OpenData.Users.User2OrganizationEdges.IsMember).
+                                          SafeSelect(edge => edge.Source).
+                                          Distinct();
+
+        public IEnumerable<User> Users
+            => _User2Organization_InEdges.Where(_ => _.EdgeLabel == OpenData.Users.User2OrganizationEdges.IsAdmin ||
+                                                     _.EdgeLabel == OpenData.Users.User2OrganizationEdges.IsMember).
+                                          SafeSelect(edge => edge.Source).
+                                          Distinct();
 
         public IEnumerable<Organization> Parents
             => _Organization2Organization_OutEdges.Where(edge => edge.Source == this && edge.EdgeLabel == Organization2OrganizationEdges.IsChildOf).Select(edge => edge.Target).ToArray();

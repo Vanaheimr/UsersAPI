@@ -566,7 +566,7 @@ function CreateI18NDiv(I18NString, CSSClassNames) {
     for (var I18NKey in I18NString) {
         var propertyKeyDiv = I18NDiv.appendChild(document.createElement('div'));
         propertyKeyDiv.className = "I18NLanguage";
-        propertyKeyDiv.innerText = I18NKey;
+        propertyKeyDiv.innerHTML = "<p>" + I18NKey + "</p>";
         var propertyValueDiv = I18NDiv.appendChild(document.createElement('div'));
         propertyValueDiv.className = "I18NValue";
         propertyValueDiv.innerText = I18NString[I18NKey];
