@@ -559,6 +559,21 @@ function ShowI18N(I18NString) {
     return I18NDiv.innerHTML;
 }
 // #endregion
+// #region CreateI18NPrefixDiv(Prefix, I18NString, CSSClassNames?)
+function CreateI18NPrefixDiv(Prefix, I18NString, CSSClassNames) {
+    var I18NDiv = document.createElement('div');
+    I18NDiv.className = "I18N" + (CSSClassNames ? " " + CSSClassNames : "");
+    for (var I18NKey in I18NString) {
+        var propertyKeyDiv = I18NDiv.appendChild(document.createElement('div'));
+        propertyKeyDiv.className = "I18NLanguage";
+        propertyKeyDiv.innerHTML = "<p>" + I18NKey + "</p>";
+        var propertyValueDiv = I18NDiv.appendChild(document.createElement('div'));
+        propertyValueDiv.className = "I18NValue";
+        propertyValueDiv.innerHTML = Prefix + I18NString[I18NKey];
+    }
+    return I18NDiv;
+}
+// #endregion
 // #region CreateI18NDiv(I18NString, CSSClassNames?)
 function CreateI18NDiv(I18NString, CSSClassNames) {
     var I18NDiv = document.createElement('div');
@@ -569,7 +584,7 @@ function CreateI18NDiv(I18NString, CSSClassNames) {
         propertyKeyDiv.innerHTML = "<p>" + I18NKey + "</p>";
         var propertyValueDiv = I18NDiv.appendChild(document.createElement('div'));
         propertyValueDiv.className = "I18NValue";
-        propertyValueDiv.innerText = I18NString[I18NKey];
+        propertyValueDiv.innerHTML = I18NString[I18NKey];
     }
     return I18NDiv;
 }

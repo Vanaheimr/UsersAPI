@@ -1018,6 +1018,31 @@ function ShowI18N(I18NString: object): string {
 
 // #endregion
 
+// #region CreateI18NPrefixDiv(Prefix, I18NString, CSSClassNames?)
+
+function CreateI18NPrefixDiv(Prefix: string, I18NString: object, CSSClassNames?: string) : HTMLDivElement {
+
+    let I18NDiv = document.createElement('div') as HTMLDivElement;
+    I18NDiv.className = "I18N" + (CSSClassNames ? " " + CSSClassNames : "");
+
+    for (var I18NKey in I18NString) {
+
+        let propertyKeyDiv          = <HTMLDivElement> I18NDiv.appendChild(document.createElement('div'));
+        propertyKeyDiv.className    = "I18NLanguage";
+        propertyKeyDiv.innerHTML    = "<p>" + I18NKey  + "</p>";
+
+        let propertyValueDiv        = <HTMLDivElement> I18NDiv.appendChild(document.createElement('div'));
+        propertyValueDiv.className  = "I18NValue";
+        propertyValueDiv.innerHTML  = Prefix + I18NString[I18NKey];
+
+    }
+
+    return I18NDiv;
+
+}
+
+// #endregion
+
 // #region CreateI18NDiv(I18NString, CSSClassNames?)
 
 function CreateI18NDiv(I18NString: object, CSSClassNames?: string) : HTMLDivElement {
@@ -1033,7 +1058,7 @@ function CreateI18NDiv(I18NString: object, CSSClassNames?: string) : HTMLDivElem
 
         let propertyValueDiv        = <HTMLDivElement> I18NDiv.appendChild(document.createElement('div'));
         propertyValueDiv.className  = "I18NValue";
-        propertyValueDiv.innerText  = I18NString[I18NKey];
+        propertyValueDiv.innerHTML  = I18NString[I18NKey];
 
     }
 
