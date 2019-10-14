@@ -2425,15 +2425,36 @@ namespace org.GraphDefined.OpenData.Users
 
                                               #endregion
 
-                                              #region Check login and password
+                                              #region Check login or e-mail address and password(s)
 
-                                              if (!(Realm.IsNotNullOrEmpty()
-                                                        ? User_Id.TryParse(Login, Realm, out User_Id       _UserId)
-                                                        : User_Id.TryParse(Login,        out               _UserId))       ||
-                                                  !_LoginPasswords.TryGetValue(_UserId,  out LoginPassword _LoginPassword) ||
-                                                  !_Users.         TryGetValue(_UserId,  out User          _User))
+                                              var validUsers = new HashSet<User>();
+
+                                              if ((Realm.IsNotNullOrEmpty()
+                                                       ? User_Id.TryParse(Login, Realm, out User_Id       _UserId)
+                                                       : User_Id.TryParse(Login,        out               _UserId))       &&
+                                                  _Users.         TryGetValue(_UserId,  out User          _User)          &&
+                                                  _LoginPasswords.TryGetValue(_UserId,  out LoginPassword _LoginPassword) &&
+                                                  _LoginPassword.VerifyPassword(Password))
                                               {
+                                                  validUsers.Add(_User);
+                                              }
 
+                                              if (validUsers.Count == 0)
+                                              {
+                                                  foreach (var user in _Users.Values)
+                                                  {
+                                                      if (String.Equals(Login, user.EMail.Address.ToString(), StringComparison.OrdinalIgnoreCase))
+                                                      {
+                                                          if (_LoginPasswords.TryGetValue(user.Id, out LoginPassword loginPassword) &&
+                                                              loginPassword.VerifyPassword(Password))
+                                                          {
+                                                              validUsers.Add(user);
+                                                          }
+                                                      }
+                                                  }
+                                              }
+
+                                              if (!validUsers.Any())
                                                   return Task.FromResult(
                                                       new HTTPResponse.Builder(Request) {
                                                           HTTPStatusCode  = HTTPStatusCode.NotFound,
@@ -2448,36 +2469,31 @@ namespace org.GraphDefined.OpenData.Users
                                                           Connection      = "close"
                                                       }.AsImmutable);
 
-                                              }
-
-                                              if (!_LoginPassword.VerifyPassword(Password))
-                                              {
-
+                                              if (validUsers.Count > 1)
                                                   return Task.FromResult(
                                                       new HTTPResponse.Builder(Request) {
-                                                          HTTPStatusCode  = HTTPStatusCode.Unauthorized,
+                                                          HTTPStatusCode  = HTTPStatusCode.MultipleChoices,
                                                           Server          = HTTPServer.DefaultServerName,
                                                           ContentType     = HTTPContentType.JSON_UTF8,
                                                           Content         = new JObject(
                                                                                 new JProperty("@context",     SignInOutContext),
-                                                                                new JProperty("property",     "password"),
-                                                                                new JProperty("description",  "Invalid password!")
+                                                                                new JProperty("property",     "login"),
+                                                                                new JProperty("description",  "Multiple matching user accounts found: Please use your login name!")
                                                                             ).ToString().ToUTF8Bytes(),
                                                           CacheControl    = "private",
                                                           Connection      = "close"
                                                       }.AsImmutable);
-
-                                              }
 
                                               #endregion
 
 
                                               #region Register security token
 
+                                              var validUser        = validUsers.First();
                                               var SHA256Hash       = new SHA256Managed();
                                               var SecurityTokenId  = SecurityToken_Id.Parse(SHA256Hash.ComputeHash(
                                                                                                 String.Concat(Guid.NewGuid().ToString(),
-                                                                                                              _LoginPassword.Login).
+                                                                                                              validUser.Id).
                                                                                                 ToUTF8Bytes()
                                                                                             ).ToHexString());
 
@@ -2487,11 +2503,11 @@ namespace org.GraphDefined.OpenData.Users
                                               {
 
                                                   HTTPCookies.Add(SecurityTokenId,
-                                                                  new SecurityToken(_LoginPassword.Login,
+                                                                  new SecurityToken(validUser.Id,
                                                                                     Expires));
 
                                                   File.AppendAllText(this.UsersAPIPath + DefaultHTTPCookiesFile,
-                                                                     SecurityTokenId + ";" + _LoginPassword.Login + ";" + Expires.ToIso8601() + Environment.NewLine);
+                                                                     SecurityTokenId + ";" + validUser.Id + ";" + Expires.ToIso8601() + Environment.NewLine);
 
                                               }
 
@@ -2510,11 +2526,11 @@ namespace org.GraphDefined.OpenData.Users
                                                                             Environment.NewLine
                                                                         ).ToUTF8Bytes(),
                                                       CacheControl    = "private",
-                                                      SetCookie       = CookieName + "=login=" + _LoginPassword.Login.ToString().ToBase64() +
-                                                                                  ":username=" + _User.Name.ToBase64() +
-                                                                                  ":email="    + _User.EMail.Address.ToString().ToBase64() +
-                                                                                (IsAdmin(_User) == Access_Levels.ReadOnly  ? ":isAdminRO" : "") +
-                                                                                (IsAdmin(_User) == Access_Levels.ReadWrite ? ":isAdminRW" : "") +
+                                                      SetCookie       = CookieName + "=login=" + validUser.Id.ToString().ToBase64() +
+                                                                                  ":username=" + validUser.Name.ToBase64() +
+                                                                                  ":email="    + validUser.EMail.Address.ToString().ToBase64() +
+                                                                                (IsAdmin(validUser) == Access_Levels.ReadOnly  ? ":isAdminRO" : "") +
+                                                                                (IsAdmin(validUser) == Access_Levels.ReadWrite ? ":isAdminRW" : "") +
                                                                              ":securitytoken=" + SecurityTokenId +
                                                                                   "; Expires=" + Expires.ToRfc1123() +
                                                                                    (HTTPCookieDomain.IsNotNullOrEmpty()
@@ -3998,12 +4014,12 @@ namespace org.GraphDefined.OpenData.Users
 
                                               #endregion
 
-                                              // The login is taken from the URI, not from the JSON!
-                                              LoginData["username"] = Request.ParsedURIParameters[0];
-
                                               #region Verify username
 
-                                              if (LoginData.GetString("username").Length < MinLoginLenght)
+                                              // The login is taken from the URI, not from the JSON!
+                                              var Login = Request.ParsedURIParameters[0];
+
+                                              if (Login.Length < MinLoginLenght)
                                               {
 
                                                   return new HTTPResponse.Builder(Request) {
@@ -4013,7 +4029,7 @@ namespace org.GraphDefined.OpenData.Users
                                                              Content         = new JObject(
                                                                                    new JProperty("@context",     SignInOutContext),
                                                                                    new JProperty("statuscode",   400),
-                                                                                   new JProperty("property",     "username"),
+                                                                                   new JProperty("property",     "user identification"),
                                                                                    new JProperty("description",  "The login is too short!")
                                                                                ).ToString().ToUTF8Bytes(),
                                                              CacheControl    = "private",
@@ -4022,13 +4038,16 @@ namespace org.GraphDefined.OpenData.Users
 
                                               }
 
+                                              LoginData["username"] = Login;
+
                                               #endregion
 
                                               #region Verify realm
 
-                                              if (LoginData.Contains("realm") &&
-                                                  LoginData.GetString("realm").IsNotNullOrEmpty() &&
-                                                  LoginData.GetString("realm").Length < MinRealmLenght)
+                                              var Realm = LoginData.GetString("realm");
+
+                                              if (Realm.IsNotNullOrEmpty() &&
+                                                  Realm.Length < MinRealmLenght)
 
                                               {
 
@@ -4052,7 +4071,9 @@ namespace org.GraphDefined.OpenData.Users
 
                                               #region Verify password
 
-                                              if (!LoginData.Contains("password"))
+                                              var Password = LoginData.GetString("password");
+
+                                              if (Password.IsNullOrEmpty())
                                               {
 
                                                   return new HTTPResponse.Builder(Request) {
@@ -4071,7 +4092,9 @@ namespace org.GraphDefined.OpenData.Users
 
                                               }
 
-                                              if (PasswordQualityCheck(LoginData.GetString("password")) < 1.0)
+                                              var passwordQuality = PasswordQualityCheck(Password);
+
+                                              if (passwordQuality < 1.0)
                                               {
 
                                                   return new HTTPResponse.Builder(Request) {
@@ -4090,41 +4113,76 @@ namespace org.GraphDefined.OpenData.Users
 
                                               }
 
+                                              LoginData["passwordQuality"] = passwordQuality;
+
                                               #endregion
 
-                                              #region Check login
+                                              #region Check login or e-mail address and password(s)
 
-                                              String _Realm = LoginData.GetString("realm");
+                                              var validUsers = new HashSet<User>();
 
-                                              if (!(_Realm.IsNotNullOrEmpty()
-                                                     ? User_Id.TryParse(LoginData.GetString("username"), _Realm, out User_Id _UserId)
-                                                     : User_Id.TryParse(LoginData.GetString("username"),         out         _UserId)) ||
-                                                  !_LoginPasswords.TryGetValue(_UserId, out LoginPassword _LoginPassword)              ||
-                                                  !_Users.         TryGetValue(_UserId, out User          _User))
+                                              if ((Realm.IsNotNullOrEmpty()
+                                                       ? User_Id.TryParse(Login, Realm, out User_Id       _UserId)
+                                                       : User_Id.TryParse(Login,        out               _UserId))       &&
+                                                  _Users.         TryGetValue(_UserId,  out User          _User)          &&
+                                                  _LoginPasswords.TryGetValue(_UserId,  out LoginPassword _LoginPassword) &&
+                                                  _LoginPassword.VerifyPassword(Password))
                                               {
+                                                  validUsers.Add(_User);
+                                              }
 
+                                              if (validUsers.Count == 0)
+                                              {
+                                                  foreach (var user in _Users.Values)
+                                                  {
+                                                      if (String.Equals(Login, user.EMail.Address.ToString(), StringComparison.OrdinalIgnoreCase))
+                                                      {
+                                                          if (_LoginPasswords.TryGetValue(user.Id, out LoginPassword loginPassword) &&
+                                                              loginPassword.VerifyPassword(Password))
+                                                          {
+                                                              validUsers.Add(user);
+                                                          }
+                                                      }
+                                                  }
+                                              }
+
+                                              if (!validUsers.Any())
                                                   return new HTTPResponse.Builder(Request) {
                                                              HTTPStatusCode  = HTTPStatusCode.NotFound,
                                                              Server          = HTTPServer.DefaultServerName,
                                                              ContentType     = HTTPContentType.JSON_UTF8,
                                                              Content         = new JObject(
                                                                                    new JProperty("@context",     SignInOutContext),
-                                                                                   new JProperty("property",     "username"),
-                                                                                   new JProperty("description",  "Unknown user!")
+                                                                                   new JProperty("property",     "login"),
+                                                                                   new JProperty("description",  "Unknown login!")
                                                                                ).ToString().ToUTF8Bytes(),
                                                              CacheControl    = "private",
                                                              Connection      = "close"
-                                                         }.AsImmutable;
+                                                         };
 
-                                              }
+                                              if (validUsers.Count > 1)
+                                                  return new HTTPResponse.Builder(Request) {
+                                                             HTTPStatusCode  = HTTPStatusCode.MultipleChoices,
+                                                             Server          = HTTPServer.DefaultServerName,
+                                                             ContentType     = HTTPContentType.JSON_UTF8,
+                                                             Content         = new JObject(
+                                                                                   new JProperty("@context",     SignInOutContext),
+                                                                                   new JProperty("property",     "login"),
+                                                                                   new JProperty("description",  "Multiple matching user accounts found: Please use your login name!")
+                                                                               ).ToString().ToUTF8Bytes(),
+                                                             CacheControl    = "private",
+                                                             Connection      = "close"
+                                                         };
 
                                               #endregion
+
+                                              var validUser = validUsers.First();
 
                                               #region Check EULA
 
                                               var acceptsEULA = LoginData["acceptsEULA"].Value<Boolean>();
 
-                                              if (!_User.AcceptedEULA.HasValue)
+                                              if (!validUser.AcceptedEULA.HasValue)
                                               {
 
                                                   if (!acceptsEULA)
@@ -4145,30 +4203,8 @@ namespace org.GraphDefined.OpenData.Users
 
                                                   }
 
-                                                  await Update(_User.Id,
+                                                  await Update(validUser.Id,
                                                                user => user.AcceptedEULA = DateTime.UtcNow);
-
-                                              }
-
-                                              #endregion
-
-                                              #region Check password
-
-                                              if (!_LoginPassword.VerifyPassword(LoginData.GetString("password")))
-                                              {
-
-                                                  return new HTTPResponse.Builder(Request) {
-                                                             HTTPStatusCode  = HTTPStatusCode.Unauthorized,
-                                                             Server          = HTTPServer.DefaultServerName,
-                                                             ContentType     = HTTPContentType.JSON_UTF8,
-                                                             Content         = new JObject(
-                                                                                   new JProperty("@context",     SignInOutContext),
-                                                                                   new JProperty("property",     "username"),
-                                                                                   new JProperty("description",  "Invalid username or password!")
-                                                                               ).ToString().ToUTF8Bytes(),
-                                                             CacheControl    = "private",
-                                                             Connection      = "close"
-                                                         }.AsImmutable;
 
                                               }
 
@@ -4176,22 +4212,22 @@ namespace org.GraphDefined.OpenData.Users
 
 
                                               var SHA256Hash    = new SHA256Managed();
-                                              var SecurityToken = SHA256Hash.ComputeHash((Guid.NewGuid().ToString() + _LoginPassword.Login).ToUTF8Bytes()).ToHexString();
+                                              var SecurityToken = SHA256Hash.ComputeHash((Guid.NewGuid().ToString() + validUser.Id).ToUTF8Bytes()).ToHexString();
 
                                               return new HTTPResponse.Builder(Request) {
                                                          HTTPStatusCode  = HTTPStatusCode.Created,
                                                          ContentType     = HTTPContentType.TEXT_UTF8,
                                                          Content         = new JObject(
                                                                                new JProperty("@context",  SignInOutContext),
-                                                                               new JProperty("login",     _LoginPassword.Login.ToString()),
-                                                                               new JProperty("username",  _User.Name),
-                                                                               new JProperty("email",     _User.EMail.Address.ToString())
+                                                                               new JProperty("login",     validUser.Id.ToString()),
+                                                                               new JProperty("username",  validUser.Name),
+                                                                               new JProperty("email",     validUser.EMail.Address.ToString())
                                                                            ).ToUTF8Bytes(),
                                                          CacheControl    = "private",
-                                                         SetCookie       = CookieName + "=login="    + _LoginPassword.Login.ToString().ToBase64() +
-                                                                                     ":username=" + _User.Name.ToBase64() +
-                                                                                   (IsAdmin(_User) == Access_Levels.ReadOnly  ? ":isAdminRO" : "") +
-                                                                                   (IsAdmin(_User) == Access_Levels.ReadWrite ? ":isAdminRW" : "") +
+                                                         SetCookie       = CookieName + "=login="    + validUser.Id.ToString().ToBase64() +
+                                                                                     ":username=" + validUser.Name.ToBase64() +
+                                                                                   (IsAdmin(validUser) == Access_Levels.ReadOnly  ? ":isAdminRO" : "") +
+                                                                                   (IsAdmin(validUser) == Access_Levels.ReadWrite ? ":isAdminRW" : "") +
                                                                                 ":securitytoken=" + SecurityToken +
                                                                                      "; Expires=" + DateTime.UtcNow.Add(SignInSessionLifetime).ToRfc1123() +
                                                                                       (HTTPCookieDomain.IsNotNullOrEmpty()
