@@ -4657,17 +4657,26 @@ namespace org.GraphDefined.OpenData.Users
                                                      switch (context)
                                                      {
 
-                                                         case EMailNotification.JSONLDContext:
-                                                             if (!EMailNotification.TryParse(JSONObject, out EMailNotification eMailNotification))
+                                                         case TelegramNotification.JSONLDContext:
+                                                             if (!TelegramNotification.TryParse(JSONObject, out TelegramNotification telegramNotification))
                                                              {
-                                                                 ErrorString = "Could not parse e-mail notification!";
+                                                                 ErrorString = "Could not parse Telegram notification!";
                                                                  goto fail;
                                                              }
-                                                             await AddNotification(HTTPUser, eMailNotification, HTTPUser.Id);
+                                                             await AddNotification(HTTPUser, telegramNotification, HTTPUser.Id);
+                                                             break;
+
+                                                         case TelegramGroupNotification.JSONLDContext:
+                                                             if (!TelegramGroupNotification.TryParse(JSONObject, out TelegramGroupNotification telegramGroupNotification))
+                                                             {
+                                                                 ErrorString = "Could not parse Telegram group notification!";
+                                                                 goto fail;
+                                                             }
+                                                             await AddNotification(HTTPUser, telegramGroupNotification, HTTPUser.Id);
                                                              break;
 
                                                          case SMSNotification.JSONLDContext:
-                                                             if (!SMSNotification.  TryParse(JSONObject, out SMSNotification   smsNotification))
+                                                             if (!SMSNotification.TryParse(JSONObject, out SMSNotification   smsNotification))
                                                              {
                                                                  ErrorString = "Could not parse sms notification!";
                                                                  goto fail;
@@ -4684,13 +4693,13 @@ namespace org.GraphDefined.OpenData.Users
                                                              await AddNotification(HTTPUser, httpsNotification, HTTPUser.Id);
                                                              break;
 
-                                                         case TelegramNotification.JSONLDContext:
-                                                             if (!TelegramNotification.TryParse(JSONObject, out TelegramNotification telegramNotification))
+                                                         case EMailNotification.JSONLDContext:
+                                                             if (!EMailNotification.TryParse(JSONObject, out EMailNotification eMailNotification))
                                                              {
-                                                                 ErrorString = "Could not parse Telegram notification!";
+                                                                 ErrorString = "Could not parse e-mail notification!";
                                                                  goto fail;
                                                              }
-                                                             await AddNotification(HTTPUser, telegramNotification, HTTPUser.Id);
+                                                             await AddNotification(HTTPUser, eMailNotification, HTTPUser.Id);
                                                              break;
 
                                                          default:
@@ -4845,6 +4854,15 @@ namespace org.GraphDefined.OpenData.Users
                                                                  goto fail;
                                                              }
                                                              await RemoveNotification(HTTPUser, telegramNotification, HTTPUser.Id);
+                                                             break;
+
+                                                         case TelegramGroupNotification.JSONLDContext:
+                                                             if (!TelegramGroupNotification.TryParse(JSONObject, out TelegramGroupNotification telegramGroupNotification))
+                                                             {
+                                                                 ErrorString = "Could not parse Telegram group notification!";
+                                                                 goto fail;
+                                                             }
+                                                             await RemoveNotification(HTTPUser, telegramGroupNotification, HTTPUser.Id);
                                                              break;
 
                                                          case SMSNotification.JSONLDContext:
@@ -7121,15 +7139,15 @@ namespace org.GraphDefined.OpenData.Users
                                 break;
 
 
-                            case EMailNotification.JSONLDContext:
+                            case TelegramGroupNotification.JSONLDContext:
 
-                                var emailnotification = EMailNotification.Parse(JSONObject);
+                                var telegramGroupNotification = TelegramGroupNotification.Parse(JSONObject);
 
-                                if (emailnotification != null)
-                                    _User.AddNotification(emailnotification);
+                                if (telegramGroupNotification != null)
+                                    _User.AddNotification(telegramGroupNotification);
 
                                 else
-                                    DebugX.Log(String.Concat(nameof(UsersAPI), " Could not parse the given e-mail notification!"));
+                                    DebugX.Log(String.Concat(nameof(UsersAPI), " Could not parse the given Telegram group notification!"));
 
                                 break;
 
@@ -7159,6 +7177,18 @@ namespace org.GraphDefined.OpenData.Users
 
                                 break;
 
+
+                            case EMailNotification.JSONLDContext:
+
+                                var emailnotification = EMailNotification.Parse(JSONObject);
+
+                                if (emailnotification != null)
+                                    _User.AddNotification(emailnotification);
+
+                                else
+                                    DebugX.Log(String.Concat(nameof(UsersAPI), " Could not parse the given e-mail notification!"));
+
+                                break;
 
                         }
 
@@ -7197,15 +7227,15 @@ namespace org.GraphDefined.OpenData.Users
                                 break;
 
 
-                            case EMailNotification.JSONLDContext:
+                            case TelegramGroupNotification.JSONLDContext:
 
-                                var emailnotification = EMailNotification.Parse(JSONObject);
+                                var telegramGroupNotification = TelegramGroupNotification.Parse(JSONObject);
 
-                                if (emailnotification != null)
-                                    _User.RemoveNotification(emailnotification);
+                                if (telegramGroupNotification != null)
+                                    _User.RemoveNotification(telegramGroupNotification);
 
                                 else
-                                    DebugX.Log(String.Concat(nameof(UsersAPI), " Could not parse the given e-mail notification!"));
+                                    DebugX.Log(String.Concat(nameof(UsersAPI), " Could not parse the given Telegram group notification!"));
 
                                 break;
 
@@ -7232,6 +7262,19 @@ namespace org.GraphDefined.OpenData.Users
 
                                 else
                                     DebugX.Log(String.Concat(nameof(UsersAPI), " Could not parse the given HTTPS notification!"));
+
+                                break;
+
+
+                            case EMailNotification.JSONLDContext:
+
+                                var emailnotification = EMailNotification.Parse(JSONObject);
+
+                                if (emailnotification != null)
+                                    _User.RemoveNotification(emailnotification);
+
+                                else
+                                    DebugX.Log(String.Concat(nameof(UsersAPI), " Could not parse the given e-mail notification!"));
 
                                 break;
 

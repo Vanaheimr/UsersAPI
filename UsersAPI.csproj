@@ -48,6 +48,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Entities\Notification\TelegramGroupNotification.cs" />
     <Compile Include="Entities\Notification\TelegramNotification.cs" />
     <Compile Include="Telegram\TelegramStore.cs" />
     <Compile Include="UsersAPILogger.cs" />
