@@ -296,43 +296,79 @@ namespace org.GraphDefined.OpenData.Notifications
 
         #region Properties
 
-        public HTTPMethod Method               { get; }
-        public String     URL                  { get; }
-        public IPPort     TCPPort              { get; }
-        public String     BasicAuth_Login      { get; }
-        public String     BasicAuth_Password   { get; }
-        public String     APIKey               { get; }
-        public TimeSpan?  RequestTimeout       { get; }
+        /// <summary>
+        /// The URL for of HTTPS notification.
+        /// </summary>
+        public String      URL                   { get; }
+
+        /// <summary>
+        /// The HTTP method of this HTTPS notification.
+        /// </summary>
+        public HTTPMethod  Method                { get; }
+
+        /// <summary>
+        /// The remote TCP port of this HTTPS notification.
+        /// </summary>
+        public IPPort      RemotePort            { get; }
+
+        /// <summary>
+        /// An optional HTTP Basic Auth login for the HTTPS notification.
+        /// </summary>
+        public String      BasicAuth_Login       { get; }
+
+        /// <summary>
+        /// An optional HTTP Basic Auth password for the HTTPS notification.
+        /// </summary>
+        public String      BasicAuth_Password    { get; }
+
+        /// <summary>
+        /// An optional HTTP API Key for the HTTPS notification.
+        /// </summary>
+        public String      APIKey                { get; }
+
+        /// <summary>
+        /// An optional HTTP request timeout.
+        /// </summary>
+        public TimeSpan?   RequestTimeout        { get; }
 
         #endregion
 
         #region Constructor(s)
 
         /// <summary>
-        /// Create a new  HTTPS notification.
+        /// Create a new HTTPS notification.
         /// </summary>
+        /// <param name="URL">The URL of this HTTPS notification.</param>
+        /// <param name="Method">The HTTP method of this HTTPS notification.</param>
+        /// <param name="RemotePort">The remote TCP port of this HTTPS notification.</param>
+        /// <param name="BasicAuth_Login">An optional HTTP Basic Auth login for the HTTPS notification.</param>
+        /// <param name="BasicAuth_Password">An optional HTTP Basic Auth password for the HTTPS notification.</param>
+        /// <param name="APIKey">An optional HTTP API Key for the HTTPS notification.</param>
+        /// <param name="RequestTimeout"></param>
+        /// <param name="NotificationMessageTypes">An optional enumeration of notification message types.</param>
+        /// <param name="Description">Some description to remember why this notification was created.</param>
         public HTTPSNotification(String                                URL,
-                                 HTTPMethod?                           Method                    = null,
-                                 IPPort?                               TCPPort                   = null,
-                                 String                                BasicAuth_Login           = null,
-                                 String                                BasicAuth_Password        = null,
-                                 String                                APIKey                    = null,
-                                 TimeSpan?                             RequestTimeout            = null,
-                                 IEnumerable<NotificationMessageType>  NotificationMessageTypes  = null,
-                                 String                                Description               = null)
+                                 HTTPMethod?                           Method                     = null,
+                                 IPPort?                               RemotePort                 = null,
+                                 String                                BasicAuth_Login            = null,
+                                 String                                BasicAuth_Password         = null,
+                                 String                                APIKey                     = null,
+                                 TimeSpan?                             RequestTimeout             = null,
+                                 IEnumerable<NotificationMessageType>  NotificationMessageTypes   = null,
+                                 String                                Description                = null)
 
             : base(NotificationMessageTypes,
                    Description,
                    String.Concat(nameof(HTTPSNotification),
                                  URL,
-                                 Method  ?? HTTPMethod.POST,
-                                 TCPPort ?? IPPort.HTTPS))
+                                 Method     ?? HTTPMethod.POST,
+                                 RemotePort ?? IPPort.HTTPS))
 
         {
 
             this.URL                 = URL;
-            this.Method              = Method  ?? HTTPMethod.POST;
-            this.TCPPort             = TCPPort ?? IPPort.HTTPS;
+            this.Method              = Method     ?? HTTPMethod.POST;
+            this.RemotePort          = RemotePort ?? IPPort.HTTPS;
             this.BasicAuth_Login     = BasicAuth_Login;
             this.BasicAuth_Password  = BasicAuth_Password;
             this.APIKey              = APIKey;
@@ -401,7 +437,7 @@ namespace org.GraphDefined.OpenData.Notifications
 
                    new JProperty("method",                Method.ToString()),
                    new JProperty("URL",                   URL),
-                   new JProperty("TCPPort",               TCPPort.ToUInt16()),
+                   new JProperty("TCPPort",               RemotePort.ToUInt16()),
 
                    BasicAuth_Login.   IsNotNullOrEmpty() &&
                    BasicAuth_Password.IsNotNullOrEmpty()
@@ -445,7 +481,7 @@ namespace org.GraphDefined.OpenData.Notifications
 
             => Method. Equals(other.Method)                                &&
                URL.    Equals(other.URL)                                   &&
-               TCPPort.Equals(other.TCPPort)                               &&
+               RemotePort.Equals(other.RemotePort)                               &&
 
                String.Equals(BasicAuth_Login,    other.BasicAuth_Login)    &&
                String.Equals(BasicAuth_Password, other.BasicAuth_Password) &&
@@ -474,7 +510,7 @@ namespace org.GraphDefined.OpenData.Notifications
             if (c != 0)
                 return c;
 
-            c = TCPPort.CompareTo(other.TCPPort);
+            c = RemotePort.CompareTo(other.RemotePort);
             if (c != 0)
                 return c;
 
@@ -500,7 +536,7 @@ namespace org.GraphDefined.OpenData.Notifications
         public Boolean Equals(HTTPSNotification other)
 
             => URL.    Equals(other.URL)     &&
-               TCPPort.Equals(other.TCPPort) &&
+               RemotePort.Equals(other.RemotePort) &&
                Method. Equals(other.Method);
 
         #endregion
@@ -523,7 +559,7 @@ namespace org.GraphDefined.OpenData.Notifications
         /// Return a text representation of this object.
         /// </summary>
         public override String ToString()
-            => String.Concat(nameof(HTTPSNotification), ": ", Method, " ", URL, ":", TCPPort);
+            => String.Concat(nameof(HTTPSNotification), ": ", Method, " ", URL, ":", RemotePort);
 
         #endregion
 

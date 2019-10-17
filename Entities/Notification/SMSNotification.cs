@@ -32,6 +32,9 @@ using org.GraphDefined.Vanaheimr.Illias;
 namespace org.GraphDefined.OpenData.Notifications
 {
 
+    /// <summary>
+    /// Extention methods for SMS notifications.
+    /// </summary>
     public static class SMSNotificationExtentions
     {
 
@@ -206,6 +209,9 @@ namespace org.GraphDefined.OpenData.Notifications
 
     }
 
+    /// <summary>
+    /// A SMS notification.
+    /// </summary>
     public class SMSNotification : ANotification,
                                    IEquatable <SMSNotification>,
                                    IComparable<SMSNotification>
@@ -222,17 +228,31 @@ namespace org.GraphDefined.OpenData.Notifications
 
         #region Properties
 
-        public PhoneNumber PhoneNumber    { get; }
-        public String      TextTemplate   { get; }
+        /// <summary>
+        /// The phone number of this SMS notification.
+        /// </summary>
+        public PhoneNumber  PhoneNumber     { get; }
+
+        /// <summary>
+        /// An optional text template for the SMS notification.
+        /// </summary>
+        public String       TextTemplate    { get; }
 
         #endregion
 
         #region Constructor(s)
 
+        /// <summary>
+        /// Create a new SMS notification.
+        /// </summary>
+        /// <param name="PhoneNumber">The phone number of this SMS notification.</param>
+        /// <param name="TextTemplate">An optional text template for the SMS notification.</param>
+        /// <param name="NotificationMessageTypes">An optional enumeration of notification message types.</param>
+        /// <param name="Description">Some description to remember why this notification was created.</param>
         public SMSNotification(PhoneNumber                           PhoneNumber,
-                               String                                TextTemplate              = null,
-                               IEnumerable<NotificationMessageType>  NotificationMessageTypes  = null,
-                               String                                Description               = null)
+                               String                                TextTemplate               = null,
+                               IEnumerable<NotificationMessageType>  NotificationMessageTypes   = null,
+                               String                                Description                = null)
 
             : base(NotificationMessageTypes,
                    Description,

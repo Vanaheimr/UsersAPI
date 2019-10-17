@@ -32,91 +32,118 @@ using org.GraphDefined.Vanaheimr.Illias;
 namespace org.GraphDefined.OpenData.Notifications
 {
 
+    /// <summary>
+    /// Extention methods for Telegram notifications.
+    /// </summary>
     public static class TelegramNotificationExtentions
     {
 
-        #region AddTelegramNotification(this UsersAPI, User,                             TelegramUsername, TextTemplate = null)
+        #region AddTelegramNotification(this UsersAPI, User,                             Username, TextTemplate = null)
 
         public static Task AddTelegramNotification(this UsersAPI  UsersAPI,
-                                              User           User,
-                                              String         TelegramUsername,
-                                              String         TextTemplate  = null)
+                                                   User           User,
+                                                   String         Username,
+                                                   Int32?         ChatId         = null,
+                                                   String         SharedSecret   = null,
+                                                   String         TextTemplate   = null)
 
             => UsersAPI.AddNotification(User,
-                                        new TelegramNotification(TelegramUsername,
-                                                            TextTemplate));
+                                        new TelegramNotification(Username,
+                                                                 ChatId,
+                                                                 SharedSecret,
+                                                                 TextTemplate));
 
         #endregion
 
-        #region AddTelegramNotification(this UsersAPI, UserId,                           TelegramUsername, TextTemplate = null)
+        #region AddTelegramNotification(this UsersAPI, UserId,                           Username, TextTemplate = null)
 
         public static Task AddTelegramNotification(this UsersAPI  UsersAPI,
-                                              User_Id        UserId,
-                                              String         TelegramUsername,
-                                              String         TextTemplate  = null)
+                                                   User_Id        UserId,
+                                                   String         Username,
+                                                   Int32?         ChatId         = null,
+                                                   String         SharedSecret   = null,
+                                                   String         TextTemplate   = null)
 
             => UsersAPI.AddNotification(UserId,
-                                        new TelegramNotification(TelegramUsername,
-                                                            TextTemplate));
+                                        new TelegramNotification(Username,
+                                                                 ChatId,
+                                                                 SharedSecret,
+                                                                 TextTemplate));
 
         #endregion
 
-        #region AddTelegramNotification(this UsersAPI, User,   NotificationMessageType,  TelegramUsername, TextTemplate = null)
+        #region AddTelegramNotification(this UsersAPI, User,   NotificationMessageType,  Username, TextTemplate = null)
 
         public static Task AddTelegramNotification(this UsersAPI            UsersAPI,
-                                              User                     User,
-                                              NotificationMessageType  NotificationMessageType,
-                                              String                   TelegramUsername,
-                                              String                   TextTemplate  = null)
+                                                   User                     User,
+                                                   NotificationMessageType  NotificationMessageType,
+                                                   String                   Username,
+                                                   Int32?                   ChatId         = null,
+                                                   String                   SharedSecret   = null,
+                                                   String                   TextTemplate   = null)
 
             => UsersAPI.AddNotification(User,
-                                        new TelegramNotification(TelegramUsername,
-                                                            TextTemplate),
+                                        new TelegramNotification(Username,
+                                                                 ChatId,
+                                                                 SharedSecret,
+                                                                 TextTemplate),
                                         NotificationMessageType);
 
         #endregion
 
-        #region AddTelegramNotification(this UsersAPI, UserId, NotificationMessageType,  TelegramUsername, TextTemplate = null)
+        #region AddTelegramNotification(this UsersAPI, UserId, NotificationMessageType,  Username, TextTemplate = null)
 
         public static Task AddTelegramNotification(this UsersAPI            UsersAPI,
-                                              User_Id                  UserId,
-                                              NotificationMessageType  NotificationMessageType,
-                                              String                   TelegramUsername,
-                                              String                   TextTemplate  = null)
+                                                   User_Id                  UserId,
+                                                   NotificationMessageType  NotificationMessageType,
+                                                   String                   Username,
+                                                   Int32?                   ChatId         = null,
+                                                   String                   SharedSecret   = null,
+                                                   String                   TextTemplate   = null)
 
             => UsersAPI.AddNotification(UserId,
-                                        new TelegramNotification(TelegramUsername,
-                                                            TextTemplate),
+                                        new TelegramNotification(Username,
+                                                                 ChatId,
+                                                                 SharedSecret,
+                                                                 TextTemplate),
                                         NotificationMessageType);
 
         #endregion
 
-        #region AddTelegramNotification(this UsersAPI, User,   NotificationMessageTypes, TelegramUsername, TextTemplate = null)
+        #region AddTelegramNotification(this UsersAPI, User,   NotificationMessageTypes, Username, TextTemplate = null)
 
         public static Task AddTelegramNotification(this UsersAPI                         UsersAPI,
-                                              User                                  User,
-                                              IEnumerable<NotificationMessageType>  NotificationMessageTypes,
-                                              String                                TelegramUsername,
-                                              String                                TextTemplate  = null)
+                                                   User                                  User,
+                                                   IEnumerable<NotificationMessageType>  NotificationMessageTypes,
+                                                   String                                Username,
+                                                   Int32?                                ChatId         = null,
+                                                   String                                SharedSecret   = null,
+                                                   String                                TextTemplate   = null)
 
             => UsersAPI.AddNotification(User,
-                                        new TelegramNotification(TelegramUsername,
-                                                            TextTemplate),
+                                        new TelegramNotification(Username,
+                                                                 ChatId,
+                                                                 SharedSecret,
+                                                                 TextTemplate),
                                         NotificationMessageTypes);
 
         #endregion
 
-        #region AddTelegramNotification(this UsersAPI, UserId, NotificationMessageTypes, TelegramUsername, TextTemplate = null)
+        #region AddTelegramNotification(this UsersAPI, UserId, NotificationMessageTypes, Username, TextTemplate = null)
 
         public static Task AddTelegramNotification(this UsersAPI                         UsersAPI,
-                                              User_Id                               UserId,
-                                              IEnumerable<NotificationMessageType>  NotificationMessageTypes,
-                                              String                                TelegramUsername,
-                                              String                                TextTemplate  = null)
+                                                   User_Id                               UserId,
+                                                   IEnumerable<NotificationMessageType>  NotificationMessageTypes,
+                                                   String                                Username,
+                                                   Int32?                                ChatId         = null,
+                                                   String                                SharedSecret   = null,
+                                                   String                                TextTemplate   = null)
 
             => UsersAPI.AddNotification(UserId,
-                                        new TelegramNotification(TelegramUsername,
-                                                            TextTemplate),
+                                        new TelegramNotification(Username,
+                                                                 ChatId,
+                                                                 SharedSecret,
+                                                                 TextTemplate),
                                         NotificationMessageTypes);
 
         #endregion
@@ -173,39 +200,42 @@ namespace org.GraphDefined.OpenData.Notifications
 
         //public static Notifications UnregisterTelegramNotification(this UsersAPI  UsersAPI,
         //                                                      User           User,
-        //                                                      TelegramUsername   TelegramUsername)
+        //                                                      Username   Username)
 
         //    => UsersAPI.UnregisterNotification<TelegramNotification>(User,
-        //                                                        a => a.TelegramUsername == TelegramUsername);
+        //                                                        a => a.Username == Username);
 
         //public static Notifications UnregisterTelegramNotification(this UsersAPI  UsersAPI,
         //                                                      User_Id        User,
-        //                                                      TelegramUsername   TelegramUsername)
+        //                                                      Username   Username)
 
         //    => UsersAPI.UnregisterNotification<TelegramNotification>(User,
-        //                                                        a => a.TelegramUsername == TelegramUsername);
+        //                                                        a => a.Username == Username);
 
 
         //public static Notifications UnregisterTelegramNotification(this UsersAPI    UsersAPI,
         //                                                      User             User,
         //                                                      NotificationMessageType  NotificationMessageType,
-        //                                                      TelegramUsername     TelegramUsername)
+        //                                                      Username     Username)
 
         //    => UsersAPI.UnregisterNotification<TelegramNotification>(User,
         //                                                        NotificationMessageType,
-        //                                                        a => a.TelegramUsername == TelegramUsername);
+        //                                                        a => a.Username == Username);
 
         //public static Notifications UnregisterTelegramNotification(this UsersAPI    UsersAPI,
         //                                                      User_Id          User,
         //                                                      NotificationMessageType  NotificationMessageType,
-        //                                                      TelegramUsername     TelegramUsername)
+        //                                                      Username     Username)
 
         //    => UsersAPI.UnregisterNotification<TelegramNotification>(User,
         //                                                        NotificationMessageType,
-        //                                                        a => a.TelegramUsername == TelegramUsername);
+        //                                                        a => a.Username == Username);
 
     }
 
+    /// <summary>
+    /// A Telegram notification.
+    /// </summary>
     public class TelegramNotification : ANotification,
                                         IEquatable <TelegramNotification>,
                                         IComparable<TelegramNotification>
@@ -222,28 +252,60 @@ namespace org.GraphDefined.OpenData.Notifications
 
         #region Properties
 
-        public String  TelegramUsername    { get; }
-        public String  TextTemplate        { get; }
+        /// <summary>
+        /// The Telegram user name of this Telegram notification.
+        /// </summary>
+        public String  Username        { get; }
+
+        /// <summary>
+        /// The Telegram chat identification of this Telegram notification.
+        /// </summary>
+        public Int32?  ChatId          { get; }
+
+        /// <summary>
+        /// The Telegram shared secret of this Telegram notification.
+        /// </summary>
+        public String  SharedSecret    { get; }
+
+        /// <summary>
+        /// An optional text template for the SMS notification.
+        /// </summary>
+        public String  TextTemplate    { get; }
 
         #endregion
 
         #region Constructor(s)
 
-        public TelegramNotification(String                                TelegramUsername,
-                                    String                                TextTemplate              = null,
-                                    IEnumerable<NotificationMessageType>  NotificationMessageTypes  = null,
-                                    String                                Description               = null)
+        /// <summary>
+        /// Create a new Telegram notification.
+        /// </summary>
+        /// <param name="Username">The Telegram user name of this Telegram notification.</param>
+        /// <param name="TextTemplate">An optional text template for the SMS notification.</param>
+        /// <param name="ChatId">The Telegram chat identification of this Telegram notification.</param>
+        /// <param name="SharedSecret">The Telegram shared secret of this Telegram notification.</param>
+        /// <param name="NotificationMessageTypes">An optional enumeration of notification message types.</param>
+        /// <param name="Description">Some description to remember why this notification was created.</param>
+        public TelegramNotification(String                                Username,
+                                    Int32?                                ChatId                     = null,
+                                    String                                SharedSecret               = null,
+                                    String                                TextTemplate               = null,
+                                    IEnumerable<NotificationMessageType>  NotificationMessageTypes   = null,
+                                    String                                Description                = null)
 
             : base(NotificationMessageTypes,
                    Description,
                    String.Concat(nameof(TelegramNotification),
-                                 TelegramUsername,
+                                 Username,
+                                 ChatId ?? 0,
+                                 SharedSecret,
                                  TextTemplate))
 
         {
 
-            this.TelegramUsername  = TelegramUsername;
-            this.TextTemplate      = TextTemplate;
+            this.Username      = Username;
+            this.ChatId        = ChatId;
+            this.SharedSecret  = SharedSecret;
+            this.TextTemplate  = TextTemplate;
 
         }
 
@@ -269,12 +331,14 @@ namespace org.GraphDefined.OpenData.Notifications
         public static Boolean TryParse(JObject JSON, out TelegramNotification Notification)
         {
 
-            var TelegramUsername = JSON["telegramUsername"]?.Value<String>();
+            var Username = JSON["username"]?.Value<String>();
 
-            if (JSON["@context"]?.Value<String>() == JSONLDContext && TelegramUsername.IsNeitherNullNorEmpty())
+            if (JSON["@context"]?.Value<String>() == JSONLDContext && Username.IsNeitherNullNorEmpty())
             {
 
-                Notification = new TelegramNotification(TelegramUsername,
+                Notification = new TelegramNotification(Username,
+                                                        JSON["chatId"]?.      Value<Int32>(),
+                                                        JSON["sharedSecret"]?.Value<String>(),
                                                         JSON["textTemplate"]?.Value<String>(),
                                                        (JSON["messageTypes"] as JArray)?.SafeSelect(element => NotificationMessageType.Parse(element.Value<String>())),
                                                         JSON["description" ]?.Value<String>());
@@ -300,7 +364,15 @@ namespace org.GraphDefined.OpenData.Notifications
                        ? new JProperty("@context",      JSONLDContext)
                        : null,
 
-                   new JProperty("telegramUsername",    TelegramUsername),
+                   new JProperty("username",            Username),
+
+                   ChatId.HasValue
+                       ? new JProperty("chatId",        ChatId.Value)
+                       : null,
+
+                   SharedSecret.IsNotNullOrEmpty()
+                       ? new JProperty("sharedSecret",  SharedSecret)
+                       : null,
 
                    TextTemplate.IsNotNullOrEmpty()
                        ? new JProperty("textTemplate",  TextTemplate)
@@ -319,7 +391,7 @@ namespace org.GraphDefined.OpenData.Notifications
         #endregion
 
 
-        #region OptionalEquals(EMailNotification)
+        #region OptionalEquals(TelegramNotification)
 
         public override Boolean OptionalEquals(ANotification other)
 
@@ -328,7 +400,7 @@ namespace org.GraphDefined.OpenData.Notifications
 
         public Boolean OptionalEquals(TelegramNotification other)
 
-            => TelegramUsername.  Equals(other.TelegramUsername)         &&
+            => Username.  Equals(other.Username)         &&
 
                String.Equals(TextTemplate, other.TextTemplate) &&
 
@@ -349,7 +421,7 @@ namespace org.GraphDefined.OpenData.Notifications
         #region CompareTo(TelegramNotification)
 
         public Int32 CompareTo(TelegramNotification other)
-            => TelegramUsername.CompareTo(other.TelegramUsername);
+            => Username.CompareTo(other.Username);
 
         #endregion
 
@@ -367,7 +439,7 @@ namespace org.GraphDefined.OpenData.Notifications
         #region Equals(TelegramNotification)
 
         public Boolean Equals(TelegramNotification other)
-            => TelegramUsername.Equals(other.TelegramUsername);
+            => Username.Equals(other.Username);
 
         #endregion
 
@@ -389,7 +461,7 @@ namespace org.GraphDefined.OpenData.Notifications
         /// Return a text representation of this object.
         /// </summary>
         public override String ToString()
-            => String.Concat(nameof(TelegramNotification), ": ", TelegramUsername.ToString());
+            => String.Concat(nameof(TelegramNotification), ": ", Username.ToString());
 
         #endregion
 

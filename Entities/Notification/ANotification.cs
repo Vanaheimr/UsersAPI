@@ -73,6 +73,9 @@ namespace org.GraphDefined.OpenData.Notifications
         /// <summary>
         /// Create an new abstract notification.
         /// </summary>
+        /// <param name="NotificationMessageTypes">All notification messages types.</param>
+        /// <param name="Description">Some description to remember why this notification was created.</param>
+        /// <param name="SortKey">A helper for sorting.</param>
         protected ANotification(IEnumerable<NotificationMessageType>  NotificationMessageTypes,
                                 String                                Description,
                                 String                                SortKey)

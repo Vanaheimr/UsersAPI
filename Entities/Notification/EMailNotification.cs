@@ -274,12 +274,13 @@ namespace org.GraphDefined.OpenData.Notifications
         /// <param name="SubjectPrefix">An optional prefix added to the standard subject of all e-mails to send.</param>
         /// <param name="ListId">An optional 'List-Id" e-mail header within all e-mails to send.</param>
         /// <param name="NotificationMessageTypes">An optional enumeration of notification message types.</param>
+        /// <param name="Description">Some description to remember why this notification was created.</param>
         public EMailNotification(EMailAddress                          EMailAddress,
-                                 String                                Subject                   = null,
-                                 String                                SubjectPrefix             = null,
-                                 String                                ListId                    = null,
-                                 IEnumerable<NotificationMessageType>  NotificationMessageTypes  = null,
-                                 String                                Description               = null)
+                                 String                                Subject                    = null,
+                                 String                                SubjectPrefix              = null,
+                                 String                                ListId                     = null,
+                                 IEnumerable<NotificationMessageType>  NotificationMessageTypes   = null,
+                                 String                                Description                = null)
 
             : base(NotificationMessageTypes,
                    Description,

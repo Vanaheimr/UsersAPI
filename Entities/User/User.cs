@@ -429,41 +429,41 @@ namespace org.GraphDefined.OpenData.Users
         #endregion
 
 
-        #region (internal) AddNotification(NotificationType,                           OnUpdate = null)
+        #region (internal) AddNotification(Notification,                           OnUpdate = null)
 
-        internal T AddNotification<T>(T          NotificationType,
+        internal T AddNotification<T>(T          Notification,
                                       Action<T>  OnUpdate  = null)
 
             where T : ANotification
 
-            => _Notifications.Add(NotificationType,
+            => _Notifications.Add(Notification,
                                   OnUpdate);
 
         #endregion
 
-        #region (internal) AddNotification(NotificationType, NotificationMessageType,  OnUpdate = null)
+        #region (internal) AddNotification(Notification, NotificationMessageType,  OnUpdate = null)
 
-        internal T AddNotification<T>(T                        NotificationType,
+        internal T AddNotification<T>(T                        Notification,
                                       NotificationMessageType  NotificationMessageType,
                                       Action<T>                OnUpdate  = null)
 
             where T : ANotification
 
-            => _Notifications.Add(NotificationType,
+            => _Notifications.Add(Notification,
                                   NotificationMessageType,
                                   OnUpdate);
 
         #endregion
 
-        #region (internal) AddNotification(NotificationType, NotificationMessageTypes, OnUpdate = null)
+        #region (internal) AddNotification(Notification, NotificationMessageTypes, OnUpdate = null)
 
-        internal T AddNotification<T>(T                                     NotificationType,
+        internal T AddNotification<T>(T                                     Notification,
                                       IEnumerable<NotificationMessageType>  NotificationMessageTypes,
                                       Action<T>                             OnUpdate  = null)
 
             where T : ANotification
 
-            => _Notifications.Add(NotificationType,
+            => _Notifications.Add(Notification,
                                   NotificationMessageTypes,
                                   OnUpdate);
 
