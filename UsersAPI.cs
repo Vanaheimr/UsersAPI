@@ -52,6 +52,7 @@ using org.GraphDefined.OpenData.Notifications;
 
 using com.GraphDefined.SMSApi.API;
 using com.GraphDefined.SMSApi.API.Response;
+using System.Diagnostics;
 
 #endregion
 
@@ -464,6 +465,9 @@ namespace org.GraphDefined.OpenData.Users
         //public  const             String                              DefaultUser2GroupDBFile        = "UsersAPI_User2Group.db";
         public  const             String                              AdminGroupName                 = "Admins";
 
+
+        private readonly        PerformanceCounter  total_ram;
+        private readonly        PerformanceCounter  total_cpu;
 
         protected readonly SMSAPI                                      _SMSAPI;
 
@@ -1583,6 +1587,81 @@ namespace org.GraphDefined.OpenData.Users
             this.Warden = new Warden(InitialDelay: TimeSpan.FromMinutes(3));
 
             this.BlogPostings = new List<BlogPosting>();
+
+
+            #region Observe CPU/RAM
+
+            total_ram = new PerformanceCounter("Process", "Working Set",      Process.GetCurrentProcess().ProcessName);
+            total_cpu = new PerformanceCounter("Process", "% Processor Time", Process.GetCurrentProcess().ProcessName);
+            total_ram.NextValue();
+            total_cpu.NextValue();
+
+            Warden.EveryMinutes(1,
+                                Process.GetCurrentProcess(),
+                                async (timestamp, process, ct) => {
+                                    using (var writer = File.AppendText(String.Concat(this.MetricsPath,
+                                                                                      Path.DirectorySeparatorChar,
+                                                                                      "process-stats_",
+                                                                                      DateTime.Now.Year, "-",
+                                                                                      DateTime.Now.Month.ToString("D2"),
+                                                                                      ".log")))
+                                    {
+
+                                        await writer.WriteLineAsync(String.Concat(timestamp.ToIso8601(), ";",
+                                                                                  process.VirtualMemorySize64, ";",
+                                                                                  process.WorkingSet64, ";",
+                                                                                  process.TotalProcessorTime, ";",
+                                                                                  total_ram.NextValue() / 1024 / 1024, ";",
+                                                                                  total_cpu.NextValue())).
+                                                     ConfigureAwait(false);
+
+                                    }
+
+                                });
+
+            Warden.EveryHours (1,
+                               Environment.OSVersion.Platform == PlatformID.Unix
+                                   ? new DriveInfo("/")
+                                   : new DriveInfo(Directory.GetCurrentDirectory()),
+                               async (timestamp, driveInfo, ct) => {
+                                   using (var writer = File.AppendText(String.Concat(this.MetricsPath,
+                                                                                     Path.DirectorySeparatorChar,
+                                                                                     "disc-stats_",
+                                                                                     DateTime.Now.Year, "-",
+                                                                                     DateTime.Now.Month.ToString("D2"),
+                                                                                     ".log")))
+                                   {
+
+                                       var MBytesFree       = driveInfo.AvailableFreeSpace / 1024 / 1024;
+                                       var HDPercentageFree = 100 * driveInfo.AvailableFreeSpace / driveInfo.TotalSize;
+
+                                       await writer.WriteLineAsync(String.Concat(timestamp.ToIso8601(), ";",
+                                                                                 MBytesFree, ";",
+                                                                                 HDPercentageFree)).
+                                                    ConfigureAwait(false);
+
+
+                                       if (HDPercentageFree < 3)
+                                       {
+
+                                           var EMailTask = await APISMTPClient.Send(new HTMLEMailBuilder {
+                                                                                        From           = Robot.EMail,
+                                                                                        To             = APIAdminEMails,
+                                                                                        Passphrase     = APIPassphrase,
+                                                                                        Subject        = this.ServiceName + " is low on disc (<" + HDPercentageFree + "%, " + MBytesFree + " MB free)",
+                                                                                        HTMLText       = this.ServiceName + " is low on disc (<" + HDPercentageFree + "%, " + MBytesFree + " MB free)" + Environment.NewLine + Environment.NewLine,
+                                                                                        PlainText      = this.ServiceName + " is low on disc (<" + HDPercentageFree + "%, " + MBytesFree + " MB free)" + Environment.NewLine + Environment.NewLine,
+                                                                                        SecurityLevel  = EMailSecurity.sign
+                                                                                    }).ConfigureAwait(false);
+
+                                       }
+
+                                   }
+
+                               });
+
+            #endregion
+
 
             if (!SkipURLTemplates)
                 RegisterURITemplates();
