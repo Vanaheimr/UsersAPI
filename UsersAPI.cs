@@ -421,19 +421,9 @@ namespace org.GraphDefined.OpenData.Users
         private static readonly SemaphoreSlim  GroupsSemaphore         = new SemaphoreSlim(1, 1);
 
         /// <summary>
-        /// The default HTTP server port.
-        /// </summary>
-        public  static readonly   IPPort                              DefaultHTTPServerPort          = IPPort.Parse(2002);
-
-        /// <summary>
         /// The HTTP root for embedded ressources.
         /// </summary>
         public const              String                              HTTPRoot                       = "org.GraphDefined.OpenData.UsersAPI.HTTPRoot.";
-
-        /// <summary>
-        /// The default service name.
-        /// </summary>
-        public  const             String                              DefaultServiceName             = "GraphDefined Users API";
 
         /// <summary>
         /// The default language of the API.
@@ -450,10 +440,10 @@ namespace org.GraphDefined.OpenData.Users
         private readonly          Dictionary<User_Id, LoginPassword>  _LoginPasswords;
         private readonly          List<VerificationToken>             _VerificationTokens;
 
-        /// <summary>
-        /// Default logfile name.
-        /// </summary>
-        public  const             String                              DefaultLogfileName             = "UsersAPI.log";
+        ///// <summary>
+        ///// Default logfile name.
+        ///// </summary>
+        //public  const             String                              DefaultLogfileName             = "UsersAPI.log";
 
         public  const             String                              SignUpContext                  = "";
         public  const             String                              SignInOutContext               = "";
@@ -1216,10 +1206,10 @@ namespace org.GraphDefined.OpenData.Users
         /// <summary>
         /// Create a new HTTP server and attach this Open Data HTTP API to it.
         /// </summary>
-        /// <param name="HTTPServerName">The default HTTP servername, used whenever no HTTP Host-header had been given.</param>
-        /// <param name="HTTPServerPort">A TCP port to listen on.</param>
-        /// <param name="HTTPHostname">The HTTP hostname for all URIs within this API.</param>
         /// <param name="ServiceName">The name of the service.</param>
+        /// <param name="HTTPServerName">The default HTTP servername, used whenever no HTTP Host-header had been given.</param>
+        /// <param name="LocalHostname">The HTTP hostname for all URIs within this API.</param>
+        /// <param name="LocalPort">A TCP port to listen on.</param>
         /// <param name="BaseURL">The base url of the service.</param>
         /// <param name="URLPathPrefix">A common prefix for all URLs.</param>
         /// 
@@ -1242,9 +1232,10 @@ namespace org.GraphDefined.OpenData.Users
         /// <param name="CookieName">The name of the HTTP Cookie for authentication.</param>
         /// <param name="Language">The main language of the API.</param>
         /// <param name="LogoImage">The logo of the website.</param>
-        /// <param name="NewUserSignUpEMailCurrentUserId">A delegate for sending a sign-up e-mail to a new user.</param>
-        /// <param name="NewUserWelcomeEMailCurrentUserId">A delegate for sending a welcome e-mail to a new user.</param>
-        /// <param name="ResetPasswordEMailCurrentUserId">A delegate for sending a reset password e-mail to a user.</param>
+        /// <param name="NewUserSignUpEMailCreator">A delegate for sending a sign-up e-mail to a new user.</param>
+        /// <param name="NewUserWelcomeEMailCreator">A delegate for sending a welcome e-mail to a new user.</param>
+        /// <param name="ResetPasswordEMailCreator">A delegate for sending a reset password e-mail to a user.</param>
+        /// <param name="PasswordChangedEMailCreator">A delegate for sending a password changed e-mail to a user.</param>
         /// <param name="MinUserNameLenght">The minimal user name length.</param>
         /// <param name="MinRealmLenght">The minimal realm length.</param>
         /// <param name="PasswordQualityCheck">A delegate to ensure a minimal password quality.</param>
@@ -1267,10 +1258,10 @@ namespace org.GraphDefined.OpenData.Users
         /// <param name="LogfileName">The name of the logfile for this API.</param>
         /// <param name="DNSClient">The DNS client of the API.</param>
         /// <param name="Autostart">Whether to start the API automatically.</param>
-        public UsersAPI(String                               HTTPServerName                     = DefaultHTTPServerName,
-                        IPPort?                              HTTPServerPort                     = null,
-                        HTTPHostname?                        HTTPHostname                       = null,
-                        String                               ServiceName                        = DefaultServiceName,
+        public UsersAPI(String                               ServiceName                        = "GraphDefined Users API",
+                        String                               HTTPServerName                     = "GraphDefined Users API",
+                        HTTPHostname?                        LocalHostname                      = null,
+                        IPPort?                              LocalPort                          = null,
                         String                               BaseURL                            = "",
                         HTTPPath?                            URLPathPrefix                      = null,
 
@@ -1291,14 +1282,14 @@ namespace org.GraphDefined.OpenData.Users
                         String                               TelegramBotToken                   = null,
 
                         HTTPCookieName?                      CookieName                         = null,
-                        Languages                            Language                           = DefaultLanguage,
+                        Languages?                           Language                           = null,
                         String                               LogoImage                          = null,
                         NewUserSignUpEMailCreatorDelegate    NewUserSignUpEMailCreator          = null,
                         NewUserWelcomeEMailCreatorDelegate   NewUserWelcomeEMailCreator         = null,
                         ResetPasswordEMailCreatorDelegate    ResetPasswordEMailCreator          = null,
                         PasswordChangedEMailCreatorDelegate  PasswordChangedEMailCreator        = null,
-                        Byte                                 MinUserNameLenght                  = DefaultMinUserNameLenght,
-                        Byte                                 MinRealmLenght                     = DefaultMinRealmLenght,
+                        Byte?                                MinUserNameLenght                  = null,
+                        Byte?                                MinRealmLenght                     = null,
                         PasswordQualityCheckDelegate         PasswordQualityCheck               = null,
                         TimeSpan?                            SignInSessionLifetime              = null,
 
@@ -1316,12 +1307,12 @@ namespace org.GraphDefined.OpenData.Users
                         Boolean                              DisableNotifications               = false,
                         Boolean                              DisableLogfile                     = false,
                         String                               LoggingPath                        = null,
-                        String                               LogfileName                        = DefaultLogfileName,
+                        String                               LogfileName                        = "UsersAPI.log",
                         DNSClient                            DNSClient                          = null,
                         Boolean                              Autostart                          = false)
 
-            : this(new HTTPServer(TCPPort:                           HTTPServerPort ?? DefaultHTTPServerPort,
-                                  DefaultServerName:                 HTTPServerName,
+            : this(new HTTPServer(TCPPort:                           LocalPort      ?? IPPort.Parse(2305),
+                                  DefaultServerName:                 HTTPServerName ?? "GraphDefined Users API",
 
                                   ServerCertificateSelector:         ServerCertificateSelector,
                                   ClientCertificateValidator:        ClientCertificateValidator,
@@ -1341,7 +1332,7 @@ namespace org.GraphDefined.OpenData.Users
                                   DNSClient:                         DNSClient,
                                   Autostart:                         false),
 
-                   HTTPHostname,
+                   LocalHostname,
                    ServiceName,
                    BaseURL,
                    URLPathPrefix,
@@ -1411,21 +1402,23 @@ namespace org.GraphDefined.OpenData.Users
         /// <param name="CookieName">The name of the HTTP Cookie for authentication.</param>
         /// <param name="Language">The main language of the API.</param>
         /// <param name="LogoImage">The logo of the website.</param>
-        /// <param name="NewUserSignUpEMailCurrentUserId">A delegate for sending a sign-up e-mail to a new user.</param>
-        /// <param name="NewUserWelcomeEMailCurrentUserId">A delegate for sending a welcome e-mail to a new user.</param>
-        /// <param name="ResetPasswordEMailCurrentUserId">A delegate for sending a reset password e-mail to a user.</param>
+        /// <param name="NewUserSignUpEMailCreator">A delegate for sending a sign-up e-mail to a new user.</param>
+        /// <param name="NewUserWelcomeEMailCreator">A delegate for sending a welcome e-mail to a new user.</param>
+        /// <param name="ResetPasswordEMailCreator">A delegate for sending a reset password e-mail to a user.</param>
+        /// <param name="PasswordChangedEMailCreator">A delegate for sending a password changed e-mail to a user.</param>
         /// <param name="MinUserNameLenght">The minimal user name length.</param>
         /// <param name="MinRealmLenght">The minimal realm length.</param>
         /// <param name="PasswordQualityCheck">A delegate to ensure a minimal password quality.</param>
         /// <param name="SignInSessionLifetime">The sign-in session lifetime.</param>
         /// 
-        /// <param name="SkipURLTemplates">Skip URI templates.</param>
+        /// <param name="SkipURLTemplates">Skip URL templates.</param>
         /// <param name="DisableNotifications">Disable external notifications.</param>
         /// <param name="DisableLogfile">Disable the log file.</param>
+        /// <param name="LoggingPath">The path for all logfiles.</param>
         /// <param name="LogfileName">The name of the logfile for this API.</param>
         protected UsersAPI(HTTPServer                           HTTPServer,
                            HTTPHostname?                        HTTPHostname                  = null,
-                           String                               ServiceName                   = DefaultServiceName,
+                           String                               ServiceName                   = "GraphDefined Users API",
                            String                               BaseURL                       = "",
                            HTTPPath?                            URLPathPrefix                 = null,
 
@@ -1441,14 +1434,14 @@ namespace org.GraphDefined.OpenData.Users
                            String                               TelegramBotToken              = null,
 
                            HTTPCookieName?                      CookieName                    = null,
-                           Languages                            Language                      = DefaultLanguage,
+                           Languages?                           Language                      = null,
                            String                               LogoImage                     = null,
                            NewUserSignUpEMailCreatorDelegate    NewUserSignUpEMailCreator     = null,
                            NewUserWelcomeEMailCreatorDelegate   NewUserWelcomeEMailCreator    = null,
                            ResetPasswordEMailCreatorDelegate    ResetPasswordEMailCreator     = null,
                            PasswordChangedEMailCreatorDelegate  PasswordChangedEMailCreator   = null,
-                           Byte                                 MinUserNameLenght             = DefaultMinUserNameLenght,
-                           Byte                                 MinRealmLenght                = DefaultMinRealmLenght,
+                           Byte?                                MinUserNameLenght             = null,
+                           Byte?                                MinRealmLenght                = null,
                            PasswordQualityCheckDelegate         PasswordQualityCheck          = null,
                            TimeSpan?                            SignInSessionLifetime         = null,
 
@@ -1507,17 +1500,17 @@ namespace org.GraphDefined.OpenData.Users
             this.APIAdminEMails               = APIAdminEMails;
             this.APISMTPClient                = APISMTPClient;
 
-            this.CookieName                   = CookieName                 ?? DefaultCookieName;
-            this.Language                     = Language;
+            this.CookieName                   = CookieName                  ?? DefaultCookieName;
+            this.Language                     = Language                    ?? DefaultLanguage;
             this._LogoImage                   = LogoImage;
-            this.NewUserSignUpEMailCreator    = NewUserSignUpEMailCreator  ?? throw new ArgumentNullException(nameof(NewUserSignUpEMailCreator),   "NewUserSignUpEMailCreator!");
-            this.NewUserWelcomeEMailCreator   = NewUserWelcomeEMailCreator ?? throw new ArgumentNullException(nameof(NewUserWelcomeEMailCreator),  "NewUserWelcomeEMailCreator!");
-            this.ResetPasswordEMailCreator    = ResetPasswordEMailCreator  ?? throw new ArgumentNullException(nameof(ResetPasswordEMailCreator),   "ResetPasswordEMailCreator!");
-            this.PasswordChangedEMailCreator  = PasswordChangedEMailCreator;
-            this.MinLoginLenght               = MinUserNameLenght;
-            this.MinRealmLenght               = MinRealmLenght;
-            this.PasswordQualityCheck         = PasswordQualityCheck       ?? DefaultPasswordQualityCheck;
-            this.SignInSessionLifetime        = SignInSessionLifetime      ?? DefaultSignInSessionLifetime;
+            this.NewUserSignUpEMailCreator    = NewUserSignUpEMailCreator   ?? throw new ArgumentNullException(nameof(NewUserSignUpEMailCreator),   "NewUserSignUpEMailCreator!");
+            this.NewUserWelcomeEMailCreator   = NewUserWelcomeEMailCreator  ?? throw new ArgumentNullException(nameof(NewUserWelcomeEMailCreator),  "NewUserWelcomeEMailCreator!");
+            this.ResetPasswordEMailCreator    = ResetPasswordEMailCreator   ?? throw new ArgumentNullException(nameof(ResetPasswordEMailCreator),   "ResetPasswordEMailCreator!");
+            this.PasswordChangedEMailCreator  = PasswordChangedEMailCreator ?? throw new ArgumentNullException(nameof(PasswordChangedEMailCreator), "PasswordChangedEMailCreator!");
+            this.MinLoginLenght               = MinUserNameLenght           ?? DefaultMinUserNameLenght;
+            this.MinRealmLenght               = MinRealmLenght              ?? DefaultMinRealmLenght;
+            this.PasswordQualityCheck         = PasswordQualityCheck        ?? DefaultPasswordQualityCheck;
+            this.SignInSessionLifetime        = SignInSessionLifetime       ?? DefaultSignInSessionLifetime;
 
             this._DataLicenses                = new Dictionary<DataLicense_Id,  DataLicense>();
             this._Users                       = new Dictionary<User_Id,         User>();
@@ -1640,7 +1633,7 @@ namespace org.GraphDefined.OpenData.Users
         /// <param name="LogfileName">The name of the logfile for this API.</param>
         public static UsersAPI AttachToHTTPAPI(HTTPServer                           HTTPServer,
                                                HTTPHostname?                        HTTPHostname                  = null,
-                                               String                               ServiceName                   = DefaultServiceName,
+                                               String                               ServiceName                   = "GraphDefined Users API",
                                                String                               BaseURL                       = "",
                                                HTTPPath?                            URLPathPrefix                 = null,
 
