@@ -1,0 +1,331 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{4D5DA5F5-0DCE-4620-BCE5-74A27E5CFC47}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>social.OpenData.UsersAPI</RootNamespace>
+    <AssemblyName>social.OpenData.UsersAPI</AssemblyName>
+    <TargetFrameworkVersion>v4.7.1</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <DocumentationFile>bin\Debug\social.OpenData.UsersAPI.xml</DocumentationFile>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+    <LangVersion>latest</LangVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Newtonsoft.Json, Version=6.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\Styx\libs\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Entities\Notification\TelegramGroupNotification.cs" />
+    <Compile Include="Entities\Notification\TelegramNotification.cs" />
+    <Compile Include="Telegram\TelegramStore.cs" />
+    <Compile Include="UsersAPILogger.cs" />
+    <Compile Include="CommonTypes\APIKeyRights.cs" />
+    <Compile Include="CommonTypes\APIKeyInfo.cs" />
+    <Compile Include="CommonTypes\LoginPassword.cs" />
+    <Compile Include="CommonTypes\MiniEdge.cs" />
+    <Compile Include="CommonTypes\PrivacyLevel.cs" />
+    <Compile Include="CommonTypes\VerificationToken.cs" />
+    <Compile Include="Entities\BlogPosting\BlogPostingSignature.cs" />
+    <Compile Include="Entities\Group\UserGroup2GroupEdges.cs" />
+    <Compile Include="Entities\Notification\ANotification.cs" />
+    <Compile Include="Entities\Notification\HTTPSNotification.cs" />
+    <Compile Include="Entities\Notification\EMailNotification.cs" />
+    <Compile Include="Entities\Notification\NotificationMessage.cs" />
+    <Compile Include="Entities\Notification\NotificationMessage_Id.cs" />
+    <Compile Include="Entities\Notification\SMSNotification.cs" />
+    <Compile Include="Entities\Notification\NotificationStore.cs" />
+    <Compile Include="Entities\Notification\NotificationMessageType.cs" />
+    <Compile Include="Entities\Organization\OrganizationInfo2.cs" />
+    <Compile Include="Entities\Organization\OrganizationInfo.cs" />
+    <Compile Include="Entities\Organization\Organization.cs" />
+    <Compile Include="Entities\Organization\Organization2OrganizationEdge.cs" />
+    <Compile Include="Entities\Organization\Organization_Id.cs" />
+    <Compile Include="Entities\Organization\Organization2UserEdgeTypes.cs" />
+    <Compile Include="Entities\Group\Group.cs" />
+    <Compile Include="Entities\Group\UserGroup2UserEdges.cs" />
+    <Compile Include="Entities\Group\Group_Id.cs" />
+    <Compile Include="Entities\Message\Message.cs" />
+    <Compile Include="Entities\Message\Message_Id.cs" />
+    <Compile Include="Entities\BlogPosting\BlogPosting.cs" />
+    <Compile Include="Entities\BlogPosting\BlogPosting_Id.cs" />
+    <Compile Include="Entities\SecurityToken\SecurityToken.cs" />
+    <Compile Include="Entities\SecurityToken\SecurityToken_Id.cs" />
+    <Compile Include="Entities\Tag\Tag.cs" />
+    <Compile Include="Entities\Tag\Tags.cs" />
+    <Compile Include="Entities\Tag\Tag_Id.cs" />
+    <Compile Include="Entities\User\Password.cs" />
+    <Compile Include="Entities\User\User.cs" />
+    <Compile Include="Entities\User\User2OrganizationEdge.cs" />
+    <Compile Include="Entities\User\User2GroupEdge.cs" />
+    <Compile Include="Entities\User\User2UserEdge.cs" />
+    <Compile Include="Entities\User\User_Id.cs" />
+    <Compile Include="Notifications\NotificationMessageTypeInfo.cs" />
+    <Compile Include="Notifications\HTTPNotificationSender.cs" />
+    <Compile Include="Notifications\ANotificationSender.cs" />
+    <Compile Include="Representations\HTTPHelper.cs" />
+    <Compile Include="Representations\JSON_IO.cs" />
+    <Compile Include="Entities\User\PasswordReset.cs" />
+    <Compile Include="UsersAPI.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="HTTPRoot\css\AppPanels.css" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="HTTPRoot\robots.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="HTTPRoot\humans.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="HTTPRoot\index.html" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="HTTPRoot\css\edgeslist.css" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="HTTPRoot\css\Infobox.css" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="HTTPRoot\css\style.css" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="HTTPRoot\css\verticeslist.css" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="HTTPRoot\SignInOut\SignInOut.js" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="HTTPRoot\SignUp\SignUp.js" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="HTTPRoot\SignUp\SignUp-de.html" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="HTTPRoot\js\OpenPGP.min.js" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="HTTPRoot\js\OpenPGP.js" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="HTTPRoot\js\default.js" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="HTTPRoot\SignInOut\SignInOut.css" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="HTTPRoot\login\LostPassword-en.html" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="HTTPRoot\SignUp\SignUp-en.html" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="HTTPRoot\login\LostPassword-de.html" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="HTTPRoot\js\LoadThings.js" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="HTTPRoot\images\dummy-user-gray-150x150.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="HTTPRoot\login\login.scss" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="compilerconfig.json" />
+    <None Include="compilerconfig.json.defaults">
+      <DependentUpon>compilerconfig.json</DependentUpon>
+    </None>
+    <EmbeddedResource Include="HTTPRoot\defaults\defaults.scss" />
+    <EmbeddedResource Include="HTTPRoot\styles.scss" />
+    <EmbeddedResource Include="HTTPRoot\profile\profile.scss" />
+    <EmbeddedResource Include="HTTPRoot\admin\admin.scss" />
+    <EmbeddedResource Include="HTTPRoot\libs\date.format.js.map">
+      <DependentUpon>date.format.ts</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="HTTPRoot\defaults\defaults.js.map">
+      <DependentUpon>defaults.ts</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="HTTPRoot\webfonts\fa-brands-400.eot" />
+    <EmbeddedResource Include="HTTPRoot\webfonts\fa-brands-400.ttf" />
+    <EmbeddedResource Include="HTTPRoot\webfonts\fa-brands-400.woff" />
+    <EmbeddedResource Include="HTTPRoot\webfonts\fa-brands-400.woff2" />
+    <EmbeddedResource Include="HTTPRoot\webfonts\fa-regular-400.eot" />
+    <EmbeddedResource Include="HTTPRoot\webfonts\fa-regular-400.ttf" />
+    <EmbeddedResource Include="HTTPRoot\webfonts\fa-regular-400.woff" />
+    <EmbeddedResource Include="HTTPRoot\webfonts\fa-regular-400.woff2" />
+    <EmbeddedResource Include="HTTPRoot\webfonts\fa-solid-900.eot" />
+    <EmbeddedResource Include="HTTPRoot\webfonts\fa-solid-900.ttf" />
+    <EmbeddedResource Include="HTTPRoot\webfonts\fa-solid-900.woff" />
+    <EmbeddedResource Include="HTTPRoot\webfonts\fa-solid-900.woff2" />
+    <EmbeddedResource Include="HTTPRoot\defaults\views.js.map">
+      <DependentUpon>views.ts</DependentUpon>
+    </EmbeddedResource>
+    <None Include="HTTPRoot\libs\EventSource.js.map">
+      <DependentUpon>EventSource.ts</DependentUpon>
+    </None>
+    <EmbeddedResource Include="HTTPRoot\login\SignInOut.js.map">
+      <DependentUpon>SignInOut.ts</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="HTTPRoot\profile\notifications.scss" />
+    <EmbeddedResource Include="HTTPRoot\profile\APIKeys.scss" />
+    <EmbeddedResource Include="HTTPRoot\profile\password.scss" />
+    <EmbeddedResource Include="HTTPRoot\organization\organization.scss" />
+    <None Include="HTTPRoot\libs\qrcode\LICENSE" />
+    <None Include="HTTPRoot\libs\qrcode\README.md" />
+    <None Include="README.md" />
+    <None Include="tsconfig.json" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="HTTPRoot\login\login.css">
+      <DependentUpon>login.scss</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="HTTPRoot\login\login.min.css">
+      <DependentUpon>login.css</DependentUpon>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="HTTPRoot\styles.css">
+      <DependentUpon>styles.scss</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="HTTPRoot\styles.min.css">
+      <DependentUpon>styles.css</DependentUpon>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="HTTPRoot\profile\profile.css">
+      <DependentUpon>profile.scss</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="HTTPRoot\profile\profile.min.css">
+      <DependentUpon>profile.css</DependentUpon>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="HTTPRoot\admin\admin.css">
+      <DependentUpon>admin.scss</DependentUpon>
+    </Content>
+    <EmbeddedResource Include="HTTPRoot\images\building-2696768_640.png" />
+    <Content Include="HTTPRoot\libs\qrcode\qrcode.js" />
+    <EmbeddedResource Include="HTTPRoot\libs\qrcode\qrcode.min.js" />
+    <EmbeddedResource Include="HTTPRoot\profile\password.css">
+      <DependentUpon>password.scss</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="HTTPRoot\profile\password.min.css">
+      <DependentUpon>password.css</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="HTTPRoot\profile\profile - Copy.min.css">
+      <DependentUpon>profile - Copy.css</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="HTTPRoot\profile\profile - Copy.css">
+      <DependentUpon>APIKeys.scss</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="HTTPRoot\profile\notifications.css">
+      <DependentUpon>notifications.scss</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="HTTPRoot\profile\notifications.min.css">
+      <DependentUpon>notifications.css</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="HTTPRoot\defaults\defaults.js">
+      <DependentUpon>defaults.ts</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="HTTPRoot\defaults\fontawesome-all.min.css" />
+    <EmbeddedResource Include="HTTPRoot\webfonts\fa-brands-400.svg" />
+    <EmbeddedResource Include="HTTPRoot\webfonts\fa-regular-400.svg" />
+    <EmbeddedResource Include="HTTPRoot\webfonts\fa-solid-900.svg" />
+    <EmbeddedResource Include="HTTPRoot\defaults\views.js">
+      <DependentUpon>views.ts</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="HTTPRoot\js\moment-with-locales.min.js" />
+    <EmbeddedResource Include="HTTPRoot\libs\crypto\elliptic.js" />
+    <EmbeddedResource Include="HTTPRoot\libs\crypto\elliptic.min.js" />
+    <EmbeddedResource Include="HTTPRoot\libs\crypto\sha256.js" />
+    <Content Include="HTTPRoot\libs\EventSource.js">
+      <DependentUpon>EventSource.ts</DependentUpon>
+    </Content>
+    <EmbeddedResource Include="HTTPRoot\login\SignInOut.js">
+      <DependentUpon>SignInOut.ts</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="HTTPRoot\libs\date.format.js">
+      <DependentUpon>date.format.ts</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="HTTPRoot\js\date.format.js" />
+    <Content Include="HTTPRoot\js\date.js" />
+    <EmbeddedResource Include="HTTPRoot\admin\admin.min.css">
+      <DependentUpon>admin.css</DependentUpon>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="HTTPRoot\libs\date.format.ts" />
+    <EmbeddedResource Include="HTTPRoot\libs\EventSource.ts" />
+    <EmbeddedResource Include="HTTPRoot\defaults\defaults.ts" />
+    <EmbeddedResource Include="HTTPRoot\defaults\views.ts" />
+    <TypeScriptCompile Include="HTTPRoot\libs\sse.d.ts" />
+    <EmbeddedResource Include="HTTPRoot\login\SignInOut.ts" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\BouncyCastle\crypto\crypto.csproj">
+      <Project>{38872a5f-e87e-4fad-b109-8eb7b2e6a4a0}</Project>
+      <Name>crypto</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Hermod\Hermod\Hermod.csproj">
+      <Project>{477efd16-3627-4473-957d-44ca9a9dfb79}</Project>
+      <Name>Hermod</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\SMSAPI\smsapi\SMSAPI2.csproj">
+      <Project>{05c2a720-2cd1-401b-a832-9ce85313c248}</Project>
+      <Name>SMSAPI2</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Styx\Styx\Styx.csproj">
+      <Project>{af76ecc0-2ca5-4cff-9e1e-ff5478c4b6e4}</Project>
+      <Name>Styx</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\TelegramBotAPI\TelegramBotAPI\TelegramBotAPI.csproj">
+      <Project>{2fee90e4-7e55-49a6-8be9-5a434ffa5a00}</Project>
+      <Name>TelegramBotAPI</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PreBuildEvent>tsc</PreBuildEvent>
+  </PropertyGroup>
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>
