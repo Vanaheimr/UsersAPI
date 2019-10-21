@@ -144,7 +144,67 @@ namespace org.GraphDefined.OpenData.Users
 
             this.UsersAPI = UsersAPI ?? throw new ArgumentNullException(nameof(UsersAPI), "The given UsersAPI must not be null!");
 
-            #region UserNotifications
+            #region Users
+
+            RegisterEvent2("OnAddUserRequest",
+                           handler => UsersAPI.OnAddUserRequest += handler,
+                           handler => UsersAPI.OnAddUserRequest -= handler,
+                           "User", "Request",  "All").
+                RegisterDefaultConsoleLogTarget(this).
+                RegisterDefaultDiscLogTarget(this);
+
+            RegisterEvent2("OnAddUserResponse",
+                           handler => UsersAPI.OnAddUserResponse += handler,
+                           handler => UsersAPI.OnAddUserResponse -= handler,
+                           "User", "Response", "All").
+                RegisterDefaultConsoleLogTarget(this).
+                RegisterDefaultDiscLogTarget(this);
+
+
+            RegisterEvent2("OnSetUserRequest",
+                           handler => UsersAPI.OnSetUserRequest += handler,
+                           handler => UsersAPI.OnSetUserRequest -= handler,
+                           "User", "Request",  "All").
+                RegisterDefaultConsoleLogTarget(this).
+                RegisterDefaultDiscLogTarget(this);
+
+            RegisterEvent2("OnSetUserResponse",
+                           handler => UsersAPI.OnSetUserResponse += handler,
+                           handler => UsersAPI.OnSetUserResponse -= handler,
+                           "User", "Response", "All").
+                RegisterDefaultConsoleLogTarget(this).
+                RegisterDefaultDiscLogTarget(this);
+
+
+            RegisterEvent2("OnChangePasswordRequest",
+                           handler => UsersAPI.OnChangePasswordRequest += handler,
+                           handler => UsersAPI.OnChangePasswordRequest -= handler,
+                           "User", "ChangePassword", "Password", "Request", "All").
+                RegisterDefaultConsoleLogTarget(this).
+                RegisterDefaultDiscLogTarget(this);
+
+            RegisterEvent2("OnChangePasswordResponse",
+                           handler => UsersAPI.OnChangePasswordResponse += handler,
+                           handler => UsersAPI.OnChangePasswordResponse -= handler,
+                           "User", "ChangePassword", "Password", "Response", "All").
+                RegisterDefaultConsoleLogTarget(this).
+                RegisterDefaultDiscLogTarget(this);
+
+
+            RegisterEvent2("OnImpersonateUserRequest",
+                           handler => UsersAPI.OnImpersonateUserRequest += handler,
+                           handler => UsersAPI.OnImpersonateUserRequest -= handler,
+                           "User", "Impersonate", "Request", "All").
+                RegisterDefaultConsoleLogTarget(this).
+                RegisterDefaultDiscLogTarget(this);
+
+            RegisterEvent2("OnImpersonateUserResponse",
+                           handler => UsersAPI.OnImpersonateUserResponse += handler,
+                           handler => UsersAPI.OnImpersonateUserResponse -= handler,
+                           "User", "Impersonate", "Response", "All").
+                RegisterDefaultConsoleLogTarget(this).
+                RegisterDefaultDiscLogTarget(this);
+
 
             RegisterEvent2("OnSetUserNotificationsRequest",
                            handler => UsersAPI.OnSetUserNotificationsRequest  += handler,
@@ -174,6 +234,84 @@ namespace org.GraphDefined.OpenData.Users
                            "DeleteUserNotifications", "Notifications", "Response", "All").
                 RegisterDefaultConsoleLogTarget(this).
                 RegisterDefaultDiscLogTarget(this);
+
+            #endregion
+
+            #region Organizations
+
+            RegisterEvent2("OnAddOrganizationRequest",
+                           handler => UsersAPI.OnAddOrganizationRequest += handler,
+                           handler => UsersAPI.OnAddOrganizationRequest -= handler,
+                           "Organization", "Request",  "All").
+                RegisterDefaultConsoleLogTarget(this).
+                RegisterDefaultDiscLogTarget(this);
+
+            RegisterEvent2("OnAddOrganizationResponse",
+                           handler => UsersAPI.OnAddOrganizationResponse += handler,
+                           handler => UsersAPI.OnAddOrganizationResponse -= handler,
+                           "Organization", "Response", "All").
+                RegisterDefaultConsoleLogTarget(this).
+                RegisterDefaultDiscLogTarget(this);
+
+
+            RegisterEvent2("OnSetOrganizationRequest",
+                           handler => UsersAPI.OnSetOrganizationHTTPRequest += handler,
+                           handler => UsersAPI.OnSetOrganizationHTTPRequest -= handler,
+                           "Organization", "Request",  "All").
+                RegisterDefaultConsoleLogTarget(this).
+                RegisterDefaultDiscLogTarget(this);
+
+            RegisterEvent2("OnSetOrganizationResponse",
+                           handler => UsersAPI.OnSetOrganizationHTTPResponse += handler,
+                           handler => UsersAPI.OnSetOrganizationHTTPResponse -= handler,
+                           "Organization", "Response", "All").
+                RegisterDefaultConsoleLogTarget(this).
+                RegisterDefaultDiscLogTarget(this);
+
+
+            RegisterEvent2("OnSetOrganizationNotificationsRequest",
+                           handler => UsersAPI.OnSetOrganizationNotificationsRequest  += handler,
+                           handler => UsersAPI.OnSetOrganizationNotificationsRequest  -= handler,
+                           "SetOrganizationNotifications", "Organization", "Notifications", "Request",  "All").
+                RegisterDefaultConsoleLogTarget(this).
+                RegisterDefaultDiscLogTarget(this);
+
+            RegisterEvent2("OnSetOrganizationNotificationsResponse",
+                           handler => UsersAPI.OnSetOrganizationNotificationsResponse += handler,
+                           handler => UsersAPI.OnSetOrganizationNotificationsResponse -= handler,
+                           "SetOrganizationNotifications", "Organization", "Notifications", "Response", "All").
+                RegisterDefaultConsoleLogTarget(this).
+                RegisterDefaultDiscLogTarget(this);
+
+
+            RegisterEvent2("OnDeleteOrganizationNotificationsRequest",
+                           handler => UsersAPI.OnDeleteOrganizationNotificationsRequest += handler,
+                           handler => UsersAPI.OnDeleteOrganizationNotificationsRequest -= handler,
+                           "DeleteOrganizationNotifications", "Organization", "Notifications", "Request", "All").
+                RegisterDefaultConsoleLogTarget(this).
+                RegisterDefaultDiscLogTarget(this);
+
+            RegisterEvent2("OnDeleteOrganizationNotificationsResponse",
+                           handler => UsersAPI.OnDeleteOrganizationNotificationsResponse += handler,
+                           handler => UsersAPI.OnDeleteOrganizationNotificationsResponse -= handler,
+                           "DeleteOrganizationNotifications", "Organization", "Notifications", "Response", "All").
+                RegisterDefaultConsoleLogTarget(this).
+                RegisterDefaultDiscLogTarget(this);
+
+
+            RegisterEvent2("OnDeleteOrganizationRequest",
+                           handler => UsersAPI.OnDeleteOrganizationRequest += handler,
+                           handler => UsersAPI.OnDeleteOrganizationRequest -= handler,
+                           "DeleteOrganizations", "Organization", "Request", "All").
+                     RegisterDefaultConsoleLogTarget(this).
+                     RegisterDefaultDiscLogTarget(this);
+
+            RegisterEvent2("OnDeleteOrganizationResponse",
+                           handler => UsersAPI.OnDeleteOrganizationResponse += handler,
+                           handler => UsersAPI.OnDeleteOrganizationResponse -= handler,
+                           "DeleteOrganizations", "Organization", "Response", "All").
+                     RegisterDefaultConsoleLogTarget(this).
+                     RegisterDefaultDiscLogTarget(this);
 
             #endregion
 

@@ -30,6 +30,7 @@ using org.GraphDefined.Vanaheimr.Styx.Arrows;
 using org.GraphDefined.Vanaheimr.Hermod.Distributed;
 using org.GraphDefined.Vanaheimr.Hermod.HTTP;
 using org.GraphDefined.Vanaheimr.Hermod.Mail;
+using org.GraphDefined.OpenData.Notifications;
 
 #endregion
 
@@ -216,6 +217,228 @@ namespace org.GraphDefined.OpenData.Users
 
         #endregion
 
+        #region Edges
+
+        #region User          -> Organization edges
+
+        protected readonly List<User2OrganizationEdge> _User2Organization_InEdges;
+
+        public IEnumerable<User2OrganizationEdge> User2OrganizationEdges
+            => _User2Organization_InEdges;
+
+
+        #region LinkUser(Edge)
+
+        public User2OrganizationEdge
+
+            LinkUser(User2OrganizationEdge Edge)
+
+            => _User2Organization_InEdges.AddAndReturnElement(Edge);
+
+        #endregion
+
+        #region LinkUser(Source, EdgeLabel, PrivacyLevel = PrivacyLevel.World)
+
+        public User2OrganizationEdge
+
+            LinkUser(User                    Source,
+                     User2OrganizationEdgeTypes  EdgeLabel,
+                     PrivacyLevel            PrivacyLevel = PrivacyLevel.World)
+
+            => _User2Organization_InEdges.
+                   AddAndReturnElement(new User2OrganizationEdge(Source,
+                                                                                                EdgeLabel,
+                                                                                                this,
+                                                                                                PrivacyLevel));
+
+        #endregion
+
+
+        #region User2OrganizationInEdges     (User)
+
+        /// <summary>
+        /// The edge labels of all (incoming) edges between the given user and this organization.
+        /// </summary>
+        public IEnumerable<User2OrganizationEdge> User2OrganizationInEdges(User User)
+
+            => _User2Organization_InEdges.
+                   Where(edge => edge.Source == User);
+
+        #endregion
+
+        #region User2OrganizationInEdgeLabels(User)
+
+        /// <summary>
+        /// The edge labels of all (incoming) edges between the given user and this organization.
+        /// </summary>
+        public IEnumerable<User2OrganizationEdgeTypes> User2OrganizationInEdgeLabels(User User)
+
+            => _User2Organization_InEdges.
+                   Where (edge => edge.Source == User).
+                   Select(edge => edge.EdgeLabel);
+
+        #endregion
+
+        public IEnumerable<User2OrganizationEdge>
+
+            Add(IEnumerable<User2OrganizationEdge> Edges)
+
+                => _User2Organization_InEdges.AddAndReturnList(Edges);
+
+
+        #region UnlinkUser(EdgeLabel, User)
+
+        public void UnlinkUser(User2OrganizationEdgeTypes  EdgeLabel,
+                               User                    User)
+        {
+
+            var edges = _User2Organization_InEdges.
+                            Where(edge => edge.EdgeLabel == EdgeLabel &&
+                                          edge.Source    == User).
+                            ToArray();
+
+            foreach (var edge in edges)
+                _User2Organization_InEdges.Remove(edge);
+
+        }
+
+        #endregion
+
+        public Boolean RemoveInEdge(User2OrganizationEdge Edge)
+            => _User2Organization_InEdges.Remove(Edge);
+
+        #endregion
+
+        #region Organization <-> Organization edges
+
+        protected readonly List<Organization2OrganizationEdge> _Organization2Organization_InEdges;
+
+        public IEnumerable<Organization2OrganizationEdge> Organization2OrganizationInEdges
+            => _Organization2Organization_InEdges;
+
+        #region AddInEdge (Edge)
+
+        public Organization2OrganizationEdge
+
+            AddInEdge(Organization2OrganizationEdge Edge)
+
+            => _Organization2Organization_InEdges.AddAndReturnElement(Edge);
+
+        #endregion
+
+        #region AddInEdge (EdgeLabel, SourceOrganization, PrivacyLevel = PrivacyLevel.World)
+
+        public Organization2OrganizationEdge
+
+            AddInEdge (Organization2OrganizationEdgeTypes  EdgeLabel,
+                       Organization                    SourceOrganization,
+                       PrivacyLevel                    PrivacyLevel = PrivacyLevel.World)
+
+            => _Organization2Organization_InEdges. AddAndReturnElement(new Organization2OrganizationEdge(SourceOrganization,
+                                                                                                                                                EdgeLabel,
+                                                                                                                                                this,
+                                                                                                                                                PrivacyLevel));
+
+        #endregion
+
+        public IEnumerable<Organization2OrganizationEdge>
+
+            AddInEdges(IEnumerable<Organization2OrganizationEdge> Edges)
+
+                => _Organization2Organization_InEdges.AddAndReturnList(Edges);
+
+        #region RemoveInEdges(EdgeLabel, TargetOrganization)
+
+        public Boolean RemoveInEdge(Organization2OrganizationEdge Edge)
+            => _Organization2Organization_InEdges.Remove(Edge);
+
+        #endregion
+
+        #region RemoveInEdges (EdgeLabel, SourceOrganization)
+
+        public void RemoveInEdges(Organization2OrganizationEdgeTypes EdgeLabel,
+                                  Organization SourceOrganization)
+        {
+
+            var edges = _Organization2Organization_OutEdges.
+                            Where(edge => edge.EdgeLabel == EdgeLabel &&
+                                          edge.Source == SourceOrganization).
+                            ToArray();
+
+            foreach (var edge in edges)
+                _Organization2Organization_InEdges.Remove(edge);
+
+        }
+
+        #endregion
+
+
+
+        protected readonly List<Organization2OrganizationEdge> _Organization2Organization_OutEdges;
+
+        public IEnumerable<Organization2OrganizationEdge> Organization2OrganizationOutEdges
+            => _Organization2Organization_OutEdges;
+
+        #region AddOutEdge(Edge)
+
+        public Organization2OrganizationEdge
+
+            AddOutEdge(Organization2OrganizationEdge Edge)
+
+            => _Organization2Organization_OutEdges.AddAndReturnElement(Edge);
+
+        #endregion
+
+        #region AddOutEdge(EdgeLabel, TargetOrganization, PrivacyLevel = PrivacyLevel.World)
+
+        public Organization2OrganizationEdge
+
+            AddOutEdge(Organization2OrganizationEdgeTypes  EdgeLabel,
+                       Organization                    TargetOrganization,
+                       PrivacyLevel                    PrivacyLevel = PrivacyLevel.World)
+
+            => _Organization2Organization_OutEdges.AddAndReturnElement(new Organization2OrganizationEdge(this,
+                                                                                                                                                EdgeLabel,
+                                                                                                                                                TargetOrganization,
+                                                                                                                                                PrivacyLevel));
+
+        #endregion
+
+        public IEnumerable<Organization2OrganizationEdge>
+
+            AddOutEdges(IEnumerable<Organization2OrganizationEdge> Edges)
+
+                => _Organization2Organization_OutEdges.AddAndReturnList(Edges);
+
+        #region RemoveOutEdges(EdgeLabel, TargetOrganization)
+
+        public Boolean RemoveOutEdge(Organization2OrganizationEdge Edge)
+            => _Organization2Organization_OutEdges.Remove(Edge);
+
+        #endregion
+
+        #region RemoveOutEdges(EdgeLabel, TargetOrganization)
+
+        public void RemoveOutEdges(Organization2OrganizationEdgeTypes  EdgeLabel,
+                                   Organization                    TargetOrganization)
+        {
+
+            var edges = _Organization2Organization_OutEdges.
+                            Where(edge => edge.EdgeLabel == EdgeLabel &&
+                                          edge.Target    == TargetOrganization).
+                            ToArray();
+
+            foreach (var edge in edges)
+                _Organization2Organization_OutEdges.Remove(edge);
+
+        }
+
+        #endregion
+
+        #endregion
+
+        #endregion
+
         #region Events
 
         #endregion
@@ -236,44 +459,51 @@ namespace org.GraphDefined.OpenData.Users
         /// <param name="PrivacyLevel">Whether the organization will be shown in organization listings, or not.</param>
         /// <param name="IsDisabled">The organization is disabled.</param>
         /// <param name="DataSource">The source of all this data, e.g. an automatic importer.</param>
-        public Organization(Organization_Id                                                                    Id,
-                            I18NString                                                                         Name                                = null,
-                            I18NString                                                                         Description                         = null,
-                            String                                                                             Website                             = null,
-                            EMailAddress                                                                       EMail                               = null,
-                            PhoneNumber?                                                                       Telephone                           = null,
-                            Address                                                                            Address                             = null,
-                            GeoCoordinate?                                                                     GeoLocation                         = null,
-                            Func<Tags.Builder, Tags>                                                           Tags                                = null,
-                            PrivacyLevel                                                                       PrivacyLevel                        = OpenData.PrivacyLevel.World,
-                            Boolean                                                                            IsDisabled                          = false,
-                            String                                                                             DataSource                          = "",
+        public Organization(Organization_Id                             Id,
+                            I18NString                                  Name                                = null,
+                            I18NString                                  Description                         = null,
+                            String                                      Website                             = null,
+                            EMailAddress                                EMail                               = null,
+                            PhoneNumber?                                Telephone                           = null,
+                            Address                                     Address                             = null,
+                            GeoCoordinate?                              GeoLocation                         = null,
+                            Func<Tags.Builder, Tags>                    Tags                                = null,
+                            PrivacyLevel                                PrivacyLevel                        = OpenData.PrivacyLevel.World,
+                            Boolean                                     IsDisabled                          = false,
+                            String                                      DataSource                          = "",
 
-                            IEnumerable<MiniEdge<User, User2OrganizationEdges, Organization>>                  User2OrganizationInEdges            = null,
-                            IEnumerable<MiniEdge<Organization, Organization2OrganizationEdges, Organization>>  Organization2OrganizationInEdges    = null,
-                            IEnumerable<MiniEdge<Organization, Organization2OrganizationEdges, Organization>>  Organization2OrganizationOutEdges   = null)
+                            IEnumerable<ANotification>                  Notifications                       = null,
+
+                            IEnumerable<User2OrganizationEdge>          User2OrganizationInEdges            = null,
+                            IEnumerable<Organization2OrganizationEdge>  Organization2OrganizationInEdges    = null,
+                            IEnumerable<Organization2OrganizationEdge>  Organization2OrganizationOutEdges   = null)
 
             : base(Id,
                    DataSource)
 
         {
 
-            this.Name          = Name         ?? new I18NString();
-            this.Description   = Description  ?? new I18NString();
-            this.Website       = Website;
-            this.EMail         = EMail;
-            this.Telephone     = Telephone;
-            this.Address       = Address;
-            this.GeoLocation   = GeoLocation;
-            var _TagsBuilder   = new Tags.Builder();
-            this.Tags          = Tags != null ? Tags(_TagsBuilder) : _TagsBuilder;
-            this.PrivacyLevel  = PrivacyLevel;
-            this.IsDisabled    = IsDisabled;
+            this.Name                                 = Name         ?? new I18NString();
+            this.Description                          = Description  ?? new I18NString();
+            this.Website                              = Website;
+            this.EMail                                = EMail;
+            this.Telephone                            = Telephone;
+            this.Address                              = Address;
+            this.GeoLocation                          = GeoLocation;
+            var _TagsBuilder                          = new Tags.Builder();
+            this.Tags                                 = Tags != null ? Tags(_TagsBuilder) : _TagsBuilder;
+            this.PrivacyLevel                         = PrivacyLevel;
+            this.IsDisabled                           = IsDisabled;
+
+            this._Notifications                       = new NotificationStore();
+
+            if (Notifications.SafeAny())
+                _Notifications.Add(Notifications);
 
             // Init edges
-            this._User2Organization_InEdges           = User2OrganizationInEdges.         IsNeitherNullNorEmpty() ? new List<MiniEdge<User, User2OrganizationEdges, Organization>>                (User2OrganizationInEdges)          : new List<MiniEdge<User, User2OrganizationEdges, Organization>>();
-            this._Organization2Organization_InEdges   = Organization2OrganizationInEdges. IsNeitherNullNorEmpty() ? new List<MiniEdge<Organization, Organization2OrganizationEdges, Organization>>(Organization2OrganizationInEdges)  : new List<MiniEdge<Organization, Organization2OrganizationEdges, Organization>>();
-            this._Organization2Organization_OutEdges  = Organization2OrganizationOutEdges.IsNeitherNullNorEmpty() ? new List<MiniEdge<Organization, Organization2OrganizationEdges, Organization>>(Organization2OrganizationOutEdges) : new List<MiniEdge<Organization, Organization2OrganizationEdges, Organization>>();
+            this._User2Organization_InEdges           = User2OrganizationInEdges.         IsNeitherNullNorEmpty() ? new List<User2OrganizationEdge>                (User2OrganizationInEdges)          : new List<User2OrganizationEdge>();
+            this._Organization2Organization_InEdges   = Organization2OrganizationInEdges. IsNeitherNullNorEmpty() ? new List<Organization2OrganizationEdge>(Organization2OrganizationInEdges)  : new List<Organization2OrganizationEdge>();
+            this._Organization2Organization_OutEdges  = Organization2OrganizationOutEdges.IsNeitherNullNorEmpty() ? new List<Organization2OrganizationEdge>(Organization2OrganizationOutEdges) : new List<Organization2OrganizationEdge>();
 
             CalcHash();
 
@@ -282,219 +512,138 @@ namespace org.GraphDefined.OpenData.Users
         #endregion
 
 
-        #region User          -> Organization edges
+        #region Notifications
 
-        protected readonly List<MiniEdge<User, User2OrganizationEdges, Organization>> _User2Organization_InEdges;
+        private readonly NotificationStore _Notifications;
 
-        public IEnumerable<MiniEdge<User, User2OrganizationEdges, Organization>> User2OrganizationEdges
-            => _User2Organization_InEdges;
+        #region (internal) AddNotification(Notification,                           OnUpdate = null)
 
+        internal T AddNotification<T>(T          Notification,
+                                      Action<T>  OnUpdate  = null)
 
-        #region LinkUser(Edge)
+            where T : ANotification
 
-        public MiniEdge<User, User2OrganizationEdges, Organization>
-
-            LinkUser(MiniEdge<User, User2OrganizationEdges, Organization> Edge)
-
-            => _User2Organization_InEdges.AddAndReturnElement(Edge);
+            => _Notifications.Add(Notification,
+                                  OnUpdate);
 
         #endregion
 
-        #region LinkUser(Source, EdgeLabel, PrivacyLevel = PrivacyLevel.World)
+        #region (internal) AddNotification(Notification, NotificationMessageType,  OnUpdate = null)
 
-        public MiniEdge<User, User2OrganizationEdges, Organization>
+        internal T AddNotification<T>(T                        Notification,
+                                      NotificationMessageType  NotificationMessageType,
+                                      Action<T>                OnUpdate  = null)
 
-            LinkUser(User                    Source,
-                     User2OrganizationEdges  EdgeLabel,
-                     PrivacyLevel            PrivacyLevel = PrivacyLevel.World)
+            where T : ANotification
 
-            => _User2Organization_InEdges.
-                   AddAndReturnElement(new MiniEdge<User, User2OrganizationEdges, Organization>(Source,
-                                                                                                EdgeLabel,
-                                                                                                this,
-                                                                                                PrivacyLevel));
+            => _Notifications.Add(Notification,
+                                  NotificationMessageType,
+                                  OnUpdate);
+
+        #endregion
+
+        #region (internal) AddNotification(Notification, NotificationMessageTypes, OnUpdate = null)
+
+        internal T AddNotification<T>(T                                     Notification,
+                                      IEnumerable<NotificationMessageType>  NotificationMessageTypes,
+                                      Action<T>                             OnUpdate  = null)
+
+            where T : ANotification
+
+            => _Notifications.Add(Notification,
+                                  NotificationMessageTypes,
+                                  OnUpdate);
 
         #endregion
 
 
-        #region User2OrganizationInEdges     (User)
+        #region GetNotifications  (NotificationMessageType = null)
 
-        /// <summary>
-        /// The edge labels of all (incoming) edges between the given user and this organization.
-        /// </summary>
-        public IEnumerable<MiniEdge<User, User2OrganizationEdges, Organization>> User2OrganizationInEdges(User User)
-
-            => _User2Organization_InEdges.
-                   Where(edge => edge.Source == User);
-
-        #endregion
-
-        #region User2OrganizationInEdgeLabels(User)
-
-        /// <summary>
-        /// The edge labels of all (incoming) edges between the given user and this organization.
-        /// </summary>
-        public IEnumerable<User2OrganizationEdges> User2OrganizationInEdgeLabels(User User)
-
-            => _User2Organization_InEdges.
-                   Where (edge => edge.Source == User).
-                   Select(edge => edge.EdgeLabel);
+        public IEnumerable<ANotification> GetNotifications(NotificationMessageType?  NotificationMessageType = null)
+        {
+            lock (_Notifications)
+            {
+                return _Notifications.GetNotifications(NotificationMessageType);
+            }
+        }
 
         #endregion
 
-        public IEnumerable<MiniEdge<User, User2OrganizationEdges, Organization>>
+        #region GetNotificationsOf(params NotificationMessageTypes)
 
-            Add(IEnumerable<MiniEdge<User, User2OrganizationEdges, Organization>> Edges)
+        public IEnumerable<T> GetNotificationsOf<T>(params NotificationMessageType[] NotificationMessageTypes)
 
-                => _User2Organization_InEdges.AddAndReturnList(Edges);
+            where T : ANotification
 
-
-        #region UnlinkUser(EdgeLabel, User)
-
-        public void UnlinkUser(User2OrganizationEdges  EdgeLabel,
-                               User                    User)
         {
 
-            var edges = _User2Organization_InEdges.
-                            Where(edge => edge.EdgeLabel == EdgeLabel &&
-                                          edge.Source    == User).
-                            ToArray();
-
-            foreach (var edge in edges)
-                _User2Organization_InEdges.Remove(edge);
+            lock (_Notifications)
+            {
+                return _Notifications.GetNotificationsOf<T>(NotificationMessageTypes);
+            }
 
         }
 
         #endregion
 
-        public Boolean RemoveInEdge(MiniEdge<User, User2OrganizationEdges, Organization> Edge)
-            => _User2Organization_InEdges.Remove(Edge);
+        #region GetNotifications  (NotificationMessageTypeFilter)
+
+        public IEnumerable<ANotification> GetNotifications(Func<NotificationMessageType, Boolean> NotificationMessageTypeFilter)
+        {
+            lock (_Notifications)
+            {
+                return _Notifications.GetNotifications(NotificationMessageTypeFilter);
+            }
+        }
 
         #endregion
 
-        #region Organization <-> Organization edges
+        #region GetNotificationsOf(NotificationMessageTypeFilter)
 
-        protected readonly List<MiniEdge<Organization, Organization2OrganizationEdges, Organization>> _Organization2Organization_InEdges;
+        public IEnumerable<T> GetNotificationsOf<T>(Func<NotificationMessageType, Boolean> NotificationMessageTypeFilter)
 
-        public IEnumerable<MiniEdge<Organization, Organization2OrganizationEdges, Organization>> Organization2OrganizationInEdges
-            => _Organization2Organization_InEdges;
+            where T : ANotification
 
-        #region AddInEdge (Edge)
-
-        public MiniEdge<Organization, Organization2OrganizationEdges, Organization>
-
-            AddInEdge(MiniEdge<Organization, Organization2OrganizationEdges, Organization> Edge)
-
-            => _Organization2Organization_InEdges.AddAndReturnElement(Edge);
-
-        #endregion
-
-        #region AddInEdge (EdgeLabel, SourceOrganization, PrivacyLevel = PrivacyLevel.World)
-
-        public MiniEdge<Organization, Organization2OrganizationEdges, Organization>
-
-            AddInEdge (Organization2OrganizationEdges  EdgeLabel,
-                       Organization                    SourceOrganization,
-                       PrivacyLevel                    PrivacyLevel = PrivacyLevel.World)
-
-            => _Organization2Organization_InEdges. AddAndReturnElement(new MiniEdge<Organization, Organization2OrganizationEdges, Organization>(SourceOrganization,
-                                                                                                                                                EdgeLabel,
-                                                                                                                                                this,
-                                                                                                                                                PrivacyLevel));
-
-        #endregion
-
-        public IEnumerable<MiniEdge<Organization, Organization2OrganizationEdges, Organization>>
-
-            AddInEdges(IEnumerable<MiniEdge<Organization, Organization2OrganizationEdges, Organization>> Edges)
-
-                => _Organization2Organization_InEdges.AddAndReturnList(Edges);
-
-        #region RemoveInEdges(EdgeLabel, TargetOrganization)
-
-        public Boolean RemoveInEdge(MiniEdge<Organization, Organization2OrganizationEdges, Organization> Edge)
-            => _Organization2Organization_InEdges.Remove(Edge);
-
-        #endregion
-
-        #region RemoveInEdges (EdgeLabel, SourceOrganization)
-
-        public void RemoveInEdges(Organization2OrganizationEdges EdgeLabel,
-                                  Organization SourceOrganization)
         {
 
-            var edges = _Organization2Organization_OutEdges.
-                            Where(edge => edge.EdgeLabel == EdgeLabel &&
-                                          edge.Source == SourceOrganization).
-                            ToArray();
-
-            foreach (var edge in edges)
-                _Organization2Organization_InEdges.Remove(edge);
+            lock (_Notifications)
+            {
+                return _Notifications.GetNotificationsOf<T>(NotificationMessageTypeFilter);
+            }
 
         }
 
         #endregion
 
 
+        #region GetNotificationInfos()
 
-        protected readonly List<MiniEdge<Organization, Organization2OrganizationEdges, Organization>> _Organization2Organization_OutEdges;
+        public JObject GetNotificationInfos()
 
-        public IEnumerable<MiniEdge<Organization, Organization2OrganizationEdges, Organization>> Organization2OrganizationOutEdges
-            => _Organization2Organization_OutEdges;
+            => JSONObject.Create(new JProperty("user", JSONObject.Create(
 
-        #region AddOutEdge(Edge)
+                                     new JProperty("name",               EMail.OwnerName),
+                                     new JProperty("email",              EMail.Address.ToString())
 
-        public MiniEdge<Organization, Organization2OrganizationEdges, Organization>
+                                     //MobilePhone.HasValue
+                                     //    ? new JProperty("phoneNumber",  MobilePhone.Value.ToString())
+                                     //    : null
 
-            AddOutEdge(MiniEdge<Organization, Organization2OrganizationEdges, Organization> Edge)
-
-            => _Organization2Organization_OutEdges.AddAndReturnElement(Edge);
-
-        #endregion
-
-        #region AddOutEdge(EdgeLabel, TargetOrganization, PrivacyLevel = PrivacyLevel.World)
-
-        public MiniEdge<Organization, Organization2OrganizationEdges, Organization>
-
-            AddOutEdge(Organization2OrganizationEdges  EdgeLabel,
-                       Organization                    TargetOrganization,
-                       PrivacyLevel                    PrivacyLevel = PrivacyLevel.World)
-
-            => _Organization2Organization_OutEdges.AddAndReturnElement(new MiniEdge<Organization, Organization2OrganizationEdges, Organization>(this,
-                                                                                                                                                EdgeLabel,
-                                                                                                                                                TargetOrganization,
-                                                                                                                                                PrivacyLevel));
+                                 )),
+                                 new JProperty("notifications",  _Notifications.ToJSON()));
 
         #endregion
 
-        public IEnumerable<MiniEdge<Organization, Organization2OrganizationEdges, Organization>>
 
-            AddOutEdges(IEnumerable<MiniEdge<Organization, Organization2OrganizationEdges, Organization>> Edges)
+        #region (internal) RemoveNotification(NotificationType,                           OnRemoval = null)
 
-                => _Organization2Organization_OutEdges.AddAndReturnList(Edges);
+        internal T RemoveNotification<T>(T          NotificationType,
+                                         Action<T>  OnRemoval  = null)
 
-        #region RemoveOutEdges(EdgeLabel, TargetOrganization)
+            where T : ANotification
 
-        public Boolean RemoveOutEdge(MiniEdge<Organization, Organization2OrganizationEdges, Organization> Edge)
-            => _Organization2Organization_OutEdges.Remove(Edge);
-
-        #endregion
-
-        #region RemoveOutEdges(EdgeLabel, TargetOrganization)
-
-        public void RemoveOutEdges(Organization2OrganizationEdges  EdgeLabel,
-                                   Organization                    TargetOrganization)
-        {
-
-            var edges = _Organization2Organization_OutEdges.
-                            Where(edge => edge.EdgeLabel == EdgeLabel &&
-                                          edge.Target    == TargetOrganization).
-                            ToArray();
-
-            foreach (var edge in edges)
-                _Organization2Organization_OutEdges.Remove(edge);
-
-        }
+            => _Notifications.Remove(NotificationType,
+                                     OnRemoval);
 
         #endregion
 
@@ -567,14 +716,14 @@ namespace org.GraphDefined.OpenData.Users
 
 
                    new JProperty("parents",                 Organization2OrganizationOutEdges.
-                                                                Where     (edge => edge.EdgeLabel == Organization2OrganizationEdges.IsChildOf).
+                                                                Where     (edge => edge.EdgeLabel == Organization2OrganizationEdgeTypes.IsChildOf).
                                                                 SafeSelect(edge => ExpandParents.Switch(edge,
                                                                                                         _edge => _edge.Target.Id.ToString(),
                                                                                                         _edge => _edge.Target.ToJSON()))),
 
-                   Organization2OrganizationInEdges.SafeAny(edge => edge.EdgeLabel == Organization2OrganizationEdges.IsChildOf)
+                   Organization2OrganizationInEdges.SafeAny(edge => edge.EdgeLabel == Organization2OrganizationEdgeTypes.IsChildOf)
                        ? new JProperty("subOrganizations",  Organization2OrganizationInEdges.
-                                                                Where     (edge => edge.EdgeLabel == Organization2OrganizationEdges.IsChildOf).
+                                                                Where     (edge => edge.EdgeLabel == Organization2OrganizationEdgeTypes.IsChildOf).
                                                                 SafeSelect(edge => ExpandSubOrganizations.Switch(edge,
                                                                                                        _edge => _edge.Source.Id.ToString(),
                                                                                                        _edge => _edge.Source.ToJSON())))
@@ -868,6 +1017,9 @@ namespace org.GraphDefined.OpenData.Users
 
             }
 
+            if (_Notifications.SafeAny() && !NewOrganization._Notifications.SafeAny())
+                NewOrganization._Notifications.Add(_Notifications);
+
         }
 
         #endregion
@@ -878,7 +1030,7 @@ namespace org.GraphDefined.OpenData.Users
         private void _GetAllParents(ref HashSet<Organization> Parents)
         {
 
-            var parents = _Organization2Organization_OutEdges.Where(edge => edge.Source == this && edge.EdgeLabel == Organization2OrganizationEdges.IsChildOf).Select(edge => edge.Target).ToArray();
+            var parents = _Organization2Organization_OutEdges.Where(edge => edge.Source == this && edge.EdgeLabel == Organization2OrganizationEdgeTypes.IsChildOf).Select(edge => edge.Target).ToArray();
 
             foreach (var parent in parents)
             {
@@ -926,29 +1078,29 @@ namespace org.GraphDefined.OpenData.Users
 
 
         public IEnumerable<User> Admins
-            => _User2Organization_InEdges.Where(_ => _.EdgeLabel == OpenData.Users.User2OrganizationEdges.IsAdmin).
+            => _User2Organization_InEdges.Where(_ => _.EdgeLabel == OpenData.Users.User2OrganizationEdgeTypes.IsAdmin).
                                           SafeSelect(edge => edge.Source).
                                           Distinct();
 
         public IEnumerable<User> Members
-            => _User2Organization_InEdges.Where(_ => _.EdgeLabel == OpenData.Users.User2OrganizationEdges.IsMember).
+            => _User2Organization_InEdges.Where(_ => _.EdgeLabel == OpenData.Users.User2OrganizationEdgeTypes.IsMember).
                                           SafeSelect(edge => edge.Source).
                                           Distinct();
 
         public IEnumerable<User> Users
-            => _User2Organization_InEdges.Where(_ => _.EdgeLabel == OpenData.Users.User2OrganizationEdges.IsAdmin ||
-                                                     _.EdgeLabel == OpenData.Users.User2OrganizationEdges.IsMember).
+            => _User2Organization_InEdges.Where(_ => _.EdgeLabel == OpenData.Users.User2OrganizationEdgeTypes.IsAdmin ||
+                                                     _.EdgeLabel == OpenData.Users.User2OrganizationEdgeTypes.IsMember).
                                           SafeSelect(edge => edge.Source).
                                           Distinct();
 
         public IEnumerable<Organization> Parents
-            => _Organization2Organization_OutEdges.Where(edge => edge.Source == this && edge.EdgeLabel == Organization2OrganizationEdges.IsChildOf).Select(edge => edge.Target).ToArray();
+            => _Organization2Organization_OutEdges.Where(edge => edge.Source == this && edge.EdgeLabel == Organization2OrganizationEdgeTypes.IsChildOf).Select(edge => edge.Target).ToArray();
 
         /// <summary>
         /// A relationship between two organizations where the first includes the second, e.g., as a subsidiary. See also: the more specific 'department' property.
         /// </summary>
         public IEnumerable<Organization> SubOrganizations
-            => _Organization2Organization_InEdges.Where(edge => edge.Source == this && edge.EdgeLabel == Organization2OrganizationEdges.IsChildOf).Select(edge => edge.Source).ToArray();
+            => _Organization2Organization_InEdges.Where(edge => edge.Source == this && edge.EdgeLabel == Organization2OrganizationEdgeTypes.IsChildOf).Select(edge => edge.Source).ToArray();
 
 
         #region Operator overloading
@@ -1191,6 +1343,8 @@ namespace org.GraphDefined.OpenData.Users
                            IsDisabled,
                            DataSource,
 
+                           _Notifications,
+
                            _User2Organization_InEdges,
                            _Organization2Organization_InEdges,
                            _Organization2Organization_OutEdges);
@@ -1282,27 +1436,27 @@ namespace org.GraphDefined.OpenData.Users
 
             #region Edges
 
-            protected readonly List<MiniEdge<User, User2OrganizationEdges, Organization>> _User2Organization_InEdges;
+            protected readonly List<User2OrganizationEdge> _User2Organization_InEdges;
 
-            public IEnumerable<MiniEdge<User, User2OrganizationEdges, Organization>> User2OrganizationEdges
+            public IEnumerable<User2OrganizationEdge> User2OrganizationEdges
                 => _User2Organization_InEdges;
 
 
-            protected readonly List<MiniEdge<Organization, Organization2UserEdges, User>> _Organization2UserEdges;
+            //protected readonly List<MiniEdge<Organization, Organization2UserEdgeTypes, User>> _Organization2UserEdges;
 
-            public IEnumerable<MiniEdge<Organization, Organization2UserEdges, User>> Organization2UserEdges
-                => _Organization2UserEdges;
+            //public IEnumerable<MiniEdge<Organization, Organization2UserEdgeTypes, User>> Organization2UserEdges
+            //    => _Organization2UserEdges;
 
 
-            protected readonly List<MiniEdge<Organization, Organization2OrganizationEdges, Organization>> _Organization2Organization_InEdges;
+            protected readonly List<Organization2OrganizationEdge> _Organization2Organization_InEdges;
 
-            public IEnumerable<MiniEdge<Organization, Organization2OrganizationEdges, Organization>> Organization2OrganizationInEdges
+            public IEnumerable<Organization2OrganizationEdge> Organization2OrganizationInEdges
                 => _Organization2Organization_InEdges;
 
 
-            protected readonly List<MiniEdge<Organization, Organization2OrganizationEdges, Organization>> _Organization2Organization_OutEdges;
+            protected readonly List<Organization2OrganizationEdge> _Organization2Organization_OutEdges;
 
-            public IEnumerable<MiniEdge<Organization, Organization2OrganizationEdges, Organization>> Organization2OrganizationOutEdges
+            public IEnumerable<Organization2OrganizationEdge> Organization2OrganizationOutEdges
                 => _Organization2Organization_OutEdges;
 
             #endregion
@@ -1323,44 +1477,189 @@ namespace org.GraphDefined.OpenData.Users
             /// <param name="PrivacyLevel">Whether the organization will be shown in organization listings, or not.</param>
             /// <param name="IsDisabled">The organization is disabled.</param>
             /// <param name="DataSource">The source of all this data, e.g. an automatic importer.</param>
-            public Builder(Organization_Id                                                                    Id,
-                           I18NString                                                                         Name                                = null,
-                           I18NString                                                                         Description                         = null,
-                           String                                                                             Website                             = null,
-                           EMailAddress                                                                       EMail                               = null,
-                           PhoneNumber?                                                                       Telephone                           = null,
-                           Address                                                                            Address                             = null,
-                           GeoCoordinate?                                                                     GeoLocation                         = null,
-                           Func<Tags.Builder, Tags>                                                           Tags                                = null,
-                           PrivacyLevel                                                                       PrivacyLevel                        = OpenData.PrivacyLevel.Private,
-                           Boolean                                                                            IsDisabled                          = false,
-                           String                                                                             DataSource                          = "",
+            public Builder(Organization_Id                             Id,
+                           I18NString                                  Name                                = null,
+                           I18NString                                  Description                         = null,
+                           String                                      Website                             = null,
+                           EMailAddress                                EMail                               = null,
+                           PhoneNumber?                                Telephone                           = null,
+                           Address                                     Address                             = null,
+                           GeoCoordinate?                              GeoLocation                         = null,
+                           Func<Tags.Builder, Tags>                    Tags                                = null,
+                           PrivacyLevel                                PrivacyLevel                        = OpenData.PrivacyLevel.Private,
+                           Boolean                                     IsDisabled                          = false,
+                           String                                      DataSource                          = "",
 
-                           IEnumerable<MiniEdge<User, User2OrganizationEdges, Organization>>                  User2OrganizationInEdges            = null,
-                           IEnumerable<MiniEdge<Organization, Organization2OrganizationEdges, Organization>>  Organization2OrganizationInEdges    = null,
-                           IEnumerable<MiniEdge<Organization, Organization2OrganizationEdges, Organization>>  Organization2OrganizationOutEdges   = null)
+                           IEnumerable<ANotification>                  Notifications                       = null,
+
+                           IEnumerable<User2OrganizationEdge>          User2OrganizationInEdges            = null,
+                           IEnumerable<Organization2OrganizationEdge>  Organization2OrganizationInEdges    = null,
+                           IEnumerable<Organization2OrganizationEdge>  Organization2OrganizationOutEdges   = null)
             {
 
-                this.Id               = Id;
-                this.Name             = Name        ?? new I18NString();
-                this.Description      = Description ?? new I18NString();
-                this.Website          = Website;
-                this.EMail            = EMail;
-                this.Telephone        = Telephone;
-                this.Address          = Address;
-                this.GeoLocation      = GeoLocation;
-                var _TagsBuilder      = new Tags.Builder();
-                this.Tags             = Tags != null ? Tags(_TagsBuilder) : _TagsBuilder;
-                this.PrivacyLevel     = PrivacyLevel;
-                this.IsDisabled       = IsDisabled;
-                this.DataSource       = DataSource;
+                this.Id                                   = Id;
+                this.Name                                 = Name        ?? new I18NString();
+                this.Description                          = Description ?? new I18NString();
+                this.Website                              = Website;
+                this.EMail                                = EMail;
+                this.Telephone                            = Telephone;
+                this.Address                              = Address;
+                this.GeoLocation                          = GeoLocation;
+                var _TagsBuilder                          = new Tags.Builder();
+                this.Tags                                 = Tags != null ? Tags(_TagsBuilder) : _TagsBuilder;
+                this.PrivacyLevel                         = PrivacyLevel;
+                this.IsDisabled                           = IsDisabled;
+                this.DataSource                           = DataSource;
+
+                this._Notifications                       = new NotificationStore();
+
+                if (Notifications.SafeAny())
+                    _Notifications.Add(Notifications);
 
                 // Init edges
-                this._User2Organization_InEdges           = User2OrganizationInEdges.         IsNeitherNullNorEmpty() ? new List<MiniEdge<User, User2OrganizationEdges, Organization>>                (User2OrganizationInEdges)          : new List<MiniEdge<User,         User2OrganizationEdges,         Organization>>();
-                this._Organization2Organization_InEdges   = Organization2OrganizationInEdges. IsNeitherNullNorEmpty() ? new List<MiniEdge<Organization, Organization2OrganizationEdges, Organization>>(Organization2OrganizationInEdges)  : new List<MiniEdge<Organization, Organization2OrganizationEdges, Organization>>();
-                this._Organization2Organization_OutEdges  = Organization2OrganizationOutEdges.IsNeitherNullNorEmpty() ? new List<MiniEdge<Organization, Organization2OrganizationEdges, Organization>>(Organization2OrganizationOutEdges) : new List<MiniEdge<Organization, Organization2OrganizationEdges, Organization>>();
+                this._User2Organization_InEdges           = User2OrganizationInEdges.         IsNeitherNullNorEmpty() ? new List<User2OrganizationEdge>                (User2OrganizationInEdges)          : new List<User2OrganizationEdge>();
+                this._Organization2Organization_InEdges   = Organization2OrganizationInEdges. IsNeitherNullNorEmpty() ? new List<Organization2OrganizationEdge>(Organization2OrganizationInEdges)  : new List<Organization2OrganizationEdge>();
+                this._Organization2Organization_OutEdges  = Organization2OrganizationOutEdges.IsNeitherNullNorEmpty() ? new List<Organization2OrganizationEdge>(Organization2OrganizationOutEdges) : new List<Organization2OrganizationEdge>();
 
             }
+
+            #endregion
+
+
+            #region Notifications
+
+            private readonly NotificationStore _Notifications;
+
+            #region (internal) AddNotification(Notification,                           OnUpdate = null)
+
+            internal T AddNotification<T>(T          Notification,
+                                          Action<T>  OnUpdate  = null)
+
+                where T : ANotification
+
+                => _Notifications.Add(Notification,
+                                      OnUpdate);
+
+            #endregion
+
+            #region (internal) AddNotification(Notification, NotificationMessageType,  OnUpdate = null)
+
+            internal T AddNotification<T>(T                        Notification,
+                                          NotificationMessageType  NotificationMessageType,
+                                          Action<T>                OnUpdate  = null)
+
+                where T : ANotification
+
+                => _Notifications.Add(Notification,
+                                      NotificationMessageType,
+                                      OnUpdate);
+
+            #endregion
+
+            #region (internal) AddNotification(Notification, NotificationMessageTypes, OnUpdate = null)
+
+            internal T AddNotification<T>(T                                     Notification,
+                                          IEnumerable<NotificationMessageType>  NotificationMessageTypes,
+                                          Action<T>                             OnUpdate  = null)
+
+                where T : ANotification
+
+                => _Notifications.Add(Notification,
+                                      NotificationMessageTypes,
+                                      OnUpdate);
+
+            #endregion
+
+
+            #region GetNotifications  (NotificationMessageType = null)
+
+            public IEnumerable<ANotification> GetNotifications(NotificationMessageType?  NotificationMessageType = null)
+            {
+                lock (_Notifications)
+                {
+                    return _Notifications.GetNotifications(NotificationMessageType);
+                }
+            }
+
+            #endregion
+
+            #region GetNotificationsOf(params NotificationMessageTypes)
+
+            public IEnumerable<T> GetNotificationsOf<T>(params NotificationMessageType[] NotificationMessageTypes)
+
+                where T : ANotification
+
+            {
+
+                lock (_Notifications)
+                {
+                    return _Notifications.GetNotificationsOf<T>(NotificationMessageTypes);
+                }
+
+            }
+
+            #endregion
+
+            #region GetNotifications  (NotificationMessageTypeFilter)
+
+            public IEnumerable<ANotification> GetNotifications(Func<NotificationMessageType, Boolean> NotificationMessageTypeFilter)
+            {
+                lock (_Notifications)
+                {
+                    return _Notifications.GetNotifications(NotificationMessageTypeFilter);
+                }
+            }
+
+            #endregion
+
+            #region GetNotificationsOf(NotificationMessageTypeFilter)
+
+            public IEnumerable<T> GetNotificationsOf<T>(Func<NotificationMessageType, Boolean> NotificationMessageTypeFilter)
+
+                where T : ANotification
+
+            {
+
+                lock (_Notifications)
+                {
+                    return _Notifications.GetNotificationsOf<T>(NotificationMessageTypeFilter);
+                }
+
+            }
+
+            #endregion
+
+
+            #region GetNotificationInfos()
+
+            public JObject GetNotificationInfos()
+
+                => JSONObject.Create(new JProperty("user", JSONObject.Create(
+
+                                         new JProperty("name",               EMail.OwnerName),
+                                         new JProperty("email",              EMail.Address.ToString())
+
+                                         //MobilePhone.HasValue
+                                         //    ? new JProperty("phoneNumber",  MobilePhone.Value.ToString())
+                                         //    : null
+
+                                     )),
+                                     new JProperty("notifications",  _Notifications.ToJSON()));
+
+            #endregion
+
+
+            #region (internal) RemoveNotification(NotificationType,                           OnRemoval = null)
+
+            internal T RemoveNotification<T>(T          NotificationType,
+                                             Action<T>  OnRemoval  = null)
+
+                where T : ANotification
+
+                => _Notifications.Remove(NotificationType,
+                                         OnRemoval);
+
+            #endregion
 
             #endregion
 
@@ -1393,6 +1692,8 @@ namespace org.GraphDefined.OpenData.Users
                                     PrivacyLevel,
                                     IsDisabled,
                                     DataSource,
+
+                                    _Notifications,
 
                                     _User2Organization_InEdges,
                                     _Organization2Organization_InEdges,

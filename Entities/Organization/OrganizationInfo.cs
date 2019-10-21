@@ -104,6 +104,8 @@ namespace org.GraphDefined.OpenData.Users
                    organization.IsDisabled,
                    organization.DataSource,
 
+                   null,
+
                    organization.User2OrganizationEdges,
                    organization.Organization2OrganizationInEdges,
                    organization.Organization2OrganizationOutEdges)
@@ -111,8 +113,8 @@ namespace org.GraphDefined.OpenData.Users
         {
 
             this.You                             = You;
-            this.Admins                          = _User2Organization_InEdges.Where(_ => _.EdgeLabel == OpenData.Users.User2OrganizationEdges.IsAdmin). SafeSelect(edge => edge.Source).ToArray();
-            this.Members                         = _User2Organization_InEdges.Where(_ => _.EdgeLabel == OpenData.Users.User2OrganizationEdges.IsMember).SafeSelect(edge => edge.Source).ToArray();
+            this.Admins                          = _User2Organization_InEdges.Where(_ => _.EdgeLabel == OpenData.Users.User2OrganizationEdgeTypes.IsAdmin). SafeSelect(edge => edge.Source).ToArray();
+            this.Members                         = _User2Organization_InEdges.Where(_ => _.EdgeLabel == OpenData.Users.User2OrganizationEdgeTypes.IsMember).SafeSelect(edge => edge.Source).ToArray();
 
             this.YouAreMember                    = YouAreMember                   || Admins.Contains(You) || Members.Contains(You);
             this.YouCanAddMembers                = YouCanAddMembers               || Admins.Contains(You);
@@ -126,7 +128,7 @@ namespace org.GraphDefined.OpenData.Users
                                                     Boolean       YouCanCreateChildOrganizationsRecursion)
 
                 => Org.Organization2OrganizationInEdges.
-                       Where     (edge => edge.EdgeLabel == Organization2OrganizationEdges.IsChildOf).
+                       Where     (edge => edge.EdgeLabel == Organization2OrganizationEdgeTypes.IsChildOf).
                        SafeSelect(edge => new OrganizationInfo(edge.Source,
                                                                You,
                                                                YouAreMemberRecursion,

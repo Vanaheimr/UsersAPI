@@ -903,6 +903,56 @@ namespace org.GraphDefined.OpenData.Users
         #endregion
 
 
+        #region (protected internal) ImpersonateUserRequest (Request)
+
+        /// <summary>
+        /// An event sent whenever an impersonate user request was received.
+        /// </summary>
+        public HTTPRequestLogEvent OnImpersonateUserRequest = new HTTPRequestLogEvent();
+
+        /// <summary>
+        /// An event sent whenever an impersonate user request was received.
+        /// </summary>
+        /// <param name="Timestamp">The timestamp of the request.</param>
+        /// <param name="API">The HTTP API.</param>
+        /// <param name="Request">A HTTP request.</param>
+        protected internal Task ImpersonateUserRequest(DateTime     Timestamp,
+                                                       HTTPAPI      API,
+                                                       HTTPRequest  Request)
+
+            => OnImpersonateUserRequest?.WhenAll(Timestamp,
+                                                 API ?? this,
+                                                 Request);
+
+        #endregion
+
+        #region (protected internal) ImpersonateUserResponse(Response)
+
+        /// <summary>
+        /// An event sent whenever a response on an impersonate user request was sent.
+        /// </summary>
+        public HTTPResponseLogEvent OnImpersonateUserResponse = new HTTPResponseLogEvent();
+
+        /// <summary>
+        /// An event sent whenever a response on an impersonate user request was sent.
+        /// </summary>
+        /// <param name="Timestamp">The timestamp of the request.</param>
+        /// <param name="API">The HTTP API.</param>
+        /// <param name="Request">A HTTP request.</param>
+        /// <param name="Response">A HTTP response.</param>
+        protected internal Task ImpersonateUserResponse(DateTime      Timestamp,
+                                                        HTTPAPI       API,
+                                                        HTTPRequest   Request,
+                                                        HTTPResponse  Response)
+
+            => OnImpersonateUserResponse?.WhenAll(Timestamp,
+                                                  API ?? this,
+                                                  Request,
+                                                  Response);
+
+        #endregion
+
+
         #region (protected internal) SetUserNotificationsRequest    (Request)
 
         /// <summary>
@@ -951,6 +1001,7 @@ namespace org.GraphDefined.OpenData.Users
                                                        Response);
 
         #endregion
+
 
         #region (protected internal) DeleteUserNotificationsRequest (Request)
 
@@ -1002,54 +1053,7 @@ namespace org.GraphDefined.OpenData.Users
         #endregion
 
 
-        #region (protected internal) ImpersonateUserRequest (Request)
-
-        /// <summary>
-        /// An event sent whenever an impersonate user request was received.
-        /// </summary>
-        public HTTPRequestLogEvent OnImpersonateUserRequest = new HTTPRequestLogEvent();
-
-        /// <summary>
-        /// An event sent whenever an impersonate user request was received.
-        /// </summary>
-        /// <param name="Timestamp">The timestamp of the request.</param>
-        /// <param name="API">The HTTP API.</param>
-        /// <param name="Request">A HTTP request.</param>
-        protected internal Task ImpersonateUserRequest(DateTime     Timestamp,
-                                                       HTTPAPI      API,
-                                                       HTTPRequest  Request)
-
-            => OnImpersonateUserRequest?.WhenAll(Timestamp,
-                                                 API ?? this,
-                                                 Request);
-
-        #endregion
-
-        #region (protected internal) ImpersonateUserResponse(Response)
-
-        /// <summary>
-        /// An event sent whenever a response on an impersonate user request was sent.
-        /// </summary>
-        public HTTPResponseLogEvent OnImpersonateUserResponse = new HTTPResponseLogEvent();
-
-        /// <summary>
-        /// An event sent whenever a response on an impersonate user request was sent.
-        /// </summary>
-        /// <param name="Timestamp">The timestamp of the request.</param>
-        /// <param name="API">The HTTP API.</param>
-        /// <param name="Request">A HTTP request.</param>
-        /// <param name="Response">A HTTP response.</param>
-        protected internal Task ImpersonateUserResponse(DateTime      Timestamp,
-                                                        HTTPAPI       API,
-                                                        HTTPRequest   Request,
-                                                        HTTPResponse  Response)
-
-            => OnImpersonateUserResponse?.WhenAll(Timestamp,
-                                                  API ?? this,
-                                                  Request,
-                                                  Response);
-
-        #endregion
+        // ---------------------------------------------------------------
 
 
         #region (protected internal) AddOrganizationRequest (Request)
@@ -1148,6 +1152,106 @@ namespace org.GraphDefined.OpenData.Users
                                                       API ?? this,
                                                       Request,
                                                       Response);
+
+        #endregion
+
+
+        #region (protected internal) SetOrganizationNotificationsRequest    (Request)
+
+        /// <summary>
+        /// An event sent whenever set organization notifications request was received.
+        /// </summary>
+        public HTTPRequestLogEvent OnSetOrganizationNotificationsRequest = new HTTPRequestLogEvent();
+
+        /// <summary>
+        /// An event sent whenever set organization notifications request was received.
+        /// </summary>
+        /// <param name="Timestamp">The timestamp of the request.</param>
+        /// <param name="API">The HTTP API.</param>
+        /// <param name="Request">A HTTP request.</param>
+        protected internal Task SetOrganizationNotificationsRequest(DateTime     Timestamp,
+                                                                    HTTPAPI      API,
+                                                                    HTTPRequest  Request)
+
+            => OnSetOrganizationNotificationsRequest?.WhenAll(Timestamp,
+                                                              API ?? this,
+                                                              Request);
+
+        #endregion
+
+        #region (protected internal) SetOrganizationNotificationsResponse   (Response)
+
+        /// <summary>
+        /// An event sent whenever a response on a set organization notifications request was sent.
+        /// </summary>
+        public HTTPResponseLogEvent OnSetOrganizationNotificationsResponse = new HTTPResponseLogEvent();
+
+        /// <summary>
+        /// An event sent whenever a response on a set organization notifications request was sent.
+        /// </summary>
+        /// <param name="Timestamp">The timestamp of the request.</param>
+        /// <param name="API">The HTTP API.</param>
+        /// <param name="Request">A HTTP request.</param>
+        /// <param name="Response">A HTTP response.</param>
+        protected internal Task SetOrganizationNotificationsResponse(DateTime      Timestamp,
+                                                                     HTTPAPI       API,
+                                                                     HTTPRequest   Request,
+                                                                     HTTPResponse  Response)
+
+            => OnSetOrganizationNotificationsResponse?.WhenAll(Timestamp,
+                                                               API ?? this,
+                                                               Request,
+                                                               Response);
+
+        #endregion
+
+
+        #region (protected internal) DeleteOrganizationNotificationsRequest (Request)
+
+        /// <summary>
+        /// An event sent whenever set organization notifications request was received.
+        /// </summary>
+        public HTTPRequestLogEvent OnDeleteOrganizationNotificationsRequest = new HTTPRequestLogEvent();
+
+        /// <summary>
+        /// An event sent whenever set organization notifications request was received.
+        /// </summary>
+        /// <param name="Timestamp">The timestamp of the request.</param>
+        /// <param name="API">The HTTP API.</param>
+        /// <param name="Request">A HTTP request.</param>
+        protected internal Task DeleteOrganizationNotificationsRequest(DateTime     Timestamp,
+                                                                       HTTPAPI      API,
+                                                                       HTTPRequest  Request)
+
+            => OnDeleteOrganizationNotificationsRequest?.WhenAll(Timestamp,
+                                                                 API ?? this,
+                                                                 Request);
+
+        #endregion
+
+        #region (protected internal) DeleteOrganizationNotificationsResponse(Response)
+
+        /// <summary>
+        /// An event sent whenever a response on a set organization notifications request was sent.
+        /// </summary>
+        public HTTPResponseLogEvent OnDeleteOrganizationNotificationsResponse = new HTTPResponseLogEvent();
+
+        /// <summary>
+        /// An event sent whenever a response on a set organization notifications request was sent.
+        /// </summary>
+        /// <param name="Timestamp">The timestamp of the request.</param>
+        /// <param name="API">The HTTP API.</param>
+        /// <param name="Request">A HTTP request.</param>
+        /// <param name="Response">A HTTP response.</param>
+        protected internal Task DeleteOrganizationNotificationsResponse(DateTime      Timestamp,
+                                                                        HTTPAPI       API,
+                                                                        HTTPRequest   Request,
+                                                                        HTTPResponse  Response)
+
+            => OnDeleteOrganizationNotificationsResponse?.WhenAll(Timestamp,
+                                                                  API ?? this,
+                                                                  Request,
+                                                                  Response);
 
         #endregion
 
@@ -2010,7 +2114,7 @@ namespace org.GraphDefined.OpenData.Users
 
 
 
-            var childResults = currentOrg.Organization2OrganizationInEdges.Where(edge => edge.EdgeLabel == Organization2OrganizationEdges.IsChildOf).
+            var childResults = currentOrg.Organization2OrganizationInEdges.Where(edge => edge.EdgeLabel == Organization2OrganizationEdgeTypes.IsChildOf).
                                           Select(edge => CheckImpersonate(edge.Source, Astronaut, AstronautFound, Member, new HashSet<User>(VetoUsers))).ToArray();
 
             return childResults.Any(result => result == true);
@@ -2037,13 +2141,13 @@ namespace org.GraphDefined.OpenData.Users
                 return false;
 
             // An astronaut must be at least an admin of some parent organization!
-            if (!Astronaut.User2Organization_OutEdges.Any(edge => edge.EdgeLabel == User2OrganizationEdges.IsAdmin))
+            if (!Astronaut.User2Organization_OutEdges.Any(edge => edge.EdgeLabel == User2OrganizationEdgeTypes.IsAdmin))
                 return false;
 
             var VetoUsers             = new HashSet<User>();
             var AstronautFound        = false;
             var CurrentOrganizations  = new HashSet<Organization>(Organizations.Where(org => !org.Organization2OrganizationOutEdges.
-                                                                                                  Any(edge => edge.EdgeLabel == Organization2OrganizationEdges.IsChildOf)));
+                                                                                                  Any(edge => edge.EdgeLabel == Organization2OrganizationEdgeTypes.IsChildOf)));
 
             var childResults = CurrentOrganizations.Select(org => CheckImpersonate(org, Astronaut, AstronautFound, Member, VetoUsers)).ToArray();
 
@@ -2053,7 +2157,7 @@ namespace org.GraphDefined.OpenData.Users
             do
             {
 
-                var NextOrgs  = new HashSet<Organization>(CurrentOrganizations.SelectMany(org => org.Organization2OrganizationInEdges.Where(edge => edge.EdgeLabel == Organization2OrganizationEdges.IsChildOf)).Select(edge => edge.Source));
+                var NextOrgs  = new HashSet<Organization>(CurrentOrganizations.SelectMany(org => org.Organization2OrganizationInEdges.Where(edge => edge.EdgeLabel == Organization2OrganizationEdgeTypes.IsChildOf)).Select(edge => edge.Source));
 
                 foreach (var currentOrg in NextOrgs)
                 {
@@ -2150,7 +2254,7 @@ namespace org.GraphDefined.OpenData.Users
         #endregion
 
 
-        private readonly List<NotificationMessageTypeInfo> _NotificationMessageTypeInfos = new List<NotificationMessageTypeInfo> ();
+        private readonly List<NotificationMessageTypeInfo> _NotificationMessageTypeInfos = new List<NotificationMessageTypeInfo>();
 
         public void Add(NotificationMessageTypeInfo NotificationMessageTypeInfo)
             => _NotificationMessageTypeInfos.Add(NotificationMessageTypeInfo);
@@ -2163,6 +2267,22 @@ namespace org.GraphDefined.OpenData.Users
                 throw new ArgumentNullException(nameof(User), "The given user must not be null!");
 
             var notificationsJSON = User.GetNotificationInfos();
+
+            notificationsJSON.AddFirst(new JProperty("messages", new JArray(
+                                           _NotificationMessageTypeInfos.Select(notificationMessageTypeInfo => notificationMessageTypeInfo.ToJSON())
+                                      )));
+
+            return notificationsJSON;
+
+        }
+
+        private JObject GetNotificationInfos(Organization Organization)
+        {
+
+            if (Organization == null)
+                throw new ArgumentNullException(nameof(Organization), "The given organization must not be null!");
+
+            var notificationsJSON = Organization.GetNotificationInfos();
 
             notificationsJSON.AddFirst(new JProperty("messages", new JArray(
                                            _NotificationMessageTypeInfos.Select(notificationMessageTypeInfo => notificationMessageTypeInfo.ToJSON())
@@ -3594,15 +3714,15 @@ namespace org.GraphDefined.OpenData.Users
                                                           {
 
                                                               case "guest":
-                                                                  await AddToOrganization(NewUser, User2OrganizationEdges.IsGuest,   _Organization);
+                                                                  await AddToOrganization(NewUser, User2OrganizationEdgeTypes.IsGuest,   _Organization);
                                                                   break;
 
                                                               case "member":
-                                                                  await AddToOrganization(NewUser, User2OrganizationEdges.IsMember,  _Organization);
+                                                                  await AddToOrganization(NewUser, User2OrganizationEdgeTypes.IsMember,  _Organization);
                                                                   break;
 
                                                               case "admin":
-                                                                  await AddToOrganization(NewUser, User2OrganizationEdges.IsAdmin,   _Organization);
+                                                                  await AddToOrganization(NewUser, User2OrganizationEdgeTypes.IsAdmin,   _Organization);
                                                                   break;
 
                                                           }
@@ -5859,7 +5979,7 @@ namespace org.GraphDefined.OpenData.Users
                                                                                                           CurrentUserId:       HTTPUser.Id);
 
                                                      foreach (var admin in Admins)
-                                                         await AddToOrganization(admin, User2OrganizationEdges.IsAdmin, _NewChildOrganization);
+                                                         await AddToOrganization(admin, User2OrganizationEdgeTypes.IsAdmin, _NewChildOrganization);
 
                                                  }
                                                  catch (Exception e)
@@ -5959,14 +6079,33 @@ namespace org.GraphDefined.OpenData.Users
 
                                              #region Check OrganizationId URI parameter
 
-                                             if (!Request.ParseOrganizationId(this,
-                                                                              out Organization_Id?  OrganizationIdURI,
-                                                                              out HTTPResponse      HTTPResponse))
+                                             if (!Request.ParseOrganization(this,
+                                                                            out Organization_Id?  OrganizationIdURI,
+                                                                            out Organization      Organization,
+                                                                            out HTTPResponse      HTTPResponse))
                                              {
                                                  return HTTPResponse;
                                              }
 
                                              #endregion
+
+                                             #region Organization exists, but the given user is not an admin!
+
+                                             if (Organization != null && !HTTPOrganizations.Contains(Organization))
+                                                 return new HTTPResponse.Builder(Request) {
+                                                            HTTPStatusCode              = HTTPStatusCode.Forbidden,
+                                                            Server                      = HTTPServer.DefaultServerName,
+                                                            Date                        = DateTime.UtcNow,
+                                                            AccessControlAllowOrigin    = "*",
+                                                            AccessControlAllowMethods   = "GET, SET, CHOWN",
+                                                            AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
+                                                            Connection                  = "close"
+                                                        }.AsImmutable;
+
+                                             #endregion
+
+
+
 
                                              #region Parse JSON and create the new child organization...
 
@@ -6132,6 +6271,433 @@ namespace org.GraphDefined.OpenData.Users
                                                  }.AsImmutable;
 
                                      });
+
+            #endregion
+
+
+            #region GET         ~/organizations/{OrganizationId}/notifications
+
+            // --------------------------------------------------------------------------------------
+            // curl -v -H "Accept: application/json" http://127.0.0.1:2100/organizations/ahzf/notifications
+            // --------------------------------------------------------------------------------------
+            HTTPServer.AddMethodCallback(Hostname,
+                                         HTTPMethod.GET,
+                                         URLPathPrefix + "organizations/{OrganizationId}/notifications",
+                                         HTTPContentType.JSON_UTF8,
+                                         HTTPDelegate: Request => {
+
+                                             #region Get HTTP user and its organizations
+
+                                             // Will return HTTP 401 Unauthorized, when the HTTP user is unknown!
+                                             if (!TryGetHTTPUser(Request,
+                                                                 out User                   HTTPUser,
+                                                                 out HashSet<Organization>  HTTPOrganizations,
+                                                                 out HTTPResponse           Response,
+                                                                 Recursive: true))
+                                             {
+                                                 return Task.FromResult(Response);
+                                             }
+
+                                             #endregion
+
+                                             #region Check OrganizationId URI parameter
+
+                                             if (!Request.ParseOrganization(this,
+                                                                            out Organization_Id?  OrganizationId,
+                                                                            out Organization      Organization,
+                                                                            out HTTPResponse      HTTPResponse))
+                                             {
+                                                 return Task.FromResult(HTTPResponse);
+                                             }
+
+                                             #endregion
+
+                                             return Task.FromResult(new HTTPResponse.Builder(Request) {
+                                                        HTTPStatusCode             = HTTPStatusCode.OK,
+                                                        Server                     = HTTPServer.DefaultServerName,
+                                                        Date                       = DateTime.UtcNow,
+                                                        AccessControlAllowOrigin   = "*",
+                                                        AccessControlAllowMethods  = "GET, SET",
+                                                        AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
+                                                        ETag                       = "1",
+                                                        ContentType                = HTTPContentType.JSON_UTF8,
+                                                        Content                    = GetNotificationInfos(Organization).ToUTF8Bytes(),
+                                                        Connection                 = "close"
+                                                    }.AsImmutable);
+
+            });
+
+            #endregion
+
+            #region SET         ~/organizations/{OrganizationId}/notifications
+
+            // ---------------------------------------------------------------------------------------------
+            // curl -v -X SET \
+            //      -H "Accept:       application/json; charset=utf-8" \
+            //      -H "Content-Type: application/json; charset=utf-8" \
+            //      -d "{ \
+            //          }" \
+            //      http://127.0.0.1:2000/organizations/214080158
+            // ---------------------------------------------------------------------------------------------
+            HTTPServer.AddMethodCallback(Hostname,
+                                         HTTPMethod.SET,
+                                         URLPathPrefix + "organizations/{OrganizationId}/notifications",
+                                         HTTPContentType.JSON_UTF8,
+                                         HTTPRequestLogger:   SetOrganizationNotificationsRequest,
+                                         HTTPResponseLogger:  SetOrganizationNotificationsResponse,
+                                         HTTPDelegate:        async Request => {
+
+                                             #region Get HTTP user and its organizations
+
+                                             // Will return HTTP 401 Unauthorized, when the HTTP user is unknown!
+                                             if (!TryGetHTTPUser(Request,
+                                                                 out User                   HTTPUser,
+                                                                 out HashSet<Organization>  HTTPOrganizations,
+                                                                 out HTTPResponse           HTTPResponse,
+                                                                 AccessLevel:               Access_Levels.ReadWrite,
+                                                                 Recursive:                 true))
+                                             {
+                                                 return HTTPResponse;
+                                             }
+
+                                             #endregion
+
+                                             #region Check OrganizationId URI parameter
+
+                                             if (!Request.ParseOrganization(this,
+                                                                            out Organization_Id?  OrganizationId,
+                                                                            out Organization      Organization,
+                                                                            out                   HTTPResponse))
+                                             {
+                                                 return HTTPResponse;
+                                             }
+
+                                             #endregion
+
+                                             #region Has the current HTTP user the required access rights to update?
+
+                                             if (!HTTPOrganizations.Contains(Organization))
+                                                 return new HTTPResponse.Builder(Request) {
+                                                            HTTPStatusCode              = HTTPStatusCode.Forbidden,
+                                                            Server                      = HTTPServer.DefaultServerName,
+                                                            Date                        = DateTime.UtcNow,
+                                                            AccessControlAllowOrigin    = "*",
+                                                            AccessControlAllowMethods   = "GET, SET, CHOWN",
+                                                            AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
+                                                            Connection                  = "close"
+                                                        }.AsImmutable;
+
+                                             #endregion
+
+
+                                             #region Parse JSON and new notifications...
+
+                                             if (!Request.TryParseJArrayRequestBody(out JArray JSONArray, out HTTPResponse))
+                                                 return HTTPResponse;
+
+                                             String ErrorString = null;
+
+                                             if (JSONArray.Count > 0)
+                                             {
+
+                                                 var JSONObjects = JSONArray.Cast<JObject>().ToArray();
+
+                                                 if (!JSONObjects.Any())
+                                                     goto fail;
+
+                                                 String context = null;
+
+                                                 foreach (var JSONObject in JSONObjects)
+                                                 {
+
+                                                     context = JSONObject["@context"]?.Value<String>();
+
+                                                     if (context.IsNullOrEmpty())
+                                                         goto fail;
+
+                                                     switch (context)
+                                                     {
+
+                                                         case TelegramNotification.JSONLDContext:
+                                                             if (!TelegramNotification.TryParse(JSONObject, out TelegramNotification telegramNotification))
+                                                             {
+                                                                 ErrorString = "Could not parse Telegram notification!";
+                                                                 goto fail;
+                                                             }
+                                                             await AddNotification(Organization, telegramNotification, HTTPUser.Id);
+                                                             break;
+
+                                                         case TelegramGroupNotification.JSONLDContext:
+                                                             if (!TelegramGroupNotification.TryParse(JSONObject, out TelegramGroupNotification telegramGroupNotification))
+                                                             {
+                                                                 ErrorString = "Could not parse Telegram group notification!";
+                                                                 goto fail;
+                                                             }
+                                                             await AddNotification(Organization, telegramGroupNotification, HTTPUser.Id);
+                                                             break;
+
+                                                         case SMSNotification.JSONLDContext:
+                                                             if (!SMSNotification.TryParse(JSONObject, out SMSNotification   smsNotification))
+                                                             {
+                                                                 ErrorString = "Could not parse sms notification!";
+                                                                 goto fail;
+                                                             }
+                                                             await AddNotification(Organization, smsNotification, HTTPUser.Id);
+                                                             break;
+
+                                                         case HTTPSNotification.JSONLDContext:
+                                                             if (!HTTPSNotification.TryParse(JSONObject, out HTTPSNotification httpsNotification))
+                                                             {
+                                                                 ErrorString = "Could not parse https notification!";
+                                                                 goto fail;
+                                                             }
+                                                             await AddNotification(Organization, httpsNotification, HTTPUser.Id);
+                                                             break;
+
+                                                         case EMailNotification.JSONLDContext:
+                                                             if (!EMailNotification.TryParse(JSONObject, out EMailNotification eMailNotification))
+                                                             {
+                                                                 ErrorString = "Could not parse e-mail notification!";
+                                                                 goto fail;
+                                                             }
+                                                             await AddNotification(Organization, eMailNotification, HTTPUser.Id);
+                                                             break;
+
+                                                         default:
+                                                             goto fail;
+
+                                                     }
+
+                                                 }
+
+                                             }
+
+                                             goto goon;
+
+                                             #region fail...
+
+                                             fail:
+
+                                             return new HTTPResponse.Builder(Request) {
+                                                            HTTPStatusCode             = HTTPStatusCode.BadRequest,
+                                                            Server                     = HTTPServer.DefaultServerName,
+                                                            Date                       = DateTime.UtcNow,
+                                                            AccessControlAllowOrigin   = "*",
+                                                            AccessControlAllowMethods  = "GET, SET",
+                                                            AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
+                                                            ETag                       = "1",
+                                                            ContentType                = HTTPContentType.JSON_UTF8,
+                                                            Content                    = JSONObject.Create(
+                                                                                             new JProperty("description", ErrorString ?? "Invalid array of notifications!")
+                                                                                         ).ToUTF8Bytes()
+                                                        }.AsImmutable;
+
+                                             #endregion
+
+                                             goon:
+
+                                             #endregion
+
+
+                                             return new HTTPResponse.Builder(Request) {
+                                                        HTTPStatusCode              = HTTPStatusCode.OK,
+                                                        Server                      = HTTPServer.DefaultServerName,
+                                                        Date                        = DateTime.UtcNow,
+                                                        AccessControlAllowOrigin    = "*",
+                                                        AccessControlAllowMethods   = "GET, SET",
+                                                        AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
+                                                        ContentType                 = HTTPContentType.JSON_UTF8,
+                                                        Content                     = GetNotificationInfos(HTTPUser).ToUTF8Bytes(),
+                                                        Connection                  = "close"
+                                                    }.AsImmutable;
+
+                                         });
+
+            #endregion
+
+            #region DELETE      ~/organizations/{OrganizationId}/notifications
+
+            // ---------------------------------------------------------------------------------------------
+            // curl -v -X DELETE \
+            //      -H "Accept:       application/json; charset=utf-8" \
+            //      -H "Content-Type: application/json; charset=utf-8" \
+            //      -d "{ \
+            //          }" \
+            //      http://127.0.0.1:2000/organizations/214080158
+            // ---------------------------------------------------------------------------------------------
+            HTTPServer.AddMethodCallback(Hostname,
+                                         HTTPMethod.DELETE,
+                                         URLPathPrefix + "organizations/{OrganizationId}/notifications",
+                                         HTTPContentType.JSON_UTF8,
+                                         HTTPRequestLogger:   DeleteOrganizationNotificationsRequest,
+                                         HTTPResponseLogger:  DeleteOrganizationNotificationsResponse,
+                                         HTTPDelegate:        async Request => {
+
+                                             #region Get HTTP user and its organizations
+
+                                             // Will return HTTP 401 Unauthorized, when the HTTP user is unknown!
+                                             if (!TryGetHTTPUser(Request,
+                                                                 out User                   HTTPUser,
+                                                                 out HashSet<Organization>  HTTPOrganizations,
+                                                                 out HTTPResponse           HTTPResponse,
+                                                                 AccessLevel:               Access_Levels.ReadWrite,
+                                                                 Recursive:                 true))
+                                             {
+                                                 return HTTPResponse;
+                                             }
+
+                                             #endregion
+
+                                             #region Check OrganizationId URI parameter
+
+                                             if (!Request.ParseOrganization(this,
+                                                                            out Organization_Id?  OrganizationIdURI,
+                                                                            out Organization      Organization,
+                                                                            out                   HTTPResponse))
+                                             {
+                                                 return HTTPResponse;
+                                             }
+
+                                             #endregion
+
+                                             #region Has the current HTTP user the required access rights to update?
+
+                                             if (!HTTPOrganizations.Contains(Organization))
+                                                 return new HTTPResponse.Builder(Request) {
+                                                            HTTPStatusCode              = HTTPStatusCode.Forbidden,
+                                                            Server                      = HTTPServer.DefaultServerName,
+                                                            Date                        = DateTime.UtcNow,
+                                                            AccessControlAllowOrigin    = "*",
+                                                            AccessControlAllowMethods   = "GET, SET, CHOWN",
+                                                            AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
+                                                            Connection                  = "close"
+                                                        }.AsImmutable;
+
+                                             #endregion
+
+
+                                             #region Parse JSON and new notifications...
+
+                                             if (!Request.TryParseJArrayRequestBody(out JArray JSONArray, out HTTPResponse))
+                                                 return HTTPResponse;
+
+                                             String ErrorString = null;
+
+                                             if (JSONArray.Count > 0)
+                                             {
+
+                                                 var JSONObjects = JSONArray.Cast<JObject>().ToArray();
+
+                                                 if (!JSONObjects.Any())
+                                                     goto fail;
+
+                                                 String context = null;
+
+                                                 foreach (var JSONObject in JSONObjects)
+                                                 {
+
+                                                     context = JSONObject["@context"]?.Value<String>();
+
+                                                     if (context.IsNullOrEmpty())
+                                                         goto fail;
+
+                                                     switch (context)
+                                                     {
+
+                                                         case TelegramNotification.JSONLDContext:
+                                                             if (!TelegramNotification.TryParse(JSONObject, out TelegramNotification telegramNotification))
+                                                             {
+                                                                 ErrorString = "Could not parse Telegram notification!";
+                                                                 goto fail;
+                                                             }
+                                                             await RemoveNotification(Organization, telegramNotification, HTTPUser.Id);
+                                                             break;
+
+                                                         case TelegramGroupNotification.JSONLDContext:
+                                                             if (!TelegramGroupNotification.TryParse(JSONObject, out TelegramGroupNotification telegramGroupNotification))
+                                                             {
+                                                                 ErrorString = "Could not parse Telegram group notification!";
+                                                                 goto fail;
+                                                             }
+                                                             await RemoveNotification(Organization, telegramGroupNotification, HTTPUser.Id);
+                                                             break;
+
+                                                         case SMSNotification.JSONLDContext:
+                                                             if (!SMSNotification.  TryParse(JSONObject, out SMSNotification   smsNotification))
+                                                             {
+                                                                 ErrorString = "Could not parse sms notification!";
+                                                                 goto fail;
+                                                             }
+                                                             await RemoveNotification(Organization, smsNotification, HTTPUser.Id);
+                                                             break;
+
+                                                         case HTTPSNotification.JSONLDContext:
+                                                             if (!HTTPSNotification.TryParse(JSONObject, out HTTPSNotification httpsNotification))
+                                                             {
+                                                                 ErrorString = "Could not parse https notification!";
+                                                                 goto fail;
+                                                             }
+                                                             await RemoveNotification(Organization, httpsNotification, HTTPUser.Id);
+                                                             break;
+
+                                                         case EMailNotification.JSONLDContext:
+                                                             if (!EMailNotification.TryParse(JSONObject, out EMailNotification eMailNotification))
+                                                             {
+                                                                 ErrorString = "Could not parse e-mail notification!";
+                                                                 goto fail;
+                                                             }
+                                                             await RemoveNotification(Organization, eMailNotification, HTTPUser.Id);
+                                                             break;
+
+                                                         default:
+                                                             goto fail;
+
+                                                     }
+
+                                                 }
+
+                                             }
+
+                                             goto goon;
+
+                                             #region fail...
+
+                                             fail:
+
+                                             return new HTTPResponse.Builder(Request) {
+                                                            HTTPStatusCode             = HTTPStatusCode.BadRequest,
+                                                            Server                     = HTTPServer.DefaultServerName,
+                                                            Date                       = DateTime.UtcNow,
+                                                            AccessControlAllowOrigin   = "*",
+                                                            AccessControlAllowMethods  = "GET, SET",
+                                                            AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
+                                                            ETag                       = "1",
+                                                            ContentType                = HTTPContentType.JSON_UTF8,
+                                                            Content                    = JSONObject.Create(
+                                                                                             new JProperty("description", ErrorString ?? "Invalid array of notifications!")
+                                                                                         ).ToUTF8Bytes()
+                                                        }.AsImmutable;
+
+                                             #endregion
+
+                                             goon:
+
+                                             #endregion
+
+
+                                             return new HTTPResponse.Builder(Request) {
+                                                        HTTPStatusCode              = HTTPStatusCode.OK,
+                                                        Server                      = HTTPServer.DefaultServerName,
+                                                        Date                        = DateTime.UtcNow,
+                                                        AccessControlAllowOrigin    = "*",
+                                                        AccessControlAllowMethods   = "GET, SET",
+                                                        AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
+                                                        ContentType                 = HTTPContentType.JSON_UTF8,
+                                                        Content                     = GetNotificationInfos(HTTPUser).ToUTF8Bytes(),
+                                                        Connection                  = "close"
+                                                    }.AsImmutable;
+
+                                         });
 
             #endregion
 
@@ -6636,6 +7202,11 @@ namespace org.GraphDefined.OpenData.Users
                                           JObject  JSONObject)
         {
 
+            User_Id          userId;
+            User             user;
+            Organization_Id  organizationId;
+            Organization     organization;
+
             switch (Command)
             {
 
@@ -6645,10 +7216,10 @@ namespace org.GraphDefined.OpenData.Users
                 case "CreateUser":
 
                     if (User.TryParseJSON(JSONObject,
-                                          out User    _User,
+                                          out user,
                                           out String  ErrorResponse))
                     {
-                        _Users.AddAndReturnValue(_User.Id, _User);
+                        _Users.AddAndReturnValue(user.Id, user);
                     }
 
                     else
@@ -6663,10 +7234,10 @@ namespace org.GraphDefined.OpenData.Users
                 case "addUser":
 
                     if (User.TryParseJSON(JSONObject,
-                                          out _User,
+                                          out user,
                                           out ErrorResponse))
                     {
-                        _Users.AddAndReturnValue(_User.Id, _User);
+                        _Users.AddAndReturnValue(user.Id, user);
                     }
 
                     else
@@ -6682,14 +7253,14 @@ namespace org.GraphDefined.OpenData.Users
                 case "AddIfNotExistsUser":
 
                     if (User.TryParseJSON(JSONObject,
-                                          out _User,
+                                          out user,
                                           out ErrorResponse))
                     {
 
-                        if (!_Users.ContainsKey(_User.Id))
+                        if (!_Users.ContainsKey(user.Id))
                         {
-                            _User.API = this;
-                            _Users.AddAndReturnValue(_User.Id, _User);
+                            user.API = this;
+                            _Users.AddAndReturnValue(user.Id, user);
                         }
 
                     }
@@ -6707,17 +7278,17 @@ namespace org.GraphDefined.OpenData.Users
                 case "AddOrUpdateUser":
 
                     if (User.TryParseJSON(JSONObject,
-                                          out _User,
+                                          out user,
                                           out ErrorResponse))
                     {
 
-                        if (_Users.TryGetValue(_User.Id, out User OldUser))
+                        if (_Users.TryGetValue(user.Id, out User OldUser))
                         {
                             _Users.Remove(OldUser.Id);
-                            OldUser.CopyAllEdgesTo(_User);
+                            OldUser.CopyAllEdgesTo(user);
                         }
 
-                        _Users.Add(_User.Id, _User);
+                        _Users.Add(user.Id, user);
 
                     }
 
@@ -6734,18 +7305,18 @@ namespace org.GraphDefined.OpenData.Users
                 case "UpdateUser":
 
                     if (User.TryParseJSON(JSONObject,
-                                          out _User,
+                                          out user,
                                           out ErrorResponse))
                     {
 
-                        if (_Users.TryGetValue(_User.Id, out User OldUser))
+                        if (_Users.TryGetValue(user.Id, out User OldUser))
                         {
 
                             _Users.Remove(OldUser.Id);
-                            _User.API = this;
-                            OldUser.CopyAllEdgesTo(_User);
+                            user.API = this;
+                            OldUser.CopyAllEdgesTo(user);
 
-                            _Users.Add(_User.Id, _User);
+                            _Users.Add(user.Id, user);
 
                         }
 
@@ -6763,11 +7334,11 @@ namespace org.GraphDefined.OpenData.Users
                 case "removeUser":
 
                     if (User.TryParseJSON(JSONObject,
-                                          out _User,
+                                          out user,
                                           out ErrorResponse))
                     {
 
-                        if (TryGet(_User.Id, out User __User))
+                        if (TryGet(user.Id, out User __User))
                         {
 
                             // this --edge--> organization
@@ -6776,7 +7347,7 @@ namespace org.GraphDefined.OpenData.Users
 
                         }
 
-                        _Users.Remove(_User.Id);
+                        _Users.Remove(user.Id);
 
                     }
 
@@ -6794,11 +7365,11 @@ namespace org.GraphDefined.OpenData.Users
                     if (JSONObject.ParseOptional("@id",
                                                  "User identification to remove",
                                                  User_Id.TryParse,
-                                                 out User_Id UserId,
+                                                 out userId,
                                                  out ErrorResponse))
                     {
 
-                        if (TryGet(UserId, out User __User))
+                        if (TryGet(userId, out User __User))
                         {
 
                             // this --edge--> organization
@@ -6807,7 +7378,7 @@ namespace org.GraphDefined.OpenData.Users
 
                         }
 
-                        _Users.Remove(UserId);
+                        _Users.Remove(userId);
 
                     }
 
@@ -6825,10 +7396,10 @@ namespace org.GraphDefined.OpenData.Users
                 case "CreateOrganization":
 
                     if (Organization.TryParseJSON(JSONObject,
-                                                  out Organization  _Organization,
+                                                  out organization,
                                                   out ErrorResponse))
                     {
-                        _Organizations.AddAndReturnValue(_Organization.Id, _Organization);
+                        _Organizations.AddAndReturnValue(organization.Id, organization);
                     }
 
                     else
@@ -6843,18 +7414,18 @@ namespace org.GraphDefined.OpenData.Users
                 case "addOrganization":
 
                     if (Organization.TryParseJSON(JSONObject,
-                                                  out _Organization,
+                                                  out organization,
                                                   out ErrorResponse))
                     {
 
-                        if (!_Organizations.ContainsKey(_Organization.Id))
+                        if (!_Organizations.ContainsKey(organization.Id))
                         {
-                            _Organization.API = this;
-                            _Organizations.Add(_Organization.Id, _Organization);
+                            organization.API = this;
+                            _Organizations.Add(organization.Id, organization);
                         }
 
                         else
-                            DebugX.Log("Organization '" + _Organization.Id + "' already exists!");
+                            DebugX.Log("Organization '" + organization.Id + "' already exists!");
 
                     }
 
@@ -6870,14 +7441,14 @@ namespace org.GraphDefined.OpenData.Users
                 case "addIfNotExistsOrganization":
 
                     if (Organization.TryParseJSON(JSONObject,
-                                                  out _Organization,
+                                                  out organization,
                                                   out ErrorResponse))
                     {
 
-                        if (!_Organizations.ContainsKey(_Organization.Id))
+                        if (!_Organizations.ContainsKey(organization.Id))
                         {
-                            _Organization.API = this;
-                            _Organizations.AddAndReturnValue(_Organization.Id, _Organization);
+                            organization.API = this;
+                            _Organizations.AddAndReturnValue(organization.Id, organization);
                         }
 
                     }
@@ -6894,19 +7465,19 @@ namespace org.GraphDefined.OpenData.Users
                 case "addOrUpdateOrganization":
 
                     if (Organization.TryParseJSON(JSONObject,
-                                                  out _Organization,
+                                                  out organization,
                                                   out ErrorResponse))
                     {
 
 
-                        if (_Organizations.TryGetValue(_Organization.Id, out Organization OldOrganization))
+                        if (_Organizations.TryGetValue(organization.Id, out Organization OldOrganization))
                         {
                             _Organizations.Remove(OldOrganization.Id);
-                            _Organization.API = this;
-                            OldOrganization.CopyAllEdgesTo(_Organization);
+                            organization.API = this;
+                            OldOrganization.CopyAllEdgesTo(organization);
                         }
 
-                        _Organizations.Add(_Organization.Id, _Organization);
+                        _Organizations.Add(organization.Id, organization);
 
                     }
 
@@ -6922,18 +7493,18 @@ namespace org.GraphDefined.OpenData.Users
                 case "updateOrganization":
 
                     if (Organization.TryParseJSON(JSONObject,
-                                                  out _Organization,
+                                                  out organization,
                                                   out ErrorResponse))
                     {
 
-                        if (_Organizations.TryGetValue(_Organization.Id, out Organization OldOrganization))
+                        if (_Organizations.TryGetValue(organization.Id, out Organization OldOrganization))
                         {
 
                             _Organizations.Remove(OldOrganization.Id);
-                            _Organization.API = this;
-                            OldOrganization.CopyAllEdgesTo(_Organization);
+                            organization.API = this;
+                            OldOrganization.CopyAllEdgesTo(organization);
 
-                            _Organizations.Add(_Organization.Id, _Organization);
+                            _Organizations.Add(organization.Id, organization);
 
                         }
 
@@ -6951,11 +7522,11 @@ namespace org.GraphDefined.OpenData.Users
                 case "removeOrganization":
 
                     if (Organization.TryParseJSON(JSONObject,
-                                                  out _Organization,
+                                                  out organization,
                                                   out ErrorResponse))
                     {
 
-                        if (TryGet(_Organization.Id, out Organization __Organization))
+                        if (TryGet(organization.Id, out Organization __Organization))
                         {
 
                             // this --edge--> other_organization
@@ -6972,7 +7543,7 @@ namespace org.GraphDefined.OpenData.Users
 
                         }
 
-                        _Organizations.Remove(_Organization.Id);
+                        _Organizations.Remove(organization.Id);
 
                     }
 
@@ -6990,11 +7561,11 @@ namespace org.GraphDefined.OpenData.Users
                     if (JSONObject.ParseOptional("@id",
                                                  "Organization identification to remove",
                                                  Organization_Id.TryParse,
-                                                 out Organization_Id OrganizationId,
+                                                 out organizationId,
                                                  out ErrorResponse))
                     {
 
-                        if (TryGet(OrganizationId, out Organization __Organization))
+                        if (TryGet(organizationId, out Organization __Organization))
                         {
 
                             // this --edge--> other_organization
@@ -7011,7 +7582,7 @@ namespace org.GraphDefined.OpenData.Users
 
                         }
 
-                        _Organizations.Remove(OrganizationId);
+                        _Organizations.Remove(organizationId);
 
                     }
 
@@ -7054,7 +7625,7 @@ namespace org.GraphDefined.OpenData.Users
                     }
 
 
-                    if (!Enum.TryParse(JSONObject["edge"].Value<String>(), out User2OrganizationEdges U2O_EdgeLabel))
+                    if (!Enum.TryParse(JSONObject["edge"].Value<String>(), out User2OrganizationEdgeTypes U2O_EdgeLabel))
                     {
                         DebugX.Log(String.Concat(nameof(UsersAPI), " ", Command, ": ", "Unknown edge label '" + JSONObject["edge"].Value<String>() + "'!"));
                         break;
@@ -7100,7 +7671,7 @@ namespace org.GraphDefined.OpenData.Users
                     }
 
 
-                    if (!Enum.TryParse(JSONObject["edge"].Value<String>(), out Organization2OrganizationEdges O2O_EdgeLabel))
+                    if (!Enum.TryParse(JSONObject["edge"].Value<String>(), out Organization2OrganizationEdgeTypes O2O_EdgeLabel))
                     {
                         DebugX.Log(String.Concat(nameof(UsersAPI), " ", Command, ": ", "Unknown edge label '" + JSONObject["edge"].Value<String>() + "'!"));
                         break;
@@ -7168,7 +7739,7 @@ namespace org.GraphDefined.OpenData.Users
                     }
 
 
-                    if (!Enum.TryParse(JSONObject["edge"].Value<String>(), out User2GroupEdges U2G_EdgeLabel))
+                    if (!Enum.TryParse(JSONObject["edge"].Value<String>(), out User2GroupEdgeTypes U2G_EdgeLabel))
                     {
                         DebugX.Log(String.Concat(nameof(UsersAPI), " ", Command, ": ", "Unknown edge label '" + JSONObject["edge"].Value<String>() + "'!"));
                         break;
@@ -7189,10 +7760,20 @@ namespace org.GraphDefined.OpenData.Users
                 case "addNotification":
                 case "AddNotification":
 
-                    if (JSONObject["userId"  ]?.Value<String>().IsNotNullOrEmpty() == true &&
-                        JSONObject["@context"]?.Value<String>().IsNotNullOrEmpty() == true &&
-                        User_Id.TryParse(JSONObject["userId"]?.Value<String>(), out UserId) &&
-                        TryGet(UserId, out _User))
+                    user          = null;
+                    organization  = null;
+
+                    if (JSONObject["@context"]?.Value<String>().IsNotNullOrEmpty() == true &&
+
+                       (JSONObject["userId"]?.Value<String>().IsNotNullOrEmpty() == true &&
+                        User_Id.TryParse(JSONObject["userId"]?.Value<String>(), out userId) &&
+                        TryGet(userId, out user))
+
+                        ||
+
+                       (JSONObject["organizationId"]?.Value<String>().IsNotNullOrEmpty() == true &&
+                        Organization_Id.TryParse(JSONObject["organizationId"]?.Value<String>(), out organizationId) &&
+                        TryGet(organizationId, out organization)))
                     {
 
                         switch (JSONObject["@context"]?.Value<String>())
@@ -7203,7 +7784,10 @@ namespace org.GraphDefined.OpenData.Users
                                 var telegramNotification = TelegramNotification.Parse(JSONObject);
 
                                 if (telegramNotification != null)
-                                    _User.AddNotification(telegramNotification);
+                                {
+                                    user?.        AddNotification(telegramNotification);
+                                    organization?.AddNotification(telegramNotification);
+                                }
 
                                 else
                                     DebugX.Log(String.Concat(nameof(UsersAPI), " Could not parse the given Telegram notification!"));
@@ -7216,7 +7800,10 @@ namespace org.GraphDefined.OpenData.Users
                                 var telegramGroupNotification = TelegramGroupNotification.Parse(JSONObject);
 
                                 if (telegramGroupNotification != null)
-                                    _User.AddNotification(telegramGroupNotification);
+                                {
+                                    user?.        AddNotification(telegramGroupNotification);
+                                    organization?.AddNotification(telegramGroupNotification);
+                                }
 
                                 else
                                     DebugX.Log(String.Concat(nameof(UsersAPI), " Could not parse the given Telegram group notification!"));
@@ -7229,7 +7816,10 @@ namespace org.GraphDefined.OpenData.Users
                                 var smsnotification = SMSNotification.Parse(JSONObject);
 
                                 if (smsnotification != null)
-                                    _User.AddNotification(smsnotification);
+                                {
+                                    user?.        AddNotification(smsnotification);
+                                    organization?.AddNotification(smsnotification);
+                                }
 
                                 else
                                     DebugX.Log(String.Concat(nameof(UsersAPI), " Could not parse the given SMS notification!"));
@@ -7242,7 +7832,10 @@ namespace org.GraphDefined.OpenData.Users
                                 var httpsnotification = HTTPSNotification.Parse(JSONObject);
 
                                 if (httpsnotification != null)
-                                    _User.AddNotification(httpsnotification);
+                                {
+                                    user?.        AddNotification(httpsnotification);
+                                    organization?.AddNotification(httpsnotification);
+                                }
 
                                 else
                                     DebugX.Log(String.Concat(nameof(UsersAPI), " Could not parse the given HTTPS notification!"));
@@ -7255,7 +7848,10 @@ namespace org.GraphDefined.OpenData.Users
                                 var emailnotification = EMailNotification.Parse(JSONObject);
 
                                 if (emailnotification != null)
-                                    _User.AddNotification(emailnotification);
+                                {
+                                    user?.        AddNotification(emailnotification);
+                                    organization?.AddNotification(emailnotification);
+                                }
 
                                 else
                                     DebugX.Log(String.Concat(nameof(UsersAPI), " Could not parse the given e-mail notification!"));
@@ -7277,10 +7873,20 @@ namespace org.GraphDefined.OpenData.Users
 
                 case "removeNotification":
 
-                    if (JSONObject["userId"  ]?.Value<String>().IsNotNullOrEmpty() == true &&
-                        JSONObject["@context"]?.Value<String>().IsNotNullOrEmpty() == true &&
-                        User_Id.TryParse(JSONObject["userId"]?.Value<String>(), out UserId) &&
-                        TryGet(UserId, out _User))
+                    user          = null;
+                    organization  = null;
+
+                    if (JSONObject["@context"]?.Value<String>().IsNotNullOrEmpty() == true &&
+
+                       (JSONObject["userId"]?.Value<String>().IsNotNullOrEmpty() == true &&
+                        User_Id.TryParse(JSONObject["userId"]?.Value<String>(), out userId) &&
+                        TryGet(userId, out user))
+
+                        ||
+
+                       (JSONObject["organizationId"]?.Value<String>().IsNotNullOrEmpty() == true &&
+                        Organization_Id.TryParse(JSONObject["organizationId"]?.Value<String>(), out organizationId) &&
+                        TryGet(organizationId, out organization)))
                     {
 
                         switch (JSONObject["@context"]?.Value<String>())
@@ -7291,7 +7897,10 @@ namespace org.GraphDefined.OpenData.Users
                                 var telegramNotification = TelegramNotification.Parse(JSONObject);
 
                                 if (telegramNotification != null)
-                                    _User.RemoveNotification(telegramNotification);
+                                {
+                                    user?.        RemoveNotification(telegramNotification);
+                                    organization?.RemoveNotification(telegramNotification);
+                                }
 
                                 else
                                     DebugX.Log(String.Concat(nameof(UsersAPI), " Could not parse the given Telegram notification!"));
@@ -7304,7 +7913,10 @@ namespace org.GraphDefined.OpenData.Users
                                 var telegramGroupNotification = TelegramGroupNotification.Parse(JSONObject);
 
                                 if (telegramGroupNotification != null)
-                                    _User.RemoveNotification(telegramGroupNotification);
+                                {
+                                    user?.        RemoveNotification(telegramGroupNotification);
+                                    organization?.RemoveNotification(telegramGroupNotification);
+                                }
 
                                 else
                                     DebugX.Log(String.Concat(nameof(UsersAPI), " Could not parse the given Telegram group notification!"));
@@ -7317,7 +7929,10 @@ namespace org.GraphDefined.OpenData.Users
                                 var smsnotification = SMSNotification.Parse(JSONObject);
 
                                 if (smsnotification != null)
-                                    _User.RemoveNotification(smsnotification);
+                                {
+                                    user?.        RemoveNotification(smsnotification);
+                                    organization?.RemoveNotification(smsnotification);
+                                }
 
                                 else
                                     DebugX.Log(String.Concat(nameof(UsersAPI), " Could not parse the given SMS notification!"));
@@ -7330,7 +7945,10 @@ namespace org.GraphDefined.OpenData.Users
                                 var httpsnotification = HTTPSNotification.Parse(JSONObject);
 
                                 if (httpsnotification != null)
-                                    _User.RemoveNotification(httpsnotification);
+                                {
+                                    user?.        RemoveNotification(httpsnotification);
+                                    organization?.RemoveNotification(httpsnotification);
+                                }
 
                                 else
                                     DebugX.Log(String.Concat(nameof(UsersAPI), " Could not parse the given HTTPS notification!"));
@@ -7343,7 +7961,10 @@ namespace org.GraphDefined.OpenData.Users
                                 var emailnotification = EMailNotification.Parse(JSONObject);
 
                                 if (emailnotification != null)
-                                    _User.RemoveNotification(emailnotification);
+                                {
+                                    user?.        RemoveNotification(emailnotification);
+                                    organization?.RemoveNotification(emailnotification);
+                                }
 
                                 else
                                     DebugX.Log(String.Concat(nameof(UsersAPI), " Could not parse the given e-mail notification!"));
@@ -7670,7 +8291,7 @@ namespace org.GraphDefined.OpenData.Users
                 if (Request.HTTPSource.IPAddress.IsIPv4 &&
                     Request.HTTPSource.IPAddress.IsLocalhost)
                 {
-                    User           = Admins.User2GroupInEdges(edgelabel => edgelabel == User2GroupEdges.IsAdmin_ReadWrite).FirstOrDefault()?.Source;
+                    User           = Admins.User2GroupInEdges(edgelabel => edgelabel == User2GroupEdgeTypes.IsAdmin_ReadWrite).FirstOrDefault()?.Source;
                     Organizations  = new HashSet<Organization>(User.Organizations(AccessLevel, Recursive));
                     return;
                 }
@@ -9010,7 +9631,7 @@ namespace org.GraphDefined.OpenData.Users
 
                 if (ParentOrganization != null)
                     await _LinkOrganizations(newOrganization,
-                                             Organization2OrganizationEdges.IsChildOf,
+                                             Organization2OrganizationEdgeTypes.IsChildOf,
                                              ParentOrganization,
                                              CurrentUserId:  CurrentUserId);
 
@@ -9062,7 +9683,7 @@ namespace org.GraphDefined.OpenData.Users
                 var NewOrg = _Organizations.AddAndReturnValue(Organization.Id, Organization);
 
                 if (ParentOrganization != null)
-                    await _LinkOrganizations(NewOrg, Organization2OrganizationEdges.IsChildOf, ParentOrganization, CurrentUserId: CurrentUserId);
+                    await _LinkOrganizations(NewOrg, Organization2OrganizationEdgeTypes.IsChildOf, ParentOrganization, CurrentUserId: CurrentUserId);
 
                 return NewOrg;
 
@@ -9117,7 +9738,7 @@ namespace org.GraphDefined.OpenData.Users
 
                 if (ParentOrganization != null)
                 {
-                    await _LinkOrganizations(NewOrg, Organization2OrganizationEdges.IsChildOf, ParentOrganization, CurrentUserId: CurrentUserId);
+                    await _LinkOrganizations(NewOrg, Organization2OrganizationEdgeTypes.IsChildOf, ParentOrganization, CurrentUserId: CurrentUserId);
                     //ToDo: Update link to parent organization
                 }
 
@@ -9614,7 +10235,7 @@ namespace org.GraphDefined.OpenData.Users
         #region AddToOrganization(User, Edge, Organization, PrivacyLevel = Private)
 
         protected async Task<Boolean> _AddToOrganization(User                    User,
-                                                         User2OrganizationEdges  Edge,
+                                                         User2OrganizationEdgeTypes  Edge,
                                                          Organization            Organization,
                                                          PrivacyLevel            PrivacyLevel   = PrivacyLevel.Private,
                                                          User_Id?                CurrentUserId  = null)
@@ -9646,7 +10267,7 @@ namespace org.GraphDefined.OpenData.Users
         }
 
         public async Task<Boolean> AddToOrganization(User                    User,
-                                                     User2OrganizationEdges  Edge,
+                                                     User2OrganizationEdgeTypes  Edge,
                                                      Organization            Organization,
                                                      PrivacyLevel            PrivacyLevel   = PrivacyLevel.Private,
                                                      User_Id?                CurrentUserId  = null)
@@ -9678,7 +10299,7 @@ namespace org.GraphDefined.OpenData.Users
         #region LinkOrganizations  (OrganizationOut, EdgeLabel, OrganizationIn, Privacy = Public, CurrentUserId = null)
 
         protected async Task<Boolean> _LinkOrganizations(Organization                    OrganizationOut,
-                                                         Organization2OrganizationEdges  EdgeLabel,
+                                                         Organization2OrganizationEdgeTypes  EdgeLabel,
                                                          Organization                    OrganizationIn,
                                                          PrivacyLevel                    Privacy        = PrivacyLevel.World,
                                                          User_Id?                        CurrentUserId  = null)
@@ -9718,7 +10339,7 @@ namespace org.GraphDefined.OpenData.Users
         }
 
         public async Task<Boolean> LinkOrganizations(Organization                    OrganizationOut,
-                                                     Organization2OrganizationEdges  EdgeLabel,
+                                                     Organization2OrganizationEdgeTypes  EdgeLabel,
                                                      Organization                    OrganizationIn,
                                                      PrivacyLevel                    Privacy        = PrivacyLevel.World,
                                                      User_Id?                        CurrentUserId  = null)
@@ -9748,7 +10369,7 @@ namespace org.GraphDefined.OpenData.Users
         #region UnlinkOrganizations(OrganizationOut, EdgeLabel, OrganizationIn,                   CurrentUserId = null)
 
         protected async Task<Boolean> _UnlinkOrganizations(Organization                    OrganizationOut,
-                                                           Organization2OrganizationEdges  EdgeLabel,
+                                                           Organization2OrganizationEdgeTypes  EdgeLabel,
                                                            Organization                    OrganizationIn,
                                                            User_Id?                        CurrentUserId  = null)
         {
@@ -9786,7 +10407,7 @@ namespace org.GraphDefined.OpenData.Users
         }
 
         public async Task<Boolean> UnlinkOrganizations(Organization                    OrganizationOut,
-                                                       Organization2OrganizationEdges  EdgeLabel,
+                                                       Organization2OrganizationEdgeTypes  EdgeLabel,
                                                        Organization                    OrganizationIn,
                                                        User_Id?                        CurrentUserId  = null)
         {
@@ -10131,7 +10752,7 @@ namespace org.GraphDefined.OpenData.Users
         #region AddToGroup(User, Edge, Group, PrivacyLevel = Private)
 
         public async Task<Boolean> AddToGroup(User             User,
-                                              User2GroupEdges  Edge,
+                                              User2GroupEdgeTypes  Edge,
                                               Group            Group,
                                               PrivacyLevel     PrivacyLevel   = PrivacyLevel.Private,
                                               User_Id?         CurrentUserId  = null)
@@ -10188,13 +10809,13 @@ namespace org.GraphDefined.OpenData.Users
         public Access_Levels IsAdmin(User User)
         {
 
-            if (User.Groups(User2GroupEdges.IsAdmin_ReadOnly).
+            if (User.Groups(User2GroupEdgeTypes.IsAdmin_ReadOnly).
                      Contains(Admins))
             {
                 return Access_Levels.ReadOnly;
             }
 
-            if (User.Groups(User2GroupEdges.IsAdmin_ReadWrite).
+            if (User.Groups(User2GroupEdgeTypes.IsAdmin_ReadWrite).
                      Contains(Admins))
             {
                 return Access_Levels.ReadWrite;
@@ -10430,7 +11051,7 @@ namespace org.GraphDefined.OpenData.Users
         // ToDo: Add locks
         // ToDo: Add logging!
 
-        #region AddNotification(User,   NotificationType,                           CurrentUserId = null)
+        #region AddNotification(User,           NotificationType,                           CurrentUserId = null)
 
         public async Task AddNotification<T>(User      User,
                                              T         NotificationType,
@@ -10460,7 +11081,7 @@ namespace org.GraphDefined.OpenData.Users
 
         #endregion
 
-        #region AddNotification(UserId, NotificationType,                           CurrentUserId = null)
+        #region AddNotification(UserId,         NotificationType,                           CurrentUserId = null)
 
         public async Task AddNotification<T>(User_Id   UserId,
                                              T         NotificationType,
@@ -10495,7 +11116,7 @@ namespace org.GraphDefined.OpenData.Users
 
         #endregion
 
-        #region AddNotification(User,   NotificationType, NotificationMessageType,  CurrentUserId = null)
+        #region AddNotification(User,           NotificationType, NotificationMessageType,  CurrentUserId = null)
 
         public async Task AddNotification<T>(User                     User,
                                              T                        NotificationType,
@@ -10527,7 +11148,7 @@ namespace org.GraphDefined.OpenData.Users
 
         #endregion
 
-        #region AddNotification(UserId, NotificationType, NotificationMessageType,  CurrentUserId = null)
+        #region AddNotification(UserId,         NotificationType, NotificationMessageType,  CurrentUserId = null)
 
         public async Task AddNotification<T>(User_Id                  UserId,
                                              T                        NotificationType,
@@ -10567,7 +11188,7 @@ namespace org.GraphDefined.OpenData.Users
 
         #endregion
 
-        #region AddNotification(User,   NotificationType, NotificationMessageTypes, CurrentUserId = null)
+        #region AddNotification(User,           NotificationType, NotificationMessageTypes, CurrentUserId = null)
 
         public async Task AddNotification<T>(User                                  User,
                                              T                                     NotificationType,
@@ -10599,7 +11220,7 @@ namespace org.GraphDefined.OpenData.Users
 
         #endregion
 
-        #region AddNotification(UserId, NotificationType, NotificationMessageTypes, CurrentUserId = null)
+        #region AddNotification(UserId,         NotificationType, NotificationMessageTypes, CurrentUserId = null)
 
         public async Task AddNotification<T>(User_Id                               UserId,
                                              T                                     NotificationType,
@@ -10638,6 +11259,217 @@ namespace org.GraphDefined.OpenData.Users
         }
 
         #endregion
+
+
+        #region AddNotification(Organization,   NotificationType,                           CurrentUserId = null)
+
+        public async Task AddNotification<T>(Organization  Organization,
+                                             T             NotificationType,
+                                             User_Id?      CurrentUserId  = null)
+
+            where T : ANotification
+
+        {
+
+            try
+            {
+
+                await UsersSemaphore.WaitAsync();
+
+                Organization.AddNotification(NotificationType,
+                                             async update => await WriteToLogfile(NotificationMessageType.Parse("addNotification"),
+                                                                                  update.ToJSON(false).AddFirstAndReturn(new JProperty("organizationId", Organization.Id.ToString())),
+                                                                                  CurrentUserId));
+
+            }
+            finally
+            {
+                UsersSemaphore.Release();
+            }
+
+        }
+
+        #endregion
+
+        #region AddNotification(OrganizationId, NotificationType,                           CurrentUserId = null)
+
+        public async Task AddNotification<T>(Organization_Id  OrganizationId,
+                                             T                NotificationType,
+                                             User_Id?         CurrentUserId  = null)
+
+            where T : ANotification
+
+        {
+
+            try
+            {
+
+                await UsersSemaphore.WaitAsync();
+
+                if (_Organizations.TryGetValue(OrganizationId, out Organization Organization))
+                {
+
+                    Organization.AddNotification(NotificationType,
+                                                 async update => await WriteToLogfile(NotificationMessageType.Parse("addNotification"),
+                                                                                      update.ToJSON(false).AddFirstAndReturn(new JProperty("organizationId", Organization.Id.ToString())),
+                                                                                      CurrentUserId));
+
+                }
+
+            }
+            finally
+            {
+                UsersSemaphore.Release();
+            }
+
+        }
+
+        #endregion
+
+        #region AddNotification(Organization,   NotificationType, NotificationMessageType,  CurrentUserId = null)
+
+        public async Task AddNotification<T>(Organization             Organization,
+                                             T                        NotificationType,
+                                             NotificationMessageType  NotificationMessageType,
+                                             User_Id?                 CurrentUserId  = null)
+
+            where T : ANotification
+
+        {
+
+            try
+            {
+
+                await UsersSemaphore.WaitAsync();
+
+                Organization.AddNotification(NotificationType,
+                                             NotificationMessageType,
+                                             async update => await WriteToLogfile(NotificationMessageType.Parse("addNotification"),
+                                                                                  update.ToJSON(false).AddFirstAndReturn(new JProperty("organizationId", Organization.Id.ToString())),
+                                                                                  CurrentUserId));
+
+            }
+            finally
+            {
+                UsersSemaphore.Release();
+            }
+
+        }
+
+        #endregion
+
+        #region AddNotification(OrganizationId, NotificationType, NotificationMessageType,  CurrentUserId = null)
+
+        public async Task AddNotification<T>(Organization_Id          OrganizationId,
+                                             T                        NotificationType,
+                                             NotificationMessageType  NotificationMessageType,
+                                             User_Id?                 CurrentUserId  = null)
+
+            where T : ANotification
+
+        {
+
+            try
+            {
+
+                await UsersSemaphore.WaitAsync();
+
+                if (_Organizations.TryGetValue(OrganizationId, out Organization Organization))
+                {
+
+                    Organization.AddNotification(NotificationType,
+                                                 NotificationMessageType,
+                                                 async update => await WriteToLogfile(NotificationMessageType.Parse("addNotification"),
+                                                                                      update.ToJSON(false).AddFirstAndReturn(new JProperty("organizationId", Organization.Id.ToString())),
+                                                                                      CurrentUserId));
+
+                }
+
+                else
+                    throw new ArgumentException("The given organization '" + OrganizationId + "' is unknown!");
+
+            }
+            finally
+            {
+                UsersSemaphore.Release();
+            }
+
+        }
+
+        #endregion
+
+        #region AddNotification(Organization,   NotificationType, NotificationMessageTypes, CurrentUserId = null)
+
+        public async Task AddNotification<T>(Organization                          Organization,
+                                             T                                     NotificationType,
+                                             IEnumerable<NotificationMessageType>  NotificationMessageTypes,
+                                             User_Id?                              CurrentUserId  = null)
+
+            where T : ANotification
+
+        {
+
+            try
+            {
+
+                await UsersSemaphore.WaitAsync();
+
+                Organization.AddNotification(NotificationType,
+                                             NotificationMessageTypes,
+                                             async update => await WriteToLogfile(NotificationMessageType.Parse("addNotification"),
+                                                                                  update.ToJSON(false).AddFirstAndReturn(new JProperty("organizationId", Organization.Id.ToString())),
+                                                                                  CurrentUserId));
+
+            }
+            finally
+            {
+                UsersSemaphore.Release();
+            }
+
+        }
+
+        #endregion
+
+        #region AddNotification(OrganizationId, NotificationType, NotificationMessageTypes, CurrentUserId = null)
+
+        public async Task AddNotification<T>(Organization_Id                       OrganizationId,
+                                             T                                     NotificationType,
+                                             IEnumerable<NotificationMessageType>  NotificationMessageTypes,
+                                             User_Id?                              CurrentUserId  = null)
+
+            where T : ANotification
+
+        {
+
+            try
+            {
+
+                await UsersSemaphore.WaitAsync();
+
+                if (_Organizations.TryGetValue(OrganizationId, out Organization Organization))
+                {
+
+                    Organization.AddNotification(NotificationType,
+                                                 NotificationMessageTypes,
+                                                 async update => await WriteToLogfile(NotificationMessageType.Parse("addNotification"),
+                                                                                      update.ToJSON(false).AddFirstAndReturn(new JProperty("organizationId", Organization.Id.ToString())),
+                                                                                      CurrentUserId));
+
+                }
+
+                else
+                    throw new ArgumentException("The given organization '" + OrganizationId + "' is unknown!");
+
+            }
+            finally
+            {
+                UsersSemaphore.Release();
+            }
+
+        }
+
+        #endregion
+
 
 
         #region GetNotifications  (User,   NotificationMessageType = null)
@@ -10757,7 +11589,8 @@ namespace org.GraphDefined.OpenData.Users
         #endregion
 
 
-        #region RemoveNotification(User,   NotificationType,                        CurrentUserId = null)
+
+        #region RemoveNotification(User,           NotificationType, CurrentUserId = null)
 
         public async Task RemoveNotification<T>(User      User,
                                                 T         NotificationType,
@@ -10787,7 +11620,7 @@ namespace org.GraphDefined.OpenData.Users
 
         #endregion
 
-        #region RemoveNotification(UserId, NotificationType,                        CurrentUserId = null)
+        #region RemoveNotification(UserId,         NotificationType, CurrentUserId = null)
 
         public async Task RemoveNotification<T>(User_Id   UserId,
                                                 T         NotificationType,
@@ -10809,6 +11642,72 @@ namespace org.GraphDefined.OpenData.Users
                                             async update => await WriteToLogfile(NotificationMessageType.Parse("removeNotification"),
                                                                                  update.ToJSON(false).AddFirstAndReturn(new JProperty("userId", User.Id.ToString())),
                                                                                  CurrentUserId));
+
+                }
+
+            }
+            finally
+            {
+                UsersSemaphore.Release();
+            }
+
+        }
+
+        #endregion
+
+
+        #region RemoveNotification(Organization,   NotificationType, CurrentUserId = null)
+
+        public async Task RemoveNotification<T>(Organization  Organization,
+                                                T             NotificationType,
+                                                User_Id?      CurrentUserId  = null)
+
+            where T : ANotification
+
+        {
+
+            try
+            {
+
+                await UsersSemaphore.WaitAsync();
+
+                Organization.RemoveNotification(NotificationType,
+                                                async update => await WriteToLogfile(NotificationMessageType.Parse("removeNotification"),
+                                                                                     update.ToJSON(false).AddFirstAndReturn(new JProperty("organizationId", Organization.Id.ToString())),
+                                                                                     CurrentUserId));
+
+            }
+            finally
+            {
+                UsersSemaphore.Release();
+            }
+
+        }
+
+        #endregion
+
+        #region RemoveNotification(OrganizationId, NotificationType, CurrentUserId = null)
+
+        public async Task RemoveNotification<T>(Organization_Id  UserId,
+                                                T                NotificationType,
+                                                User_Id?         CurrentUserId  = null)
+
+            where T : ANotification
+
+        {
+
+            try
+            {
+
+                await UsersSemaphore.WaitAsync();
+
+                if (_Organizations.TryGetValue(UserId, out Organization Organization))
+                {
+
+                    Organization.RemoveNotification(NotificationType,
+                                                    async update => await WriteToLogfile(NotificationMessageType.Parse("removeNotification"),
+                                                                                         update.ToJSON(false).AddFirstAndReturn(new JProperty("organizationId", Organization.Id.ToString())),
+                                                                                         CurrentUserId));
 
                 }
 

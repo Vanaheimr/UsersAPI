@@ -71,9 +71,9 @@
     <Compile Include="Entities\Organization\OrganizationInfo2.cs" />
     <Compile Include="Entities\Organization\OrganizationInfo.cs" />
     <Compile Include="Entities\Organization\Organization.cs" />
-    <Compile Include="Entities\Organization\Organization2OrganizationEdges.cs" />
+    <Compile Include="Entities\Organization\Organization2OrganizationEdge.cs" />
     <Compile Include="Entities\Organization\Organization_Id.cs" />
-    <Compile Include="Entities\Organization\Organization2UserEdges.cs" />
+    <Compile Include="Entities\Organization\Organization2UserEdgeTypes.cs" />
     <Compile Include="Entities\Group\Group.cs" />
     <Compile Include="Entities\Group\UserGroup2UserEdges.cs" />
     <Compile Include="Entities\Group\Group_Id.cs" />
@@ -88,9 +88,9 @@
     <Compile Include="Entities\Tag\Tag_Id.cs" />
     <Compile Include="Entities\User\Password.cs" />
     <Compile Include="Entities\User\User.cs" />
-    <Compile Include="Entities\User\User2OrganizationEdges.cs" />
-    <Compile Include="Entities\User\User2GroupEdges.cs" />
-    <Compile Include="Entities\User\User2UserEdges.cs" />
+    <Compile Include="Entities\User\User2OrganizationEdge.cs" />
+    <Compile Include="Entities\User\User2GroupEdge.cs" />
+    <Compile Include="Entities\User\User2UserEdge.cs" />
     <Compile Include="Entities\User\User_Id.cs" />
     <Compile Include="Notifications\NotificationMessageTypeInfo.cs" />
     <Compile Include="Notifications\HTTPNotificationSender.cs" />

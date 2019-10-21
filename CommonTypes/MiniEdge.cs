@@ -26,7 +26,7 @@ using org.GraphDefined.Vanaheimr.Illias;
 namespace org.GraphDefined.OpenData.Users
 {
 
-    public class MiniEdge<TSource, TEdge, TTarget> : IEquatable <MiniEdge<TSource, TEdge, TTarget>>,
+    public class MiniEdge<TSource, TEdge, TTarget> : IEquatable<MiniEdge<TSource, TEdge, TTarget>>,
                                                      IComparable<MiniEdge<TSource, TEdge, TTarget>>,
                                                      IComparable
 
@@ -38,16 +38,16 @@ namespace org.GraphDefined.OpenData.Users
 
         #region Properties
 
-        public TSource       Source         { get; internal set; }
+        public TSource Source { get; internal set; }
 
-        public TEdge         EdgeLabel      { get; }
+        public TEdge EdgeLabel { get; }
 
-        public TTarget       Target         { get; internal set; }
+        public TTarget Target { get; internal set; }
 
 
-        public PrivacyLevel  PrivacyLevel   { get; }
+        public PrivacyLevel PrivacyLevel { get; }
 
-        public DateTime      Created        { get; }
+        public DateTime Created { get; }
 
         #region UserDefined
 
@@ -87,10 +87,10 @@ namespace org.GraphDefined.OpenData.Users
 
             #region Initial checks
 
-            if (System.Collections.Generic.EqualityComparer<TSource>.Default.Equals(Source, default(TSource)))
+            if (System.Collections.Generic.EqualityComparer<TSource>.Default.Equals(Source, default))
                 throw new ArgumentNullException(nameof(Source), "The given source must not be null!");
 
-            if (System.Collections.Generic.EqualityComparer<TTarget>.Default.Equals(Target, default(TTarget)))
+            if (System.Collections.Generic.EqualityComparer<TTarget>.Default.Equals(Target, default))
                 throw new ArgumentNullException(nameof(Target), "The given target must not be null!");
 
             #endregion
@@ -100,7 +100,7 @@ namespace org.GraphDefined.OpenData.Users
             this.EdgeLabel     = EdgeLabel;
             this.PrivacyLevel  = PrivacyLevel;
             this.Created       = Created ?? DateTime.UtcNow;
-         //   this._UserDefined   = new Dictionary<String, Object>();
+            //   this._UserDefined   = new Dictionary<String, Object>();
 
         }
 
@@ -139,12 +139,12 @@ namespace org.GraphDefined.OpenData.Users
         public Int32 CompareTo(MiniEdge<TSource, TEdge, TTarget> MiniEdge)
         {
 
-            if ((Object) MiniEdge == null)
+            if ((Object)MiniEdge == null)
                 throw new ArgumentNullException("The given miniedge must not be null!");
 
-            var source  = Source.   CompareTo(MiniEdge.Source);
-            var type    = EdgeLabel.CompareTo(MiniEdge.EdgeLabel);
-            var target  = Target.   CompareTo(MiniEdge.Target);
+            var source = Source.CompareTo(MiniEdge.Source);
+            var type = EdgeLabel.CompareTo(MiniEdge.EdgeLabel);
+            var target = Target.CompareTo(MiniEdge.Target);
 
             if (type != 0)
                 return type;
@@ -197,7 +197,7 @@ namespace org.GraphDefined.OpenData.Users
         public Boolean Equals(MiniEdge<TSource, TEdge, TTarget> MiniEdge)
         {
 
-            if ((Object) MiniEdge == null)
+            if ((Object)MiniEdge == null)
                 return false;
 
             if (!Source.Equals(MiniEdge.Source))
@@ -233,11 +233,11 @@ namespace org.GraphDefined.OpenData.Users
 
                 var hash = 17;
 
-                hash = hash * 23 + Source.      GetHashCode();
-                hash = hash * 23 + EdgeLabel.   GetHashCode();
-                hash = hash * 23 + Target.      GetHashCode();
+                hash = hash * 23 + Source.GetHashCode();
+                hash = hash * 23 + EdgeLabel.GetHashCode();
+                hash = hash * 23 + Target.GetHashCode();
                 hash = hash * 23 + PrivacyLevel.GetHashCode();
-                hash = hash * 23 + Created.     GetHashCode();
+                hash = hash * 23 + Created.GetHashCode();
 
                 return hash;
 

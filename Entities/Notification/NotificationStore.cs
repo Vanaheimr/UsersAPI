@@ -24,6 +24,7 @@ using System.Collections.Generic;
 using Newtonsoft.Json.Linq;
 
 using org.GraphDefined.Vanaheimr.Illias;
+using System.Collections;
 
 #endregion
 
@@ -33,7 +34,7 @@ namespace org.GraphDefined.OpenData.Notifications
     /// <summary>
     /// A store for all notifications.
     /// </summary>
-    public class NotificationStore
+    public class NotificationStore : IEnumerable<ANotification>
     {
 
         #region Data
@@ -190,6 +191,21 @@ namespace org.GraphDefined.OpenData.Notifications
 
         #endregion
 
+        #region Add(Notifications)
+
+        public void Add<T>(IEnumerable<T>  Notifications)
+            where T : ANotification
+        {
+
+            lock (_NotificationTypes)
+            {
+                _NotificationTypes.AddRange(Notifications);
+            }
+
+        }
+
+        #endregion
+
 
         #region GetNotifications  (NotificationMessageType = null)
 
@@ -322,6 +338,21 @@ namespace org.GraphDefined.OpenData.Notifications
         public JArray ToJSON()
             => new JArray(_NotificationTypes.SafeSelect(_ => _.ToJSON(false)));
 
+        public IEnumerator<ANotification> GetEnumerator()
+        {
+            lock (_NotificationTypes)
+            {
+                return new List<ANotification>(_NotificationTypes).GetEnumerator();
+            }
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            lock (_NotificationTypes)
+            {
+                return new List<ANotification>(_NotificationTypes).GetEnumerator();
+            }
+        }
 
     }
 

@@ -15,23 +15,15 @@
  * limitations under the License.
  */
 
-#region Usings
-
-using System;
-
-#endregion
-
 namespace org.GraphDefined.OpenData.Users
 {
 
-    [Flags]
-    public enum User2OrganizationEdges
+    public enum Organization2UserEdgeTypes
     {
         IsAdmin,
         IsMember,
-        IsGuest,
-        follows,
-        IsFollowedBy
+        IsVisitor,
+        IsFollower
     }
 
 }
