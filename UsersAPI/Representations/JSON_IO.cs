@@ -184,19 +184,6 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
-    }
-
-}
-
-
-namespace org.GraphDefined.OpenData
-{
-
-    /// <summary>
-    /// JSON content representation.
-    /// </summary>
-    public static class JSON_IO
-    {
 
         #region ToJSON(this Privacylevel)
 

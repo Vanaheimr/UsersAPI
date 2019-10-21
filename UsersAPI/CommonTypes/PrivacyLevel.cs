@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-namespace org.GraphDefined.OpenData
+namespace social.OpenData.UsersAPI
 {
 
     public enum PrivacyLevel

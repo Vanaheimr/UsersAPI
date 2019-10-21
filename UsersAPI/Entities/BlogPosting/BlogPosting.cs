@@ -25,7 +25,7 @@ using Newtonsoft.Json.Linq;
 
 using Org.BouncyCastle.Bcpg.OpenPgp;
 
-using org.GraphDefined.OpenData.Notifications;
+using social.OpenData.UsersAPI.Notifications;
 
 using org.GraphDefined.Vanaheimr.Aegir;
 using org.GraphDefined.Vanaheimr.Illias;
@@ -41,7 +41,7 @@ using Org.BouncyCastle.Crypto;
 
 #endregion
 
-namespace org.GraphDefined.OpenData.Postings
+namespace social.OpenData.UsersAPI.Postings
 {
 
 //    public delegate Boolean PostingProviderDelegate(BlogPosting_Id PostingId, out BlogPosting Posting);
@@ -262,7 +262,7 @@ namespace org.GraphDefined.OpenData.Postings
             this.PublicationDate  = PublicationDate ?? DateTime.Now;
             this.GeoLocation      = GeoLocation;
             this.Tags             = Tags            ?? new TagRelevance[0];
-            this.PrivacyLevel     = PrivacyLevel    ?? OpenData.PrivacyLevel.Private;
+            this.PrivacyLevel     = PrivacyLevel    ?? social.OpenData.UsersAPI.PrivacyLevel.Private;
             this.IsHidden         = false;
             this.Signatures       = Signatures      ?? new BlogPostingSignature[0];
 
@@ -865,7 +865,7 @@ namespace org.GraphDefined.OpenData.Postings
                 this.PublicationDate  = PublicationDate ?? DateTime.Now;
                 this.GeoLocation      = GeoLocation;
                 this.Tags             = Tags         ?? new TagRelevance[0];
-                this.PrivacyLevel     = PrivacyLevel ?? OpenData.PrivacyLevel.Private;
+                this.PrivacyLevel     = PrivacyLevel ?? social.OpenData.UsersAPI.PrivacyLevel.Private;
                 this.IsHidden         = false;
                 this.Signatures       = Signatures   ?? new BlogPostingSignature[0];
                 this.DataSource       = DataSource;

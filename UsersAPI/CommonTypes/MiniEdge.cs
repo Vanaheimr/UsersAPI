@@ -19,7 +19,7 @@
 
 using System;
 
-using org.GraphDefined.OpenData;
+using social.OpenData.UsersAPI;
 using org.GraphDefined.Vanaheimr.Illias;
 
 #endregion

@@ -28,7 +28,7 @@ using System.Collections;
 
 #endregion
 
-namespace org.GraphDefined.OpenData.Notifications
+namespace social.OpenData.UsersAPI.Notifications
 {
 
     /// <summary>

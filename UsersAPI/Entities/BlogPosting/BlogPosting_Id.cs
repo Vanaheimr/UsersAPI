@@ -23,7 +23,7 @@ using org.GraphDefined.Vanaheimr.Illias;
 
 #endregion
 
-namespace org.GraphDefined.OpenData.Postings
+namespace social.OpenData.UsersAPI.Postings
 {
 
     /// <summary>

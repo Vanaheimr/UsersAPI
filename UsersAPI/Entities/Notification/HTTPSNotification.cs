@@ -31,7 +31,7 @@ using org.GraphDefined.Vanaheimr.Hermod.HTTP;
 
 #endregion
 
-namespace org.GraphDefined.OpenData.Notifications
+namespace social.OpenData.UsersAPI.Notifications
 {
 
     /// <summary>

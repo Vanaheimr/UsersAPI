@@ -27,7 +27,7 @@ using org.GraphDefined.Vanaheimr.Aegir;
 
 #endregion
 
-namespace org.GraphDefined.OpenData.Notifications
+namespace social.OpenData.UsersAPI.Notifications
 {
 
     public enum NotificationVisibility

@@ -25,7 +25,7 @@ using Newtonsoft.Json.Linq;
 
 using Org.BouncyCastle.Bcpg.OpenPgp;
 
-using org.GraphDefined.OpenData.Notifications;
+using social.OpenData.UsersAPI.Notifications;
 
 using org.GraphDefined.Vanaheimr.Aegir;
 using org.GraphDefined.Vanaheimr.Illias;
@@ -38,7 +38,7 @@ using org.GraphDefined.Vanaheimr.BouncyCastle;
 
 #endregion
 
-namespace org.GraphDefined.OpenData.Postings
+namespace social.OpenData.UsersAPI.Postings
 {
 
     /// <summary>

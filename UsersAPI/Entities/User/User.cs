@@ -25,7 +25,7 @@ using Newtonsoft.Json.Linq;
 
 using Org.BouncyCastle.Bcpg.OpenPgp;
 
-using org.GraphDefined.OpenData.Notifications;
+using social.OpenData.UsersAPI.Notifications;
 
 using org.GraphDefined.Vanaheimr.Aegir;
 using org.GraphDefined.Vanaheimr.Illias;
@@ -35,7 +35,7 @@ using org.GraphDefined.Vanaheimr.Hermod.Distributed;
 using org.GraphDefined.Vanaheimr.Hermod.HTTP;
 using org.GraphDefined.Vanaheimr.Styx.Arrows;
 using org.GraphDefined.Vanaheimr.BouncyCastle;
-using org.GraphDefined.OpenData;
+using social.OpenData.UsersAPI;
 
 #endregion
 
@@ -687,7 +687,7 @@ namespace social.OpenData.UsersAPI
             this.Description                  = Description  ?? new I18NString();
             this.GeoLocation                  = GeoLocation;
             this.Address                      = Address;
-            this.PrivacyLevel                 = PrivacyLevel ?? org.GraphDefined.OpenData.PrivacyLevel.Private;
+            this.PrivacyLevel                 = PrivacyLevel ?? social.OpenData.UsersAPI.PrivacyLevel.Private;
             this.AcceptedEULA                 = AcceptedEULA;
             this.IsAuthenticated              = IsAuthenticated;
             this.IsDisabled                   = IsDisabled;

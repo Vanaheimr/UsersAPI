@@ -34,7 +34,7 @@ using System.Collections;
 
 #endregion
 
-namespace org.GraphDefined.OpenData
+namespace social.OpenData.UsersAPI
 {
 
     public enum TagEdgeLabel

@@ -24,13 +24,12 @@ using System.Collections.Generic;
 
 using Newtonsoft.Json.Linq;
 
-using social.OpenData.UsersAPI;
 using org.GraphDefined.Vanaheimr.Illias;
 using org.GraphDefined.Vanaheimr.Hermod.Mail;
 
 #endregion
 
-namespace org.GraphDefined.OpenData.Notifications
+namespace social.OpenData.UsersAPI.Notifications
 {
 
     /// <summary>

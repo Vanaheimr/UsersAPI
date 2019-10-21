@@ -30,8 +30,8 @@ using org.GraphDefined.Vanaheimr.Styx.Arrows;
 using org.GraphDefined.Vanaheimr.Hermod.Distributed;
 using org.GraphDefined.Vanaheimr.Hermod.HTTP;
 using org.GraphDefined.Vanaheimr.Hermod.Mail;
-using org.GraphDefined.OpenData.Notifications;
-using org.GraphDefined.OpenData;
+using social.OpenData.UsersAPI.Notifications;
+using social.OpenData.UsersAPI;
 
 #endregion
 
@@ -469,7 +469,7 @@ namespace social.OpenData.UsersAPI
                             Address                                     Address                             = null,
                             GeoCoordinate?                              GeoLocation                         = null,
                             Func<Tags.Builder, Tags>                    Tags                                = null,
-                            PrivacyLevel                                PrivacyLevel                        = org.GraphDefined.OpenData.PrivacyLevel.World,
+                            PrivacyLevel                                PrivacyLevel                        = social.OpenData.UsersAPI.PrivacyLevel.World,
                             Boolean                                     IsDisabled                          = false,
                             String                                      DataSource                          = "",
 
@@ -963,7 +963,7 @@ namespace social.OpenData.UsersAPI
                                                 Address,
                                                 GeoLocation,
                                                 _ => Tags,
-                                                PrivacyLevel ?? org.GraphDefined.OpenData.PrivacyLevel.World,
+                                                PrivacyLevel ?? social.OpenData.UsersAPI.PrivacyLevel.World,
                                                 IsDisabled ?? false,
                                                 DataSource);
 
@@ -1487,7 +1487,7 @@ namespace social.OpenData.UsersAPI
                            Address                                     Address                             = null,
                            GeoCoordinate?                              GeoLocation                         = null,
                            Func<Tags.Builder, Tags>                    Tags                                = null,
-                           PrivacyLevel                                PrivacyLevel                        = org.GraphDefined.OpenData.PrivacyLevel.Private,
+                           PrivacyLevel                                PrivacyLevel                        = social.OpenData.UsersAPI.PrivacyLevel.Private,
                            Boolean                                     IsDisabled                          = false,
                            String                                      DataSource                          = "",
 

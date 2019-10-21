@@ -18,7 +18,7 @@
 #region Usings
 
 using System;
-using org.GraphDefined.OpenData;
+using social.OpenData.UsersAPI;
 
 #endregion
 

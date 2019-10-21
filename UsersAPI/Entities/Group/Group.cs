@@ -28,7 +28,7 @@ using org.GraphDefined.Vanaheimr.Styx.Arrows;
 using org.GraphDefined.Vanaheimr.Hermod;
 using org.GraphDefined.Vanaheimr.Hermod.Distributed;
 using org.GraphDefined.Vanaheimr.Hermod.HTTP;
-using org.GraphDefined.OpenData;
+using social.OpenData.UsersAPI;
 
 #endregion
 
@@ -119,7 +119,7 @@ namespace social.OpenData.UsersAPI
 
             this.Name          = Name         ?? new I18NString();
             this.Description   = Description  ?? new I18NString();
-            this.PrivacyLevel  = PrivacyLevel ?? org.GraphDefined.OpenData.PrivacyLevel.World;
+            this.PrivacyLevel  = PrivacyLevel ?? social.OpenData.UsersAPI.PrivacyLevel.World;
             this.IsDisabled    = IsDisabled;
 
             #endregion
@@ -185,7 +185,7 @@ namespace social.OpenData.UsersAPI
 
             AddOutgoingEdge(Group2UserEdgeTypes  EdgeLabel,
                             User                 Target,
-                            PrivacyLevel         PrivacyLevel = org.GraphDefined.OpenData.PrivacyLevel.Private)
+                            PrivacyLevel         PrivacyLevel = social.OpenData.UsersAPI.PrivacyLevel.Private)
 
             => _Group2UserInEdges.AddAndReturnElement(new Group2UserEdge(this,
                                                                          EdgeLabel,
@@ -227,7 +227,7 @@ namespace social.OpenData.UsersAPI
 
             AddEdge(Group2GroupEdgeTypes  EdgeLabel,
                     Group                 Target,
-                    PrivacyLevel          PrivacyLevel = org.GraphDefined.OpenData.PrivacyLevel.Private)
+                    PrivacyLevel          PrivacyLevel = social.OpenData.UsersAPI.PrivacyLevel.Private)
 
             => _Group2GroupEdgeTypes.AddAndReturnElement(new Group2GroupEdge(this,
                                                                              EdgeLabel,

@@ -23,7 +23,7 @@ using org.GraphDefined.Vanaheimr.Illias;
 
 #endregion
 
-namespace org.GraphDefined.OpenData.Notifications
+namespace social.OpenData.UsersAPI.Notifications
 {
 
     /// <summary>

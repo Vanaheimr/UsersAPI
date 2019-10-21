@@ -48,12 +48,12 @@ using org.GraphDefined.Vanaheimr.Hermod.Sockets;
 using org.GraphDefined.Vanaheimr.Aegir;
 using org.GraphDefined.Vanaheimr.Warden;
 
-using org.GraphDefined.OpenData.Postings;
-using org.GraphDefined.OpenData.Notifications;
+using social.OpenData.UsersAPI.Postings;
+using social.OpenData.UsersAPI.Notifications;
 
 using com.GraphDefined.SMSApi.API;
 using com.GraphDefined.SMSApi.API.Response;
-using org.GraphDefined.OpenData;
+using social.OpenData.UsersAPI;
 
 #endregion
 

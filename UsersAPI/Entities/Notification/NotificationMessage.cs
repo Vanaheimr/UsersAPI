@@ -30,7 +30,7 @@ using social.OpenData.UsersAPI;
 
 #endregion
 
-namespace org.GraphDefined.OpenData.Notifications
+namespace social.OpenData.UsersAPI.Notifications
 {
 
     /// <summary>
@@ -146,7 +146,7 @@ namespace org.GraphDefined.OpenData.Notifications
             this.Type          = Type;
             this.Data          = Data;
             this.Owners        = Owners == null ? new Organization[0] : Owners.Where(owner => owner != null);
-            this.PrivacyLevel  = PrivacyLevel ?? OpenData.PrivacyLevel.Private;
+            this.PrivacyLevel  = PrivacyLevel ?? social.OpenData.UsersAPI.PrivacyLevel.Private;
             this.Signatures    = Signatures   ?? new String[0];
 
             CalcHash();
