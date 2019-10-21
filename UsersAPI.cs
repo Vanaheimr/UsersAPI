@@ -433,7 +433,7 @@ namespace org.GraphDefined.OpenData.Users
 
         public  const             Byte                                DefaultMinUserNameLenght       = 4;
         public  const             Byte                                DefaultMinRealmLenght          = 2;
-        public  static readonly   PasswordQualityCheckDelegate        DefaultPasswordQualityCheck    = password => password.Length > 8 ? 1.0f : 0;
+        public  static readonly   PasswordQualityCheckDelegate        DefaultPasswordQualityCheck    = password => password.Length >= 8 ? 1.0f : 0;
 
         public  static readonly   TimeSpan                            DefaultSignInSessionLifetime   = TimeSpan.FromDays(30);
 
