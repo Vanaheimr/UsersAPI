@@ -25,36 +25,31 @@ using org.GraphDefined.OpenData;
 namespace social.OpenData.UsersAPI
 {
 
-    [Flags]
-    public enum User2GroupEdgeTypes
+    public enum Group2GroupEdgeTypes
     {
-        IsRoot,
-        IsAdmin_ReadOnly,
-        IsAdmin_ReadWrite,
-        IsMember,
-        IsVisitor
+        IsSubgroup
     }
 
-    public class User2GroupEdge : MiniEdge<User, User2GroupEdgeTypes, Group>
+    public class Group2GroupEdge : MiniEdge<Group, Group2GroupEdgeTypes, Group>
     {
 
         /// <summary>
         /// Create a new miniedge.
         /// </summary>
-        /// <param name="User">The source of the edge.</param>
+        /// <param name="GroupA">The source of the edge.</param>
         /// <param name="EdgeLabel">The label of the edge.</param>
-        /// <param name="Group">The target of the edge</param>
+        /// <param name="GroupB">The target of the edge</param>
         /// <param name="PrivacyLevel">The level of privacy of this edge.</param>
         /// <param name="Created">The creation timestamp of the miniedge.</param>
-        public User2GroupEdge(User                 User,
-                              User2GroupEdgeTypes  EdgeLabel,
-                              Group                Group,
-                              PrivacyLevel         PrivacyLevel  = PrivacyLevel.Private,
-                              DateTime?            Created       = null)
+        public Group2GroupEdge(Group                 GroupA,
+                               Group2GroupEdgeTypes  EdgeLabel,
+                               Group                 GroupB,
+                               PrivacyLevel          PrivacyLevel  = PrivacyLevel.Private,
+                               DateTime?             Created       = null)
 
-            : base(User  ?? throw new ArgumentNullException(nameof(User),  "The given user must not be null!"),
+            : base(GroupA ?? throw new ArgumentNullException(nameof(GroupA), "The given group must not be null!"),
                    EdgeLabel,
-                   Group ?? throw new ArgumentNullException(nameof(Group), "The given group must not be null!"),
+                   GroupB ?? throw new ArgumentNullException(nameof(GroupB), "The given group must not be null!"),
                    PrivacyLevel,
                    Created)
 

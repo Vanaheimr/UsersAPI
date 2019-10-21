@@ -113,8 +113,8 @@ namespace social.OpenData.UsersAPI
         {
 
             this.You                             = You;
-            this.Admins                          = _User2Organization_InEdges.Where(_ => _.EdgeLabel == OpenData.Users.User2OrganizationEdgeTypes.IsAdmin). SafeSelect(edge => edge.Source).ToArray();
-            this.Members                         = _User2Organization_InEdges.Where(_ => _.EdgeLabel == OpenData.Users.User2OrganizationEdgeTypes.IsMember).SafeSelect(edge => edge.Source).ToArray();
+            this.Admins                          = _User2Organization_InEdges.Where(_ => _.EdgeLabel == User2OrganizationEdgeTypes.IsAdmin). SafeSelect(edge => edge.Source).ToArray();
+            this.Members                         = _User2Organization_InEdges.Where(_ => _.EdgeLabel == User2OrganizationEdgeTypes.IsMember).SafeSelect(edge => edge.Source).ToArray();
 
             this.YouAreMember                    = YouAreMember                   || Admins.Contains(You) || Members.Contains(You);
             this.YouCanAddMembers                = YouCanAddMembers               || Admins.Contains(You);

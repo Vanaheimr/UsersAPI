@@ -59,7 +59,7 @@
     <Compile Include="CommonTypes\PrivacyLevel.cs" />
     <Compile Include="CommonTypes\VerificationToken.cs" />
     <Compile Include="Entities\BlogPosting\BlogPostingSignature.cs" />
-    <Compile Include="Entities\Group\UserGroup2GroupEdges.cs" />
+    <Compile Include="Entities\Group\UserGroup2Group.cs" />
     <Compile Include="Entities\Notification\ANotification.cs" />
     <Compile Include="Entities\Notification\HTTPSNotification.cs" />
     <Compile Include="Entities\Notification\EMailNotification.cs" />
@@ -75,7 +75,7 @@
     <Compile Include="Entities\Organization\Organization_Id.cs" />
     <Compile Include="Entities\Organization\Organization2UserEdgeTypes.cs" />
     <Compile Include="Entities\Group\Group.cs" />
-    <Compile Include="Entities\Group\UserGroup2UserEdges.cs" />
+    <Compile Include="Entities\Group\UserGroup2User.cs" />
     <Compile Include="Entities\Group\Group_Id.cs" />
     <Compile Include="Entities\Message\Message.cs" />
     <Compile Include="Entities\Message\Message_Id.cs" />

@@ -19,6 +19,7 @@
 
 using System;
 
+using org.GraphDefined.OpenData;
 using org.GraphDefined.Vanaheimr.Illias;
 
 #endregion
@@ -38,16 +39,16 @@ namespace social.OpenData.UsersAPI
 
         #region Properties
 
-        public TSource Source { get; internal set; }
+        public TSource       Source          { get; internal set; }
 
-        public TEdge EdgeLabel { get; }
+        public TEdge         EdgeLabel       { get; }
 
-        public TTarget Target { get; internal set; }
+        public TTarget       Target          { get; internal set; }
 
 
-        public PrivacyLevel PrivacyLevel { get; }
+        public PrivacyLevel  PrivacyLevel    { get; }
 
-        public DateTime Created { get; }
+        public DateTime      Created         { get; }
 
         #region UserDefined
 

@@ -31,6 +31,7 @@ using org.GraphDefined.Vanaheimr.Hermod.Distributed;
 using org.GraphDefined.Vanaheimr.Hermod.HTTP;
 using org.GraphDefined.Vanaheimr.Hermod.Mail;
 using org.GraphDefined.OpenData.Notifications;
+using org.GraphDefined.OpenData;
 
 #endregion
 
@@ -468,7 +469,7 @@ namespace social.OpenData.UsersAPI
                             Address                                     Address                             = null,
                             GeoCoordinate?                              GeoLocation                         = null,
                             Func<Tags.Builder, Tags>                    Tags                                = null,
-                            PrivacyLevel                                PrivacyLevel                        = OpenData.PrivacyLevel.World,
+                            PrivacyLevel                                PrivacyLevel                        = org.GraphDefined.OpenData.PrivacyLevel.World,
                             Boolean                                     IsDisabled                          = false,
                             String                                      DataSource                          = "",
 
@@ -909,7 +910,7 @@ namespace social.OpenData.UsersAPI
 
                 if (JSONObject.ParseOptional("address",
                                              "address",
-                                             Vanaheimr.Illias.Address.TryParse,
+                                             org.GraphDefined.Vanaheimr.Illias.Address.TryParse,
                                              out Address Address,
                                              out ErrorResponse))
                 {
@@ -962,7 +963,7 @@ namespace social.OpenData.UsersAPI
                                                 Address,
                                                 GeoLocation,
                                                 _ => Tags,
-                                                PrivacyLevel ?? OpenData.PrivacyLevel.World,
+                                                PrivacyLevel ?? org.GraphDefined.OpenData.PrivacyLevel.World,
                                                 IsDisabled ?? false,
                                                 DataSource);
 
@@ -1078,18 +1079,18 @@ namespace social.OpenData.UsersAPI
 
 
         public IEnumerable<User> Admins
-            => _User2Organization_InEdges.Where(_ => _.EdgeLabel == OpenData.Users.User2OrganizationEdgeTypes.IsAdmin).
+            => _User2Organization_InEdges.Where(_ => _.EdgeLabel == User2OrganizationEdgeTypes.IsAdmin).
                                           SafeSelect(edge => edge.Source).
                                           Distinct();
 
         public IEnumerable<User> Members
-            => _User2Organization_InEdges.Where(_ => _.EdgeLabel == OpenData.Users.User2OrganizationEdgeTypes.IsMember).
+            => _User2Organization_InEdges.Where(_ => _.EdgeLabel == User2OrganizationEdgeTypes.IsMember).
                                           SafeSelect(edge => edge.Source).
                                           Distinct();
 
         public IEnumerable<User> Users
-            => _User2Organization_InEdges.Where(_ => _.EdgeLabel == OpenData.Users.User2OrganizationEdgeTypes.IsAdmin ||
-                                                     _.EdgeLabel == OpenData.Users.User2OrganizationEdgeTypes.IsMember).
+            => _User2Organization_InEdges.Where(_ => _.EdgeLabel == User2OrganizationEdgeTypes.IsAdmin ||
+                                                     _.EdgeLabel == User2OrganizationEdgeTypes.IsMember).
                                           SafeSelect(edge => edge.Source).
                                           Distinct();
 
@@ -1486,7 +1487,7 @@ namespace social.OpenData.UsersAPI
                            Address                                     Address                             = null,
                            GeoCoordinate?                              GeoLocation                         = null,
                            Func<Tags.Builder, Tags>                    Tags                                = null,
-                           PrivacyLevel                                PrivacyLevel                        = OpenData.PrivacyLevel.Private,
+                           PrivacyLevel                                PrivacyLevel                        = org.GraphDefined.OpenData.PrivacyLevel.Private,
                            Boolean                                     IsDisabled                          = false,
                            String                                      DataSource                          = "",
 

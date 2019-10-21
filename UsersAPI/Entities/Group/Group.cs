@@ -54,9 +54,9 @@ namespace social.OpenData.UsersAPI
         /// </summary>
         public const String JSONLDContext = "https://opendata.social/contexts/UsersAPI+json/group";
 
-        private readonly List<MiniEdge<User,  User2GroupEdgeTypes,  Group>> _User2GroupEdges;
-        private readonly List<MiniEdge<Group, Group2UserEdges,  User>>  _Group2UserInEdges;
-        private readonly List<MiniEdge<Group, Group2GroupEdges, Group>> _Group2GroupEdges;
+        private readonly List<User2GroupEdge>   _User2GroupEdges;
+        private readonly List<Group2UserEdge>   _Group2UserInEdges;
+        private readonly List<Group2GroupEdge>  _Group2GroupEdgeTypes;
 
         #endregion
 
@@ -126,9 +126,9 @@ namespace social.OpenData.UsersAPI
 
             #region Init edges
 
-            this._User2GroupEdges     = new List<MiniEdge<User,  User2GroupEdgeTypes,  Group>>();
-            this._Group2UserInEdges   = new List<MiniEdge<Group, Group2UserEdges,  User>>();
-            this._Group2GroupEdges    = new List<MiniEdge<Group, Group2GroupEdges, Group>>();
+            this._User2GroupEdges       = new List<User2GroupEdge>();
+            this._Group2UserInEdges     = new List<Group2UserEdge>();
+            this._Group2GroupEdgeTypes  = new List<Group2GroupEdge>();
 
             #endregion
 
@@ -181,20 +181,20 @@ namespace social.OpenData.UsersAPI
 
         #region Group -> User  edges
 
-        public MiniEdge<Group, Group2UserEdges, User>
+        public Group2UserEdge
 
-            AddOutgoingEdge(Group2UserEdges  EdgeLabel,
-                            User             Target,
-                            PrivacyLevel     PrivacyLevel = PrivacyLevel.Private)
+            AddOutgoingEdge(Group2UserEdgeTypes  EdgeLabel,
+                            User                 Target,
+                            PrivacyLevel         PrivacyLevel = org.GraphDefined.OpenData.PrivacyLevel.Private)
 
-            => _Group2UserInEdges.AddAndReturnElement(new MiniEdge<Group, Group2UserEdges, User>(this,
-                                                                                                 EdgeLabel,
-                                                                                                 Target,
-                                                                                                 PrivacyLevel));
+            => _Group2UserInEdges.AddAndReturnElement(new Group2UserEdge(this,
+                                                                         EdgeLabel,
+                                                                         Target,
+                                                                         PrivacyLevel));
 
-        public MiniEdge<Group, Group2UserEdges, User>
+        public Group2UserEdge
 
-            AddIncomingEdge(MiniEdge<Group, Group2UserEdges, User> Edge)
+            AddIncomingEdge(Group2UserEdge Edge)
 
                 => _Group2UserInEdges.AddAndReturnElement(Edge);
 
@@ -205,7 +205,7 @@ namespace social.OpenData.UsersAPI
         /// All organizations this user belongs to,
         /// filtered by the given edge label.
         /// </summary>
-        public IEnumerable<Group2UserEdges> InEdges(Group Group)
+        public IEnumerable<Group2UserEdgeTypes> InEdges(Group Group)
             => _Group2UserInEdges.
                    Where (edge => edge.Source == Group).
                    Select(edge => edge.EdgeLabel);
@@ -214,7 +214,7 @@ namespace social.OpenData.UsersAPI
 
         #region RemoveInEdges(EdgeLabel, TargetOrganization)
 
-        public Boolean RemoveInEdge(MiniEdge<Group, Group2UserEdges, User> Edge)
+        public Boolean RemoveInEdge(Group2UserEdge Edge)
             => _Group2UserInEdges.Remove(Edge);
 
         #endregion
@@ -223,22 +223,22 @@ namespace social.OpenData.UsersAPI
 
         #region Group -> Group edges
 
-        public MiniEdge<Group, Group2GroupEdges, Group>
+        public Group2GroupEdge
 
-            AddEdge(Group2GroupEdges EdgeLabel,
-                    Group Target,
-                    PrivacyLevel PrivacyLevel = PrivacyLevel.Private)
+            AddEdge(Group2GroupEdgeTypes  EdgeLabel,
+                    Group                 Target,
+                    PrivacyLevel          PrivacyLevel = org.GraphDefined.OpenData.PrivacyLevel.Private)
 
-            => _Group2GroupEdges.AddAndReturnElement(new MiniEdge<Group, Group2GroupEdges, Group>(this,
-                                                                                                  EdgeLabel,
-                                                                                                  Target,
-                                                                                                  PrivacyLevel));
+            => _Group2GroupEdgeTypes.AddAndReturnElement(new Group2GroupEdge(this,
+                                                                             EdgeLabel,
+                                                                             Target,
+                                                                             PrivacyLevel));
 
-        public MiniEdge<Group, Group2GroupEdges, Group>
+        public Group2GroupEdge
 
-            AddEdge(MiniEdge<Group, Group2GroupEdges, Group> Edge)
+            AddEdge(Group2GroupEdge Edge)
 
-            => _Group2GroupEdges.AddAndReturnElement(Edge);
+            => _Group2GroupEdgeTypes.AddAndReturnElement(Edge);
 
 
         #region Edges(Group)

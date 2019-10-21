@@ -26,35 +26,34 @@ namespace social.OpenData.UsersAPI
 {
 
     [Flags]
-    public enum User2GroupEdgeTypes
+    public enum Group2UserEdgeTypes
     {
-        IsRoot,
-        IsAdmin_ReadOnly,
-        IsAdmin_ReadWrite,
+        IsAdmin,
         IsMember,
-        IsVisitor
+        IsFollower
     }
 
-    public class User2GroupEdge : MiniEdge<User, User2GroupEdgeTypes, Group>
+
+    public class Group2UserEdge : MiniEdge<Group, Group2UserEdgeTypes, User>
     {
 
         /// <summary>
         /// Create a new miniedge.
         /// </summary>
-        /// <param name="User">The source of the edge.</param>
+        /// <param name="Group">The source of the edge.</param>
         /// <param name="EdgeLabel">The label of the edge.</param>
-        /// <param name="Group">The target of the edge</param>
+        /// <param name="User">The target of the edge</param>
         /// <param name="PrivacyLevel">The level of privacy of this edge.</param>
         /// <param name="Created">The creation timestamp of the miniedge.</param>
-        public User2GroupEdge(User                 User,
-                              User2GroupEdgeTypes  EdgeLabel,
-                              Group                Group,
+        public Group2UserEdge(Group                Group,
+                              Group2UserEdgeTypes  EdgeLabel,
+                              User                 User,
                               PrivacyLevel         PrivacyLevel  = PrivacyLevel.Private,
                               DateTime?            Created       = null)
 
-            : base(User  ?? throw new ArgumentNullException(nameof(User),  "The given user must not be null!"),
+            : base(Group ?? throw new ArgumentNullException(nameof(Group),  "The given group must not be null!"),
                    EdgeLabel,
-                   Group ?? throw new ArgumentNullException(nameof(Group), "The given group must not be null!"),
+                   User  ?? throw new ArgumentNullException(nameof(User),   "The given user must not be null!"),
                    PrivacyLevel,
                    Created)
 

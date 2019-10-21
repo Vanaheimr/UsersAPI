@@ -35,6 +35,7 @@ using org.GraphDefined.Vanaheimr.Hermod.Distributed;
 using org.GraphDefined.Vanaheimr.Hermod.HTTP;
 using org.GraphDefined.Vanaheimr.Styx.Arrows;
 using org.GraphDefined.Vanaheimr.BouncyCastle;
+using org.GraphDefined.OpenData;
 
 #endregion
 
@@ -686,7 +687,7 @@ namespace social.OpenData.UsersAPI
             this.Description                  = Description  ?? new I18NString();
             this.GeoLocation                  = GeoLocation;
             this.Address                      = Address;
-            this.PrivacyLevel                 = PrivacyLevel ?? OpenData.PrivacyLevel.Private;
+            this.PrivacyLevel                 = PrivacyLevel ?? org.GraphDefined.OpenData.PrivacyLevel.Private;
             this.AcceptedEULA                 = AcceptedEULA;
             this.IsAuthenticated              = IsAuthenticated;
             this.IsDisabled                   = IsDisabled;
@@ -1111,7 +1112,7 @@ namespace social.OpenData.UsersAPI
 
                 if (JSONObject.ParseOptional("address",
                                              "address",
-                                             Vanaheimr.Illias.Address.TryParse,
+                                             org.GraphDefined.Vanaheimr.Illias.Address.TryParse,
                                              out Address Address,
                                              out ErrorResponse))
                 {

@@ -18,6 +18,7 @@
 #region Usings
 
 using System;
+using org.GraphDefined.OpenData;
 
 #endregion
 
