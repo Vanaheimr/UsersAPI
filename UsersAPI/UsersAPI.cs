@@ -425,7 +425,7 @@ namespace social.OpenData.UsersAPI
         /// <summary>
         /// The HTTP root for embedded ressources.
         /// </summary>
-        public const              String                              HTTPRoot                       = "social.OpenData.UsersAPIAPI.HTTPRoot.";
+        public const              String                              HTTPRoot                       = "social.OpenData.UsersAPI.HTTPRoot.";
 
         /// <summary>
         /// The default language of the API.
