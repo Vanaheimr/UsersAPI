@@ -18,6 +18,8 @@
 #region Usings
 
 using System;
+using System.Linq;
+using System.Collections.Generic;
 
 using Newtonsoft.Json.Linq;
 
@@ -33,8 +35,76 @@ namespace social.OpenData.UsersAPI.Notifications
     public enum NotificationVisibility
     {
         System,
-        Customers
+        Admins,
+        Customers,
+        Guests
     }
+
+
+    public class NotificationMessageGroup
+    {
+
+        private List<NotificationMessageTypeInfo> _Notifications;
+
+
+        public NotificationMessageGroupId                Id               { get; }
+
+        public String                                    Text             { get; }
+
+        public NotificationVisibility                    Visibility       { get; }
+
+        public I18NString                                Description      { get; }
+
+        public IEnumerable<NotificationMessageTypeInfo>  Notifications
+            => _Notifications;
+
+        public NotificationMessageGroup(NotificationMessageGroupId                Id,
+                                        String                                    Text,
+                                        NotificationVisibility                    Visibility,
+                                        I18NString                                Description,
+                                        IEnumerable<NotificationMessageTypeInfo>  Notifications = null)
+        {
+
+            this.Id              = Id;
+            this.Text            = Text;
+            this.Visibility      = Visibility;
+            this.Description     = Description;
+            this._Notifications  = new List<NotificationMessageTypeInfo>();
+
+            if (Notifications.SafeAny())
+                Notifications.ForEach(notification => _Notifications.Add(notification));
+
+        }
+
+
+        public NotificationMessageTypeInfo Add(NotificationMessageTypeInfo NotificationMessageTypeInfo)
+        {
+
+            if (NotificationMessageTypeInfo == null)
+                throw new ArgumentNullException(nameof(NotificationMessageTypeInfo), "The given NotificationMessageTypeInfo must not be null!");
+
+            return _Notifications.AddAndReturnElement(NotificationMessageTypeInfo);
+
+        }
+
+
+        public JObject ToJSON()
+
+            => JSONObject.Create(
+
+                   new JProperty("@id",          Id.ToString()),
+                   new JProperty("text",         Text),
+                   new JProperty("visibility",   Visibility.ToString().ToLower()),
+                   new JProperty("description",  Description.ToJSON()),
+
+                   Notifications.SafeAny()
+                       ? new JProperty("notifications",  new JArray(Notifications.Select(info => info.ToJSON())))
+                       : null
+
+               );
+
+    }
+
 
     public class NotificationMessageTypeInfo
     {

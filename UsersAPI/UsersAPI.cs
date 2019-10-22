@@ -2255,6 +2255,52 @@ namespace social.OpenData.UsersAPI
         #endregion
 
 
+        #region Notifications
+
+        #region Notifications Groups
+
+        private readonly List<NotificationMessageGroup> _NotificationMessageGroups = new List<NotificationMessageGroup>();
+
+        public NotificationMessageGroup Add(NotificationMessageGroup NotificationMessageGroup)
+            => _NotificationMessageGroups.AddAndReturnElement(NotificationMessageGroup);
+
+
+        private JObject GetNotificationGroups(User User)
+        {
+
+            if (User == null)
+                throw new ArgumentNullException(nameof(User), "The given user must not be null!");
+
+            var notificationsJSON = User.GetNotificationInfos();
+
+            notificationsJSON.AddFirst(new JProperty("messages", new JArray(
+                                           _NotificationMessageTypeInfos.Select(notificationMessageTypeInfo => notificationMessageTypeInfo.ToJSON())
+                                      )));
+
+            return notificationsJSON;
+
+        }
+
+        private JObject GetNotificationGroups(Organization Organization)
+        {
+
+            if (Organization == null)
+                throw new ArgumentNullException(nameof(Organization), "The given organization must not be null!");
+
+            var notificationsJSON = Organization.GetNotificationInfos();
+
+            notificationsJSON.AddFirst(new JProperty("messages", new JArray(
+                                           _NotificationMessageTypeInfos.Select(notificationMessageTypeInfo => notificationMessageTypeInfo.ToJSON())
+                                      )));
+
+            return notificationsJSON;
+
+        }
+
+        #endregion
+
+        #region Notifications
+
         private readonly List<NotificationMessageTypeInfo> _NotificationMessageTypeInfos = new List<NotificationMessageTypeInfo>();
 
         public void Add(NotificationMessageTypeInfo NotificationMessageTypeInfo)
@@ -2292,6 +2338,10 @@ namespace social.OpenData.UsersAPI
             return notificationsJSON;
 
         }
+
+        #endregion
+
+        #endregion
 
 
 
