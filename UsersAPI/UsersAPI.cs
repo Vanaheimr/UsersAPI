@@ -2257,8 +2257,6 @@ namespace social.OpenData.UsersAPI
 
         #region Notifications
 
-        #region Notifications Groups
-
         private readonly List<NotificationMessageGroup> _NotificationMessageGroups = new List<NotificationMessageGroup>();
 
         public NotificationMessageGroup Add(NotificationMessageGroup NotificationMessageGroup)
@@ -2273,8 +2271,8 @@ namespace social.OpenData.UsersAPI
 
             var notificationsJSON = User.GetNotificationInfos();
 
-            notificationsJSON.AddFirst(new JProperty("messages", new JArray(
-                                           _NotificationMessageTypeInfos.Select(notificationMessageTypeInfo => notificationMessageTypeInfo.ToJSON())
+            notificationsJSON.AddFirst(new JProperty("notificationGroups", new JArray(
+                                           _NotificationMessageGroups.Select(notificationMessageGroup => notificationMessageGroup.ToJSON())
                                       )));
 
             return notificationsJSON;
@@ -2289,57 +2287,13 @@ namespace social.OpenData.UsersAPI
 
             var notificationsJSON = Organization.GetNotificationInfos();
 
-            notificationsJSON.AddFirst(new JProperty("messages", new JArray(
-                                           _NotificationMessageTypeInfos.Select(notificationMessageTypeInfo => notificationMessageTypeInfo.ToJSON())
+            notificationsJSON.AddFirst(new JProperty("notificationGroups", new JArray(
+                                           _NotificationMessageGroups.Select(notificationMessageGroup => notificationMessageGroup.ToJSON())
                                       )));
 
             return notificationsJSON;
 
         }
-
-        #endregion
-
-        #region Notifications
-
-        private readonly List<NotificationMessageTypeInfo> _NotificationMessageTypeInfos = new List<NotificationMessageTypeInfo>();
-
-        public void Add(NotificationMessageTypeInfo NotificationMessageTypeInfo)
-            => _NotificationMessageTypeInfos.Add(NotificationMessageTypeInfo);
-
-
-        private JObject GetNotificationInfos(User User)
-        {
-
-            if (User == null)
-                throw new ArgumentNullException(nameof(User), "The given user must not be null!");
-
-            var notificationsJSON = User.GetNotificationInfos();
-
-            notificationsJSON.AddFirst(new JProperty("messages", new JArray(
-                                           _NotificationMessageTypeInfos.Select(notificationMessageTypeInfo => notificationMessageTypeInfo.ToJSON())
-                                      )));
-
-            return notificationsJSON;
-
-        }
-
-        private JObject GetNotificationInfos(Organization Organization)
-        {
-
-            if (Organization == null)
-                throw new ArgumentNullException(nameof(Organization), "The given organization must not be null!");
-
-            var notificationsJSON = Organization.GetNotificationInfos();
-
-            notificationsJSON.AddFirst(new JProperty("messages", new JArray(
-                                           _NotificationMessageTypeInfos.Select(notificationMessageTypeInfo => notificationMessageTypeInfo.ToJSON())
-                                      )));
-
-            return notificationsJSON;
-
-        }
-
-        #endregion
 
         #endregion
 
@@ -4799,7 +4753,7 @@ namespace social.OpenData.UsersAPI
                                                         AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
                                                         ETag                       = "1",
                                                         ContentType                = HTTPContentType.JSON_UTF8,
-                                                        Content                    = GetNotificationInfos(HTTPUser).ToUTF8Bytes(),
+                                                        Content                    = GetNotificationGroups(HTTPUser).ToUTF8Bytes(),
                                                         Connection                 = "close"
                                                     }.AsImmutable);
 
@@ -4989,7 +4943,7 @@ namespace social.OpenData.UsersAPI
                                                         AccessControlAllowMethods   = "GET, SET",
                                                         AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
                                                         ContentType                 = HTTPContentType.JSON_UTF8,
-                                                        Content                     = GetNotificationInfos(HTTPUser).ToUTF8Bytes(),
+                                                        Content                     = GetNotificationGroups(HTTPUser).ToUTF8Bytes(),
                                                         Connection                  = "close"
                                                     }.AsImmutable;
 
@@ -5179,7 +5133,7 @@ namespace social.OpenData.UsersAPI
                                                         AccessControlAllowMethods   = "GET, SET",
                                                         AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
                                                         ContentType                 = HTTPContentType.JSON_UTF8,
-                                                        Content                     = GetNotificationInfos(HTTPUser).ToUTF8Bytes(),
+                                                        Content                     = GetNotificationGroups(HTTPUser).ToUTF8Bytes(),
                                                         Connection                  = "close"
                                                     }.AsImmutable;
 
@@ -6372,7 +6326,7 @@ namespace social.OpenData.UsersAPI
                                                         AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
                                                         ETag                       = "1",
                                                         ContentType                = HTTPContentType.JSON_UTF8,
-                                                        Content                    = GetNotificationInfos(Organization).ToUTF8Bytes(),
+                                                        Content                    = GetNotificationGroups(Organization).ToUTF8Bytes(),
                                                         Connection                 = "close"
                                                     }.AsImmutable);
 
@@ -6558,7 +6512,7 @@ namespace social.OpenData.UsersAPI
                                                         AccessControlAllowMethods   = "GET, SET",
                                                         AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
                                                         ContentType                 = HTTPContentType.JSON_UTF8,
-                                                        Content                     = GetNotificationInfos(HTTPUser).ToUTF8Bytes(),
+                                                        Content                     = GetNotificationGroups(HTTPUser).ToUTF8Bytes(),
                                                         Connection                  = "close"
                                                     }.AsImmutable;
 
@@ -6744,7 +6698,7 @@ namespace social.OpenData.UsersAPI
                                                         AccessControlAllowMethods   = "GET, SET",
                                                         AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
                                                         ContentType                 = HTTPContentType.JSON_UTF8,
-                                                        Content                     = GetNotificationInfos(HTTPUser).ToUTF8Bytes(),
+                                                        Content                     = GetNotificationGroups(HTTPUser).ToUTF8Bytes(),
                                                         Connection                  = "close"
                                                     }.AsImmutable;
 

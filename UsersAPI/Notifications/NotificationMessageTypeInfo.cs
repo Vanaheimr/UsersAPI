@@ -44,7 +44,13 @@ namespace social.OpenData.UsersAPI.Notifications
     public class NotificationMessageGroup
     {
 
+        #region Data
+
         private List<NotificationMessageTypeInfo> _Notifications;
+
+        #endregion
+
+        #region Properties
 
 
         public NotificationMessageGroupId                Id               { get; }
@@ -57,6 +63,10 @@ namespace social.OpenData.UsersAPI.Notifications
 
         public IEnumerable<NotificationMessageTypeInfo>  Notifications
             => _Notifications;
+
+        #endregion
+
+        #region Constructor(s)
 
         public NotificationMessageGroup(NotificationMessageGroupId                Id,
                                         String                                    Text,
@@ -75,6 +85,8 @@ namespace social.OpenData.UsersAPI.Notifications
                 Notifications.ForEach(notification => _Notifications.Add(notification));
 
         }
+
+        #endregion
 
 
         public NotificationMessageTypeInfo Add(NotificationMessageTypeInfo NotificationMessageTypeInfo)
@@ -109,6 +121,8 @@ namespace social.OpenData.UsersAPI.Notifications
     public class NotificationMessageTypeInfo
     {
 
+        #region Properties
+
         public NotificationMessageType  Id             { get; }
 
         public String                   Text           { get; }
@@ -116,6 +130,10 @@ namespace social.OpenData.UsersAPI.Notifications
         public NotificationVisibility   Visibility     { get; }
 
         public I18NString               Description    { get; }
+
+        #endregion
+
+        #region Constructor(s)
 
         public NotificationMessageTypeInfo(NotificationMessageType  Id,
                                            String                   Text,
@@ -129,6 +147,8 @@ namespace social.OpenData.UsersAPI.Notifications
             this.Description  = Description;
 
         }
+
+        #endregion
 
         public JObject ToJSON()
 
