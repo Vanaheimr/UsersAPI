@@ -425,57 +425,72 @@ namespace social.OpenData.UsersAPI
         /// <summary>
         /// The HTTP root for embedded ressources.
         /// </summary>
-        public const              String                              HTTPRoot                       = "social.OpenData.UsersAPI.HTTPRoot.";
+        public const              String                                        HTTPRoot                        = "social.OpenData.UsersAPI.HTTPRoot.";
 
         /// <summary>
         /// The default language of the API.
         /// </summary>
-        public  const             Languages                           DefaultLanguage                = Languages.eng;
+        public  const             Languages                                     DefaultLanguage                 = Languages.eng;
 
-        public  const             Byte                                DefaultMinUserNameLenght       = 4;
-        public  const             Byte                                DefaultMinRealmLenght          = 2;
-        public  static readonly   PasswordQualityCheckDelegate        DefaultPasswordQualityCheck    = password => password.Length >= 8 ? 1.0f : 0;
+        public  const             Byte                                          DefaultMinUserNameLenght        = 4;
+        public  const             Byte                                          DefaultMinRealmLenght           = 2;
+        public  static readonly   PasswordQualityCheckDelegate                  DefaultPasswordQualityCheck     = password => password.Length >= 8 ? 1.0f : 0;
 
-        public  static readonly   TimeSpan                            DefaultSignInSessionLifetime   = TimeSpan.FromDays(30);
+        public  static readonly   TimeSpan                                      DefaultSignInSessionLifetime    = TimeSpan.FromDays(30);
 
 
-        private readonly          Dictionary<User_Id, LoginPassword>  _LoginPasswords;
-        private readonly          List<VerificationToken>             _VerificationTokens;
+        private readonly          Dictionary<User_Id, LoginPassword>            _LoginPasswords;
+        private readonly          List<VerificationToken>                       _VerificationTokens;
 
-        ///// <summary>
-        ///// Default logfile name.
-        ///// </summary>
-        //public  const             String                              DefaultLogfileName             = "UsersAPI.log";
-
-        public  const             String                              SignUpContext                  = "";
-        public  const             String                              SignInOutContext               = "";
+        public  const             String                                        SignUpContext                   = "";
+        public  const             String                                        SignInOutContext                = "";
 
         /// <summary>
         /// The name of the default HTTP cookie.
         /// </summary>
-        public  static readonly   HTTPCookieName                      DefaultCookieName              = HTTPCookieName.Parse("UsersAPI");
+        public  static readonly   HTTPCookieName                                DefaultCookieName               = HTTPCookieName.Parse("UsersAPI");
 
-        public  const             String                              HTTPCookieDomain               = "";
-
-        public  const             String                              DefaultUsersAPIFile            = "UsersAPI_Users.db";
-        public  const             String                              DefaultPasswordFile            = "UsersAPI_Passwords.db";
-        public  const             String                              SecurityTokenCookieKey         = "securitytoken";
-        public  const             String                              DefaultHTTPCookiesFile         = "UsersAPI_HTTPCookies.db";
-        public  const             String                              DefaultPasswordResetsFile      = "UsersAPI_PasswordResets.db";
-        //public  const             String                              DefaultGroupDBFile             = "UsersAPI_Groups.db";
-        //public  const             String                              DefaultUser2GroupDBFile        = "UsersAPI_User2Group.db";
-        public  const             String                              AdminGroupName                 = "Admins";
+        public  const             String                                        DefaultUsersAPIFile             = "UsersAPI_Users.db";
+        public  const             String                                        DefaultPasswordFile             = "UsersAPI_Passwords.db";
+        public  const             String                                        SecurityTokenCookieKey          = "securitytoken";
+        public  const             String                                        DefaultHTTPCookiesFile          = "UsersAPI_HTTPCookies.db";
+        public  const             String                                        DefaultPasswordResetsFile       = "UsersAPI_PasswordResets.db";
+        //public  const             String                                        DefaultGroupDBFile              = "UsersAPI_Groups.db";
+        //public  const             String                                        DefaultUser2GroupDBFile         = "UsersAPI_User2Group.db";
+        public  const             String                                        AdminGroupName                  = "Admins";
 
 
-        private readonly        PerformanceCounter  total_ram;
-        private readonly        PerformanceCounter  total_cpu;
+        /// <summary>
+        /// The performance counter to measure the total RAM usage.
+        /// </summary>
+        protected readonly        PerformanceCounter                            totalRAM_PerformanceCounter;
 
-        protected readonly SMSAPI                                      _SMSAPI;
+        /// <summary>
+        /// The performance counter to measure the total CPU usage.
+        /// </summary>
+        protected readonly        PerformanceCounter                            totalCPU_PerformanceCounter;
 
-        protected readonly Dictionary<SecurityToken_Id, SecurityToken> HTTPCookies;
-        protected readonly Dictionary<SecurityToken_Id, PasswordReset> PasswordResets;
+        /// <summary>
+        /// The SMSAPI.
+        /// </summary>
+        protected readonly        SMSAPI                                        _SMSAPI;
 
-        public static Organization NoOwner;
+        /// <summary>
+        /// All HTTP cookies.
+        /// </summary>
+        protected readonly        Dictionary<SecurityToken_Id, SecurityToken>   HTTPCookies;
+
+        public  const             String                                        HTTPCookieDomain                = "";
+
+        /// <summary>
+        /// All password resets.
+        /// </summary>
+        protected readonly        Dictionary<SecurityToken_Id, PasswordReset>   PasswordResets;
+
+        /// <summary>
+        /// The mother of all organizations.
+        /// </summary>
+        public static             Organization                                  NoOwner;
 
         //private readonly Queue<NotificationMessage> _NotificationMessages;
 
@@ -726,7 +741,7 @@ namespace social.OpenData.UsersAPI
         /// <summary>
         /// The current hash value of the API.
         /// </summary>
-        public String        CurrentDatabaseHashValue   { get; private set; }
+        public String        CurrentDatabaseHashValue   { get; protected set; }
 
 
         /// <summary>
@@ -1696,10 +1711,10 @@ namespace social.OpenData.UsersAPI
 
             #region Observe CPU/RAM
 
-            total_ram = new PerformanceCounter("Process", "Working Set",      Process.GetCurrentProcess().ProcessName);
-            total_cpu = new PerformanceCounter("Process", "% Processor Time", Process.GetCurrentProcess().ProcessName);
-            total_ram.NextValue();
-            total_cpu.NextValue();
+            totalRAM_PerformanceCounter = new PerformanceCounter("Process", "Working Set",      Process.GetCurrentProcess().ProcessName);
+            totalCPU_PerformanceCounter = new PerformanceCounter("Process", "% Processor Time", Process.GetCurrentProcess().ProcessName);
+            totalRAM_PerformanceCounter.NextValue();
+            totalCPU_PerformanceCounter.NextValue();
 
             Warden.EveryMinutes(1,
                                 Process.GetCurrentProcess(),
@@ -1716,8 +1731,8 @@ namespace social.OpenData.UsersAPI
                                                                                   process.VirtualMemorySize64, ";",
                                                                                   process.WorkingSet64, ";",
                                                                                   process.TotalProcessorTime, ";",
-                                                                                  total_ram.NextValue() / 1024 / 1024, ";",
-                                                                                  total_cpu.NextValue())).
+                                                                                  totalRAM_PerformanceCounter.NextValue() / 1024 / 1024, ";",
+                                                                                  totalCPU_PerformanceCounter.NextValue())).
                                                      ConfigureAwait(false);
 
                                     }
