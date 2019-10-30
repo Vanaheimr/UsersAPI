@@ -6,28 +6,26 @@ interface DivElementAction {
 
 class View {
 
-    myself:           HTMLDivElement;
+  //  myself:           HTMLDivElement;
     HeadlineDiv:      HTMLDivElement;
     ContentDiv:       HTMLDivElement;
     CurrentGroupDiv:  HTMLDivElement;
     ButtonDiv:        HTMLDivElement;
 
-    constructor(Parent:        HTMLDivElement,
-                Prefix:        string,
-                HeadlineText:  string) {
+    constructor(Parent: HTMLDivElement) {
 
-        this.myself    = Parent.appendChild(document.createElement('div')) as HTMLDivElement;
-        this.myself.id = Prefix + "View";
+        //this.myself    = Parent.appendChild(document.createElement('div')) as HTMLDivElement;
+        //this.myself.id = Prefix + "View";
 
-        this.HeadlineDiv = this.myself.appendChild(document.createElement('div')) as HTMLDivElement;
-        this.HeadlineDiv.id        = "headline";
-        this.HeadlineDiv.innerText = HeadlineText;
+        //this.HeadlineDiv = Parent.appendChild(document.createElement('div')) as HTMLDivElement;
+        //this.HeadlineDiv.id        = "headline";
+        //this.HeadlineDiv.innerText = HeadlineText;
 
-        this.ContentDiv  = this.myself.appendChild(document.createElement('div')) as HTMLDivElement;
-        this.ContentDiv.id         = "content";
+        this.ContentDiv = Parent;
+        this.ContentDiv.innerText = "";
 
-        this.ButtonDiv   = this.myself.appendChild(document.createElement('div')) as HTMLDivElement;
-        this.ButtonDiv.id          = "buttons";
+        //this.ButtonDiv   = Parent.appendChild(document.createElement('div')) as HTMLDivElement;
+        //this.ButtonDiv.id          = "buttons";
 
         this.CurrentGroupDiv = this.ContentDiv;
 
@@ -89,32 +87,32 @@ class View {
 
     }
 
-    CreateButton(Prefix: string,
-                 Name:   string) {
+    //CreateButton(Prefix: string,
+    //             Name:   string) {
 
-        var NewButton = this.ButtonDiv.appendChild(document.createElement('button')) as HTMLButtonElement;
-        NewButton.id = Prefix + "Button";
-        NewButton.className = "button";
-        NewButton.innerHTML = Name;
+    //    var NewButton = this.ButtonDiv.appendChild(document.createElement('button')) as HTMLButtonElement;
+    //    NewButton.id = Prefix + "Button";
+    //    NewButton.className = "button";
+    //    NewButton.innerHTML = Name;
 
-        return NewButton;
+    //    return NewButton;
 
-    }
+    //}
 
-    CancelButton(Prefix: string,
-                 Name:   string) {
+    //CancelButton(Prefix: string,
+    //             Name:   string) {
 
-        var me = this;
+    //    var me = this;
 
-        var CancelButton = this.CreateButton(Prefix, Name);
+    //    var CancelButton = this.CreateButton(Prefix, Name);
 
-        CancelButton.onclick = function (this: HTMLElement, ev: MouseEvent) {
-            me.myself.remove();
-        };
+    //    CancelButton.onclick = function (this: HTMLElement, ev: MouseEvent) {
+    //        me.myself.remove();
+    //    };
 
-        return CancelButton;
+    //    return CancelButton;
 
-    }
+    //}
 
 
 }

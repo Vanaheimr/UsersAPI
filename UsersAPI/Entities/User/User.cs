@@ -813,6 +813,24 @@ namespace social.OpenData.UsersAPI
         #endregion
 
 
+        #region GetNotificationInfo(NotificationId)
+
+        public JObject GetNotificationInfo(UInt32 NotificationId)
+
+            => JSONObject.Create(new JProperty("user", JSONObject.Create(
+
+                                     new JProperty("name",               EMail.OwnerName),
+                                     new JProperty("email",              EMail.Address.ToString()),
+
+                                     MobilePhone.HasValue
+                                         ? new JProperty("phoneNumber",  MobilePhone.Value.ToString())
+                                         : null
+
+                                 )),
+                                 new JProperty("notification",  _Notifications.ToJSON(NotificationId)));
+
+        #endregion
+
         #region GetNotificationInfos()
 
         public JObject GetNotificationInfos()

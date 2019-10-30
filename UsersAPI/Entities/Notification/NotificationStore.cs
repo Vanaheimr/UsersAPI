@@ -338,6 +338,10 @@ namespace social.OpenData.UsersAPI.Notifications
         public JArray ToJSON()
             => new JArray(_NotificationTypes.SafeSelect(_ => _.ToJSON(false)));
 
+
+        public JObject ToJSON(UInt32 Number)
+            => _NotificationTypes.Skip(Number - 1).FirstOrDefault()?.ToJSON(false) ?? new JObject();
+
         public IEnumerator<ANotification> GetEnumerator()
         {
             lock (_NotificationTypes)

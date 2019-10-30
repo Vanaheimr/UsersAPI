@@ -1,6 +1,9 @@
 ﻿/*background: lighten($bg-color, 10%);*/
 /*$CITMBlue:                  rgba( 86, 132, 204,   1);*/
 /*$CITMGray:                  rgba(143, 145, 149,   1);*/
+.fa, .far, .fas {
+  font-style: normal; }
+
 .buttons {
   display: flex;
   margin-top: 30px; }
@@ -55,48 +58,49 @@
     border-collapse: separate;
     border-spacing: 4px;
     flex-direction: column; }
-    #notificationinfos #notifications .notification {
+    #notificationinfos #notifications a.notification {
       display: block;
+      text-decoration: none;
       background-color: #fafafa;
       border: 1px solid #fafafa;
       padding: 7px 7px;
       border-radius: 5px;
       color: #777;
-      margin-bottom: 5px; }
-      #notificationinfos #notifications .notification .type {
+      margin-bottom: 15px; }
+      #notificationinfos #notifications a.notification .type {
         font-size: 60%;
         color: rgba(168, 88, 52, 0.5);
         padding-left: 2px;
         padding-bottom: 2px; }
-      #notificationinfos #notifications .notification .infos {
+      #notificationinfos #notifications a.notification .infos {
         padding: 4px 0px 2px 8px; }
-        #notificationinfos #notifications .notification .infos .info {
+        #notificationinfos #notifications a.notification .infos .info {
           color: #AAA;
           font-size: 85%;
           display: block; }
-      #notificationinfos #notifications .notification .parameter {
+      #notificationinfos #notifications a.notification .parameter {
         color: #aaa;
         font-size: 80%;
         display: block;
         padding-left: 8px; }
-      #notificationinfos #notifications .notification .description {
+      #notificationinfos #notifications a.notification .description {
         color: #aaa;
         font-size: 80%;
         display: block;
         padding-left: 8px;
         font-style: italic; }
-      #notificationinfos #notifications .notification .msgTypes {
+      #notificationinfos #notifications a.notification .msgTypes {
         display: block;
         margin-top: 5px;
         font-size: 85%; }
-        #notificationinfos #notifications .notification .msgTypes .msgType {
+        #notificationinfos #notifications a.notification .msgTypes .msgType {
           display: block;
           margin-top: 1px;
           background-color: rgba(247, 126, 42, 0.2);
           color: #8c5934;
           padding: 4px 6px;
           border-radius: 4px; }
-      #notificationinfos #notifications .notification input, #notificationinfos #notifications .notification textarea, #notificationinfos #notifications .notification select {
+      #notificationinfos #notifications a.notification input, #notificationinfos #notifications a.notification textarea, #notificationinfos #notifications a.notification select {
         background-color: rgba(255, 255, 255, 0.7);
         width: calc(100% - 16px);
         padding: 6px 8px;
@@ -104,17 +108,17 @@
         border-radius: 4px;
         color: #777;
         font-size: 100%; }
-      #notificationinfos #notifications .notification textarea {
+      #notificationinfos #notifications a.notification textarea {
         resize: vertical;
         min-height: 100px;
         display: block; }
-      #notificationinfos #notifications .notification input[type=checkbox] {
+      #notificationinfos #notifications a.notification input[type=checkbox] {
         width: 30px;
         height: 18px;
         margin-top: 8px; }
-      #notificationinfos #notifications .notification input[type=checkbox]:checked {
+      #notificationinfos #notifications a.notification input[type=checkbox]:checked {
         color: #cc2d7b; }
-      #notificationinfos #notifications .notification input:focus, #notificationinfos #notifications .notification textarea:focus {
+      #notificationinfos #notifications a.notification input:focus, #notificationinfos #notifications a.notification textarea:focus {
         outline-color: #cc2d7b;
         border-color: #cc2d7b;
         box-shadow: 0 0 6px #cc2d7b;
@@ -158,4 +162,3 @@
               color: #AAA;
               font-size: 85%;
               display: block; }
-

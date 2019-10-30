@@ -2294,6 +2294,22 @@ namespace social.OpenData.UsersAPI
 
         }
 
+        private JObject GetNotification(User User, UInt32 NotificationId)
+        {
+
+            if (User == null)
+                throw new ArgumentNullException(nameof(User), "The given user must not be null!");
+
+            var notificationJSON = User.GetNotificationInfo(NotificationId);
+
+            notificationJSON.AddFirst(new JProperty("notificationGroups", new JArray(
+                                          _NotificationMessageGroups.Select(notificationMessageGroup => notificationMessageGroup.ToJSON())
+                                     )));
+
+            return notificationJSON;
+
+        }
+
         private JObject GetNotificationGroups(Organization Organization)
         {
 
@@ -4769,7 +4785,8 @@ namespace social.OpenData.UsersAPI
                                                         ETag                       = "1",
                                                         ContentType                = HTTPContentType.JSON_UTF8,
                                                         Content                    = GetNotificationGroups(HTTPUser).ToUTF8Bytes(),
-                                                        Connection                 = "close"
+                                                        Connection                 = "close",
+                                                        Vary                       = "Accept"
                                                     }.AsImmutable);
 
             });
@@ -5156,6 +5173,68 @@ namespace social.OpenData.UsersAPI
 
             #endregion
 
+            #region GET         ~/users/{UserId}/notifications/{notificationId}
+
+            // -------------------------------------------------------------------------------------------------------
+            // curl -v -H "Accept: application/json" http://127.0.0.1:2100/users/ahzf/notifications/{notificationId}
+            // -------------------------------------------------------------------------------------------------------
+            HTTPServer.AddMethodCallback(Hostname,
+                                         HTTPMethod.GET,
+                                         URLPathPrefix + "users/{UserId}/notifications/{notificationId}",
+                                         HTTPContentType.JSON_UTF8,
+                                         HTTPDelegate: Request => {
+
+                                             #region Get HTTP user and its organizations
+
+                                             // Will return HTTP 401 Unauthorized, when the HTTP user is unknown!
+                                             if (!TryGetHTTPUser(Request,
+                                                                 out User                   HTTPUser,
+                                                                 out HashSet<Organization>  HTTPOrganizations,
+                                                                 out HTTPResponse           Response,
+                                                                 Recursive: true))
+                                             {
+                                                 return Task.FromResult(Response);
+                                             }
+
+                                             #endregion
+
+                                             #region Get notificationId URL parameter
+
+                                             if (Request.ParsedURIParameters.Length < 2 ||
+                                                 !UInt32.TryParse(Request.ParsedURIParameters[1], out UInt32 NotificationId))
+                                             {
+
+                                                 return Task.FromResult(
+                                                            new HTTPResponse.Builder(Request) {
+                                                                HTTPStatusCode  = HTTPStatusCode.BadRequest,
+                                                                Server          = HTTPServer.DefaultServerName,
+                                                                Date            = DateTime.UtcNow,
+                                                                Connection      = "close"
+                                                            }.AsImmutable);
+
+                                             }
+
+                                             #endregion
+
+                                             return Task.FromResult(new HTTPResponse.Builder(Request) {
+                                                        HTTPStatusCode             = HTTPStatusCode.OK,
+                                                        Server                     = HTTPServer.DefaultServerName,
+                                                        Date                       = DateTime.UtcNow,
+                                                        AccessControlAllowOrigin   = "*",
+                                                        AccessControlAllowMethods  = "GET, SET",
+                                                        AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
+                                                        ETag                       = "1",
+                                                        ContentType                = HTTPContentType.JSON_UTF8,
+                                                        Content                    = GetNotification(HTTPUser, NotificationId).ToUTF8Bytes(),
+                                                        Connection                 = "close",
+                                                        Vary                       = "Accept"
+                                                    }.AsImmutable);
+
+            });
+
+            #endregion
+
+
             #region GET         ~/users/{UserId}/organizations
 
             // ------------------------------------------------------------------------------------------
@@ -5193,7 +5272,8 @@ namespace social.OpenData.UsersAPI
                                                      AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
                                                      ETag                       = "1",
                                                      ContentType                = HTTPContentType.JSON_UTF8,
-                                                     Content                    = AllMyOrganizations.ToJSON().ToUTF8Bytes()
+                                                     Content                    = AllMyOrganizations.ToJSON().ToUTF8Bytes(),
+                                                     Vary                       = "Accept"
                                                  }.AsImmutable);
 
                                          });
@@ -5243,7 +5323,8 @@ namespace social.OpenData.UsersAPI
                                                                                                                    __APIKeys.Select(_ => _.ToJSON(true))
 
                                                                                                                ).ToUTF8Bytes(),
-                                                                                  Connection                 = "close"
+                                                                                  Connection                 = "close",
+                                                                                  Vary                       = "Accept"
                                                                               }.AsImmutable
 
                                                                         : new HTTPResponse.Builder(Request) {
@@ -5253,7 +5334,8 @@ namespace social.OpenData.UsersAPI
                                                                                   AccessControlAllowOrigin   = "*",
                                                                                   AccessControlAllowMethods  = "GET, SET",
                                                                                   AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
-                                                                                  Connection                 = "close"
+                                                                                  Connection                 = "close",
+                                                                                  Vary                       = "Accept"
                                                                               }.AsImmutable);
 
 

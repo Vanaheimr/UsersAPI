@@ -21,15 +21,16 @@
         border-spacing:         4px;
         flex-direction:         column;
 
-        .notification {
+        a.notification {
 
             display:                block;
+            text-decoration:        none;
             background-color:       #fafafa;
             border:                 1px solid #fafafa;
             padding:                7px 7px;
             border-radius:          5px;
             color:                  #777;
-            margin-bottom:          5px;
+            margin-bottom:          15px;
 
             .type {
                 font-size:          60%;

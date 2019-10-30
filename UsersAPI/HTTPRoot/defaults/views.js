@@ -1,14 +1,14 @@
 var View = /** @class */ (function () {
-    function View(Parent, Prefix, HeadlineText) {
-        this.myself = Parent.appendChild(document.createElement('div'));
-        this.myself.id = Prefix + "View";
-        this.HeadlineDiv = this.myself.appendChild(document.createElement('div'));
-        this.HeadlineDiv.id = "headline";
-        this.HeadlineDiv.innerText = HeadlineText;
-        this.ContentDiv = this.myself.appendChild(document.createElement('div'));
-        this.ContentDiv.id = "content";
-        this.ButtonDiv = this.myself.appendChild(document.createElement('div'));
-        this.ButtonDiv.id = "buttons";
+    function View(Parent) {
+        //this.myself    = Parent.appendChild(document.createElement('div')) as HTMLDivElement;
+        //this.myself.id = Prefix + "View";
+        //this.HeadlineDiv = Parent.appendChild(document.createElement('div')) as HTMLDivElement;
+        //this.HeadlineDiv.id        = "headline";
+        //this.HeadlineDiv.innerText = HeadlineText;
+        this.ContentDiv = Parent;
+        this.ContentDiv.innerText = "";
+        //this.ButtonDiv   = Parent.appendChild(document.createElement('div')) as HTMLDivElement;
+        //this.ButtonDiv.id          = "buttons";
         this.CurrentGroupDiv = this.ContentDiv;
     }
     View.prototype.CreateGroup = function (Prefix, Visible) {
@@ -46,21 +46,6 @@ var View = /** @class */ (function () {
         if (greeter != null)
             greeter(DivValue);
         return DivValue;
-    };
-    View.prototype.CreateButton = function (Prefix, Name) {
-        var NewButton = this.ButtonDiv.appendChild(document.createElement('button'));
-        NewButton.id = Prefix + "Button";
-        NewButton.className = "button";
-        NewButton.innerHTML = Name;
-        return NewButton;
-    };
-    View.prototype.CancelButton = function (Prefix, Name) {
-        var me = this;
-        var CancelButton = this.CreateButton(Prefix, Name);
-        CancelButton.onclick = function (ev) {
-            me.myself.remove();
-        };
-        return CancelButton;
     };
     return View;
 }());
