@@ -692,10 +692,10 @@ namespace social.OpenData.UsersAPI
             this.IsAuthenticated              = IsAuthenticated;
             this.IsDisabled                   = IsDisabled;
 
-            this._Notifications               = new NotificationStore();
+            this._NotificationStore               = new NotificationStore();
 
             if (Notifications.SafeAny())
-                _Notifications.Add(Notifications);
+                _NotificationStore.Add(Notifications);
 
             // Init edges
             this._User2UserEdges              = User2UserEdges.        IsNeitherNullNorEmpty() ? new List<User2UserEdge>        (User2UserEdges)         : new List<User2UserEdge>();
@@ -711,7 +711,7 @@ namespace social.OpenData.UsersAPI
 
         #region Notifications
 
-        private readonly NotificationStore _Notifications;
+        private readonly NotificationStore _NotificationStore;
 
         #region (internal) AddNotification(Notification,                           OnUpdate = null)
 
@@ -720,7 +720,7 @@ namespace social.OpenData.UsersAPI
 
             where T : ANotification
 
-            => _Notifications.Add(Notification,
+            => _NotificationStore.Add(Notification,
                                   OnUpdate);
 
         #endregion
@@ -733,7 +733,7 @@ namespace social.OpenData.UsersAPI
 
             where T : ANotification
 
-            => _Notifications.Add(Notification,
+            => _NotificationStore.Add(Notification,
                                   NotificationMessageType,
                                   OnUpdate);
 
@@ -747,7 +747,7 @@ namespace social.OpenData.UsersAPI
 
             where T : ANotification
 
-            => _Notifications.Add(Notification,
+            => _NotificationStore.Add(Notification,
                                   NotificationMessageTypes,
                                   OnUpdate);
 
@@ -758,9 +758,9 @@ namespace social.OpenData.UsersAPI
 
         public IEnumerable<ANotification> GetNotifications(NotificationMessageType?  NotificationMessageType = null)
         {
-            lock (_Notifications)
+            lock (_NotificationStore)
             {
-                return _Notifications.GetNotifications(NotificationMessageType);
+                return _NotificationStore.GetNotifications(NotificationMessageType);
             }
         }
 
@@ -774,9 +774,9 @@ namespace social.OpenData.UsersAPI
 
         {
 
-            lock (_Notifications)
+            lock (_NotificationStore)
             {
-                return _Notifications.GetNotificationsOf<T>(NotificationMessageTypes);
+                return _NotificationStore.GetNotificationsOf<T>(NotificationMessageTypes);
             }
 
         }
@@ -787,9 +787,9 @@ namespace social.OpenData.UsersAPI
 
         public IEnumerable<ANotification> GetNotifications(Func<NotificationMessageType, Boolean> NotificationMessageTypeFilter)
         {
-            lock (_Notifications)
+            lock (_NotificationStore)
             {
-                return _Notifications.GetNotifications(NotificationMessageTypeFilter);
+                return _NotificationStore.GetNotifications(NotificationMessageTypeFilter);
             }
         }
 
@@ -803,9 +803,9 @@ namespace social.OpenData.UsersAPI
 
         {
 
-            lock (_Notifications)
+            lock (_NotificationStore)
             {
-                return _Notifications.GetNotificationsOf<T>(NotificationMessageTypeFilter);
+                return _NotificationStore.GetNotificationsOf<T>(NotificationMessageTypeFilter);
             }
 
         }
@@ -816,18 +816,24 @@ namespace social.OpenData.UsersAPI
         #region GetNotificationInfo(NotificationId)
 
         public JObject GetNotificationInfo(UInt32 NotificationId)
+        {
 
-            => JSONObject.Create(new JProperty("user", JSONObject.Create(
+            var notification = _NotificationStore.ToJSON(NotificationId);
 
-                                     new JProperty("name",               EMail.OwnerName),
-                                     new JProperty("email",              EMail.Address.ToString()),
+            notification.Add(new JProperty("user", JSONObject.Create(
+
+                                     new JProperty("name", EMail.OwnerName),
+                                     new JProperty("email", EMail.Address.ToString()),
 
                                      MobilePhone.HasValue
-                                         ? new JProperty("phoneNumber",  MobilePhone.Value.ToString())
+                                         ? new JProperty("phoneNumber", MobilePhone.Value.ToString())
                                          : null
 
-                                 )),
-                                 new JProperty("notification",  _Notifications.ToJSON(NotificationId)));
+                                 )));
+
+            return notification;
+
+        }
 
         #endregion
 
@@ -845,7 +851,7 @@ namespace social.OpenData.UsersAPI
                                          : null
 
                                  )),
-                                 new JProperty("notifications",  _Notifications.ToJSON()));
+                                 new JProperty("notifications",  _NotificationStore.ToJSON()));
 
         #endregion
 
@@ -857,7 +863,7 @@ namespace social.OpenData.UsersAPI
 
             where T : ANotification
 
-            => _Notifications.Remove(NotificationType,
+            => _NotificationStore.Remove(NotificationType,
                                      OnRemoval);
 
         #endregion
@@ -1257,8 +1263,8 @@ namespace social.OpenData.UsersAPI
 
             }
 
-            if (_Notifications.SafeAny() && !NewUser._Notifications.SafeAny())
-                NewUser._Notifications.Add(_Notifications);
+            if (_NotificationStore.SafeAny() && !NewUser._NotificationStore.SafeAny())
+                NewUser._NotificationStore.Add(_NotificationStore);
 
         }
 
@@ -1509,7 +1515,7 @@ namespace social.OpenData.UsersAPI
                            IsAuthenticated,
                            DataSource,
 
-                           _Notifications,
+                           _NotificationStore,
 
                            _User2UserEdges,
                            _User2Group_OutEdges,

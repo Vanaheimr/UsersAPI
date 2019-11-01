@@ -46,20 +46,17 @@ namespace social.OpenData.UsersAPI.Notifications
 
         #region Data
 
-        private List<NotificationMessageTypeInfo> _Notifications;
+        private readonly List<NotificationMessageTypeInfo> _Notifications;
 
         #endregion
 
         #region Properties
 
-
         public NotificationMessageGroupId                Id               { get; }
 
-        public String                                    Text             { get; }
+        public I18NString                                Description      { get; }
 
         public NotificationVisibility                    Visibility       { get; }
-
-        public I18NString                                Description      { get; }
 
         public IEnumerable<NotificationMessageTypeInfo>  Notifications
             => _Notifications;
@@ -69,16 +66,14 @@ namespace social.OpenData.UsersAPI.Notifications
         #region Constructor(s)
 
         public NotificationMessageGroup(NotificationMessageGroupId                Id,
-                                        String                                    Text,
-                                        NotificationVisibility                    Visibility,
                                         I18NString                                Description,
+                                        NotificationVisibility                    Visibility,
                                         IEnumerable<NotificationMessageTypeInfo>  Notifications = null)
         {
 
             this.Id              = Id;
-            this.Text            = Text;
-            this.Visibility      = Visibility;
             this.Description     = Description;
+            this.Visibility      = Visibility;
             this._Notifications  = new List<NotificationMessageTypeInfo>();
 
             if (Notifications.SafeAny())
@@ -105,9 +100,8 @@ namespace social.OpenData.UsersAPI.Notifications
             => JSONObject.Create(
 
                    new JProperty("@id",          Id.ToString()),
-                   new JProperty("text",         Text),
-                   new JProperty("visibility",   Visibility.ToString().ToLower()),
                    new JProperty("description",  Description.ToJSON()),
+                   new JProperty("visibility",   Visibility.ToString().ToLower()),
 
                    Notifications.SafeAny()
                        ? new JProperty("notifications",  new JArray(Notifications.Select(info => info.ToJSON())))
