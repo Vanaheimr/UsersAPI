@@ -822,7 +822,7 @@ namespace social.OpenData.UsersAPI
 
             notification.Add(new JProperty("user", JSONObject.Create(
 
-                                     new JProperty("name", EMail.OwnerName),
+                                     new JProperty("name",  EMail.OwnerName),
                                      new JProperty("email", EMail.Address.ToString()),
 
                                      MobilePhone.HasValue

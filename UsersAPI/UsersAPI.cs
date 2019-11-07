@@ -2278,7 +2278,7 @@ namespace social.OpenData.UsersAPI
             => _NotificationMessageGroups.AddAndReturnElement(NotificationMessageGroup);
 
 
-        private JObject GetNotificationGroups(User User)
+        private JObject GetNotifications(User User)
         {
 
             if (User == null)
@@ -2310,7 +2310,7 @@ namespace social.OpenData.UsersAPI
 
         }
 
-        private JObject GetNotificationGroups(Organization Organization)
+        private JObject GetNotifications(Organization Organization)
         {
 
             if (Organization == null)
@@ -4784,7 +4784,7 @@ namespace social.OpenData.UsersAPI
                                                         AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
                                                         ETag                       = "1",
                                                         ContentType                = HTTPContentType.JSON_UTF8,
-                                                        Content                    = GetNotificationGroups(HTTPUser).ToUTF8Bytes(),
+                                                        Content                    = GetNotifications(HTTPUser).ToUTF8Bytes(),
                                                         Connection                 = "close",
                                                         Vary                       = "Accept"
                                                     }.AsImmutable);
@@ -4975,7 +4975,7 @@ namespace social.OpenData.UsersAPI
                                                         AccessControlAllowMethods   = "GET, SET",
                                                         AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
                                                         ContentType                 = HTTPContentType.JSON_UTF8,
-                                                        Content                     = GetNotificationGroups(HTTPUser).ToUTF8Bytes(),
+                                                        Content                     = GetNotifications(HTTPUser).ToUTF8Bytes(),
                                                         Connection                  = "close"
                                                     }.AsImmutable;
 
@@ -5165,7 +5165,7 @@ namespace social.OpenData.UsersAPI
                                                         AccessControlAllowMethods   = "GET, SET",
                                                         AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
                                                         ContentType                 = HTTPContentType.JSON_UTF8,
-                                                        Content                     = GetNotificationGroups(HTTPUser).ToUTF8Bytes(),
+                                                        Content                     = GetNotifications(HTTPUser).ToUTF8Bytes(),
                                                         Connection                  = "close"
                                                     }.AsImmutable;
 
@@ -5200,8 +5200,7 @@ namespace social.OpenData.UsersAPI
 
                                              #region Get notificationId URL parameter
 
-                                             if (Request.ParsedURIParameters.Length < 2 ||
-                                                 !UInt32.TryParse(Request.ParsedURIParameters[1], out UInt32 NotificationId))
+                                             if (Request.ParsedURIParameters.Length < 2)
                                              {
 
                                                  return Task.FromResult(
@@ -5214,21 +5213,80 @@ namespace social.OpenData.UsersAPI
 
                                              }
 
+                                             var notificationId = Request.ParsedURIParameters[1];
+
                                              #endregion
 
-                                             return Task.FromResult(new HTTPResponse.Builder(Request) {
-                                                        HTTPStatusCode             = HTTPStatusCode.OK,
-                                                        Server                     = HTTPServer.DefaultServerName,
-                                                        Date                       = DateTime.UtcNow,
-                                                        AccessControlAllowOrigin   = "*",
-                                                        AccessControlAllowMethods  = "GET, SET",
-                                                        AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
-                                                        ETag                       = "1",
-                                                        ContentType                = HTTPContentType.JSON_UTF8,
-                                                        Content                    = GetNotification(HTTPUser, NotificationId).ToUTF8Bytes(),
-                                                        Connection                 = "close",
-                                                        Vary                       = "Accept"
-                                                    }.AsImmutable);
+                                             #region _new
+
+                                             if (notificationId == "_new")
+                                             {
+
+                                                 return Task.FromResult(
+                                                            new HTTPResponse.Builder(Request) {
+                                                                HTTPStatusCode             = HTTPStatusCode.OK,
+                                                                Server                     = HTTPServer.DefaultServerName,
+                                                                Date                       = DateTime.UtcNow,
+                                                                AccessControlAllowOrigin   = "*",
+                                                                AccessControlAllowMethods  = "GET, SET",
+                                                                AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
+                                                                ETag                       = "1",
+                                                                ContentType                = HTTPContentType.JSON_UTF8,
+                                                                Content                    = JSONObject.Create(
+                                                                                                 new JProperty("@context",  "https://opendata.social/contexts/UsersAPI+json/newNotification"),
+                                                                                                 new JProperty("user",      JSONObject.Create(
+
+                                                                                                     new JProperty("name",  HTTPUser.EMail.OwnerName),
+                                                                                                     new JProperty("email", HTTPUser.EMail.Address.ToString()),
+
+                                                                                                     HTTPUser.MobilePhone.HasValue
+                                                                                                         ? new JProperty("phoneNumber", HTTPUser.MobilePhone.Value.ToString())
+                                                                                                         : null
+
+                                                                                                 )),
+                                                                                                 new JProperty("notificationGroups", new JArray(
+                                                                                                      _NotificationMessageGroups.Select(notificationMessageGroup => notificationMessageGroup.ToJSON())
+                                                                                                 ))
+                                                                                              ).ToUTF8Bytes(),
+                                                                Connection                 = "close",
+                                                                Vary                       = "Accept"
+                                                            }.AsImmutable);
+
+                                             }
+
+                                             #endregion
+
+                                             #region Return notification for notification identification
+
+                                             if (UInt32.TryParse(notificationId, out UInt32 NotificationId))
+                                             {
+
+                                                 return Task.FromResult(new HTTPResponse.Builder(Request) {
+                                                                            HTTPStatusCode             = HTTPStatusCode.OK,
+                                                                            Server                     = HTTPServer.DefaultServerName,
+                                                                            Date                       = DateTime.UtcNow,
+                                                                            AccessControlAllowOrigin   = "*",
+                                                                            AccessControlAllowMethods  = "GET, SET",
+                                                                            AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
+                                                                            ETag                       = "1",
+                                                                            ContentType                = HTTPContentType.JSON_UTF8,
+                                                                            Content                    = GetNotification(HTTPUser, NotificationId).ToUTF8Bytes(),
+                                                                            Connection                 = "close",
+                                                                            Vary                       = "Accept"
+                                                                        }.AsImmutable);
+
+                                             }
+
+                                             #endregion
+
+
+                                             return Task.FromResult(
+                                                        new HTTPResponse.Builder(Request) {
+                                                            HTTPStatusCode  = HTTPStatusCode.BadRequest,
+                                                            Server          = HTTPServer.DefaultServerName,
+                                                            Date            = DateTime.UtcNow,
+                                                            Connection      = "close"
+                                                        }.AsImmutable);
 
             });
 
@@ -6423,7 +6481,7 @@ namespace social.OpenData.UsersAPI
                                                         AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
                                                         ETag                       = "1",
                                                         ContentType                = HTTPContentType.JSON_UTF8,
-                                                        Content                    = GetNotificationGroups(Organization).ToUTF8Bytes(),
+                                                        Content                    = GetNotifications(Organization).ToUTF8Bytes(),
                                                         Connection                 = "close"
                                                     }.AsImmutable);
 
@@ -6609,7 +6667,7 @@ namespace social.OpenData.UsersAPI
                                                         AccessControlAllowMethods   = "GET, SET",
                                                         AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
                                                         ContentType                 = HTTPContentType.JSON_UTF8,
-                                                        Content                     = GetNotificationGroups(HTTPUser).ToUTF8Bytes(),
+                                                        Content                     = GetNotifications(HTTPUser).ToUTF8Bytes(),
                                                         Connection                  = "close"
                                                     }.AsImmutable;
 
@@ -6795,7 +6853,7 @@ namespace social.OpenData.UsersAPI
                                                         AccessControlAllowMethods   = "GET, SET",
                                                         AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
                                                         ContentType                 = HTTPContentType.JSON_UTF8,
-                                                        Content                     = GetNotificationGroups(HTTPUser).ToUTF8Bytes(),
+                                                        Content                     = GetNotifications(HTTPUser).ToUTF8Bytes(),
                                                         Connection                  = "close"
                                                     }.AsImmutable;
 

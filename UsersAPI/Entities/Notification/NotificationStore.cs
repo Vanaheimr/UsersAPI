@@ -308,7 +308,7 @@ namespace social.OpenData.UsersAPI.Notifications
         #endregion
 
 
-        #region Remove(NotificationType,                        OnRemoval = null)
+        #region Remove(NotificationType, OnRemoval = null)
 
         public T Remove<T>(T          NotificationType,
                            Action<T>  OnRemoval  = null)
@@ -336,11 +336,21 @@ namespace social.OpenData.UsersAPI.Notifications
 
 
         public JArray ToJSON()
-            => new JArray(_NotificationTypes.SafeSelect(_ => _.ToJSON(false)));
+
+            => new JArray(_NotificationTypes.
+                              OrderBy   (notification => notification.SortKey).
+                              SafeSelect(notification => notification.ToJSON(false)));
 
 
         public JObject ToJSON(UInt32 Number)
-            => _NotificationTypes.Skip(Number - 1).FirstOrDefault()?.ToJSON(false) ?? new JObject();
+
+            => _NotificationTypes.
+                  OrderBy(notification => notification.SortKey).
+                   Skip(Number - 1).
+                   FirstOrDefault()?.
+                   ToJSON(false)
+
+                ?? new JObject();
 
         public IEnumerator<ANotification> GetEnumerator()
         {
