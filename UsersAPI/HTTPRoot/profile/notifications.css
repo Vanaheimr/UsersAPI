@@ -92,13 +92,14 @@
       #notificationinfos #notifications a.notification .messageTypes {
         display: block;
         margin-top: 5px;
-        font-size: 80%; }
+        font-size: 60%; }
         #notificationinfos #notifications a.notification .messageTypes .messageType {
-          display: block;
-          margin-top: 1px;
+          display: inline-block;
+          margin: 1px;
           background-color: rgba(247, 126, 42, 0.2);
           color: #8c5934;
-          padding: 4px 7px; }
+          padding: 4px 7px;
+          border-radius: 4px; }
       #notificationinfos #notifications a.notification .messageTypes .messageType:first-child {
         border-top-left-radius: 4px;
         border-top-right-radius: 4px; }

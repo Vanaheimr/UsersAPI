@@ -398,6 +398,8 @@ namespace social.OpenData.UsersAPI.Notifications
                String.Equals(SubjectPrefix, other.SubjectPrefix) &&
                String.Equals(ListId,        other.ListId)        &&
 
+               String.Equals(Description,   other.Description)   &&
+
                _NotificationMessageTypes.SetEquals(other._NotificationMessageTypes);
 
         #endregion

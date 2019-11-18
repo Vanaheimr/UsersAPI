@@ -347,8 +347,8 @@ namespace social.OpenData.UsersAPI.Notifications
 
         public Boolean OptionalEquals(SMSNotification other)
 
-            => PhoneNumber.  Equals(other.PhoneNumber)         &&
-
+            => String.Equals(PhoneNumber,  other.PhoneNumber)  &&
+               String.Equals(Description,  other.Description)  &&
                String.Equals(TextTemplate, other.TextTemplate) &&
 
                _NotificationMessageTypes.SetEquals(other._NotificationMessageTypes);

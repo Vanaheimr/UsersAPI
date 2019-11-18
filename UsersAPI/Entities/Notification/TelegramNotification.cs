@@ -400,8 +400,8 @@ namespace social.OpenData.UsersAPI.Notifications
 
         public Boolean OptionalEquals(TelegramNotification other)
 
-            => Username.  Equals(other.Username)         &&
-
+            => String.Equals(Username,     other.Username)     &&
+               String.Equals(Description,  other.Description)  &&
                String.Equals(TextTemplate, other.TextTemplate) &&
 
                _NotificationMessageTypes.SetEquals(other._NotificationMessageTypes);

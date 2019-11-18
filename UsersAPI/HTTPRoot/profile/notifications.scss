@@ -70,14 +70,15 @@
 
                 display:            block;
                 margin-top:         5px;
-                font-size:          80%;
+                font-size:          60%;
 
                 .messageType {
-                    display:            block;
-                    margin-top:         1px;
+                    display:            inline-block;
+                    margin:             1px;
                     background-color:   rgba(247, 126, 42, 0.2);
                     color:              #8c5934;
                     padding:            4px 7px;
+                    border-radius:      4px;
                 }
 
             }

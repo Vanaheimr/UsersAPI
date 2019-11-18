@@ -479,13 +479,15 @@ namespace social.OpenData.UsersAPI.Notifications
 
         public Boolean OptionalEquals(HTTPSNotification other)
 
-            => Method. Equals(other.Method)                                &&
-               URL.    Equals(other.URL)                                   &&
-               RemotePort.Equals(other.RemotePort)                               &&
+            => Method.    Equals(other.Method)                             &&
+               URL.       Equals(other.URL)                                &&
+               RemotePort.Equals(other.RemotePort)                         &&
 
                String.Equals(BasicAuth_Login,    other.BasicAuth_Login)    &&
                String.Equals(BasicAuth_Password, other.BasicAuth_Password) &&
                String.Equals(APIKey,             other.APIKey)             &&
+
+               String.Equals(Description,        other.Description)        &&
 
                _NotificationMessageTypes.SetEquals(other._NotificationMessageTypes);
 
