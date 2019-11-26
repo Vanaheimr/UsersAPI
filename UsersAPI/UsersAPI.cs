@@ -54,6 +54,7 @@ using social.OpenData.UsersAPI.Notifications;
 using com.GraphDefined.SMSApi.API;
 using com.GraphDefined.SMSApi.API.Response;
 using social.OpenData.UsersAPI;
+using System.Security.Cryptography.X509Certificates;
 
 #endregion
 
@@ -416,11 +417,19 @@ namespace social.OpenData.UsersAPI
 
         #region Data
 
-        private static readonly SemaphoreSlim  LogFileSemaphore        = new SemaphoreSlim(1, 1);
-        //private static readonly SemaphoreSlim  NotificationsSemaphore  = new SemaphoreSlim(1, 1);
-        private static readonly SemaphoreSlim  UsersSemaphore          = new SemaphoreSlim(1, 1);
-        private static readonly SemaphoreSlim  OrganizationsSemaphore  = new SemaphoreSlim(1, 1);
-        private static readonly SemaphoreSlim  GroupsSemaphore         = new SemaphoreSlim(1, 1);
+        /// <summary>
+        /// The name of the service tickets chain log file.
+        /// </summary>
+        public const                String                     ServiceTicketsDBFile             = "ServiceTickets.db";
+
+
+        private static readonly SemaphoreSlim  ServiceTicketsSemaphore         = new SemaphoreSlim(1, 1);
+
+        private static readonly SemaphoreSlim  LogFileSemaphore                = new SemaphoreSlim(1, 1);
+        //private static readonly SemaphoreSlim  NotificationsSemaphore          = new SemaphoreSlim(1, 1);
+        private static readonly SemaphoreSlim  UsersSemaphore                  = new SemaphoreSlim(1, 1);
+        private static readonly SemaphoreSlim  OrganizationsSemaphore          = new SemaphoreSlim(1, 1);
+        private static readonly SemaphoreSlim  GroupsSemaphore                 = new SemaphoreSlim(1, 1);
 
         /// <summary>
         /// The HTTP root for embedded ressources.
@@ -496,6 +505,17 @@ namespace social.OpenData.UsersAPI
 
         //public IEnumerable<NotificationMessage> NotificationMessages
         //    => _NotificationMessages;
+
+        #endregion
+
+        #region (static) NotificationMessageTypes
+
+        public static NotificationMessageType addServiceTicket_MessageType                 = NotificationMessageType.Parse("addServiceTicket");
+        public static NotificationMessageType addIfNotExistsServiceTicket_MessageType      = NotificationMessageType.Parse("addIfNotExistsServiceTicket");
+        public static NotificationMessageType addOrUpdateServiceTicket_MessageType         = NotificationMessageType.Parse("addOrUpdateServiceTicket");
+        public static NotificationMessageType updateServiceTicket_MessageType              = NotificationMessageType.Parse("updateServiceTicket");
+        public static NotificationMessageType removeServiceTicket_MessageType              = NotificationMessageType.Parse("removeServiceTicket");
+        public static NotificationMessageType changeServiceTicketStatus_MessageType        = NotificationMessageType.Parse("changeServiceTicketStatus");
 
         #endregion
 
@@ -764,6 +784,177 @@ namespace social.OpenData.UsersAPI
 
         public List<BlogPosting> BlogPostings           { get; }
 
+
+        #endregion
+
+        #region E-Mail delegates
+
+        #region E-Mail headers / footers
+
+        public const String HTMLEMailHeader  = "<!DOCTYPE html>\r\n" +
+                                              "<html>\r\n" +
+                                                "<head>\r\n" +
+                                                    "<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\" />\r\n" +
+                                                "</head>\r\n" +
+                                                "<body style=\"background-color: #ececec\">\r\n" +
+                                                  "<div style=\"width: 600px\">\r\n" +
+                                                    "<div style=\"border-bottom: 1px solid #AAAAAA; margin-bottom: 20px\">\r\n" +
+                                                        "<img src=\"https://cardi-link.cloud/login/CardiLink_Logo01.png\" style=\"width: 250px; padding-right: 10px\" alt=\"CardiLink\">\r\n" +
+                                                    "</div>\r\n" +
+                                                    "<div style=\"border-bottom: 1px solid #AAAAAA; padding-left: 6px; padding-bottom: 40px; margin-bottom: 10px;\">\r\n";
+
+        public const String HTMLEMailFooter  = "</div>\r\n" +
+                                                     "<div style=\"color: #AAAAAA; font-size: 70%\">\r\n" +
+                                                         "Fingerprint: CE12 96F1 74B3 75F8 0BE9&nbsp;&nbsp;0E54 289B 709A 9E53 A226<br />\r\n" +
+                                                         "CardiLink GmbH, Henkestr. 91, 91052 Erlangen, Germany<br />\r\n" +
+                                                         "Commercial Register Number: Amtsgericht Fürth HRB 15812<br />\r\n" +
+                                                         "Managing Director: Lars Wassermann<br />\r\n" +
+                                                     "</div>\r\n" +
+                                                   "</div>\r\n" +
+                                                 "</body>\r\n" +
+                                               "</html>\r\n\r\n";
+
+        public const String TextEMailHeader  = "CardiCloud\r\n" +
+                                               "---------\r\n\r\n";
+
+        public const String TextEMailFooter  = "\r\n\r\n---------------------------------------------------------------\r\n" +
+                                               "Fingerprint: CE12 96F1 74B3 75F8 0BE9  0E54 289B 709A 9E53 A226\r\n" +
+                                               "CardiLink GmbH, Henkestr. 91, 91052 Erlangen, Germany\r\n" +
+                                               "Commercial Register Number: Amtsgericht Fürth HRB 15812\r\n" +
+                                               "Managing Director: Lars Wassermann\r\n\r\n";
+
+        #endregion
+
+
+        #region NewServiceTicketMessageReceivedDelegate
+
+        /// <summary>
+        /// A delegate for sending e-mail notifications about received service ticket messages to users.
+        /// </summary>
+        public delegate EMail NewServiceTicketMessageReceivedDelegate(AServiceTicket    ParsedMessage,
+                                                                      EMailAddressList  EMailRecipients);
+
+        private static readonly Func<String, EMailAddress, String, NewServiceTicketMessageReceivedDelegate>
+
+            __NewServiceTicketMessageReceivedDelegate = (BaseURL,
+                                                         APIEMailAddress,
+                                                         APIPassphrase)
+
+                => (ParsedMessage,
+                    EMailRecipients)
+
+                    =>  new HTMLEMailBuilder() {
+
+                            From            = APIEMailAddress,
+                            To              = EMailAddressListBuilder.Create(EMailRecipients),
+                            Passphrase      = APIPassphrase,
+                            Subject         = "...", //ParsedMessage.EMailSubject,
+
+                            HTMLText        = HTMLEMailHeader +
+                                                  //ParsedMessage.EMailBody.Replace("\r\n", "<br />\r\n") + Environment.NewLine +
+                                              HTMLEMailFooter,
+
+                            PlainText       = TextEMailHeader +
+                                                  //ParsedMessage.EMailBody + Environment.NewLine +
+                                              TextEMailFooter,
+
+                            SecurityLevel   = EMailSecurity.sign
+
+                        };
+
+        #endregion
+
+        #region ServiceTicketStatusChangedEMailDelegate
+
+        /// <summary>
+        /// A delegate for sending e-mail notifications about service ticket status changes to users.
+        /// </summary>
+        public delegate EMail ServiceTicketStatusChangedEMailDelegate(AServiceTicket                         ServiceTicket,
+                                                                      Timestamped<ServiceTicketStatusTypes>  OldStatus,
+                                                                      Timestamped<ServiceTicketStatusTypes>  NewStatus,
+                                                                      EMailAddressList                       EMailRecipients);
+
+        private static readonly Func<String, EMailAddress, String, ServiceTicketStatusChangedEMailDelegate>
+
+            __ServiceTicketStatusChangedEMailDelegate = (BaseURL,
+                                                         APIEMailAddress,
+                                                         APIPassphrase)
+
+                => (ServiceTicket,
+                    OldStatus,
+                    NewStatus,
+                    EMailRecipients)
+
+                    => new HTMLEMailBuilder() {
+
+                        From           = APIEMailAddress,
+                        To             = EMailAddressListBuilder.Create(EMailRecipients),
+                        Passphrase     = APIPassphrase,
+                        Subject        = String.Concat("ServiceTicket '",        ServiceTicket.Id,
+                                                       "' status change from '", OldStatus.Value,
+                                                       " to '",                  NewStatus.Value, "'!"),
+
+                        HTMLText       = String.Concat(HTMLEMailHeader,
+                                                       "The status of service ticket <b>'", ServiceTicket.Id, "'</b> (Owner: '", ServiceTicket.Author,
+                                                       "'), changed from <i>'", OldStatus.Value, "'</i> (since ", OldStatus.Timestamp.ToIso8601(), ") ",
+                                                       " to <i>'", NewStatus.Value, "'</i>!<br /><br />",
+                                                       HTMLEMailFooter),
+
+                        PlainText      = String.Concat(TextEMailHeader,
+                                                       "The status of service ticket '", ServiceTicket.Id, "' (Owner: '", ServiceTicket.Author,
+                                                       "'), changed from '", OldStatus.Value, "' (since ", OldStatus.Timestamp.ToIso8601(), ") ",
+                                                       " to '", NewStatus.Value, "'!\r\r\r\r",
+                                                       TextEMailFooter),
+
+                        SecurityLevel  = EMailSecurity.sign
+
+                    };
+
+        #endregion
+
+        #region ServiceTicketChangedEMailDelegate
+
+        /// <summary>
+        /// A delegate for sending e-mail notifications about service ticket changes to users.
+        /// </summary>
+        public delegate EMail ServiceTicketChangedEMailDelegate(AServiceTicket             ServiceTicket,
+                                                                NotificationMessageType    MessageType,
+                                                                NotificationMessageType[]  AdditionalMessageTypes,
+                                                                EMailAddressList           EMailRecipients);
+
+        private static readonly Func<String, EMailAddress, String, ServiceTicketChangedEMailDelegate>
+
+            __ServiceTicketChangedEMailDelegate = (BaseURL,
+                                                   APIEMailAddress,
+                                                   APIPassphrase)
+
+                => (ServiceTicket,
+                    MessageType,
+                    AdditionalMessageTypes,
+                    EMailRecipients)
+
+                    => new HTMLEMailBuilder() {
+
+                        From           = APIEMailAddress,
+                        To             = EMailAddressListBuilder.Create(EMailRecipients),
+                        Passphrase     = APIPassphrase,
+                        Subject        = String.Concat("ServiceTicket data '", ServiceTicket.Id, "' was changed'!"),
+
+                        HTMLText       = String.Concat(HTMLEMailHeader,
+                                                       "The data of service ticket <b>'", ServiceTicket.Id, "'</b> (Owner: '", ServiceTicket.Author,
+                                                       "') was changed!<br /><br />",
+                                                       HTMLEMailFooter),
+
+                        PlainText      = String.Concat(TextEMailHeader,
+                                                       "The data of service ticket '", ServiceTicket.Id, "' (Owner: '", ServiceTicket.Author,
+                                                       "') was changed!\r\r\r\r",
+                                                       TextEMailFooter),
+
+                        SecurityLevel  = EMailSecurity.sign
+
+                    };
+
+        #endregion
 
         #endregion
 
@@ -1636,11 +1827,12 @@ namespace social.OpenData.UsersAPI
             this.PasswordQualityCheck         = PasswordQualityCheck        ?? DefaultPasswordQualityCheck;
             this.SignInSessionLifetime        = SignInSessionLifetime       ?? DefaultSignInSessionLifetime;
 
-            this._DataLicenses                = new Dictionary<DataLicense_Id,  DataLicense>();
-            this._Users                       = new Dictionary<User_Id,         User>();
-            this._Groups                      = new Dictionary<Group_Id,        Group>();
-            this._Organizations               = new Dictionary<Organization_Id, Organization>();
-            this._Messages                    = new Dictionary<Message_Id,      Message>();
+            this._DataLicenses                = new Dictionary<DataLicense_Id,   DataLicense>();
+            this._Users                       = new Dictionary<User_Id,          User>();
+            this._Groups                      = new Dictionary<Group_Id,         Group>();
+            this._Organizations               = new Dictionary<Organization_Id,  Organization>();
+            this._Messages                    = new Dictionary<Message_Id,       Message>();
+            this._ServiceTickets              = new Dictionary<ServiceTicket_Id, AServiceTicket>();
 
             this._LoginPasswords              = new Dictionary<User_Id,         LoginPassword>();
             this._VerificationTokens          = new List<VerificationToken>();
@@ -2328,6 +2520,172 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
+        #region (protected) SendHTTPSNotifications(AllNotificationURLs, JSONNotification)
+
+        protected async Task SendHTTPSNotifications(IEnumerable<HTTPSNotification>  AllNotificationURLs,
+                                                    JObject                         JSONNotification)
+        {
+
+            if (!DisableNotifications)
+            {
+
+                try
+                {
+
+                    foreach (var notificationURL in AllNotificationURLs)
+                    {
+
+                        HTTPRequest  request     = null;
+                        HTTPResponse result      = HTTPResponse.ClientError(request);
+                        Byte TransmissionRetry   = 0;
+                        Byte MaxNumberOfRetries  = 3;
+
+                        do
+                        {
+
+                            try
+                            {
+
+                                String       protocol;
+                                HTTPPath      URI;
+                                HTTPHostname hostname;
+
+                                if (notificationURL.URL.Contains("://"))
+                                {
+                                    protocol = notificationURL.URL.Substring(0, notificationURL.URL.IndexOf("://"));
+                                    var url  = notificationURL.URL.Substring(notificationURL.URL.IndexOf("://") + 3);
+                                    hostname = HTTPHostname.Parse(url.Substring(0, url.IndexOf('/')));
+                                    URI      = HTTPPath.Parse(url.Substring(url.IndexOf('/')));
+                                }
+                                else
+                                {
+                                    protocol = "https";
+                                    hostname = HTTPHostname.Parse(notificationURL.URL.Substring(0, notificationURL.URL.IndexOf('/')));
+                                    URI      = HTTPPath.Parse(notificationURL.URL.Substring(notificationURL.URL.IndexOf('/')));
+                                }
+
+                                using (var _HTTPSClient = new HTTPSClient(hostname,
+                                                                          //HTTPVirtualHost:
+                                                                          RemoteCertificateValidator: (Object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors sslPolicyErrors) => true,
+                                                                          LocalCertificateSelector:    null,
+                                                                          ClientCert:                  null,
+                                                                          RemotePort:                  notificationURL.RemotePort,
+                                                                          UserAgent:                   null,
+                                                                          RequestTimeout:              null,
+                                                                          DNSClient:                   this.DNSClient))
+                                {
+
+                                    Console.WriteLine("Sending HTTPS-notification to: " + hostname.Name);
+
+                                    request  = new HTTPRequest.Builder(_HTTPSClient) {
+                                                   HTTPMethod     = notificationURL.Method,
+                                                   Host           = hostname,
+                                                   URI            = URI,
+                                                   Content        = new JArray(JSONNotification).ToUTF8Bytes(),
+                                                   ContentType    = HTTPContentType.JSON_UTF8,
+                                                   UserAgent      = "CardiCloud Notification API",
+                                                   API_Key        = notificationURL.APIKey.IsNotNullOrEmpty()
+                                                                        ? notificationURL.APIKey
+                                                                        : null,
+                                                   Authorization  = notificationURL.BasicAuth_Login.   IsNotNullOrEmpty() &&
+                                                                    notificationURL.BasicAuth_Password.IsNotNullOrEmpty()
+                                                                        ? new HTTPBasicAuthentication(notificationURL.BasicAuth_Login,
+                                                                                                      notificationURL.BasicAuth_Password)
+                                                                        : null
+                                    };
+
+                                    result   = await _HTTPSClient.Execute(Request:              request,
+                                                                          RequestLogDelegate:   (timestamp, client, req)       => LogRequests(timestamp, client, hostname.Name, req),
+                                                                          ResponseLogDelegate:  (timestamp, client, req, resp) => LogResponse(timestamp, client, hostname.Name, req, resp),
+
+                                                                          CancellationToken:    null,
+                                                                          EventTrackingId:      EventTracking_Id.New,
+                                                                          RequestTimeout:       notificationURL.RequestTimeout,
+                                                                          NumberOfRetry:        TransmissionRetry++);
+
+                                    Console.WriteLine("Result: " + result);
+
+                                }
+
+                                if (result == null)
+                                    result = HTTPResponse.ClientError(request);
+
+                            }
+                            catch (Exception e)
+                            {
+                                Console.WriteLine(e);
+                            }
+
+                        }
+                        // Try to resend the HTTP message, when there had been networking errors...
+                        while (result.HTTPStatusCode == HTTPStatusCode.RequestTimeout &&
+                               TransmissionRetry++ < MaxNumberOfRetries);
+
+                        // If it failed: Write entire message on disc/logfile
+                        //               Reread the logfile later and try to resend the message!
+
+                    }
+
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e);
+                }
+
+            }
+
+        }
+
+        #endregion
+
+        #region (protected) LogRequests(...)
+
+        protected Task LogRequests(DateTime                                           Timestamp,
+                                   org.GraphDefined.Vanaheimr.Hermod.HTTP.HTTPClient  Client,
+                                   String                                             RemoteHost,
+                                   HTTPRequest                                        Request)
+        {
+
+            return Task.Run(() => {
+
+                using (var Logfile = File.AppendText(this.NotificationsPath +
+                                                     RemoteHost + "-Requests-" + Request.Timestamp.ToString("yyyy-MM") + ".log"))
+                {
+
+                    Logfile.WriteLine(
+                        String.Concat(Request.HTTPSource.ToString(), Environment.NewLine,
+                                      Request.Timestamp.ToIso8601(), Environment.NewLine,
+                                      Request.EventTrackingId, Environment.NewLine,
+                                      Request.EntirePDU, Environment.NewLine,
+                                      "======================================================================================"));
+
+                }
+
+            });
+
+        }
+
+        #endregion
+
+        #region (protected) LogResponse(...)
+
+        protected Task LogResponse(DateTime                                           Timestamp,
+                                   org.GraphDefined.Vanaheimr.Hermod.HTTP.HTTPClient  Client,
+                                   String                                             RemoteHost,
+                                   HTTPRequest                                        Request,
+                                   HTTPResponse                                       Response)
+        {
+
+            return Task.Run(() => {
+
+                Response.AppendLogfile(this.NotificationsPath +
+                                       RemoteHost + "-Responses-" + Request.Timestamp.ToString("yyyy-MM") + ".log");
+
+            });
+
+        }
+
+        #endregion
 
 
         #region (private) RegisterURITemplates()
@@ -11006,6 +11364,797 @@ namespace social.OpenData.UsersAPI
         #endregion
 
         #endregion
+
+        #region ServiceTickets
+
+        #region Data
+
+        private readonly Dictionary<ServiceTicket_Id, AServiceTicket> _ServiceTickets;
+
+        /// <summary>
+        /// Return an enumeration of all service tickets.
+        /// </summary>
+        public IEnumerable<AServiceTicket> ServiceTickets
+        {
+            get
+            {
+                try
+                {
+                    ServiceTicketsSemaphore.Wait();
+                    return _ServiceTickets.Values.ToArray();
+                }
+                finally
+                {
+                    ServiceTicketsSemaphore.Release();
+                }
+
+            }
+        }
+
+        #endregion
+
+
+        #region WriteToLogfileAndNotify(ServiceTicket,        MessageType, OldServiceTicket        = null, CurrentUserId = null)
+
+        public async Task WriteToLogfileAndNotify<TServiceTicket>(TServiceTicket           ServiceTicket,
+                                                                  NotificationMessageType  MessageType,
+                                                                  TServiceTicket           OldServiceTicket  = null,
+                                                                  User_Id?                 CurrentUserId     = null)
+            where TServiceTicket : AServiceTicket
+        {
+
+            if (ServiceTicket == null)
+                return;
+
+            await WriteToLogfile(MessageType,
+                                 ServiceTicket.ToJSON(Embedded: false),
+                                 UsersAPIPath + ServiceTicketsDBFile,
+                                 CurrentUserId);
+
+
+            var _MessageTypes  = new HashSet<NotificationMessageType>() { MessageType };
+
+            if (MessageType == addIfNotExistsServiceTicket_MessageType)
+            {
+                _MessageTypes.Add(addServiceTicket_MessageType);
+            }
+
+            else if (MessageType == addOrUpdateServiceTicket_MessageType)
+            {
+                _MessageTypes.Add(addServiceTicket_MessageType);
+            }
+
+            var MessageTypes   = _MessageTypes.ToArray();
+
+
+            if (!DisableNotifications)
+            {
+
+                #region Telegram Notifications
+
+                try
+                {
+
+                    var AllTelegramNotifications = this.GetTelegramNotifications(ServiceTicket.Author, MessageTypes).
+                                                        ToHashSet();
+
+                    if (DevMachines.Contains(Environment.MachineName))
+                    {
+                        AllTelegramNotifications.Clear();
+                        //AllTelegramNotifications.Add(PhoneNumber.Parse("+491728930852"));
+                    }
+
+                    if (AllTelegramNotifications.Count > 0)
+                    {
+
+                        TelegramStore.SendTelegram("ServiceTicket '" + ServiceTicket.Id + "' sent '" + MessageType + "'!",
+                                                   AllTelegramNotifications.Select(telegramNotification => telegramNotification.Username));
+
+                    }
+
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e);
+                }
+
+                #endregion
+
+                #region SMS Notifications
+
+                try
+                {
+
+                    var AllSMSNotifications = this.GetSMSNotifications(ServiceTicket.Author, MessageTypes).
+                                                   ToHashSet();
+
+                    if (DevMachines.Contains(Environment.MachineName))
+                    {
+                        AllSMSNotifications.Clear();
+                        //AllNotificationSMSPhoneNumbers.Add(PhoneNumber.Parse("+491728930852"));
+                    }
+
+                    if (AllSMSNotifications.Count > 0)
+                    {
+
+                        SendSMS("ServiceTicket '" + ServiceTicket.Id + "' sent '" + MessageType + "'!",
+                                AllSMSNotifications.Select(smsPhoneNumber => smsPhoneNumber.PhoneNumber.ToString()).ToArray(),
+                                "CardiCloud");
+
+                    }
+
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e);
+                }
+
+                #endregion
+
+                #region HTTPS Notifications
+
+                try
+                {
+
+                    var AllHTTPSNotifications = this.GetHTTPSNotifications(ServiceTicket.Author, MessageTypes).
+                                                     ToHashSet();
+
+                    if (DevMachines.Contains(Environment.MachineName))
+                        AllHTTPSNotifications.Clear();
+
+                    if (AllHTTPSNotifications.Count > 0)
+                    {
+
+                        #region Create JSON...
+
+                        JObject JSONNotification = null;
+
+                        if (MessageType == addServiceTicket_MessageType)
+                            JSONNotification = new JObject(
+                                                   new JProperty("addServiceTicket",
+                                                       ServiceTicket.ToJSON()
+                                                   ),
+                                                   new JProperty("timestamp", DateTime.UtcNow.ToIso8601())
+                                               );
+
+                        else if (MessageType == addIfNotExistsServiceTicket_MessageType)
+                            JSONNotification = new JObject(
+                                                   new JProperty("addIfNotExistsServiceTicket",
+                                                       ServiceTicket.ToJSON()
+                                                   ),
+                                                   new JProperty("timestamp", DateTime.UtcNow.ToIso8601())
+                                               );
+
+                        else if (MessageType == addOrUpdateServiceTicket_MessageType)
+                            JSONNotification = new JObject(
+                                                   new JProperty("addOrUpdateServiceTicket",
+                                                       ServiceTicket.ToJSON()
+                                                   ),
+                                                   new JProperty("timestamp", DateTime.UtcNow.ToIso8601())
+                                               );
+
+                        else if (MessageType == updateServiceTicket_MessageType)
+                            JSONNotification = new JObject(
+                                                   new JProperty("updateServiceTicket",
+                                                       ServiceTicket.ToJSON()
+                                                   ),
+                                                   new JProperty("timestamp", DateTime.UtcNow.ToIso8601())
+                                               );
+
+                        else if (MessageType == removeServiceTicket_MessageType)
+                            JSONNotification = new JObject(
+                                                   new JProperty("removeServiceTicket",
+                                                       ServiceTicket.ToJSON()
+                                                   ),
+                                                   new JProperty("timestamp", DateTime.UtcNow.ToIso8601())
+                                               );
+
+                        else if (MessageType == changeServiceTicketStatus_MessageType)
+                            JSONNotification = new JObject(
+                                                   new JProperty("changeServiceTicketStatus",
+                                                       ServiceTicket.ToJSON()
+                                                   ),
+                                                   new JProperty("timestamp", DateTime.UtcNow.ToIso8601())
+                                               );
+
+                        #endregion
+
+                        await SendHTTPSNotifications(AllHTTPSNotifications,
+                                                     JSONNotification);
+
+                    }
+
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e);
+                }
+
+                #endregion
+
+                #region EMailNotifications
+
+                try
+                {
+
+                    var AllEMailNotifications = new HashSet<EMailNotification>();
+
+                    // Add author
+                    this.GetEMailNotifications(ServiceTicket.Author, MessageTypes).
+                         ForEach(notificationemail => AllEMailNotifications.Add(notificationemail));
+
+                    // Add defibrillator owners
+
+                    // Add communicator owners
+
+
+                    if (DevMachines.Contains(Environment.MachineName))
+                    {
+                        AllEMailNotifications.Clear();
+                        AllEMailNotifications.Add(new EMailNotification(EMailAddress.Parse("cardilogs@graphdefined.com")));
+                    }
+
+                    if (AllEMailNotifications.Count > 0)
+                    {
+
+                        await APISMTPClient.Send(__ServiceTicketChangedEMailDelegate(BaseURL, Robot.EMail, APIPassphrase)
+                                                 (ServiceTicket,
+                                                  MessageType,
+                                                  MessageTypes,
+                                                  EMailAddressList.Create(AllEMailNotifications.Select(emailnotification => emailnotification.EMailAddress))
+                                                 ));
+
+                    }
+
+                } catch (Exception e)
+                {
+                    Console.WriteLine(e);
+                }
+
+                #endregion
+
+            }
+
+        }
+
+        #endregion
+
+
+        #region Add           (ServiceTicket,   CurrentUserId = null)
+
+        /// <summary>
+        /// Add the given service ticket to the API.
+        /// </summary>
+        /// <param name="ServiceTicket">A service ticket.</param>
+        /// <param name="AfterAddition">A delegate to call after the service ticket was added to the API.</param>
+        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
+        public async Task<TServiceTicket> Add<TServiceTicket>(TServiceTicket          ServiceTicket,
+                                                              Action<TServiceTicket>  AfterAddition  = null,
+                                                              User_Id?                CurrentUserId  = null)
+            where TServiceTicket : AServiceTicket
+        {
+
+            if (ServiceTicket == null)
+                throw new ArgumentException(nameof(ServiceTicket), "The given service ticket must not be null!");
+
+            if (ServiceTicket.API != null && ServiceTicket.API != this)
+                throw new ArgumentException(nameof(ServiceTicket), "The given service ticket is already attached to another API!");
+
+            try
+            {
+
+                await ServiceTicketsSemaphore.WaitAsync();
+
+                if (_ServiceTickets.ContainsKey(ServiceTicket.Id))
+                    throw new Exception("ServiceTicket '" + ServiceTicket.Id + "' already exists in this API!");
+
+                await WriteToLogfileAndNotify(ServiceTicket,
+                                              addServiceTicket_MessageType,
+                                              CurrentUserId: CurrentUserId);
+
+                ServiceTicket.API = this;
+
+                _ServiceTickets.Add(ServiceTicket.Id, ServiceTicket);
+
+                AfterAddition?.Invoke(ServiceTicket);
+
+                return ServiceTicket;
+
+            }
+            finally
+            {
+                ServiceTicketsSemaphore.Release();
+            }
+
+        }
+
+        #endregion
+
+        #region AddIfNotExists(ServiceTicket,   CurrentUserId = null)
+
+        /// <summary>
+        /// Add the given service ticket to the API.
+        /// </summary>
+        /// <param name="ServiceTicket">A service ticket.</param>
+        /// <param name="WhenNotExisted">A delegate to call when the service ticket did not exist before.</param>
+        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
+        public async Task<TServiceTicket> AddIfNotExists<TServiceTicket>(TServiceTicket          ServiceTicket,
+                                                                         Action<TServiceTicket>  WhenNotExisted  = null,
+                                                                         User_Id?                CurrentUserId   = null)
+            where TServiceTicket : AServiceTicket
+        {
+
+            if (ServiceTicket == null)
+                throw new ArgumentException(nameof(ServiceTicket), "The given service ticket must not be null!");
+
+            if (ServiceTicket.API != null && ServiceTicket.API != this)
+                throw new ArgumentException(nameof(ServiceTicket), "The given service ticket is already attached to another API!");
+
+            try
+            {
+
+                await ServiceTicketsSemaphore.WaitAsync();
+
+                if (_ServiceTickets.TryGetValue(ServiceTicket.Id, out AServiceTicket OldServiceTicket))
+                    return OldServiceTicket as TServiceTicket;
+
+                await WriteToLogfileAndNotify(ServiceTicket,
+                                              addIfNotExistsServiceTicket_MessageType,
+                                              CurrentUserId: CurrentUserId);
+
+                ServiceTicket.API = this;
+
+                _ServiceTickets.Add(ServiceTicket.Id, ServiceTicket);
+
+                WhenNotExisted?.Invoke(ServiceTicket);
+
+                return ServiceTicket;
+
+            }
+            finally
+            {
+                ServiceTicketsSemaphore.Release();
+            }
+
+        }
+
+        #endregion
+
+        #region AddOrUpdate   (ServiceTicket, DisableAnalyzeServiceTicketStatus = false,   CurrentUserId = null)
+
+        /// <summary>
+        /// Add or update the given service ticket to/within the API.
+        /// </summary>
+        /// <param name="ServiceTicket">A service ticket.</param>
+        /// <param name="AfterAddOrUpdate">A delegate to call after the service ticket was added to or updated within the API.</param>
+        /// <param name="DoNotAnalyzeTheServiceTicketStatus">Do not analyze the service ticket status.</param>
+        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
+        public async Task<TServiceTicket> AddOrUpdate<TServiceTicket>(TServiceTicket          ServiceTicket,
+                                                                      Action<TServiceTicket>  AfterAddOrUpdate                     = null,
+                                                                      Boolean                 DoNotAnalyzeTheServiceTicketStatus   = false,
+                                                                      User_Id?                CurrentUserId                        = null)
+            where TServiceTicket : AServiceTicket
+        {
+
+            if (ServiceTicket == null)
+                throw new ArgumentException(nameof(ServiceTicket), "The given service ticket must not be null!");
+
+            if (ServiceTicket.API != null && ServiceTicket.API != this)
+                throw new ArgumentException(nameof(ServiceTicket), "The given service ticket is already attached to another API!");
+
+            AServiceTicket  OldServiceTicket                = null;
+            DateTime        Now                             = DateTime.UtcNow;
+            Boolean         FastAnalyzeServiceTicketStatus  = false;
+
+            try
+            {
+
+                await ServiceTicketsSemaphore.WaitAsync();
+
+                ServiceTicket.API = this;
+
+                if (_ServiceTickets.TryGetValue(ServiceTicket.Id, out OldServiceTicket))
+                {
+
+                    _ServiceTickets.Remove(OldServiceTicket.Id);
+                    (OldServiceTicket as TServiceTicket).CopyAllEdgesTo(ServiceTicket);
+
+                    //// Only run when the admin status changed!
+                    //if (!DoNotAnalyzeTheServiceTicketStatus &&
+                    //    OldServiceTicket.AdminStatus.Value != ServiceTicketAdminStatusTypes.Monitored &&
+                    //    OldServiceTicket.AdminStatus.Value != ServiceTicketAdminStatusTypes.Tracked   &&
+                    //   (ServiceTicket.   AdminStatus.Value == ServiceTicketAdminStatusTypes.Monitored ||
+                    //    ServiceTicket.   AdminStatus.Value == ServiceTicketAdminStatusTypes.Tracked))
+                    //{
+                    //    FastAnalyzeServiceTicketStatus = true;
+                    //}
+
+                }
+
+                await WriteToLogfileAndNotify(ServiceTicket,
+                                              addOrUpdateServiceTicket_MessageType,
+                                              OldServiceTicket,
+                                              CurrentUserId);
+
+                _ServiceTickets.Add(ServiceTicket.Id, ServiceTicket);
+
+                AfterAddOrUpdate?.Invoke(ServiceTicket);
+
+            }
+            finally
+            {
+                ServiceTicketsSemaphore.Release();
+            }
+
+
+            #region Analyze service ticket status...
+
+            //// AnalyzeServiceTicketStatus(ServiceTicket) might enter this method again!
+            //if (FastAnalyzeServiceTicketStatus)
+            //    await AnalyzeServiceTicketStatus(ServiceTicket);
+
+            #endregion
+
+            #region Call OnServiceTicket(Admin)StatusChanged events...
+
+            if (OldServiceTicket != null)
+            {
+
+                if (OldServiceTicket.Status != ServiceTicket.Status)
+                    OnServiceTicketStatusChanged?.Invoke(Now,
+                                                         ServiceTicket.Id,
+                                                         OldServiceTicket.Status,
+                                                         ServiceTicket.Status);
+
+            }
+
+            #endregion
+
+            return ServiceTicket;
+
+        }
+
+        #endregion
+
+        #region Update        (ServiceTicket, DisableAnalyzeServiceTicketStatus = false,   CurrentUserId = null)
+
+        /// <summary>
+        /// Update the given service ticket within the API.
+        /// </summary>
+        /// <param name="ServiceTicket">A service ticket.</param>
+        /// <param name="AfterUpdate">A delegate to call after the service ticket was updated within the API.</param>
+        /// <param name="DoNotAnalyzeTheServiceTicketStatus">Do not analyze the service ticket status.</param>
+        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
+        public async Task<TServiceTicket> Update<TServiceTicket>(TServiceTicket          ServiceTicket,
+                                                                 Action<TServiceTicket>  AfterUpdate                          = null,
+                                                                 Boolean                 DoNotAnalyzeTheServiceTicketStatus   = false,
+                                                                 User_Id?                CurrentUserId                        = null)
+            where TServiceTicket : AServiceTicket
+        {
+
+            if (ServiceTicket == null)
+                throw new ArgumentException(nameof(ServiceTicket), "The given service ticket must not be null!");
+
+            if (ServiceTicket.API != null && ServiceTicket.API != this)
+                throw new ArgumentException(nameof(ServiceTicket), "The given service ticket is already attached to another API!");
+
+            AServiceTicket OldServiceTicket;
+            DateTime       Now = DateTime.UtcNow;
+
+            try
+            {
+
+                await ServiceTicketsSemaphore.WaitAsync();
+
+                if (!_ServiceTickets.TryGetValue(ServiceTicket.Id, out OldServiceTicket))
+                    throw new Exception("ServiceTicket '" + ServiceTicket.Id + "' does not exists in this API!");
+
+
+                await WriteToLogfileAndNotify(ServiceTicket,
+                                              updateServiceTicket_MessageType,
+                                              OldServiceTicket,
+                                              CurrentUserId);
+
+                //if (ServiceTicket.API == null)
+                    ServiceTicket.API = this;
+
+                _ServiceTickets.Remove(OldServiceTicket.Id);
+                OldServiceTicket.CopyAllEdgesTo(ServiceTicket);
+
+                _ServiceTickets.Add(ServiceTicket.Id, ServiceTicket);
+
+                AfterUpdate?.Invoke(ServiceTicket);
+
+            }
+            finally
+            {
+                ServiceTicketsSemaphore.Release();
+            }
+
+
+            #region Analyze service ticket status...
+
+            //// Only run when the admin status changed!
+            //// AnalyzeServiceTicketStatus(ServiceTicket) might enter this method again!
+            //if (!DoNotAnalyzeTheServiceTicketStatus &&
+            //    OldServiceTicket.AdminStatus.Value != ServiceTicketAdminStatusTypes.Monitored &&
+            //    OldServiceTicket.AdminStatus.Value != ServiceTicketAdminStatusTypes.Tracked   &&
+            //   (ServiceTicket.   AdminStatus.Value == ServiceTicketAdminStatusTypes.Monitored ||
+            //    ServiceTicket.   AdminStatus.Value == ServiceTicketAdminStatusTypes.Tracked))
+            //{
+            //    await AnalyzeServiceTicketStatus(ServiceTicket);
+            //}
+
+            #endregion
+
+            #region Call OnServiceTicket(Admin)StatusChanged events...
+
+            if (OldServiceTicket.Status != ServiceTicket.Status)
+                OnServiceTicketStatusChanged?.Invoke(Now,
+                                                     ServiceTicket.Id,
+                                                     OldServiceTicket.Status,
+                                                     ServiceTicket.Status);
+
+            #endregion
+
+
+            return ServiceTicket;
+
+        }
+
+        #endregion
+
+        #region Update        (ServiceTicketId, UpdateDelegate, DoNotAnalyzeTheServiceTicketStatus = false, CurrentUserId = null)
+
+        /// <summary>
+        /// Update the given service ticket.
+        /// </summary>
+        /// <param name="ServiceTicketId">A service ticket identification.</param>
+        /// <param name="UpdateDelegate">A delegate to update the given service ticket.</param>
+        /// <param name="AfterUpdate">A delegate to call after the service ticket was updated within the API.</param>
+        /// <param name="DoNotAnalyzeTheServiceTicketStatus">Do not analyze the service ticket status.</param>
+        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
+        public async Task<TServiceTicket> Update<TServiceTicket>(ServiceTicket_Id                      ServiceTicketId,
+                                                                 Func<TServiceTicket, TServiceTicket>  UpdateDelegate,
+                                                                 Action<TServiceTicket>                AfterUpdate                          = null,
+                                                                 Boolean                               DoNotAnalyzeTheServiceTicketStatus   = false,
+                                                                 User_Id?                              CurrentUserId                        = null)
+            where TServiceTicket : AServiceTicket
+        {
+
+            TServiceTicket  castedOldServiceTicket;
+            TServiceTicket  ServiceTicket;
+            DateTime        Now = DateTime.UtcNow;
+
+            try
+            {
+
+                if (UpdateDelegate == null)
+                    throw new Exception("The given update delegate must not be null!");
+
+                await ServiceTicketsSemaphore.WaitAsync();
+
+                if (!_ServiceTickets.TryGetValue(ServiceTicketId, out AServiceTicket OldServiceTicket))
+                    throw new Exception("ServiceTicket '" + ServiceTicketId + "' does not exists in this API!");
+
+                castedOldServiceTicket = OldServiceTicket as TServiceTicket;
+
+                if (castedOldServiceTicket == null)
+                    throw new Exception("ServiceTicket '" + ServiceTicketId + "' is not of type TServiceTicket!");
+
+                ServiceTicket = UpdateDelegate(castedOldServiceTicket);
+                ServiceTicket.API = this;
+
+                await WriteToLogfileAndNotify(ServiceTicket,
+                                              updateServiceTicket_MessageType,
+                                              castedOldServiceTicket,
+                                              CurrentUserId);
+
+                _ServiceTickets.Remove(OldServiceTicket.Id);
+                //OldServiceTicket.CopyAllEdgesTo(ServiceTicket);
+                _ServiceTickets.Add(ServiceTicket.Id, ServiceTicket);
+
+                AfterUpdate?.Invoke(ServiceTicket);
+
+            }
+            finally
+            {
+                ServiceTicketsSemaphore.Release();
+            }
+
+
+            #region Analyze service ticket status...
+
+            //// Only run when the admin status changed!
+            //// AnalyzeServiceTicketStatus(ServiceTicket) might enter this method again!
+            //if (!DoNotAnalyzeTheServiceTicketStatus &&
+            //    OldServiceTicket.AdminStatus.Value != ServiceTicketAdminStatusTypes.Monitored &&
+            //    OldServiceTicket.AdminStatus.Value != ServiceTicketAdminStatusTypes.Tracked   &&
+            //   (ServiceTicket.   AdminStatus.Value == ServiceTicketAdminStatusTypes.Monitored ||
+            //    ServiceTicket.   AdminStatus.Value == ServiceTicketAdminStatusTypes.Tracked))
+            //{
+            //    await AnalyzeServiceTicketStatus(ServiceTicket);
+            //}
+
+            #endregion
+
+            #region Call OnServiceTicket(Admin)StatusChanged events...
+
+            if (castedOldServiceTicket.Status != ServiceTicket.Status)
+                OnServiceTicketStatusChanged?.Invoke(Now,
+                                                     ServiceTicket.Id,
+                                                     castedOldServiceTicket.Status,
+                                                     ServiceTicket.Status);
+
+            #endregion
+
+
+            return ServiceTicket;
+
+        }
+
+        #endregion
+
+        #region Remove        (ServiceTicketId, CurrentUserId = null)
+
+        /// <summary>
+        /// Remove the given service ticket from this API.
+        /// </summary>
+        /// <param name="ServiceTicketId">The unique identification of the service ticket.</param>
+        /// <param name="AfterRemoval">A delegate to call after the service ticket was removed from the API.</param>
+        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
+        public async Task<AServiceTicket> Remove(ServiceTicket_Id        ServiceTicketId,
+                                                 Action<AServiceTicket>  AfterRemoval    = null,
+                                                 User_Id?                CurrentUserId   = null)
+        {
+
+            try
+            {
+
+                await ServiceTicketsSemaphore.WaitAsync();
+
+                if (_ServiceTickets.TryGetValue(ServiceTicketId, out AServiceTicket ServiceTicket))
+                {
+
+                    await WriteToLogfileAndNotify(ServiceTicket,
+                                                  removeServiceTicket_MessageType,
+                                                  CurrentUserId: CurrentUserId);
+
+                    _ServiceTickets.Remove(ServiceTicketId);
+
+                    ServiceTicket.API = null;
+
+                    AfterRemoval?.Invoke(ServiceTicket);
+
+                    return ServiceTicket;
+
+                }
+
+                return null;
+
+            }
+            finally
+            {
+                ServiceTicketsSemaphore.Release();
+            }
+
+        }
+
+        #endregion
+
+
+        #region Contains      (ServiceTicketId)
+
+        /// <summary>
+        /// Whether this API contains a service ticket having the given unique identification.
+        /// </summary>
+        /// <param name="ServiceTicketId">The unique identification of the service ticket.</param>
+        public Boolean Contains(ServiceTicket_Id ServiceTicketId)
+        {
+
+            try
+            {
+
+                ServiceTicketsSemaphore.Wait();
+
+                return _ServiceTickets.ContainsKey(ServiceTicketId);
+
+            }
+            finally
+            {
+                ServiceTicketsSemaphore.Release();
+            }
+
+        }
+
+        #endregion
+
+        #region Get           (ServiceTicketId)
+
+        /// <summary>
+        /// Get the service ticket having the given unique identification.
+        /// </summary>
+        /// <param name="ServiceTicketId">The unique identification of the service ticket.</param>
+        public async Task<TServiceTicket> Get<TServiceTicket>(ServiceTicket_Id  ServiceTicketId)
+            where TServiceTicket : AServiceTicket
+        {
+
+            try
+            {
+
+                await ServiceTicketsSemaphore.WaitAsync();
+
+                if (_ServiceTickets.TryGetValue(ServiceTicketId, out AServiceTicket serviceTicket))
+                    return serviceTicket as TServiceTicket;
+
+                return null;
+
+            }
+            finally
+            {
+                ServiceTicketsSemaphore.Release();
+            }
+
+        }
+
+        #endregion
+
+        #region TryGet        (ServiceTicketId, out ServiceTicket)
+
+        /// <summary>
+        /// Try to get the service ticket having the given unique identification.
+        /// </summary>
+        /// <param name="ServiceTicketId">The unique identification of the service ticket.</param>
+        /// <param name="ServiceTicket">The service ticket.</param>
+        public Boolean TryGet<TServiceTicket>(ServiceTicket_Id    ServiceTicketId,
+                                              out TServiceTicket  ServiceTicket)
+            where TServiceTicket : AServiceTicket
+        {
+
+            try
+            {
+
+                ServiceTicketsSemaphore.Wait();
+
+                if (_ServiceTickets.TryGetValue(ServiceTicketId, out AServiceTicket serviceTicket))
+                {
+                    ServiceTicket = serviceTicket as TServiceTicket;
+                    return true;
+                }
+
+                ServiceTicket = null;
+                return false;
+
+            }
+            finally
+            {
+                ServiceTicketsSemaphore.Release();
+            }
+
+        }
+
+        #endregion
+
+
+        /// <summary>
+        /// A delegate used whenever a service ticket status changed.
+        /// </summary>
+        /// <param name="Timestamp">The timestamp of the event.</param>
+        /// <param name="ServiceTicketId">The unique service ticket identification.</param>
+        /// <param name="OldStatus">The old status.</param>
+        /// <param name="NewStatus">The new status.</param>
+        public delegate Task ServiceTicketStatusChangedDelegate     (DateTime                               Timestamp,
+                                                                     ServiceTicket_Id                       ServiceTicketId,
+                                                                     Timestamped<ServiceTicketStatusTypes>  OldStatus,
+                                                                     Timestamped<ServiceTicketStatusTypes>  NewStatus);
+
+        /// <summary>
+        /// An event sent whenever a service ticket status changed.
+        /// </summary>
+        public event ServiceTicketStatusChangedDelegate       OnServiceTicketStatusChanged;
+
+        #endregion
+
 
         #region Reset user password
 
