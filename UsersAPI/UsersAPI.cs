@@ -11631,7 +11631,9 @@ namespace social.OpenData.UsersAPI
         public async Task<TServiceTicket> Add<TServiceTicket>(TServiceTicket          ServiceTicket,
                                                               Action<TServiceTicket>  AfterAddition  = null,
                                                               User_Id?                CurrentUserId  = null)
+
             where TServiceTicket : AServiceTicket
+
         {
 
             if (ServiceTicket == null)
@@ -11681,7 +11683,9 @@ namespace social.OpenData.UsersAPI
         public async Task<TServiceTicket> AddIfNotExists<TServiceTicket>(TServiceTicket          ServiceTicket,
                                                                          Action<TServiceTicket>  WhenNotExisted  = null,
                                                                          User_Id?                CurrentUserId   = null)
+
             where TServiceTicket : AServiceTicket
+
         {
 
             if (ServiceTicket == null)
@@ -11729,11 +11733,13 @@ namespace social.OpenData.UsersAPI
         /// <param name="AfterAddOrUpdate">A delegate to call after the service ticket was added to or updated within the API.</param>
         /// <param name="DoNotAnalyzeTheServiceTicketStatus">Do not analyze the service ticket status.</param>
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
-        public async Task<TServiceTicket> AddOrUpdate<TServiceTicket>(TServiceTicket          ServiceTicket,
-                                                                      Action<TServiceTicket>  AfterAddOrUpdate                     = null,
-                                                                      Boolean                 DoNotAnalyzeTheServiceTicketStatus   = false,
-                                                                      User_Id?                CurrentUserId                        = null)
+        public async Task<TServiceTicket> AddOrUpdate<TServiceTicket>(TServiceTicket                   ServiceTicket,
+                                                                      Action<TServiceTicket, Boolean>  AfterAddOrUpdate                     = null,
+                                                                      Boolean                          DoNotAnalyzeTheServiceTicketStatus   = false,
+                                                                      User_Id?                         CurrentUserId                        = null)
+
             where TServiceTicket : AServiceTicket
+
         {
 
             if (ServiceTicket == null)
@@ -11778,7 +11784,8 @@ namespace social.OpenData.UsersAPI
 
                 _ServiceTickets.Add(ServiceTicket.Id, ServiceTicket);
 
-                AfterAddOrUpdate?.Invoke(ServiceTicket);
+                AfterAddOrUpdate?.Invoke(ServiceTicket,
+                                         OldServiceTicket != null);
 
             }
             finally
@@ -11829,7 +11836,9 @@ namespace social.OpenData.UsersAPI
                                                                  Action<TServiceTicket>  AfterUpdate                          = null,
                                                                  Boolean                 DoNotAnalyzeTheServiceTicketStatus   = false,
                                                                  User_Id?                CurrentUserId                        = null)
+
             where TServiceTicket : AServiceTicket
+
         {
 
             if (ServiceTicket == null)

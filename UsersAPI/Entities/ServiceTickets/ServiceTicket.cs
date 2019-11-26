@@ -36,89 +36,6 @@ using org.GraphDefined.Vanaheimr.Hermod.HTTP;
 namespace social.OpenData.UsersAPI
 {
 
-    public delegate Boolean ServiceTicketProviderDelegate(ServiceTicket_Id ServiceTicketId, out ServiceTicket ServiceTicket);
-
-    public delegate JObject ServiceTicketToJSONDelegate(ServiceTicket                                      ServiceTicket,
-                                                        Boolean                                            Embedded                = false,
-                                                        UInt16?                                            MaxStatus               = null,
-                                                        Func<DateTime, ServiceTicketStatusTypes, Boolean>  IncludeStatus           = null,
-                                                        InfoStatus                                         ExpandDataLicenses      = InfoStatus.ShowIdOnly,
-                                                        InfoStatus                                         ExpandOwnerId           = InfoStatus.ShowIdOnly,
-                                                        InfoStatus                                         ExpandDefibrillatorId   = InfoStatus.ShowIdOnly,
-                                                        InfoStatus                                         ExpandCommunicatorId    = InfoStatus.ShowIdOnly,
-                                                        Boolean                                            IncludeComments         = true,
-                                                        Boolean                                            IncludeCryptoHash       = true);
-
-
-    /// <summary>
-    /// Extention methods for the service ticket.
-    /// </summary>
-    public static partial class ServiceTicketExtentions
-    {
-
-        #region ToJSON(this ServiceTickets, Skip = null, Take = null, Embedded = false, ...)
-
-        /// <summary>
-        /// Return a JSON representation for the given enumeration of service tickets.
-        /// </summary>
-        /// <param name="ServiceTickets">An enumeration of service tickets.</param>
-        /// <param name="Skip">The optional number of service tickets to skip.</param>
-        /// <param name="Take">The optional number of service tickets to return.</param>
-        /// <param name="Embedded">Whether this data is embedded into another data structure, e.g. into a service ticket.</param>
-        public static JArray ToJSON(this IEnumerable<ServiceTicket>                    ServiceTickets,
-                                    UInt64?                                            Skip                    = null,
-                                    UInt64?                                            Take                    = null,
-                                    Boolean                                            Embedded                = false,
-                                    Func<          ServiceTicketStatusTypes, Boolean>  IncludeWithStatus       = null,
-                                    UInt16?                                            MaxStatus               = null,
-                                    Func<DateTime, ServiceTicketStatusTypes, Boolean>  IncludeStatus           = null,
-                                    Func<          ServiceTicketPriorities,  Boolean>  IncludeWithPriorities   = null,
-                                    InfoStatus                                         ExpandDataLicenses      = InfoStatus.ShowIdOnly,
-                                    InfoStatus                                         ExpandOwnerId           = InfoStatus.ShowIdOnly,
-                                    InfoStatus                                         ExpandDefibrillatorId   = InfoStatus.ShowIdOnly,
-                                    InfoStatus                                         ExpandCommunicatorId    = InfoStatus.ShowIdOnly,
-                                    Boolean                                            IncludeComments         = true,
-                                    ServiceTicketToJSONDelegate                        ServiceTicketToJSON     = null,
-                                    Boolean                                            IncludeCryptoHash       = true)
-
-
-            => ServiceTickets?.Any() != true
-
-                   ? new JArray()
-
-                   : new JArray(ServiceTickets.
-                                    Where(serviceticket => serviceticket          != null                                                       &&
-                                                           (IncludeStatus         == null || IncludeWithStatus    (serviceticket.Status.Value)) &&
-                                                           (IncludeWithPriorities == null || IncludeWithPriorities(serviceticket.Priority))).
-                                    //OrderBy(serviceticket => serviceticket.Id).
-                                    SkipTakeFilter(Skip, Take).
-                                    SafeSelect(serviceticket => ServiceTicketToJSON != null
-                                                                    ? ServiceTicketToJSON (serviceticket,
-                                                                                           Embedded,
-                                                                                           MaxStatus,
-                                                                                           IncludeStatus,
-                                                                                           ExpandDataLicenses,
-                                                                                           ExpandOwnerId,
-                                                                                           ExpandDefibrillatorId,
-                                                                                           ExpandCommunicatorId,
-                                                                                           IncludeComments,
-                                                                                           IncludeCryptoHash)
-
-                                                                    : serviceticket.ToJSON(Embedded,
-                                                                                           MaxStatus,
-                                                                                           IncludeStatus,
-                                                                                           ExpandDataLicenses,
-                                                                                           ExpandOwnerId,
-                                                                                           ExpandDefibrillatorId,
-                                                                                           ExpandCommunicatorId,
-                                                                                           IncludeComments,
-                                                                                           IncludeCryptoHash)));
-
-        #endregion
-
-    }
-
-
     /// <summary>
     /// A service ticket.
     /// </summary>
@@ -283,8 +200,6 @@ namespace social.OpenData.UsersAPI
                       IncludeStatus:          null,
                       ExpandDataLicenses:     InfoStatus.ShowIdOnly,
                       ExpandAuthorId:         InfoStatus.ShowIdOnly,
-                      ExpandDefibrillatorId:  InfoStatus.ShowIdOnly,
-                      ExpandCommunicatorId:   InfoStatus.ShowIdOnly,
                       IncludeComments:        true,
                       IncludeCryptoHash:      true);
 
@@ -299,8 +214,6 @@ namespace social.OpenData.UsersAPI
                               Func<DateTime, ServiceTicketStatusTypes, Boolean>  IncludeStatus           = null,
                               InfoStatus                                         ExpandDataLicenses      = InfoStatus.ShowIdOnly,
                               InfoStatus                                         ExpandAuthorId          = InfoStatus.ShowIdOnly,
-                              InfoStatus                                         ExpandDefibrillatorId   = InfoStatus.ShowIdOnly,
-                              InfoStatus                                         ExpandCommunicatorId    = InfoStatus.ShowIdOnly,
                               Boolean                                            IncludeComments         = true,
                               Boolean                                            IncludeCryptoHash       = true)
 
@@ -309,8 +222,6 @@ namespace social.OpenData.UsersAPI
                            IncludeStatus,
                            ExpandDataLicenses,
                            ExpandAuthorId,
-                           ExpandDefibrillatorId,
-                           ExpandCommunicatorId,
                            IncludeComments,
                            IncludeCryptoHash,
                            json => {
@@ -402,14 +313,14 @@ namespace social.OpenData.UsersAPI
         /// <param name="ErrorResponse">An error message.</param>
         /// <param name="VerifyContext">Verify the JSON-LD context.</param>
         /// <param name="ServiceTicketIdURI">The optional service ticket identification, e.g. from the HTTP URI.</param>
-        public static Boolean TryParseJSON(JObject                        JSONObject,
-                                           ServiceTicketProviderDelegate  ServiceTicketProvider,
-                                           UserProviderDelegate           UserProvider,
-                                           OrganizationProviderDelegate   OrganizationProvider,
-                                           out ServiceTicket              ServiceTicket,
-                                           out String                     ErrorResponse,
-                                           Boolean                        VerifyContext        = true,
-                                           ServiceTicket_Id?              ServiceTicketIdURI   = null)
+        public static Boolean TryParseJSON(JObject                         JSONObject,
+                                           AServiceTicketProviderDelegate  ServiceTicketProvider,
+                                           UserProviderDelegate            UserProvider,
+                                           OrganizationProviderDelegate    OrganizationProvider,
+                                           out ServiceTicket               ServiceTicket,
+                                           out String                      ErrorResponse,
+                                           Boolean                         VerifyContext        = true,
+                                           ServiceTicket_Id?               ServiceTicketIdURI   = null)
         {
 
             try
@@ -1136,7 +1047,7 @@ namespace social.OpenData.UsersAPI
                 throw new ArgumentNullException(nameof(Object), "The given object must not be null!");
 
             if (!(Object is ServiceTicket ServiceTicket))
-                throw new ArgumentException("The given object is not an service ticket!");
+                throw new ArgumentException("The given object is not a service ticket!");
 
             return CompareTo(ServiceTicket);
 
