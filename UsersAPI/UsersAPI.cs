@@ -2469,6 +2469,10 @@ namespace social.OpenData.UsersAPI
         public NotificationMessageGroup Add(NotificationMessageGroup NotificationMessageGroup)
             => _NotificationMessageGroups.AddAndReturnElement(NotificationMessageGroup);
 
+        public NotificationMessageGroup Add23(NotificationMessageGroup NotificationMessageGroup)
+            => _NotificationMessageGroups.AddAndReturnElement(NotificationMessageGroup);
+
+
 
         private JObject GetNotifications(User User)
         {
@@ -12085,7 +12089,9 @@ namespace social.OpenData.UsersAPI
         /// </summary>
         /// <param name="ServiceTicketId">The unique identification of the service ticket.</param>
         public async Task<TServiceTicket> Get<TServiceTicket>(ServiceTicket_Id  ServiceTicketId)
+
             where TServiceTicket : AServiceTicket
+
         {
 
             try
@@ -12117,7 +12123,9 @@ namespace social.OpenData.UsersAPI
         /// <param name="ServiceTicket">The service ticket.</param>
         public Boolean TryGet<TServiceTicket>(ServiceTicket_Id    ServiceTicketId,
                                               out TServiceTicket  ServiceTicket)
+
             where TServiceTicket : AServiceTicket
+
         {
 
             try
@@ -12128,7 +12136,7 @@ namespace social.OpenData.UsersAPI
                 if (_ServiceTickets.TryGetValue(ServiceTicketId, out AServiceTicket serviceTicket))
                 {
                     ServiceTicket = serviceTicket as TServiceTicket;
-                    return true;
+                    return ServiceTicket != null;
                 }
 
                 ServiceTicket = null;

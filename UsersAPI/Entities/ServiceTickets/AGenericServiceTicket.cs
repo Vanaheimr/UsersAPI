@@ -60,7 +60,7 @@ namespace social.OpenData.UsersAPI
         /// <summary>
         /// The CardiCloudAPI of this service ticket.
         /// </summary>
-        internal Object API
+        public Object API
         {
 
             get
