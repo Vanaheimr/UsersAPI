@@ -11369,7 +11369,7 @@ namespace social.OpenData.UsersAPI
 
         #region Data
 
-        private readonly Dictionary<ServiceTicket_Id, AServiceTicket> _ServiceTickets;
+        protected readonly Dictionary<ServiceTicket_Id, AServiceTicket> _ServiceTickets;
 
         /// <summary>
         /// Return an enumeration of all service tickets.

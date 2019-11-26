@@ -400,14 +400,16 @@ namespace social.OpenData.UsersAPI
         /// <param name="ServiceTicketProvider">A delegate resolving service tickets.</param>
         /// <param name="ServiceTicket">The parsed service ticket.</param>
         /// <param name="ErrorResponse">An error message.</param>
+        /// <param name="VerifyContext">Verify the JSON-LD context.</param>
         /// <param name="ServiceTicketIdURI">The optional service ticket identification, e.g. from the HTTP URI.</param>
-        protected static Boolean _TryParseJSON(JObject                               JSONObject,
-                                               UserProviderDelegate                  UserProvider,
-                                               OrganizationProviderDelegate          OrganizationProvider,
-                                               ServiceTicketProviderDelegate         ServiceTicketProvider,
-                                               out ServiceTicket                     ServiceTicket,
-                                               out String                            ErrorResponse,
-                                               ServiceTicket_Id?                     ServiceTicketIdURI = null)
+        public static Boolean TryParseJSON(JObject                        JSONObject,
+                                           ServiceTicketProviderDelegate  ServiceTicketProvider,
+                                           UserProviderDelegate           UserProvider,
+                                           OrganizationProviderDelegate   OrganizationProvider,
+                                           out ServiceTicket              ServiceTicket,
+                                           out String                     ErrorResponse,
+                                           Boolean                        VerifyContext        = true,
+                                           ServiceTicket_Id?              ServiceTicketIdURI   = null)
         {
 
             try
@@ -447,6 +449,30 @@ namespace social.OpenData.UsersAPI
                 {
                     ErrorResponse = "The optional service ticket identification given within the JSON body does not match the one given in the URI!";
                     return false;
+                }
+
+                #endregion
+
+                #region Parse Context                    [mandatory if requested]
+
+                if (VerifyContext)
+                {
+
+                    if (!JSONObject.ParseMandatory("@context",
+                                                   "JSON-LD context",
+                                                   out String Context,
+                                                   out ErrorResponse))
+                    {
+                        ErrorResponse = @"The JSON-LD ""@context"" information is missing!";
+                        return false;
+                    }
+
+                    if (Context != JSONLDContext)
+                    {
+                        ErrorResponse = @"The given JSON-LD ""@context"" information '" + Context + "' is not supported!";
+                        return false;
+                    }
+
                 }
 
                 #endregion
@@ -1253,11 +1279,11 @@ namespace social.OpenData.UsersAPI
             /// <param name="Author">The initial author of this service ticket (if known).</param>
             /// <param name="Status">The status of the service ticket.</param>
             /// <param name="Priority">The priority of the service ticket.</param>
-            /// <param name="Affected">Affected devices or services by this service ticket.
-            /// <param name="ProblemLocation">The location of the problem or broken device.</param>
+            /// <param name="Affected">Affected devices or services by this service ticket.</param>
+            /// <param name="Location">The location of the problem or broken device.</param>
             /// <param name="GeoLocation">The geographical location of the problem or broken device.</param>
             /// <param name="ProblemDescriptions">An enumeration of well-defined problem descriptions.</param>
-            /// <param name="ProblemIndicators">An enumeration of problem indicators.</param>
+            /// <param name="StatusIndicators">An enumeration of problem indicators.</param>
             /// <param name="AdditionalInfo">A multi-language description of the service ticket.</param>
             /// <param name="AttachedFiles">An enumeration of URLs to files attached to this service ticket.</param>
             /// 

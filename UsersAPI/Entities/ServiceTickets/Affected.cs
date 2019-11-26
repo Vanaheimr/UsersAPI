@@ -18,6 +18,7 @@
 #region Usings
 
 using System;
+using System.Linq;
 using System.Collections.Generic;
 
 using Newtonsoft.Json.Linq;
@@ -38,8 +39,19 @@ namespace social.OpenData.UsersAPI
 
         #region Data
 
+        /// <summary>
+        /// An enumeration of affected or related service tickets.
+        /// </summary>
         protected readonly HashSet<MessageHolder<ServiceTicket_Id, ServiceTicket>>  _ServiceTickets;
+
+        /// <summary>
+        /// An enumeration of users affected by a service ticket.
+        /// </summary>
         protected readonly HashSet<MessageHolder<User_Id,          User>>           _Users;
+
+        /// <summary>
+        /// An enumeration of organizations affected by a service ticket.
+        /// </summary>
         protected readonly HashSet<MessageHolder<Organization_Id,  Organization>>   _Organizations;
 
         #endregion
@@ -47,7 +59,7 @@ namespace social.OpenData.UsersAPI
         #region Properties
 
         /// <summary>
-        /// Affected or related service tickets.
+        /// An enumeration of affected or related service tickets.
         /// </summary>
         public IEnumerable<MessageHolder<ServiceTicket_Id, ServiceTicket>>  ServiceTickets
             => _ServiceTickets;
@@ -66,12 +78,12 @@ namespace social.OpenData.UsersAPI
 
 
         /// <summary>
-        /// Whether the list of affected devices is empty.
+        /// Whether the list of affected things is empty.
         /// </summary>
         public virtual Boolean IsEmpty
-            => !_ServiceTickets.    SafeAny() &&
-               !_Users.             SafeAny() &&
-               !_Organizations.     SafeAny();
+            => !_ServiceTickets.SafeAny() &&
+               !_Users.         SafeAny() &&
+               !_Organizations. SafeAny();
 
         #endregion
 
@@ -343,6 +355,17 @@ namespace social.OpenData.UsersAPI
             /// <summary>
             /// Create a new list of things affected by a service ticket.
             /// </summary>
+            /// <param name="ServiceTickets">Affected or related service tickets.</param>
+            /// <param name="ServiceTicketIds">Affected or related service tickets.</param>
+            /// <param name="ServiceTicketLinks">Affected or related service tickets.</param>
+            /// 
+            /// <param name="Users">An enumeration of users affected by a service ticket.</param>
+            /// <param name="UserIds">An enumeration of users affected by a service ticket.</param>
+            /// <param name="UserLinks">An enumeration of users affected by a service ticket.</param>
+            /// 
+            /// <param name="Organizations">An enumeration of organizations affected by a service ticket.</param>
+            /// <param name="OrganizationIds">An enumeration of organizations affected by a service ticket.</param>
+            /// <param name="OrganizationLinks">An enumeration of organizations affected by a service ticket.</param>
             public Builder(IEnumerable<ServiceTicket>                                   ServiceTickets       = null,
                            IEnumerable<ServiceTicket_Id>                                ServiceTicketIds     = null,
                            IEnumerable<MessageHolder<ServiceTicket_Id, ServiceTicket>>  ServiceTicketLinks   = null,
