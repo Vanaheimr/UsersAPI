@@ -27,7 +27,6 @@ using Newtonsoft.Json.Linq;
 using org.GraphDefined.Vanaheimr.Illias;
 using org.GraphDefined.Vanaheimr.Hermod;
 using org.GraphDefined.Vanaheimr.Hermod.HTTP;
-using org.GraphDefined.Vanaheimr.Hermod.Distributed;
 
 #endregion
 
@@ -367,13 +366,22 @@ namespace social.OpenData.UsersAPI
         /// <summary>
         /// Calculate the hash value of this object.
         /// </summary>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE0063:Use simple 'using' statement", Justification = "<Pending>")]
         public void CalcHash()
         {
 
-            CurrentCryptoHash = "json:sha256:" +
-                          new SHA256Managed().ComputeHash(Encoding.Unicode.GetBytes(ADistributedEntity.JSONWhitespaceRegEx.Replace(ToJSON(IncludeCryptoHash: false).ToString(), " "))).
-                                              Select(value => String.Format("{0:x2}", value)).
-                                              Aggregate();
+            using (var SHA256 = new SHA256Managed())
+            {
+
+                CurrentCryptoHash = "json:sha256:" +
+                                        SHA256.ComputeHash(Encoding.Unicode.GetBytes(
+                                                               ToJSON  (IncludeCryptoHash: false).
+                                                               ToString(Newtonsoft.Json.Formatting.None)
+                                                           )).
+                                               Select(value => String.Format("{0:x2}", value)).
+                                               Aggregate();
+
+            }
 
         }
 
