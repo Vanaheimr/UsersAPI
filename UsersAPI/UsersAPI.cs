@@ -21,14 +21,16 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Diagnostics;
 using System.Net.Security;
-using System.Security.Authentication;
-using System.Threading;
+using System.Globalization;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using System.Security.Cryptography;
+using System.Security.Authentication;
 using System.Text.RegularExpressions;
+using System.Security.Cryptography.X509Certificates;
 
 using Newtonsoft.Json.Linq;
 
@@ -48,19 +50,26 @@ using org.GraphDefined.Vanaheimr.Hermod.Sockets;
 using org.GraphDefined.Vanaheimr.Aegir;
 using org.GraphDefined.Vanaheimr.Warden;
 
+using social.OpenData.UsersAPI;
 using social.OpenData.UsersAPI.Postings;
 using social.OpenData.UsersAPI.Notifications;
 
 using com.GraphDefined.SMSApi.API;
 using com.GraphDefined.SMSApi.API.Response;
-using social.OpenData.UsersAPI;
-using System.Security.Cryptography.X509Certificates;
+
+using Org.BouncyCastle.Security;
+using Org.BouncyCastle.Crypto.Parameters;
 
 #endregion
 
 namespace social.OpenData.UsersAPI
 {
 
+    /// <summary>
+    /// A password quality check delegate.
+    /// </summary>
+    /// <param name="Password">The password to check.</param>
+    /// <returns>A quality metric for the given password.</returns>
     public delegate Single PasswordQualityCheckDelegate(String Password);
 
 
@@ -784,6 +793,8 @@ namespace social.OpenData.UsersAPI
 
         public List<BlogPosting> BlogPostings           { get; }
 
+        public ECPrivateKeyParameters  ServiceCheckPrivateKey    { get; set; }
+        public ECPublicKeyParameters   ServiceCheckPublicKey     { get; set; }
 
         #endregion
 
@@ -1903,6 +1914,10 @@ namespace social.OpenData.UsersAPI
 
             #region Observe CPU/RAM
 
+            Thread.CurrentThread.CurrentCulture   = CultureInfo.InvariantCulture;
+            Thread.CurrentThread.CurrentUICulture = CultureInfo.InvariantCulture;
+
+            // If those lines fail, try to run "lodctr /R" as administrator in an cmd.exe environment
             totalRAM_PerformanceCounter = new PerformanceCounter("Process", "Working Set",      Process.GetCurrentProcess().ProcessName);
             totalCPU_PerformanceCounter = new PerformanceCounter("Process", "% Processor Time", Process.GetCurrentProcess().ProcessName);
             totalRAM_PerformanceCounter.NextValue();
@@ -7352,6 +7367,112 @@ namespace social.OpenData.UsersAPI
 
             // https://www.ietf.org/id/draft-koch-openpgp-webkey-service-06.txt
             // The server MUST NOT return an ASCII armored version of the key.
+
+            #endregion
+
+
+            #region POST        ~/serviceCheck
+
+            // curl -X POST -H "Content-Type: application/json" -d "{\"content\": \"123\"}" http://127.0.0.1:2000/serviceCheck
+            // {
+            //      "timestamp":  "2019-11-28T19:07:52.6430383Z",
+            //      "instance":   "ZBOOK",
+            //      "content":    "321",
+            //      "signature":  "3044022048ffa223332a3e22735c4c9ac2..."
+            // }
+
+            // -------------------------------------------------------------------
+            // curl -v -H "Accept: text/html" http://127.0.0.1:2100/serviceCheck
+            // -------------------------------------------------------------------
+            HTTPServer.AddMethodCallback(HTTPHostname.Any,
+                                         HTTPMethod.POST,
+                                         URLPathPrefix + "serviceCheck",
+                                         HTTPContentType.JSON_UTF8,
+                                         HTTPDelegate: Request => {
+
+                                             try
+                                             {
+
+                                                 #region Parse JSON
+
+                                                 if (!Request.TryParseJObjectRequestBody(out JObject JSONObj, out HTTPResponse response))
+                                                     return Task.FromResult(response);
+
+                                                 var content = JSONObj["content"]?.Value<String>() ?? "";
+
+                                                 #endregion
+
+                                                 var reply       = JSONObject.Create(
+                                                                       new JProperty("timestamp",  DateTime.UtcNow),
+                                                                       new JProperty("instance",   Environment.MachineName),
+                                                                       new JProperty("content",    content.Reverse())
+                                                                   );
+
+                                                 //var ECP         = ECNamedCurveTable.GetByName("secp256r1");
+                                                 //var ECSpec      = new ECDomainParameters(ECP.Curve, ECP.G, ECP.N, ECP.H, ECP.GetSeed());
+                                                 //var C           = (FpCurve) ECSpec.Curve;
+
+                                                 //var g           = GeneratorUtilities.GetKeyPairGenerator("ECDH");
+                                                 //g.Init(new ECKeyGenerationParameters(ECSpec, new SecureRandom()));
+                                                 //var keyPair     = g.GenerateKeyPair();
+
+                                                 //var privateKey  = (keyPair.Private as ECPrivateKeyParameters);//.D.ToByteArray().ToHexString();
+                                                 //var publicKey   = (keyPair.Public  as ECPublicKeyParameters);//. Q.GetEncoded(). ToHexString();
+
+                                                 //var skHEX       = privateKey.D.ToByteArray().ToHexString();
+                                                 //var pkHEX       = publicKey.Q.GetEncoded().ToHexString();
+
+                                                 if (ServiceCheckPublicKey != null)
+                                                     reply.Add("publicKey", ServiceCheckPublicKey.Q.GetEncoded().ToHexString());
+
+                                                 if (ServiceCheckPrivateKey != null)
+                                                 {
+
+                                                     var plaintext   = reply.ToString(Newtonsoft.Json.Formatting.None);
+                                                     var SHA256Hash  = new SHA256Managed().ComputeHash(plaintext.ToUTF8Bytes());
+
+                                                     var signer      = SignerUtilities.GetSigner("NONEwithECDSA");
+                                                     signer.Init(true, ServiceCheckPrivateKey);
+                                                     signer.BlockUpdate(SHA256Hash, 0, SHA256Hash.Length);
+                                                     var signature   = signer.GenerateSignature().ToHexString();
+
+                                                     reply.Add("signature", signature);
+
+                                                 }
+
+                                                 return Task.FromResult(
+                                                     new HTTPResponse.Builder(Request) {
+                                                         HTTPStatusCode             = HTTPStatusCode.OK,
+                                                         Server                     = HTTPServer.DefaultServerName,
+                                                         Date                       = DateTime.UtcNow,
+                                                         AccessControlAllowOrigin   = "*",
+                                                         AccessControlAllowMethods  = "POST",
+                                                         AccessControlAllowHeaders  = "Content-Type, Accept",
+                                                         ContentType                = HTTPContentType.JSON_UTF8,
+                                                         Content                    = reply.ToUTF8Bytes(),
+                                                         Connection                 = "close"
+                                                     }.AsImmutable);
+
+                                             }
+                                             catch (Exception e)
+                                             {
+
+                                                 return Task.FromResult(
+                                                     new HTTPResponse.Builder(Request) {
+                                                         HTTPStatusCode             = HTTPStatusCode.InternalServerError,
+                                                         Server                     = HTTPServer.DefaultServerName,
+                                                         Date                       = DateTime.UtcNow,
+                                                         AccessControlAllowOrigin   = "*",
+                                                         AccessControlAllowMethods  = "POST",
+                                                         AccessControlAllowHeaders  = "Content-Type, Accept",
+                                                         ContentType                = HTTPContentType.TEXT_UTF8,
+                                                         Content                    = (e.Message + Environment.NewLine + Environment.NewLine + e.StackTrace).ToUTF8Bytes(),
+                                                         Connection                 = "close"
+                                                     }.AsImmutable);
+
+                                             }
+
+                                         }, AllowReplacement: URIReplacement.Allow);
 
             #endregion
 
