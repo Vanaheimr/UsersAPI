@@ -25,6 +25,7 @@ using Newtonsoft.Json.Linq;
 
 using org.GraphDefined.Vanaheimr.Illias;
 using org.GraphDefined.Vanaheimr.Hermod.HTTP;
+using org.GraphDefined.Vanaheimr.Hermod;
 
 #endregion
 
@@ -171,6 +172,16 @@ namespace social.OpenData.UsersAPI
         /// Return a JSON representation of this object.
         /// </summary>
         public virtual JObject ToJSON()
+
+            => ToJSON(ExpandUserIds:          InfoStatus.ShowIdOnly,
+                      ExpandOrganizationIds:  InfoStatus.ShowIdOnly);
+
+
+        /// <summary>
+        /// Return a JSON representation of this object.
+        /// </summary>
+        public JObject ToJSON(InfoStatus  ExpandUserIds           = InfoStatus.ShowIdOnly,
+                              InfoStatus  ExpandOrganizationIds   = InfoStatus.ShowIdOnly)
 
             => JSONObject.Create(
 

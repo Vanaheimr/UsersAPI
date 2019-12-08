@@ -117,6 +117,20 @@ namespace social.OpenData.UsersAPI
     public abstract class AServiceTicket : AGenericServiceTicket<ServiceTicket_Id, ServiceTicketStatusTypes>
     {
 
+        #region Data
+
+        /// <summary>
+        /// The JSON-LD context of the object.
+        /// </summary>
+        public const      String  JSONLDContext             = "https://opendata.social/contexts/UsersAPI+json/serviceTicket";
+
+        /// <summary>
+        /// The default max size of the data set status list.
+        /// </summary>
+        public new const  UInt16  DefaultMaxStatusListSize  = 30;
+
+        #endregion
+
         #region Constructor(s)
 
         /// <summary>
@@ -275,9 +289,9 @@ namespace social.OpenData.UsersAPI
 
                    Id.ToJSON("@id"),
 
-                   //Embedded
-                   //    ? null
-                   //    : new JProperty("@context",             JSONLDContext),
+                   Embedded
+                       ? null
+                       : new JProperty("@context",             JSONLDContext),
 
                    new JProperty("title",                      Title.ToJSON()),
 
