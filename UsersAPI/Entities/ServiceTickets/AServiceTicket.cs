@@ -122,12 +122,22 @@ namespace social.OpenData.UsersAPI
         /// <summary>
         /// The JSON-LD context of the object.
         /// </summary>
-        public const      String  JSONLDContext             = "https://opendata.social/contexts/UsersAPI+json/serviceTicket";
+        private const     String  _JSONLDContext            = "https://opendata.social/contexts/UsersAPI+json/serviceTicket";
 
         /// <summary>
         /// The default max size of the data set status list.
         /// </summary>
         public new const  UInt16  DefaultMaxStatusListSize  = 30;
+
+        #endregion
+
+        #region Properties
+
+        /// <summary>
+        /// The JSON-LD context of the object.
+        /// </summary>
+        public virtual String JSONLDContext
+            => _JSONLDContext;
 
         #endregion
 
@@ -268,6 +278,18 @@ namespace social.OpenData.UsersAPI
 
 
         #region (protected) ToJSON(...)
+
+        //public virtual JObject ToJSON()
+
+        //    => ToJSON(Embedded:              false,
+        //              MaxStatus:             DefaultMaxStatusListSize,
+        //              IncludeStatus:         null,
+        //              ExpandDataLicenses:    InfoStatus.ShowIdOnly,
+        //              ExpandAuthorId:        InfoStatus.ShowIdOnly,
+        //              IncludeComments:       true,
+        //              IncludeCryptoHash:     true,
+        //              Configurator:          null);
+
 
         /// <summary>
         /// Return a JSON representation of this object.

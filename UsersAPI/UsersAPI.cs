@@ -540,6 +540,8 @@ namespace social.OpenData.UsersAPI
         public String                    NotificationsPath          { get; }
         public String                    MetricsPath                { get; }
 
+        public String                    ServiceTicketsPath         { get; }
+
         /// <summary>
         /// The current async local user identification to simplify API usage.
         /// </summary>
@@ -1793,12 +1795,13 @@ namespace social.OpenData.UsersAPI
                 this.LoggingPath += Path.DirectorySeparatorChar;
 
             this.DevMachines                  = new HashSet<String>();
-            this.UsersAPIPath                 = this.LoggingPath + "UsersAPI"      + Path.DirectorySeparatorChar;
-            this.HTTPRequestsPath             = this.LoggingPath + "HTTPRequests"  + Path.DirectorySeparatorChar;
-            this.HTTPResponsesPath            = this.LoggingPath + "HTTPResponses" + Path.DirectorySeparatorChar;
-            this.HTTPSSEPath                  = this.LoggingPath + "HTTPSSEs"      + Path.DirectorySeparatorChar;
-            this.NotificationsPath            = this.LoggingPath + "Notifications" + Path.DirectorySeparatorChar;
-            this.MetricsPath                  = this.LoggingPath + "Metrics"       + Path.DirectorySeparatorChar;
+            this.UsersAPIPath                 = this.LoggingPath + "UsersAPI"       + Path.DirectorySeparatorChar;
+            this.HTTPRequestsPath             = this.LoggingPath + "HTTPRequests"   + Path.DirectorySeparatorChar;
+            this.HTTPResponsesPath            = this.LoggingPath + "HTTPResponses"  + Path.DirectorySeparatorChar;
+            this.HTTPSSEPath                  = this.LoggingPath + "HTTPSSEs"       + Path.DirectorySeparatorChar;
+            this.NotificationsPath            = this.LoggingPath + "Notifications"  + Path.DirectorySeparatorChar;
+            this.MetricsPath                  = this.LoggingPath + "Metrics"        + Path.DirectorySeparatorChar;
+            this.ServiceTicketsPath           = this.LoggingPath + "ServiceTickets" + Path.DirectorySeparatorChar;
 
             if (!DisableLogfile)
             {
@@ -1809,6 +1812,7 @@ namespace social.OpenData.UsersAPI
                 Directory.CreateDirectory(this.HTTPSSEPath);
                 Directory.CreateDirectory(this.NotificationsPath);
                 Directory.CreateDirectory(this.MetricsPath);
+                Directory.CreateDirectory(this.ServiceTicketsPath);
             }
 
             this.Robot                        = new User(Id:               User_Id.Parse("robot"),
@@ -11532,7 +11536,7 @@ namespace social.OpenData.UsersAPI
                 return;
 
             await WriteToLogfile(MessageType,
-                                 ServiceTicket.ToJSON(Embedded: false),
+                                 ServiceTicket.ToJSON(),
                                  UsersAPIPath + ServiceTicketsDBFile,
                                  CurrentUserId);
 
