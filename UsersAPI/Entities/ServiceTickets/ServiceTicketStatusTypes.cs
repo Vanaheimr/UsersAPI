@@ -62,6 +62,11 @@ namespace social.OpenData.UsersAPI
         /// <summary>
         /// The analysis and repair process of the RMA device started.
         /// </summary>
+        RMA_DeviceRepairStarted,
+
+        /// <summary>
+        /// The analysis and repair process of the RMA device finished.
+        /// </summary>
         RMA_DeviceRepaired,
 
         /// <summary>
