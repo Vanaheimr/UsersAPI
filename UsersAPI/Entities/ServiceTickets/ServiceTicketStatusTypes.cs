@@ -69,6 +69,8 @@ namespace social.OpenData.UsersAPI
         /// </summary>
         RMA_DeviceRepaired,
 
+        RMA_FunctionalDeviceChecked,
+
         /// <summary>
         /// The repaired device or a replacement was sent back to the customer.
         /// </summary>
