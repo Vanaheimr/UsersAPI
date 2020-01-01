@@ -47,7 +47,7 @@ namespace social.OpenData.UsersAPI
         #region Data
 
         /// <summary>
-        /// The JSON-LD context of the object.
+        /// The JSON-LD context of this object.
         /// </summary>
         public const String JSONLDContext = "https://opendata.social/contexts/OpenDataAPI+json/tag";
 
@@ -428,7 +428,7 @@ namespace social.OpenData.UsersAPI
             /// </summary>
             public static implicit operator Tag(Builder Builder)
 
-                => Builder.ToImmutable;
+                => Builder?.ToImmutable;
 
 
             /// <summary>

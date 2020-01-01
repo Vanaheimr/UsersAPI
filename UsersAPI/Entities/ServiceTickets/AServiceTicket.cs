@@ -114,30 +114,178 @@ namespace social.OpenData.UsersAPI
     /// <summary>
     /// A service ticket.
     /// </summary>
-    public abstract class AServiceTicket : AGenericServiceTicket<ServiceTicket_Id, ServiceTicketStatusTypes>
+    public abstract class AServiceTicket : ADistributedEntity<ServiceTicket_Id>,
+                                           IEntityClass<AServiceTicket>
     {
 
         #region Data
 
         /// <summary>
-        /// The JSON-LD context of the object.
+        /// The JSON-LD context of this object.
         /// </summary>
-        private const     String  _JSONLDContext            = "https://opendata.social/contexts/UsersAPI+json/serviceTicket";
-
-        /// <summary>
-        /// The default max size of the data set status list.
-        /// </summary>
-        public new const  UInt16  DefaultMaxStatusListSize  = 30;
+        private const String _JSONLDContext = "https://opendata.social/contexts/UsersAPI+json/serviceTicket";
 
         #endregion
 
         #region Properties
 
         /// <summary>
-        /// The JSON-LD context of the object.
+        /// An enumeration of changes.
+        /// </summary>
+        public IEnumerable<AServiceTicketHistory>  History         { get; }
+
+        /// <summary>
+        /// An enumeration of usable data licenses for this service ticket.
+        /// </summary>
+        public IEnumerable<DataLicense>            DataLicenses    { get; }
+
+
+        /// <summary>
+        /// The JSON-LD context of this object.
         /// </summary>
         public virtual String JSONLDContext
             => _JSONLDContext;
+
+        #region API
+
+        private Object _API;
+
+        /// <summary>
+        /// The CardiCloudAPI of this service ticket.
+        /// </summary>
+        public Object API
+        {
+
+            get
+            {
+                return _API;
+            }
+
+            set
+            {
+
+                if (_API != null)
+                    throw new ArgumentException("Illegal attempt to change the API of this service ticket!");
+
+                _API = value ?? throw new ArgumentException("Illegal attempt to delete the API reference of this service ticket!");
+
+            }
+
+        }
+
+        #endregion
+
+        public DateTime Created
+            => History.Last().Timestamp;
+
+        /// <summary>
+        /// The initial author of this service ticket.
+        /// </summary>
+        public User Author
+            => History.Last().Author;
+
+        /// <summary>
+        /// The current status of the service ticket.
+        /// </summary>
+        public Timestamped<ServiceTicketStatusTypes> Status
+        {
+            get
+            {
+
+                var latestStatus = History.Where(entry => entry.Status.HasValue).
+                                           First();
+
+                return new Timestamped<ServiceTicketStatusTypes>(latestStatus.Timestamp,
+                                                                 latestStatus.Status.Value);
+
+            }
+        }
+
+        /// <summary>
+        /// The title of the service ticket (10-200 characters).
+        /// </summary>
+        public I18NString Title
+             => History.Where(entry => entry.Title != null).
+                        FirstOrDefault()?.Title;
+
+        /// <summary>
+        /// Affected devices or services by this service ticket.
+        /// </summary>
+        public Affected Affected
+            => History.Where(entry => entry.Affected != null).
+                        FirstOrDefault()?.Affected;
+
+        /// <summary>
+        /// Whether the service ticket will be shown in (public) listings.
+        /// </summary>
+        public ServiceTicketPriorities Priority
+             => History.Where(entry => !entry.Priority.HasValue).
+                        FirstOrDefault()?.Priority
+                ?? ServiceTicketPriorities.Normal;
+
+        /// <summary>
+        /// Whether the service ticket history entry will be shown in (public) listings.
+        /// </summary>
+        public PrivacyLevel PrivacyLevel
+            => History.Where(entry => !entry.PrivacyLevel.HasValue).
+                       FirstOrDefault()?.PrivacyLevel
+               ?? social.OpenData.UsersAPI.PrivacyLevel.Private;
+
+        /// <summary>
+        /// The location of the problem or broken device.
+        /// </summary>
+        public I18NString Location
+            => History.Where(entry => entry.Location != null).
+                       FirstOrDefault()?.Location;
+
+        /// <summary>
+        /// The geographical location of the problem or broken device.
+        /// </summary>
+        public GeoCoordinate? GeoLocation
+            => History.Where(entry => !entry.GeoLocation.HasValue).
+                       FirstOrDefault()?.GeoLocation;
+
+        /// <summary>
+        /// An enumeration of well-defined problem descriptions.
+        /// </summary>
+        public IEnumerable<Tag> ProblemDescriptions
+            => History.Where(entry => entry.ProblemDescriptions != null).
+                       FirstOrDefault()?.ProblemDescriptions;
+
+        /// <summary>
+        /// An enumeration of status indicators.
+        /// </summary>
+        public IEnumerable<Tag> StatusIndicators
+            => History.Where(entry => entry.StatusIndicators != null).
+                       FirstOrDefault()?.StatusIndicators;
+
+        /// <summary>
+        /// An enumeration of reactions.
+        /// </summary>
+        public IEnumerable<Tag> Reactions
+            => History.Where(entry => entry.Reactions != null).
+                       FirstOrDefault()?.Reactions;
+
+        /// <summary>
+        /// Additional multi-language information related to this service ticket.
+        /// </summary>
+        public I18NString AdditionalInfo
+            => History.Where(entry => entry.AdditionalInfo != null).
+                       FirstOrDefault()?.AdditionalInfo;
+
+        /// <summary>
+        /// An enumeration of URLs to files attached to this service ticket history entry.
+        /// </summary>
+        public IEnumerable<HTTPPath> AttachedFiles
+            => History.Where(entry => entry.AttachedFiles != null).
+                       FirstOrDefault()?.AttachedFiles;
+
+        /// <summary>
+        /// References to other service tickets.
+        /// </summary>
+        public IEnumerable<ServiceTicketReference> TicketReferences
+            => History.Where(entry => entry.TicketReferences != null).
+                       FirstOrDefault()?.TicketReferences;
 
         #endregion
 
@@ -147,130 +295,110 @@ namespace social.OpenData.UsersAPI
         /// Create a new service ticket.
         /// </summary>
         /// <param name="Id">The unique identification of the service ticket.</param>
-        /// <param name="Title">The title of the service ticket (10-200 characters).</param>
-        /// <param name="Author">The initial author of this service ticket (if known).</param>
-        /// <param name="InitialStatus">The initial status of the service ticket.</param>
-        /// <param name="Priority">The priority of the service ticket.</param>
-        /// <param name="Affected">Affected devices or services by this service ticket.</param>
-        /// <param name="ProblemLocation">The location of the problem or broken device.</param>
-        /// <param name="GeoLocation">The geographical location of the problem or broken device.</param>
-        /// <param name="ProblemDescriptions">An enumeration of well-defined problem descriptions.</param>
-        /// <param name="ProblemIndicators">An enumeration of problem indicators.</param>
-        /// <param name="AdditionalInfo">A multi-language description of the service ticket.</param>
-        /// <param name="AttachedFiles">An enumeration of URLs to files attached to this service ticket.</param>
         /// <param name="History">The service ticket history.</param>
-        /// 
-        /// <param name="PrivacyLevel">Whether the service ticket will be shown in (public) listings.</param>
+        /// <param name="DataLicenses">An enumeration of usable data licenses for this service ticket.</param>
         /// <param name="DataSource">The source of all this data, e.g. an automatic importer.</param>
-        /// <param name="DataLicenses">Optional data licsenses for publishing this data.</param>
-        /// 
-        /// <param name="MaxPoolStatusListSize">The maximum size of the status list.</param>
         public AServiceTicket(ServiceTicket_Id                    Id,
-                              ServiceTicketStatusTypes            InitialStatus,
-                              I18NString                          Title,
-                              User                                Author                  = null,
-                              ServiceTicketPriorities?            Priority                = null,
-                              Affected                            Affected                = null,
-                              I18NString                          ProblemLocation         = null,
-                              GeoCoordinate?                      GeoLocation             = null,
-                              IEnumerable<Tag>                    ProblemDescriptions     = null,
-                              IEnumerable<Tag>                    ProblemIndicators       = null,
-                              I18NString                          AdditionalInfo          = null,
-                              IEnumerable<HTTPPath>               AttachedFiles           = null,
-                              IEnumerable<AServiceTicketHistory>  History                 = null,
+                              IEnumerable<AServiceTicketHistory>  History,
+                              IEnumerable<DataLicense>            DataLicenses   = null,
+                              String                              DataSource     = null)
 
-                              PrivacyLevel?                       PrivacyLevel            = null,
-                              IEnumerable<DataLicense>            DataLicenses            = null,
-                              String                              DataSource              = null,
+            : base(Id,
+                   DataSource)
 
-                              UInt16                              MaxPoolStatusListSize   = DefaultMaxStatusListSize)
+        {
 
-            : this(Id,
-                   Title,
-                   Author,
-                   new StatusSchedule<ServiceTicketStatusTypes>(InitialStatus, MaxPoolStatusListSize),
-                   Priority,
-                   Affected,
-                   ProblemLocation,
-                   GeoLocation,
-                   ProblemDescriptions,
-                   ProblemIndicators,
-                   AdditionalInfo,
-                   AttachedFiles,
-                   History,
+            if (History == null || !History.Any())
+                throw new ArgumentNullException(nameof(History), "The history of the service ticket must not be null!");
 
-                   PrivacyLevel,
-                   DataLicenses,
-                   DataSource,
+            this.History       = History.OrderByDescending(entry => entry.Timestamp).ToArray();
+            this.DataLicenses  = DataLicenses ?? Array.Empty<DataLicense>();
 
-                   MaxPoolStatusListSize)
-
-        { }
-
+        }
 
         /// <summary>
         /// Create a new service ticket.
         /// </summary>
         /// <param name="Id">The unique identification of the service ticket.</param>
+        /// 
+        /// <param name="Timestamp">The timestamp of the creation of this service ticket history entry.</param>
+        /// <param name="Author">The initial author of this service ticket history entry (if known).</param>
+        /// <param name="Status">An optional new service ticket status caused by this service ticket history entry.</param>
         /// <param name="Title">The title of the service ticket (10-200 characters).</param>
-        /// <param name="Author">The initial author of this service ticket (if known).</param>
-        /// <param name="Status">The status of the service ticket.</param>
-        /// <param name="Priority">The priority of the service ticket.</param>
         /// <param name="Affected">Affected devices or services by this service ticket.</param>
+        /// <param name="Priority">The priority of the service ticket.</param>
+        /// <param name="PrivacyLevel">Whether the service ticket history entry will be shown in (public) listings.</param>
         /// <param name="Location">The location of the problem or broken device.</param>
         /// <param name="GeoLocation">The geographical location of the problem or broken device.</param>
         /// <param name="ProblemDescriptions">An enumeration of well-defined problem descriptions.</param>
         /// <param name="StatusIndicators">An enumeration of problem indicators.</param>
+        /// <param name="Reactions">An enumeration of reactions.</param>
         /// <param name="AdditionalInfo">A multi-language description of the service ticket.</param>
         /// <param name="AttachedFiles">An enumeration of URLs to files attached to this service ticket.</param>
-        /// <param name="History">The service ticket history.</param>
+        /// <param name="TicketReferences">References to other service tickets.</param>
         /// 
-        /// <param name="PrivacyLevel">Whether the service ticket will be shown in (public) listings.</param>
         /// <param name="DataSource">The source of all this data, e.g. an automatic importer.</param>
-        /// <param name="DataLicenses">Optional data licsenses for publishing this data.</param>
-        /// 
-        /// <param name="MaxPoolStatusListSize">The maximum size of the status list.</param>
-        public AServiceTicket(ServiceTicket_Id                                    Id,
-                              I18NString                                          Title,
-                              User                                                Author                  = null,
-                              IEnumerable<Timestamped<ServiceTicketStatusTypes>>  Status                  = null,
-                              ServiceTicketPriorities?                            Priority                = null,
-                              Affected                                            Affected                = null,
-                              I18NString                                          Location                = null,
-                              GeoCoordinate?                                      GeoLocation             = null,
-                              IEnumerable<Tag>                                    ProblemDescriptions     = null,
-                              IEnumerable<Tag>                                    StatusIndicators        = null,
-                              I18NString                                          AdditionalInfo          = null,
-                              IEnumerable<HTTPPath>                               AttachedFiles           = null,
-                              IEnumerable<AServiceTicketHistory>                  History                 = null,
+        /// <param name="DataLicenses">An enumeration of usable data licenses for this service ticket.</param>
+        public AServiceTicket(ServiceTicket_Id                     Id,
 
-                              PrivacyLevel?                                       PrivacyLevel            = null,
-                              IEnumerable<DataLicense>                            DataLicenses            = null,
-                              String                                              DataSource              = null,
+                              DateTime?                            Timestamp             = null,
+                              User                                 Author                = null,
+                              ServiceTicketStatusTypes?            Status                = null,
+                              I18NString                           Title                 = null,
+                              Affected                             Affected              = null,
+                              ServiceTicketPriorities?             Priority              = null,
+                              PrivacyLevel?                        PrivacyLevel          = null,
+                              I18NString                           Location              = null,
+                              GeoCoordinate?                       GeoLocation           = null,
+                              IEnumerable<Tag>                     ProblemDescriptions   = null,
+                              IEnumerable<Tag>                     StatusIndicators      = null,
+                              IEnumerable<Tag>                     Reactions             = null,
+                              I18NString                           AdditionalInfo        = null,
+                              IEnumerable<HTTPPath>                AttachedFiles         = null,
+                              IEnumerable<ServiceTicketReference>  TicketReferences      = null,
 
-                              UInt16                                              MaxPoolStatusListSize   = DefaultMaxStatusListSize)
+                              IEnumerable<DataLicense>             DataLicenses          = null,
+                              String                               DataSource            = null)
 
-            : base(Id,
-                   Title,
-                   Author,
-                   Status,
-                   Priority,
-                   Affected,
-                   Location,
-                   GeoLocation,
-                   ProblemDescriptions,
-                   StatusIndicators,
-                   AdditionalInfo,
-                   AttachedFiles,
-                   History,
-
-                   PrivacyLevel,
-                   DataLicenses,
-                   DataSource,
-
-                   MaxPoolStatusListSize)
+            : base (Id,
+                    DataSource)
 
         {
+
+            if (Author == null)
+                throw new ArgumentNullException(nameof(Author),  "The author of the service ticket must not be null!");
+
+            if (Title.IsNullOrEmpty())
+                throw new ArgumentNullException(nameof(Title),   "The title of the service ticket must not be null or empty!");
+
+            this.History       = new List<AServiceTicketHistory>() {
+                                     new ServiceTicketHistory(
+                                         Id:                   ServiceTicketHistory_Id.Random(),
+                                         Timestamp:            Timestamp    ?? DateTime.UtcNow,
+                                         Author:               Author,
+                                         Status:               Status       ?? ServiceTicketStatusTypes.New,
+                                         Title:                Title,
+                                         Affected:             Affected,
+                                         Priority:             Priority     ?? ServiceTicketPriorities.Normal,
+                                         PrivacyLevel:         PrivacyLevel ?? OpenData.UsersAPI.PrivacyLevel.Private,
+                                         Location:             Location,
+                                         GeoLocation:          GeoLocation,
+                                         ProblemDescriptions:  ProblemDescriptions,
+                                         StatusIndicators:     StatusIndicators,
+                                         Reactions:            Reactions,
+                                         AdditionalInfo:       AdditionalInfo,
+                                         AttachedFiles:        AttachedFiles,
+                                         TicketReferences:     TicketReferences,
+
+                                         Comment:              null,
+                                         InReplyTo:            null,
+                                         CommentReferences:    null,
+
+                                         DataLicenses:         DataLicenses,
+                                         DataSource:           DataSource)
+                                 };
+
+            this.DataLicenses  = DataLicenses ?? Array.Empty<DataLicense>();
 
         }
 
@@ -307,6 +435,20 @@ namespace social.OpenData.UsersAPI
 
         {
 
+            var Status         = ServiceTicketStatusTypes.New;
+            var StatusHistory  = new List<Timestamped<ServiceTicketStatusTypes>>();
+
+            foreach (var history in History.Reverse())
+            {
+
+                if (history.Status.HasValue && Status != history.Status)
+                    Status = history.Status.Value;
+
+                StatusHistory.Add(new Timestamped<ServiceTicketStatusTypes>(history.Timestamp, Status));
+
+            }
+
+
             var JSON = JSONObject.Create(
 
                    Id.ToJSON("@id"),
@@ -317,14 +459,15 @@ namespace social.OpenData.UsersAPI
 
                    new JProperty("title",                      Title.ToJSON()),
 
-                   new JProperty("status",                     new JObject(_StatusSchedule.
-                                                                               Where (kvp => IncludeStatus != null ? IncludeStatus(kvp.Timestamp, kvp.Value) : true).
+                   new JProperty("status",                     new JObject((StatusHistory as IEnumerable<Timestamped<ServiceTicketStatusTypes>>).
+                                                                               Reverse().
+                                                                               Where (timestamped => IncludeStatus != null ? IncludeStatus(timestamped.Timestamp, timestamped.Value) : true).
                                                                                Take  (MaxStatus).
-                                                                               Select(status => new JProperty(status.Timestamp.ToIso8601(),
-                                                                                                              status.Value.    ToString().ToLower()))
+                                                                               Select(timestamped => new JProperty(timestamped.Timestamp.ToIso8601(),
+                                                                                                                   timestamped.Value.    ToString()))
                                                                           )),
 
-                   !Affected.IsEmpty && Affected != null
+                   Affected != null && !Affected.IsEmpty
                        ? new JProperty("affected", Affected.ToJSON())
                        : null,
 
@@ -713,10 +856,167 @@ namespace social.OpenData.UsersAPI
         /// <summary>
         /// A service ticket builder.
         /// </summary>
-        public new abstract class ABuilder : AGenericServiceTicket<ServiceTicket_Id, ServiceTicketStatusTypes>.ABuilder
+        public new abstract class ABuilder
         {
 
+            #region Properties
+
+            /// <summary>
+            /// The unique identification of the service ticket.
+            /// </summary>
+            public ServiceTicket_Id             Id              { get; set; }
+
+            /// <summary>
+            /// An enumeration of changes.
+            /// </summary>
+            public List<AServiceTicketHistory>  History         { get; set; }
+
+            /// <summary>
+            /// An enumeration of usable data licenses for this service ticket.
+            /// </summary>
+            public HashSet<DataLicense>         DataLicenses    { get; set; }
+
+            /// <summary>
+            /// The source of all this data, e.g. an automatic importer.
+            /// </summary>
+            public String                       DataSource      { get; set; }
+
+
+            /// <summary>
+            /// The initial author of this service ticket.
+            /// </summary>
+            public User Author
+                => History?.LastOrDefault()?.Author;
+
+            /// <summary>
+            /// The current status of the service ticket.
+            /// </summary>
+            public Timestamped<ServiceTicketStatusTypes>? Status
+            {
+                get
+                {
+
+                    var latestStatus = History?.Where(entry => entry.Status.HasValue).
+                                                FirstOrDefault();
+
+                    return latestStatus != null
+                               ? new Timestamped<ServiceTicketStatusTypes>(latestStatus.Timestamp,
+                                                                           latestStatus.Status.Value)
+                               : new Timestamped<ServiceTicketStatusTypes>?();
+
+                }
+            }
+
+            /// <summary>
+            /// The title of the service ticket (10-200 characters).
+            /// </summary>
+            public I18NString Title
+                 => History?.Where(entry => entry.Title != null).
+                             FirstOrDefault()?.Title;
+
+            /// <summary>
+            /// Affected devices or services by this service ticket.
+            /// </summary>
+            public Affected Affected
+                => History?.Where(entry => entry.Affected != null).
+                            FirstOrDefault()?.Affected;
+
+            /// <summary>
+            /// Whether the service ticket will be shown in (public) listings.
+            /// </summary>
+            public ServiceTicketPriorities Priority
+                 => History?.Where(entry => !entry.Priority.HasValue).
+                             FirstOrDefault()?.Priority
+                    ?? ServiceTicketPriorities.Normal;
+
+            /// <summary>
+            /// Whether the service ticket history entry will be shown in (public) listings.
+            /// </summary>
+            public PrivacyLevel PrivacyLevel
+                => History?.Where(entry => !entry.PrivacyLevel.HasValue).
+                            FirstOrDefault()?.PrivacyLevel
+                   ?? PrivacyLevel.Private;
+
+            /// <summary>
+            /// The location of the problem or broken device.
+            /// </summary>
+            public I18NString Location
+                => History?.Where(entry => entry.Location != null).
+                            FirstOrDefault()?.Location;
+
+            /// <summary>
+            /// The geographical location of the problem or broken device.
+            /// </summary>
+            public GeoCoordinate? GeoLocation
+                => History?.Where(entry => !entry.GeoLocation.HasValue).
+                            FirstOrDefault()?.GeoLocation;
+
+            /// <summary>
+            /// An enumeration of well-defined problem descriptions.
+            /// </summary>
+            public IEnumerable<Tag> ProblemDescriptions
+                => History?.Where(entry => entry.ProblemDescriptions != null).
+                            FirstOrDefault()?.ProblemDescriptions;
+
+            /// <summary>
+            /// An enumeration of status indicators.
+            /// </summary>
+            public IEnumerable<Tag> StatusIndicators
+                => History?.Where(entry => entry.StatusIndicators != null).
+                            FirstOrDefault()?.StatusIndicators;
+
+            /// <summary>
+            /// An enumeration of reactions.
+            /// </summary>
+            public IEnumerable<Tag> Reactions
+                => History?.Where(entry => entry.Reactions != null).
+                            FirstOrDefault()?.Reactions;
+
+            /// <summary>
+            /// Additional multi-language information related to this service ticket.
+            /// </summary>
+            public I18NString AdditionalInfo
+                => History?.Where(entry => entry.AdditionalInfo != null).
+                            FirstOrDefault()?.AdditionalInfo;
+
+            /// <summary>
+            /// An enumeration of URLs to files attached to this service ticket history entry.
+            /// </summary>
+            public IEnumerable<HTTPPath> AttachedFiles
+                => History?.Where(entry => entry.AttachedFiles != null).
+                            FirstOrDefault()?.AttachedFiles;
+
+            /// <summary>
+            /// References to other service tickets.
+            /// </summary>
+            public IEnumerable<ServiceTicketReference> TicketReferences
+                => History?.Where(entry => entry.TicketReferences != null).
+                            FirstOrDefault()?.TicketReferences;
+
+            #endregion
+
             #region Constructor(s)
+
+            /// <summary>
+            /// Create a new service ticket builder.
+            /// </summary>
+            /// <param name="Id">The unique identification of the service ticket.</param>
+            /// <param name="History">The service ticket history.</param>
+            /// <param name="DataLicenses">An enumeration of usable data licenses for this service ticket.</param>
+            /// <param name="DataSource">The source of all this data, e.g. an automatic importer.</param>
+            public ABuilder(ServiceTicket_Id                    Id,
+                            IEnumerable<AServiceTicketHistory>  History,
+                            IEnumerable<DataLicense>            DataLicenses   = null,
+                            String                              DataSource     = null)
+
+            {
+
+                this.Id            = Id;
+                this.History       = History      != null ? new List<AServiceTicketHistory>(History)      : new List<AServiceTicketHistory>();
+                this.DataLicenses  = DataLicenses != null ? new HashSet<DataLicense>       (DataLicenses) : new HashSet<DataLicense>();
+                this.DataSource    = DataSource;
+
+            }
 
             /// <summary>
             /// Create a new service ticket builder.
@@ -739,47 +1039,57 @@ namespace social.OpenData.UsersAPI
             /// <param name="DataSource">The source of all this data, e.g. an automatic importer.</param>
             /// 
             /// <param name="MaxPoolStatusListSize">The maximum size of the status list.</param>
-            public ABuilder(ServiceTicket_Id                                          Id,
-                            I18NString                                                Title,
-                            User                                                      Author                    = null,
-                            IEnumerable<Timestamped<ServiceTicketStatusTypes>>        Status                    = null,
-                            ServiceTicketPriorities?                                  Priority                  = null,
-                            Affected                                                  Affected                  = null,
-                            I18NString                                                ProblemLocation           = null,
-                            GeoCoordinate?                                            GeoLocation               = null,
-                            IEnumerable<Tag>                                          ProblemDescriptions       = null,
-                            IEnumerable<Tag>                                          ProblemIndicators         = null,
-                            I18NString                                                AdditionalInfo            = null,
-                            IEnumerable<HTTPPath>                                     AttachedFiles             = null,
-                            IEnumerable<AServiceTicketHistory>                        History                   = null,
+            public ABuilder(ServiceTicket_Id                     Id,
 
-                            PrivacyLevel?                                             PrivacyLevel              = null,
-                            IEnumerable<DataLicense>                                  DataLicenses              = null,
-                            String                                                    DataSource                = null,
+                            DateTime?                            Timestamp             = null,
+                            User                                 Author                = null,
+                            ServiceTicketStatusTypes?            Status                = null,
+                            I18NString                           Title                 = null,
+                            Affected                             Affected              = null,
+                            ServiceTicketPriorities?             Priority              = null,
+                            PrivacyLevel?                        PrivacyLevel          = null,
+                            I18NString                           Location              = null,
+                            GeoCoordinate?                       GeoLocation           = null,
+                            IEnumerable<Tag>                     ProblemDescriptions   = null,
+                            IEnumerable<Tag>                     StatusIndicators      = null,
+                            IEnumerable<Tag>                     Reactions             = null,
+                            I18NString                           AdditionalInfo        = null,
+                            IEnumerable<HTTPPath>                AttachedFiles         = null,
+                            IEnumerable<ServiceTicketReference>  TicketReferences      = null,
 
-                            UInt16                                                    MaxPoolStatusListSize     = DefaultMaxStatusListSize)
-
-                : base(Id,
-                       Title,
-                       Author,
-                       Status,
-                       Priority,
-                       Affected,
-                       ProblemLocation,
-                       GeoLocation,
-                       ProblemDescriptions,
-                       ProblemIndicators,
-                       AdditionalInfo,
-                       AttachedFiles,
-                       History,
-
-                       PrivacyLevel,
-                       DataLicenses,
-                       DataSource,
-
-                       MaxPoolStatusListSize)
+                            IEnumerable<DataLicense>             DataLicenses          = null,
+                            String                               DataSource            = null)
 
             {
+
+                this.Id      = Id;
+
+                this.History = new List<AServiceTicketHistory>() {
+                                     new ServiceTicketHistory(
+                                         Id:                   ServiceTicketHistory_Id.Random(),
+                                         Timestamp:            Timestamp    ?? DateTime.UtcNow,
+                                         Author:               Author,
+                                         Status:               Status       ?? ServiceTicketStatusTypes.New,
+                                         Title:                Title,
+                                         Affected:             Affected,
+                                         Priority:             Priority     ?? ServiceTicketPriorities.Normal,
+                                         PrivacyLevel:         PrivacyLevel ?? OpenData.UsersAPI.PrivacyLevel.Private,
+                                         Location:             Location,
+                                         GeoLocation:          GeoLocation,
+                                         ProblemDescriptions:  ProblemDescriptions,
+                                         StatusIndicators:     StatusIndicators,
+                                         Reactions:            Reactions,
+                                         AdditionalInfo:       AdditionalInfo,
+                                         AttachedFiles:        AttachedFiles,
+                                         TicketReferences:     TicketReferences,
+
+                                         Comment:              null,
+                                         InReplyTo:            null,
+                                         CommentReferences:    null,
+
+                                         DataLicenses:         DataLicenses,
+                                         DataSource:           DataSource)
+                                 };
 
             }
 

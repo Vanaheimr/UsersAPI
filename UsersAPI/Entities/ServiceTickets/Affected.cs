@@ -445,7 +445,7 @@ namespace social.OpenData.UsersAPI
             /// </summary>
             public static implicit operator Affected(Builder Builder)
 
-                => Builder.ToImmutable;
+                => Builder?.ToImmutable;
 
 
             /// <summary>

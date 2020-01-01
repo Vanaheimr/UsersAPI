@@ -108,7 +108,7 @@ namespace social.OpenData.UsersAPI.Postings
         #region Data
 
         /// <summary>
-        /// The JSON-LD context of the object.
+        /// The JSON-LD context of this object.
         /// </summary>
         public const String JSONLDContext  = "https://opendata.social/contexts/BlogPostingsAPI+json/BlogPosting";
 
@@ -429,7 +429,7 @@ namespace social.OpenData.UsersAPI.Postings
 
                 #region Parse PrivacyLevel     [optional]
 
-                if (JSONObject.ParseOptional("privacyLevel",
+                if (JSONObject.ParseOptionalEnum("privacyLevel",
                                              "privacy level",
                                              out PrivacyLevel? PrivacyLevel,
                                              out ErrorResponse))
@@ -925,7 +925,7 @@ namespace social.OpenData.UsersAPI.Postings
             /// <param name="Builder">A Posting builder.</param>
             public static implicit operator BlogPosting(Builder Builder)
 
-                => Builder.ToImmutable;
+                => Builder?.ToImmutable;
 
 
             /// <summary>

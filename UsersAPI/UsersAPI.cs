@@ -4471,7 +4471,7 @@ namespace social.OpenData.UsersAPI
             //      -H "Content-Type: application/json; charset=utf-8" \
             //      -d "{ \
             //              \"@id\" :             \"214080158\", \
-            //              \"@context\" :        \"https://cardi-link.cloud/contexts/cardidb+json/user\", \
+            //              \"@context\" :        \"https://ld.cardilink.cloud/contexts/cardidb+json/user\", \
             //              \"description\" :     { \"deu\" : \"Test AED in Erlangen Raum Yavin 4\" },\
             //              \"dataLicenseIds\" :  [ \"ODbL\" ],\
             //              \"ownerId\" :         \"CardiLink\", \
@@ -6040,7 +6040,7 @@ namespace social.OpenData.UsersAPI
             //      -H "Accept:       application/json; charset=utf-8" \
             //      -H "Content-Type: application/json; charset=utf-8" \
             //      -d "{ \
-            //              \"@context\" :             \"https://cardi-link.cloud/contexts/cardidb+json/user\", \
+            //              \"@context\" :             \"https://ld.cardilink.cloud/contexts/cardidb+json/user\", \
             //              \"name\" :                 { \"deu\" : \"ACME Inc.\" },\
             //              \"description\" :          { \"deu\" : \"Testing123!\" },\
             //              \"parentOrganization\" :   \"GraphDefined\", \
@@ -6329,7 +6329,7 @@ namespace social.OpenData.UsersAPI
             //      -H "Content-Type: application/json; charset=utf-8" \
             //      -d "{ \
             //              \"@id\" :             \"214080158\", \
-            //              \"@context\" :        \"https://cardi-link.cloud/contexts/cardidb+json/user\", \
+            //              \"@context\" :        \"https://ld.cardilink.cloud/contexts/cardidb+json/user\", \
             //              \"description\" :     { \"deu\" : \"Test AED in Erlangen Raum Yavin 4\" },\
             //              \"dataLicenseIds\" :  [ \"ODbL\" ],\
             //              \"ownerId\" :         \"CardiLink\", \
@@ -6580,7 +6580,7 @@ namespace social.OpenData.UsersAPI
             //      -H "Content-Type: application/json; charset=utf-8" \
             //      -d "{ \
             //              \"@id\" :             \"214080158\", \
-            //              \"@context\" :        \"https://cardi-link.cloud/contexts/cardidb+json/organization\", \
+            //              \"@context\" :        \"https://ld.cardilink.cloud/contexts/cardidb+json/organization\", \
             //              \"description\" :     { \"deu\" : \"Test AED in Erlangen Raum Yavin 4\" },\
             //              \"address\" :         { \
             //                                      \"country\" :      \"Germany\",

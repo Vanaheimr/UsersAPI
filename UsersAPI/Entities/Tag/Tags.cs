@@ -530,7 +530,7 @@ namespace social.OpenData.UsersAPI
             /// </summary>
             public static implicit operator Tags(Builder Builder)
 
-                => Builder.ToImmutable;
+                => Builder?.ToImmutable;
 
 
             /// <summary>

@@ -48,6 +48,8 @@ namespace social.OpenData.UsersAPI
                                                Boolean  Embedded            = false,
                                                Boolean  IncludeCryptoHash   = true);
 
+    public delegate User OverwriteUserDelegate(User User);
+
 
     /// <summary>
     /// Extention methods for Users.
@@ -109,7 +111,7 @@ namespace social.OpenData.UsersAPI
         public const UInt16 DefaultUserStatusHistorySize = 50;
 
         /// <summary>
-        /// The JSON-LD context of the object.
+        /// The JSON-LD context of this object.
         /// </summary>
         public const String JSONLDContext  = "https://opendata.social/contexts/UsersAPI+json/user";
 
@@ -1150,7 +1152,7 @@ namespace social.OpenData.UsersAPI
 
                 #region Parse PrivacyLevel     [optional]
 
-                if (JSONObject.ParseOptional("privacyLevel",
+                if (JSONObject.ParseOptionalEnum("privacyLevel",
                                              "privacy level",
                                              out PrivacyLevel? PrivacyLevel,
                                              out ErrorResponse))
@@ -1943,7 +1945,7 @@ namespace social.OpenData.UsersAPI
             /// <param name="Builder">A user builder.</param>
             public static implicit operator User(Builder Builder)
 
-                => Builder.ToImmutable;
+                => Builder?.ToImmutable;
 
 
             /// <summary>

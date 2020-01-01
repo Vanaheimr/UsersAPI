@@ -60,7 +60,7 @@ namespace social.OpenData.UsersAPI
         #region Data
 
         /// <summary>
-        /// The JSON-LD context of the object.
+        /// The JSON-LD context of this object.
         /// </summary>
         public const String JSONLDContext = "https://opendata.social/contexts/UsersAPI+json/organizationInfo";
 
