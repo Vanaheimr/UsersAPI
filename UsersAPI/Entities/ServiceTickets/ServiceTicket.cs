@@ -47,7 +47,7 @@ namespace social.OpenData.UsersAPI
         /// <summary>
         /// The JSON-LD context of this object.
         /// </summary>
-        private const String _JSONLDContext = "https://ld.cardilink.cloud/contexts/cardidb+json/serviceTicket";
+        private const String _JSONLDContext = "https://opendata.social/contexts/UsersAPI+json/serviceTicket";
 
         #endregion
 
