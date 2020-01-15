@@ -438,6 +438,7 @@ namespace social.OpenData.UsersAPI
         //private static readonly SemaphoreSlim  NotificationsSemaphore          = new SemaphoreSlim(1, 1);
         private static readonly SemaphoreSlim  UsersSemaphore                  = new SemaphoreSlim(1, 1);
         private static readonly SemaphoreSlim  OrganizationsSemaphore          = new SemaphoreSlim(1, 1);
+        private static readonly SemaphoreSlim  DashboardsSemaphore             = new SemaphoreSlim(1, 1);
         private static readonly SemaphoreSlim  GroupsSemaphore                 = new SemaphoreSlim(1, 1);
 
         /// <summary>
@@ -12294,6 +12295,436 @@ namespace social.OpenData.UsersAPI
         /// An event sent whenever a service ticket status changed.
         /// </summary>
         public event ServiceTicketStatusChangedDelegate       OnServiceTicketStatusChanged;
+
+        #endregion
+
+        #region Dashboards
+
+        #region Data
+
+        protected readonly Dictionary<Dashboard_Id, Dashboard> _Dashboards;
+
+        /// <summary>
+        /// Return an enumeration of all dashboards.
+        /// </summary>
+        public IEnumerable<Dashboard> Dashboards
+        {
+            get
+            {
+                try
+                {
+                    DashboardsSemaphore.Wait();
+                    return _Dashboards.Values.ToArray();
+                }
+                finally
+                {
+                    DashboardsSemaphore.Release();
+                }
+
+            }
+        }
+
+        #endregion
+
+
+        #region Add           (Dashboard,                   CurrentUserId = null)
+
+        /// <summary>
+        /// Add the given dashboard to the API.
+        /// </summary>
+        /// <param name="Dashboard">A new dashboard to be added to this API.</param>
+        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
+        public async Task<Dashboard> Add(Dashboard  Dashboard,
+                                         User_Id?   CurrentUserId  = null)
+        {
+
+            try
+            {
+
+                await DashboardsSemaphore.WaitAsync();
+
+                if (Dashboard.API != null && Dashboard.API != this)
+                    throw new ArgumentException(nameof(Dashboard), "The given dashboard is already attached to another API!");
+
+                if (_Dashboards.ContainsKey(Dashboard.Id))
+                    throw new Exception("Dashboard '" + Dashboard.Id + "' already exists in this API!");
+
+                Dashboard.API = this;
+
+
+                await WriteToLogfile(NotificationMessageType.Parse("addDashboard"),
+                                     Dashboard.ToJSON(),
+                                     CurrentUserId);
+
+                var newDashboard = _Dashboards.AddAndReturnValue(Dashboard.Id, Dashboard);
+
+                return newDashboard;
+
+            }
+            finally
+            {
+                DashboardsSemaphore.Release();
+            }
+
+        }
+
+        #endregion
+
+        #region AddIfNotExists(Dashboard,                   CurrentUserId = null)
+
+        /// <summary>
+        /// When it has not been created before, add the given dashboard to the API.
+        /// </summary>
+        /// <param name="Dashboard">A new dashboard to be added to this API.</param>
+        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
+        public async Task<Dashboard> AddIfNotExists(Dashboard  Dashboard,
+                                                    User_Id?   CurrentUserId  = null)
+        {
+
+            try
+            {
+
+                await DashboardsSemaphore.WaitAsync();
+
+                if (Dashboard.API != null && Dashboard.API != this)
+                    throw new ArgumentException(nameof(Dashboard), "The given dashboard is already attached to another API!");
+
+                if (_Dashboards.ContainsKey(Dashboard.Id))
+                    return _Dashboards[Dashboard.Id];
+
+                Dashboard.API = this;
+
+                await WriteToLogfile(NotificationMessageType.Parse("addIfNotExistsDashboard"),
+                                     Dashboard.ToJSON(),
+                                     CurrentUserId);
+
+                var newDashboard = _Dashboards.AddAndReturnValue(Dashboard.Id, Dashboard);
+
+                return newDashboard;
+
+            }
+            finally
+            {
+                DashboardsSemaphore.Release();
+            }
+
+        }
+
+        #endregion
+
+        #region AddOrUpdate   (Dashboard,                   CurrentUserId = null)
+
+        /// <summary>
+        /// Add or update the given dashboard to/within the API.
+        /// </summary>
+        /// <param name="Dashboard">A dashboard.</param>
+        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
+        public async Task<Dashboard> AddOrUpdate(Dashboard  Dashboard,
+                                                 User_Id?   CurrentUserId  = null)
+        {
+
+            try
+            {
+
+                await DashboardsSemaphore.WaitAsync();
+
+                if (Dashboard.API != null && Dashboard.API != this)
+                    throw new ArgumentException(nameof(Dashboard), "The given dashboard is already attached to another API!");
+
+                if (_Dashboards.TryGetValue(Dashboard.Id, out Dashboard OldDashboard))
+                {
+                    _Dashboards.Remove(OldDashboard.Id);
+                }
+
+                Dashboard.API = this;
+
+                await WriteToLogfile(NotificationMessageType.Parse("addOrUpdateDashboard"),
+                                     Dashboard.ToJSON(),
+                                     CurrentUserId);
+
+                var newDashboard = _Dashboards.AddAndReturnValue(Dashboard.Id, Dashboard);
+
+                // ToDo: Copy edges!
+
+                return newDashboard;
+
+            }
+            finally
+            {
+                DashboardsSemaphore.Release();
+            }
+
+        }
+
+        #endregion
+
+        #region Update        (Dashboard,                   CurrentUserId = null)
+
+        /// <summary>
+        /// Update the given dashboard within the API.
+        /// </summary>
+        /// <param name="Dashboard">A dashboard.</param>
+        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
+        public async Task<Dashboard> Update(Dashboard  Dashboard,
+                                            User_Id?   CurrentUserId  = null)
+        {
+
+            try
+            {
+
+                await DashboardsSemaphore.WaitAsync();
+
+                if (Dashboard.API != null && Dashboard.API != this)
+                    throw new ArgumentException(nameof(Dashboard), "The given dashboard is already attached to another API!");
+
+                if (!_Dashboards.TryGetValue(Dashboard.Id, out Dashboard OldDashboard))
+                    throw new Exception("Dashboard '" + Dashboard.Id + "' does not exists in this API!");
+
+                else
+                {
+
+                    _Dashboards.Remove(OldDashboard.Id);
+
+                }
+
+                Dashboard.API = this;
+
+                await WriteToLogfile(NotificationMessageType.Parse("updateDashboard"),
+                                     Dashboard.ToJSON(),
+                                     CurrentUserId);
+
+                OldDashboard.CopyAllEdgesTo(Dashboard);
+
+                return _Dashboards.AddAndReturnValue(Dashboard.Id, Dashboard);
+
+            }
+            finally
+            {
+                DashboardsSemaphore.Release();
+            }
+
+        }
+
+        #endregion
+
+        #region Update        (DashboardId, UpdateDelegate, CurrentUserId = null)
+
+        /// <summary>
+        /// Update the given dashboard.
+        /// </summary>
+        /// <param name="DashboardId">An dashboard identification.</param>
+        /// <param name="UpdateDelegate">A delegate to update the given dashboard.</param>
+        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
+        public async Task<Dashboard> Update(Dashboard_Id               DashboardId,
+                                            Action<Dashboard.Builder>  UpdateDelegate,
+                                            User_Id?                   CurrentUserId  = null)
+        {
+
+            try
+            {
+
+                if (UpdateDelegate == null)
+                    throw new Exception("The given update delegate must not be null!");
+
+                await DashboardsSemaphore.WaitAsync();
+
+                if (!_Dashboards.TryGetValue(DashboardId, out Dashboard OldDashboard))
+                    throw new Exception("Dashboard '" + DashboardId + "' does not exists in this API!");
+
+                var Builder = OldDashboard.ToBuilder();
+                UpdateDelegate(Builder);
+                var NewDashboard = Builder.ToImmutable;
+
+                await WriteToLogfile(NotificationMessageType.Parse("updateDashboard"),
+                                     NewDashboard.ToJSON(),
+                                     CurrentUserId);
+
+                NewDashboard.API = this;
+
+                _Dashboards.Remove(OldDashboard.Id);
+                OldDashboard.CopyAllEdgesTo(NewDashboard);
+
+                return _Dashboards.AddAndReturnValue(NewDashboard.Id, NewDashboard);
+
+            }
+            finally
+            {
+                DashboardsSemaphore.Release();
+            }
+
+        }
+
+        #endregion
+
+
+        #region (protected internal) SetDashboardRequest (Request)
+
+        /// <summary>
+        /// An event sent whenever set dashboard (data) request was received.
+        /// </summary>
+        public event RequestLogHandler OnSetDashboardRequest;
+
+        protected internal HTTPRequest SetDashboardRequest(HTTPRequest Request)
+        {
+
+            OnSetDashboardRequest?.Invoke(Request.Timestamp,
+                                          HTTPServer,
+                                          Request);
+
+            return Request;
+
+        }
+
+        #endregion
+
+        #region (protected internal) SetDashboardResponse(Response)
+
+        /// <summary>
+        /// An event sent whenever a response on a set dashboard (data) request was sent.
+        /// </summary>
+        public event AccessLogHandler OnSetDashboardResponse;
+
+        protected internal HTTPResponse SetDashboardResponse(HTTPResponse Response)
+        {
+
+            OnSetDashboardResponse?.Invoke(Response.Timestamp,
+                                           HTTPServer,
+                                           Response.HTTPRequest,
+                                           Response);
+
+            return Response;
+
+        }
+
+        #endregion
+
+
+        #region Contains      (DashboardId)
+
+        /// <summary>
+        /// Whether this API contains a dashboard having the given unique identification.
+        /// </summary>
+        /// <param name="DashboardId">The unique identification of the dashboard.</param>
+        public Boolean Contains(Dashboard_Id DashboardId)
+        {
+
+            try
+            {
+
+                DashboardsSemaphore.Wait();
+
+                return _Dashboards.ContainsKey(DashboardId);
+
+            }
+            finally
+            {
+                DashboardsSemaphore.Release();
+            }
+
+        }
+
+        #endregion
+
+        #region Get           (DashboardId)
+
+        /// <summary>
+        /// Get the dashboard having the given unique identification.
+        /// </summary>
+        /// <param name="DashboardId">The unique identification of the dashboard.</param>
+        public async Task<Dashboard> Get(Dashboard_Id  DashboardId)
+        {
+
+            try
+            {
+
+                await DashboardsSemaphore.WaitAsync();
+
+                if (_Dashboards.TryGetValue(DashboardId, out Dashboard Dashboard))
+                    return Dashboard;
+
+                return null;
+
+            }
+            finally
+            {
+                DashboardsSemaphore.Release();
+            }
+
+        }
+
+        #endregion
+
+        #region TryGet        (DashboardId, out Dashboard)
+
+        /// <summary>
+        /// Try to get the dashboard having the given unique identification.
+        /// </summary>
+        /// <param name="DashboardId">The unique identification of the dashboard.</param>
+        /// <param name="Dashboard">The dashboard.</param>
+        public Boolean TryGet(Dashboard_Id   DashboardId,
+                              out Dashboard  Dashboard)
+        {
+
+            try
+            {
+
+                DashboardsSemaphore.Wait();
+
+                return _Dashboards.TryGetValue(DashboardId, out Dashboard);
+
+            }
+            finally
+            {
+                DashboardsSemaphore.Release();
+            }
+
+        }
+
+        #endregion
+
+
+        #region Remove        (DashboardId,                 CurrentUserId = null)
+
+        /// <summary>
+        /// Remove the given dashboard from this API.
+        /// </summary>
+        /// <param name="DashboardId">The unique identification of the dashboard.</param>
+        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
+        public async Task<Dashboard> Remove(Dashboard_Id  DashboardId,
+                                            User_Id?      CurrentUserId  = null)
+        {
+
+            try
+            {
+
+                await DashboardsSemaphore.WaitAsync();
+
+                if (_Dashboards.TryGetValue(DashboardId, out Dashboard Dashboard))
+                {
+
+                    await WriteToLogfile(NotificationMessageType.Parse("removeDashboard"),
+                                         Dashboard.ToJSON(),
+                                         CurrentUserId);
+
+                    _Dashboards.Remove(DashboardId);
+
+                    //Dashboard.API = null;
+
+                    return Dashboard;
+
+                }
+
+                return null;
+
+            }
+            finally
+            {
+                DashboardsSemaphore.Release();
+            }
+
+        }
+
+        #endregion
 
         #endregion
 

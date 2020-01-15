@@ -51,6 +51,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CommonTypes\ParcelTracking_Id.cs" />
+    <Compile Include="Entities\Dashboard\Dashboard.cs" />
+    <Compile Include="Entities\Dashboard\Dashboard_Id.cs" />
     <Compile Include="Entities\Notification\NotificationMessageGroupId.cs" />
     <Compile Include="Entities\Notification\TelegramGroupNotification.cs" />
     <Compile Include="Entities\Notification\TelegramNotification.cs" />
