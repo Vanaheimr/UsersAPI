@@ -3614,7 +3614,7 @@ namespace social.OpenData.UsersAPI
 
 
                                              var includeFilter           = Request.QueryString.CreateStringFilter<User>("include",
-                                                                                                                        (user, include) => user.Id.ToString().Contains(include) ||
+                                                                                                                        (user, include) => user.Id.  IndexOf(include)                                     >= 0 ||
                                                                                                                                            user.Name.IndexOf(include, StringComparison.OrdinalIgnoreCase) >= 0 ||
                                                                                                                                            user.Description.Matches(include, IgnoreCase: true));
 
@@ -5938,7 +5938,7 @@ namespace social.OpenData.UsersAPI
                                              #endregion
 
                                              var includeFilter           = Request.QueryString.CreateStringFilter<Organization>("include",
-                                                                                                                                (organization, include) => organization.Id.ToString().Contains(include) ||
+                                                                                                                                (organization, include) => organization.Id.         IndexOf(include)               > 0 ||
                                                                                                                                                            organization.Name.       Matches(include, IgnoreCase: true) ||
                                                                                                                                                            organization.Description.Matches(include, IgnoreCase: true));
 

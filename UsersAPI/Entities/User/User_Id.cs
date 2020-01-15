@@ -307,6 +307,24 @@ namespace social.OpenData.UsersAPI
         #endregion
 
 
+        #region IndexOf(Text)
+
+        /// <summary>
+        /// Reports the zero-based index of the first occurrence of the specified string
+        /// in the current System.String object. A parameter specifies the type of search
+        /// to use for the specified string.
+        /// </summary>
+        /// <param name="Text">The string to seek.</param>
+        /// <returns>
+        /// The index position of the value parameter if that string is found, or -1 if it
+        /// is not. If value is System.String.Empty, the return value is 0.
+        /// </returns>
+        public Int32 IndexOf(String Text)
+            => InternalId.IndexOf(Text, StringComparison.OrdinalIgnoreCase);
+
+        #endregion
+
+
         #region Operator overloading
 
         #region Operator == (UserId1, UserId2)
