@@ -4432,6 +4432,7 @@ namespace social.OpenData.UsersAPI
 
                                              #endregion
 
+                                             //var AllMyOrganizations = new OrganizationInfo(NoOwner, HTTPUser).Childs;
 
                                              return Task.FromResult(
                                                               new HTTPResponse.Builder(Request) {
@@ -5777,8 +5778,6 @@ namespace social.OpenData.UsersAPI
                                                                                   Connection                 = "close",
                                                                                   Vary                       = "Accept"
                                                                               }.AsImmutable);
-
-
 
             });
 

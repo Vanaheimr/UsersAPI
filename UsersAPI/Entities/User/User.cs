@@ -880,8 +880,26 @@ namespace social.OpenData.UsersAPI
         /// </summary>
         /// <param name="Embedded">Whether this data is embedded into another data structure.</param>
         /// <param name="IncludeCryptoHash">Include the crypto hash value of this object.</param>
-        public override JObject ToJSON(Boolean     Embedded             = false,
-                                       Boolean     IncludeCryptoHash    = false)
+        public override JObject ToJSON(Boolean Embedded           = false,
+                                       Boolean IncludeCryptoHash  = false)
+
+            => ToJSON(Embedded,
+                      InfoStatus.Hidden,
+                      InfoStatus.Hidden,
+                      false);
+
+
+        /// <summary>
+        /// Return a JSON representation of this object.
+        /// </summary>
+        /// <param name="Embedded">Whether this data is embedded into another data structure.</param>
+        /// <param name="ExpandOrganizations">Whether to expand the organizations this user is a member of.</param>
+        /// <param name="ExpandGroups">Whether to expand the groups this user is a member of.</param>
+        /// <param name="IncludeCryptoHash">Include the crypto hash value of this object.</param>
+        public JObject ToJSON(Boolean     Embedded               = false,
+                              InfoStatus  ExpandOrganizations   = InfoStatus.Hidden,
+                              InfoStatus  ExpandGroups          = InfoStatus.Hidden,
+                              Boolean     IncludeCryptoHash      = false)
 
             => JSONObject.Create(
 
@@ -928,7 +946,12 @@ namespace social.OpenData.UsersAPI
                    new JProperty("isAuthenticated",      IsAuthenticated),
                    new JProperty("isDisabled",           IsDisabled),
 
-                   new JProperty("signatures",           new JArray()),
+                   //new JProperty("signatures",           new JArray()),
+
+                   //ExpandOrganizations.Switch(
+                   //    () => new JProperty("organizationIds",   Owner.Id.ToString()),
+                   //    () => new JProperty("organizations",     Owner.ToJSON())),
+
 
                    IncludeCryptoHash
                        ? new JProperty("hash", CurrentCryptoHash)
