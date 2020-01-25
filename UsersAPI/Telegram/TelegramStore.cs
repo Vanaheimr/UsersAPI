@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright (c) 2014-2019, Achim 'ahzf' Friedland <achim@graphdefined.org>
+ * Copyright (c) 2014-2020, Achim 'ahzf' Friedland <achim@graphdefined.org>
  * This file is part of OpenDataAPI <http://www.github.com/GraphDefined/OpenDataAPI>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,11 +18,14 @@
 #region Usings
 
 using System;
-using System.Collections.Generic;
 using System.IO;
-using org.GraphDefined.Vanaheimr.Hermod.HTTP;
-using org.GraphDefined.Vanaheimr.Illias;
+using System.Linq;
+using System.Threading.Tasks;
+using System.Collections.Generic;
+
 using Telegram.Bot;
+
+using org.GraphDefined.Vanaheimr.Illias;
 
 #endregion
 
@@ -35,24 +38,27 @@ namespace social.OpenData.UsersAPI
         public class TelegramUser
         {
 
-            public Int32   UserId       { get; }
-            public String  Username     { get; }
-            public String  Firstname    { get; }
-            public String  Lastname     { get; }
-            public Int64   ChatId       { get; }
+            public Int32      UserId               { get; }
+            public String     Username             { get; }
+            public String     Firstname            { get; }
+            public String     Lastname             { get; }
+            public Int64      ChatId               { get; }
+            public Languages  PreferredLanguage    { get; }
 
-            public TelegramUser(Int32   UserId,
-                                String  Username,
-                                String  Firstname,
-                                String  Lastname,
-                                Int64   ChatId)
+            public TelegramUser(Int32      UserId,
+                                String     Username,
+                                String     Firstname,
+                                String     Lastname,
+                                Int64      ChatId,
+                                Languages  PreferredLanguage = Languages.eng)
             {
 
-                this.UserId     = UserId;
-                this.Username   = Username;
-                this.Firstname  = Firstname;
-                this.Lastname   = Lastname;
-                this.ChatId     = ChatId;
+                this.UserId             = UserId;
+                this.Username           = Username;
+                this.Firstname          = Firstname;
+                this.Lastname           = Lastname;
+                this.ChatId             = ChatId;
+                this.PreferredLanguage  = PreferredLanguage;
 
             }
 
@@ -73,6 +79,36 @@ namespace social.OpenData.UsersAPI
                 this.ChatId      = ChatId;
                 this.Title       = Title;
                 this.InviteLink  = InviteLink;
+
+            }
+
+        }
+
+
+        public class MessageEnvelop
+        {
+
+            public String                      Username       { get; }
+            public Int64?                      ChatId     { get; }
+            public Telegram.Bot.Types.Message  Message    { get; }
+
+            public MessageEnvelop(String                      User,
+                                  Telegram.Bot.Types.Message  Message)
+            {
+
+                this.Username     = User;
+                this.Message  = Message;
+
+            }
+
+            public MessageEnvelop(String                      User,
+                                  Int64?                      ChatId,
+                                  Telegram.Bot.Types.Message  Message)
+            {
+
+                this.Username     = User;
+                this.ChatId   = ChatId;
+                this.Message  = Message;
 
             }
 
@@ -104,6 +140,29 @@ namespace social.OpenData.UsersAPI
         /// The linked UsersAPI.
         /// </summary>
         public UsersAPI  UsersAPI  { get; }
+
+        #endregion
+
+        #region Events
+
+        public delegate Task OnSendTelegramRequestDelegate (DateTime                      LogTimestamp,
+                                                            TelegramStore                 Sender,
+                                                            EventTracking_Id              EventTrackingId,
+                                                            I18NString                    Message,
+                                                            IEnumerable<String>           Usernames);
+
+        public event OnSendTelegramRequestDelegate OnSendTelegramRequest;
+
+
+        public delegate Task OnSendTelegramResponseDelegate(DateTime                      LogTimestamp,
+                                                            TelegramStore                 Sender,
+                                                            EventTracking_Id              EventTrackingId,
+                                                            I18NString                    Message,
+                                                            IEnumerable<String>           Usernames,
+                                                            IEnumerable<MessageEnvelop>   Responses,
+                                                            TimeSpan                      Runtime);
+
+        public event OnSendTelegramResponseDelegate OnSendTelegramResponse;
 
         #endregion
 
@@ -382,22 +441,450 @@ namespace social.OpenData.UsersAPI
         }
 
 
-        public async void SendTelegram(String               MessageText,
-                                       IEnumerable<String>  Usernames)
+
+        #region SendTelegram (Message, Username)
+
+        /// <summary>
+        /// Send a Telegram to the given user.
+        /// </summary>
+        /// <param name="Message">The text of the message.</param>
+        /// <param name="Username">The name of the user.</param>
+        public async Task<MessageEnvelop> SendTelegram(String  Message,
+                                                       String  Username)
         {
+
+            #region Initial checks
+
+            Message   = Message?.Trim();
+            Username  = Username?.Trim();
+
+            if (Message.IsNullOrEmpty())
+                throw new ArgumentNullException(nameof(Message),   "The given message must not be null or empty!");
+
+            if (Username.IsNullOrEmpty())
+                throw new ArgumentNullException(nameof(Username),  "The given username must not be null or empty!");
+
+            MessageEnvelop responseMessage;
+
+            #endregion
+
+            var eventTrackingId  = EventTracking_Id.New;
+            var message          = I18NString.Create(Languages.eng, Message);
+            var usernames        = new String[] { Username };
+
+            #region Send OnSendTelegramRequest event
+
+            var StartTime = DateTime.UtcNow;
+
+            try
+            {
+
+                if (OnSendTelegramRequest != null)
+                    await Task.WhenAll(OnSendTelegramRequest.GetInvocationList().
+                                       Cast<OnSendTelegramRequestDelegate>().
+                                       Select(e => e(StartTime,
+                                                     this,
+                                                     eventTrackingId,
+                                                     message,
+                                                     usernames))).
+                                       ConfigureAwait(false);
+
+            }
+            catch (Exception e)
+            {
+                e.Log(nameof(TelegramStore) + "." + nameof(OnSendTelegramRequest));
+            }
+
+            #endregion
+
+
+            if (UserByUsername.TryGetValue(Username, out TelegramUser User))
+            {
+                responseMessage = new MessageEnvelop(Username,
+                                                     User.ChatId,
+                                                     await TelegramAPI.SendTextMessageAsync(
+                                                                           ChatId:  User.ChatId,
+                                                                           Text:    Message
+                                                                       ));
+            }
+
+            else
+                responseMessage = new MessageEnvelop(Username,
+                                                     new Telegram.Bot.Types.Message() {
+                                                         Text = "Unknown Telegram user '" + Username + "'!"
+                                                     });
+
+
+            #region Send OnSendTelegramResponse event
+
+            var Endtime = DateTime.UtcNow;
+
+            try
+            {
+
+                if (OnSendTelegramResponse != null)
+                    await Task.WhenAll(OnSendTelegramResponse.GetInvocationList().
+                                       Cast<OnSendTelegramResponseDelegate>().
+                                       Select(e => e(Endtime,
+                                                     this,
+                                                     eventTrackingId,
+                                                     message,
+                                                     usernames,
+                                                     new MessageEnvelop[] { responseMessage },
+                                                     Endtime - StartTime))).
+                                       ConfigureAwait(false);
+
+            }
+            catch (Exception e)
+            {
+                e.Log(nameof(TelegramStore) + "." + nameof(OnSendTelegramResponse));
+            }
+
+            #endregion
+
+            return responseMessage;
+
+        }
+
+
+        /// <summary>
+        /// Send a multi-language Telegram to the given user in his/her preferred language.
+        /// </summary>
+        /// <param name="Message">The  multi-language text of the message.</param>
+        /// <param name="Username">The name of the user.</param>
+        public async Task<MessageEnvelop> SendTelegram(I18NString  Message,
+                                                       String      Username)
+        {
+
+            #region Initial checks
+
+            Username  = Username?.Trim();
+
+            if (Message.IsNullOrEmpty())
+                throw new ArgumentNullException(nameof(Message),   "The given message must not be null or empty!");
+
+            if (Username.IsNullOrEmpty())
+                throw new ArgumentNullException(nameof(Username),  "The given username must not be null or empty!");
+
+            MessageEnvelop responseMessage;
+
+            #endregion
+
+            var eventTrackingId  = EventTracking_Id.New;
+            var usernames        = new String[] { Username };
+
+            #region Send OnSendTelegramRequest event
+
+            var StartTime = DateTime.UtcNow;
+
+            try
+            {
+
+                if (OnSendTelegramRequest != null)
+                    await Task.WhenAll(OnSendTelegramRequest.GetInvocationList().
+                                       Cast<OnSendTelegramRequestDelegate>().
+                                       Select(e => e(StartTime,
+                                                     this,
+                                                     eventTrackingId,
+                                                     Message,
+                                                     usernames))).
+                                       ConfigureAwait(false);
+
+            }
+            catch (Exception e)
+            {
+                e.Log(nameof(TelegramStore) + "." + nameof(OnSendTelegramRequest));
+            }
+
+            #endregion
+
+
+            if (UserByUsername.TryGetValue(Username, out TelegramUser User))
+                responseMessage = new MessageEnvelop(Username,
+                                                     User.ChatId,
+                                                     await TelegramAPI.SendTextMessageAsync(
+                                                                           ChatId:  User.ChatId,
+                                                                           Text:    Message[User.PreferredLanguage] ?? Message[Languages.eng]
+                                                                       ));
+
+            else
+                responseMessage = new MessageEnvelop(Username,
+                                                     new Telegram.Bot.Types.Message() {
+                                                         Text = "Unknown Telegram user '" + Username + "'!"
+                                                     });
+
+
+            #region Send OnSendTelegramResponse event
+
+            var Endtime = DateTime.UtcNow;
+
+            try
+            {
+
+                if (OnSendTelegramResponse != null)
+                    await Task.WhenAll(OnSendTelegramResponse.GetInvocationList().
+                                       Cast<OnSendTelegramResponseDelegate>().
+                                       Select(e => e(Endtime,
+                                                     this,
+                                                     eventTrackingId,
+                                                     Message,
+                                                     usernames,
+                                                     new MessageEnvelop[] { responseMessage },
+                                                     Endtime - StartTime))).
+                                       ConfigureAwait(false);
+
+            }
+            catch (Exception e)
+            {
+                e.Log(nameof(TelegramStore) + "." + nameof(OnSendTelegramResponse));
+            }
+
+            #endregion
+
+            return responseMessage;
+
+        }
+
+        #endregion
+
+        #region SendTelegrams(Message, Usernames)
+
+        /// <summary>
+        /// Send a Telegram to the given users.
+        /// </summary>
+        /// <param name="Message">The text of the message.</param>
+        /// <param name="Usernames">An enumeration of usernames.</param>
+        public Task<IEnumerable<MessageEnvelop>> SendTelegrams(String           Message,
+                                                               params String[]  Usernames)
+
+            => SendTelegrams(Message, Usernames as IEnumerable<String>);
+
+
+        /// <summary>
+        /// Send a Telegram to the given users.
+        /// </summary>
+        /// <param name="Message">The text of the message.</param>
+        /// <param name="Usernames">An enumeration of usernames.</param>
+        public async Task<IEnumerable<MessageEnvelop>> SendTelegrams(String               Message,
+                                                                     IEnumerable<String>  Usernames)
+        {
+
+            #region Initial checks
+
+            Message    = Message?.Trim();
+            Usernames  = Usernames.SafeSelect(username => username?.Trim()).
+                                   SafeWhere (username => !username.IsNullOrEmpty()).
+                                   ToArray();
+
+            if (Message.IsNullOrEmpty())
+                throw new ArgumentNullException(nameof(Message),    "The given message must not be null or empty!");
+
+            if (Usernames.IsNullOrEmpty())
+                throw new ArgumentNullException(nameof(Usernames),  "The given enumeration of usernames must not be null or empty!");
+
+            var responseMessages = new List<MessageEnvelop>();
+
+            #endregion
+
+            var eventTrackingId  = EventTracking_Id.New;
+            var message          = I18NString.Create(Languages.eng, Message);
+
+            #region Send OnSendTelegramRequest event
+
+            var StartTime = DateTime.UtcNow;
+
+            try
+            {
+
+                if (OnSendTelegramRequest != null)
+                    await Task.WhenAll(OnSendTelegramRequest.GetInvocationList().
+                                       Cast<OnSendTelegramRequestDelegate>().
+                                       Select(e => e(StartTime,
+                                                     this,
+                                                     eventTrackingId,
+                                                     message,
+                                                     Usernames))).
+                                       ConfigureAwait(false);
+
+            }
+            catch (Exception e)
+            {
+                e.Log(nameof(TelegramStore) + "." + nameof(OnSendTelegramRequest));
+            }
+
+            #endregion
+
 
             foreach (var username in Usernames)
             {
+
                 if (UserByUsername.TryGetValue(username, out TelegramUser User))
-                {
-                    await this.TelegramAPI.SendTextMessageAsync(
-                        chatId:  User.ChatId,
-                        text:    MessageText
-                    );
-                }
+                    responseMessages.Add(new MessageEnvelop(username,
+                                                            User.ChatId,
+                                                            await TelegramAPI.SendTextMessageAsync(
+                                                                                  ChatId:  User.ChatId,
+                                                                                  Text:    Message
+                                                                              )));
+
+                else
+                    responseMessages.Add(new MessageEnvelop(username,
+                                                            new Telegram.Bot.Types.Message() {
+                                                                Text = "Unknown Telegram user '" + username + "'!"
+                                                            }));
+
             }
 
+
+            #region Send OnSendTelegramResponse event
+
+            var Endtime = DateTime.UtcNow;
+
+            try
+            {
+
+                if (OnSendTelegramResponse != null)
+                    await Task.WhenAll(OnSendTelegramResponse.GetInvocationList().
+                                       Cast<OnSendTelegramResponseDelegate>().
+                                       Select(e => e(Endtime,
+                                                     this,
+                                                     eventTrackingId,
+                                                     message,
+                                                     Usernames,
+                                                     responseMessages,
+                                                     Endtime - StartTime))).
+                                       ConfigureAwait(false);
+
+            }
+            catch (Exception e)
+            {
+                e.Log(nameof(TelegramStore) + "." + nameof(OnSendTelegramResponse));
+            }
+
+            #endregion
+
+            return responseMessages;
+
         }
+
+
+
+        /// <summary>
+        /// Send a multi-language Telegram to the given users in their preferred language.
+        /// </summary>
+        /// <param name="Message">The multi-language text of the message.</param>
+        /// <param name="Usernames">An enumeration of usernames.</param>
+        public Task<IEnumerable<MessageEnvelop>> SendTelegram(I18NString       Message,
+                                                              params String[]  Usernames)
+
+            => SendTelegram(Message, Usernames as IEnumerable<String>);
+
+
+        /// <summary>
+        /// Send a multi-language Telegram to the given users in their preferred language.
+        /// </summary>
+        /// <param name="Message">The multi-language text of the message.</param>
+        /// <param name="Usernames">An enumeration of usernames.</param>
+        public async Task<IEnumerable<MessageEnvelop>> SendTelegram(I18NString           Message,
+                                                                    IEnumerable<String>  Usernames)
+        {
+
+            #region Initial checks
+
+            Usernames  = Usernames.SafeSelect(username => username?.Trim()).
+                                   SafeWhere (username => !username.IsNullOrEmpty()).
+                                   ToArray();
+
+            if (Message.IsNullOrEmpty())
+                throw new ArgumentNullException(nameof(Message),    "The given message must not be null or empty!");
+
+            if (Usernames.IsNullOrEmpty())
+                throw new ArgumentNullException(nameof(Usernames),  "The given enumeration of usernames must not be null or empty!");
+
+            var responseMessages = new List<MessageEnvelop>();
+
+            #endregion
+
+            var eventTrackingId  = EventTracking_Id.New;
+
+            #region Send OnSendTelegramRequest event
+
+            var StartTime = DateTime.UtcNow;
+
+            try
+            {
+
+                if (OnSendTelegramRequest != null)
+                    await Task.WhenAll(OnSendTelegramRequest.GetInvocationList().
+                                       Cast<OnSendTelegramRequestDelegate>().
+                                       Select(e => e(StartTime,
+                                                     this,
+                                                     eventTrackingId,
+                                                     Message,
+                                                     Usernames))).
+                                       ConfigureAwait(false);
+
+            }
+            catch (Exception e)
+            {
+                e.Log(nameof(TelegramStore) + "." + nameof(OnSendTelegramRequest));
+            }
+
+            #endregion
+
+
+            foreach (var username in Usernames)
+            {
+
+                if (UserByUsername.TryGetValue(username, out TelegramUser User))
+                    responseMessages.Add(new MessageEnvelop(username,
+                                                            User.ChatId,
+                                                            await TelegramAPI.SendTextMessageAsync(
+                                                                                  ChatId:  User.ChatId,
+                                                                                  Text:    Message[User.PreferredLanguage] ?? Message[Languages.eng]
+                                                                              )));
+
+                else
+                    responseMessages.Add(new MessageEnvelop(username,
+                                                            new Telegram.Bot.Types.Message() {
+                                                                Text = "Unknown Telegram user '" + username + "'!"
+                                                            }));
+
+            }
+
+
+            #region Send OnSendTelegramResponse event
+
+            var Endtime = DateTime.UtcNow;
+
+            try
+            {
+
+                if (OnSendTelegramResponse != null)
+                    await Task.WhenAll(OnSendTelegramResponse.GetInvocationList().
+                                       Cast<OnSendTelegramResponseDelegate>().
+                                       Select(e => e(Endtime,
+                                                     this,
+                                                     eventTrackingId,
+                                                     Message,
+                                                     Usernames,
+                                                     responseMessages,
+                                                     Endtime - StartTime))).
+                                       ConfigureAwait(false);
+
+            }
+            catch (Exception e)
+            {
+                e.Log(nameof(TelegramStore) + "." + nameof(OnSendTelegramResponse));
+            }
+
+            #endregion
+
+            return responseMessages;
+
+        }
+
+        #endregion
+
 
     }
 

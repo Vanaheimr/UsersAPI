@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright (c) 2014-2019, Achim 'ahzf' Friedland <achim@graphdefined.org>
+ * Copyright (c) 2014-2020, Achim 'ahzf' Friedland <achim@graphdefined.org>
  * This file is part of OpenDataAPI <http://www.github.com/GraphDefined/OpenDataAPI>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -516,6 +516,10 @@ namespace social.OpenData.UsersAPI
         //public IEnumerable<NotificationMessage> NotificationMessages
         //    => _NotificationMessages;
 
+
+        private static readonly SemaphoreSlim  SMTPLogSemaphore                = new SemaphoreSlim(1, 1);
+        private static readonly SemaphoreSlim  TelegramLogSemaphore            = new SemaphoreSlim(1, 1);
+
         #endregion
 
         #region (static) NotificationMessageTypes
@@ -540,7 +544,9 @@ namespace social.OpenData.UsersAPI
         public String                    HTTPResponsesPath          { get; }
         public String                    NotificationsPath          { get; }
         public String                    MetricsPath                { get; }
-
+        public String                    SMTPLoggingPath            { get; }
+        public String                    TelegramLoggingPath        { get; }
+        public String                    SMSAPILoggingPath          { get; }
         public String                    ServiceTicketsPath         { get; }
 
         /// <summary>
@@ -1800,8 +1806,11 @@ namespace social.OpenData.UsersAPI
             this.HTTPRequestsPath             = this.LoggingPath + "HTTPRequests"   + Path.DirectorySeparatorChar;
             this.HTTPResponsesPath            = this.LoggingPath + "HTTPResponses"  + Path.DirectorySeparatorChar;
             this.HTTPSSEPath                  = this.LoggingPath + "HTTPSSEs"       + Path.DirectorySeparatorChar;
-            this.NotificationsPath            = this.LoggingPath + "Notifications"  + Path.DirectorySeparatorChar;
             this.MetricsPath                  = this.LoggingPath + "Metrics"        + Path.DirectorySeparatorChar;
+            this.NotificationsPath            = this.LoggingPath + "Notifications"  + Path.DirectorySeparatorChar;
+            this.TelegramLoggingPath          = this.LoggingPath + "Telegram"       + Path.DirectorySeparatorChar;
+            this.SMTPLoggingPath              = this.LoggingPath + "SMTPClient"     + Path.DirectorySeparatorChar;
+            this.SMSAPILoggingPath            = this.LoggingPath + "SMSAPIClient"   + Path.DirectorySeparatorChar;
             this.ServiceTicketsPath           = this.LoggingPath + "ServiceTickets" + Path.DirectorySeparatorChar;
 
             if (!DisableLogfile)
@@ -1811,8 +1820,11 @@ namespace social.OpenData.UsersAPI
                 Directory.CreateDirectory(this.HTTPRequestsPath);
                 Directory.CreateDirectory(this.HTTPResponsesPath);
                 Directory.CreateDirectory(this.HTTPSSEPath);
-                Directory.CreateDirectory(this.NotificationsPath);
                 Directory.CreateDirectory(this.MetricsPath);
+                Directory.CreateDirectory(this.NotificationsPath);
+                Directory.CreateDirectory(this.TelegramLoggingPath);
+                Directory.CreateDirectory(this.SMTPLoggingPath);
+                Directory.CreateDirectory(this.SMSAPILoggingPath);
                 Directory.CreateDirectory(this.ServiceTicketsPath);
             }
 
@@ -1900,17 +1912,187 @@ namespace social.OpenData.UsersAPI
                 this.APIAdminSMS        = APIAdminSMS;
             }
 
+            #region Setup SMSAPI logging
+
+            if (SMSAPICredentials != null && !DisableLogfile)
+            {
+
+                _SMSAPI.OnSendSMSAPIResponse += async (LogTimestamp,
+                                                       Sender,
+                                                       EventTrackingId,
+                                                       Command,
+                                                       Data,
+                                                       RequestTimeout,
+                                                       Result,
+                                                       Runtime) =>
+                {
+
+                    var success = await SMTPLogSemaphore.WaitAsync(TimeSpan.FromSeconds(60));
+
+                    if (success)
+                    {
+                        try
+                        {
+
+                            var LogLine = String.Concat(LogTimestamp.   ToIso8601(),                                        US,
+                                                        EventTrackingId.ToString(),                                         US,
+                                                        Command,                                                            US,
+                                                        Data.                    ToString(Newtonsoft.Json.Formatting.None), US,
+                                                        Result.         ToJSON().ToString(Newtonsoft.Json.Formatting.None), US,
+                                                        Runtime.TotalMilliseconds);
+
+                            Console.WriteLine(LogLine);
+
+                            File.AppendAllText(String.Concat(this.SMSAPILoggingPath + Path.DirectorySeparatorChar +
+                                                             "SMSAPIResponses_",
+                                                             DateTime.Now.Year, "-",
+                                                             DateTime.Now.Month.ToString("D2"),
+                                                             ".log"),
+                                               LogLine + Environment.NewLine);
+
+                        }
+                        catch (Exception e)
+                        {
+                            DebugX.Log(e.Message);
+                        }
+                        finally
+                        {
+                            SMTPLogSemaphore.Release();
+                        }
+                    }
+
+                    await Task.Delay(0).ConfigureAwait(false);
+
+                };
+
+            }
+
+            #endregion
+
+            #region Setup SMTP logging
+
+            if (this.APISMTPClient != null && !DisableLogfile)
+            {
+
+                APISMTPClient.OnSendEMailResponse += async (LogTimestamp,
+                                                            Sender,
+                                                            EventTrackingId,
+                                                            EMailEnvelop,
+                                                            RequestTimeout,
+                                                            Result,
+                                                            Runtime) =>
+                {
+
+                    var success = await SMTPLogSemaphore.WaitAsync(TimeSpan.FromSeconds(60));
+
+                    if (success)
+                    {
+                        try
+                        {
+
+                            var LogLine = String.Concat(LogTimestamp.       ToIso8601(),        US,
+                                                        EventTrackingId.    ToString(),         US,
+                                                        EMailEnvelop.Mail.Subject,              US,
+                                                        EMailEnvelop.RcptTo.AggregateWith(" "), US,
+                                                        Result.             ToString(),         US,
+                                                        Runtime.TotalMilliseconds);
+
+                            Console.WriteLine(LogLine);
+
+                            File.AppendAllText(String.Concat(this.SMTPLoggingPath + Path.DirectorySeparatorChar +
+                                                             "SMTPResponses_",
+                                                             DateTime.Now.Year, "-",
+                                                             DateTime.Now.Month.ToString("D2"),
+                                                             ".log"),
+                                               LogLine + Environment.NewLine);
+
+                        }
+                        catch (Exception e)
+                        {
+                            DebugX.Log(e.Message);
+                        }
+                        finally
+                        {
+                            SMTPLogSemaphore.Release();
+                        }
+                    }
+
+                    await Task.Delay(0).ConfigureAwait(false);
+
+                };
+
+            }
+
+            #endregion
+
+            #region Setup Telegram Bot and logging
+
             this.TelegramBotToken       = TelegramBotToken;
 
             if (this.TelegramBotToken.IsNeitherNullNorEmpty())
             {
+
                 this.TelegramAPI        = new TelegramBotClient(this.TelegramBotToken);
                 this.TelegramStore      = new TelegramStore    (this.TelegramAPI);
                 this.TelegramAPI.OnMessage += TelegramStore.ReceiveTelegramMessage;
                 this.TelegramAPI.OnMessage += ReceiveTelegramMessage;
                 this.TelegramAPI.StartReceiving();
+
+                if (!DisableLogfile)
+                {
+
+                    TelegramStore.OnSendTelegramResponse += async (LogTimestamp,
+                                                                   Sender,
+                                                                   EventTrackingId,
+                                                                   Message,
+                                                                   Usernames,
+                                                                   Responses,
+                                                                   Runtime) =>
+                    {
+
+                        var success = await TelegramLogSemaphore.WaitAsync(TimeSpan.FromSeconds(60));
+
+                        if (success)
+                        {
+                            try
+                            {
+
+                                var LogLine = String.Concat(LogTimestamp.        ToIso8601(),                                US,
+                                                            EventTrackingId.     ToString(),                                 US,
+                                                            Message.ToJSON().    ToString(Newtonsoft.Json.Formatting.None),  US,
+                                                            new JArray(Responses.SafeSelect(response => new JArray(response.Username, response.ChatId))).
+                                                                                 ToString(Newtonsoft.Json.Formatting.None),  US,
+                                                            Runtime.TotalMilliseconds);
+
+                                Console.WriteLine(LogLine);
+
+                                File.AppendAllText(String.Concat(this.TelegramLoggingPath + Path.DirectorySeparatorChar +
+                                                                 "TelegramMessageResponses_",
+                                                                 DateTime.Now.Year, "-",
+                                                                 DateTime.Now.Month.ToString("D2"),
+                                                                 ".log"),
+                                                   LogLine + Environment.NewLine);
+
+                            }
+                            catch (Exception e)
+                            {
+                                DebugX.Log(e.Message);
+                            }
+                            finally
+                            {
+                                TelegramLogSemaphore.Release();
+                            }
+                        }
+
+                        await Task.Delay(0).ConfigureAwait(false);
+
+                    };
+
+                }
+
             }
 
+            #endregion
 
             this.Warden = new Warden(InitialDelay: TimeSpan.FromMinutes(3));
 
@@ -8691,15 +8873,15 @@ namespace social.OpenData.UsersAPI
 
                     case "/system":
                         await this.TelegramAPI.SendTextMessageAsync(
-                            chatId:  e.Message.Chat,
-                            text:    "I'm running on: " + Environment.MachineName + " and use " + (Environment.WorkingSet / 1024 /1024) + " MBytes RAM"
+                            ChatId:  e.Message.Chat,
+                            Text:    "I'm running on: " + Environment.MachineName + " and use " + (Environment.WorkingSet / 1024 /1024) + " MBytes RAM"
                         );
                         break;
 
                     case "/echo":
                         await this.TelegramAPI.SendTextMessageAsync(
-                            chatId:  e.Message.Chat,
-                            text:    "Hello " + e.Message.From.FirstName + " " + e.Message.From.LastName + "!\nYou said:\n" + e.Message.Text
+                            ChatId:  e.Message.Chat,
+                            Text:    "Hello " + e.Message.From.FirstName + " " + e.Message.From.LastName + "!\nYou said:\n" + e.Message.Text
                         );
                         break;
 
@@ -11576,7 +11758,7 @@ namespace social.OpenData.UsersAPI
                     if (AllTelegramNotifications.Count > 0)
                     {
 
-                        TelegramStore.SendTelegram("ServiceTicket '" + ServiceTicket.Id + "' sent '" + MessageType + "'!",
+                        TelegramStore.SendTelegrams("ServiceTicket '" + ServiceTicket.Id + "' sent '" + MessageType + "'!",
                                                    AllTelegramNotifications.Select(telegramNotification => telegramNotification.Username));
 
                     }
