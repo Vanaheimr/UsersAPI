@@ -168,7 +168,7 @@ namespace social.OpenData.UsersAPI
         /// <summary>
         /// An enumeration of historichal changes to this ticket.
         /// </summary>
-        public IEnumerable<AServiceTicketChangeSet>       History                 { get; }
+        public IEnumerable<AServiceTicketChangeSet>       ChangeSets                 { get; }
 
 
         /// <summary>
@@ -260,34 +260,34 @@ namespace social.OpenData.UsersAPI
         /// Create a new service ticket.
         /// </summary>
         /// <param name="Id">The unique identification of the service ticket.</param>
-        /// <param name="History">The service ticket history.</param>
+        /// <param name="ChangeSets">An enumeration of service ticket change sets.</param>
         /// <param name="DataSource">The source of all this data, e.g. an automatic importer.</param>
-        public AServiceTicket(ServiceTicket_Id                    Id,
-                              IEnumerable<AServiceTicketChangeSet>  History,
-                              String                              DataSource     = null)
+        public AServiceTicket(ServiceTicket_Id                      Id,
+                              IEnumerable<AServiceTicketChangeSet>  ChangeSets,
+                              String                                DataSource  = null)
 
             : base(Id,
                    DataSource)
 
         {
 
-            if (History == null || !History.Any())
-                throw new ArgumentNullException(nameof(History),  "The history of the service ticket must not be null!");
+            if (ChangeSets == null || !ChangeSets.Any())
+                throw new ArgumentNullException(nameof(AServiceTicket.ChangeSets),  "The enumeration of change sets (the service ticket history) of the service ticket must not be null!");
 
-            this.History         = History.OrderByDescending(entry => entry.Timestamp).ToArray();
+            this.ChangeSets      = ChangeSets.OrderByDescending(changeSet => changeSet.Timestamp).ToArray();
 
-            Created              = this.History.LastOrDefault()?.Timestamp
-                                                ?? DateTime.UtcNow;
+            Created              = this.ChangeSets.LastOrDefault()?.Timestamp
+                                                   ?? DateTime.UtcNow;
 
 
-            Author               = this.History.LastOrDefault()?.Author;
+            Author               = this.ChangeSets.LastOrDefault()?.Author;
 
             if (this.Author == null)
                 throw new ArgumentNullException(nameof(Author),   "The author of the service ticket must not be null!");
 
 
-            var latestStatus     = this.History.Where(entry => entry.Status.HasValue).
-                                                FirstOrDefault();
+            var latestStatus     = this.ChangeSets.Where(entry => entry.Status.HasValue).
+                                                   FirstOrDefault();
 
             Status               = latestStatus != null
                                        ? new Timestamped<ServiceTicketStatusTypes>(latestStatus.Timestamp,
@@ -296,50 +296,50 @@ namespace social.OpenData.UsersAPI
                                                                                    ServiceTicketStatusTypes.New);
 
 
-            Title                = this.History.Where(entry => entry.Title.IsNeitherNullNorEmpty()).
-                                                FirstOrDefault()?.Title;
+            Title                = this.ChangeSets.Where(entry => entry.Title.IsNeitherNullNorEmpty()).
+                                                   FirstOrDefault()?.Title;
 
             if (this.Title.IsNullOrEmpty())
                 throw new ArgumentNullException(nameof(Title),    "The title of the service ticket must not be null or empty!");
 
 
-            Affected             = this.History.Where(entry => entry.Affected            != null).
-                                                FirstOrDefault()?.Affected;
+            Affected             = this.ChangeSets.Where(entry => entry.Affected            != null).
+                                                   FirstOrDefault()?.Affected;
 
-            Priority             = this.History.Where(entry => !entry.Priority.HasValue).
-                                                FirstOrDefault()?.Priority
-                                                ?? ServiceTicketPriorities.Normal;
+            Priority             = this.ChangeSets.Where(entry => !entry.Priority.HasValue).
+                                                   FirstOrDefault()?.Priority
+                                                   ?? ServiceTicketPriorities.Normal;
 
-            PrivacyLevel         = this.History.Where(entry => !entry.PrivacyLevel.HasValue).
-                                                FirstOrDefault()?.PrivacyLevel
-                                                ?? PrivacyLevel.Private;
+            PrivacyLevel         = this.ChangeSets.Where(entry => !entry.PrivacyLevel.HasValue).
+                                                   FirstOrDefault()?.PrivacyLevel
+                                                   ?? PrivacyLevel.Private;
 
-            Location             = this.History.Where(entry => entry.Location.IsNeitherNullNorEmpty()).
-                                                FirstOrDefault()?.Location;
+            Location             = this.ChangeSets.Where(entry => entry.Location.IsNeitherNullNorEmpty()).
+                                                   FirstOrDefault()?.Location;
 
-            GeoLocation          = this.History.Where(entry => !entry.GeoLocation.HasValue).
-                                                FirstOrDefault()?.GeoLocation;
+            GeoLocation          = this.ChangeSets.Where(entry => !entry.GeoLocation.HasValue).
+                                                   FirstOrDefault()?.GeoLocation;
 
-            ProblemDescriptions  = this.History.Where(entry => entry.ProblemDescriptions != null).
-                                                FirstOrDefault()?.ProblemDescriptions;
+            ProblemDescriptions  = this.ChangeSets.Where(entry => entry.ProblemDescriptions != null).
+                                                   FirstOrDefault()?.ProblemDescriptions;
 
-            StatusIndicators     = this.History.Where(entry => entry.StatusIndicators    != null).
-                                                FirstOrDefault()?.StatusIndicators;
+            StatusIndicators     = this.ChangeSets.Where(entry => entry.StatusIndicators    != null).
+                                                   FirstOrDefault()?.StatusIndicators;
 
-            Reactions            = this.History.Where(entry => entry.Reactions           != null).
-                                                FirstOrDefault()?.Reactions;
+            Reactions            = this.ChangeSets.Where(entry => entry.Reactions           != null).
+                                                   FirstOrDefault()?.Reactions;
 
-            AdditionalInfo       = this.History.Where(entry => entry.AdditionalInfo.IsNeitherNullNorEmpty()).
-                                                FirstOrDefault()?.AdditionalInfo;
+            AdditionalInfo       = this.ChangeSets.Where(entry => entry.AdditionalInfo.IsNeitherNullNorEmpty()).
+                                                   FirstOrDefault()?.AdditionalInfo;
 
-            AttachedFiles        = this.History.Where(entry => entry.AttachedFiles       != null).
-                                                FirstOrDefault()?.AttachedFiles;
+            AttachedFiles        = this.ChangeSets.Where(entry => entry.AttachedFiles       != null).
+                                                   FirstOrDefault()?.AttachedFiles;
 
-            TicketReferences     = this.History.Where(entry => entry.TicketReferences    != null).
-                                                FirstOrDefault()?.TicketReferences;
+            TicketReferences     = this.ChangeSets.Where(entry => entry.TicketReferences    != null).
+                                                   FirstOrDefault()?.TicketReferences;
 
-            DataLicenses         = this.History.Where(entry => entry.DataLicenses        != null).
-                                                FirstOrDefault()?.DataLicenses;
+            DataLicenses         = this.ChangeSets.Where(entry => entry.DataLicenses        != null).
+                                                   FirstOrDefault()?.DataLicenses;
 
         }
 
@@ -445,7 +445,7 @@ namespace social.OpenData.UsersAPI
                                       Func<DateTime, ServiceTicketStatusTypes, Boolean>  IncludeStatus           = null,
                                       InfoStatus                                         ExpandDataLicenses      = InfoStatus.ShowIdOnly,
                                       InfoStatus                                         ExpandAuthorId          = InfoStatus.ShowIdOnly,
-                                      Boolean                                            IncludeComments         = true,
+                                      Boolean                                            IncludeChangeSets         = true,
                                       Boolean                                            IncludeCryptoHash       = true,
                                       Action<JObject>                                    Configurator            = null)
 
@@ -454,7 +454,7 @@ namespace social.OpenData.UsersAPI
             var Status         = ServiceTicketStatusTypes.New;
             var StatusHistory  = new List<Timestamped<ServiceTicketStatusTypes>>();
 
-            foreach (var history in History.Reverse())
+            foreach (var history in ChangeSets.Reverse())
             {
 
                 if (history.Status.HasValue && Status != history.Status)
@@ -520,10 +520,10 @@ namespace social.OpenData.UsersAPI
                        ? new JProperty("attachedFiles",        new JArray(AttachedFiles.SafeSelect(url     => url.ToString())))
                        : null,
 
-                   IncludeComments && History.SafeAny()
-                       ? new JProperty("history",              new JArray(History.
-                                                                              OrderByDescending(history => history.Timestamp).
-                                                                              SafeSelect       (history => history.ToJSON())))
+                   IncludeChangeSets && ChangeSets.SafeAny()
+                       ? new JProperty("changeSets",           new JArray(ChangeSets.
+                                                                              OrderByDescending(changeSet => changeSet.Timestamp).
+                                                                              SafeSelect       (changeSet => changeSet.ToJSON())))
                        : null,
 
 
@@ -880,32 +880,32 @@ namespace social.OpenData.UsersAPI
             /// <summary>
             /// The unique identification of the service ticket.
             /// </summary>
-            public ServiceTicket_Id                    Id              { get; set; }
+            public ServiceTicket_Id                      Id              { get; set; }
 
-            private readonly List<AServiceTicketChangeSet>  _History;
+            private readonly List<AServiceTicketChangeSet>  _ChangeSets;
 
             /// <summary>
-            /// An enumeration of changes.
+            /// An enumeration of change sets.
             /// </summary>
-            public IEnumerable<AServiceTicketChangeSet>  History
-                => _History;
+            public IEnumerable<AServiceTicketChangeSet>  ChangeSets
+                => _ChangeSets;
 
             /// <summary>
             /// An enumeration of usable data licenses for this service ticket.
             /// </summary>
-            public HashSet<DataLicense>                DataLicenses    { get; set; }
+            public HashSet<DataLicense>                  DataLicenses    { get; set; }
 
             /// <summary>
             /// The source of all this data, e.g. an automatic importer.
             /// </summary>
-            public String                              DataSource      { get; set; }
+            public String                                DataSource      { get; set; }
 
 
             /// <summary>
             /// The initial author of this service ticket.
             /// </summary>
             public User Author
-                => History?.LastOrDefault()?.Author;
+                => ChangeSets?.LastOrDefault()?.Author;
 
             /// <summary>
             /// The current status of the service ticket.
@@ -915,7 +915,7 @@ namespace social.OpenData.UsersAPI
                 get
                 {
 
-                    var latestStatus = History?.Where(entry => entry.Status.HasValue).
+                    var latestStatus = ChangeSets?.Where(entry => entry.Status.HasValue).
                                                 FirstOrDefault();
 
                     return latestStatus != null
@@ -930,21 +930,21 @@ namespace social.OpenData.UsersAPI
             /// The title of the service ticket (10-200 characters).
             /// </summary>
             public I18NString Title
-                 => History?.Where(entry => entry.Title != null).
+                 => ChangeSets?.Where(entry => entry.Title != null).
                              FirstOrDefault()?.Title;
 
             /// <summary>
             /// Affected devices or services by this service ticket.
             /// </summary>
             public Affected Affected
-                => History?.Where(entry => entry.Affected != null).
+                => ChangeSets?.Where(entry => entry.Affected != null).
                             FirstOrDefault()?.Affected;
 
             /// <summary>
             /// Whether the service ticket will be shown in (public) listings.
             /// </summary>
             public ServiceTicketPriorities Priority
-                 => History?.Where(entry => !entry.Priority.HasValue).
+                 => ChangeSets?.Where(entry => !entry.Priority.HasValue).
                              FirstOrDefault()?.Priority
                     ?? ServiceTicketPriorities.Normal;
 
@@ -952,7 +952,7 @@ namespace social.OpenData.UsersAPI
             /// Whether the service ticket change set will be shown in (public) listings.
             /// </summary>
             public PrivacyLevel PrivacyLevel
-                => History?.Where(entry => !entry.PrivacyLevel.HasValue).
+                => ChangeSets?.Where(entry => !entry.PrivacyLevel.HasValue).
                             FirstOrDefault()?.PrivacyLevel
                    ?? PrivacyLevel.Private;
 
@@ -960,56 +960,56 @@ namespace social.OpenData.UsersAPI
             /// The location of the problem or broken device.
             /// </summary>
             public I18NString Location
-                => History?.Where(entry => entry.Location != null).
+                => ChangeSets?.Where(entry => entry.Location != null).
                             FirstOrDefault()?.Location;
 
             /// <summary>
             /// The geographical location of the problem or broken device.
             /// </summary>
             public GeoCoordinate? GeoLocation
-                => History?.Where(entry => !entry.GeoLocation.HasValue).
+                => ChangeSets?.Where(entry => !entry.GeoLocation.HasValue).
                             FirstOrDefault()?.GeoLocation;
 
             /// <summary>
             /// An enumeration of well-defined problem descriptions.
             /// </summary>
             public IEnumerable<Tag> ProblemDescriptions
-                => History?.Where(entry => entry.ProblemDescriptions != null).
+                => ChangeSets?.Where(entry => entry.ProblemDescriptions != null).
                             FirstOrDefault()?.ProblemDescriptions;
 
             /// <summary>
             /// An enumeration of status indicators.
             /// </summary>
             public IEnumerable<Tag> StatusIndicators
-                => History?.Where(entry => entry.StatusIndicators != null).
+                => ChangeSets?.Where(entry => entry.StatusIndicators != null).
                             FirstOrDefault()?.StatusIndicators;
 
             /// <summary>
             /// An enumeration of reactions.
             /// </summary>
             public IEnumerable<Tag> Reactions
-                => History?.Where(entry => entry.Reactions != null).
+                => ChangeSets?.Where(entry => entry.Reactions != null).
                             FirstOrDefault()?.Reactions;
 
             /// <summary>
             /// Additional multi-language information related to this service ticket.
             /// </summary>
             public I18NString AdditionalInfo
-                => History?.Where(entry => entry.AdditionalInfo != null).
+                => ChangeSets?.Where(entry => entry.AdditionalInfo != null).
                             FirstOrDefault()?.AdditionalInfo;
 
             /// <summary>
             /// An enumeration of URLs to files attached to this service ticket change set.
             /// </summary>
             public IEnumerable<HTTPPath> AttachedFiles
-                => History?.Where(entry => entry.AttachedFiles != null).
+                => ChangeSets?.Where(entry => entry.AttachedFiles != null).
                             FirstOrDefault()?.AttachedFiles;
 
             /// <summary>
             /// References to other service tickets.
             /// </summary>
             public IEnumerable<ServiceTicketReference> TicketReferences
-                => History?.Where(entry => entry.TicketReferences != null).
+                => ChangeSets?.Where(entry => entry.TicketReferences != null).
                             FirstOrDefault()?.TicketReferences;
 
             #endregion
@@ -1020,17 +1020,17 @@ namespace social.OpenData.UsersAPI
             /// Create a new service ticket builder.
             /// </summary>
             /// <param name="Id">The unique identification of the service ticket.</param>
-            /// <param name="History">The service ticket history.</param>
+            /// <param name="ChangeSets">An enumeration of service ticket change sets.</param>
             /// <param name="DataSource">The source of all this data, e.g. an automatic importer.</param>
-            public ABuilder(ServiceTicket_Id                    Id,
-                            IEnumerable<AServiceTicketChangeSet>  History,
-                            String                              DataSource     = null)
+            public ABuilder(ServiceTicket_Id                      Id,
+                            IEnumerable<AServiceTicketChangeSet>  ChangeSets,
+                            String                                DataSource     = null)
 
             {
 
-                this.Id          = Id;
-                this._History    = History != null ? new List<AServiceTicketChangeSet>(History) : new List<AServiceTicketChangeSet>();
-                this.DataSource  = DataSource;
+                this.Id           = Id;
+                this._ChangeSets  = ChangeSets != null ? new List<AServiceTicketChangeSet>(ChangeSets) : new List<AServiceTicketChangeSet>();
+                this.DataSource   = DataSource;
 
             }
 
@@ -1040,13 +1040,13 @@ namespace social.OpenData.UsersAPI
             /// <param name="Id">The unique identification of the service ticket.</param>
             /// 
             /// <param name="ServiceTicketChangeSetId">The unique identification of a service ticket change set.</param>
-            /// <param name="Timestamp">The timestamp of the creation of this service ticket change set.</param>
-            /// <param name="Author">The initial author of this service ticket change set (if known).</param>
-            /// <param name="Status">An optional new service ticket status caused by this service ticket change set.</param>
+            /// <param name="Timestamp">The timestamp of the creation of this service ticket.</param>
+            /// <param name="Author">The initial author of this service ticket (if known).</param>
+            /// <param name="Status">An optional new service ticket status.</param>
             /// <param name="Title">The title of the service ticket (10-200 characters).</param>
             /// <param name="Affected">Affected devices or services by this service ticket.</param>
             /// <param name="Priority">The priority of the service ticket.</param>
-            /// <param name="PrivacyLevel">Whether the service ticket change set will be shown in (public) listings.</param>
+            /// <param name="PrivacyLevel">Whether the service ticket will be shown in (public) listings.</param>
             /// <param name="Location">The location of the problem or broken device.</param>
             /// <param name="GeoLocation">The geographical location of the problem or broken device.</param>
             /// <param name="ProblemDescriptions">An enumeration of well-defined problem descriptions.</param>
@@ -1060,37 +1060,37 @@ namespace social.OpenData.UsersAPI
             /// <param name="DataSource">The source of all this data, e.g. an automatic importer.</param>
             public ABuilder(ServiceTicket_Id                     Id,
 
-                            ServiceTicketChangeSet_Id?             ServiceTicketChangeSetId   = null,
-                            DateTime?                            Timestamp                = null,
-                            User                                 Author                   = null,
-                            ServiceTicketStatusTypes?            Status                   = null,
-                            I18NString                           Title                    = null,
-                            Affected                             Affected                 = null,
-                            ServiceTicketPriorities?             Priority                 = null,
-                            PrivacyLevel?                        PrivacyLevel             = null,
-                            I18NString                           Location                 = null,
-                            GeoCoordinate?                       GeoLocation              = null,
-                            IEnumerable<Tag>                     ProblemDescriptions      = null,
-                            IEnumerable<Tag>                     StatusIndicators         = null,
-                            IEnumerable<Tag>                     Reactions                = null,
-                            I18NString                           AdditionalInfo           = null,
-                            IEnumerable<HTTPPath>                AttachedFiles            = null,
-                            IEnumerable<ServiceTicketReference>  TicketReferences         = null,
-                            IEnumerable<DataLicense>             DataLicenses             = null,
+                            ServiceTicketChangeSet_Id?           ServiceTicketChangeSetId   = null,
+                            DateTime?                            Timestamp                  = null,
+                            User                                 Author                     = null,
+                            ServiceTicketStatusTypes?            Status                     = null,
+                            I18NString                           Title                      = null,
+                            Affected                             Affected                   = null,
+                            ServiceTicketPriorities?             Priority                   = null,
+                            PrivacyLevel?                        PrivacyLevel               = null,
+                            I18NString                           Location                   = null,
+                            GeoCoordinate?                       GeoLocation                = null,
+                            IEnumerable<Tag>                     ProblemDescriptions        = null,
+                            IEnumerable<Tag>                     StatusIndicators           = null,
+                            IEnumerable<Tag>                     Reactions                  = null,
+                            I18NString                           AdditionalInfo             = null,
+                            IEnumerable<HTTPPath>                AttachedFiles              = null,
+                            IEnumerable<ServiceTicketReference>  TicketReferences           = null,
+                            IEnumerable<DataLicense>             DataLicenses               = null,
 
-                            String                               DataSource               = null)
+                            String                               DataSource                 = null)
 
                 : this(Id,
                        new List<AServiceTicketChangeSet>() {
                            new ServiceTicketChangeSet(
                                Id:                   ServiceTicketChangeSetId ?? ServiceTicketChangeSet_Id.Random(),
-                               Timestamp:            Timestamp              ?? DateTime.UtcNow,
+                               Timestamp:            Timestamp                ?? DateTime.UtcNow,
                                Author:               Author,
-                               Status:               Status                 ?? ServiceTicketStatusTypes.New,
+                               Status:               Status                   ?? ServiceTicketStatusTypes.New,
                                Title:                Title,
                                Affected:             Affected,
-                               Priority:             Priority               ?? ServiceTicketPriorities.Normal,
-                               PrivacyLevel:         PrivacyLevel           ?? OpenData.UsersAPI.PrivacyLevel.Private,
+                               Priority:             Priority                 ?? ServiceTicketPriorities.Normal,
+                               PrivacyLevel:         PrivacyLevel             ?? OpenData.UsersAPI.PrivacyLevel.Private,
                                Location:             Location,
                                GeoLocation:          GeoLocation,
                                ProblemDescriptions:  ProblemDescriptions,
@@ -1117,7 +1117,7 @@ namespace social.OpenData.UsersAPI
             public void AppendHistoryEntry(AServiceTicketChangeSet ServiceTicketChangeSet)
             {
 
-                this._History.Add(ServiceTicketChangeSet);
+                this._ChangeSets.Add(ServiceTicketChangeSet);
 
             }
 

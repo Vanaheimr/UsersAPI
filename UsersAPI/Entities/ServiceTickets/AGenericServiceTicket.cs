@@ -64,7 +64,7 @@
 //        /// <param name="StatusIndicators">An enumeration of problem indicators.</param>
 //        /// <param name="AdditionalInfo">A multi-language description of the service ticket.</param>
 //        /// <param name="AttachedFiles">An enumeration of URLs to files attached to this service ticket.</param>
-//        /// <param name="History">The service ticket history.</param>
+//        /// <param name="ChangeSets">An enumeration of service ticket change sets.</param>
 //        /// 
 //        /// <param name="DataSource">The source of all this data, e.g. an automatic importer.</param>
 //        public AGenericServiceTicket(ServiceTicket_Id                             Id,

@@ -57,14 +57,14 @@ namespace social.OpenData.UsersAPI
         /// Create a new service ticket.
         /// </summary>
         /// <param name="Id">The unique identification of the service ticket.</param>
-        /// <param name="History">The service ticket history.</param>
+        /// <param name="ChangeSets">An enumeration of service ticket change sets.</param>
         /// <param name="DataSource">The source of all this data, e.g. an automatic importer.</param>
-        public ServiceTicket(ServiceTicket_Id                    Id,
-                             IEnumerable<AServiceTicketChangeSet>  History,
-                             String                              DataSource     = null)
+        public ServiceTicket(ServiceTicket_Id                      Id,
+                             IEnumerable<AServiceTicketChangeSet>  ChangeSets,
+                             String                                DataSource     = null)
 
             : base(Id,
-                   History,
+                   ChangeSets,
                    DataSource)
 
         { }
@@ -1040,10 +1040,10 @@ namespace social.OpenData.UsersAPI
         /// <param name="NewServiceTicketId">An optional new service ticket identification.</param>
         public Builder ToBuilder(ServiceTicket_Id? NewServiceTicketId = null)
 
-            => History.Any()
+            => ChangeSets.Any()
 
                    ? new Builder(Id,
-                                 History,
+                                 ChangeSets,
                                  DataSource)
 
                    : new Builder(NewServiceTicketId ?? Id,
@@ -1084,14 +1084,14 @@ namespace social.OpenData.UsersAPI
             /// Create a new service ticket builder.
             /// </summary>
             /// <param name="Id">The unique identification of the service ticket.</param>
-            /// <param name="History">The service ticket history.</param>
+            /// <param name="ChangeSets">An enumeration of service ticket change sets.</param>
             /// <param name="DataSource">The source of all this data, e.g. an automatic importer.</param>
-            public Builder(ServiceTicket_Id                    Id,
-                           IEnumerable<AServiceTicketChangeSet>  History,
-                           String                              DataSource  = null)
+            public Builder(ServiceTicket_Id                      Id,
+                           IEnumerable<AServiceTicketChangeSet>  ChangeSets,
+                           String                                DataSource  = null)
 
             : base(Id,
-                   History,
+                   ChangeSets,
                    DataSource)
 
             { }
@@ -1122,25 +1122,25 @@ namespace social.OpenData.UsersAPI
             /// <param name="DataSource">The source of all this data, e.g. an automatic importer.</param>
             public Builder(ServiceTicket_Id                     Id,
 
-                           ServiceTicketChangeSet_Id?             ServiceTicketChangeSetId   = null,
-                           DateTime?                            Timestamp                = null,
-                           User                                 Author                   = null,
-                           ServiceTicketStatusTypes?            Status                   = null,
-                           I18NString                           Title                    = null,
-                           Affected                             Affected                 = null,
-                           ServiceTicketPriorities?             Priority                 = null,
-                           PrivacyLevel?                        PrivacyLevel             = null,
-                           I18NString                           Location                 = null,
-                           GeoCoordinate?                       GeoLocation              = null,
-                           IEnumerable<Tag>                     ProblemDescriptions      = null,
-                           IEnumerable<Tag>                     StatusIndicators         = null,
-                           IEnumerable<Tag>                     Reactions                = null,
-                           I18NString                           AdditionalInfo           = null,
-                           IEnumerable<HTTPPath>                AttachedFiles            = null,
-                           IEnumerable<ServiceTicketReference>  TicketReferences         = null,
-                           IEnumerable<DataLicense>             DataLicenses             = null,
+                           ServiceTicketChangeSet_Id?           ServiceTicketChangeSetId   = null,
+                           DateTime?                            Timestamp                  = null,
+                           User                                 Author                     = null,
+                           ServiceTicketStatusTypes?            Status                     = null,
+                           I18NString                           Title                      = null,
+                           Affected                             Affected                   = null,
+                           ServiceTicketPriorities?             Priority                   = null,
+                           PrivacyLevel?                        PrivacyLevel               = null,
+                           I18NString                           Location                   = null,
+                           GeoCoordinate?                       GeoLocation                = null,
+                           IEnumerable<Tag>                     ProblemDescriptions        = null,
+                           IEnumerable<Tag>                     StatusIndicators           = null,
+                           IEnumerable<Tag>                     Reactions                  = null,
+                           I18NString                           AdditionalInfo             = null,
+                           IEnumerable<HTTPPath>                AttachedFiles              = null,
+                           IEnumerable<ServiceTicketReference>  TicketReferences           = null,
+                           IEnumerable<DataLicense>             DataLicenses               = null,
 
-                           String                               DataSource               = null)
+                           String                               DataSource                 = null)
 
                 : base(Id,
 
@@ -1183,10 +1183,10 @@ namespace social.OpenData.UsersAPI
             /// </summary>
             public ServiceTicket ToImmutable
 
-                => History.Any()
+                => ChangeSets.Any()
 
                        ? new ServiceTicket(Id,
-                                           History,
+                                           ChangeSets,
                                            DataSource)
 
                        : new ServiceTicket(Id,
