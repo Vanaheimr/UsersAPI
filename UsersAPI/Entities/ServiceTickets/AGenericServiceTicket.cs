@@ -77,7 +77,7 @@
 //                                     IEnumerable<Tag>                             StatusIndicators      = null,
 //                                     I18NString                                   AdditionalInfo        = null,
 //                                     IEnumerable<HTTPPath>                        AttachedFiles         = null,
-//                                     IEnumerable<AServiceTicketHistory>           History               = null,
+//                                     IEnumerable<AServiceTicketChangeSet>           History               = null,
 
 //                                     String                                       DataSource            = null)
 
@@ -457,7 +457,7 @@
 //            /// <summary>
 //            /// An enumeration of comments.
 //            /// </summary>
-//            public HashSet<AServiceTicketHistory>                         History                    { get; set; }
+//            public HashSet<AServiceTicketChangeSet>                         History                    { get; set; }
 
 
 //            /// <summary>
@@ -500,7 +500,7 @@
 //                            IEnumerable<Tag>                                          ProblemIndicators         = null,
 //                            I18NString                                                AdditionalInfo            = null,
 //                            IEnumerable<HTTPPath>                                     AttachedFiles             = null,
-//                            IEnumerable<AServiceTicketHistory>                        History                   = null,
+//                            IEnumerable<AServiceTicketChangeSet>                        History                   = null,
 
 //                            String                                                    DataSource                = null)
 
@@ -519,7 +519,7 @@
 //                this.ProblemIndicators        = ProblemIndicators       != null ? new HashSet<Tag>(ProblemIndicators)                            : new HashSet<Tag>();
 //                this.AdditionalInfo           = AdditionalInfo          ?? new I18NString();
 //                this.AttachedFiles            = AttachedFiles           != null ? new HashSet<HTTPPath>(AttachedFiles)                           : new HashSet<HTTPPath>();
-//                this.History                  = History                 != null ? new HashSet<AServiceTicketHistory>(History)           : new HashSet<AServiceTicketHistory>();
+//                this.History                  = History                 != null ? new HashSet<AServiceTicketChangeSet>(History)           : new HashSet<AServiceTicketChangeSet>();
 
 //                this.DataSource               = DataSource              ?? "";
 

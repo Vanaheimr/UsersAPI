@@ -36,53 +36,52 @@ using org.GraphDefined.Vanaheimr.Aegir;
 namespace social.OpenData.UsersAPI
 {
 
-    public delegate Boolean ServiceTicketHistoryProviderDelegate(ServiceTicketHistory_Id CommunicatorId, out ServiceTicketHistory ServiceTicketHistory);
+    public delegate Boolean ServiceTicketChangeSetProviderDelegate(ServiceTicketChangeSet_Id ServiceTicketChangeSetId, out ServiceTicketChangeSet ServiceTicketChangeSet);
 
-    public delegate JObject ServiceTicketHistoryToJSONDelegate(ServiceTicketHistory  ServiceTicketHistory,
-                                                               InfoStatus            ExpandDataLicenses     = InfoStatus.ShowIdOnly,
-                                                               InfoStatus            ExpandOwnerId          = InfoStatus.ShowIdOnly,
-                                                               InfoStatus            ExpandCommunicatorId   = InfoStatus.ShowIdOnly,
-                                                               Boolean               IncludeCryptoHash      = true);
+    public delegate JObject ServiceTicketChangeSetToJSONDelegate(ServiceTicketChangeSet  ServiceTicketChangeSet,
+                                                                 InfoStatus              ExpandDataLicenses     = InfoStatus.ShowIdOnly,
+                                                                 InfoStatus              ExpandOwnerId          = InfoStatus.ShowIdOnly,
+                                                                 InfoStatus              ExpandCommunicatorId   = InfoStatus.ShowIdOnly,
+                                                                 Boolean                 IncludeCryptoHash      = true);
 
 
     /// <summary>
-    /// Extention methods for the service ticket history entry.
+    /// Extention methods for the service ticket change set.
     /// </summary>
-    public static partial class ServiceTicketHistoryExtentions
+    public static partial class ServiceTicketChangeSetExtentions
     {
 
-        #region ToJSON(this ServiceTicketHistorys, Skip = null, Take = null, Embedded = false, ...)
+        #region ToJSON(this ServiceTicketChangeSets, Skip = null, Take = null, Embedded = false, ...)
 
         /// <summary>
-        /// Return a JSON representation for the given enumeration of service ticket history entrys.
+        /// Return a JSON representation for the given enumeration of service ticket change sets.
         /// </summary>
-        /// <param name="ServiceTicketHistorys">An enumeration of service ticket history entrys.</param>
-        /// <param name="Skip">The optional number of service ticket history entrys to skip.</param>
-        /// <param name="Take">The optional number of service ticket history entrys to return.</param>
-        /// <param name="Embedded">Whether this data is embedded into another data structure, e.g. into a service ticket history entry.</param>
-        public static JArray ToJSON(this IEnumerable<ServiceTicketHistory>  ServiceTicketHistorys,
-                                    UInt64?                                 Skip                         = null,
-                                    UInt64?                                 Take                         = null,
-                                    InfoStatus                              ExpandDataLicenses           = InfoStatus.ShowIdOnly,
-                                    InfoStatus                              ExpandOwnerId                = InfoStatus.ShowIdOnly,
-                                    InfoStatus                              ExpandCommunicatorId         = InfoStatus.ShowIdOnly,
-                                    ServiceTicketHistoryToJSONDelegate      ServiceTicketHistoryToJSON   = null,
-                                    Boolean                                 IncludeCryptoHash            = true)
+        /// <param name="ServiceTicketChangeSets">An enumeration of service ticket change sets.</param>
+        /// <param name="Skip">The optional number of service ticket change sets to skip.</param>
+        /// <param name="Take">The optional number of service ticket change sets to return.</param>
+        public static JArray ToJSON(this IEnumerable<ServiceTicketChangeSet>  ServiceTicketChangeSets,
+                                    UInt64?                                   Skip                           = null,
+                                    UInt64?                                   Take                           = null,
+                                    InfoStatus                                ExpandDataLicenses             = InfoStatus.ShowIdOnly,
+                                    InfoStatus                                ExpandOwnerId                  = InfoStatus.ShowIdOnly,
+                                    InfoStatus                                ExpandCommunicatorId           = InfoStatus.ShowIdOnly,
+                                    ServiceTicketChangeSetToJSONDelegate      ServiceTicketChangeSetToJSON   = null,
+                                    Boolean                                   IncludeCryptoHash              = true)
 
 
-            => ServiceTicketHistorys?.Any() != true
+            => ServiceTicketChangeSets?.Any() != true
 
                    ? new JArray()
 
-                   : new JArray(ServiceTicketHistorys.
+                   : new JArray(ServiceTicketChangeSets.
                                     Where(history => history != null).
                                     SkipTakeFilter(Skip, Take).
-                                    SafeSelect(serviceticket => ServiceTicketHistoryToJSON != null
-                                                                    ? ServiceTicketHistoryToJSON(serviceticket,
-                                                                                                 ExpandDataLicenses,
-                                                                                                 ExpandOwnerId,
-                                                                                                 ExpandCommunicatorId,
-                                                                                                 IncludeCryptoHash)
+                                    SafeSelect(serviceticket => ServiceTicketChangeSetToJSON != null
+                                                                    ? ServiceTicketChangeSetToJSON(serviceticket,
+                                                                                                   ExpandDataLicenses,
+                                                                                                   ExpandOwnerId,
+                                                                                                   ExpandCommunicatorId,
+                                                                                                   IncludeCryptoHash)
 
                                                                     : serviceticket.ToJSON(ExpandDataLicenses,
                                                                                            ExpandOwnerId,
@@ -95,10 +94,10 @@ namespace social.OpenData.UsersAPI
 
 
     /// <summary>
-    /// A service ticket history entry.
+    /// A service ticket change set.
     /// </summary>
-    public class ServiceTicketHistory : AServiceTicketHistory,
-                                        IEntityClass<ServiceTicketHistory>
+    public class ServiceTicketChangeSet : AServiceTicketChangeSet,
+                                          IEntityClass<ServiceTicketChangeSet>
     {
 
         #region Data
@@ -113,16 +112,16 @@ namespace social.OpenData.UsersAPI
         #region Constructor(s)
 
         /// <summary>
-        /// Create a new service ticket history entry.
+        /// Create a new service ticket change set.
         /// </summary>
-        /// <param name="Id">The unique identification of this service ticket history entry.</param>
-        /// <param name="Timestamp">The timestamp of the creation of this service ticket history entry.</param>
-        /// <param name="Author">The initial author of this service ticket history entry (if known).</param>
-        /// <param name="Status">An optional new service ticket status caused by this service ticket history entry.</param>
+        /// <param name="Id">The unique identification of this service ticket change set.</param>
+        /// <param name="Timestamp">The timestamp of the creation of this service ticket change set.</param>
+        /// <param name="Author">The initial author of this service ticket change set (if known).</param>
+        /// <param name="Status">An optional new service ticket status caused by this service ticket change set.</param>
         /// <param name="Title">The title of the service ticket (10-200 characters).</param>
         /// <param name="Affected">Affected devices or services by this service ticket.</param>
         /// <param name="Priority">The priority of the service ticket.</param>
-        /// <param name="PrivacyLevel">Whether the service ticket history entry will be shown in (public) listings.</param>
+        /// <param name="PrivacyLevel">Whether the service ticket change set will be shown in (public) listings.</param>
         /// <param name="Location">The location of the problem or broken device.</param>
         /// <param name="GeoLocation">The geographical location of the problem or broken device.</param>
         /// <param name="ProblemDescriptions">An enumeration of well-defined problem descriptions.</param>
@@ -133,12 +132,12 @@ namespace social.OpenData.UsersAPI
         /// <param name="TicketReferences">References to other service tickets.</param>
         /// 
         /// <param name="Comment">An optional multi-language comment.</param>
-        /// <param name="InReplyTo">This service ticket history entry is a reply to the given history entry.</param>
-        /// <param name="CommentReferences">References to other service ticket comments.</param>
+        /// <param name="InReplyTo">This service ticket change set is a reply to the given history entry.</param>
+        /// <param name="CommentReferences">References to other service ticket change sets.</param>
         /// 
         /// <param name="DataSource">The source of all this data, e.g. an automatic importer.</param>
         /// <param name="DataLicenses">Optional data licsenses for publishing this data.</param>
-        public ServiceTicketHistory(ServiceTicketHistory_Id?                    Id                      = null,
+        public ServiceTicketChangeSet(ServiceTicketChangeSet_Id?                    Id                      = null,
                                     DateTime?                                   Timestamp               = null,
                                     User                                        Author                  = null,
                                     ServiceTicketStatusTypes?                   Status                  = null,
@@ -157,8 +156,8 @@ namespace social.OpenData.UsersAPI
                                     IEnumerable<DataLicense>                    DataLicenses            = null,
 
                                     I18NString                                  Comment                 = null,
-                                    ServiceTicketHistory_Id?                    InReplyTo               = null,
-                                    IEnumerable<ServiceTicketHistoryReference>  CommentReferences       = null,
+                                    ServiceTicketChangeSet_Id?                    InReplyTo               = null,
+                                    IEnumerable<ServiceTicketChangeSetReference>  CommentReferences       = null,
 
                                     String                                      DataSource              = null)
 
@@ -230,31 +229,31 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
-        #region (static) TryParseJSON(JSONObject, ..., out ServiceTicketHistory, out ErrorResponse)
+        #region (static) TryParseJSON(JSONObject, ..., out ServiceTicketChangeSet, out ErrorResponse)
 
         /// <summary>
-        /// Try to parse the given service ticket history entry JSON.
+        /// Try to parse the given service ticket change set JSON.
         /// </summary>
         /// <param name="JSONObject">A JSON object.</param>
         /// <param name="ServiceTicketProvider">A delegate resolving service tickets.</param>
         /// <param name="UserProvider">A delegate resolving users.</param>
         /// <param name="OrganizationProvider">A delegate resolving organizations.</param>
-        /// <param name="ServiceTicketHistory">The parsed service ticket history entry.</param>
+        /// <param name="ServiceTicketChangeSet">The parsed service ticket change set.</param>
         /// <param name="ErrorResponse">An error message.</param>
-        /// <param name="ServiceTicketHistoryIdURI">The optional service ticket history entry identification, e.g. from the HTTP URI.</param>
+        /// <param name="ServiceTicketChangeSetIdURI">The optional service ticket change set identification, e.g. from the HTTP URI.</param>
         public static Boolean TryParseJSON(JObject                         JSONObject,
                                            AServiceTicketProviderDelegate  ServiceTicketProvider,
                                            UserProviderDelegate            UserProvider,
                                            OrganizationProviderDelegate    OrganizationProvider,
-                                           out ServiceTicketHistory        ServiceTicketHistory,
+                                           out ServiceTicketChangeSet        ServiceTicketChangeSet,
                                            out String                      ErrorResponse,
-                                           ServiceTicketHistory_Id?        ServiceTicketHistoryIdURI = null)
+                                           ServiceTicketChangeSet_Id?        ServiceTicketChangeSetIdURI = null)
         {
 
             try
             {
 
-                ServiceTicketHistory = null;
+                ServiceTicketChangeSet = null;
 
                 if (JSONObject?.HasValues != true)
                 {
@@ -285,15 +284,15 @@ namespace social.OpenData.UsersAPI
                                      ServiceTicketProvider,
                                      UserProvider,
                                      OrganizationProvider,
-                                     out ServiceTicketHistory,
+                                     out ServiceTicketChangeSet,
                                      out ErrorResponse,
-                                     ServiceTicketHistoryIdURI);
+                                     ServiceTicketChangeSetIdURI);
 
             }
             catch (Exception e)
             {
                 ErrorResponse         = e.Message;
-                ServiceTicketHistory  = null;
+                ServiceTicketChangeSet  = null;
                 return false;
             }
 
@@ -302,15 +301,15 @@ namespace social.OpenData.UsersAPI
         #endregion
 
 
-        #region (private)  UpdateMyself     (NewServiceTicketHistory)
+        #region (private)  UpdateMyself     (NewServiceTicketChangeSet)
 
-        private ServiceTicketHistory UpdateMyself(ServiceTicketHistory NewServiceTicketHistory)
+        private ServiceTicketChangeSet UpdateMyself(ServiceTicketChangeSet NewServiceTicketChangeSet)
         {
 
-            //foreach (var pairing in _Pairings.Where(pairing => pairing.ServiceTicketHistory.Id == Id))
-            //    pairing.ServiceTicketHistory = NewServiceTicketHistory;
+            //foreach (var pairing in _Pairings.Where(pairing => pairing.ServiceTicketChangeSet.Id == Id))
+            //    pairing.ServiceTicketChangeSet = NewServiceTicketChangeSet;
 
-            return NewServiceTicketHistory;
+            return NewServiceTicketChangeSet;
 
         }
 
@@ -319,7 +318,7 @@ namespace social.OpenData.UsersAPI
 
         #region CopyAllEdgesTo(Target)
 
-        public void CopyAllEdgesTo(ServiceTicketHistory Target)
+        public void CopyAllEdgesTo(ServiceTicketChangeSet Target)
         {
 
 
@@ -330,113 +329,113 @@ namespace social.OpenData.UsersAPI
 
         #region Operator overloading
 
-        #region Operator == (ServiceTicketHistory1, ServiceTicketHistory2)
+        #region Operator == (ServiceTicketChangeSet1, ServiceTicketChangeSet2)
 
         /// <summary>
         /// Compares two instances of this object.
         /// </summary>
-        /// <param name="ServiceTicketHistory1">A service ticket history entry identification.</param>
-        /// <param name="ServiceTicketHistory2">Another service ticket history entry identification.</param>
+        /// <param name="ServiceTicketChangeSet1">A service ticket change set identification.</param>
+        /// <param name="ServiceTicketChangeSet2">Another service ticket change set identification.</param>
         /// <returns>true|false</returns>
-        public static Boolean operator == (ServiceTicketHistory ServiceTicketHistory1, ServiceTicketHistory ServiceTicketHistory2)
+        public static Boolean operator == (ServiceTicketChangeSet ServiceTicketChangeSet1, ServiceTicketChangeSet ServiceTicketChangeSet2)
         {
 
             // If both are null, or both are same instance, return true.
-            if (Object.ReferenceEquals(ServiceTicketHistory1, ServiceTicketHistory2))
+            if (Object.ReferenceEquals(ServiceTicketChangeSet1, ServiceTicketChangeSet2))
                 return true;
 
             // If one is null, but not both, return false.
-            if (((Object) ServiceTicketHistory1 == null) || ((Object) ServiceTicketHistory2 == null))
+            if (((Object) ServiceTicketChangeSet1 == null) || ((Object) ServiceTicketChangeSet2 == null))
                 return false;
 
-            return ServiceTicketHistory1.Equals(ServiceTicketHistory2);
+            return ServiceTicketChangeSet1.Equals(ServiceTicketChangeSet2);
 
         }
 
         #endregion
 
-        #region Operator != (ServiceTicketHistory1, ServiceTicketHistory2)
+        #region Operator != (ServiceTicketChangeSet1, ServiceTicketChangeSet2)
 
         /// <summary>
         /// Compares two instances of this object.
         /// </summary>
-        /// <param name="ServiceTicketHistory1">A service ticket history entry identification.</param>
-        /// <param name="ServiceTicketHistory2">Another service ticket history entry identification.</param>
+        /// <param name="ServiceTicketChangeSet1">A service ticket change set identification.</param>
+        /// <param name="ServiceTicketChangeSet2">Another service ticket change set identification.</param>
         /// <returns>true|false</returns>
-        public static Boolean operator != (ServiceTicketHistory ServiceTicketHistory1, ServiceTicketHistory ServiceTicketHistory2)
-            => !(ServiceTicketHistory1 == ServiceTicketHistory2);
+        public static Boolean operator != (ServiceTicketChangeSet ServiceTicketChangeSet1, ServiceTicketChangeSet ServiceTicketChangeSet2)
+            => !(ServiceTicketChangeSet1 == ServiceTicketChangeSet2);
 
         #endregion
 
-        #region Operator <  (ServiceTicketHistory1, ServiceTicketHistory2)
+        #region Operator <  (ServiceTicketChangeSet1, ServiceTicketChangeSet2)
 
         /// <summary>
         /// Compares two instances of this object.
         /// </summary>
-        /// <param name="ServiceTicketHistory1">A service ticket history entry identification.</param>
-        /// <param name="ServiceTicketHistory2">Another service ticket history entry identification.</param>
+        /// <param name="ServiceTicketChangeSet1">A service ticket change set identification.</param>
+        /// <param name="ServiceTicketChangeSet2">Another service ticket change set identification.</param>
         /// <returns>true|false</returns>
-        public static Boolean operator < (ServiceTicketHistory ServiceTicketHistory1, ServiceTicketHistory ServiceTicketHistory2)
+        public static Boolean operator < (ServiceTicketChangeSet ServiceTicketChangeSet1, ServiceTicketChangeSet ServiceTicketChangeSet2)
         {
 
-            if ((Object) ServiceTicketHistory1 == null)
-                throw new ArgumentNullException(nameof(ServiceTicketHistory1), "The given ServiceTicketHistory1 must not be null!");
+            if ((Object) ServiceTicketChangeSet1 == null)
+                throw new ArgumentNullException(nameof(ServiceTicketChangeSet1), "The given ServiceTicketChangeSet1 must not be null!");
 
-            return ServiceTicketHistory1.CompareTo(ServiceTicketHistory2) < 0;
+            return ServiceTicketChangeSet1.CompareTo(ServiceTicketChangeSet2) < 0;
 
         }
 
         #endregion
 
-        #region Operator <= (ServiceTicketHistory1, ServiceTicketHistory2)
+        #region Operator <= (ServiceTicketChangeSet1, ServiceTicketChangeSet2)
 
         /// <summary>
         /// Compares two instances of this object.
         /// </summary>
-        /// <param name="ServiceTicketHistory1">A service ticket history entry identification.</param>
-        /// <param name="ServiceTicketHistory2">Another service ticket history entry identification.</param>
+        /// <param name="ServiceTicketChangeSet1">A service ticket change set identification.</param>
+        /// <param name="ServiceTicketChangeSet2">Another service ticket change set identification.</param>
         /// <returns>true|false</returns>
-        public static Boolean operator <= (ServiceTicketHistory ServiceTicketHistory1, ServiceTicketHistory ServiceTicketHistory2)
-            => !(ServiceTicketHistory1 > ServiceTicketHistory2);
+        public static Boolean operator <= (ServiceTicketChangeSet ServiceTicketChangeSet1, ServiceTicketChangeSet ServiceTicketChangeSet2)
+            => !(ServiceTicketChangeSet1 > ServiceTicketChangeSet2);
 
         #endregion
 
-        #region Operator >  (ServiceTicketHistory1, ServiceTicketHistory2)
+        #region Operator >  (ServiceTicketChangeSet1, ServiceTicketChangeSet2)
 
         /// <summary>
         /// Compares two instances of this object.
         /// </summary>
-        /// <param name="ServiceTicketHistory1">A service ticket history entry identification.</param>
-        /// <param name="ServiceTicketHistory2">Another service ticket history entry identification.</param>
+        /// <param name="ServiceTicketChangeSet1">A service ticket change set identification.</param>
+        /// <param name="ServiceTicketChangeSet2">Another service ticket change set identification.</param>
         /// <returns>true|false</returns>
-        public static Boolean operator > (ServiceTicketHistory ServiceTicketHistory1, ServiceTicketHistory ServiceTicketHistory2)
+        public static Boolean operator > (ServiceTicketChangeSet ServiceTicketChangeSet1, ServiceTicketChangeSet ServiceTicketChangeSet2)
         {
 
-            if ((Object) ServiceTicketHistory1 == null)
-                throw new ArgumentNullException(nameof(ServiceTicketHistory1), "The given ServiceTicketHistory1 must not be null!");
+            if ((Object) ServiceTicketChangeSet1 == null)
+                throw new ArgumentNullException(nameof(ServiceTicketChangeSet1), "The given ServiceTicketChangeSet1 must not be null!");
 
-            return ServiceTicketHistory1.CompareTo(ServiceTicketHistory2) > 0;
+            return ServiceTicketChangeSet1.CompareTo(ServiceTicketChangeSet2) > 0;
 
         }
 
         #endregion
 
-        #region Operator >= (ServiceTicketHistory1, ServiceTicketHistory2)
+        #region Operator >= (ServiceTicketChangeSet1, ServiceTicketChangeSet2)
 
         /// <summary>
         /// Compares two instances of this object.
         /// </summary>
-        /// <param name="ServiceTicketHistory1">A service ticket history entry identification.</param>
-        /// <param name="ServiceTicketHistory2">Another service ticket history entry identification.</param>
+        /// <param name="ServiceTicketChangeSet1">A service ticket change set identification.</param>
+        /// <param name="ServiceTicketChangeSet2">Another service ticket change set identification.</param>
         /// <returns>true|false</returns>
-        public static Boolean operator >= (ServiceTicketHistory ServiceTicketHistory1, ServiceTicketHistory ServiceTicketHistory2)
-            => !(ServiceTicketHistory1 < ServiceTicketHistory2);
+        public static Boolean operator >= (ServiceTicketChangeSet ServiceTicketChangeSet1, ServiceTicketChangeSet ServiceTicketChangeSet2)
+            => !(ServiceTicketChangeSet1 < ServiceTicketChangeSet2);
 
         #endregion
 
         #endregion
 
-        #region IComparable<ServiceTicketHistory> Members
+        #region IComparable<ServiceTicketChangeSet> Members
 
         #region CompareTo(Object)
 
@@ -450,28 +449,28 @@ namespace social.OpenData.UsersAPI
             if (Object == null)
                 throw new ArgumentNullException(nameof(Object), "The given object must not be null!");
 
-            if (!(Object is ServiceTicketHistory ServiceTicketHistory))
-                throw new ArgumentException("The given object is not an service ticket history entry!");
+            if (!(Object is ServiceTicketChangeSet ServiceTicketChangeSet))
+                throw new ArgumentException("The given object is not an service ticket change set!");
 
-            return CompareTo(ServiceTicketHistory);
+            return CompareTo(ServiceTicketChangeSet);
 
         }
 
         #endregion
 
-        #region CompareTo(ServiceTicketHistory)
+        #region CompareTo(ServiceTicketChangeSet)
 
         /// <summary>
         /// Compares two instances of this object.
         /// </summary>
-        /// <param name="ServiceTicketHistory">An service ticket history entry object to compare with.</param>
-        public Int32 CompareTo(ServiceTicketHistory ServiceTicketHistory)
+        /// <param name="ServiceTicketChangeSet">An service ticket change set object to compare with.</param>
+        public Int32 CompareTo(ServiceTicketChangeSet ServiceTicketChangeSet)
         {
 
-            if ((Object) ServiceTicketHistory == null)
-                throw new ArgumentNullException(nameof(ServiceTicketHistory), "The given service ticket history entry must not be null!");
+            if ((Object) ServiceTicketChangeSet == null)
+                throw new ArgumentNullException(nameof(ServiceTicketChangeSet), "The given service ticket change set must not be null!");
 
-            return Id.CompareTo(ServiceTicketHistory.Id);
+            return Id.CompareTo(ServiceTicketChangeSet.Id);
 
         }
 
@@ -479,7 +478,7 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
-        #region IEquatable<ServiceTicketHistory> Members
+        #region IEquatable<ServiceTicketChangeSet> Members
 
         #region Equals(Object)
 
@@ -494,30 +493,30 @@ namespace social.OpenData.UsersAPI
             if (Object == null)
                 return false;
 
-            var ServiceTicketHistory = Object as ServiceTicketHistory;
-            if ((Object) ServiceTicketHistory == null)
+            var ServiceTicketChangeSet = Object as ServiceTicketChangeSet;
+            if ((Object) ServiceTicketChangeSet == null)
                 return false;
 
-            return Equals(ServiceTicketHistory);
+            return Equals(ServiceTicketChangeSet);
 
         }
 
         #endregion
 
-        #region Equals(ServiceTicketHistory)
+        #region Equals(ServiceTicketChangeSet)
 
         /// <summary>
-        /// Compares two service ticket history entrys for equality.
+        /// Compares two service ticket change sets for equality.
         /// </summary>
-        /// <param name="ServiceTicketHistory">An service ticket history entry to compare with.</param>
+        /// <param name="ServiceTicketChangeSet">An service ticket change set to compare with.</param>
         /// <returns>True if both match; False otherwise.</returns>
-        public Boolean Equals(ServiceTicketHistory ServiceTicketHistory)
+        public Boolean Equals(ServiceTicketChangeSet ServiceTicketChangeSet)
         {
 
-            if ((Object) ServiceTicketHistory == null)
+            if ((Object) ServiceTicketChangeSet == null)
                 return false;
 
-            return Id.Equals(ServiceTicketHistory.Id);
+            return Id.Equals(ServiceTicketChangeSet.Id);
 
         }
 
@@ -546,15 +545,15 @@ namespace social.OpenData.UsersAPI
         #endregion
 
 
-        #region ToBuilder(NewServiceTicketHistoryId = null)
+        #region ToBuilder(NewServiceTicketChangeSetId = null)
 
         /// <summary>
-        /// Return a builder for this service ticket history entry.
+        /// Return a builder for this service ticket change set.
         /// </summary>
-        /// <param name="NewServiceTicketHistoryId">An optional new service ticket history entry identification.</param>
-        public Builder ToBuilder(ServiceTicketHistory_Id? NewServiceTicketHistoryId = null)
+        /// <param name="NewServiceTicketChangeSetId">An optional new service ticket change set identification.</param>
+        public Builder ToBuilder(ServiceTicketChangeSet_Id? NewServiceTicketChangeSetId = null)
 
-            => new Builder(NewServiceTicketHistoryId ?? Id,
+            => new Builder(NewServiceTicketChangeSetId ?? Id,
                            Timestamp,
                            Author,
                            Status,
@@ -583,24 +582,24 @@ namespace social.OpenData.UsersAPI
         #region (class) Builder
 
         /// <summary>
-        /// An service ticket history entry builder.
+        /// An service ticket change set builder.
         /// </summary>
-        public new class Builder : AServiceTicketHistory.Builder
+        public new class Builder : AServiceTicketChangeSet.Builder
         {
 
             #region Constructor(s)
 
             /// <summary>
-            /// Create a new service ticket history entry builder.
+            /// Create a new service ticket change set builder.
             /// </summary>
-            /// <param name="Id">The unique identification of this service ticket history entry.</param>
-            /// <param name="Timestamp">The timestamp of the creation of this service ticket history entry.</param>
-            /// <param name="Author">The initial author of this service ticket history entry (if known).</param>
-            /// <param name="Status">An optional new service ticket status caused by this service ticket history entry.</param>
+            /// <param name="Id">The unique identification of this service ticket change set.</param>
+            /// <param name="Timestamp">The timestamp of the creation of this service ticket change set.</param>
+            /// <param name="Author">The initial author of this service ticket change set (if known).</param>
+            /// <param name="Status">An optional new service ticket status caused by this service ticket change set.</param>
             /// <param name="Title">The title of the service ticket (10-200 characters).</param>
             /// <param name="Affected">Affected devices or services by this service ticket.</param>
             /// <param name="Priority">The priority of the service ticket.</param>
-            /// <param name="PrivacyLevel">Whether the service ticket history entry will be shown in (public) listings.</param>
+            /// <param name="PrivacyLevel">Whether the service ticket change set will be shown in (public) listings.</param>
             /// <param name="Location">The location of the problem or broken device.</param>
             /// <param name="GeoLocation">The geographical location of the problem or broken device.</param>
             /// <param name="ProblemDescriptions">An enumeration of well-defined problem descriptions.</param>
@@ -611,12 +610,12 @@ namespace social.OpenData.UsersAPI
             /// <param name="TicketReferences">References to other service tickets.</param>
             /// 
             /// <param name="Comment">An optional multi-language comment.</param>
-            /// <param name="InReplyTo">This service ticket history entry is a reply to the given history entry.</param>
-            /// <param name="CommentReferences">References to other service ticket comments.</param>
+            /// <param name="InReplyTo">This service ticket change set is a reply to the given history entry.</param>
+            /// <param name="CommentReferences">References to other service ticket change sets.</param>
             /// 
             /// <param name="DataSource">The source of all this data, e.g. an automatic importer.</param>
             /// <param name="DataLicenses">Optional data licsenses for publishing this data.</param>
-            public Builder(ServiceTicketHistory_Id?                    Id                    = null,
+            public Builder(ServiceTicketChangeSet_Id?                    Id                    = null,
                            DateTime?                                   Timestamp             = null,
                            User                                        Author                = null,
                            ServiceTicketStatusTypes?                   Status                = null,
@@ -634,8 +633,8 @@ namespace social.OpenData.UsersAPI
                            IEnumerable<ServiceTicketReference>         TicketReferences      = null,
 
                            I18NString                                  Comment               = null,
-                           ServiceTicketHistory_Id?                    InReplyTo             = null,
-                           IEnumerable<ServiceTicketHistoryReference>  CommentReferences     = null,
+                           ServiceTicketChangeSet_Id?                    InReplyTo             = null,
+                           IEnumerable<ServiceTicketChangeSetReference>  CommentReferences     = null,
 
                            IEnumerable<DataLicense>                    DataLicenses          = null,
                            String                                      DataSource            = null)
@@ -671,19 +670,19 @@ namespace social.OpenData.UsersAPI
             #region ToImmutable
 
             /// <summary>
-            /// Return an immutable version of the service ticket history entry.
+            /// Return an immutable version of the service ticket change set.
             /// </summary>
-            public static implicit operator ServiceTicketHistory(Builder Builder)
+            public static implicit operator ServiceTicketChangeSet(Builder Builder)
 
                 => Builder?.ToImmutable;
 
 
             /// <summary>
-            /// Return an immutable version of the service ticket history entry.
+            /// Return an immutable version of the service ticket change set.
             /// </summary>
-            public ServiceTicketHistory ToImmutable
+            public ServiceTicketChangeSet ToImmutable
 
-                => new ServiceTicketHistory(Id,
+                => new ServiceTicketChangeSet(Id,
                                             Timestamp,
                                             Author,
                                             Status,

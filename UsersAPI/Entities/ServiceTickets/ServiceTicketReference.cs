@@ -105,7 +105,7 @@ namespace social.OpenData.UsersAPI
         #region (static) TryParseJSON(JSONObject, ..., out ServiceTicketComment, out ErrorResponse)
 
         /// <summary>
-        /// Try to parse the given service ticket comment JSON.
+        /// Try to parse the given service ticket change set JSON.
         /// </summary>
         /// <param name="JSONObject">A JSON object.</param>
         /// <param name="ServiceTicketReference">The parsed service ticket reference.</param>

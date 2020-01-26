@@ -60,7 +60,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="History">The service ticket history.</param>
         /// <param name="DataSource">The source of all this data, e.g. an automatic importer.</param>
         public ServiceTicket(ServiceTicket_Id                    Id,
-                             IEnumerable<AServiceTicketHistory>  History,
+                             IEnumerable<AServiceTicketChangeSet>  History,
                              String                              DataSource     = null)
 
             : base(Id,
@@ -74,13 +74,13 @@ namespace social.OpenData.UsersAPI
         /// </summary>
         /// <param name="Id">The unique identification of the service ticket.</param>
         /// 
-        /// <param name="Timestamp">The timestamp of the creation of this service ticket history entry.</param>
-        /// <param name="Author">The initial author of this service ticket history entry (if known).</param>
-        /// <param name="Status">An optional new service ticket status caused by this service ticket history entry.</param>
+        /// <param name="Timestamp">The timestamp of the creation of this service ticket change set.</param>
+        /// <param name="Author">The initial author of this service ticket change set (if known).</param>
+        /// <param name="Status">An optional new service ticket status caused by this service ticket change set.</param>
         /// <param name="Title">The title of the service ticket (10-200 characters).</param>
         /// <param name="Affected">Affected devices or services by this service ticket.</param>
         /// <param name="Priority">The priority of the service ticket.</param>
-        /// <param name="PrivacyLevel">Whether the service ticket history entry will be shown in (public) listings.</param>
+        /// <param name="PrivacyLevel">Whether the service ticket change set will be shown in (public) listings.</param>
         /// <param name="Location">The location of the problem or broken device.</param>
         /// <param name="GeoLocation">The geographical location of the problem or broken device.</param>
         /// <param name="ProblemDescriptions">An enumeration of well-defined problem descriptions.</param>
@@ -661,7 +661,7 @@ namespace social.OpenData.UsersAPI
 
                 #region Parse History                    [optional]
 
-                var History = new List<AServiceTicketHistory>();
+                var History = new List<AServiceTicketChangeSet>();
 
                 if (JSONObject.ParseOptional("history",
                                              "service ticket history",
@@ -682,17 +682,17 @@ namespace social.OpenData.UsersAPI
 
                                 var context = historyJSON.GetString("@context");
 
-                                AServiceTicketHistory serviceTicketHistoryEntry = null;
+                                AServiceTicketChangeSet serviceTicketHistoryEntry = null;
 
                                 switch (context)
                                 {
 
-                                    case ServiceTicketHistory.JSONLDContext:
-                                        if (!ServiceTicketHistory.TryParseJSON(historyJSON,
+                                    case ServiceTicketChangeSet.JSONLDContext:
+                                        if (!ServiceTicketChangeSet.TryParseJSON(historyJSON,
                                                                                ServiceTicketProvider,
                                                                                UserProvider,
                                                                                OrganizationProvider,
-                                                                               out ServiceTicketHistory serviceTicketHistory,
+                                                                               out ServiceTicketChangeSet serviceTicketHistory,
                                                                                out ErrorResponse))
                                         {
                                             return false;
@@ -1048,7 +1048,7 @@ namespace social.OpenData.UsersAPI
 
                    : new Builder(NewServiceTicketId ?? Id,
 
-                                 ServiceTicketHistory_Id.Random(),
+                                 ServiceTicketChangeSet_Id.Random(),
                                  Status.Timestamp,
                                  Author,
                                  Status.Value,
@@ -1087,7 +1087,7 @@ namespace social.OpenData.UsersAPI
             /// <param name="History">The service ticket history.</param>
             /// <param name="DataSource">The source of all this data, e.g. an automatic importer.</param>
             public Builder(ServiceTicket_Id                    Id,
-                           IEnumerable<AServiceTicketHistory>  History,
+                           IEnumerable<AServiceTicketChangeSet>  History,
                            String                              DataSource  = null)
 
             : base(Id,
@@ -1101,14 +1101,14 @@ namespace social.OpenData.UsersAPI
             /// </summary>
             /// <param name="Id">The unique identification of the service ticket.</param>
             /// 
-            /// <param name="ServiceTicketHistoryId">The unique identification of a service ticket history entry.</param>
-            /// <param name="Timestamp">The timestamp of the creation of this service ticket history entry.</param>
-            /// <param name="Author">The initial author of this service ticket history entry (if known).</param>
-            /// <param name="Status">An optional new service ticket status caused by this service ticket history entry.</param>
+            /// <param name="ServiceTicketChangeSetId">The unique identification of a service ticket change set.</param>
+            /// <param name="Timestamp">The timestamp of the creation of this service ticket change set.</param>
+            /// <param name="Author">The initial author of this service ticket change set (if known).</param>
+            /// <param name="Status">An optional new service ticket status caused by this service ticket change set.</param>
             /// <param name="Title">The title of the service ticket (10-200 characters).</param>
             /// <param name="Affected">Affected devices or services by this service ticket.</param>
             /// <param name="Priority">The priority of the service ticket.</param>
-            /// <param name="PrivacyLevel">Whether the service ticket history entry will be shown in (public) listings.</param>
+            /// <param name="PrivacyLevel">Whether the service ticket change set will be shown in (public) listings.</param>
             /// <param name="Location">The location of the problem or broken device.</param>
             /// <param name="GeoLocation">The geographical location of the problem or broken device.</param>
             /// <param name="ProblemDescriptions">An enumeration of well-defined problem descriptions.</param>
@@ -1122,7 +1122,7 @@ namespace social.OpenData.UsersAPI
             /// <param name="DataSource">The source of all this data, e.g. an automatic importer.</param>
             public Builder(ServiceTicket_Id                     Id,
 
-                           ServiceTicketHistory_Id?             ServiceTicketHistoryId   = null,
+                           ServiceTicketChangeSet_Id?             ServiceTicketChangeSetId   = null,
                            DateTime?                            Timestamp                = null,
                            User                                 Author                   = null,
                            ServiceTicketStatusTypes?            Status                   = null,
@@ -1144,7 +1144,7 @@ namespace social.OpenData.UsersAPI
 
                 : base(Id,
 
-                       ServiceTicketHistoryId,
+                       ServiceTicketChangeSetId,
                        Timestamp,
                        Author,
                        Status,
