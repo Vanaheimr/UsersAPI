@@ -154,12 +154,12 @@ namespace social.OpenData.UsersAPI
                                     I18NString                                  AdditionalInfo          = null,
                                     IEnumerable<HTTPPath>                       AttachedFiles           = null,
                                     IEnumerable<ServiceTicketReference>         TicketReferences        = null,
+                                    IEnumerable<DataLicense>                    DataLicenses            = null,
 
                                     I18NString                                  Comment                 = null,
                                     ServiceTicketHistory_Id?                    InReplyTo               = null,
                                     IEnumerable<ServiceTicketHistoryReference>  CommentReferences       = null,
 
-                                    IEnumerable<DataLicense>                    DataLicenses            = null,
                                     String                                      DataSource              = null)
 
             : base(Id,
@@ -178,12 +178,12 @@ namespace social.OpenData.UsersAPI
                    AdditionalInfo,
                    AttachedFiles,
                    TicketReferences,
+                   DataLicenses,
 
                    Comment,
                    InReplyTo,
                    CommentReferences,
 
-                   DataLicenses,
                    DataSource)
 
         {
@@ -699,12 +699,12 @@ namespace social.OpenData.UsersAPI
                                             AdditionalInfo,
                                             AttachedFiles,
                                             TicketReferences,
+                                            DataLicenses,
 
                                             Comment,
                                             InReplyTo,
                                             CommentReferences,
 
-                                            DataLicenses,
                                             DataSource);
 
             #endregion

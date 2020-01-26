@@ -58,16 +58,13 @@ namespace social.OpenData.UsersAPI
         /// </summary>
         /// <param name="Id">The unique identification of the service ticket.</param>
         /// <param name="History">The service ticket history.</param>
-        /// <param name="DataLicenses">An enumeration of usable data licenses for this service ticket.</param>
         /// <param name="DataSource">The source of all this data, e.g. an automatic importer.</param>
         public ServiceTicket(ServiceTicket_Id                    Id,
                              IEnumerable<AServiceTicketHistory>  History,
-                             IEnumerable<DataLicense>            DataLicenses   = null,
                              String                              DataSource     = null)
 
             : base(Id,
                    History,
-                   DataLicenses,
                    DataSource)
 
         { }
@@ -92,8 +89,8 @@ namespace social.OpenData.UsersAPI
         /// <param name="AdditionalInfo">A multi-language description of the service ticket.</param>
         /// <param name="AttachedFiles">An enumeration of URLs to files attached to this service ticket.</param>
         /// <param name="TicketReferences">References to other service tickets.</param>
-        /// 
         /// <param name="DataLicenses">An enumeration of usable data licenses for this service ticket.</param>
+        /// 
         /// <param name="DataSource">The source of all this data, e.g. an automatic importer.</param>
         public ServiceTicket(ServiceTicket_Id                     Id,
 
@@ -112,8 +109,8 @@ namespace social.OpenData.UsersAPI
                              I18NString                           AdditionalInfo        = null,
                              IEnumerable<HTTPPath>                AttachedFiles         = null,
                              IEnumerable<ServiceTicketReference>  TicketReferences      = null,
-
                              IEnumerable<DataLicense>             DataLicenses          = null,
+
                              String                               DataSource            = null)
 
             : base(Id,
@@ -133,8 +130,8 @@ namespace social.OpenData.UsersAPI
                    AdditionalInfo,
                    AttachedFiles,
                    TicketReferences,
-
                    DataLicenses,
+
                    DataSource)
 
         { }
@@ -608,6 +605,59 @@ namespace social.OpenData.UsersAPI
 
                 // TicketReferences
 
+                #region Parse DataLicenseIds             [optional]
+
+                if (JSONObject.ParseOptional("dataLicenseIds",
+                                             "data license identifications",
+                                             DataLicense_Id.TryParse,
+                                             out IEnumerable<DataLicense_Id> DataLicenseIds,
+                                             out ErrorResponse))
+                {
+
+                    if (ErrorResponse != null)
+                        return false;
+
+                }
+
+                List<DataLicense> DataLicenses = null;
+
+                if (DataLicenseIds?.Any() == true)
+                {
+
+                    DataLicenses = new List<DataLicense>();
+
+                    foreach (var dataLicenseId in DataLicenseIds)
+                    {
+
+                        //if (!TryGetDataLicense(dataLicenseId, out DataLicense DataLicense))
+                        //{
+
+                        //    return SetCommunicatorResponse(
+                        //               new HTTPResponseBuilder(Request) {
+                        //                   HTTPStatusCode             = HTTPStatusCode.BadRequest,
+                        //                   Server                     = HTTPServer.DefaultServerName,
+                        //                   Date                       = DateTime.UtcNow,
+                        //                   AccessControlAllowOrigin   = "*",
+                        //                   AccessControlAllowMethods  = "GET, SET",
+                        //                   AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
+                        //                   ETag                       = "1",
+                        //                   ContentType                = HTTPContentType.JSON_UTF8,
+                        //                   Content                    = JSONObject.Create(
+                        //                                                    new JProperty("description", "The given data license '" + dataLicenseId + "' is unknown!")
+                        //                                                ).ToUTF8Bytes(),
+                        //                   Connection                 = "close"
+                        //               }.AsImmutable());
+
+                        //}
+
+                        //DataLicenses.Add(DataLicense);
+
+                    }
+
+                }
+
+                #endregion
+
 
                 #region Parse History                    [optional]
 
@@ -686,59 +736,6 @@ namespace social.OpenData.UsersAPI
 
                 #endregion
 
-                #region Parse DataLicenseIds             [optional]
-
-                if (JSONObject.ParseOptional("dataLicenseIds",
-                                             "data license identifications",
-                                             DataLicense_Id.TryParse,
-                                             out IEnumerable<DataLicense_Id> DataLicenseIds,
-                                             out ErrorResponse))
-                {
-
-                    if (ErrorResponse != null)
-                        return false;
-
-                }
-
-                List<DataLicense> DataLicenses = null;
-
-                if (DataLicenseIds?.Any() == true)
-                {
-
-                    DataLicenses = new List<DataLicense>();
-
-                    foreach (var dataLicenseId in DataLicenseIds)
-                    {
-
-                        //if (!TryGetDataLicense(dataLicenseId, out DataLicense DataLicense))
-                        //{
-
-                        //    return SetCommunicatorResponse(
-                        //               new HTTPResponseBuilder(Request) {
-                        //                   HTTPStatusCode             = HTTPStatusCode.BadRequest,
-                        //                   Server                     = HTTPServer.DefaultServerName,
-                        //                   Date                       = DateTime.UtcNow,
-                        //                   AccessControlAllowOrigin   = "*",
-                        //                   AccessControlAllowMethods  = "GET, SET",
-                        //                   AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
-                        //                   ETag                       = "1",
-                        //                   ContentType                = HTTPContentType.JSON_UTF8,
-                        //                   Content                    = JSONObject.Create(
-                        //                                                    new JProperty("description", "The given data license '" + dataLicenseId + "' is unknown!")
-                        //                                                ).ToUTF8Bytes(),
-                        //                   Connection                 = "close"
-                        //               }.AsImmutable());
-
-                        //}
-
-                        //DataLicenses.Add(DataLicense);
-
-                    }
-
-                }
-
-                #endregion
-
 
                 #region Parse CryptoHash                 [optional]
 
@@ -751,7 +748,6 @@ namespace social.OpenData.UsersAPI
 
                                     ? new ServiceTicket(ServiceTicketIdBody ?? ServiceTicketIdURI.Value,
                                                         History,
-                                                        DataLicenses,
                                                         DataSource)
 
                                     : new ServiceTicket(Id:                     ServiceTicketIdBody ?? ServiceTicketIdURI.Value,
@@ -771,8 +767,8 @@ namespace social.OpenData.UsersAPI
                                                         AdditionalInfo:         AdditionalInfo,
                                                         AttachedFiles:          AttachedFiles,
                                                         TicketReferences:       null,
-
                                                         DataLicenses:           DataLicenses,
+
                                                         DataSource:             DataSource);
 
 
@@ -1048,11 +1044,11 @@ namespace social.OpenData.UsersAPI
 
                    ? new Builder(Id,
                                  History,
-                                 DataLicenses,
                                  DataSource)
 
                    : new Builder(NewServiceTicketId ?? Id,
 
+                                 ServiceTicketHistory_Id.Random(),
                                  Status.Timestamp,
                                  Author,
                                  Status.Value,
@@ -1068,8 +1064,8 @@ namespace social.OpenData.UsersAPI
                                  AdditionalInfo,
                                  AttachedFiles,
                                  TicketReferences,
-
                                  DataLicenses,
+
                                  DataSource);
 
         #endregion
@@ -1090,15 +1086,12 @@ namespace social.OpenData.UsersAPI
             /// <param name="Id">The unique identification of the service ticket.</param>
             /// <param name="History">The service ticket history.</param>
             /// <param name="DataSource">The source of all this data, e.g. an automatic importer.</param>
-            /// <param name="DataLicenses">An enumeration of usable data licenses for this service ticket.</param>
             public Builder(ServiceTicket_Id                    Id,
                            IEnumerable<AServiceTicketHistory>  History,
-                           IEnumerable<DataLicense>            DataLicenses   = null,
-                           String                              DataSource     = null)
+                           String                              DataSource  = null)
 
             : base(Id,
                    History,
-                   DataLicenses,
                    DataSource)
 
             { }
@@ -1108,6 +1101,7 @@ namespace social.OpenData.UsersAPI
             /// </summary>
             /// <param name="Id">The unique identification of the service ticket.</param>
             /// 
+            /// <param name="ServiceTicketHistoryId">The unique identification of a service ticket history entry.</param>
             /// <param name="Timestamp">The timestamp of the creation of this service ticket history entry.</param>
             /// <param name="Author">The initial author of this service ticket history entry (if known).</param>
             /// <param name="Status">An optional new service ticket status caused by this service ticket history entry.</param>
@@ -1123,32 +1117,34 @@ namespace social.OpenData.UsersAPI
             /// <param name="AdditionalInfo">A multi-language description of the service ticket.</param>
             /// <param name="AttachedFiles">An enumeration of URLs to files attached to this service ticket.</param>
             /// <param name="TicketReferences">References to other service tickets.</param>
-            /// 
             /// <param name="DataLicenses">An enumeration of usable data licenses for this service ticket.</param>
+            /// 
             /// <param name="DataSource">The source of all this data, e.g. an automatic importer.</param>
             public Builder(ServiceTicket_Id                     Id,
 
-                           DateTime?                            Timestamp             = null,
-                           User                                 Author                = null,
-                           ServiceTicketStatusTypes?            Status                = null,
-                           I18NString                           Title                 = null,
-                           Affected                             Affected              = null,
-                           ServiceTicketPriorities?             Priority              = null,
-                           PrivacyLevel?                        PrivacyLevel          = null,
-                           I18NString                           Location              = null,
-                           GeoCoordinate?                       GeoLocation           = null,
-                           IEnumerable<Tag>                     ProblemDescriptions   = null,
-                           IEnumerable<Tag>                     StatusIndicators      = null,
-                           IEnumerable<Tag>                     Reactions             = null,
-                           I18NString                           AdditionalInfo        = null,
-                           IEnumerable<HTTPPath>                AttachedFiles         = null,
-                           IEnumerable<ServiceTicketReference>  TicketReferences      = null,
+                           ServiceTicketHistory_Id?             ServiceTicketHistoryId   = null,
+                           DateTime?                            Timestamp                = null,
+                           User                                 Author                   = null,
+                           ServiceTicketStatusTypes?            Status                   = null,
+                           I18NString                           Title                    = null,
+                           Affected                             Affected                 = null,
+                           ServiceTicketPriorities?             Priority                 = null,
+                           PrivacyLevel?                        PrivacyLevel             = null,
+                           I18NString                           Location                 = null,
+                           GeoCoordinate?                       GeoLocation              = null,
+                           IEnumerable<Tag>                     ProblemDescriptions      = null,
+                           IEnumerable<Tag>                     StatusIndicators         = null,
+                           IEnumerable<Tag>                     Reactions                = null,
+                           I18NString                           AdditionalInfo           = null,
+                           IEnumerable<HTTPPath>                AttachedFiles            = null,
+                           IEnumerable<ServiceTicketReference>  TicketReferences         = null,
+                           IEnumerable<DataLicense>             DataLicenses             = null,
 
-                           IEnumerable<DataLicense>             DataLicenses          = null,
-                           String                               DataSource            = null)
+                           String                               DataSource               = null)
 
                 : base(Id,
 
+                       ServiceTicketHistoryId,
                        Timestamp,
                        Author,
                        Status,
@@ -1164,8 +1160,8 @@ namespace social.OpenData.UsersAPI
                        AdditionalInfo,
                        AttachedFiles,
                        TicketReferences,
-
                        DataLicenses,
+
                        DataSource)
 
             { }
@@ -1191,7 +1187,6 @@ namespace social.OpenData.UsersAPI
 
                        ? new ServiceTicket(Id,
                                            History,
-                                           DataLicenses,
                                            DataSource)
 
                        : new ServiceTicket(Id,
@@ -1211,8 +1206,8 @@ namespace social.OpenData.UsersAPI
                                            AdditionalInfo,
                                            AttachedFiles,
                                            TicketReferences,
-
                                            DataLicenses,
+
                                            DataSource);
 
             #endregion

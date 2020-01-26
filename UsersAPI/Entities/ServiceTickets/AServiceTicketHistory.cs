@@ -165,13 +165,13 @@ namespace social.OpenData.UsersAPI
         /// <param name="AdditionalInfo">A multi-language description of the service ticket.</param>
         /// <param name="AttachedFiles">An enumeration of URLs to files attached to this service ticket.</param>
         /// <param name="TicketReferences">References to other service tickets.</param>
+        /// <param name="DataLicenses">Optional data licsenses for publishing this data.</param>
         /// 
         /// <param name="Comment">An optional multi-language comment.</param>
         /// <param name="InReplyTo">This service ticket history entry is a reply to the given history entry.</param>
         /// <param name="CommentReferences">References to other service ticket comments.</param>
         /// 
         /// <param name="DataSource">The source of all this data, e.g. an automatic importer.</param>
-        /// <param name="DataLicenses">Optional data licsenses for publishing this data.</param>
         public AServiceTicketHistory(ServiceTicketHistory_Id?                    Id                    = null,
                                      DateTime?                                   Timestamp             = null,
                                      User                                        Author                = null,
@@ -188,12 +188,12 @@ namespace social.OpenData.UsersAPI
                                      I18NString                                  AdditionalInfo        = null,
                                      IEnumerable<HTTPPath>                       AttachedFiles         = null,
                                      IEnumerable<ServiceTicketReference>         TicketReferences      = null,
+                                     IEnumerable<DataLicense>                    DataLicenses          = null,
 
                                      I18NString                                  Comment               = null,
                                      ServiceTicketHistory_Id?                    InReplyTo             = null,
                                      IEnumerable<ServiceTicketHistoryReference>  CommentReferences     = null,
 
-                                     IEnumerable<DataLicense>                    DataLicenses          = null,
                                      String                                      DataSource            = null)
 
             : base(Id ?? ServiceTicketHistory_Id.Random(),
@@ -216,12 +216,11 @@ namespace social.OpenData.UsersAPI
             this.AdditionalInfo       = AdditionalInfo;
             this.AttachedFiles        = AttachedFiles       != null ? AttachedFiles.      Distinct() : Array.Empty<HTTPPath>();
             this.TicketReferences     = TicketReferences    != null ? TicketReferences.   Distinct() : Array.Empty<ServiceTicketReference>();
+            this.DataLicenses         = DataLicenses        != null ? DataLicenses.       Distinct() : Array.Empty<DataLicense>();
 
             this.Comment              = Comment;
             this.InReplyTo            = InReplyTo;
             this.CommentReferences    = CommentReferences   != null ? CommentReferences.  Distinct() : Array.Empty<ServiceTicketHistoryReference>();
-
-            this.DataLicenses         = DataLicenses     ?? Array.Empty<DataLicense>();
 
         }
 
@@ -358,13 +357,15 @@ namespace social.OpenData.UsersAPI
         /// <param name="ServiceTicketHistory">The parsed service ticket history entry.</param>
         /// <param name="ErrorResponse">An error message.</param>
         /// <param name="ServiceTicketHistoryIdURI">The optional service ticket history entry identification, e.g. from the HTTP URI.</param>
+        /// <param name="DataSource">The source of this data.</param>
         protected static Boolean _TryParseJSON(JObject                         JSONObject,
                                                AServiceTicketProviderDelegate  ServiceTicketProvider,
                                                UserProviderDelegate            UserProvider,
                                                OrganizationProviderDelegate    OrganizationProvider,
                                                out ServiceTicketHistory        ServiceTicketHistory,
                                                out String                      ErrorResponse,
-                                               ServiceTicketHistory_Id?        ServiceTicketHistoryIdURI = null)
+                                               ServiceTicketHistory_Id?        ServiceTicketHistoryIdURI  = null,
+                                               String                          DataSource                 = null)
         {
 
             try
@@ -703,41 +704,6 @@ namespace social.OpenData.UsersAPI
 
                 var TicketReferences   = new ServiceTicketReference[0];
 
-
-                #region Parse Comment                   [optional]
-
-                if (JSONObject.ParseOptional("comment",
-                                             "comment",
-                                             out I18NString Comment,
-                                             out ErrorResponse))
-                {
-
-                    if (ErrorResponse != null)
-                        return false;
-
-                }
-
-                #endregion
-
-                #region Parse InReplyTo                 [optional]
-
-                if (JSONObject.ParseOptionalStruct("inReplyTo",
-                                                   "in reply to",
-                                                   ServiceTicketHistory_Id.TryParse,
-                                                   out ServiceTicketHistory_Id? InReplyTo,
-                                                   out ErrorResponse))
-                {
-
-                    if (ErrorResponse != null)
-                        return false;
-
-                }
-
-                #endregion
-
-                var CommentReferences  = new ServiceTicketHistoryReference[0];
-
-
                 #region Parse DataLicenseIds            [optional]
 
                 if (JSONObject.ParseOptional("dataLicenseIds",
@@ -792,6 +758,40 @@ namespace social.OpenData.UsersAPI
                 #endregion
 
 
+                #region Parse Comment                   [optional]
+
+                if (JSONObject.ParseOptional("comment",
+                                             "comment",
+                                             out I18NString Comment,
+                                             out ErrorResponse))
+                {
+
+                    if (ErrorResponse != null)
+                        return false;
+
+                }
+
+                #endregion
+
+                #region Parse InReplyTo                 [optional]
+
+                if (JSONObject.ParseOptionalStruct("inReplyTo",
+                                                   "in reply to",
+                                                   ServiceTicketHistory_Id.TryParse,
+                                                   out ServiceTicketHistory_Id? InReplyTo,
+                                                   out ErrorResponse))
+                {
+
+                    if (ErrorResponse != null)
+                        return false;
+
+                }
+
+                #endregion
+
+                var CommentReferences  = new ServiceTicketHistoryReference[0];
+
+
                 #region Parse CryptoHash                [optional]
 
                 var CryptoHash    = JSONObject.GetOptional("cryptoHash");
@@ -815,12 +815,13 @@ namespace social.OpenData.UsersAPI
                                                                 AdditionalInfo,
                                                                 AttachedFiles,
                                                                 TicketReferences,
+                                                                DataLicenses,
 
                                                                 Comment,
                                                                 InReplyTo,
                                                                 CommentReferences,
 
-                                                                DataLicenses);
+                                                                DataSource);
 
                 ErrorResponse = null;
                 return true;
@@ -1347,12 +1348,12 @@ namespace social.OpenData.UsersAPI
                                             AdditionalInfo,
                                             AttachedFiles,
                                             TicketReferences,
+                                            DataLicenses,
 
                                             Comment,
                                             InReplyTo,
                                             CommentReferences,
 
-                                            DataLicenses,
                                             DataSource);
 
             #endregion
