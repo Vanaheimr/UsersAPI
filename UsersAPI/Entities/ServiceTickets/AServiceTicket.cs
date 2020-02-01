@@ -306,39 +306,39 @@ namespace social.OpenData.UsersAPI
             Affected             = this.ChangeSets.Where(entry => entry.Affected            != null).
                                                    FirstOrDefault()?.Affected;
 
-            Priority             = this.ChangeSets.Where(entry => !entry.Priority.HasValue).
+            Priority             = this.ChangeSets.Where(entry => entry.Priority.HasValue).
                                                    FirstOrDefault()?.Priority
                                                    ?? ServiceTicketPriorities.Normal;
 
-            PrivacyLevel         = this.ChangeSets.Where(entry => !entry.PrivacyLevel.HasValue).
+            PrivacyLevel         = this.ChangeSets.Where(entry => entry.PrivacyLevel.HasValue).
                                                    FirstOrDefault()?.PrivacyLevel
                                                    ?? PrivacyLevel.Private;
 
             Location             = this.ChangeSets.Where(entry => entry.Location.IsNeitherNullNorEmpty()).
                                                    FirstOrDefault()?.Location;
 
-            GeoLocation          = this.ChangeSets.Where(entry => !entry.GeoLocation.HasValue).
+            GeoLocation          = this.ChangeSets.Where(entry => entry.GeoLocation.HasValue).
                                                    FirstOrDefault()?.GeoLocation;
 
-            ProblemDescriptions  = this.ChangeSets.Where(entry => entry.ProblemDescriptions != null).
+            ProblemDescriptions  = this.ChangeSets.Where(entry => entry.ProblemDescriptions.SafeAny()).
                                                    FirstOrDefault()?.ProblemDescriptions;
 
-            StatusIndicators     = this.ChangeSets.Where(entry => entry.StatusIndicators    != null).
+            StatusIndicators     = this.ChangeSets.Where(entry => entry.StatusIndicators.SafeAny()).
                                                    FirstOrDefault()?.StatusIndicators;
 
-            Reactions            = this.ChangeSets.Where(entry => entry.Reactions           != null).
+            Reactions            = this.ChangeSets.Where(entry => entry.Reactions.SafeAny()).
                                                    FirstOrDefault()?.Reactions;
 
             AdditionalInfo       = this.ChangeSets.Where(entry => entry.AdditionalInfo.IsNeitherNullNorEmpty()).
                                                    FirstOrDefault()?.AdditionalInfo;
 
-            AttachedFiles        = this.ChangeSets.Where(entry => entry.AttachedFiles       != null).
+            AttachedFiles        = this.ChangeSets.Where(entry => entry.AttachedFiles.SafeAny()).
                                                    FirstOrDefault()?.AttachedFiles;
 
-            TicketReferences     = this.ChangeSets.Where(entry => entry.TicketReferences    != null).
+            TicketReferences     = this.ChangeSets.Where(entry => entry.TicketReferences.SafeAny()).
                                                    FirstOrDefault()?.TicketReferences;
 
-            DataLicenses         = this.ChangeSets.Where(entry => entry.DataLicenses        != null).
+            DataLicenses         = this.ChangeSets.Where(entry => entry.DataLicenses.SafeAny()).
                                                    FirstOrDefault()?.DataLicenses;
 
         }
@@ -930,7 +930,7 @@ namespace social.OpenData.UsersAPI
             /// The title of the service ticket (10-200 characters).
             /// </summary>
             public I18NString Title
-                 => ChangeSets?.Where(entry => entry.Title != null).
+                 => ChangeSets?.Where(entry => entry.Title.IsNeitherNullNorEmpty()).
                              FirstOrDefault()?.Title;
 
             /// <summary>
@@ -938,14 +938,14 @@ namespace social.OpenData.UsersAPI
             /// </summary>
             public Affected Affected
                 => ChangeSets?.Where(entry => entry.Affected != null).
-                            FirstOrDefault()?.Affected;
+                               FirstOrDefault()?.Affected;
 
             /// <summary>
             /// Whether the service ticket will be shown in (public) listings.
             /// </summary>
             public ServiceTicketPriorities Priority
                  => ChangeSets?.Where(entry => !entry.Priority.HasValue).
-                             FirstOrDefault()?.Priority
+                                FirstOrDefault()?.Priority
                     ?? ServiceTicketPriorities.Normal;
 
             /// <summary>
@@ -960,56 +960,56 @@ namespace social.OpenData.UsersAPI
             /// The location of the problem or broken device.
             /// </summary>
             public I18NString Location
-                => ChangeSets?.Where(entry => entry.Location != null).
-                            FirstOrDefault()?.Location;
+                => ChangeSets?.Where(entry => entry.Location.IsNeitherNullNorEmpty()).
+                               FirstOrDefault()?.Location;
 
             /// <summary>
             /// The geographical location of the problem or broken device.
             /// </summary>
             public GeoCoordinate? GeoLocation
                 => ChangeSets?.Where(entry => !entry.GeoLocation.HasValue).
-                            FirstOrDefault()?.GeoLocation;
+                               FirstOrDefault()?.GeoLocation;
 
             /// <summary>
             /// An enumeration of well-defined problem descriptions.
             /// </summary>
             public IEnumerable<Tag> ProblemDescriptions
-                => ChangeSets?.Where(entry => entry.ProblemDescriptions != null).
-                            FirstOrDefault()?.ProblemDescriptions;
+                => ChangeSets?.Where(entry => entry.ProblemDescriptions.SafeAny()).
+                               FirstOrDefault()?.ProblemDescriptions;
 
             /// <summary>
             /// An enumeration of status indicators.
             /// </summary>
             public IEnumerable<Tag> StatusIndicators
-                => ChangeSets?.Where(entry => entry.StatusIndicators != null).
-                            FirstOrDefault()?.StatusIndicators;
+                => ChangeSets?.Where(entry => entry.StatusIndicators.SafeAny()).
+                               FirstOrDefault()?.StatusIndicators;
 
             /// <summary>
             /// An enumeration of reactions.
             /// </summary>
             public IEnumerable<Tag> Reactions
-                => ChangeSets?.Where(entry => entry.Reactions != null).
-                            FirstOrDefault()?.Reactions;
+                => ChangeSets?.Where(entry => entry.Reactions.SafeAny()).
+                               FirstOrDefault()?.Reactions;
 
             /// <summary>
             /// Additional multi-language information related to this service ticket.
             /// </summary>
             public I18NString AdditionalInfo
-                => ChangeSets?.Where(entry => entry.AdditionalInfo != null).
+                => ChangeSets?.Where(entry => entry.AdditionalInfo.IsNeitherNullNorEmpty()).
                             FirstOrDefault()?.AdditionalInfo;
 
             /// <summary>
             /// An enumeration of URLs to files attached to this service ticket change set.
             /// </summary>
             public IEnumerable<HTTPPath> AttachedFiles
-                => ChangeSets?.Where(entry => entry.AttachedFiles != null).
+                => ChangeSets?.Where(entry => entry.AttachedFiles.SafeAny()).
                             FirstOrDefault()?.AttachedFiles;
 
             /// <summary>
             /// References to other service tickets.
             /// </summary>
             public IEnumerable<ServiceTicketReference> TicketReferences
-                => ChangeSets?.Where(entry => entry.TicketReferences != null).
+                => ChangeSets?.Where(entry => entry.TicketReferences.SafeAny()).
                             FirstOrDefault()?.TicketReferences;
 
             #endregion
@@ -1024,7 +1024,7 @@ namespace social.OpenData.UsersAPI
             /// <param name="DataSource">The source of all this data, e.g. an automatic importer.</param>
             public ABuilder(ServiceTicket_Id                      Id,
                             IEnumerable<AServiceTicketChangeSet>  ChangeSets,
-                            String                                DataSource     = null)
+                            String                                DataSource  = null)
 
             {
 
