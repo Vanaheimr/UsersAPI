@@ -146,14 +146,14 @@ namespace social.OpenData.UsersAPI
 
             #region Users
 
-            RegisterEvent2("OnAddUserRequest",
+            RegisterEvent2("AddUserRequest",
                            handler => UsersAPI.OnAddUserRequest += handler,
                            handler => UsersAPI.OnAddUserRequest -= handler,
                            "User", "Request",  "All").
                 RegisterDefaultConsoleLogTarget(this).
                 RegisterDefaultDiscLogTarget(this);
 
-            RegisterEvent2("OnAddUserResponse",
+            RegisterEvent2("AddUserResponse",
                            handler => UsersAPI.OnAddUserResponse += handler,
                            handler => UsersAPI.OnAddUserResponse -= handler,
                            "User", "Response", "All").
@@ -161,14 +161,14 @@ namespace social.OpenData.UsersAPI
                 RegisterDefaultDiscLogTarget(this);
 
 
-            RegisterEvent2("OnSetUserRequest",
+            RegisterEvent2("SetUserRequest",
                            handler => UsersAPI.OnSetUserRequest += handler,
                            handler => UsersAPI.OnSetUserRequest -= handler,
                            "User", "Request",  "All").
                 RegisterDefaultConsoleLogTarget(this).
                 RegisterDefaultDiscLogTarget(this);
 
-            RegisterEvent2("OnSetUserResponse",
+            RegisterEvent2("SetUserResponse",
                            handler => UsersAPI.OnSetUserResponse += handler,
                            handler => UsersAPI.OnSetUserResponse -= handler,
                            "User", "Response", "All").
@@ -176,14 +176,14 @@ namespace social.OpenData.UsersAPI
                 RegisterDefaultDiscLogTarget(this);
 
 
-            RegisterEvent2("OnChangePasswordRequest",
+            RegisterEvent2("ChangePasswordRequest",
                            handler => UsersAPI.OnChangePasswordRequest += handler,
                            handler => UsersAPI.OnChangePasswordRequest -= handler,
                            "User", "ChangePassword", "Password", "Request", "All").
                 RegisterDefaultConsoleLogTarget(this).
                 RegisterDefaultDiscLogTarget(this);
 
-            RegisterEvent2("OnChangePasswordResponse",
+            RegisterEvent2("ChangePasswordResponse",
                            handler => UsersAPI.OnChangePasswordResponse += handler,
                            handler => UsersAPI.OnChangePasswordResponse -= handler,
                            "User", "ChangePassword", "Password", "Response", "All").
@@ -191,14 +191,14 @@ namespace social.OpenData.UsersAPI
                 RegisterDefaultDiscLogTarget(this);
 
 
-            RegisterEvent2("OnImpersonateUserRequest",
+            RegisterEvent2("ImpersonateUserRequest",
                            handler => UsersAPI.OnImpersonateUserRequest += handler,
                            handler => UsersAPI.OnImpersonateUserRequest -= handler,
                            "User", "Impersonate", "Request", "All").
                 RegisterDefaultConsoleLogTarget(this).
                 RegisterDefaultDiscLogTarget(this);
 
-            RegisterEvent2("OnImpersonateUserResponse",
+            RegisterEvent2("ImpersonateUserResponse",
                            handler => UsersAPI.OnImpersonateUserResponse += handler,
                            handler => UsersAPI.OnImpersonateUserResponse -= handler,
                            "User", "Impersonate", "Response", "All").
@@ -206,14 +206,14 @@ namespace social.OpenData.UsersAPI
                 RegisterDefaultDiscLogTarget(this);
 
 
-            RegisterEvent2("OnSetUserNotificationsRequest",
+            RegisterEvent2("SetUserNotificationsRequest",
                            handler => UsersAPI.OnSetUserNotificationsRequest  += handler,
                            handler => UsersAPI.OnSetUserNotificationsRequest  -= handler,
                            "SetUserNotifications", "Notifications", "Request",  "All").
                 RegisterDefaultConsoleLogTarget(this).
                 RegisterDefaultDiscLogTarget(this);
 
-            RegisterEvent2("OnSetUserNotificationsResponse",
+            RegisterEvent2("SetUserNotificationsResponse",
                            handler => UsersAPI.OnSetUserNotificationsResponse += handler,
                            handler => UsersAPI.OnSetUserNotificationsResponse -= handler,
                            "SetUserNotifications", "Notifications", "Response", "All").
@@ -221,14 +221,14 @@ namespace social.OpenData.UsersAPI
                 RegisterDefaultDiscLogTarget(this);
 
 
-            RegisterEvent2("OnDeleteUserNotificationsRequest",
+            RegisterEvent2("DeleteUserNotificationsRequest",
                            handler => UsersAPI.OnDeleteUserNotificationsRequest += handler,
                            handler => UsersAPI.OnDeleteUserNotificationsRequest -= handler,
                            "DeleteUserNotifications", "Notifications", "Request", "All").
                 RegisterDefaultConsoleLogTarget(this).
                 RegisterDefaultDiscLogTarget(this);
 
-            RegisterEvent2("OnDeleteUserNotificationsResponse",
+            RegisterEvent2("DeleteUserNotificationsResponse",
                            handler => UsersAPI.OnDeleteUserNotificationsResponse += handler,
                            handler => UsersAPI.OnDeleteUserNotificationsResponse -= handler,
                            "DeleteUserNotifications", "Notifications", "Response", "All").
@@ -239,14 +239,14 @@ namespace social.OpenData.UsersAPI
 
             #region Organizations
 
-            RegisterEvent2("OnAddOrganizationRequest",
+            RegisterEvent2("AddOrganizationRequest",
                            handler => UsersAPI.OnAddOrganizationRequest += handler,
                            handler => UsersAPI.OnAddOrganizationRequest -= handler,
                            "Organization", "Request",  "All").
                 RegisterDefaultConsoleLogTarget(this).
                 RegisterDefaultDiscLogTarget(this);
 
-            RegisterEvent2("OnAddOrganizationResponse",
+            RegisterEvent2("AddOrganizationResponse",
                            handler => UsersAPI.OnAddOrganizationResponse += handler,
                            handler => UsersAPI.OnAddOrganizationResponse -= handler,
                            "Organization", "Response", "All").
@@ -254,14 +254,14 @@ namespace social.OpenData.UsersAPI
                 RegisterDefaultDiscLogTarget(this);
 
 
-            RegisterEvent2("OnSetOrganizationRequest",
+            RegisterEvent2("SetOrganizationRequest",
                            handler => UsersAPI.OnSetOrganizationHTTPRequest += handler,
                            handler => UsersAPI.OnSetOrganizationHTTPRequest -= handler,
                            "Organization", "Request",  "All").
                 RegisterDefaultConsoleLogTarget(this).
                 RegisterDefaultDiscLogTarget(this);
 
-            RegisterEvent2("OnSetOrganizationResponse",
+            RegisterEvent2("SetOrganizationResponse",
                            handler => UsersAPI.OnSetOrganizationHTTPResponse += handler,
                            handler => UsersAPI.OnSetOrganizationHTTPResponse -= handler,
                            "Organization", "Response", "All").
@@ -269,14 +269,14 @@ namespace social.OpenData.UsersAPI
                 RegisterDefaultDiscLogTarget(this);
 
 
-            RegisterEvent2("OnSetOrganizationNotificationsRequest",
+            RegisterEvent2("SetOrganizationNotificationsRequest",
                            handler => UsersAPI.OnSetOrganizationNotificationsRequest  += handler,
                            handler => UsersAPI.OnSetOrganizationNotificationsRequest  -= handler,
                            "SetOrganizationNotifications", "Organization", "Notifications", "Request",  "All").
                 RegisterDefaultConsoleLogTarget(this).
                 RegisterDefaultDiscLogTarget(this);
 
-            RegisterEvent2("OnSetOrganizationNotificationsResponse",
+            RegisterEvent2("SetOrganizationNotificationsResponse",
                            handler => UsersAPI.OnSetOrganizationNotificationsResponse += handler,
                            handler => UsersAPI.OnSetOrganizationNotificationsResponse -= handler,
                            "SetOrganizationNotifications", "Organization", "Notifications", "Response", "All").
@@ -284,14 +284,14 @@ namespace social.OpenData.UsersAPI
                 RegisterDefaultDiscLogTarget(this);
 
 
-            RegisterEvent2("OnDeleteOrganizationNotificationsRequest",
+            RegisterEvent2("DeleteOrganizationNotificationsRequest",
                            handler => UsersAPI.OnDeleteOrganizationNotificationsRequest += handler,
                            handler => UsersAPI.OnDeleteOrganizationNotificationsRequest -= handler,
                            "DeleteOrganizationNotifications", "Organization", "Notifications", "Request", "All").
                 RegisterDefaultConsoleLogTarget(this).
                 RegisterDefaultDiscLogTarget(this);
 
-            RegisterEvent2("OnDeleteOrganizationNotificationsResponse",
+            RegisterEvent2("DeleteOrganizationNotificationsResponse",
                            handler => UsersAPI.OnDeleteOrganizationNotificationsResponse += handler,
                            handler => UsersAPI.OnDeleteOrganizationNotificationsResponse -= handler,
                            "DeleteOrganizationNotifications", "Organization", "Notifications", "Response", "All").
@@ -299,19 +299,67 @@ namespace social.OpenData.UsersAPI
                 RegisterDefaultDiscLogTarget(this);
 
 
-            RegisterEvent2("OnDeleteOrganizationRequest",
+            RegisterEvent2("DeleteOrganizationRequest",
                            handler => UsersAPI.OnDeleteOrganizationRequest += handler,
                            handler => UsersAPI.OnDeleteOrganizationRequest -= handler,
                            "DeleteOrganizations", "Organization", "Request", "All").
                      RegisterDefaultConsoleLogTarget(this).
                      RegisterDefaultDiscLogTarget(this);
 
-            RegisterEvent2("OnDeleteOrganizationResponse",
+            RegisterEvent2("DeleteOrganizationResponse",
                            handler => UsersAPI.OnDeleteOrganizationResponse += handler,
                            handler => UsersAPI.OnDeleteOrganizationResponse -= handler,
                            "DeleteOrganizations", "Organization", "Response", "All").
                      RegisterDefaultConsoleLogTarget(this).
                      RegisterDefaultDiscLogTarget(this);
+
+            #endregion
+
+            #region ServiceTickets
+
+            RegisterEvent2("AddServiceTicketRequest",
+                           handler => UsersAPI.OnAddServiceTicketRequest += handler,
+                           handler => UsersAPI.OnAddServiceTicketRequest -= handler,
+                           "ServiceTicket", "Request", "All").
+                RegisterDefaultConsoleLogTarget(this).
+                RegisterDefaultDiscLogTarget(this);
+
+            RegisterEvent2("AddServiceTicketResponse",
+                           handler => UsersAPI.OnAddServiceTicketResponse += handler,
+                           handler => UsersAPI.OnAddServiceTicketResponse -= handler,
+                           "ServiceTicket", "Response", "All").
+                RegisterDefaultConsoleLogTarget(this).
+                RegisterDefaultDiscLogTarget(this);
+
+
+            RegisterEvent2("SetServiceTicketRequest",
+                           handler => UsersAPI.OnSetServiceTicketRequest += handler,
+                           handler => UsersAPI.OnSetServiceTicketRequest -= handler,
+                           "ServiceTicket", "Request", "All").
+                RegisterDefaultConsoleLogTarget(this).
+                RegisterDefaultDiscLogTarget(this);
+
+            RegisterEvent2("SetServiceTicketResponse",
+                           handler => UsersAPI.OnSetServiceTicketResponse += handler,
+                           handler => UsersAPI.OnSetServiceTicketResponse -= handler,
+                           "ServiceTicket", "Response", "All").
+                RegisterDefaultConsoleLogTarget(this).
+                RegisterDefaultDiscLogTarget(this);
+
+
+            RegisterEvent2("AddServiceTicketCommentRequest",
+                           handler => UsersAPI.OnAddServiceTicketChangeSetRequest += handler,
+                           handler => UsersAPI.OnAddServiceTicketChangeSetRequest -= handler,
+                           "ServiceTicketComment", "ServiceTicket", "Request", "All").
+                RegisterDefaultConsoleLogTarget(this).
+                RegisterDefaultDiscLogTarget(this);
+
+            RegisterEvent2("AddServiceTicketCommentResponse",
+                           handler => UsersAPI.OnAddServiceTicketChangeSetResponse += handler,
+                           handler => UsersAPI.OnAddServiceTicketChangeSetResponse -= handler,
+                           "ServiceTicketComment", "ServiceTicket", "Response", "All").
+                RegisterDefaultConsoleLogTarget(this).
+                RegisterDefaultDiscLogTarget(this);
 
             #endregion
 

@@ -1532,6 +1532,156 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
+        // ---------------------------------------------------------------------
+
+        #region (protected internal) AddServiceTicketRequest (Request)
+
+        /// <summary>
+        /// An event sent whenever a add service ticket request was received.
+        /// </summary>
+        public HTTPRequestLogEvent OnAddServiceTicketRequest = new HTTPRequestLogEvent();
+
+        /// <summary>
+        /// An event sent whenever a add service ticket request was received.
+        /// </summary>
+        /// <param name="Timestamp">The timestamp of the request.</param>
+        /// <param name="API">The HTTP API.</param>
+        /// <param name="Request">A HTTP request.</param>
+        protected internal Task AddServiceTicketRequest(DateTime     Timestamp,
+                                                        HTTPAPI      API,
+                                                        HTTPRequest  Request)
+
+            => OnAddServiceTicketRequest?.WhenAll(Timestamp,
+                                                  API ?? this,
+                                                  Request);
+
+        #endregion
+
+        #region (protected internal) AddServiceTicketResponse(Response)
+
+        /// <summary>
+        /// An event sent whenever a add service ticket response was sent.
+        /// </summary>
+        public HTTPResponseLogEvent OnAddServiceTicketResponse = new HTTPResponseLogEvent();
+
+        /// <summary>
+        /// An event sent whenever a add service ticket response was sent.
+        /// </summary>
+        /// <param name="Timestamp">The timestamp of the request.</param>
+        /// <param name="API">The HTTP API.</param>
+        /// <param name="Request">A HTTP request.</param>
+        /// <param name="Response">A HTTP response.</param>
+        protected internal Task AddServiceTicketResponse(DateTime      Timestamp,
+                                                         HTTPAPI       API,
+                                                         HTTPRequest   Request,
+                                                         HTTPResponse  Response)
+
+            => OnAddServiceTicketResponse?.WhenAll(Timestamp,
+                                                   API ?? this,
+                                                   Request,
+                                                   Response);
+
+        #endregion
+
+        #region (protected internal) SetServiceTicketRequest (Request)
+
+        /// <summary>
+        /// An event sent whenever a set service ticket request was received.
+        /// </summary>
+        public HTTPRequestLogEvent OnSetServiceTicketRequest = new HTTPRequestLogEvent();
+
+        /// <summary>
+        /// An event sent whenever a set service ticket request was received.
+        /// </summary>
+        /// <param name="Timestamp">The timestamp of the request.</param>
+        /// <param name="API">The HTTP API.</param>
+        /// <param name="Request">A HTTP request.</param>
+        protected internal Task SetServiceTicketRequest(DateTime     Timestamp,
+                                                        HTTPAPI      API,
+                                                        HTTPRequest  Request)
+
+            => OnSetServiceTicketRequest?.WhenAll(Timestamp,
+                                                  API ?? this,
+                                                  Request);
+
+        #endregion
+
+        #region (protected internal) SetServiceTicketResponse(Response)
+
+        /// <summary>
+        /// An event sent whenever a set service ticket response was sent.
+        /// </summary>
+        public HTTPResponseLogEvent OnSetServiceTicketResponse = new HTTPResponseLogEvent();
+
+        /// <summary>
+        /// An event sent whenever a set service ticket response was sent.
+        /// </summary>
+        /// <param name="Timestamp">The timestamp of the request.</param>
+        /// <param name="API">The HTTP API.</param>
+        /// <param name="Request">A HTTP request.</param>
+        /// <param name="Response">A HTTP response.</param>
+        protected internal Task SetServiceTicketResponse(DateTime      Timestamp,
+                                                         HTTPAPI       API,
+                                                         HTTPRequest   Request,
+                                                         HTTPResponse  Response)
+
+            => OnSetServiceTicketResponse?.WhenAll(Timestamp,
+                                                   API ?? this,
+                                                   Request,
+                                                   Response);
+
+        #endregion
+
+
+        #region (protected internal) AddServiceTicketChangeSetRequest (Request)
+
+        /// <summary>
+        /// An event sent whenever a add service ticket change set request was received.
+        /// </summary>
+        public HTTPRequestLogEvent OnAddServiceTicketChangeSetRequest = new HTTPRequestLogEvent();
+
+        /// <summary>
+        /// An event sent whenever a add service ticket change set request was received.
+        /// </summary>
+        /// <param name="Timestamp">The timestamp of the request.</param>
+        /// <param name="API">The HTTP API.</param>
+        /// <param name="Request">A HTTP request.</param>
+        protected internal Task AddServiceTicketChangeSetRequest(DateTime     Timestamp,
+                                                                 HTTPAPI      API,
+                                                                 HTTPRequest  Request)
+
+            => OnAddServiceTicketChangeSetRequest?.WhenAll(Timestamp,
+                                                           API ?? this,
+                                                           Request);
+
+        #endregion
+
+        #region (protected internal) AddServiceTicketChangeSetResponse(Response)
+
+        /// <summary>
+        /// An event sent whenever a add service ticket change set response was sent.
+        /// </summary>
+        public HTTPResponseLogEvent OnAddServiceTicketChangeSetResponse = new HTTPResponseLogEvent();
+
+        /// <summary>
+        /// An event sent whenever a add service ticket change set response was sent.
+        /// </summary>
+        /// <param name="Timestamp">The timestamp of the request.</param>
+        /// <param name="API">The HTTP API.</param>
+        /// <param name="Request">A HTTP request.</param>
+        /// <param name="Response">A HTTP response.</param>
+        protected internal Task AddServiceTicketChangeSetResponse(DateTime      Timestamp,
+                                                                  HTTPAPI       API,
+                                                                  HTTPRequest   Request,
+                                                                  HTTPResponse  Response)
+
+            => OnAddServiceTicketChangeSetResponse?.WhenAll(Timestamp,
+                                                            API ?? this,
+                                                            Request,
+                                                            Response);
+
+        #endregion
+
         #endregion
 
         #region Constructor(s)
@@ -2428,7 +2578,7 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
-        #region (private) GetUserSerializator(Request, User)
+        #region (private) GetUserSerializator        (Request, User)
 
         private UserToJSONDelegate GetUserSerializator(HTTPRequest  Request,
                                                        User         User)
@@ -5861,7 +6011,7 @@ namespace social.OpenData.UsersAPI
             #region GET         ~/users/{UserId}/organizations
 
             // ------------------------------------------------------------------------------------------
-            // curl -v -H "Accept: application/json" http://127.0.0.1:2000/users/{UserId}/organizations
+            // curl -v -H "Accept: application/json" http://127.0.0.1:2000/users/{UserId}/organizations?summary
             // ------------------------------------------------------------------------------------------
             HTTPServer.AddMethodCallback(Hostname,
                                          HTTPMethod.GET,
@@ -5884,6 +6034,19 @@ namespace social.OpenData.UsersAPI
                                              #endregion
 
                                              var AllMyOrganizations = new OrganizationInfo(NoOwner, HTTPUser).Childs;
+
+                                             var summary = Request.QueryString.GetBoolean("summary", false);
+
+                                             if (summary)
+                                             {
+                                                 // [
+                                                 //     {
+                                                 //         "@id":   "hamzatest",
+                                                 //         "name":  { "deu": "Hamza_tests" }
+                                                 //     },
+                                                 //     ...
+                                                 // ]
+                                             }
 
                                              return Task.FromResult(
                                                  new HTTPResponse.Builder(Request) {
@@ -11719,7 +11882,7 @@ namespace social.OpenData.UsersAPI
 
             await WriteToLogfile(MessageType,
                                  ServiceTicket.ToJSON(),
-                                 UsersAPIPath + ServiceTicketsDBFile,
+                                 ServiceTicketsPath + ServiceTicketsDBFile,
                                  CurrentUserId);
 
 
