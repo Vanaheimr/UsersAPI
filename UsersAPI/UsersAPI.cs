@@ -469,13 +469,13 @@ namespace social.OpenData.UsersAPI
         /// </summary>
         public  static readonly   HTTPCookieName                                DefaultCookieName               = HTTPCookieName.Parse("UsersAPI");
 
-        public  const             String                                        DefaultUsersAPIFile             = "UsersAPI_Users.db";
-        public  const             String                                        DefaultPasswordFile             = "UsersAPI_Passwords.db";
+        public  const             String                                        DefaultUsersAPIFile             = "users.db";
+        public  const             String                                        DefaultPasswordFile             = "passwords.db";
         public  const             String                                        SecurityTokenCookieKey          = "securitytoken";
-        public  const             String                                        DefaultHTTPCookiesFile          = "UsersAPI_HTTPCookies.db";
-        public  const             String                                        DefaultPasswordResetsFile       = "UsersAPI_PasswordResets.db";
-        //public  const             String                                        DefaultGroupDBFile              = "UsersAPI_Groups.db";
-        //public  const             String                                        DefaultUser2GroupDBFile         = "UsersAPI_User2Group.db";
+        public  const             String                                        DefaultHTTPCookiesFile          = "HTTPCookies.db";
+        public  const             String                                        DefaultPasswordResetsFile       = "passwordResets.db";
+        //public  const             String                                        DefaultGroupDBFile              = "groups.db";
+        //public  const             String                                        DefaultUser2GroupDBFile         = "user2Group.db";
         public  const             String                                        AdminGroupName                  = "Admins";
 
 
@@ -535,26 +535,26 @@ namespace social.OpenData.UsersAPI
 
         #region Properties
 
-        public HashSet<String>           DevMachines                { get; set; }
+        public HashSet<String>           DevMachines                    { get; set; }
 
-        public String                    LoggingPath                { get; }
-        public String                    UsersAPIPath               { get; }
-        public String                    HTTPSSEPath                { get; }
-        public String                    HTTPRequestsPath           { get; }
-        public String                    HTTPResponsesPath          { get; }
-        public String                    NotificationsPath          { get; }
-        public String                    MetricsPath                { get; }
-        public String                    SMTPLoggingPath            { get; }
-        public String                    TelegramLoggingPath        { get; }
-        public String                    SMSAPILoggingPath          { get; }
-        public String                    ServiceTicketsPath         { get; }
+        public String                    LoggingPath                    { get; }
+        public String                    UsersAPIPath                   { get; }
+        public String                    HTTPSSEPath                    { get; }
+        public String                    HTTPRequestsPath               { get; }
+        public String                    HTTPResponsesPath              { get; }
+        public String                    NotificationsPath              { get; }
+        public String                    MetricsPath                    { get; }
+        public String                    SMTPLoggingPath                { get; }
+        public String                    TelegramLoggingPath            { get; }
+        public String                    SMSAPILoggingPath              { get; }
+        public String                    ServiceTicketsPath             { get; }
 
         /// <summary>
         /// The current async local user identification to simplify API usage.
         /// </summary>
         protected internal static AsyncLocal<User_Id?> CurrentAsyncLocalUserId = new AsyncLocal<User_Id?>();
 
-        public User                      Robot                      { get; }
+        public User                      Robot                          { get; }
 
         #region APIPassphrase
 
@@ -602,17 +602,17 @@ namespace social.OpenData.UsersAPI
         /// <summary>
         /// The Telegram API access token of the bot.
         /// </summary>
-        public String                    TelegramBotToken           { get; }
+        public String                    TelegramBotToken               { get; }
 
         /// <summary>
         /// The Telegram API client.
         /// </summary>
-        public TelegramBotClient         TelegramAPI                { get; }
+        public TelegramBotClient         TelegramAPI                    { get; }
 
         /// <summary>
         /// The Telegram user store.
         /// </summary>
-        public TelegramStore             TelegramStore              { get; }
+        public TelegramStore             TelegramStore                  { get; }
 
 
         #region DNSClient
@@ -633,7 +633,7 @@ namespace social.OpenData.UsersAPI
         #endregion
 
 
-        public Group Admins { get; }
+        public Group                     Admins                         { get; }
 
 
         #region LogoImage
@@ -779,31 +779,32 @@ namespace social.OpenData.UsersAPI
         /// <summary>
         /// The current hash value of the API.
         /// </summary>
-        public String        CurrentDatabaseHashValue   { get; protected set; }
+        public String                    CurrentDatabaseHashValue       { get; protected set; }
 
 
         /// <summary>
         /// Disable the log file.
         /// </summary>
-        public Boolean       DisableLogfile             { get; }
+        public Boolean                   DisableLogfile                 { get; }
 
         /// <summary>
         /// Disable external notifications.
         /// </summary>
-        public Boolean       DisableNotifications       { get; set; }
+        public Boolean                   DisableNotifications           { get; set; }
 
         /// <summary>
         /// The logfile of this API.
         /// </summary>
-        public String        LogfileName                { get; }
+        public String                    LogfileName                    { get; }
 
 
-        public Warden        Warden                     { get; }
+        public Warden                    Warden                         { get; }
 
-        public List<BlogPosting> BlogPostings           { get; }
+        public List<BlogPosting>         BlogPostings                   { get; }
 
-        public ECPrivateKeyParameters  ServiceCheckPrivateKey    { get; set; }
-        public ECPublicKeyParameters   ServiceCheckPublicKey     { get; set; }
+        public ECPrivateKeyParameters    ServiceCheckPrivateKey         { get; set; }
+
+        public ECPublicKeyParameters     ServiceCheckPublicKey          { get; set; }
 
         #endregion
 
@@ -9426,6 +9427,108 @@ namespace social.OpenData.UsersAPI
             }
 
         }
+
+        #endregion
+
+        #region WriteCommentToLogfile(Comment = null, Logfilename = DefaultUsersAPIFile, CurrentUserId = null)
+
+        /// <summary>
+        /// Write a comment or just an empty comment to a log file.
+        /// </summary>
+        /// <param name="Comment">An optional comment.</param>
+        /// <param name="Logfilename">An optional log file name.</param>
+        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
+        public async Task WriteCommentToLogfile(String    Comment        = null,
+                                                String    Logfilename    = DefaultUsersAPIFile,
+                                                User_Id?  CurrentUserId  = null)
+        {
+
+            if (!DisableLogfile || !DisableNotifications)
+            {
+
+                try
+                {
+
+                    if (!DisableLogfile)
+                    {
+
+                        try
+                        {
+
+                            await LogFileSemaphore.WaitAsync();
+
+                            var retry       = 0;
+                            var maxRetries  = 23;
+                            var text        = Comment + (CurrentUserId.HasValue ? "by " + CurrentUserId.ToString() + " " : "");
+
+                            do
+                            {
+
+                                try
+                                {
+
+                                    File.AppendAllText(Logfilename,
+                                                       "# --" +
+                                                       (text != null ? "< " + text + " >" : "") +
+                                                       "--------------------------------------" +
+                                                       Environment.NewLine);
+
+                                    retry = maxRetries;
+
+                                }
+                                catch (IOException ioEx)
+                                {
+                                    DebugX.Log("Retry " + retry + ": Could not write comment '" + Comment + "' to logfile '" + Logfilename + "': " + ioEx.Message);
+                                    await Task.Delay(10);
+                                    retry++;
+                                }
+                                catch (Exception e)
+                                {
+                                    DebugX.Log("Retry " + retry + ": Could not write comment '" + Comment + "' to logfile '" + Logfilename + "': " + e.Message);
+                                    await Task.Delay(10);
+                                    retry++;
+                                }
+
+                            } while (retry < maxRetries);
+
+                        }
+                        catch (Exception e)
+                        {
+                            //ToDo: Handle WriteToLogfileAndNotify(...Write to logfile...) exceptions!
+                        }
+                        finally
+                        {
+                            LogFileSemaphore.Release();
+                        }
+
+                    }
+
+                }
+                catch (Exception e)
+                {
+                    //ToDo: Handle WriteToLogfileAndNotify(...) exceptions!
+                }
+
+            }
+
+        }
+
+        #endregion
+
+
+        #region WriteCommentToUsersAPILogfile(Comment = null, CurrentUserId = null)
+
+        /// <summary>
+        /// Write a comment or just a separator line to the UsersAPI log file.
+        /// </summary>
+        /// <param name="Comment">An optional comment.</param>
+        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
+        public Task WriteCommentToUsersAPILogfile(String    Comment        = null,
+                                                  User_Id?  CurrentUserId  = null)
+
+            => WriteCommentToLogfile(Comment,
+                                     UsersAPIPath + DefaultUsersAPIFile,
+                                     CurrentUserId);
 
         #endregion
 
