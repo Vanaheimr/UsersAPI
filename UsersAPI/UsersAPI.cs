@@ -9459,22 +9459,17 @@ namespace social.OpenData.UsersAPI
 
                             var retry       = 0;
                             var maxRetries  = 23;
-                            var text        = Comment + (CurrentUserId.HasValue ? "by " + CurrentUserId.ToString() + " " : "");
+                            var text1       = Comment + (CurrentUserId.HasValue ? "by " + CurrentUserId.ToString() + " " : "");
+                            var text2       = "# --" + (text1 != null ? "< " + text1 + " >" : "");
+                            var text3       = text2 + new String('-', Math.Max(10, 200 - text2.Length)) + Environment.NewLine;
 
                             do
                             {
 
                                 try
                                 {
-
-                                    File.AppendAllText(Logfilename,
-                                                       "# --" +
-                                                       (text != null ? "< " + text + " >" : "") +
-                                                       "--------------------------------------" +
-                                                       Environment.NewLine);
-
+                                    File.AppendAllText(Logfilename, text3);
                                     retry = maxRetries;
-
                                 }
                                 catch (IOException ioEx)
                                 {
