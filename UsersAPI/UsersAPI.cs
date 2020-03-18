@@ -458,8 +458,8 @@ namespace social.OpenData.UsersAPI
         public  static readonly   TimeSpan                                      DefaultSignInSessionLifetime    = TimeSpan.FromDays(30);
 
 
-        private readonly          Dictionary<User_Id, LoginPassword>            _LoginPasswords;
-        private readonly          List<VerificationToken>                       _VerificationTokens;
+        protected readonly        Dictionary<User_Id, LoginPassword>            _LoginPasswords;
+        protected readonly        List<VerificationToken>                       _VerificationTokens;
 
         public  const             String                                        SignUpContext                   = "";
         public  const             String                                        SignInOutContext                = "";
@@ -3370,34 +3370,31 @@ namespace social.OpenData.UsersAPI
 
                                               #region Check login or e-mail address and password(s)
 
-                                              var validUsers = new HashSet<User>();
+                                              var possibleUsers = new HashSet<User>();
 
                                               if ((Realm.IsNotNullOrEmpty()
                                                        ? User_Id.TryParse(Login, Realm, out User_Id       _UserId)
                                                        : User_Id.TryParse(Login,        out               _UserId))       &&
                                                   _Users.         TryGetValue(_UserId,  out User          _User)          &&
-                                                  _LoginPasswords.TryGetValue(_UserId,  out LoginPassword _LoginPassword) &&
-                                                  _LoginPassword.VerifyPassword(Password))
+                                                  _LoginPasswords.TryGetValue(_UserId,  out LoginPassword _LoginPassword))
                                               {
-                                                  validUsers.Add(_User);
+                                                  possibleUsers.Add(_User);
                                               }
 
-                                              if (validUsers.Count == 0)
+                                              if (possibleUsers.Count == 0)
                                               {
                                                   foreach (var user in _Users.Values)
                                                   {
-                                                      if (String.Equals(Login, user.EMail.Address.ToString(), StringComparison.OrdinalIgnoreCase))
+                                                      if (String.Equals(Login,
+                                                                        user.EMail.Address.ToString(),
+                                                                        StringComparison.OrdinalIgnoreCase))
                                                       {
-                                                          if (_LoginPasswords.TryGetValue(user.Id, out LoginPassword loginPassword) &&
-                                                              loginPassword.VerifyPassword(Password))
-                                                          {
-                                                              validUsers.Add(user);
-                                                          }
+                                                          possibleUsers.Add(user);
                                                       }
                                                   }
                                               }
 
-                                              if (!validUsers.Any())
+                                              if (possibleUsers.Count == 0)
                                                   return Task.FromResult(
                                                       new HTTPResponse.Builder(Request) {
                                                           HTTPStatusCode  = HTTPStatusCode.NotFound,
@@ -3411,6 +3408,34 @@ namespace social.OpenData.UsersAPI
                                                           CacheControl    = "private",
                                                           Connection      = "close"
                                                       }.AsImmutable);
+
+
+                                              var validUsers = new HashSet<User>();
+
+                                              foreach (var possibleUser in possibleUsers)
+                                              {
+                                                  if (_LoginPasswords.TryGetValue(possibleUser.Id, out LoginPassword loginPassword) &&
+                                                      loginPassword.VerifyPassword(Password))
+                                                  {
+                                                      validUsers.Add(possibleUser);
+                                                  }
+                                              }
+
+                                              if (validUsers.Count == 0)
+                                                  return Task.FromResult(
+                                                      new HTTPResponse.Builder(Request) {
+                                                          HTTPStatusCode  = HTTPStatusCode.Unauthorized,
+                                                          Server          = HTTPServer.DefaultServerName,
+                                                          ContentType     = HTTPContentType.JSON_UTF8,
+                                                          Content         = new JObject(
+                                                                                new JProperty("@context",     SignInOutContext),
+                                                                                new JProperty("property",     "login"),
+                                                                                new JProperty("description",  "Invalid password!")
+                                                                            ).ToString().ToUTF8Bytes(),
+                                                          CacheControl    = "private",
+                                                          Connection      = "close"
+                                                      }.AsImmutable);
+
 
                                               if (validUsers.Count > 1)
                                                   return Task.FromResult(
@@ -3432,7 +3457,7 @@ namespace social.OpenData.UsersAPI
 
                                               #region Register security token
 
-                                              var validUser        = validUsers.First();
+                                              var validUser        = possibleUsers.First();
                                               var SHA256Hash       = new SHA256Managed();
                                               var SecurityTokenId  = SecurityToken_Id.Parse(SHA256Hash.ComputeHash(
                                                                                                 String.Concat(Guid.NewGuid().ToString(),
@@ -5063,60 +5088,84 @@ namespace social.OpenData.UsersAPI
 
                                               #region Check login or e-mail address and password(s)
 
-                                              var validUsers = new HashSet<User>();
+                                              var possibleUsers = new HashSet<User>();
 
                                               if ((Realm.IsNotNullOrEmpty()
                                                        ? User_Id.TryParse(Login, Realm, out User_Id       _UserId)
                                                        : User_Id.TryParse(Login,        out               _UserId))       &&
                                                   _Users.         TryGetValue(_UserId,  out User          _User)          &&
-                                                  _LoginPasswords.TryGetValue(_UserId,  out LoginPassword _LoginPassword) &&
-                                                  _LoginPassword.VerifyPassword(Password))
+                                                  _LoginPasswords.TryGetValue(_UserId,  out LoginPassword _LoginPassword))
                                               {
-                                                  validUsers.Add(_User);
+                                                  possibleUsers.Add(_User);
                                               }
 
-                                              if (validUsers.Count == 0)
+                                              if (possibleUsers.Count == 0)
                                               {
                                                   foreach (var user in _Users.Values)
                                                   {
-                                                      if (String.Equals(Login, user.EMail.Address.ToString(), StringComparison.OrdinalIgnoreCase))
+                                                      if (String.Equals(Login,
+                                                                        user.EMail.Address.ToString(),
+                                                                        StringComparison.OrdinalIgnoreCase))
                                                       {
-                                                          if (_LoginPasswords.TryGetValue(user.Id, out LoginPassword loginPassword) &&
-                                                              loginPassword.VerifyPassword(Password))
-                                                          {
-                                                              validUsers.Add(user);
-                                                          }
+                                                          possibleUsers.Add(user);
                                                       }
                                                   }
                                               }
 
-                                              if (!validUsers.Any())
+                                              if (possibleUsers.Count == 0)
                                                   return new HTTPResponse.Builder(Request) {
-                                                             HTTPStatusCode  = HTTPStatusCode.NotFound,
-                                                             Server          = HTTPServer.DefaultServerName,
-                                                             ContentType     = HTTPContentType.JSON_UTF8,
-                                                             Content         = new JObject(
-                                                                                   new JProperty("@context",     SignInOutContext),
-                                                                                   new JProperty("property",     "login"),
-                                                                                   new JProperty("description",  "Unknown login!")
-                                                                               ).ToString().ToUTF8Bytes(),
-                                                             CacheControl    = "private",
-                                                             Connection      = "close"
-                                                         };
+                                                          HTTPStatusCode  = HTTPStatusCode.NotFound,
+                                                          Server          = HTTPServer.DefaultServerName,
+                                                          ContentType     = HTTPContentType.JSON_UTF8,
+                                                          Content         = new JObject(
+                                                                                new JProperty("@context",     SignInOutContext),
+                                                                                new JProperty("property",     "login"),
+                                                                                new JProperty("description",  "Unknown login!")
+                                                                            ).ToString().ToUTF8Bytes(),
+                                                          CacheControl    = "private",
+                                                          Connection      = "close"
+                                                      }.AsImmutable;
+
+
+                                              var validUsers = new HashSet<User>();
+
+                                              foreach (var possibleUser in possibleUsers)
+                                              {
+                                                  if (_LoginPasswords.TryGetValue(possibleUser.Id, out LoginPassword loginPassword) &&
+                                                      loginPassword.VerifyPassword(Password))
+                                                  {
+                                                      validUsers.Add(possibleUser);
+                                                  }
+                                              }
+
+                                              if (validUsers.Count == 0)
+                                                  return new HTTPResponse.Builder(Request) {
+                                                          HTTPStatusCode  = HTTPStatusCode.NotFound,
+                                                          Server          = HTTPServer.DefaultServerName,
+                                                          ContentType     = HTTPContentType.JSON_UTF8,
+                                                          Content         = new JObject(
+                                                                                new JProperty("@context",     SignInOutContext),
+                                                                                new JProperty("property",     "login"),
+                                                                                new JProperty("description",  "Invalid password!")
+                                                                            ).ToString().ToUTF8Bytes(),
+                                                          CacheControl    = "private",
+                                                          Connection      = "close"
+                                                      }.AsImmutable;
+
 
                                               if (validUsers.Count > 1)
                                                   return new HTTPResponse.Builder(Request) {
-                                                             HTTPStatusCode  = HTTPStatusCode.MultipleChoices,
-                                                             Server          = HTTPServer.DefaultServerName,
-                                                             ContentType     = HTTPContentType.JSON_UTF8,
-                                                             Content         = new JObject(
-                                                                                   new JProperty("@context",     SignInOutContext),
-                                                                                   new JProperty("property",     "login"),
-                                                                                   new JProperty("description",  "Multiple matching user accounts found: Please use your login name!")
-                                                                               ).ToString().ToUTF8Bytes(),
-                                                             CacheControl    = "private",
-                                                             Connection      = "close"
-                                                         };
+                                                          HTTPStatusCode  = HTTPStatusCode.MultipleChoices,
+                                                          Server          = HTTPServer.DefaultServerName,
+                                                          ContentType     = HTTPContentType.JSON_UTF8,
+                                                          Content         = new JObject(
+                                                                                new JProperty("@context",     SignInOutContext),
+                                                                                new JProperty("property",     "login"),
+                                                                                new JProperty("description",  "Multiple matching user accounts found: Please use your login name!")
+                                                                            ).ToString().ToUTF8Bytes(),
+                                                          CacheControl    = "private",
+                                                          Connection      = "close"
+                                                      }.AsImmutable;
 
                                               #endregion
 
@@ -9118,13 +9167,59 @@ namespace social.OpenData.UsersAPI
 
             #region Get user from Basic-Auth...
 
-            if (Request.Authorization?.HTTPCredentialType == HTTPAuthenticationTypes.Basic &&
-                User_Id.TryParse(Request.Authorization.Username, out User_Id UserId)       &&
-                TryGet                 (UserId, out User)                              &&
-                _LoginPasswords.TryGetValue(UserId, out LoginPassword Password)            &&
-                Password.VerifyPassword(Request.Authorization.Password))
+            if (Request.Authorization?.HTTPCredentialType == HTTPAuthenticationTypes.Basic)
             {
-                return true;
+
+                #region Find username or e-mail addresses...
+
+                var possibleUsers = new HashSet<User>();
+                var validUsers    = new HashSet<User>();
+
+                if (User_Id.TryParse   (Request.Authorization.Username, out User_Id _UserId) &&
+                    _Users. TryGetValue(_UserId,                        out User    _User))
+                {
+                    possibleUsers.Add(_User);
+                }
+
+                if (possibleUsers.Count == 0)
+                {
+                    foreach (var user in _Users.Values)
+                    {
+                        if (String.Equals(Request.Authorization.Username,
+                                          user.EMail.Address.ToString(),
+                                          StringComparison.OrdinalIgnoreCase))
+                        {
+                            possibleUsers.Add(user);
+                        }
+                    }
+                }
+
+                if (possibleUsers.Count > 0)
+                {
+                    foreach (var possibleUser in possibleUsers)
+                    {
+                        if (_LoginPasswords.TryGetValue(possibleUser.Id, out LoginPassword loginPassword) &&
+                            loginPassword.VerifyPassword(Request.Authorization.Password))
+                        {
+                            validUsers.Add(possibleUser);
+                        }
+                    }
+                }
+
+                #endregion
+
+                #region HTTP Basic Auth is ok!
+
+                if (validUsers.Count == 1 &&
+                    validUsers.First().AcceptedEULA.HasValue &&
+                    validUsers.First().AcceptedEULA.Value < DateTime.UtcNow)
+                {
+                    User = validUsers.First();
+                    return true;
+                }
+
+                #endregion
+
             }
 
             #endregion
