@@ -20,6 +20,9 @@ function ShowElement2(DivName, displaymode) {
         div.style.display = displaymode;
     return div;
 }
+//interface CookieEater {
+//    (cookie: string): void;
+//}
 function GetCookie(CookieName) {
     var CookieMatch = document.cookie.match('(^|;) ?' + CookieName + '=([^;]*)(;|$)');
     if (CookieMatch == null)
@@ -27,13 +30,11 @@ function GetCookie(CookieName) {
     return CookieMatch[2];
 }
 function WithCookie(CookieName, OnSucess, OnFailure) {
-    var Cookie = GetCookie(CookieName);
-    if (Cookie == null) {
+    var CookieMatch = document.cookie.match('(^|;) ?' + CookieName + '=([^;]*)(;|$)');
+    if (CookieMatch == null)
         OnFailure();
-        return null;
-    }
     else if (OnSucess != undefined)
-        OnSucess(Cookie);
+        OnSucess(CookieMatch[2]);
 }
 function DeleteCookie(CookieName, Path) {
     var CookieDateTime = new Date();
@@ -44,6 +45,52 @@ function DeleteCookie(CookieName, Path) {
 }
 function VerifyLogin() {
     var acceptsEULA = false;
+    var loginform = document.getElementById("loginform");
+    var _login = document.getElementById("_login");
+    var _realm = document.getElementById("_realm");
+    var _password = document.getElementById("_password");
+    var responseDiv = document.getElementById("response");
+    var loginButton = document.getElementById("loginButton");
+    var loginInput = document.getElementById("loginInput");
+    var EULA = document.getElementById("EULA");
+    var IAcceptDiv = document.getElementById("IAccept");
+    var acceptEULAButton = document.getElementById("acceptEULAButton");
+    var AdditionalAuthenticationFactor = document.getElementById("AdditionalAuthenticationFactor");
+    _login.onchange = function () {
+        _login.value = _login.value.toLowerCase();
+        ToogleSaveButton();
+    };
+    _login.onkeyup = function () {
+        _login.value = _login.value.toLowerCase();
+        ToogleSaveButton();
+    };
+    _password.onchange = function () {
+        ToogleSaveButton();
+    };
+    _password.onkeyup = function () {
+        ToogleSaveButton();
+    };
+    loginform.onsubmit = function () {
+        return VerifyPassword();
+    };
+    IAcceptDiv.onclick = function () {
+        if (!IAcceptDiv.children[0].classList.contains("accepted")) {
+            IAcceptDiv.children[0].classList.add("accepted");
+            acceptEULAButton.classList.add("accepted");
+            // Respect the login button... just for additional security!
+            acceptEULAButton.disabled = loginInput.disabled;
+        }
+        else {
+            IAcceptDiv.children[0].classList.remove("accepted");
+            acceptEULAButton.classList.remove("accepted");
+            acceptEULAButton.disabled = true;
+        }
+    };
+    acceptEULAButton.onclick = function () {
+        acceptsEULA = true;
+        if (VerifyPassword())
+            loginform.submit();
+    };
     function ToogleSaveButton() {
         var validInput = _login.value.length >= 3 && _password.value.length > 5;
         loginInput.disabled = !validInput;
@@ -96,54 +143,26 @@ function VerifyLogin() {
         }
         return true;
     }
-    var loginform = document.getElementById("loginform");
-    var _login = document.getElementById("_login");
-    var _realm = document.getElementById("_realm");
-    var _password = document.getElementById("_password");
-    var responseDiv = document.getElementById("response");
-    var loginButton = document.getElementById("loginButton");
-    var loginInput = document.getElementById("loginInput");
-    var EULA = document.getElementById("EULA");
-    var IAcceptDiv = document.getElementById("IAccept");
-    var acceptEULAButton = document.getElementById("acceptEULAButton");
-    var AdditionalAuthenticationFactor = document.getElementById("AdditionalAuthenticationFactor");
-    _login.onchange = function (ev) {
-        _login.value = _login.value.toLowerCase();
-        ToogleSaveButton();
-    };
-    _login.onkeyup = function (ev) {
-        _login.value = _login.value.toLowerCase();
-        ToogleSaveButton();
-    };
-    _password.onchange = function (ev) {
-        ToogleSaveButton();
-    };
-    _password.onkeyup = function (ev) {
-        ToogleSaveButton();
-    };
-    loginform.onsubmit = function (ev) {
-        return VerifyPassword();
-    };
-    IAcceptDiv.onclick = function (ev) {
-        if (!IAcceptDiv.children[0].classList.contains("accepted")) {
-            IAcceptDiv.children[0].classList.add("accepted");
-            acceptEULAButton.classList.add("accepted");
-            // Respect the login button... just for additional security!
-            acceptEULAButton.disabled = loginInput.disabled;
-        }
-        else {
-            IAcceptDiv.children[0].classList.remove("accepted");
-            acceptEULAButton.classList.remove("accepted");
-            acceptEULAButton.disabled = true;
-        }
-    };
-    acceptEULAButton.onclick = function (ev) {
-        acceptsEULA = true;
-        loginform.submit();
-    };
     checkNotSignedIn();
 }
 function LostPassword() {
+    var loginform = document.getElementById("loginform");
+    var _id = document.getElementById("_id");
+    var _realm = document.getElementById("_realm");
+    var responseDiv = document.getElementById("response");
+    var resetPasswordButton = document.getElementById("resetPasswordButton");
+    var resetPasswordInput = document.getElementById("resetPasswordInput");
+    _id.onchange = function () {
+        _id.value = _id.value.toLowerCase();
+        ToogleSaveButton();
+    };
+    _id.onkeyup = function () {
+        _id.value = _id.value.toLowerCase();
+        ToogleSaveButton();
+    };
+    loginform.onsubmit = function (ev) {
+        return ResetPassword();
+    };
     function ToogleSaveButton() {
         var validInput = _id.value.length > 3;
         resetPasswordInput.disabled = !validInput;
@@ -186,29 +205,22 @@ function LostPassword() {
         });
         return false;
     }
-    var loginform = document.getElementById("loginform");
-    var _id = document.getElementById("_id");
-    var _realm = document.getElementById("_realm");
-    var responseDiv = document.getElementById("response");
-    var resetPasswordButton = document.getElementById("resetPasswordButton");
-    var resetPasswordInput = document.getElementById("resetPasswordInput");
-    _id.onchange = function (ev) {
-        _id.value = _id.value.toLowerCase();
-        ToogleSaveButton();
-    };
-    _id.onkeyup = function (ev) {
-        _id.value = _id.value.toLowerCase();
-        ToogleSaveButton();
-    };
-    loginform.onsubmit = function (ev) {
-        return ResetPassword();
-    };
     checkNotSignedIn();
     ToogleSaveButton();
 }
 function SetPassword() {
     var minPasswordLength = 5;
     var use2FactorAuth = false;
+    var loginform = document.getElementById("loginform");
+    var securityToken1 = document.getElementById("securityToken1");
+    var securityToken2 = document.getElementById("securityToken2");
+    var newPassword1 = document.getElementById("newPassword1");
+    var newPassword2 = document.getElementById("newPassword2");
+    var responseDiv = document.getElementById("response");
+    var setPasswordButton = document.getElementById("setPasswordButton");
+    var setPasswordInput = document.getElementById("setPasswordInput");
+    var gotoLoginButton = document.getElementById("gotoLoginButton");
+    var gotoLoginInput = document.getElementById("gotoLoginInput");
     function ToogleSaveButton() {
         if (securityToken1.value != "" &&
             securityToken1.value.length != 40) {
@@ -297,16 +309,6 @@ function SetPassword() {
         });
         return false;
     }
-    var loginform = document.getElementById("loginform");
-    var securityToken1 = document.getElementById("securityToken1");
-    var securityToken2 = document.getElementById("securityToken2");
-    var newPassword1 = document.getElementById("newPassword1");
-    var newPassword2 = document.getElementById("newPassword2");
-    var responseDiv = document.getElementById("response");
-    var setPasswordButton = document.getElementById("setPasswordButton");
-    var setPasswordInput = document.getElementById("setPasswordInput");
-    var gotoLoginButton = document.getElementById("gotoLoginButton");
-    var gotoLoginInput = document.getElementById("gotoLoginInput");
     if (window.location.search.length > 1) {
         var elements = window.location.search.substring(1).trim().split("&");
         securityToken1.value = elements[0].trim();
@@ -315,34 +317,34 @@ function SetPassword() {
             securityToken2.parentElement.parentElement.style.display = 'block';
         }
     }
-    securityToken1.onchange = function (ev) {
+    securityToken1.onchange = function () {
         ToogleSaveButton();
     };
-    securityToken1.onkeyup = function (ev) {
+    securityToken1.onkeyup = function () {
         ToogleSaveButton();
     };
-    securityToken2.onchange = function (ev) {
+    securityToken2.onchange = function () {
         ToogleSaveButton();
     };
-    securityToken2.onkeyup = function (ev) {
+    securityToken2.onkeyup = function () {
         ToogleSaveButton();
     };
-    newPassword1.onchange = function (ev) {
+    newPassword1.onchange = function () {
         ToogleSaveButton();
     };
-    newPassword1.onkeyup = function (ev) {
+    newPassword1.onkeyup = function () {
         ToogleSaveButton();
     };
-    newPassword2.onchange = function (ev) {
+    newPassword2.onchange = function () {
         ToogleSaveButton();
     };
-    newPassword2.onkeyup = function (ev) {
+    newPassword2.onkeyup = function () {
         ToogleSaveButton();
     };
-    loginform.onsubmit = function (ev) {
+    loginform.onsubmit = function () {
         return SetPassword();
     };
-    gotoLoginButton.onclick = function (ev) {
+    gotoLoginButton.onclick = function () {
         window.location.href = "/login";
     };
     DeleteCookie(HTTPCookieId);
@@ -435,48 +437,9 @@ function checkAdminSignedIn(RedirectUnkownUsers) {
     checkSignedIn(RedirectUnkownUsers);
 }
 function checkNotSignedIn() {
-    if (HTTPCookieId != null && HTTPCookieId != "") {
-        WithCookie(HTTPCookieId, function (cookie) {
-            location.href = "/index.shtml";
-        }, function () {
-        });
-    }
-}
-function GetLogin() {
-    var Cookie = GetCookie(HTTPCookieId);
-    var Login = "";
-    if (Cookie != null) {
-        // Crumbs are base64 encoded!
-        Cookie.split(":").forEach(function (crumb) {
-            if (crumb.indexOf("login") >= 0)
-                Login = atob(crumb.split("=")[1]);
-        });
-    }
-    return Login;
-}
-function GetUsername() {
-    var Cookie = GetCookie(HTTPCookieId);
-    var Username = "";
-    if (Cookie != null) {
-        // Crumbs are base64 encoded!
-        Cookie.split(":").forEach(function (crumb) {
-            if (crumb.indexOf("username") >= 0)
-                Username = atob(crumb.split("=")[1]);
-        });
-    }
-    return Username;
-}
-function GetEMail() {
-    var Cookie = GetCookie(HTTPCookieId);
-    var Username = "";
-    if (Cookie != null) {
-        // Crumbs are base64 encoded!
-        Cookie.split(":").forEach(function (crumb) {
-            if (crumb.indexOf("email") >= 0)
-                Username = atob(crumb.split("=")[1]);
-        });
-    }
-    return Username;
+    WithCookie(HTTPCookieId, function () {
+        location.href = "/index.shtml";
+    }, function () { });
 }
 function SignOut() {
     SendJSON("DEAUTH", "/users", null, function (HTTPStatus, ResponseText) {

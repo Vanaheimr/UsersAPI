@@ -1,13 +1,13 @@
 ﻿
-var SignInUser    = "";
-var Username      = "";
-var UserEMail     = "";
-var Astronaut     = "";
-var isAdmin       = "";
+let SignInUser    = "";
+let Username      = "";
+let UserEMail     = "";
+let Astronaut     = "";
+let isAdmin       = "";
 
 function HideElement(DivName) {
 
-    var div = document.querySelector(DivName);
+    const div = document.querySelector(DivName);
 
     if (div != null)
         div.style.display = "none";
@@ -25,7 +25,7 @@ function ShowElement2(DivName, displaymode) {
     if (displaymode == undefined)
         displaymode = "flex";
 
-    var div = document.querySelector(DivName);
+    const div = document.querySelector(DivName);
     if (div != null)
         div.style.display = displaymode;
 
@@ -34,14 +34,14 @@ function ShowElement2(DivName, displaymode) {
 }
 
 
-interface CookieEater {
-    (cookie: String): void;
-}
+//interface CookieEater {
+//    (cookie: string): void;
+//}
 
 
-function GetCookie(CookieName: String): String {
+function GetCookie(CookieName: string): string {
 
-    var CookieMatch = document.cookie.match('(^|;) ?' + CookieName + '=([^;]*)(;|$)');
+    const CookieMatch = document.cookie.match('(^|;) ?' + CookieName + '=([^;]*)(;|$)');
 
     if (CookieMatch == null)
         return null;
@@ -50,26 +50,23 @@ function GetCookie(CookieName: String): String {
 
 }
 
-function WithCookie(CookieName: String,
-                    OnSucess:   CookieEater,
-                    OnFailure) {
+function WithCookie(CookieName: string,
+                    OnSucess:   (cookie: string) => void,
+                    OnFailure:  ()               => void) {
 
-    var Cookie = GetCookie(CookieName);
+    const CookieMatch = document.cookie.match('(^|;) ?' + CookieName + '=([^;]*)(;|$)');
 
-    if (Cookie == null) {
+    if (CookieMatch == null)
         OnFailure();
-        return null;
-    }
 
     else if (OnSucess != undefined)
-        OnSucess(Cookie);
+        OnSucess(CookieMatch[2]);
 
 }
 
+function DeleteCookie(CookieName: string, Path?) {
 
-function DeleteCookie(CookieName: String, Path?) {
-
-    var CookieDateTime = new Date();
+    let CookieDateTime = new Date();
     CookieDateTime.setTime(CookieDateTime.getTime() - 86400000); // 1 day
 
     if (Path == undefined)
@@ -83,6 +80,70 @@ function DeleteCookie(CookieName: String, Path?) {
 function VerifyLogin() {
 
     let acceptsEULA = false;
+
+    const loginform                       = document.getElementById("loginform")                       as HTMLFormElement;
+    const _login                          = document.getElementById("_login")                          as HTMLInputElement;
+    const _realm                          = document.getElementById("_realm")                          as HTMLInputElement;
+    const _password                       = document.getElementById("_password")                       as HTMLInputElement;
+    const responseDiv                     = document.getElementById("response")                        as HTMLDivElement;
+    const loginButton                     = document.getElementById("loginButton")                     as HTMLDivElement;
+    const loginInput                      = document.getElementById("loginInput")                      as HTMLInputElement;
+    const EULA                            = document.getElementById("EULA")                            as HTMLDivElement;
+    const IAcceptDiv                      = document.getElementById("IAccept")                         as HTMLDivElement;
+    const acceptEULAButton                = document.getElementById("acceptEULAButton")                as HTMLButtonElement;
+    const AdditionalAuthenticationFactor  = document.getElementById("AdditionalAuthenticationFactor")  as HTMLDivElement;
+
+    _login.onchange    = () => {
+        _login.value = _login.value.toLowerCase();
+        ToogleSaveButton();
+    }
+
+    _login.onkeyup     = () => {
+        _login.value = _login.value.toLowerCase();
+        ToogleSaveButton();
+    }
+
+    _password.onchange = () => {
+        ToogleSaveButton();
+    }
+
+    _password.onkeyup  = () => {
+        ToogleSaveButton();
+    }
+
+    loginform.onsubmit = () => {
+        return VerifyPassword();
+    }
+
+    IAcceptDiv.onclick = () => {
+
+        if (!IAcceptDiv.children[0].classList.contains("accepted")) {
+
+            IAcceptDiv.children[0].classList.add("accepted");
+            acceptEULAButton.classList.add("accepted");
+
+            // Respect the login button... just for additional security!
+            acceptEULAButton.disabled = loginInput.disabled;
+
+        }
+
+        else {
+            IAcceptDiv.children[0].classList.remove("accepted");
+            acceptEULAButton.classList.remove("accepted");
+            acceptEULAButton.disabled = true;
+        }
+
+    }
+
+    acceptEULAButton.onclick = () => {
+
+        acceptsEULA = true;
+
+        if (VerifyPassword())
+            loginform.submit();
+
+    }
+
 
     function ToogleSaveButton() {
 
@@ -98,14 +159,14 @@ function VerifyLogin() {
 
     }
 
-    function VerifyPassword() : boolean {
+    function VerifyPassword(): boolean {
 
-        var ResponseText = HTTPAuth("/users/" + _login.value,
-                                    {
-                                        "login":        _login.value,
-                                        "password":     _password.value,
-                                        "acceptsEULA":  acceptsEULA
-                                    });
+        const ResponseText = HTTPAuth("/users/" + _login.value,
+                                      {
+                                          "login":        _login.value,
+                                          "password":     _password.value,
+                                          "acceptsEULA":  acceptsEULA
+                                      });
 
         if (ResponseText == "") {
             responseDiv.style.display = 'block';
@@ -113,9 +174,10 @@ function VerifyLogin() {
             return false;
         }
 
-        try {
+        try
+        {
 
-            var responseJSON = JSON.parse(ResponseText);
+            const responseJSON = JSON.parse(ResponseText);
 
             if (responseJSON.showEULA == true) {
                 EULA.style.display = 'block';
@@ -160,65 +222,6 @@ function VerifyLogin() {
 
     }
 
-    let loginform                       = document.getElementById("loginform")                       as HTMLFormElement;
-    let _login                          = document.getElementById("_login")                          as HTMLInputElement;
-    let _realm                          = document.getElementById("_realm")                          as HTMLInputElement;
-    let _password                       = document.getElementById("_password")                       as HTMLInputElement;
-    let responseDiv                     = document.getElementById("response")                        as HTMLDivElement;
-    let loginButton                     = document.getElementById("loginButton")                     as HTMLDivElement;
-    let loginInput                      = document.getElementById("loginInput")                      as HTMLInputElement;
-    let EULA                            = document.getElementById("EULA")                            as HTMLDivElement;
-    let IAcceptDiv                      = document.getElementById("IAccept")                         as HTMLDivElement;
-    let acceptEULAButton                = document.getElementById("acceptEULAButton")                as HTMLButtonElement;
-    let AdditionalAuthenticationFactor  = document.getElementById("AdditionalAuthenticationFactor")  as HTMLDivElement;
-
-    _login.onchange    = function (this: HTMLElement, ev: Event) {
-        _login.value = _login.value.toLowerCase();
-        ToogleSaveButton();
-    }
-
-    _login.onkeyup     = function (this: HTMLElement, ev: Event) {
-        _login.value = _login.value.toLowerCase();
-        ToogleSaveButton();
-    }
-
-    _password.onchange = function (this: HTMLElement, ev: Event) {
-        ToogleSaveButton();
-    }
-
-    _password.onkeyup  = function (this: HTMLElement, ev: Event) {
-        ToogleSaveButton();
-    }
-
-    loginform.onsubmit = function (this: HTMLElement, ev: Event) {
-        return VerifyPassword();
-    }
-
-    IAcceptDiv.onclick = function (this: HTMLElement, ev: Event) {
-
-        if (!IAcceptDiv.children[0].classList.contains("accepted")) {
-
-            IAcceptDiv.children[0].classList.add("accepted");
-            acceptEULAButton.classList.add("accepted");
-
-            // Respect the login button... just for additional security!
-            acceptEULAButton.disabled = loginInput.disabled;
-
-        }
-
-        else {
-            IAcceptDiv.children[0].classList.remove("accepted");
-            acceptEULAButton.classList.remove("accepted");
-            acceptEULAButton.disabled = true;
-        }
-
-    }
-
-    acceptEULAButton.onclick = function (this: HTMLElement, ev: Event) {
-        acceptsEULA = true;
-        loginform.submit();
-    }
-
     checkNotSignedIn();
 
 }
@@ -226,9 +229,31 @@ function VerifyLogin() {
 
 function LostPassword() {
 
+    const loginform            = document.getElementById("loginform")           as HTMLFormElement;
+    const _id                  = document.getElementById("_id")                 as HTMLInputElement;
+    const _realm               = document.getElementById("_realm")              as HTMLInputElement;
+    const responseDiv          = document.getElementById("response")            as HTMLDivElement;
+    const resetPasswordButton  = document.getElementById("resetPasswordButton") as HTMLDivElement;
+    const resetPasswordInput   = document.getElementById("resetPasswordInput")  as HTMLInputElement;
+
+    _id.onchange       = () => {
+        _id.value = _id.value.toLowerCase();
+        ToogleSaveButton();
+    }
+
+    _id.onkeyup        = () => {
+        _id.value = _id.value.toLowerCase();
+        ToogleSaveButton();
+    }
+
+    loginform.onsubmit = function (this: HTMLElement, ev: Event) {
+        return ResetPassword();
+    }
+
+
     function ToogleSaveButton() {
 
-        var validInput = _id.value.length > 3;
+        const validInput = _id.value.length > 3;
 
         resetPasswordInput.disabled = !validInput;
 
@@ -259,7 +284,7 @@ function LostPassword() {
 
                     try {
 
-                        var responseJSON = JSON.parse(ResponseText);
+                        const responseJSON = JSON.parse(ResponseText);
 
                         if (responseJSON.numberOfAccountsFound != null) {
                             responseDiv.style.display = 'block';
@@ -291,26 +316,6 @@ function LostPassword() {
 
     }
 
-    let loginform            = document.getElementById("loginform")           as HTMLFormElement;
-    let _id                  = document.getElementById("_id")                 as HTMLInputElement;
-    let _realm               = document.getElementById("_realm")              as HTMLInputElement;
-    let responseDiv          = document.getElementById("response")            as HTMLDivElement;
-    let resetPasswordButton  = document.getElementById("resetPasswordButton") as HTMLDivElement;
-    let resetPasswordInput   = document.getElementById("resetPasswordInput")  as HTMLInputElement;
-
-    _id.onchange       = function (this: HTMLElement, ev: Event) {
-        _id.value = _id.value.toLowerCase();
-        ToogleSaveButton();
-    }
-
-    _id.onkeyup        = function (this: HTMLElement, ev: KeyboardEvent) {
-        _id.value = _id.value.toLowerCase();
-        ToogleSaveButton();
-    }
-
-    loginform.onsubmit = function (this: HTMLElement, ev: Event) {
-        return ResetPassword();
-    }
 
     checkNotSignedIn();
     ToogleSaveButton();
@@ -320,8 +325,19 @@ function LostPassword() {
 
 function SetPassword() {
 
-    let minPasswordLength  = 5;
-    let use2FactorAuth     = false;
+    const minPasswordLength  = 5;
+    let   use2FactorAuth     = false;
+
+    const loginform          = document.getElementById("loginform")         as HTMLFormElement;
+    const securityToken1     = document.getElementById("securityToken1")    as HTMLInputElement;
+    const securityToken2     = document.getElementById("securityToken2")    as HTMLInputElement;
+    const newPassword1       = document.getElementById("newPassword1")      as HTMLInputElement;
+    const newPassword2       = document.getElementById("newPassword2")      as HTMLInputElement;
+    const responseDiv        = document.getElementById("response")          as HTMLDivElement;
+    const setPasswordButton  = document.getElementById("setPasswordButton") as HTMLDivElement;
+    const setPasswordInput   = document.getElementById("setPasswordInput")  as HTMLInputElement;
+    const gotoLoginButton    = document.getElementById("gotoLoginButton")   as HTMLDivElement;
+    const gotoLoginInput     = document.getElementById("gotoLoginInput")    as HTMLInputElement;
 
     function ToogleSaveButton() {
 
@@ -453,20 +469,11 @@ function SetPassword() {
 
     }
 
-    let loginform          = document.getElementById("loginform")         as HTMLFormElement;
-    let securityToken1     = document.getElementById("securityToken1")    as HTMLInputElement;
-    let securityToken2     = document.getElementById("securityToken2")    as HTMLInputElement;
-    let newPassword1       = document.getElementById("newPassword1")      as HTMLInputElement;
-    let newPassword2       = document.getElementById("newPassword2")      as HTMLInputElement;
-    let responseDiv        = document.getElementById("response")          as HTMLDivElement;
-    let setPasswordButton  = document.getElementById("setPasswordButton") as HTMLDivElement;
-    let setPasswordInput   = document.getElementById("setPasswordInput")  as HTMLInputElement;
-    let gotoLoginButton    = document.getElementById("gotoLoginButton")   as HTMLDivElement;
-    let gotoLoginInput     = document.getElementById("gotoLoginInput")    as HTMLInputElement;
+
 
     if (window.location.search.length > 1) {
 
-        var elements = window.location.search.substring(1).trim().split("&");
+        const elements = window.location.search.substring(1).trim().split("&");
 
         securityToken1.value = elements[0].trim();
 
@@ -477,47 +484,47 @@ function SetPassword() {
 
     }
 
-    securityToken1.onchange = function (this: HTMLElement, ev: Event) {
+    securityToken1.onchange = () => {
         ToogleSaveButton();
     }
 
-    securityToken1.onkeyup = function (this: HTMLElement, ev: Event) {
-        ToogleSaveButton();
-    }
-
-
-    securityToken2.onchange = function (this: HTMLElement, ev: Event) {
-        ToogleSaveButton();
-    }
-
-    securityToken2.onkeyup = function (this: HTMLElement, ev: Event) {
+    securityToken1.onkeyup = () => {
         ToogleSaveButton();
     }
 
 
-    newPassword1.onchange = function (this: HTMLElement, ev: Event) {
+    securityToken2.onchange = () => {
         ToogleSaveButton();
     }
 
-    newPassword1.onkeyup = function (this: HTMLElement, ev: Event) {
-        ToogleSaveButton();
-    }
-
-
-    newPassword2.onchange = function (this: HTMLElement, ev: Event) {
-        ToogleSaveButton();
-    }
-
-    newPassword2.onkeyup = function (this: HTMLElement, ev: Event) {
+    securityToken2.onkeyup = () => {
         ToogleSaveButton();
     }
 
 
-    loginform.onsubmit = function (this: HTMLElement, ev: Event) {
+    newPassword1.onchange = () => {
+        ToogleSaveButton();
+    }
+
+    newPassword1.onkeyup = () => {
+        ToogleSaveButton();
+    }
+
+
+    newPassword2.onchange = () => {
+        ToogleSaveButton();
+    }
+
+    newPassword2.onkeyup = () => {
+        ToogleSaveButton();
+    }
+
+
+    loginform.onsubmit = () => {
         return SetPassword();
     }
 
-    gotoLoginButton.onclick = function (this: HTMLElement, ev: Event) {
+    gotoLoginButton.onclick = () => {
         window.location.href = "/login";
     }
 
@@ -530,13 +537,13 @@ function SetPassword() {
 
 function SignIn() {
 
-    var SignInPanel  = document.querySelector('#login');
-    var Username     = (<HTMLInputElement> SignInPanel.querySelector('#_login')).     value.toLowerCase();
-    var Realm        = (<HTMLInputElement> SignInPanel.querySelector('#_realm')).     value.toLowerCase();
-    var Password     = (<HTMLInputElement> SignInPanel.querySelector('#_password')).  value;
-    var RememberMe   = (<HTMLInputElement> SignInPanel.querySelector('#_rememberme')).checked;
+    const SignInPanel  =     document.querySelector('#login');
+    const Username     = (SignInPanel.querySelector('#_login')      as HTMLInputElement).value.toLowerCase();
+    const Realm        = (SignInPanel.querySelector('#_realm')      as HTMLInputElement).value.toLowerCase();
+    const Password     = (SignInPanel.querySelector('#_password')   as HTMLInputElement).value;
+    const RememberMe   = (SignInPanel.querySelector('#_rememberme') as HTMLInputElement).checked;
 
-    var SignInErrors = <HTMLElement> SignInPanel.querySelector('#errors');
+    const SignInErrors =  SignInPanel.querySelector('#errors')      as HTMLElement;
     SignInErrors.style.display = "none";
     SignInErrors.innerText     = "";
 
@@ -554,10 +561,8 @@ function SignIn() {
              },
 
              function (HTTPStatus, StatusText, ResponseText) {
-
                  SignInErrors.style.display = "block";
                  SignInErrors.innerText = JSON.parse(ResponseText).description;
-
              });
 
 }
@@ -633,7 +638,7 @@ function checkSignedIn(RedirectUnkownUsers: Boolean) {
                    ShowElement('#SignIn');
                    ShowElement('.SignIn');
 
-                   var usernameDiv = <HTMLElement> document.querySelector('#username');
+                   const usernameDiv = document.querySelector('#username') as HTMLElement;
 
                    if (usernameDiv != null)
                        usernameDiv.innerText = "anonymous";
@@ -676,83 +681,15 @@ function checkAdminSignedIn(RedirectUnkownUsers: Boolean) {
 
 function checkNotSignedIn() {
 
-    if (HTTPCookieId != null && HTTPCookieId != "") {
+    WithCookie(HTTPCookieId,
 
-        WithCookie(HTTPCookieId,
+               () => {
+                   location.href = "/index.shtml";
+               },
 
-                   cookie => {
-                       location.href = "/index.shtml";
-                   },
+               () => { }
 
-                   () => {
-                   }
-
-            );
-
-    }
-
-}
-
-function GetLogin() : string {
-
-    var Cookie = GetCookie(HTTPCookieId);
-    var Login  = "";
-
-    if (Cookie != null) {
-
-        // Crumbs are base64 encoded!
-        Cookie.split(":").forEach(crumb => {
-
-            if (crumb.indexOf("login") >= 0)
-                Login = atob(crumb.split("=")[1]);
-
-        });
-
-    }
-
-    return Login;
-
-}
-
-function GetUsername(): string {
-
-    var Cookie    = GetCookie( HTTPCookieId);
-    var Username  = "";
-
-    if (Cookie != null) {
-
-        // Crumbs are base64 encoded!
-        Cookie.split(":").forEach(crumb => {
-
-            if (crumb.indexOf("username") >= 0)
-                Username = atob(crumb.split("=")[1]);
-
-        });
-
-    }
-
-    return Username;
-
-}
-
-function GetEMail(): string {
-
-    var Cookie    = GetCookie( HTTPCookieId);
-    var Username  = "";
-
-    if (Cookie != null) {
-
-        // Crumbs are base64 encoded!
-        Cookie.split(":").forEach(crumb => {
-
-            if (crumb.indexOf("email") >= 0)
-                Username = atob(crumb.split("=")[1]);
-
-        });
-
-    }
-
-    return Username;
+        );
 
 }
 
