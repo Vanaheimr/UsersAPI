@@ -103,7 +103,7 @@ namespace social.OpenData.UsersAPI
                              PrivacyLevel?                        PrivacyLevel          = null,
                              I18NString                           Location              = null,
                              GeoCoordinate?                       GeoLocation           = null,
-                             IEnumerable<Tag>                     ProblemDescriptions   = null,
+                             IEnumerable<ProblemDescriptionI18N>  ProblemDescriptions   = null,
                              IEnumerable<Tag>                     StatusIndicators      = null,
                              IEnumerable<Tag>                     Reactions             = null,
                              I18NString                           AdditionalInfo        = null,
@@ -494,39 +494,17 @@ namespace social.OpenData.UsersAPI
 
                 #endregion
 
-                #region Parse Problem Descriptions       [optional]
+                #region Parse Problem descriptions       [optional]
 
-                var ProblemDescriptions = new HashSet<Tag>();
-
-                if (JSONObject.ParseOptional("problemDescriptions",
-                                             "problem descriptions",
-                                             out JArray ProblemDescriptionsJSON,
-                                             out ErrorResponse))
+                if (!JSONObject.ParseOptionalI18NHashSet("problemDescriptions",
+                                                         "problem descriptions",
+                                                         ProblemDescriptionI18N.TryParse,
+                                                         out HashSet<ProblemDescriptionI18N> ProblemDescriptions,
+                                                         out ErrorResponse))
                 {
 
                     if (ErrorResponse != null)
                         return false;
-
-                    if (ProblemDescriptionsJSON != null)
-                    {
-
-                        var text = "";
-
-                        foreach (var problemDescription in ProblemDescriptionsJSON)
-                        {
-
-                            text = problemDescription.Value<String>();
-
-                            if (text.IsNotNullOrEmpty())
-                            {
-                                text = text.Trim();
-                                if (text != "")
-                                    ProblemDescriptions.Add(new Tag(Tag_Id.Parse(text)));
-                            }
-
-                        }
-
-                    }
 
                 }
 
@@ -1132,7 +1110,7 @@ namespace social.OpenData.UsersAPI
                            PrivacyLevel?                        PrivacyLevel               = null,
                            I18NString                           Location                   = null,
                            GeoCoordinate?                       GeoLocation                = null,
-                           IEnumerable<Tag>                     ProblemDescriptions        = null,
+                           IEnumerable<ProblemDescriptionI18N>  ProblemDescriptions        = null,
                            IEnumerable<Tag>                     StatusIndicators           = null,
                            IEnumerable<Tag>                     Reactions                  = null,
                            I18NString                           AdditionalInfo             = null,

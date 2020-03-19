@@ -93,7 +93,7 @@ namespace social.OpenData.UsersAPI
         /// <summary>
         /// An enumeration of well-defined problem descriptions.
         /// </summary>
-        public IEnumerable<Tag>                            ProblemDescriptions         { get; }
+        public IEnumerable<ProblemDescriptionI18N>         ProblemDescriptions         { get; }
 
         /// <summary>
         /// An enumeration of problem indicators.
@@ -173,28 +173,28 @@ namespace social.OpenData.UsersAPI
         /// 
         /// <param name="DataSource">The source of all this data, e.g. an automatic importer.</param>
         public AServiceTicketChangeSet(ServiceTicketChangeSet_Id?                    Id                    = null,
-                                     DateTime?                                   Timestamp             = null,
-                                     User                                        Author                = null,
-                                     ServiceTicketStatusTypes?                   Status                = null,
-                                     I18NString                                  Title                 = null,
-                                     Affected                                    Affected              = null,
-                                     ServiceTicketPriorities?                    Priority              = null,
-                                     PrivacyLevel?                               PrivacyLevel          = null,
-                                     I18NString                                  Location              = null,
-                                     GeoCoordinate?                              GeoLocation           = null,
-                                     IEnumerable<Tag>                            ProblemDescriptions   = null,
-                                     IEnumerable<Tag>                            StatusIndicators      = null,
-                                     IEnumerable<Tag>                            Reactions             = null,
-                                     I18NString                                  AdditionalInfo        = null,
-                                     IEnumerable<HTTPPath>                       AttachedFiles         = null,
-                                     IEnumerable<ServiceTicketReference>         TicketReferences      = null,
-                                     IEnumerable<DataLicense>                    DataLicenses          = null,
+                                       DateTime?                                     Timestamp             = null,
+                                       User                                          Author                = null,
+                                       ServiceTicketStatusTypes?                     Status                = null,
+                                       I18NString                                    Title                 = null,
+                                       Affected                                      Affected              = null,
+                                       ServiceTicketPriorities?                      Priority              = null,
+                                       PrivacyLevel?                                 PrivacyLevel          = null,
+                                       I18NString                                    Location              = null,
+                                       GeoCoordinate?                                GeoLocation           = null,
+                                       IEnumerable<ProblemDescriptionI18N>           ProblemDescriptions   = null,
+                                       IEnumerable<Tag>                              StatusIndicators      = null,
+                                       IEnumerable<Tag>                              Reactions             = null,
+                                       I18NString                                    AdditionalInfo        = null,
+                                       IEnumerable<HTTPPath>                         AttachedFiles         = null,
+                                       IEnumerable<ServiceTicketReference>           TicketReferences      = null,
+                                       IEnumerable<DataLicense>                      DataLicenses          = null,
 
-                                     I18NString                                  Comment               = null,
-                                     ServiceTicketChangeSet_Id?                    InReplyTo             = null,
-                                     IEnumerable<ServiceTicketChangeSetReference>  CommentReferences     = null,
+                                       I18NString                                    Comment               = null,
+                                       ServiceTicketChangeSet_Id?                    InReplyTo             = null,
+                                       IEnumerable<ServiceTicketChangeSetReference>  CommentReferences     = null,
 
-                                     String                                      DataSource            = null)
+                                       String                                        DataSource            = null)
 
             : base(Id ?? ServiceTicketChangeSet_Id.Random(),
                    DataSource)
@@ -210,7 +210,7 @@ namespace social.OpenData.UsersAPI
             this.PrivacyLevel         = PrivacyLevel;
             this.Location             = Location;
             this.GeoLocation          = GeoLocation;
-            this.ProblemDescriptions  = ProblemDescriptions != null ? ProblemDescriptions.Distinct() : Array.Empty<Tag>();
+            this.ProblemDescriptions  = ProblemDescriptions != null ? ProblemDescriptions.Distinct() : Array.Empty<ProblemDescriptionI18N>();
             this.StatusIndicators     = StatusIndicators    != null ? StatusIndicators.   Distinct() : Array.Empty<Tag>();
             this.Reactions            = Reactions        ?? Array.Empty<Tag>();
             this.AdditionalInfo       = AdditionalInfo;
@@ -283,18 +283,18 @@ namespace social.OpenData.UsersAPI
                     ? PrivacyLevel.Value.ToJSON("geoLocation")
                     : null,
 
-                ProblemDescriptions.SafeAny()
-                    ? new JProperty("problemDescriptions",  new JArray(ProblemDescriptions.SafeSelect(tag => tag.Id.ToString())))
-                    : null,
+                ProblemDescriptions.IsNeitherNullNorEmpty()
+                       ? new JProperty("problemDescriptions",  new JArray(ProblemDescriptions.Select(problemDescription => problemDescription.ToJSON())))
+                       : null,
 
                 StatusIndicators.SafeAny()
-                    ? new JProperty("statusIndicators",     new JArray(StatusIndicators.SafeSelect(tag => tag.Id.ToString())))
+                    ? new JProperty("statusIndicators",        new JArray(StatusIndicators.   Select(statusIndicator    => statusIndicator.Id.ToString())))
                     : null,
 
                 Reactions.SafeAny()
                     ? ExpandReactions.Switch(
-                          () => new JProperty("reactionIds",  new JArray(Reactions.Select(tag => tag.Id.ToString()))),
-                          () => new JProperty("reactions",    new JArray(Reactions.Select(tag => tag.ToJSON()))))
+                          () => new JProperty("reactionIds",   new JArray(Reactions.          Select(tag                => tag.Id.ToString()))),
+                          () => new JProperty("reactions",     new JArray(Reactions.          Select(tag                => tag.ToJSON()))))
                     : null,
 
                 AdditionalInfo.IsNeitherNullNorEmpty()
@@ -302,11 +302,11 @@ namespace social.OpenData.UsersAPI
                     : null,
 
                 AttachedFiles.SafeAny()
-                    ? new JProperty("attachedFiles",          new JArray(AttachedFiles.Select(uri => uri.ToString())))
+                    ? new JProperty("attachedFiles",           new JArray(AttachedFiles.      Select(attachedFile       => attachedFile.ToString())))
                     : null,
 
                 TicketReferences.SafeAny()
-                    ? new JProperty("ticketReferences", new JArray(TicketReferences.Select(references => references.ToString())))
+                    ? new JProperty("ticketReferences",        new JArray(TicketReferences.   Select(references         => references.ToString())))
                     : null,
 
 
@@ -320,13 +320,13 @@ namespace social.OpenData.UsersAPI
                     : null,
 
                 CommentReferences.SafeAny()
-                    ? new JProperty("commentReferences", new JArray(CommentReferences.Select(references => references.ToString())))
+                    ? new JProperty("commentReferences",       new JArray(CommentReferences.  Select(references         => references.ToString())))
                     : null,
 
 
                 DataLicenses.SafeAny()
                     ? ExpandDataLicenses.Switch(
-                          () => new JProperty("dataLicenseIds",  new JArray(DataLicenses.SafeSelect(license => license.Id.ToString()))),
+                          () => new JProperty("dataLicenseIds",  new JArray(DataLicenses.     Select(dataLicense        => dataLicense.Id.ToString()))),
                           () => new JProperty("dataLicenses",    DataLicenses.ToJSON()))
                     : null,
 
@@ -595,37 +595,15 @@ namespace social.OpenData.UsersAPI
 
                 #region Parse Problem descriptions      [optional]
 
-                var ProblemDescriptions = new HashSet<Tag>();
-
-                if (JSONObject.ParseOptional("problemDescriptions",
-                                             "problem descriptions",
-                                             out JArray ProblemDescriptionsJSON,
-                                             out ErrorResponse))
+                if (!JSONObject.ParseOptionalI18NHashSet("problemDescriptions",
+                                                         "problem descriptions",
+                                                         ProblemDescriptionI18N.TryParse,
+                                                         out HashSet<ProblemDescriptionI18N> ProblemDescriptions,
+                                                         out ErrorResponse))
                 {
 
                     if (ErrorResponse != null)
                         return false;
-
-                    if (ProblemDescriptionsJSON != null)
-                    {
-
-                        var text = "";
-
-                        foreach (var problemDescription in ProblemDescriptionsJSON)
-                        {
-
-                            text = problemDescription.Value<String>();
-
-                            if (text.IsNotNullOrEmpty())
-                            {
-                                text = text.Trim();
-                                if (text != "")
-                                    ProblemDescriptions.Add(new Tag(Tag_Id.Parse(text)));
-                            }
-
-                        }
-
-                    }
 
                 }
 
@@ -800,28 +778,28 @@ namespace social.OpenData.UsersAPI
 
 
                 ServiceTicketChangeSet = new ServiceTicketChangeSet(ServiceTicketChangeSetIdBody ?? ServiceTicketChangeSetIdURI.Value,
-                                                                Timestamp,
-                                                                Author,
-                                                                Status,
-                                                                Title,
-                                                                Affected,
-                                                                Priority,
-                                                                PrivacyLevel,
-                                                                Location,
-                                                                GeoLocation,
-                                                                ProblemDescriptions,
-                                                                StatusIndicators,
-                                                                Reactions,
-                                                                AdditionalInfo,
-                                                                AttachedFiles,
-                                                                TicketReferences,
-                                                                DataLicenses,
+                                                                    Timestamp,
+                                                                    Author,
+                                                                    Status,
+                                                                    Title,
+                                                                    Affected,
+                                                                    Priority,
+                                                                    PrivacyLevel,
+                                                                    Location,
+                                                                    GeoLocation,
+                                                                    ProblemDescriptions,
+                                                                    StatusIndicators,
+                                                                    Reactions,
+                                                                    AdditionalInfo,
+                                                                    AttachedFiles,
+                                                                    TicketReferences,
+                                                                    DataLicenses,
 
-                                                                Comment,
-                                                                InReplyTo,
-                                                                CommentReferences,
+                                                                    Comment,
+                                                                    InReplyTo,
+                                                                    CommentReferences,
 
-                                                                DataSource);
+                                                                    DataSource);
 
                 ErrorResponse = null;
                 return true;
@@ -1180,7 +1158,7 @@ namespace social.OpenData.UsersAPI
             /// <summary>
             /// An enumeration of well-defined problem descriptions.
             /// </summary>
-            public IEnumerable<Tag>                            ProblemDescriptions       { get; set; }
+            public IEnumerable<ProblemDescriptionI18N>         ProblemDescriptions       { get; set; }
 
             /// <summary>
             /// An enumeration of problem indicators.
@@ -1274,7 +1252,7 @@ namespace social.OpenData.UsersAPI
                            PrivacyLevel?                               PrivacyLevel          = null,
                            I18NString                                  Location              = null,
                            GeoCoordinate?                              GeoLocation           = null,
-                           IEnumerable<Tag>                            ProblemDescriptions   = null,
+                           IEnumerable<ProblemDescriptionI18N>         ProblemDescriptions   = null,
                            IEnumerable<Tag>                            StatusIndicators      = null,
                            IEnumerable<Tag>                            Reactions             = null,
                            I18NString                                  AdditionalInfo        = null,
@@ -1299,7 +1277,7 @@ namespace social.OpenData.UsersAPI
                 this.PrivacyLevel         = PrivacyLevel;
                 this.Location             = Location;
                 this.GeoLocation          = GeoLocation;
-                this.ProblemDescriptions  = ProblemDescriptions != null ? ProblemDescriptions.Distinct() : Array.Empty<Tag>();
+                this.ProblemDescriptions  = ProblemDescriptions != null ? ProblemDescriptions.Distinct() : Array.Empty<ProblemDescriptionI18N>();
                 this.StatusIndicators     = StatusIndicators    != null ? StatusIndicators.   Distinct() : Array.Empty<Tag>();
                 this.Reactions            = Reactions        ?? Array.Empty<Tag>();
                 this.AdditionalInfo       = AdditionalInfo;

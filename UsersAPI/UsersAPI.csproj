@@ -60,6 +60,7 @@
     <Compile Include="Entities\ServiceTickets\AGenericServiceTicket.cs" />
     <Compile Include="Entities\ServiceTickets\AServiceTicket.cs" />
     <Compile Include="Entities\ServiceTickets\AServiceTicketChangeSet.cs" />
+    <Compile Include="Entities\ServiceTickets\DataFields.cs" />
     <Compile Include="Entities\ServiceTickets\MessageHolder.cs" />
     <Compile Include="Entities\ServiceTickets\ServiceTicket.cs" />
     <Compile Include="Entities\ServiceTickets\ServiceTicketChangeSet.cs" />

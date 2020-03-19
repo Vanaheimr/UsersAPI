@@ -220,7 +220,7 @@ namespace social.OpenData.UsersAPI
         /// <summary>
         /// An enumeration of well-defined problem descriptions.
         /// </summary>
-        public IEnumerable<Tag>                         ProblemDescriptions     { get; }
+        public IEnumerable<ProblemDescriptionI18N>      ProblemDescriptions     { get; }
 
         /// <summary>
         /// An enumeration of status indicators.
@@ -377,7 +377,7 @@ namespace social.OpenData.UsersAPI
                               PrivacyLevel?                        PrivacyLevel          = null,
                               I18NString                           Location              = null,
                               GeoCoordinate?                       GeoLocation           = null,
-                              IEnumerable<Tag>                     ProblemDescriptions   = null,
+                              IEnumerable<ProblemDescriptionI18N>  ProblemDescriptions   = null,
                               IEnumerable<Tag>                     StatusIndicators      = null,
                               IEnumerable<Tag>                     Reactions             = null,
                               I18NString                           AdditionalInfo        = null,
@@ -504,12 +504,12 @@ namespace social.OpenData.UsersAPI
 
                    GeoLocation?.ToJSON("geoLocation"),
 
-                   ProblemDescriptions.SafeAny()
-                       ? new JProperty("problemDescriptions",  new JArray(ProblemDescriptions.SafeSelect(tag => tag.Id.ToString())))
+                   ProblemDescriptions.IsNeitherNullNorEmpty()
+                       ? new JProperty("problemDescriptions",  new JArray(ProblemDescriptions.  Select(problemDescription => problemDescription.ToJSON())))
                        : null,
 
                    StatusIndicators.SafeAny()
-                       ? new JProperty("statusIndicators",     new JArray(StatusIndicators.SafeSelect(tag => tag.Id.ToString())))
+                       ? new JProperty("statusIndicators",     new JArray(StatusIndicators.     Select(tag                => tag.Id.ToString())))
                        : null,
 
                    AdditionalInfo.IsNeitherNullNorEmpty()
@@ -517,7 +517,7 @@ namespace social.OpenData.UsersAPI
                        : null,
 
                    AttachedFiles.SafeAny()
-                       ? new JProperty("attachedFiles",        new JArray(AttachedFiles.SafeSelect(url     => url.ToString())))
+                       ? new JProperty("attachedFiles",        new JArray(AttachedFiles.        Select(attachedFile       => attachedFile.ToString())))
                        : null,
 
                    IncludeChangeSets && ChangeSets.SafeAny()
@@ -533,7 +533,7 @@ namespace social.OpenData.UsersAPI
 
                    DataLicenses.SafeAny()
                        ? ExpandDataLicenses.Switch(
-                             () => new JProperty("dataLicenseIds",  new JArray(DataLicenses.SafeSelect(license => license.Id.ToString()))),
+                             () => new JProperty("dataLicenseIds",  new JArray(DataLicenses.    Select(dataLicense        => dataLicense.Id.ToString()))),
                              () => new JProperty("dataLicenses",    DataLicenses.ToJSON()))
                        : null,
 
@@ -973,7 +973,7 @@ namespace social.OpenData.UsersAPI
             /// <summary>
             /// An enumeration of well-defined problem descriptions.
             /// </summary>
-            public IEnumerable<Tag> ProblemDescriptions
+            public IEnumerable<ProblemDescriptionI18N> ProblemDescriptions
                 => ChangeSets?.Where(entry => entry.ProblemDescriptions.SafeAny()).
                                FirstOrDefault()?.ProblemDescriptions;
 
@@ -1070,7 +1070,7 @@ namespace social.OpenData.UsersAPI
                             PrivacyLevel?                        PrivacyLevel               = null,
                             I18NString                           Location                   = null,
                             GeoCoordinate?                       GeoLocation                = null,
-                            IEnumerable<Tag>                     ProblemDescriptions        = null,
+                            IEnumerable<ProblemDescriptionI18N>  ProblemDescriptions        = null,
                             IEnumerable<Tag>                     StatusIndicators           = null,
                             IEnumerable<Tag>                     Reactions                  = null,
                             I18NString                           AdditionalInfo             = null,
