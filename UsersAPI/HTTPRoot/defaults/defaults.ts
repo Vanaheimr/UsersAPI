@@ -22,7 +22,7 @@ interface IUserProfile {
     hash:             string;
 }
 
-let OrganizationJSON: IOrganization;
+let organizationJSON: IOrganization;
 
 interface IOrganization {
     id:                              string;
@@ -490,12 +490,12 @@ function HTTPSet(RessourceURI: string,
 
 function HTTPAdd(RessourceURI: string,
                  Data,
-                 OnSuccess,
-                 OnError) {
+                 OnSuccess: (statusCode: number, status: string, body: string) => void,
+                 OnError:   (statusCode: number, status: string, body: string) => void) {
 
     // #region Make HTTP call
 
-    let ajax = new XMLHttpRequest();
+    const ajax = new XMLHttpRequest();
     ajax.open("ADD", RessourceURI, true); // , user, password);
     ajax.setRequestHeader("Accept",       "application/json; charset=UTF-8");
     ajax.setRequestHeader("Content-Type", "application/json; charset=UTF-8");
@@ -517,7 +517,7 @@ function HTTPAdd(RessourceURI: string,
                 //alert(ajax.getResponseHeader("ETag"));
 
                 if (OnSuccess && typeof OnSuccess === 'function')
-                    OnSuccess(this.status, ajax.responseText);
+                    OnSuccess(this.status, this.statusText, ajax.responseText);
 
             }
 

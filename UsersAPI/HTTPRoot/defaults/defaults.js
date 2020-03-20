@@ -3,7 +3,7 @@ var APIKey = null;
 var CurrentlyHighlightedMenuItem = "";
 var CurrentlyHighlightedSubmenuItem = "";
 var UserProfileJSON;
-var OrganizationJSON;
+var organizationJSON;
 // #region MenuHighlight(name, NoURIupdate?)
 function MenuHighlight(name, NoURIupdate) {
     if (CurrentlyHighlightedMenuItem != "") {
@@ -273,7 +273,7 @@ function HTTPAdd(RessourceURI, Data, OnSuccess, OnError) {
                 //alert(ajax.getResponseHeader("Cache-control"));
                 //alert(ajax.getResponseHeader("ETag"));
                 if (OnSuccess && typeof OnSuccess === 'function')
-                    OnSuccess(this.status, ajax.responseText);
+                    OnSuccess(this.status, this.statusText, ajax.responseText);
             }
             else if (OnError && typeof OnError === 'function')
                 OnError(this.status, this.statusText, ajax.responseText);
