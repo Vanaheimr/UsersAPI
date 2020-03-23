@@ -207,7 +207,7 @@ namespace social.OpenData.UsersAPI
                                            OrganizationProviderDelegate    OrganizationProvider,
                                            out ServiceTicket               ServiceTicket,
                                            out String                      ErrorResponse,
-                                           Boolean                         VerifyContext        = true,
+                                           String                          VerifyContext        = _JSONLDContext,
                                            ServiceTicket_Id?               ServiceTicketIdURI   = null,
                                            OverwriteUserDelegate           OverwriteAuthor      = null)
         {
@@ -222,6 +222,31 @@ namespace social.OpenData.UsersAPI
                     ErrorResponse = "The given JSON object must not be null or empty!";
                     return false;
                 }
+
+                #region Parse Context                    [mandatory if requested]
+
+                if (VerifyContext != null)
+                {
+
+                    if (!JSONObject.ParseMandatory("@context",
+                                                   "JSON-LD context",
+                                                   out String Context,
+                                                   out ErrorResponse))
+                    {
+                        ErrorResponse = @"The JSON-LD ""@context"" information is missing!";
+                        return false;
+                    }
+
+                    if (Context != VerifyContext && Context != _JSONLDContext)
+                    {
+                        ErrorResponse = @"The given JSON-LD ""@context"" information '" + Context + "' is not supported!";
+                        return false;
+                    }
+
+                }
+
+                #endregion
+
 
                 #region Parse ServiceTicketId            [optional]
 
@@ -249,30 +274,6 @@ namespace social.OpenData.UsersAPI
                 {
                     ErrorResponse = "The optional service ticket identification given within the JSON body does not match the one given in the URI!";
                     return false;
-                }
-
-                #endregion
-
-                #region Parse Context                    [mandatory if requested]
-
-                if (VerifyContext)
-                {
-
-                    if (!JSONObject.ParseMandatory("@context",
-                                                   "JSON-LD context",
-                                                   out String Context,
-                                                   out ErrorResponse))
-                    {
-                        ErrorResponse = @"The JSON-LD ""@context"" information is missing!";
-                        return false;
-                    }
-
-                    if (Context != _JSONLDContext)
-                    {
-                        ErrorResponse = @"The given JSON-LD ""@context"" information '" + Context + "' is not supported!";
-                        return false;
-                    }
-
                 }
 
                 #endregion
