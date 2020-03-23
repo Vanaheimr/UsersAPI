@@ -59,6 +59,7 @@ using com.GraphDefined.SMSApi.API.Response;
 
 using Org.BouncyCastle.Security;
 using Org.BouncyCastle.Crypto.Parameters;
+using System.Collections.Concurrent;
 
 #endregion
 
@@ -2011,7 +2012,7 @@ namespace social.OpenData.UsersAPI
             this._Groups                      = new Dictionary<Group_Id,         Group>();
             this._Organizations               = new Dictionary<Organization_Id,  Organization>();
             this._Messages                    = new Dictionary<Message_Id,       Message>();
-            this._ServiceTickets              = new Dictionary<ServiceTicket_Id, AServiceTicket>();
+            this._ServiceTickets              = new ConcurrentDictionary<ServiceTicket_Id, AServiceTicket>();
 
             this._LoginPasswords              = new Dictionary<User_Id,         LoginPassword>();
             this._VerificationTokens          = new List<VerificationToken>();
@@ -12036,7 +12037,7 @@ namespace social.OpenData.UsersAPI
 
         #region Data
 
-        protected readonly Dictionary<ServiceTicket_Id, AServiceTicket> _ServiceTickets;
+        protected readonly ConcurrentDictionary<ServiceTicket_Id, AServiceTicket> _ServiceTickets;
 
         /// <summary>
         /// Return an enumeration of all service tickets.
@@ -12323,7 +12324,9 @@ namespace social.OpenData.UsersAPI
 
                 ServiceTicket.API = this;
 
-                _ServiceTickets.Add(ServiceTicket.Id, ServiceTicket);
+                _ServiceTickets.AddOrUpdate(ServiceTicket.Id,
+                                            id                     => ServiceTicket,
+                                            (id, oldServiceTicket) => ServiceTicket);
 
                 AfterAddition?.Invoke(ServiceTicket);
 
@@ -12375,7 +12378,9 @@ namespace social.OpenData.UsersAPI
 
                 ServiceTicket.API = this;
 
-                _ServiceTickets.Add(ServiceTicket.Id, ServiceTicket);
+                _ServiceTickets.AddOrUpdate(ServiceTicket.Id,
+                                            id                     => ServiceTicket,
+                                            (id, oldServiceTicket) => ServiceTicket);
 
                 WhenNotExisted?.Invoke(ServiceTicket);
 
@@ -12429,7 +12434,7 @@ namespace social.OpenData.UsersAPI
                 if (_ServiceTickets.TryGetValue(ServiceTicket.Id, out OldServiceTicket))
                 {
 
-                    _ServiceTickets.Remove(OldServiceTicket.Id);
+                    _ServiceTickets.TryRemove(OldServiceTicket.Id, out AServiceTicket removedServiceTicket);
                     (OldServiceTicket as TServiceTicket).CopyAllEdgesTo(ServiceTicket);
 
                     //// Only run when the admin status changed!
@@ -12449,7 +12454,9 @@ namespace social.OpenData.UsersAPI
                                               OldServiceTicket,
                                               CurrentUserId);
 
-                _ServiceTickets.Add(ServiceTicket.Id, ServiceTicket);
+                _ServiceTickets.AddOrUpdate(ServiceTicket.Id,
+                                            id                     => ServiceTicket,
+                                            (id, oldServiceTicket) => ServiceTicket);
 
                 AfterAddOrUpdate?.Invoke(ServiceTicket,
                                          OldServiceTicket != null);
@@ -12534,10 +12541,12 @@ namespace social.OpenData.UsersAPI
                 //if (ServiceTicket.API == null)
                     ServiceTicket.API = this;
 
-                _ServiceTickets.Remove(OldServiceTicket.Id);
+                _ServiceTickets.TryRemove(OldServiceTicket.Id, out AServiceTicket removedServiceTicket);
                 OldServiceTicket.CopyAllEdgesTo(ServiceTicket);
 
-                _ServiceTickets.Add(ServiceTicket.Id, ServiceTicket);
+                _ServiceTickets.AddOrUpdate(ServiceTicket.Id,
+                                            id                     => ServiceTicket,
+                                            (id, oldServiceTicket) => ServiceTicket);
 
                 AfterUpdate?.Invoke(ServiceTicket);
 
@@ -12626,9 +12635,11 @@ namespace social.OpenData.UsersAPI
                                               castedOldServiceTicket,
                                               CurrentUserId);
 
-                _ServiceTickets.Remove(OldServiceTicket.Id);
+                _ServiceTickets.TryRemove(OldServiceTicket.Id, out AServiceTicket RemovedServiceTicket);
                 //OldServiceTicket.CopyAllEdgesTo(ServiceTicket);
-                _ServiceTickets.Add(ServiceTicket.Id, ServiceTicket);
+                _ServiceTickets.AddOrUpdate(ServiceTicket.Id,
+                                            id                     => ServiceTicket,
+                                            (id, oldServiceTicket) => ServiceTicket);
 
                 AfterUpdate?.Invoke(ServiceTicket);
 
@@ -12696,7 +12707,7 @@ namespace social.OpenData.UsersAPI
                                                   removeServiceTicket_MessageType,
                                                   CurrentUserId: CurrentUserId);
 
-                    _ServiceTickets.Remove(ServiceTicketId);
+                    _ServiceTickets.TryRemove(ServiceTicketId, out AServiceTicket RemovedServiceTicket);
 
                     ServiceTicket.API = null;
 

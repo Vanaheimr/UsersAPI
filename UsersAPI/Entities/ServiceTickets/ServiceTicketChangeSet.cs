@@ -240,14 +240,20 @@ namespace social.OpenData.UsersAPI
         /// <param name="OrganizationProvider">A delegate resolving organizations.</param>
         /// <param name="ServiceTicketChangeSet">The parsed service ticket change set.</param>
         /// <param name="ErrorResponse">An error message.</param>
+        /// <param name="VerifyContext">Verify the JSON-LD context.</param>
         /// <param name="ServiceTicketChangeSetIdURI">The optional service ticket change set identification, e.g. from the HTTP URI.</param>
+        /// <param name="OverwriteAuthor">Overwrite the author of the service ticket, if given.</param>
+        /// <param name="DataSource">The source of this data.</param>
         public static Boolean TryParseJSON(JObject                         JSONObject,
                                            AServiceTicketProviderDelegate  ServiceTicketProvider,
                                            UserProviderDelegate            UserProvider,
                                            OrganizationProviderDelegate    OrganizationProvider,
-                                           out ServiceTicketChangeSet        ServiceTicketChangeSet,
+                                           out ServiceTicketChangeSet      ServiceTicketChangeSet,
                                            out String                      ErrorResponse,
-                                           ServiceTicketChangeSet_Id?        ServiceTicketChangeSetIdURI = null)
+                                           String                          VerifyContext                 = null,
+                                           ServiceTicketChangeSet_Id?      ServiceTicketChangeSetIdURI   = null,
+                                           OverwriteUserDelegate           OverwriteAuthor               = null,
+                                           String                          DataSource                    = null)
         {
 
             try
@@ -261,24 +267,31 @@ namespace social.OpenData.UsersAPI
                     return false;
                 }
 
-                #region Parse Context                   [mandatory]
 
-                if (!JSONObject.ParseMandatory("@context",
-                                               "JSON-LD context",
-                                               out String Context,
-                                               out ErrorResponse))
-                {
-                    ErrorResponse = @"The JSON-LD ""@context"" information is missing!";
-                    return false;
-                }
+                #region Parse Context    [mandatory if requested]
 
-                if (Context != JSONLDContext)
+                if (VerifyContext != null)
                 {
-                    ErrorResponse = @"The given JSON-LD ""@context"" information '" + Context + "' is not supported!";
-                    return false;
+
+                    if (!JSONObject.ParseMandatory("@context",
+                                                   "JSON-LD context",
+                                                   out String Context,
+                                                   out ErrorResponse))
+                    {
+                        ErrorResponse = @"The JSON-LD ""@context"" information is missing!";
+                        return false;
+                    }
+
+                    if (Context != VerifyContext && Context != JSONLDContext)
+                    {
+                        ErrorResponse = @"The given JSON-LD ""@context"" information '" + Context + "' is not supported!";
+                        return false;
+                    }
+
                 }
 
                 #endregion
+
 
                 return _TryParseJSON(JSONObject,
                                      ServiceTicketProvider,
@@ -286,7 +299,9 @@ namespace social.OpenData.UsersAPI
                                      OrganizationProvider,
                                      out ServiceTicketChangeSet,
                                      out ErrorResponse,
-                                     ServiceTicketChangeSetIdURI);
+                                     ServiceTicketChangeSetIdURI,
+                                     OverwriteAuthor,
+                                     DataSource);
 
             }
             catch (Exception e)
@@ -655,12 +670,12 @@ namespace social.OpenData.UsersAPI
                        AdditionalInfo,
                        AttachedFiles,
                        TicketReferences,
+                       DataLicenses,
 
                        Comment,
                        InReplyTo,
                        CommentReferences,
 
-                       DataLicenses,
                        DataSource)
 
             { }

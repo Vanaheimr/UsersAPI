@@ -189,73 +189,6 @@ namespace social.OpenData.UsersAPI
 
         #region (static) TryParseJSON(JSONObject, ..., out ServiceTicket, out ErrorResponse)
 
-        ///// <summary>
-        ///// Try to parse the given service ticket JSON.
-        ///// </summary>
-        ///// <param name="JSONObject">A JSON object.</param>
-        ///// <param name="UserProvider">A delegate resolving users.</param>
-        ///// <param name="OrganizationProvider">A delegate resolving organizations.</param>
-        ///// <param name="ServiceTicketProvider">A delegate resolving service tickets.</param>
-        ///// <param name="ServiceTicket">The parsed service ticket.</param>
-        ///// <param name="ErrorResponse">An error message.</param>
-        ///// <param name="ServiceTicketIdURI">The optional service ticket identification, e.g. from the HTTP URI.</param>
-        //public static Boolean TryParseJSON(JObject                               JSONObject,
-        //                                   UserProviderDelegate                  UserProvider,
-        //                                   OrganizationProviderDelegate          OrganizationProvider,
-        //                                   ServiceTicketProviderDelegate         ServiceTicketProvider,
-        //                                   out ServiceTicket                     ServiceTicket,
-        //                                   out String                            ErrorResponse,
-        //                                   ServiceTicket_Id?                     ServiceTicketIdURI = null)
-        //{
-
-        //    try
-        //    {
-
-        //        ServiceTicket = null;
-
-        //        if (JSONObject?.HasValues != true)
-        //        {
-        //            ErrorResponse = "The given JSON object must not be null or empty!";
-        //            return false;
-        //        }
-
-        //        #region Parse Context                   [mandatory]
-
-        //        if (!JSONObject.ParseMandatory("@context",
-        //                                       "JSON-LD context",
-        //                                       out String Context,
-        //                                       out ErrorResponse))
-        //        {
-        //            ErrorResponse = @"The JSON-LD ""@context"" information is missing!";
-        //            return false;
-        //        }
-
-        //        if (Context != JSONLDContext)
-        //        {
-        //            ErrorResponse = @"The given JSON-LD ""@context"" information '" + Context + "' is not supported!";
-        //            return false;
-        //        }
-
-        //        #endregion
-
-        //        return _TryParseJSON(JSONObject,
-        //                             UserProvider,
-        //                             OrganizationProvider,
-        //                             ServiceTicketProvider,
-        //                             out ServiceTicket,
-        //                             out ErrorResponse,
-        //                             ServiceTicketIdURI);
-
-        //    }
-        //    catch (Exception e)
-        //    {
-        //        ErrorResponse = e.Message;
-        //        ServiceTicket = null;
-        //        return false;
-        //    }
-
-        //}
-
         /// <summary>
         /// Try to parse the given service ticket JSON.
         /// </summary>
@@ -350,7 +283,8 @@ namespace social.OpenData.UsersAPI
 
                 User Author = null;
 
-                if (JSONObject.ParseOptionalStruct("authorId",
+                if (JSONObject["author"] is JObject authorJSON &&
+                    authorJSON.ParseOptionalStruct("@id",
                                                    "author identification",
                                                    User_Id.TryParse,
                                                    out User_Id? UserId,

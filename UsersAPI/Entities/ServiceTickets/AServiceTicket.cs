@@ -423,18 +423,6 @@ namespace social.OpenData.UsersAPI
 
         #region (protected) ToJSON(...)
 
-        //public virtual JObject ToJSON()
-
-        //    => ToJSON(Embedded:              false,
-        //              MaxStatus:             DefaultMaxStatusListSize,
-        //              IncludeStatus:         null,
-        //              ExpandDataLicenses:    InfoStatus.ShowIdOnly,
-        //              ExpandAuthorId:        InfoStatus.ShowIdOnly,
-        //              IncludeComments:       true,
-        //              IncludeCryptoHash:     true,
-        //              Configurator:          null);
-
-
         /// <summary>
         /// Return a JSON representation of this object.
         /// </summary>
@@ -490,8 +478,8 @@ namespace social.OpenData.UsersAPI
                    Author != null
                        ? ExpandAuthorId.Switch(
                              () => new JProperty("author",     new JObject(
-                                                                   new JProperty("id",   Author.Id.ToString()),
-                                                                   new JProperty("name", Author.Name)
+                                                                   new JProperty("@id",   Author.Id.ToString()),
+                                                                   new JProperty("name",  Author.Name)
                                                                )),
                              () => new JProperty("author",     Author.ToJSON()))
                        : null,

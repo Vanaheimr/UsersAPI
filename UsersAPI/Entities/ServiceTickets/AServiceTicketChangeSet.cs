@@ -68,7 +68,7 @@ namespace social.OpenData.UsersAPI
         /// <summary>
         /// Affected devices or services by this service ticket.
         /// </summary>
-        public Affected                                    Affected                    { get; }
+        public Affected                                    Affected                    { get; internal set; }
 
         /// <summary>
         /// The priority of the service ticket.
@@ -244,31 +244,31 @@ namespace social.OpenData.UsersAPI
 
                 Id.ToJSON("@id"),
 
-                new JProperty("timestamp",                   Timestamp.ToIso8601()),
+                new JProperty("timestamp",                  Timestamp.ToIso8601()),
 
                 Author != null
                     ? ExpandAuthorId.Switch(
                           () => new JProperty("author",     new JObject(
-                                                                new JProperty("id",   Author.Id.ToString()),
-                                                                new JProperty("name", Author.Name)
+                                                                new JProperty("@id",   Author.Id.ToString()),
+                                                                new JProperty("name",  Author.Name)
                                                             )),
                           () => new JProperty("author",     Author.ToJSON()))
                     : null,
 
                 Status.HasValue
-                    ? new JProperty("status",                Status.Value.ToString())
+                    ? new JProperty("status",               Status.Value.ToString())
                     : null,
 
                 Title.IsNeitherNullNorEmpty()
-                    ? new JProperty("title",                 Title.ToJSON())
+                    ? new JProperty("title",                Title.ToJSON())
                     : null,
 
                 Affected != null && !Affected.IsEmpty
-                    ? new JProperty("affected",              Affected.ToJSON())
+                    ? new JProperty("affected",             Affected.ToJSON())
                     : null,
 
                 Priority.HasValue
-                    ? new JProperty("priority",              Priority.Value.ToString().ToLower())
+                    ? new JProperty("priority",             Priority.Value.ToString().ToLower())
                     : null,
 
                 PrivacyLevel.HasValue
@@ -357,15 +357,17 @@ namespace social.OpenData.UsersAPI
         /// <param name="ServiceTicketChangeSet">The parsed service ticket change set.</param>
         /// <param name="ErrorResponse">An error message.</param>
         /// <param name="ServiceTicketChangeSetIdURI">The optional service ticket change set identification, e.g. from the HTTP URI.</param>
+        /// <param name="OverwriteAuthor">Overwrite the author of the service ticket, if given.</param>
         /// <param name="DataSource">The source of this data.</param>
         protected static Boolean _TryParseJSON(JObject                         JSONObject,
                                                AServiceTicketProviderDelegate  ServiceTicketProvider,
                                                UserProviderDelegate            UserProvider,
                                                OrganizationProviderDelegate    OrganizationProvider,
-                                               out ServiceTicketChangeSet        ServiceTicketChangeSet,
+                                               out ServiceTicketChangeSet      ServiceTicketChangeSet,
                                                out String                      ErrorResponse,
-                                               ServiceTicketChangeSet_Id?        ServiceTicketChangeSetIdURI  = null,
-                                               String                          DataSource                 = null)
+                                               ServiceTicketChangeSet_Id?      ServiceTicketChangeSetIdURI   = null,
+                                               OverwriteUserDelegate           OverwriteAuthor               = null,
+                                               String                          DataSource                    = null)
         {
 
             try
@@ -378,22 +380,6 @@ namespace social.OpenData.UsersAPI
                     ErrorResponse = "The given JSON object must not be null or empty!";
                     return false;
                 }
-
-                #region Parse ServiceTicketId           [mandatory]
-
-                //if (!JSONObject.ParseMandatory("serviceTicketId",
-                //                               "service ticket change set identification",
-                //                               ServiceTicket_Id.TryParse,
-                //                               out ServiceTicket_Id ServiceTicketId,
-                //                               out ErrorResponse))
-                //{
-
-                //    if (ErrorResponse != null)
-                //        return false;
-
-                //}
-
-                #endregion
 
                 #region Parse ServiceTicketChangeSetId    [optional]
 
@@ -422,7 +408,7 @@ namespace social.OpenData.UsersAPI
 
                 #endregion
 
-                #region Parse Timestamp                 [mandatory]
+                #region Parse Timestamp                   [mandatory]
 
                 if (!JSONObject.ParseMandatory("timestamp",
                                                "timestamp",
@@ -434,11 +420,12 @@ namespace social.OpenData.UsersAPI
 
                 #endregion
 
-                #region Parse Author                    [optional]
+                #region Parse Author                      [optional]
 
                 User Author = null;
 
-                if (JSONObject.ParseOptionalStruct("authorId",
+                if (JSONObject["author"] is JObject authorJSON &&
+                    authorJSON.ParseOptionalStruct("@id",
                                                    "author identification",
                                                    User_Id.TryParse,
                                                    out User_Id? UserId,
@@ -456,6 +443,9 @@ namespace social.OpenData.UsersAPI
                     }
 
                 }
+
+                if (OverwriteAuthor != null)
+                    Author = OverwriteAuthor(Author);
 
                 #endregion
 
@@ -1085,12 +1075,12 @@ namespace social.OpenData.UsersAPI
                            AdditionalInfo,
                            AttachedFiles,
                            TicketReferences,
+                           DataLicenses,
 
                            Comment,
                            InReplyTo,
                            CommentReferences,
 
-                           DataLicenses,
                            DataSource);
 
         #endregion
@@ -1235,36 +1225,36 @@ namespace social.OpenData.UsersAPI
             /// <param name="AdditionalInfo">A multi-language description of the service ticket.</param>
             /// <param name="AttachedFiles">An enumeration of URLs to files attached to this service ticket.</param>
             /// <param name="TicketReferences">References to other service tickets.</param>
+            /// <param name="DataLicenses">Optional data licsenses for publishing this data.</param>
             /// 
             /// <param name="Comment">An optional multi-language comment.</param>
             /// <param name="InReplyTo">This service ticket change set is a reply to the given history entry.</param>
             /// <param name="CommentReferences">References to other service ticket change sets.</param>
             /// 
             /// <param name="DataSource">The source of all this data, e.g. an automatic importer.</param>
-            /// <param name="DataLicenses">Optional data licsenses for publishing this data.</param>
             public Builder(ServiceTicketChangeSet_Id?                    Id                    = null,
-                           DateTime?                                   Timestamp             = null,
-                           User                                        Author                = null,
-                           ServiceTicketStatusTypes?                   Status                = null,
-                           I18NString                                  Title                 = null,
-                           Affected                                    Affected              = null,
-                           ServiceTicketPriorities?                    Priority              = null,
-                           PrivacyLevel?                               PrivacyLevel          = null,
-                           I18NString                                  Location              = null,
-                           GeoCoordinate?                              GeoLocation           = null,
-                           IEnumerable<ProblemDescriptionI18N>         ProblemDescriptions   = null,
-                           IEnumerable<Tag>                            StatusIndicators      = null,
-                           IEnumerable<Tag>                            Reactions             = null,
-                           I18NString                                  AdditionalInfo        = null,
-                           IEnumerable<HTTPPath>                       AttachedFiles         = null,
-                           IEnumerable<ServiceTicketReference>         TicketReferences      = null,
+                           DateTime?                                     Timestamp             = null,
+                           User                                          Author                = null,
+                           ServiceTicketStatusTypes?                     Status                = null,
+                           I18NString                                    Title                 = null,
+                           Affected                                      Affected              = null,
+                           ServiceTicketPriorities?                      Priority              = null,
+                           PrivacyLevel?                                 PrivacyLevel          = null,
+                           I18NString                                    Location              = null,
+                           GeoCoordinate?                                GeoLocation           = null,
+                           IEnumerable<ProblemDescriptionI18N>           ProblemDescriptions   = null,
+                           IEnumerable<Tag>                              StatusIndicators      = null,
+                           IEnumerable<Tag>                              Reactions             = null,
+                           I18NString                                    AdditionalInfo        = null,
+                           IEnumerable<HTTPPath>                         AttachedFiles         = null,
+                           IEnumerable<ServiceTicketReference>           TicketReferences      = null,
+                           IEnumerable<DataLicense>                      DataLicenses          = null,
 
-                           I18NString                                  Comment               = null,
+                           I18NString                                    Comment               = null,
                            ServiceTicketChangeSet_Id?                    InReplyTo             = null,
                            IEnumerable<ServiceTicketChangeSetReference>  CommentReferences     = null,
 
-                           IEnumerable<DataLicense>                    DataLicenses          = null,
-                           String                                      DataSource            = null)
+                           String                                        DataSource            = null)
             {
 
                 this.Id                   = Id            ?? ServiceTicketChangeSet_Id.Random();
@@ -1283,12 +1273,12 @@ namespace social.OpenData.UsersAPI
                 this.AdditionalInfo       = AdditionalInfo;
                 this.AttachedFiles        = AttachedFiles       != null ? AttachedFiles.      Distinct() : Array.Empty<HTTPPath>();
                 this.TicketReferences     = TicketReferences    != null ? TicketReferences.   Distinct() : Array.Empty<ServiceTicketReference>();
+                this.DataLicenses         = DataLicenses  ?? Array.Empty<DataLicense>();
 
                 this.Comment              = Comment;
                 this.InReplyTo            = InReplyTo;
                 this.CommentReferences    = CommentReferences != null ? CommentReferences.Distinct() : Array.Empty<ServiceTicketChangeSetReference>();
 
-                this.DataLicenses         = DataLicenses  ?? Array.Empty<DataLicense>();
                 this.DataSource           = DataSource;
 
             }
