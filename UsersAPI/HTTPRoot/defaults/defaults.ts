@@ -1022,10 +1022,10 @@ function ShowI18N(I18NString: object): string {
 
 function CreateI18NPrefixDiv(Prefix: string, I18NString: object, CSSClassNames?: string) : HTMLDivElement {
 
-    let I18NDiv = document.createElement('div') as HTMLDivElement;
+    const I18NDiv = document.createElement('div') as HTMLDivElement;
     I18NDiv.className = "I18N" + (CSSClassNames ? " " + CSSClassNames : "");
 
-    for (var I18NKey in I18NString) {
+    for (let I18NKey in I18NString) {
 
         let propertyKeyDiv          = <HTMLDivElement> I18NDiv.appendChild(document.createElement('div'));
         propertyKeyDiv.className    = "I18NLanguage";
@@ -1047,16 +1047,16 @@ function CreateI18NPrefixDiv(Prefix: string, I18NString: object, CSSClassNames?:
 
 function CreateI18NDiv(I18NString: object, CSSClassNames?: string) : HTMLDivElement {
 
-    let I18NDiv = document.createElement('div') as HTMLDivElement;
+    const I18NDiv = document.createElement('div') as HTMLDivElement;
     I18NDiv.className = "I18N" + (CSSClassNames ? " " + CSSClassNames : "");
 
-    for (var I18NKey in I18NString) {
+    for (let I18NKey in I18NString) {
 
-        let propertyKeyDiv          = <HTMLDivElement> I18NDiv.appendChild(document.createElement('div'));
+        const propertyKeyDiv        = I18NDiv.appendChild(document.createElement('div')) as HTMLDivElement;
         propertyKeyDiv.className    = "I18NLanguage";
         propertyKeyDiv.innerHTML    = "<p>" + I18NKey  + "</p>";
 
-        let propertyValueDiv        = <HTMLDivElement> I18NDiv.appendChild(document.createElement('div'));
+        const propertyValueDiv      = I18NDiv.appendChild(document.createElement('div')) as HTMLDivElement;
         propertyValueDiv.className  = "I18NValue";
         propertyValueDiv.innerHTML  = I18NString[I18NKey];
 
@@ -1068,13 +1068,35 @@ function CreateI18NDiv(I18NString: object, CSSClassNames?: string) : HTMLDivElem
 
 // #endregion
 
-// #region CreateDiv(Content, CSSClassNames?)
+//#region CreateDiv(Content, CSSClassNames?)
 
-function CreateDiv(Content: string, CSSClassNames?: string): HTMLDivElement {
+//function CreateDiv(Content: string, CSSClassNames?: string): HTMLDivElement {
 
-    let newDiv = document.createElement('div') as HTMLDivElement;
-    newDiv.className = (CSSClassNames ? CSSClassNames : "");
-    newDiv.innerHTML = Content;
+//    let newDiv = document.createElement('div') as HTMLDivElement;
+//    newDiv.className = (CSSClassNames ? CSSClassNames : "");
+//    newDiv.innerHTML = Content;
+
+//    return newDiv;
+
+//}
+
+function CreateDiv(parent: HTMLDivElement|HTMLAnchorElement, className?: string, innerHTML?: string|HTMLDivElement): HTMLDivElement {
+
+    const newDiv = parent.appendChild(document.createElement('div')) as HTMLDivElement;
+
+    if (className != null)
+        newDiv.className = className;
+
+    if (innerHTML != null)
+    {
+
+        if (typeof innerHTML === 'string')
+            newDiv.innerHTML = innerHTML;
+
+        else if (innerHTML instanceof HTMLDivElement)
+            newDiv.appendChild(innerHTML);
+
+    }
 
     return newDiv;
 

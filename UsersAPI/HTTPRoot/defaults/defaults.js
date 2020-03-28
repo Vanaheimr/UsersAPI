@@ -589,11 +589,23 @@ function CreateI18NDiv(I18NString, CSSClassNames) {
     return I18NDiv;
 }
 // #endregion
-// #region CreateDiv(Content, CSSClassNames?)
-function CreateDiv(Content, CSSClassNames) {
-    var newDiv = document.createElement('div');
-    newDiv.className = (CSSClassNames ? CSSClassNames : "");
-    newDiv.innerHTML = Content;
+//#region CreateDiv(Content, CSSClassNames?)
+//function CreateDiv(Content: string, CSSClassNames?: string): HTMLDivElement {
+//    let newDiv = document.createElement('div') as HTMLDivElement;
+//    newDiv.className = (CSSClassNames ? CSSClassNames : "");
+//    newDiv.innerHTML = Content;
+//    return newDiv;
+//}
+function CreateDiv(parent, className, innerHTML) {
+    var newDiv = parent.appendChild(document.createElement('div'));
+    if (className != null)
+        newDiv.className = className;
+    if (innerHTML != null) {
+        if (typeof innerHTML === 'string')
+            newDiv.innerHTML = innerHTML;
+        else if (innerHTML instanceof HTMLDivElement)
+            newDiv.appendChild(innerHTML);
+    }
     return newDiv;
 }
 // #endregion
