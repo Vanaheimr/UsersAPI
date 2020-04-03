@@ -432,9 +432,18 @@ namespace social.OpenData.UsersAPI
         /// </summary>
         public const                String                     ServiceTicketsDBFile             = "ServiceTickets.db";
 
+        /// <summary>
+        /// The default maintenance interval.
+        /// </summary>
+        public readonly             TimeSpan                   DefaultMaintenanceEvery          = TimeSpan.FromMinutes(1);
 
+        private readonly Timer MaintenanceTimer;
+
+
+        private static readonly SemaphoreSlim  MaintenanceLock                 = new SemaphoreSlim(1, 1);
         private static readonly SemaphoreSlim  ServiceTicketsSemaphore         = new SemaphoreSlim(1, 1);
-
+        private static readonly SemaphoreSlim  SMTPLogSemaphore                = new SemaphoreSlim(1, 1);
+        private static readonly SemaphoreSlim  TelegramLogSemaphore            = new SemaphoreSlim(1, 1);
         private static readonly SemaphoreSlim  LogFileSemaphore                = new SemaphoreSlim(1, 1);
         //private static readonly SemaphoreSlim  NotificationsSemaphore          = new SemaphoreSlim(1, 1);
         private static readonly SemaphoreSlim  UsersSemaphore                  = new SemaphoreSlim(1, 1);
@@ -517,9 +526,10 @@ namespace social.OpenData.UsersAPI
         //public IEnumerable<NotificationMessage> NotificationMessages
         //    => _NotificationMessages;
 
-
-        private static readonly SemaphoreSlim  SMTPLogSemaphore                = new SemaphoreSlim(1, 1);
-        private static readonly SemaphoreSlim  TelegramLogSemaphore            = new SemaphoreSlim(1, 1);
+        private static readonly     String[]                   Split1                             = { "\r\n" };
+        private static readonly     String[]                   Split2                             = { ": " };
+        private static readonly     String[]                   Split3                             = { " " };
+        private static readonly     Char[]                     Split4                             = { ',' };
 
         #endregion
 
@@ -536,26 +546,37 @@ namespace social.OpenData.UsersAPI
 
         #region Properties
 
-        public HashSet<String>           DevMachines                    { get; set; }
+                /// <summary>
+        /// The maintenance interval.
+        /// </summary>
+        public TimeSpan                  MaintenanceEvery                   { get; }
 
-        public String                    LoggingPath                    { get; }
-        public String                    UsersAPIPath                   { get; }
-        public String                    HTTPSSEPath                    { get; }
-        public String                    HTTPRequestsPath               { get; }
-        public String                    HTTPResponsesPath              { get; }
-        public String                    NotificationsPath              { get; }
-        public String                    MetricsPath                    { get; }
-        public String                    SMTPLoggingPath                { get; }
-        public String                    TelegramLoggingPath            { get; }
-        public String                    SMSAPILoggingPath              { get; }
-        public String                    ServiceTicketsPath             { get; }
+        /// <summary>
+        /// Disable all maintenance tasks.
+        /// </summary>
+        public Boolean                   DisableMaintenanceTasks            { get; set; }
+
+
+        public HashSet<String>           DevMachines                        { get; set; }
+
+        public String                    LoggingPath                        { get; }
+        public String                    UsersAPIPath                       { get; }
+        public String                    HTTPSSEPath                        { get; }
+        public String                    HTTPRequestsPath                   { get; }
+        public String                    HTTPResponsesPath                  { get; }
+        public String                    NotificationsPath                  { get; }
+        public String                    MetricsPath                        { get; }
+        public String                    SMTPLoggingPath                    { get; }
+        public String                    TelegramLoggingPath                { get; }
+        public String                    SMSAPILoggingPath                  { get; }
+        public String                    ServiceTicketsPath                 { get; }
 
         /// <summary>
         /// The current async local user identification to simplify API usage.
         /// </summary>
         protected internal static AsyncLocal<User_Id?> CurrentAsyncLocalUserId = new AsyncLocal<User_Id?>();
 
-        public User                      Robot                          { get; }
+        public User                      Robot                              { get; }
 
         #region APIPassphrase
 
@@ -981,6 +1002,11 @@ namespace social.OpenData.UsersAPI
         #endregion
 
         #region Events
+
+        public delegate Task DoSubmaintenanceTasksDelegate(Object State);
+
+        public event DoSubmaintenanceTasksDelegate DoSubmaintenanceTasks;
+
 
         #region (protected internal) AddUserRequest (Request)
 
@@ -1790,6 +1816,9 @@ namespace social.OpenData.UsersAPI
                         TimeSpan?                            ConnectionTimeout                  = null,
                         UInt32                               MaxClientConnections               = TCPServer.__DefaultMaxClientConnections,
 
+                        TimeSpan?                            MaintenanceEvery                   = null,
+                        Boolean                              DisableMaintenanceTasks            = false,
+
                         Boolean                              SkipURLTemplates                   = false,
                         Boolean                              DisableNotifications               = false,
                         Boolean                              DisableLogfile                     = false,
@@ -1846,6 +1875,9 @@ namespace social.OpenData.UsersAPI
                    MinRealmLenght,
                    PasswordQualityCheck,
                    SignInSessionLifetime,
+
+                   MaintenanceEvery,
+                   DisableMaintenanceTasks,
 
                    SkipURLTemplates,
                    DisableNotifications,
@@ -1931,6 +1963,9 @@ namespace social.OpenData.UsersAPI
                            Byte?                                MinRealmLenght                = null,
                            PasswordQualityCheckDelegate         PasswordQualityCheck          = null,
                            TimeSpan?                            SignInSessionLifetime         = null,
+
+                           TimeSpan?                            MaintenanceEvery              = null,
+                           Boolean                              DisableMaintenanceTasks       = false,
 
                            Boolean                              SkipURLTemplates              = false,
                            Boolean                              DisableNotifications          = false,
@@ -2029,6 +2064,10 @@ namespace social.OpenData.UsersAPI
             this._APIKeys                     = new Dictionary<APIKey, APIKeyInfo>();
 
             //this._NotificationMessages        = new Queue<NotificationMessage>();
+
+            this.DisableMaintenanceTasks      = DisableMaintenanceTasks;
+            this.MaintenanceEvery             = MaintenanceEvery ?? DefaultMaintenanceEvery;
+            this.MaintenanceTimer             = new Timer(DoMaintenance, null, this.MaintenanceEvery, this.MaintenanceEvery);
 
             #endregion
 
@@ -2405,6 +2444,9 @@ namespace social.OpenData.UsersAPI
                                                PasswordQualityCheckDelegate         PasswordQualityCheck          = null,
                                                TimeSpan?                            SignInSessionLifetime         = null,
 
+                                               TimeSpan?                            MaintenanceEvery              = null,
+                                               Boolean                              DisableMaintenanceTasks       = false,
+
                                                Boolean                              SkipURLTemplates              = false,
                                                Boolean                              DisableNotifications          = false,
                                                Boolean                              DisableLogfile                = false,
@@ -2439,6 +2481,9 @@ namespace social.OpenData.UsersAPI
                             MinRealmLenght,
                             PasswordQualityCheck,
                             SignInSessionLifetime,
+
+                            MaintenanceEvery,
+                            DisableMaintenanceTasks,
 
                             SkipURLTemplates,
                             DisableNotifications,
@@ -2544,6 +2589,73 @@ namespace social.OpenData.UsersAPI
         }
 
         #endregion
+
+
+        #region (Timer) DoMaintenance(State)
+
+        private void DoMaintenance(Object State)
+        {
+
+            if (!DisableMaintenanceTasks)
+                DoMaintenanceAsync(State).Wait();
+
+            else
+                DebugX.LogT("Maintenance tasks are disabled!");
+
+        }
+
+        private async Task DoMaintenanceAsync(Object State)
+        {
+
+            // Do not wait! Skip this round if the previous is still busy!
+            var LockTaken = await MaintenanceLock.WaitAsync(0).ConfigureAwait(false);
+
+            try
+            {
+
+                if (LockTaken)
+                {
+
+                    DoSubmaintenanceTasks?.Invoke(State);
+
+                }
+
+            }
+            catch (Exception e)
+            {
+
+                while (e.InnerException != null)
+                    e = e.InnerException;
+
+                DebugX.LogT(GetType().Name + ".DoMaintenance() led to an exception: " + e.Message + Environment.NewLine + e.StackTrace);
+
+                //OnAPIException?.Invoke(DateTime.UtcNow,
+                //                       this,
+                //                       e);
+
+            }
+
+            finally
+            {
+
+                if (LockTaken)
+                    MaintenanceLock.Release();
+
+                else
+                    DebugX.LogT("Could not aquire the maintenance tasks lock!");
+
+            }
+
+        }
+
+        #endregion
+
+
+
+
+
+
+
 
 
         #region (private) GetOrganizationSerializator(Request, User)
