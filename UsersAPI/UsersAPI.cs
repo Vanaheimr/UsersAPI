@@ -526,10 +526,10 @@ namespace social.OpenData.UsersAPI
         //public IEnumerable<NotificationMessage> NotificationMessages
         //    => _NotificationMessages;
 
-        private static readonly     String[]                   Split1                             = { "\r\n" };
-        private static readonly     String[]                   Split2                             = { ": " };
-        private static readonly     String[]                   Split3                             = { " " };
-        private static readonly     Char[]                     Split4                             = { ',' };
+        protected static readonly     String[]                   Split1                             = { "\r\n" };
+        protected static readonly     String[]                   Split2                             = { ": " };
+        protected static readonly     String[]                   Split3                             = { " " };
+        protected static readonly     Char[]                     Split4                             = { ',' };
 
         #endregion
 
