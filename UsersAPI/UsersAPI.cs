@@ -12227,8 +12227,8 @@ namespace social.OpenData.UsersAPI
                     if (AllTelegramNotifications.Count > 0)
                     {
 
-                        TelegramStore.SendTelegrams("ServiceTicket '" + ServiceTicket.Id + "' sent '" + MessageType + "'!",
-                                                   AllTelegramNotifications.Select(telegramNotification => telegramNotification.Username));
+                        await TelegramStore.SendTelegrams("ServiceTicket '" + ServiceTicket.Id + "' sent '" + MessageType + "'!",
+                                                          AllTelegramNotifications.Select(telegramNotification => telegramNotification.Username));
 
                     }
 
