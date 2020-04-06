@@ -60,6 +60,9 @@ using com.GraphDefined.SMSApi.API.Response;
 using Org.BouncyCastle.Security;
 using Org.BouncyCastle.Crypto.Parameters;
 using System.Collections.Concurrent;
+using System.Drawing;
+using System.Drawing.Imaging;
+using org.GraphDefined.Vanaheimr.BouncyCastle;
 
 #endregion
 
@@ -2649,13 +2652,6 @@ namespace social.OpenData.UsersAPI
         }
 
         #endregion
-
-
-
-
-
-
-
 
 
         #region (private) GetOrganizationSerializator(Request, User)
@@ -7985,6 +7981,65 @@ namespace social.OpenData.UsersAPI
                                              }
 
                                          }, AllowReplacement: URIReplacement.Allow);
+
+            #endregion
+
+
+
+            #region /hashimage
+
+            HTTPServer.AddMethodCallback(HTTPHostname.Any,
+                                         HTTPMethod.GET,
+                                         HTTPPath.Parse("/hashimage"),
+                                         HTTPContentType.PNG,
+                                         HTTPDelegate: Request => {
+
+                Byte x =  13;
+                Byte y =  13;
+                Byte t = 255;
+
+                var ByteArray = SecurityVisualization.DrunkenBishop("fc:94:b0:c1:e5:b0:98:7c:58:43:99:76:97:ee:9f:b7");
+                ByteArray     = SecurityVisualization.DrunkenBishop("AE0D 5C5C 4EB5 C3F0 683E  2173 B1EA 6EEA A89A 2896", x, y);
+                var MaxValue  = ByteArray.Max();
+
+                var size = 10UL;
+                var _Bitmap = new Bitmap((Int32) (x * size), (Int32) (y * size));
+
+                var _Pens = new Brush[] {
+                    new SolidBrush(Color.FromArgb(t, 240, 240, 240)),
+                    new SolidBrush(Color.FromArgb(t, 120, 120, 240)),
+                    new SolidBrush(Color.FromArgb(t, 105, 105, 210)),
+                    new SolidBrush(Color.FromArgb(t,  90,  90, 180)),
+                    new SolidBrush(Color.FromArgb(t,  75,  75, 150)),
+                    new SolidBrush(Color.FromArgb(t,  60,  60, 120)),
+                    new SolidBrush(Color.FromArgb(t,  45,  45,  90)),
+                    new SolidBrush(Color.FromArgb(t,  30,  30,  60)),
+                    new SolidBrush(Color.FromArgb(t,  15,  15,  30)),
+                    new SolidBrush(Color.FromArgb(t,   0,   0,   0))
+                };
+
+                var g = Graphics.FromImage(_Bitmap);
+                ByteArray.ForEachCounted((_byte, i) => {
+                    g.FillRectangle(_Pens[Math.Min(_byte, _Pens.Length-1)], size * ((i - 1) % x), size * ((i - 1) / x), size - 1, size-1);
+                });
+
+
+                var s = new MemoryStream();
+                _Bitmap.Save(s, ImageFormat.Png);
+                var f = s.ToArray();
+
+                return Task.FromResult(
+                    new HTTPResponse.Builder(Request) {
+                        HTTPStatusCode  = HTTPStatusCode.OK,
+                        Server          = HTTPServer.DefaultServerName,
+                        ContentType     = HTTPContentType.PNG,
+                        Content         = f,
+                        CacheControl    = "public",
+                        //Expires         = "Mon, 25 Jun 2015 21:31:12 GMT",
+                        Connection      = "close"
+                    }.AsImmutable);
+
+            });
 
             #endregion
 
