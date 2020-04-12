@@ -62,6 +62,38 @@ namespace social.OpenData.UsersAPI
 
         #region Properties
 
+        #region API
+
+        private UsersAPI _API;
+
+        /// <summary>
+        /// The UsersAPI of this service ticket.
+        /// </summary>
+        public UsersAPI API
+        {
+
+            get
+            {
+                return _API;
+            }
+
+            set
+            {
+
+                if (_API == value)
+                    return;
+
+                if (_API != null)
+                    throw new ArgumentException("Illegal attempt to change the API of this users group!");
+
+                _API = value ?? throw new ArgumentException("Illegal attempt to delete the API reference of this users group!");
+
+            }
+
+        }
+
+        #endregion
+
         /// <summary>
         /// The offical (multi-language) name of the group.
         /// </summary>

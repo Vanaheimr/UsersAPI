@@ -121,12 +121,12 @@ namespace social.OpenData.UsersAPI
 
         #region API
 
-        private Object _API;
+        private UsersAPI _API;
 
         /// <summary>
         /// The UsersAPI of this user.
         /// </summary>
-        internal Object API
+        internal UsersAPI API
         {
 
             get
@@ -137,13 +137,13 @@ namespace social.OpenData.UsersAPI
             set
             {
 
+                if (_API == value)
+                    return;
+
                 if (_API != null)
-                    throw new ArgumentException("Illegal attempt to change the API of this communicator!");
+                    throw new ArgumentException("Illegal attempt to change the API of this user!");
 
-                if (value == null)
-                    throw new ArgumentException("Illegal attempt to delete the API reference of this communicator!");
-
-                _API = value;
+                _API = value ?? throw new ArgumentException("Illegal attempt to delete the API reference of this user!");
 
             }
 

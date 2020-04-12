@@ -153,6 +153,9 @@ namespace social.OpenData.UsersAPI
             set
             {
 
+                if (_API == value)
+                    return;
+
                 if (_API != null)
                     throw new ArgumentException("Illegal attempt to change the API of this service ticket!");
 

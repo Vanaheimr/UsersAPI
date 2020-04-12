@@ -216,7 +216,7 @@ namespace social.OpenData.UsersAPI
 
             }
 
-            if (!UsersAPI.TryGet(UserId.Value, out User)) {
+            if (!UsersAPI.TryGetUser(UserId.Value, out User)) {
 
                 HTTPResponse = new HTTPResponse.Builder(HTTPRequest) {
                     HTTPStatusCode  = HTTPStatusCode.NotFound,
@@ -371,7 +371,7 @@ namespace social.OpenData.UsersAPI
 
             }
 
-            if (!UsersAPI.TryGet(OrganizationId.Value, out Organization)) {
+            if (!UsersAPI.TryGetOrganization(OrganizationId.Value, out Organization)) {
 
                 HTTPResponse = new HTTPResponse.Builder(HTTPRequest) {
                     HTTPStatusCode  = HTTPStatusCode.NotFound,
@@ -3704,7 +3704,7 @@ namespace social.OpenData.UsersAPI
                                              var Users = new HashSet<User>();
 
                                              if (User_Id.TryParse(UserIdOrEMailJSON, out User_Id UserId) &&
-                                                 TryGet(UserId, out User User))
+                                                 TryGetUser(UserId, out User User))
                                              {
                                                  Users.Add(User);
                                              }
@@ -4015,7 +4015,7 @@ namespace social.OpenData.UsersAPI
                                                  #region Send e-mail...
 
                                                  var MailSentResult = MailSentStatus.failed;
-                                                 var user           = Get(userId);
+                                                 var user           = GetUser(userId);
 
                                                  var MailResultTask = APISMTPClient.Send(PasswordChangedEMailCreator(user.Id,
                                                                                                                      user.EMail,
@@ -5035,7 +5035,7 @@ namespace social.OpenData.UsersAPI
                                                         }.AsImmutable;
 
 
-                                             await AddOrUpdate(_User,
+                                             await AddOrUpdateUser(_User,
                                                                null,
                                                                null,
                                                                HTTPUser.Id);
@@ -5305,7 +5305,7 @@ namespace social.OpenData.UsersAPI
 
                                                   }
 
-                                                  await Update(validUser.Id,
+                                                  await UpdateUser(validUser.Id,
                                                                user => user.AcceptedEULA = DateTime.UtcNow);
 
                                               }
@@ -5399,7 +5399,7 @@ namespace social.OpenData.UsersAPI
                                                  return HTTPResponse;
                                              }
 
-                                             if (!TryGet(UserIdURI.Value, out User UserURI))
+                                             if (!TryGetUser(UserIdURI.Value, out User UserURI))
                                              {
 
                                                  return new HTTPResponse.Builder(Request) {
@@ -5519,7 +5519,7 @@ namespace social.OpenData.UsersAPI
                                                  return Task.FromResult(HTTPResponse);
                                              }
 
-                                             if (!TryGet(UserIdURI.Value, out User UserURI))
+                                             if (!TryGetUser(UserIdURI.Value, out User UserURI))
                                              {
 
                                                  return Task.FromResult(
@@ -6630,7 +6630,7 @@ namespace social.OpenData.UsersAPI
                                                  try
                                                  {
 
-                                                     var _NewChildOrganization = await Add(newOrganization,
+                                                     var _NewChildOrganization = await AddOrganization(newOrganization,
                                                                                            ParentOrganization: ParentOrganization,
                                                                                            CurrentUserId:      HTTPUser.Id);
 
@@ -6987,7 +6987,7 @@ namespace social.OpenData.UsersAPI
 
                                                      }
 
-                                                     Admin = Get(admin.Value);
+                                                     Admin = GetUser(admin.Value);
 
                                                      if (Admin == null)
                                                      {
@@ -7166,7 +7166,7 @@ namespace social.OpenData.UsersAPI
                                                  try
                                                  {
 
-                                                     var _NewChildOrganization = await Update(UpdatedOrganization,
+                                                     var _NewChildOrganization = await UpdateOrganization(UpdatedOrganization,
                                                                                               CurrentUserId:       HTTPUser.Id);
 
                                                  }
@@ -7283,7 +7283,7 @@ namespace social.OpenData.UsersAPI
                                              try
                                              {
 
-                                                 var _NewChildOrganization = await Remove(OrganizationIdURI.Value,
+                                                 var _NewChildOrganization = await RemoveOrganization(OrganizationIdURI.Value,
                                                                                           CurrentUserId:  HTTPUser.Id);
 
                                              }
@@ -8548,7 +8548,7 @@ namespace social.OpenData.UsersAPI
                                           out ErrorResponse))
                     {
 
-                        if (TryGet(user.Id, out User __User))
+                        if (TryGetUser(user.Id, out User __User))
                         {
 
                             // this --edge--> organization
@@ -8579,7 +8579,7 @@ namespace social.OpenData.UsersAPI
                                                  out ErrorResponse))
                     {
 
-                        if (TryGet(userId, out User __User))
+                        if (TryGetUser(userId, out User __User))
                         {
 
                             // this --edge--> organization
@@ -8736,7 +8736,7 @@ namespace social.OpenData.UsersAPI
                                                   out ErrorResponse))
                     {
 
-                        if (TryGet(organization.Id, out Organization __Organization))
+                        if (TryGetOrganization(organization.Id, out Organization __Organization))
                         {
 
                             // this --edge--> other_organization
@@ -8775,7 +8775,7 @@ namespace social.OpenData.UsersAPI
                                                  out ErrorResponse))
                     {
 
-                        if (TryGet(organizationId, out Organization __Organization))
+                        if (TryGetOrganization(organizationId, out Organization __Organization))
                         {
 
                             // this --edge--> other_organization
@@ -8815,7 +8815,7 @@ namespace social.OpenData.UsersAPI
                         break;
                     }
 
-                    if (!TryGet(U2O_UserId, out User U2O_User))
+                    if (!TryGetUser(U2O_UserId, out User U2O_User))
                     {
                         DebugX.Log(String.Concat(nameof(UsersAPI), " ", Command, ": ", "Unknown user '" + U2O_UserId + "'!"));
                         break;
@@ -8828,7 +8828,7 @@ namespace social.OpenData.UsersAPI
                         break;
                     }
 
-                    if (!TryGet(U2O_OrganizationId, out Organization U2O_Organization))
+                    if (!TryGetOrganization(U2O_OrganizationId, out Organization U2O_Organization))
                     {
                         DebugX.Log(String.Concat(nameof(UsersAPI), " ", Command, ": ", "Unknown organization '" + U2O_OrganizationId + "'!"));
                         break;
@@ -8861,7 +8861,7 @@ namespace social.OpenData.UsersAPI
                         break;
                     }
 
-                    if (!TryGet(O2O_OrganizationIdOut, out Organization O2O_OrganizationOut))
+                    if (!TryGetOrganization(O2O_OrganizationIdOut, out Organization O2O_OrganizationOut))
                     {
                         DebugX.Log(String.Concat(nameof(UsersAPI), " ", Command, ": ", "Unknown outgoing organization '" + O2O_OrganizationIdOut + "'!"));
                         break;
@@ -8874,7 +8874,7 @@ namespace social.OpenData.UsersAPI
                         break;
                     }
 
-                    if (!TryGet(O2O_OrganizationIdIn, out Organization O2O_OrganizationIn))
+                    if (!TryGetOrganization(O2O_OrganizationIdIn, out Organization O2O_OrganizationIn))
                     {
                         DebugX.Log(String.Concat(nameof(UsersAPI), " ", Command, ": ", "Unknown incoming organization '" + O2O_OrganizationIdIn + "'!"));
                         break;
@@ -8929,7 +8929,7 @@ namespace social.OpenData.UsersAPI
                         break;
                     }
 
-                    if (!TryGet(U2G_UserId, out User U2G_User))
+                    if (!TryGetUser(U2G_UserId, out User U2G_User))
                     {
                         DebugX.Log(String.Concat(nameof(UsersAPI), " ", Command, ": ", "Unknown user '" + U2G_UserId + "'!"));
                         break;
@@ -8977,13 +8977,13 @@ namespace social.OpenData.UsersAPI
 
                        (JSONObject["userId"]?.Value<String>().IsNotNullOrEmpty() == true &&
                         User_Id.TryParse(JSONObject["userId"]?.Value<String>(), out userId) &&
-                        TryGet(userId, out user))
+                        TryGetUser(userId, out user))
 
                         ||
 
                        (JSONObject["organizationId"]?.Value<String>().IsNotNullOrEmpty() == true &&
                         Organization_Id.TryParse(JSONObject["organizationId"]?.Value<String>(), out organizationId) &&
-                        TryGet(organizationId, out organization)))
+                        TryGetOrganization(organizationId, out organization)))
                     {
 
                         switch (JSONObject["@context"]?.Value<String>())
@@ -9090,13 +9090,13 @@ namespace social.OpenData.UsersAPI
 
                        (JSONObject["userId"]?.Value<String>().IsNotNullOrEmpty() == true &&
                         User_Id.TryParse(JSONObject["userId"]?.Value<String>(), out userId) &&
-                        TryGet(userId, out user))
+                        TryGetUser(userId, out user))
 
                         ||
 
                        (JSONObject["organizationId"]?.Value<String>().IsNotNullOrEmpty() == true &&
                         Organization_Id.TryParse(JSONObject["organizationId"]?.Value<String>(), out organizationId) &&
-                        TryGet(organizationId, out organization)))
+                        TryGetOrganization(organizationId, out organization)))
                     {
 
                         switch (JSONObject["@context"]?.Value<String>())
@@ -9236,6 +9236,8 @@ namespace social.OpenData.UsersAPI
         #endregion
 
 
+        #region ReceiveTelegramMessage(Sender, e)
+
         async void ReceiveTelegramMessage(Object Sender, Telegram.Bot.Args.MessageEventArgs e)
         {
 
@@ -9270,6 +9272,8 @@ namespace social.OpenData.UsersAPI
 
             }
         }
+
+        #endregion
 
 
         #region (protected) TryGetSecurityTokenFromCookie(Request)
@@ -9326,7 +9330,7 @@ namespace social.OpenData.UsersAPI
                 SecurityToken_Id.TryParse   (Value,                  out SecurityToken_Id  SecurityTokenId)     &&
                 HTTPCookies.     TryGetValue(SecurityTokenId,        out SecurityToken     SecurityInformation) &&
                 DateTime.UtcNow < SecurityInformation.Expires                                                   &&
-                TryGet(SecurityInformation.UserId, out User))
+                TryGetUser(SecurityInformation.UserId, out User))
             {
                 return true;
             }
@@ -9425,7 +9429,7 @@ namespace social.OpenData.UsersAPI
                 SecurityToken_Id.TryParse   (Value,                  out SecurityToken_Id  SecurityTokenId)     &&
                 HTTPCookies.     TryGetValue(SecurityTokenId,        out SecurityToken     SecurityInformation) &&
                 DateTime.UtcNow < SecurityInformation.Expires                                                   &&
-                TryGet(SecurityInformation.Astronaut ?? SecurityInformation.UserId, out User))
+                TryGetUser(SecurityInformation.Astronaut ?? SecurityInformation.UserId, out User))
             {
                 return true;
             }
@@ -10177,7 +10181,7 @@ namespace social.OpenData.UsersAPI
         #endregion
 
 
-        #region Add           (User,   OnAdded = null,                   CurrentUserId = null)
+        #region AddUser           (User,   OnAdded = null,                   CurrentUserId = null)
 
         /// <summary>
         /// Add the given user to the API.
@@ -10185,9 +10189,9 @@ namespace social.OpenData.UsersAPI
         /// <param name="User">A new user to be added to this API.</param>
         /// <param name="OnAdded">A delegate run whenever the user had been added successfully.</param>
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
-        public async Task<User> Add(User          User,
-                                    Action<User>  OnAdded        = null,
-                                    User_Id?      CurrentUserId  = null)
+        public async Task<User> AddUser(User          User,
+                                        Action<User>  OnAdded        = null,
+                                        User_Id?      CurrentUserId  = null)
         {
 
             try
@@ -10226,7 +10230,7 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
-        #region AddIfNotExists(User,   OnAdded = null,                   CurrentUserId = null)
+        #region AddUserIfNotExists(User,   OnAdded = null,                   CurrentUserId = null)
 
         /// <summary>
         /// When it has not been created before, add the given user to the API.
@@ -10234,9 +10238,9 @@ namespace social.OpenData.UsersAPI
         /// <param name="User">A new user to be added to this API.</param>
         /// <param name="OnAdded">A delegate run whenever the user had been added successfully.</param>
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
-        public async Task<User> AddIfNotExists(User          User,
-                                               Action<User>  OnAdded        = null,
-                                               User_Id?      CurrentUserId  = null)
+        public async Task<User> AddUserIfNotExists(User          User,
+                                                   Action<User>  OnAdded        = null,
+                                                   User_Id?      CurrentUserId  = null)
         {
 
             try
@@ -10275,7 +10279,7 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
-        #region AddOrUpdate   (User,   OnAdded = null, OnUpdated = null, CurrentUserId = null)
+        #region AddOrUpdateUser   (User,   OnAdded = null, OnUpdated = null, CurrentUserId = null)
 
         /// <summary>
         /// Add or update the given user to/within the API.
@@ -10284,10 +10288,10 @@ namespace social.OpenData.UsersAPI
         /// <param name="OnAdded">A delegate run whenever the user had been added successfully.</param>
         /// <param name="OnUpdated">A delegate run whenever the user had been updated successfully.</param>
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
-        public async Task<User> AddOrUpdate(User          User,
-                                            Action<User>  OnAdded        = null,
-                                            Action<User>  OnUpdated      = null,
-                                            User_Id?      CurrentUserId  = null)
+        public async Task<User> AddOrUpdateUser(User          User,
+                                                Action<User>  OnAdded        = null,
+                                                Action<User>  OnUpdated      = null,
+                                                User_Id?      CurrentUserId  = null)
         {
 
             try
@@ -10332,15 +10336,15 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
-        #region Update        (User,                                     CurrentUserId = null)
+        #region UpdateUser        (User,                                     CurrentUserId = null)
 
         /// <summary>
         /// Update the given user to/within the API.
         /// </summary>
         /// <param name="User">A user.</param>
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
-        public async Task<User> Update(User      User,
-                                       User_Id?  CurrentUserId  = null)
+        public async Task<User> UpdateUser(User      User,
+                                           User_Id?  CurrentUserId  = null)
         {
 
             try
@@ -10379,7 +10383,7 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
-        #region Update        (UserId, UpdateDelegate,                   CurrentUserId = null)
+        #region UpdateUser        (UserId, UpdateDelegate,                   CurrentUserId = null)
 
         /// <summary>
         /// Update the given user.
@@ -10387,9 +10391,9 @@ namespace social.OpenData.UsersAPI
         /// <param name="UserId">An user identification.</param>
         /// <param name="UpdateDelegate">A delegate to update the given user.</param>
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
-        public async Task<User> Update(User_Id               UserId,
-                                       Action<User.Builder>  UpdateDelegate,
-                                       User_Id?              CurrentUserId  = null)
+        public async Task<User> UpdateUser(User_Id               UserId,
+                                           Action<User.Builder>  UpdateDelegate,
+                                           User_Id?              CurrentUserId  = null)
         {
 
             try
@@ -10471,7 +10475,7 @@ namespace social.OpenData.UsersAPI
                                            String              DataSource        = "",
                                            User_Id?            CurrentUserId     = null)
 
-            => await Add(new User(Id,
+            => await AddUser(new User(Id,
                                   EMail,
                                   Name,
                                   Description,
@@ -10548,7 +10552,7 @@ namespace social.OpenData.UsersAPI
                                                       User_Id?            CurrentUserId     = null)
 
 
-            => await AddIfNotExists(new User(Id,
+            => await AddUserIfNotExists(new User(Id,
                                              EMail,
                                              Name,
                                              Description,
@@ -10589,6 +10593,169 @@ namespace social.OpenData.UsersAPI
                                     CurrentUserId);
 
         #endregion
+
+
+
+        #region GetUser              (UserId)
+
+        /// <summary>
+        /// Get the user having the given unique identification.
+        /// </summary>
+        /// <param name="UserId">The unique identification of the user.</param>
+        public User GetUser(User_Id  UserId)
+        {
+
+            try
+            {
+
+                UsersSemaphore.Wait();
+
+                if (_Users.TryGetValue(UserId, out User User))
+                    return User;
+
+                return null;
+
+            }
+            finally
+            {
+                UsersSemaphore.Release();
+            }
+
+        }
+
+        #endregion
+
+        #region SearchUsersByName(Username)
+
+        /// <summary>
+        /// Find all users having the given user name.
+        /// </summary>
+        /// <param name="Username">The name of a user (might not be unique).</param>
+        public IEnumerable<User> SearchUsersByName(String  Username)
+        {
+
+            try
+            {
+
+                UsersSemaphore.Wait();
+
+                var FoundUsers = new List<User>();
+
+                foreach (var user in _Users.Values)
+                    if (user.Name == Username)
+                        FoundUsers.Add(user);
+
+                return FoundUsers;
+
+            }
+            finally
+            {
+                UsersSemaphore.Release();
+            }
+
+        }
+
+        #endregion
+
+        #region SearchUsersByName(Username, out Users)
+
+        /// <summary>
+        /// Find all users having the given user name.
+        /// </summary>
+        /// <param name="Username">The name of a user (might not be unique).</param>
+        /// <param name="Users">An enumeration of matching users.</param>
+        public Boolean SearchUsersByName(String Username, out IEnumerable<User> Users)
+        {
+
+            try
+            {
+
+                UsersSemaphore.Wait();
+
+                var FoundUsers = new List<User>();
+
+                foreach (var user in _Users.Values)
+                    if (user.Name == Username)
+                        FoundUsers.Add(user);
+
+                Users = FoundUsers;
+
+                return FoundUsers.Count > 0;
+
+            }
+            finally
+            {
+                UsersSemaphore.Release();
+            }
+
+        }
+
+        #endregion
+
+        #region UserExists       (UserId)
+
+        /// <summary>
+        /// Get the user having the given unique identification.
+        /// </summary>
+        /// <param name="UserId">The unique identification of the user.</param>
+        public Boolean UserExists(User_Id  UserId)
+        {
+
+            try
+            {
+
+                UsersSemaphore.Wait();
+
+                return _Users.ContainsKey(UserId);
+
+            }
+            finally
+            {
+                UsersSemaphore.Release();
+            }
+
+        }
+
+        #endregion
+
+        #region TryGetUser           (UserId, out User)
+
+        /// <summary>
+        /// Try to get the user having the given unique identification.
+        /// </summary>
+        /// <param name="UserId">The unique identification of the user.</param>
+        /// <param name="User">The user.</param>
+        public Boolean TryGetUser(User_Id   UserId,
+                                  out User  User)
+        {
+
+            try
+            {
+
+                UsersSemaphore.Wait();
+
+                return _Users.TryGetValue(UserId, out User);
+
+            }
+            finally
+            {
+                UsersSemaphore.Release();
+            }
+
+        }
+
+        #endregion
+
+
+        public UserContext SetUserContext(User User)
+            => new UserContext(User.Id);
+
+        public UserContext SetUserContext(User_Id UserId)
+            => new UserContext(UserId);
+
+        #endregion
+
+        #region Reset user password
 
         #region ChangePassword   (UserId, NewPassword, CurrentPassword = null, CurrentUserId = null)
 
@@ -10744,2707 +10911,6 @@ namespace social.OpenData.UsersAPI
         }
 
         #endregion
-
-        #region Get              (UserId)
-
-        /// <summary>
-        /// Get the user having the given unique identification.
-        /// </summary>
-        /// <param name="UserId">The unique identification of the user.</param>
-        public User Get(User_Id  UserId)
-        {
-
-            try
-            {
-
-                UsersSemaphore.Wait();
-
-                if (_Users.TryGetValue(UserId, out User User))
-                    return User;
-
-                return null;
-
-            }
-            finally
-            {
-                UsersSemaphore.Release();
-            }
-
-        }
-
-        #endregion
-
-        #region SearchUsersByName(Username)
-
-        /// <summary>
-        /// Find all users having the given user name.
-        /// </summary>
-        /// <param name="Username">The name of a user (might not be unique).</param>
-        public IEnumerable<User> SearchUsersByName(String  Username)
-        {
-
-            try
-            {
-
-                UsersSemaphore.Wait();
-
-                var FoundUsers = new List<User>();
-
-                foreach (var user in _Users.Values)
-                    if (user.Name == Username)
-                        FoundUsers.Add(user);
-
-                return FoundUsers;
-
-            }
-            finally
-            {
-                UsersSemaphore.Release();
-            }
-
-        }
-
-        #endregion
-
-        #region SearchUsersByName(Username, out Users)
-
-        /// <summary>
-        /// Find all users having the given user name.
-        /// </summary>
-        /// <param name="Username">The name of a user (might not be unique).</param>
-        /// <param name="Users">An enumeration of matching users.</param>
-        public Boolean SearchUsersByName(String Username, out IEnumerable<User> Users)
-        {
-
-            try
-            {
-
-                UsersSemaphore.Wait();
-
-                var FoundUsers = new List<User>();
-
-                foreach (var user in _Users.Values)
-                    if (user.Name == Username)
-                        FoundUsers.Add(user);
-
-                Users = FoundUsers;
-
-                return FoundUsers.Count > 0;
-
-            }
-            finally
-            {
-                UsersSemaphore.Release();
-            }
-
-        }
-
-        #endregion
-
-
-        #region UserExists       (UserId)
-
-        /// <summary>
-        /// Get the user having the given unique identification.
-        /// </summary>
-        /// <param name="UserId">The unique identification of the user.</param>
-        public Boolean UserExists(User_Id  UserId)
-        {
-
-            try
-            {
-
-                UsersSemaphore.Wait();
-
-                return _Users.ContainsKey(UserId);
-
-            }
-            finally
-            {
-                UsersSemaphore.Release();
-            }
-
-        }
-
-        #endregion
-
-        #region TryGet           (UserId, out User)
-
-        /// <summary>
-        /// Try to get the user having the given unique identification.
-        /// </summary>
-        /// <param name="UserId">The unique identification of the user.</param>
-        /// <param name="User">The user.</param>
-        public Boolean TryGet(User_Id   UserId,
-                              out User  User)
-        {
-
-            try
-            {
-
-                UsersSemaphore.Wait();
-
-                return _Users.TryGetValue(UserId, out User);
-
-            }
-            finally
-            {
-                UsersSemaphore.Release();
-            }
-
-        }
-
-        #endregion
-
-
-        public UserContext SetUserContext(User User)
-            => new UserContext(User.Id);
-
-        public UserContext SetUserContext(User_Id UserId)
-            => new UserContext(UserId);
-
-        #endregion
-
-        #region Organizations
-
-        #region Data
-
-        protected readonly Dictionary<Organization_Id, Organization> _Organizations;
-
-        /// <summary>
-        /// Return an enumeration of all organizations.
-        /// </summary>
-        public IEnumerable<Organization> Organizations
-        {
-            get
-            {
-                try
-                {
-                    OrganizationsSemaphore.Wait();
-                    return _Organizations.Values.ToArray();
-                }
-                finally
-                {
-                    OrganizationsSemaphore.Release();
-                }
-
-            }
-        }
-
-        #endregion
-
-
-        #region Add           (Organization,   ParentOrganization = null, CurrentUserId = null)
-
-        /// <summary>
-        /// Add the given organization to the API.
-        /// </summary>
-        /// <param name="Organization">A new organization to be added to this API.</param>
-        /// <param name="ParentOrganization">The parent organization of the organization organization to be added.</param>
-        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
-        public async Task<Organization> Add(Organization  Organization,
-                                            Organization  ParentOrganization   = null,
-                                            User_Id?      CurrentUserId        = null)
-        {
-
-            try
-            {
-
-                await OrganizationsSemaphore.WaitAsync();
-
-                if (Organization.API != null && Organization.API != this)
-                    throw new ArgumentException(nameof(Organization), "The given organization is already attached to another API!");
-
-                if (_Organizations.ContainsKey(Organization.Id))
-                    throw new Exception("Organization '" + Organization.Id + "' already exists in this API!");
-
-                if (ParentOrganization != null && !_Organizations.ContainsKey(ParentOrganization.Id))
-                    throw new Exception("Parent organization '" + ParentOrganization.Id + "' does not exists in this API!");
-
-                Organization.API = this;
-
-
-                // Check Admin!
-                if (CurrentUserId.HasValue)
-                {
-                    if (!Get(CurrentUserId.Value).
-                             Organizations(Access_Levels.ReadWrite, true).
-                             Contains(ParentOrganization))
-                    {
-                        throw new Exception("Not allowed!");
-                    }
-                }
-
-
-                await WriteToLogfile(NotificationMessageType.Parse("addOrganization"),
-                                     Organization.ToJSON(),
-                                     CurrentUserId);
-
-                var newOrganization = _Organizations.AddAndReturnValue(Organization.Id, Organization);
-
-                if (ParentOrganization != null)
-                    await _LinkOrganizations(newOrganization,
-                                             Organization2OrganizationEdgeTypes.IsChildOf,
-                                             ParentOrganization,
-                                             CurrentUserId:  CurrentUserId);
-
-                return newOrganization;
-
-            }
-            finally
-            {
-                OrganizationsSemaphore.Release();
-            }
-
-        }
-
-        #endregion
-
-        #region AddIfNotExists(Organization,   ParentOrganization = null, CurrentUserId = null)
-
-        /// <summary>
-        /// When it has not been created before, add the given organization to the API.
-        /// </summary>
-        /// <param name="Organization">A new organization to be added to this API.</param>
-        /// <param name="ParentOrganization">The parent organization of the organization to be added.</param>
-        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
-        public async Task<Organization> AddIfNotExists(Organization  Organization,
-                                                       Organization  ParentOrganization   = null,
-                                                       User_Id?      CurrentUserId        = null)
-        {
-
-            try
-            {
-
-                await OrganizationsSemaphore.WaitAsync();
-
-                if (Organization.API != null && Organization.API != this)
-                    throw new ArgumentException(nameof(Organization), "The given organization is already attached to another API!");
-
-                if (_Organizations.ContainsKey(Organization.Id))
-                    return _Organizations[Organization.Id];
-
-                if (ParentOrganization != null && !_Organizations.ContainsKey(ParentOrganization.Id))
-                    throw new Exception("Parent organization '" + ParentOrganization.Id + "' does not exists in this API!");
-
-                Organization.API = this;
-
-                await WriteToLogfile(NotificationMessageType.Parse("addIfNotExistsOrganization"),
-                                     Organization.ToJSON(),
-                                     CurrentUserId);
-
-                var NewOrg = _Organizations.AddAndReturnValue(Organization.Id, Organization);
-
-                if (ParentOrganization != null)
-                    await _LinkOrganizations(NewOrg, Organization2OrganizationEdgeTypes.IsChildOf, ParentOrganization, CurrentUserId: CurrentUserId);
-
-                return NewOrg;
-
-            }
-            finally
-            {
-                OrganizationsSemaphore.Release();
-            }
-
-        }
-
-        #endregion
-
-        #region AddOrUpdate   (Organization,   ParentOrganization = null, CurrentUserId = null)
-
-        /// <summary>
-        /// Add or update the given organization to/within the API.
-        /// </summary>
-        /// <param name="Organization">A organization.</param>
-        /// <param name="ParentOrganization">The parent organization of the organization to be added.</param>
-        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
-        public async Task<Organization> AddOrUpdate(Organization  Organization,
-                                                    Organization  ParentOrganization   = null,
-                                                    User_Id?      CurrentUserId        = null)
-        {
-
-            try
-            {
-
-                await OrganizationsSemaphore.WaitAsync();
-
-                if (Organization.API != null && Organization.API != this)
-                    throw new ArgumentException(nameof(Organization), "The given organization is already attached to another API!");
-
-                if (ParentOrganization != null && !_Organizations.ContainsKey(ParentOrganization.Id))
-                    throw new Exception("Parent organization '" + ParentOrganization.Id + "' does not exists in this API!");
-
-                if (_Organizations.TryGetValue(Organization.Id, out Organization OldOrganization))
-                {
-                    _Organizations.Remove(OldOrganization.Id);
-                }
-
-                Organization.API = this;
-
-                await WriteToLogfile(NotificationMessageType.Parse("addOrUpdateOrganization"),
-                                     Organization.ToJSON(),
-                                     CurrentUserId);
-
-                var NewOrg = _Organizations.AddAndReturnValue(Organization.Id, Organization);
-
-                // ToDo: Copy edges!
-
-                if (ParentOrganization != null)
-                {
-                    await _LinkOrganizations(NewOrg, Organization2OrganizationEdgeTypes.IsChildOf, ParentOrganization, CurrentUserId: CurrentUserId);
-                    //ToDo: Update link to parent organization
-                }
-
-                return NewOrg;
-
-            }
-            finally
-            {
-                OrganizationsSemaphore.Release();
-            }
-
-        }
-
-        #endregion
-
-        #region Update        (Organization,                              CurrentUserId = null)
-
-        /// <summary>
-        /// Update the given organization within the API.
-        /// </summary>
-        /// <param name="Organization">A organization.</param>
-        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
-        public async Task<Organization> Update(Organization  Organization,
-                                               User_Id?      CurrentUserId  = null)
-        {
-
-            try
-            {
-
-                await OrganizationsSemaphore.WaitAsync();
-
-                if (Organization.API != null && Organization.API != this)
-                    throw new ArgumentException(nameof(Organization), "The given organization is already attached to another API!");
-
-                if (!_Organizations.TryGetValue(Organization.Id, out Organization OldOrganization))
-                    throw new Exception("Organization '" + Organization.Id + "' does not exists in this API!");
-
-                else
-                {
-
-                    _Organizations.Remove(OldOrganization.Id);
-
-                }
-
-                Organization.API = this;
-
-                await WriteToLogfile(NotificationMessageType.Parse("updateOrganization"),
-                                     Organization.ToJSON(),
-                                     CurrentUserId);
-
-                OldOrganization.CopyAllEdgesTo(Organization);
-
-                return _Organizations.AddAndReturnValue(Organization.Id, Organization);
-
-            }
-            finally
-            {
-                OrganizationsSemaphore.Release();
-            }
-
-        }
-
-        #endregion
-
-        #region Update        (OrganizationId, UpdateDelegate,            CurrentUserId = null)
-
-        /// <summary>
-        /// Update the given organization.
-        /// </summary>
-        /// <param name="OrganizationId">An organization identification.</param>
-        /// <param name="UpdateDelegate">A delegate to update the given organization.</param>
-        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
-        public async Task<Organization> Update(Organization_Id               OrganizationId,
-                                               Action<Organization.Builder>  UpdateDelegate,
-                                               User_Id?                      CurrentUserId  = null)
-        {
-
-            try
-            {
-
-                if (UpdateDelegate == null)
-                    throw new Exception("The given update delegate must not be null!");
-
-                await OrganizationsSemaphore.WaitAsync();
-
-                if (!_Organizations.TryGetValue(OrganizationId, out Organization OldOrganization))
-                    throw new Exception("Organization '" + OrganizationId + "' does not exists in this API!");
-
-                var Builder = OldOrganization.ToBuilder();
-                UpdateDelegate(Builder);
-                var NewOrganization = Builder.ToImmutable;
-
-                await WriteToLogfile(NotificationMessageType.Parse("updateOrganization"),
-                                     NewOrganization.ToJSON(),
-                                     CurrentUserId);
-
-                NewOrganization.API = this;
-
-                _Organizations.Remove(OldOrganization.Id);
-                OldOrganization.CopyAllEdgesTo(NewOrganization);
-
-                return _Organizations.AddAndReturnValue(NewOrganization.Id, NewOrganization);
-
-            }
-            finally
-            {
-                OrganizationsSemaphore.Release();
-            }
-
-        }
-
-        #endregion
-
-        #region Remove        (OrganizationId,                            CurrentUserId = null)
-
-        /// <summary>
-        /// Remove the given organization from this API.
-        /// </summary>
-        /// <param name="OrganizationId">The unique identification of the organization.</param>
-        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
-        public async Task<Organization> Remove(Organization_Id  OrganizationId,
-                                               User_Id?         CurrentUserId  = null)
-        {
-
-            try
-            {
-
-                await OrganizationsSemaphore.WaitAsync();
-
-                if (_Organizations.TryGetValue(OrganizationId, out Organization Organization))
-                {
-
-                    // this --edge--> other_organization
-                    foreach (var edge in Organization.Organization2OrganizationOutEdges)
-                        edge.Target.RemoveInEdge(edge);
-
-                    // this <--edge-- other_organization
-                    foreach (var edge in Organization.Organization2OrganizationInEdges)
-                        edge.Source.RemoveOutEdge(edge);
-
-                    // this <--edge-- user
-                    foreach (var edge in Organization.User2OrganizationEdges)
-                        edge.Source.RemoveOutEdge(edge);
-
-
-                    await WriteToLogfile(NotificationMessageType.Parse("removeOrganization"),
-                                         Organization.ToJSON(),
-                                         CurrentUserId);
-
-                    _Organizations.Remove(OrganizationId);
-
-                    //Organization.API = null;
-
-                    return Organization;
-
-                }
-
-                return null;
-
-            }
-            finally
-            {
-                OrganizationsSemaphore.Release();
-            }
-
-        }
-
-        #endregion
-
-
-        #region CreateOrganization           (Id, Name = null, Description = null, ParentOrganization = null)
-
-        public Task<Organization> CreateOrganization(Organization_Id           Id,
-                                                     I18NString                Name                 = null,
-                                                     I18NString                Description          = null,
-                                                     String                    Website              = null,
-                                                     EMailAddress              EMail                = null,
-                                                     PhoneNumber?              Telephone            = null,
-                                                     Address                   Address              = null,
-                                                     GeoCoordinate?            GeoLocation          = null,
-                                                     Func<Tags.Builder, Tags>  Tags                 = null,
-                                                     PrivacyLevel              PrivacyLevel         = PrivacyLevel.Private,
-                                                     Boolean                   IsDisabled           = false,
-                                                     String                    DataSource           = "",
-                                                     Organization              ParentOrganization   = null,
-                                                     User_Id?                  CurrentUserId        = null)
-
-            => Add(new Organization(Id,
-                                    Name,
-                                    Description,
-                                    Website,
-                                    EMail,
-                                    Telephone,
-                                    Address,
-                                    GeoLocation,
-                                    Tags,
-                                    PrivacyLevel,
-                                    IsDisabled,
-                                    DataSource),
-                   ParentOrganization,
-                   CurrentUserId);
-
-        #endregion
-
-        #region CreateOrganizationIfNotExists(Id, Name = null, Description = null, ParentOrganization = null)
-
-        public Task<Organization> CreateOrganizationIfNotExists(Organization_Id           Id,
-                                                                I18NString                Name                 = null,
-                                                                I18NString                Description          = null,
-                                                                String                    Website              = null,
-                                                                EMailAddress              EMail                = null,
-                                                                PhoneNumber?              Telephone            = null,
-                                                                Address                   Address              = null,
-                                                                GeoCoordinate?            GeoLocation          = null,
-                                                                Func<Tags.Builder, Tags>  Tags                 = null,
-                                                                PrivacyLevel              PrivacyLevel         = PrivacyLevel.Private,
-                                                                Boolean                   IsDisabled           = false,
-                                                                String                    DataSource           = "",
-                                                                Organization              ParentOrganization   = null,
-                                                                User_Id?                  CurrentUserId        = null)
-
-            => AddIfNotExists(new Organization(Id,
-                                               Name,
-                                               Description,
-                                               Website,
-                                               EMail,
-                                               Telephone,
-                                               Address,
-                                               GeoLocation,
-                                               Tags,
-                                               PrivacyLevel,
-                                               IsDisabled,
-                                               DataSource),
-                              ParentOrganization,
-                              CurrentUserId);
-
-        #endregion
-
-
-        #region (protected internal) SetOrganizationRequest (Request)
-
-        /// <summary>
-        /// An event sent whenever set organization (data) request was received.
-        /// </summary>
-        public event RequestLogHandler OnSetOrganizationRequest;
-
-        protected internal HTTPRequest SetOrganizationRequest(HTTPRequest Request)
-        {
-
-            OnSetOrganizationRequest?.Invoke(Request.Timestamp,
-                                              HTTPServer,
-                                              Request);
-
-            return Request;
-
-        }
-
-        #endregion
-
-        #region (protected internal) SetOrganizationResponse(Response)
-
-        /// <summary>
-        /// An event sent whenever a response on a set organization (data) request was sent.
-        /// </summary>
-        public event AccessLogHandler OnSetOrganizationResponse;
-
-        protected internal HTTPResponse SetOrganizationResponse(HTTPResponse Response)
-        {
-
-            OnSetOrganizationResponse?.Invoke(Response.Timestamp,
-                                               HTTPServer,
-                                               Response.HTTPRequest,
-                                               Response);
-
-            return Response;
-
-        }
-
-        #endregion
-
-
-        #region Contains      (OrganizationId)
-
-        /// <summary>
-        /// Whether this API contains a organization having the given unique identification.
-        /// </summary>
-        /// <param name="OrganizationId">The unique identification of the organization.</param>
-        public Boolean Contains(Organization_Id OrganizationId)
-        {
-
-            try
-            {
-
-                OrganizationsSemaphore.Wait();
-
-                return _Organizations.ContainsKey(OrganizationId);
-
-            }
-            finally
-            {
-                OrganizationsSemaphore.Release();
-            }
-
-        }
-
-        #endregion
-
-        #region Get           (OrganizationId)
-
-        /// <summary>
-        /// Get the organization having the given unique identification.
-        /// </summary>
-        /// <param name="OrganizationId">The unique identification of the organization.</param>
-        public async Task<Organization> Get(Organization_Id  OrganizationId)
-        {
-
-            try
-            {
-
-                await OrganizationsSemaphore.WaitAsync();
-
-                if (_Organizations.TryGetValue(OrganizationId, out Organization Organization))
-                    return Organization;
-
-                return null;
-
-            }
-            finally
-            {
-                OrganizationsSemaphore.Release();
-            }
-
-        }
-
-        #endregion
-
-        #region TryGet        (OrganizationId, out Organization)
-
-        /// <summary>
-        /// Try to get the organization having the given unique identification.
-        /// </summary>
-        /// <param name="OrganizationId">The unique identification of the organization.</param>
-        /// <param name="Organization">The organization.</param>
-        public Boolean TryGet(Organization_Id   OrganizationId,
-                              out Organization  Organization)
-        {
-
-            try
-            {
-
-                OrganizationsSemaphore.Wait();
-
-                return _Organizations.TryGetValue(OrganizationId, out Organization);
-
-            }
-            finally
-            {
-                OrganizationsSemaphore.Release();
-            }
-
-        }
-
-        #endregion
-
-        #region SearchOrganizationsByName(OrganizationName)
-
-        /// <summary>
-        /// Find all organizations having the given name.
-        /// </summary>
-        /// <param name="OrganizationName">The name of an organization (might not be unique).</param>
-        public IEnumerable<Organization> SearchOrganizationsByName(String OrganizationName)
-        {
-
-            try
-            {
-
-                OrganizationsSemaphore.Wait();
-
-                var FoundOrganizations = new List<Organization>();
-
-                foreach (var organization in _Organizations.Values)
-                    if (organization.Name.Any(i18npair => i18npair.Text == OrganizationName))
-                        FoundOrganizations.Add(organization);
-
-                return FoundOrganizations;
-
-            }
-            finally
-            {
-                OrganizationsSemaphore.Release();
-            }
-
-        }
-
-        /// <summary>
-        /// Find all organizations having the given name.
-        /// </summary>
-        /// <param name="OrganizationName">The name of an organization (might not be unique).</param>
-        public IEnumerable<Organization> SearchOrganizationsByName(I18NString OrganizationName)
-        {
-
-            try
-            {
-
-                OrganizationsSemaphore.Wait();
-
-                var FoundOrganizations = new List<Organization>();
-
-                foreach (var organization in _Organizations.Values)
-                    if (organization.Name == OrganizationName)
-                        FoundOrganizations.Add(organization);
-
-                return FoundOrganizations;
-
-            }
-            finally
-            {
-                OrganizationsSemaphore.Release();
-            }
-
-        }
-
-        #endregion
-
-        #region SearchOrganizationsByName(OrganizationName, out Organizations)
-
-        /// <summary>
-        /// Find all organizations having the given name.
-        /// </summary>
-        /// <param name="OrganizationName">The name of an organization (might not be unique).</param>
-        /// <param name="Organizations">An enumeration of matching organizations.</param>
-        public Boolean SearchOrganizationsByName(String OrganizationName, out IEnumerable<Organization> Organizations)
-        {
-
-            try
-            {
-
-                OrganizationsSemaphore.Wait();
-
-                var FoundOrganizations = new List<Organization>();
-
-                var sss = _Organizations.Where(o => o.Value.Name?.FirstText()?.StartsWith("P") == true);
-
-                foreach (var organization in _Organizations.Values)
-                    if (organization.Name.Any(i18npair => i18npair.Text == OrganizationName))
-                        FoundOrganizations.Add(organization);
-
-                Organizations = FoundOrganizations;
-
-                return FoundOrganizations.Count > 0;
-
-            }
-            finally
-            {
-                OrganizationsSemaphore.Release();
-            }
-
-        }
-
-        /// <summary>
-        /// Find all organizations having the given name.
-        /// </summary>
-        /// <param name="OrganizationName">The name of an organization (might not be unique).</param>
-        /// <param name="Organizations">An enumeration of matching organizations.</param>
-        public Boolean SearchOrganizationsByName(I18NString OrganizationName, out IEnumerable<Organization> Organizations)
-        {
-
-            try
-            {
-
-                OrganizationsSemaphore.Wait();
-
-                var FoundOrganizations = new List<Organization>();
-
-                foreach (var organization in _Organizations.Values)
-                    if (organization.Name == OrganizationName)
-                        FoundOrganizations.Add(organization);
-
-                Organizations = FoundOrganizations;
-
-                return FoundOrganizations.Count > 0;
-
-            }
-            finally
-            {
-                OrganizationsSemaphore.Release();
-            }
-
-        }
-
-        #endregion
-
-
-        #region AddToOrganization(User, Edge, Organization, PrivacyLevel = Private)
-
-        protected async Task<Boolean> _AddToOrganization(User                    User,
-                                                         User2OrganizationEdgeTypes  Edge,
-                                                         Organization            Organization,
-                                                         PrivacyLevel            PrivacyLevel   = PrivacyLevel.Private,
-                                                         User_Id?                CurrentUserId  = null)
-        {
-
-            if (!User.Edges(Organization).Any(edge => edge == Edge))
-            {
-
-                var edge = User.AddOutgoingEdge(Edge, Organization, PrivacyLevel);
-
-                if (!Organization.User2OrganizationInEdgeLabels(User).Any(edgelabel => edgelabel == Edge))
-                    Organization.LinkUser(edge);// User, Edge, PrivacyLevel);
-
-                await WriteToLogfile(NotificationMessageType.Parse("addUserToOrganization"),
-                                     new JObject(
-                                         new JProperty("user",          User.        Id.ToString()),
-                                         new JProperty("edge",          Edge.           ToString()),
-                                         new JProperty("organization",  Organization.Id.ToString()),
-                                         PrivacyLevel.ToJSON()
-                                     ),
-                                     CurrentUserId);
-
-                return true;
-
-            }
-
-            return false;
-
-        }
-
-        public async Task<Boolean> AddToOrganization(User                    User,
-                                                     User2OrganizationEdgeTypes  Edge,
-                                                     Organization            Organization,
-                                                     PrivacyLevel            PrivacyLevel   = PrivacyLevel.Private,
-                                                     User_Id?                CurrentUserId  = null)
-        {
-
-            try
-            {
-
-                await UsersSemaphore.        WaitAsync();
-                await OrganizationsSemaphore.WaitAsync();
-
-                return await _AddToOrganization(User,
-                                                Edge,
-                                                Organization,
-                                                PrivacyLevel,
-                                                CurrentUserId);
-
-            }
-            finally
-            {
-                OrganizationsSemaphore.Release();
-                UsersSemaphore.        Release();
-            }
-
-        }
-
-        #endregion
-
-        #region LinkOrganizations  (OrganizationOut, EdgeLabel, OrganizationIn, Privacy = Public, CurrentUserId = null)
-
-        protected async Task<Boolean> _LinkOrganizations(Organization                    OrganizationOut,
-                                                         Organization2OrganizationEdgeTypes  EdgeLabel,
-                                                         Organization                    OrganizationIn,
-                                                         PrivacyLevel                    Privacy        = PrivacyLevel.World,
-                                                         User_Id?                        CurrentUserId  = null)
-        {
-
-                if (!OrganizationOut.
-                        Organization2OrganizationOutEdges.
-                        Where(edge => edge.Target    == OrganizationIn).
-                        Any  (edge => edge.EdgeLabel == EdgeLabel))
-                {
-
-                    OrganizationOut.AddOutEdge(EdgeLabel, OrganizationIn, Privacy);
-
-                    if (!OrganizationIn.
-                            Organization2OrganizationInEdges.
-                            Where(edge => edge.Source    == OrganizationOut).
-                            Any  (edge => edge.EdgeLabel == EdgeLabel))
-                    {
-                        OrganizationIn.AddInEdge(EdgeLabel, OrganizationOut, Privacy);
-                    }
-
-                    await WriteToLogfile(NotificationMessageType.Parse("linkOrganizations"),
-                                         new JObject(
-                                             new JProperty("organizationOut", OrganizationOut.Id.ToString()),
-                                             new JProperty("edge",            EdgeLabel.         ToString()),
-                                             new JProperty("organizationIn",  OrganizationIn. Id.ToString()),
-                                             Privacy.ToJSON()
-                                         ),
-                                         CurrentUserId);
-
-                    return true;
-
-                }
-
-                return false;
-
-        }
-
-        public async Task<Boolean> LinkOrganizations(Organization                    OrganizationOut,
-                                                     Organization2OrganizationEdgeTypes  EdgeLabel,
-                                                     Organization                    OrganizationIn,
-                                                     PrivacyLevel                    Privacy        = PrivacyLevel.World,
-                                                     User_Id?                        CurrentUserId  = null)
-        {
-
-            try
-            {
-
-                await OrganizationsSemaphore.WaitAsync();
-
-                return await _LinkOrganizations(OrganizationOut,
-                                                EdgeLabel,
-                                                OrganizationIn,
-                                                Privacy,
-                                                CurrentUserId);
-
-            }
-            finally
-            {
-                OrganizationsSemaphore.Release();
-            }
-
-        }
-
-        #endregion
-
-        #region UnlinkOrganizations(OrganizationOut, EdgeLabel, OrganizationIn,                   CurrentUserId = null)
-
-        protected async Task<Boolean> _UnlinkOrganizations(Organization                    OrganizationOut,
-                                                           Organization2OrganizationEdgeTypes  EdgeLabel,
-                                                           Organization                    OrganizationIn,
-                                                           User_Id?                        CurrentUserId  = null)
-        {
-
-            if (OrganizationOut.
-                    Organization2OrganizationOutEdges.
-                    Where(edge => edge.Target    == OrganizationIn).
-                    Any  (edge => edge.EdgeLabel == EdgeLabel))
-            {
-
-                OrganizationOut.RemoveOutEdges(EdgeLabel, OrganizationIn);
-
-                if (OrganizationIn.
-                        Organization2OrganizationInEdges.
-                        Where(edge => edge.Source    == OrganizationOut).
-                        Any  (edge => edge.EdgeLabel == EdgeLabel))
-                {
-                    OrganizationIn.RemoveInEdges(EdgeLabel, OrganizationOut);
-                }
-
-                await WriteToLogfile(NotificationMessageType.Parse("unlinkOrganizations"),
-                                     new JObject(
-                                         new JProperty("organizationOut", OrganizationOut.Id.ToString()),
-                                         new JProperty("edge",            EdgeLabel.         ToString()),
-                                         new JProperty("organizationIn",  OrganizationIn. Id.ToString())
-                                     ),
-                                     CurrentUserId);
-
-                return true;
-
-            }
-
-            return false;
-
-        }
-
-        public async Task<Boolean> UnlinkOrganizations(Organization                    OrganizationOut,
-                                                       Organization2OrganizationEdgeTypes  EdgeLabel,
-                                                       Organization                    OrganizationIn,
-                                                       User_Id?                        CurrentUserId  = null)
-        {
-
-            try
-            {
-
-                await OrganizationsSemaphore.WaitAsync();
-
-                return await _UnlinkOrganizations(OrganizationOut,
-                                                  EdgeLabel,
-                                                  OrganizationIn,
-                                                  CurrentUserId);
-
-            }
-            finally
-            {
-                OrganizationsSemaphore.Release();
-            }
-
-        }
-
-        #endregion
-
-        #endregion
-
-        #region Groups
-
-        #region Data
-
-        protected readonly Dictionary<Group_Id, Group> _Groups;
-
-        /// <summary>
-        /// Return an enumeration of all groups.
-        /// </summary>
-        public IEnumerable<Group> Groups
-        {
-            get
-            {
-                try
-                {
-                    GroupsSemaphore.Wait();
-                    return _Groups.Values.ToArray();
-                }
-                finally
-                {
-                    GroupsSemaphore.Release();
-                }
-
-            }
-        }
-
-        #endregion
-
-
-        #region CreateGroup           (Id, Name = null, Description = null)
-
-        public async Task<Group> CreateGroup(Group_Id   Id,
-                                             User_Id    CurrentUserId,
-                                             I18NString Name         = null,
-                                             I18NString Description  = null)
-        {
-
-            try
-            {
-
-                await GroupsSemaphore.WaitAsync();
-
-                if (_Groups.ContainsKey(Id))
-                    throw new ArgumentException("The given group identification already exists!", nameof(Id));
-
-
-                var Group = new Group(Id,
-                                      Name,
-                                      Description);
-
-                if (Group.Id.ToString() != AdminGroupName)
-                    await WriteToLogfile(NotificationMessageType.Parse("createGroup"),
-                                         Group.ToJSON(),
-                                         CurrentUserId);
-
-                return _Groups.AddAndReturnValue(Group.Id, Group);
-
-            }
-            finally
-            {
-                GroupsSemaphore.Release();
-            }
-
-        }
-
-        #endregion
-
-        #region CreateGroupIfNotExists(Id, Name = null, Description = null)
-
-        public async Task<Group> CreateGroupIfNotExists(Group_Id    Id,
-                                                        User_Id     CurrentUserId,
-                                                        I18NString  Name         = null,
-                                                        I18NString  Description  = null)
-        {
-
-            try
-            {
-
-                await GroupsSemaphore.WaitAsync();
-
-                if (_Groups.ContainsKey(Id))
-                    return _Groups[Id];
-
-                var Group = new Group(Id,
-                                      Name,
-                                      Description);
-
-                if (Group.Id.ToString() != AdminGroupName)
-                    await WriteToLogfile(NotificationMessageType.Parse("createGroup"),
-                                         Group.ToJSON(),
-                                         CurrentUserId);
-
-                return _Groups.AddAndReturnValue(Group.Id, Group);
-
-            }
-            finally
-            {
-                GroupsSemaphore.Release();
-            }
-
-        }
-
-        #endregion
-
-
-        #region Contains(GroupId)
-
-        /// <summary>
-        /// Whether this API contains a group having the given unique identification.
-        /// </summary>
-        /// <param name="GroupId">The unique identification of the group.</param>
-        public Boolean Contains(Group_Id GroupId)
-        {
-
-            try
-            {
-
-                GroupsSemaphore.Wait();
-
-                return _Groups.ContainsKey(GroupId);
-
-            }
-            finally
-            {
-                GroupsSemaphore.Release();
-            }
-
-        }
-
-        #endregion
-
-        #region Get     (GroupId)
-
-        /// <summary>
-        /// Get the group having the given unique identification.
-        /// </summary>
-        /// <param name="GroupId">The unique identification of the group.</param>
-        public async Task<Group> Get(Group_Id  GroupId)
-        {
-
-            try
-            {
-
-                await GroupsSemaphore.WaitAsync();
-
-                if (_Groups.TryGetValue(GroupId, out Group Group))
-                    return Group;
-
-                return null;
-
-            }
-            finally
-            {
-                GroupsSemaphore.Release();
-            }
-
-        }
-
-        #endregion
-
-        #region TryGet  (GroupId, out Group)
-
-        /// <summary>
-        /// Try to get the group having the given unique identification.
-        /// </summary>
-        /// <param name="GroupId">The unique identification of the group.</param>
-        /// <param name="Group">The group.</param>
-        public Boolean TryGet(Group_Id   GroupId,
-                              out Group  Group)
-        {
-
-            try
-            {
-
-                GroupsSemaphore.Wait();
-
-                return _Groups.TryGetValue(GroupId, out Group);
-
-            }
-            finally
-            {
-                GroupsSemaphore.Release();
-            }
-
-        }
-
-        #endregion
-
-        #region SearchGroupsByName(GroupName)
-
-        /// <summary>
-        /// Find all groups having the given name.
-        /// </summary>
-        /// <param name="GroupName">The name of an group (might not be unique).</param>
-        public IEnumerable<Group> SearchGroupsByName(String GroupName)
-        {
-
-            try
-            {
-
-                GroupsSemaphore.Wait();
-
-                var FoundGroups = new List<Group>();
-
-                foreach (var group in _Groups.Values)
-                    if (group.Name.Any(i18npair => i18npair.Text == GroupName))
-                        FoundGroups.Add(group);
-
-                return FoundGroups;
-
-            }
-            finally
-            {
-                GroupsSemaphore.Release();
-            }
-
-        }
-
-        /// <summary>
-        /// Find all groups having the given name.
-        /// </summary>
-        /// <param name="GroupName">The name of an group (might not be unique).</param>
-        public IEnumerable<Group> SearchGroupsByName(I18NString GroupName)
-        {
-
-            try
-            {
-
-                GroupsSemaphore.Wait();
-
-                var FoundGroups = new List<Group>();
-
-                foreach (var group in _Groups.Values)
-                    if (group.Name == GroupName)
-                        FoundGroups.Add(group);
-
-                return FoundGroups;
-
-            }
-            finally
-            {
-                GroupsSemaphore.Release();
-            }
-
-        }
-
-        #endregion
-
-        #region SearchGroupsByName(GroupName, out Groups)
-
-        /// <summary>
-        /// Find all groups having the given name.
-        /// </summary>
-        /// <param name="GroupName">The name of an group (might not be unique).</param>
-        /// <param name="Groups">An enumeration of matching groups.</param>
-        public Boolean SearchGroupsByName(String GroupName, out IEnumerable<Group> Groups)
-        {
-
-            try
-            {
-
-                GroupsSemaphore.Wait();
-
-                var FoundGroups = new List<Group>();
-
-                foreach (var group in _Groups.Values)
-                    if (group.Name.Any(i18npair => i18npair.Text == GroupName))
-                        FoundGroups.Add(group);
-
-                Groups = FoundGroups;
-
-                return FoundGroups.Count > 0;
-
-            }
-            finally
-            {
-                GroupsSemaphore.Release();
-            }
-
-        }
-
-        /// <summary>
-        /// Find all groups having the given name.
-        /// </summary>
-        /// <param name="GroupName">The name of an group (might not be unique).</param>
-        /// <param name="Groups">An enumeration of matching groups.</param>
-        public Boolean SearchGroupsByName(I18NString GroupName, out IEnumerable<Group> Groups)
-        {
-
-            try
-            {
-
-                GroupsSemaphore.Wait();
-
-                var FoundGroups = new List<Group>();
-
-                foreach (var group in _Groups.Values)
-                    if (group.Name == GroupName)
-                        FoundGroups.Add(group);
-
-                Groups = FoundGroups;
-
-                return FoundGroups.Count > 0;
-
-            }
-            finally
-            {
-                GroupsSemaphore.Release();
-            }
-
-        }
-
-        #endregion
-
-
-        #region AddToGroup(User, Edge, Group, PrivacyLevel = Private)
-
-        public async Task<Boolean> AddToGroup(User             User,
-                                              User2GroupEdgeTypes  Edge,
-                                              Group            Group,
-                                              PrivacyLevel     PrivacyLevel   = PrivacyLevel.Private,
-                                              User_Id?         CurrentUserId  = null)
-
-        {
-
-            try
-            {
-
-                await UsersSemaphore.WaitAsync();
-                await GroupsSemaphore.WaitAsync();
-
-                if (!User.OutEdges(Group).Any(edge => edge == Edge))
-                {
-
-                    User.AddOutgoingEdge(Edge, Group, PrivacyLevel);
-
-                    if (!Group.Edges(Group).Any(edge => edge == Edge))
-                        Group.AddIncomingEdge(User, Edge,  PrivacyLevel);
-
-                    await WriteToLogfile(NotificationMessageType.Parse("addUserToGroup"),
-                                         new JObject(
-                                             new JProperty("user",   User.Id.ToString()),
-                                             new JProperty("edge",   Edge.   ToString()),
-                                             new JProperty("group",  Group.  ToString()),
-                                             PrivacyLevel.ToJSON()
-                                         ),
-                                         CurrentUserId);
-
-                    return true;
-
-                }
-
-                return false;
-
-            }
-            finally
-            {
-                UsersSemaphore.Release();
-                GroupsSemaphore.Release();
-            }
-
-        }
-
-        #endregion
-
-
-        #region IsAdmin(User)
-
-        /// <summary>
-        /// Check if the given user is an API admin.
-        /// </summary>
-        /// <param name="User">A user.</param>
-        public Access_Levels IsAdmin(User User)
-        {
-
-            if (User.Groups(User2GroupEdgeTypes.IsAdmin_ReadOnly).
-                     Contains(Admins))
-            {
-                return Access_Levels.ReadOnly;
-            }
-
-            if (User.Groups(User2GroupEdgeTypes.IsAdmin_ReadWrite).
-                     Contains(Admins))
-            {
-                return Access_Levels.ReadWrite;
-            }
-
-            return Access_Levels.None;
-
-        }
-
-        #endregion
-
-        #region IsAdmin(UserId)
-
-        /// <summary>
-        /// Check if the given user is an API admin.
-        /// </summary>
-        /// <param name="UserId">A user identification.</param>
-        public Access_Levels IsAdmin(User_Id UserId)
-        {
-
-            if (TryGet(UserId, out User User))
-                return IsAdmin(User);
-
-            return Access_Levels.None;
-
-        }
-
-        #endregion
-
-        #endregion
-
-        #region ServiceTickets
-
-        #region Data
-
-        protected readonly ConcurrentDictionary<ServiceTicket_Id, AServiceTicket> _ServiceTickets;
-
-        /// <summary>
-        /// Return an enumeration of all service tickets.
-        /// </summary>
-        public IEnumerable<AServiceTicket> ServiceTickets
-        {
-            get
-            {
-                try
-                {
-                    ServiceTicketsSemaphore.Wait();
-                    return _ServiceTickets.Values.ToArray();
-                }
-                finally
-                {
-                    ServiceTicketsSemaphore.Release();
-                }
-
-            }
-        }
-
-        #endregion
-
-
-        #region WriteToLogfileAndNotify(ServiceTicket,        MessageType, OldServiceTicket        = null, CurrentUserId = null)
-
-        public async Task WriteToLogfileAndNotify<TServiceTicket>(TServiceTicket           ServiceTicket,
-                                                                  NotificationMessageType  MessageType,
-                                                                  TServiceTicket           OldServiceTicket  = null,
-                                                                  User_Id?                 CurrentUserId     = null)
-            where TServiceTicket : AServiceTicket
-        {
-
-            if (ServiceTicket == null)
-                return;
-
-            await WriteToLogfile(MessageType,
-                                 ServiceTicket.ToJSON(),
-                                 ServiceTicketsPath + ServiceTicketsDBFile,
-                                 CurrentUserId);
-
-
-            var _MessageTypes  = new HashSet<NotificationMessageType>() { MessageType };
-
-            if (MessageType == addIfNotExistsServiceTicket_MessageType)
-            {
-                _MessageTypes.Add(addServiceTicket_MessageType);
-            }
-
-            else if (MessageType == addOrUpdateServiceTicket_MessageType)
-            {
-                _MessageTypes.Add(addServiceTicket_MessageType);
-            }
-
-            var MessageTypes   = _MessageTypes.ToArray();
-
-
-            if (!DisableNotifications)
-            {
-
-                #region Telegram Notifications
-
-                try
-                {
-
-                    var AllTelegramNotifications = this.GetTelegramNotifications(ServiceTicket.Author, MessageTypes).
-                                                        ToHashSet();
-
-                    if (DevMachines.Contains(Environment.MachineName))
-                    {
-                        AllTelegramNotifications.Clear();
-                        //AllTelegramNotifications.Add(PhoneNumber.Parse("+491728930852"));
-                    }
-
-                    if (AllTelegramNotifications.Count > 0)
-                    {
-
-                        await TelegramStore.SendTelegrams("ServiceTicket '" + ServiceTicket.Id + "' sent '" + MessageType + "'!",
-                                                          AllTelegramNotifications.Select(telegramNotification => telegramNotification.Username));
-
-                    }
-
-                }
-                catch (Exception e)
-                {
-                    Console.WriteLine(e);
-                }
-
-                #endregion
-
-                #region SMS Notifications
-
-                try
-                {
-
-                    var AllSMSNotifications = this.GetSMSNotifications(ServiceTicket.Author, MessageTypes).
-                                                   ToHashSet();
-
-                    if (DevMachines.Contains(Environment.MachineName))
-                    {
-                        AllSMSNotifications.Clear();
-                        //AllNotificationSMSPhoneNumbers.Add(PhoneNumber.Parse("+491728930852"));
-                    }
-
-                    if (AllSMSNotifications.Count > 0)
-                    {
-
-                        SendSMS("ServiceTicket '" + ServiceTicket.Id + "' sent '" + MessageType + "'!",
-                                AllSMSNotifications.Select(smsPhoneNumber => smsPhoneNumber.PhoneNumber.ToString()).ToArray(),
-                                "CardiCloud");
-
-                    }
-
-                }
-                catch (Exception e)
-                {
-                    Console.WriteLine(e);
-                }
-
-                #endregion
-
-                #region HTTPS Notifications
-
-                try
-                {
-
-                    var AllHTTPSNotifications = this.GetHTTPSNotifications(ServiceTicket.Author, MessageTypes).
-                                                     ToHashSet();
-
-                    if (DevMachines.Contains(Environment.MachineName))
-                        AllHTTPSNotifications.Clear();
-
-                    if (AllHTTPSNotifications.Count > 0)
-                    {
-
-                        #region Create JSON...
-
-                        JObject JSONNotification = null;
-
-                        if (MessageType == addServiceTicket_MessageType)
-                            JSONNotification = new JObject(
-                                                   new JProperty("addServiceTicket",
-                                                       ServiceTicket.ToJSON()
-                                                   ),
-                                                   new JProperty("timestamp", DateTime.UtcNow.ToIso8601())
-                                               );
-
-                        else if (MessageType == addIfNotExistsServiceTicket_MessageType)
-                            JSONNotification = new JObject(
-                                                   new JProperty("addIfNotExistsServiceTicket",
-                                                       ServiceTicket.ToJSON()
-                                                   ),
-                                                   new JProperty("timestamp", DateTime.UtcNow.ToIso8601())
-                                               );
-
-                        else if (MessageType == addOrUpdateServiceTicket_MessageType)
-                            JSONNotification = new JObject(
-                                                   new JProperty("addOrUpdateServiceTicket",
-                                                       ServiceTicket.ToJSON()
-                                                   ),
-                                                   new JProperty("timestamp", DateTime.UtcNow.ToIso8601())
-                                               );
-
-                        else if (MessageType == updateServiceTicket_MessageType)
-                            JSONNotification = new JObject(
-                                                   new JProperty("updateServiceTicket",
-                                                       ServiceTicket.ToJSON()
-                                                   ),
-                                                   new JProperty("timestamp", DateTime.UtcNow.ToIso8601())
-                                               );
-
-                        else if (MessageType == removeServiceTicket_MessageType)
-                            JSONNotification = new JObject(
-                                                   new JProperty("removeServiceTicket",
-                                                       ServiceTicket.ToJSON()
-                                                   ),
-                                                   new JProperty("timestamp", DateTime.UtcNow.ToIso8601())
-                                               );
-
-                        else if (MessageType == changeServiceTicketStatus_MessageType)
-                            JSONNotification = new JObject(
-                                                   new JProperty("changeServiceTicketStatus",
-                                                       ServiceTicket.ToJSON()
-                                                   ),
-                                                   new JProperty("timestamp", DateTime.UtcNow.ToIso8601())
-                                               );
-
-                        #endregion
-
-                        await SendHTTPSNotifications(AllHTTPSNotifications,
-                                                     JSONNotification);
-
-                    }
-
-                }
-                catch (Exception e)
-                {
-                    Console.WriteLine(e);
-                }
-
-                #endregion
-
-                #region EMailNotifications
-
-                try
-                {
-
-                    var AllEMailNotifications = new HashSet<EMailNotification>();
-
-                    // Add author
-                    this.GetEMailNotifications(ServiceTicket.Author, MessageTypes).
-                         ForEach(notificationemail => AllEMailNotifications.Add(notificationemail));
-
-                    // Add defibrillator owners
-
-                    // Add communicator owners
-
-
-                    if (DevMachines.Contains(Environment.MachineName))
-                    {
-                        AllEMailNotifications.Clear();
-                        AllEMailNotifications.Add(new EMailNotification(EMailAddress.Parse("cardilogs@graphdefined.com")));
-                    }
-
-                    if (AllEMailNotifications.Count > 0)
-                    {
-
-                        await APISMTPClient.Send(__ServiceTicketChangedEMailDelegate(BaseURL, Robot.EMail, APIPassphrase)
-                                                 (ServiceTicket,
-                                                  MessageType,
-                                                  MessageTypes,
-                                                  EMailAddressList.Create(AllEMailNotifications.Select(emailnotification => emailnotification.EMailAddress))
-                                                 ));
-
-                    }
-
-                } catch (Exception e)
-                {
-                    Console.WriteLine(e);
-                }
-
-                #endregion
-
-            }
-
-        }
-
-        #endregion
-
-
-        #region Add           (ServiceTicket,   CurrentUserId = null)
-
-        /// <summary>
-        /// Add the given service ticket to the API.
-        /// </summary>
-        /// <param name="ServiceTicket">A service ticket.</param>
-        /// <param name="AfterAddition">A delegate to call after the service ticket was added to the API.</param>
-        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
-        public async Task<TServiceTicket> Add<TServiceTicket>(TServiceTicket          ServiceTicket,
-                                                              Action<TServiceTicket>  AfterAddition  = null,
-                                                              User_Id?                CurrentUserId  = null)
-
-            where TServiceTicket : AServiceTicket
-
-        {
-
-            if (ServiceTicket == null)
-                throw new ArgumentException(nameof(ServiceTicket), "The given service ticket must not be null!");
-
-            if (ServiceTicket.API != null && ServiceTicket.API != this)
-                throw new ArgumentException(nameof(ServiceTicket), "The given service ticket is already attached to another API!");
-
-            try
-            {
-
-                await ServiceTicketsSemaphore.WaitAsync();
-
-                if (_ServiceTickets.ContainsKey(ServiceTicket.Id))
-                    throw new Exception("ServiceTicket '" + ServiceTicket.Id + "' already exists in this API!");
-
-                await WriteToLogfileAndNotify(ServiceTicket,
-                                              addServiceTicket_MessageType,
-                                              CurrentUserId: CurrentUserId);
-
-                ServiceTicket.API = this;
-
-                _ServiceTickets.AddOrUpdate(ServiceTicket.Id,
-                                            id                     => ServiceTicket,
-                                            (id, oldServiceTicket) => ServiceTicket);
-
-                AfterAddition?.Invoke(ServiceTicket);
-
-                return ServiceTicket;
-
-            }
-            finally
-            {
-                ServiceTicketsSemaphore.Release();
-            }
-
-        }
-
-        #endregion
-
-        #region AddIfNotExists(ServiceTicket,   CurrentUserId = null)
-
-        /// <summary>
-        /// Add the given service ticket to the API.
-        /// </summary>
-        /// <param name="ServiceTicket">A service ticket.</param>
-        /// <param name="WhenNotExisted">A delegate to call when the service ticket did not exist before.</param>
-        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
-        public async Task<TServiceTicket> AddIfNotExists<TServiceTicket>(TServiceTicket          ServiceTicket,
-                                                                         Action<TServiceTicket>  WhenNotExisted  = null,
-                                                                         User_Id?                CurrentUserId   = null)
-
-            where TServiceTicket : AServiceTicket
-
-        {
-
-            if (ServiceTicket == null)
-                throw new ArgumentException(nameof(ServiceTicket), "The given service ticket must not be null!");
-
-            if (ServiceTicket.API != null && ServiceTicket.API != this)
-                throw new ArgumentException(nameof(ServiceTicket), "The given service ticket is already attached to another API!");
-
-            try
-            {
-
-                await ServiceTicketsSemaphore.WaitAsync();
-
-                if (_ServiceTickets.TryGetValue(ServiceTicket.Id, out AServiceTicket OldServiceTicket))
-                    return OldServiceTicket as TServiceTicket;
-
-                await WriteToLogfileAndNotify(ServiceTicket,
-                                              addIfNotExistsServiceTicket_MessageType,
-                                              CurrentUserId: CurrentUserId);
-
-                ServiceTicket.API = this;
-
-                _ServiceTickets.AddOrUpdate(ServiceTicket.Id,
-                                            id                     => ServiceTicket,
-                                            (id, oldServiceTicket) => ServiceTicket);
-
-                WhenNotExisted?.Invoke(ServiceTicket);
-
-                return ServiceTicket;
-
-            }
-            finally
-            {
-                ServiceTicketsSemaphore.Release();
-            }
-
-        }
-
-        #endregion
-
-        #region AddOrUpdate   (ServiceTicket, DisableAnalyzeServiceTicketStatus = false,   CurrentUserId = null)
-
-        /// <summary>
-        /// Add or update the given service ticket to/within the API.
-        /// </summary>
-        /// <param name="ServiceTicket">A service ticket.</param>
-        /// <param name="AfterAddOrUpdate">A delegate to call after the service ticket was added to or updated within the API.</param>
-        /// <param name="DoNotAnalyzeTheServiceTicketStatus">Do not analyze the service ticket status.</param>
-        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
-        public async Task<TServiceTicket> AddOrUpdate<TServiceTicket>(TServiceTicket                   ServiceTicket,
-                                                                      Action<TServiceTicket, Boolean>  AfterAddOrUpdate                     = null,
-                                                                      Boolean                          DoNotAnalyzeTheServiceTicketStatus   = false,
-                                                                      User_Id?                         CurrentUserId                        = null)
-
-            where TServiceTicket : AServiceTicket
-
-        {
-
-            if (ServiceTicket == null)
-                throw new ArgumentException(nameof(ServiceTicket), "The given service ticket must not be null!");
-
-            if (ServiceTicket.API != null && ServiceTicket.API != this)
-                throw new ArgumentException(nameof(ServiceTicket), "The given service ticket is already attached to another API!");
-
-            AServiceTicket  OldServiceTicket                = null;
-            DateTime        Now                             = DateTime.UtcNow;
-            Boolean         FastAnalyzeServiceTicketStatus  = false;
-
-            try
-            {
-
-                await ServiceTicketsSemaphore.WaitAsync();
-
-                ServiceTicket.API = this;
-
-                if (_ServiceTickets.TryGetValue(ServiceTicket.Id, out OldServiceTicket))
-                {
-
-                    _ServiceTickets.TryRemove(OldServiceTicket.Id, out AServiceTicket removedServiceTicket);
-                    (OldServiceTicket as TServiceTicket).CopyAllEdgesTo(ServiceTicket);
-
-                    //// Only run when the admin status changed!
-                    //if (!DoNotAnalyzeTheServiceTicketStatus &&
-                    //    OldServiceTicket.AdminStatus.Value != ServiceTicketAdminStatusTypes.Monitored &&
-                    //    OldServiceTicket.AdminStatus.Value != ServiceTicketAdminStatusTypes.Tracked   &&
-                    //   (ServiceTicket.   AdminStatus.Value == ServiceTicketAdminStatusTypes.Monitored ||
-                    //    ServiceTicket.   AdminStatus.Value == ServiceTicketAdminStatusTypes.Tracked))
-                    //{
-                    //    FastAnalyzeServiceTicketStatus = true;
-                    //}
-
-                }
-
-                await WriteToLogfileAndNotify(ServiceTicket,
-                                              addOrUpdateServiceTicket_MessageType,
-                                              OldServiceTicket,
-                                              CurrentUserId);
-
-                _ServiceTickets.AddOrUpdate(ServiceTicket.Id,
-                                            id                     => ServiceTicket,
-                                            (id, oldServiceTicket) => ServiceTicket);
-
-                AfterAddOrUpdate?.Invoke(ServiceTicket,
-                                         OldServiceTicket != null);
-
-            }
-            finally
-            {
-                ServiceTicketsSemaphore.Release();
-            }
-
-
-            #region Analyze service ticket status...
-
-            //// AnalyzeServiceTicketStatus(ServiceTicket) might enter this method again!
-            //if (FastAnalyzeServiceTicketStatus)
-            //    await AnalyzeServiceTicketStatus(ServiceTicket);
-
-            #endregion
-
-            #region Call OnServiceTicket(Admin)StatusChanged events...
-
-            if (OldServiceTicket != null)
-            {
-
-                if (OldServiceTicket.Status != ServiceTicket.Status)
-                    OnServiceTicketStatusChanged?.Invoke(Now,
-                                                         ServiceTicket.Id,
-                                                         OldServiceTicket.Status,
-                                                         ServiceTicket.Status);
-
-            }
-
-            #endregion
-
-            return ServiceTicket;
-
-        }
-
-        #endregion
-
-        #region Update        (ServiceTicket, DisableAnalyzeServiceTicketStatus = false,   CurrentUserId = null)
-
-        /// <summary>
-        /// Update the given service ticket within the API.
-        /// </summary>
-        /// <param name="ServiceTicket">A service ticket.</param>
-        /// <param name="AfterUpdate">A delegate to call after the service ticket was updated within the API.</param>
-        /// <param name="DoNotAnalyzeTheServiceTicketStatus">Do not analyze the service ticket status.</param>
-        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
-        public async Task<TServiceTicket> Update<TServiceTicket>(TServiceTicket          ServiceTicket,
-                                                                 Action<TServiceTicket>  AfterUpdate                          = null,
-                                                                 Boolean                 DoNotAnalyzeTheServiceTicketStatus   = false,
-                                                                 User_Id?                CurrentUserId                        = null)
-
-            where TServiceTicket : AServiceTicket
-
-        {
-
-            if (ServiceTicket == null)
-                throw new ArgumentException(nameof(ServiceTicket), "The given service ticket must not be null!");
-
-            if (ServiceTicket.API != null && ServiceTicket.API != this)
-                throw new ArgumentException(nameof(ServiceTicket), "The given service ticket is already attached to another API!");
-
-            AServiceTicket OldServiceTicket;
-            DateTime       Now = DateTime.UtcNow;
-
-            try
-            {
-
-                await ServiceTicketsSemaphore.WaitAsync();
-
-                if (!_ServiceTickets.TryGetValue(ServiceTicket.Id, out OldServiceTicket))
-                    throw new Exception("ServiceTicket '" + ServiceTicket.Id + "' does not exists in this API!");
-
-
-                await WriteToLogfileAndNotify(ServiceTicket,
-                                              updateServiceTicket_MessageType,
-                                              OldServiceTicket,
-                                              CurrentUserId);
-
-                //if (ServiceTicket.API == null)
-                    ServiceTicket.API = this;
-
-                _ServiceTickets.TryRemove(OldServiceTicket.Id, out AServiceTicket removedServiceTicket);
-                OldServiceTicket.CopyAllEdgesTo(ServiceTicket);
-
-                _ServiceTickets.AddOrUpdate(ServiceTicket.Id,
-                                            id                     => ServiceTicket,
-                                            (id, oldServiceTicket) => ServiceTicket);
-
-                AfterUpdate?.Invoke(ServiceTicket);
-
-            }
-            finally
-            {
-                ServiceTicketsSemaphore.Release();
-            }
-
-
-            #region Analyze service ticket status...
-
-            //// Only run when the admin status changed!
-            //// AnalyzeServiceTicketStatus(ServiceTicket) might enter this method again!
-            //if (!DoNotAnalyzeTheServiceTicketStatus &&
-            //    OldServiceTicket.AdminStatus.Value != ServiceTicketAdminStatusTypes.Monitored &&
-            //    OldServiceTicket.AdminStatus.Value != ServiceTicketAdminStatusTypes.Tracked   &&
-            //   (ServiceTicket.   AdminStatus.Value == ServiceTicketAdminStatusTypes.Monitored ||
-            //    ServiceTicket.   AdminStatus.Value == ServiceTicketAdminStatusTypes.Tracked))
-            //{
-            //    await AnalyzeServiceTicketStatus(ServiceTicket);
-            //}
-
-            #endregion
-
-            #region Call OnServiceTicket(Admin)StatusChanged events...
-
-            if (OldServiceTicket.Status != ServiceTicket.Status)
-                OnServiceTicketStatusChanged?.Invoke(Now,
-                                                     ServiceTicket.Id,
-                                                     OldServiceTicket.Status,
-                                                     ServiceTicket.Status);
-
-            #endregion
-
-
-            return ServiceTicket;
-
-        }
-
-        #endregion
-
-        #region Update        (ServiceTicketId, UpdateDelegate, DoNotAnalyzeTheServiceTicketStatus = false, CurrentUserId = null)
-
-        /// <summary>
-        /// Update the given service ticket.
-        /// </summary>
-        /// <param name="ServiceTicketId">A service ticket identification.</param>
-        /// <param name="UpdateDelegate">A delegate to update the given service ticket.</param>
-        /// <param name="AfterUpdate">A delegate to call after the service ticket was updated within the API.</param>
-        /// <param name="DoNotAnalyzeTheServiceTicketStatus">Do not analyze the service ticket status.</param>
-        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
-        public async Task<TServiceTicket> Update<TServiceTicket>(ServiceTicket_Id                      ServiceTicketId,
-                                                                 Func<TServiceTicket, TServiceTicket>  UpdateDelegate,
-                                                                 Action<TServiceTicket>                AfterUpdate                          = null,
-                                                                 Boolean                               DoNotAnalyzeTheServiceTicketStatus   = false,
-                                                                 User_Id?                              CurrentUserId                        = null)
-            where TServiceTicket : AServiceTicket
-        {
-
-            TServiceTicket  castedOldServiceTicket;
-            TServiceTicket  ServiceTicket;
-            DateTime        Now = DateTime.UtcNow;
-
-            try
-            {
-
-                if (UpdateDelegate == null)
-                    throw new Exception("The given update delegate must not be null!");
-
-                await ServiceTicketsSemaphore.WaitAsync();
-
-                if (!_ServiceTickets.TryGetValue(ServiceTicketId, out AServiceTicket OldServiceTicket))
-                    throw new Exception("ServiceTicket '" + ServiceTicketId + "' does not exists in this API!");
-
-                castedOldServiceTicket = OldServiceTicket as TServiceTicket;
-
-                if (castedOldServiceTicket == null)
-                    throw new Exception("ServiceTicket '" + ServiceTicketId + "' is not of type TServiceTicket!");
-
-                ServiceTicket = UpdateDelegate(castedOldServiceTicket);
-                ServiceTicket.API = this;
-
-                await WriteToLogfileAndNotify(ServiceTicket,
-                                              updateServiceTicket_MessageType,
-                                              castedOldServiceTicket,
-                                              CurrentUserId);
-
-                _ServiceTickets.TryRemove(OldServiceTicket.Id, out AServiceTicket RemovedServiceTicket);
-                //OldServiceTicket.CopyAllEdgesTo(ServiceTicket);
-                _ServiceTickets.AddOrUpdate(ServiceTicket.Id,
-                                            id                     => ServiceTicket,
-                                            (id, oldServiceTicket) => ServiceTicket);
-
-                AfterUpdate?.Invoke(ServiceTicket);
-
-            }
-            finally
-            {
-                ServiceTicketsSemaphore.Release();
-            }
-
-
-            #region Analyze service ticket status...
-
-            //// Only run when the admin status changed!
-            //// AnalyzeServiceTicketStatus(ServiceTicket) might enter this method again!
-            //if (!DoNotAnalyzeTheServiceTicketStatus &&
-            //    OldServiceTicket.AdminStatus.Value != ServiceTicketAdminStatusTypes.Monitored &&
-            //    OldServiceTicket.AdminStatus.Value != ServiceTicketAdminStatusTypes.Tracked   &&
-            //   (ServiceTicket.   AdminStatus.Value == ServiceTicketAdminStatusTypes.Monitored ||
-            //    ServiceTicket.   AdminStatus.Value == ServiceTicketAdminStatusTypes.Tracked))
-            //{
-            //    await AnalyzeServiceTicketStatus(ServiceTicket);
-            //}
-
-            #endregion
-
-            #region Call OnServiceTicket(Admin)StatusChanged events...
-
-            if (castedOldServiceTicket.Status != ServiceTicket.Status)
-                OnServiceTicketStatusChanged?.Invoke(Now,
-                                                     ServiceTicket.Id,
-                                                     castedOldServiceTicket.Status,
-                                                     ServiceTicket.Status);
-
-            #endregion
-
-
-            return ServiceTicket;
-
-        }
-
-        #endregion
-
-        #region Remove        (ServiceTicketId, CurrentUserId = null)
-
-        /// <summary>
-        /// Remove the given service ticket from this API.
-        /// </summary>
-        /// <param name="ServiceTicketId">The unique identification of the service ticket.</param>
-        /// <param name="AfterRemoval">A delegate to call after the service ticket was removed from the API.</param>
-        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
-        public async Task<AServiceTicket> Remove(ServiceTicket_Id        ServiceTicketId,
-                                                 Action<AServiceTicket>  AfterRemoval    = null,
-                                                 User_Id?                CurrentUserId   = null)
-        {
-
-            try
-            {
-
-                await ServiceTicketsSemaphore.WaitAsync();
-
-                if (_ServiceTickets.TryGetValue(ServiceTicketId, out AServiceTicket ServiceTicket))
-                {
-
-                    await WriteToLogfileAndNotify(ServiceTicket,
-                                                  removeServiceTicket_MessageType,
-                                                  CurrentUserId: CurrentUserId);
-
-                    _ServiceTickets.TryRemove(ServiceTicketId, out AServiceTicket RemovedServiceTicket);
-
-                    ServiceTicket.API = null;
-
-                    AfterRemoval?.Invoke(ServiceTicket);
-
-                    return ServiceTicket;
-
-                }
-
-                return null;
-
-            }
-            finally
-            {
-                ServiceTicketsSemaphore.Release();
-            }
-
-        }
-
-        #endregion
-
-
-        #region Contains      (ServiceTicketId)
-
-        /// <summary>
-        /// Whether this API contains a service ticket having the given unique identification.
-        /// </summary>
-        /// <param name="ServiceTicketId">The unique identification of the service ticket.</param>
-        public Boolean Contains(ServiceTicket_Id ServiceTicketId)
-        {
-
-            try
-            {
-
-                ServiceTicketsSemaphore.Wait();
-
-                return _ServiceTickets.ContainsKey(ServiceTicketId);
-
-            }
-            finally
-            {
-                ServiceTicketsSemaphore.Release();
-            }
-
-        }
-
-        #endregion
-
-        #region Get           (ServiceTicketId)
-
-        /// <summary>
-        /// Get the service ticket having the given unique identification.
-        /// </summary>
-        /// <param name="ServiceTicketId">The unique identification of the service ticket.</param>
-        public async Task<TServiceTicket> Get<TServiceTicket>(ServiceTicket_Id  ServiceTicketId)
-
-            where TServiceTicket : AServiceTicket
-
-        {
-
-            try
-            {
-
-                await ServiceTicketsSemaphore.WaitAsync();
-
-                if (_ServiceTickets.TryGetValue(ServiceTicketId, out AServiceTicket serviceTicket))
-                    return serviceTicket as TServiceTicket;
-
-                return null;
-
-            }
-            finally
-            {
-                ServiceTicketsSemaphore.Release();
-            }
-
-        }
-
-        #endregion
-
-        #region TryGet        (ServiceTicketId, out ServiceTicket)
-
-        /// <summary>
-        /// Try to get the service ticket having the given unique identification.
-        /// </summary>
-        /// <param name="ServiceTicketId">The unique identification of the service ticket.</param>
-        /// <param name="ServiceTicket">The service ticket.</param>
-        public Boolean TryGet<TServiceTicket>(ServiceTicket_Id    ServiceTicketId,
-                                              out TServiceTicket  ServiceTicket)
-
-            where TServiceTicket : AServiceTicket
-
-        {
-
-            try
-            {
-
-                ServiceTicketsSemaphore.Wait();
-
-                if (_ServiceTickets.TryGetValue(ServiceTicketId, out AServiceTicket serviceTicket))
-                {
-                    ServiceTicket = serviceTicket as TServiceTicket;
-                    return ServiceTicket != null;
-                }
-
-                ServiceTicket = null;
-                return false;
-
-            }
-            finally
-            {
-                ServiceTicketsSemaphore.Release();
-            }
-
-        }
-
-        #endregion
-
-
-        /// <summary>
-        /// A delegate used whenever a service ticket status changed.
-        /// </summary>
-        /// <param name="Timestamp">The timestamp of the event.</param>
-        /// <param name="ServiceTicketId">The unique service ticket identification.</param>
-        /// <param name="OldStatus">The old status.</param>
-        /// <param name="NewStatus">The new status.</param>
-        public delegate Task ServiceTicketStatusChangedDelegate     (DateTime                               Timestamp,
-                                                                     ServiceTicket_Id                       ServiceTicketId,
-                                                                     Timestamped<ServiceTicketStatusTypes>  OldStatus,
-                                                                     Timestamped<ServiceTicketStatusTypes>  NewStatus);
-
-        /// <summary>
-        /// An event sent whenever a service ticket status changed.
-        /// </summary>
-        public event ServiceTicketStatusChangedDelegate       OnServiceTicketStatusChanged;
-
-        #endregion
-
-        #region Dashboards
-
-        #region Data
-
-        protected readonly Dictionary<Dashboard_Id, Dashboard> _Dashboards;
-
-        /// <summary>
-        /// Return an enumeration of all dashboards.
-        /// </summary>
-        public IEnumerable<Dashboard> Dashboards
-        {
-            get
-            {
-                try
-                {
-                    DashboardsSemaphore.Wait();
-                    return _Dashboards.Values.ToArray();
-                }
-                finally
-                {
-                    DashboardsSemaphore.Release();
-                }
-
-            }
-        }
-
-        #endregion
-
-
-        #region Add           (Dashboard,                   CurrentUserId = null)
-
-        /// <summary>
-        /// Add the given dashboard to the API.
-        /// </summary>
-        /// <param name="Dashboard">A new dashboard to be added to this API.</param>
-        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
-        public async Task<Dashboard> Add(Dashboard  Dashboard,
-                                         User_Id?   CurrentUserId  = null)
-        {
-
-            try
-            {
-
-                await DashboardsSemaphore.WaitAsync();
-
-                if (Dashboard.API != null && Dashboard.API != this)
-                    throw new ArgumentException(nameof(Dashboard), "The given dashboard is already attached to another API!");
-
-                if (_Dashboards.ContainsKey(Dashboard.Id))
-                    throw new Exception("Dashboard '" + Dashboard.Id + "' already exists in this API!");
-
-                Dashboard.API = this;
-
-
-                await WriteToLogfile(NotificationMessageType.Parse("addDashboard"),
-                                     Dashboard.ToJSON(),
-                                     CurrentUserId);
-
-                var newDashboard = _Dashboards.AddAndReturnValue(Dashboard.Id, Dashboard);
-
-                return newDashboard;
-
-            }
-            finally
-            {
-                DashboardsSemaphore.Release();
-            }
-
-        }
-
-        #endregion
-
-        #region AddIfNotExists(Dashboard,                   CurrentUserId = null)
-
-        /// <summary>
-        /// When it has not been created before, add the given dashboard to the API.
-        /// </summary>
-        /// <param name="Dashboard">A new dashboard to be added to this API.</param>
-        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
-        public async Task<Dashboard> AddIfNotExists(Dashboard  Dashboard,
-                                                    User_Id?   CurrentUserId  = null)
-        {
-
-            try
-            {
-
-                await DashboardsSemaphore.WaitAsync();
-
-                if (Dashboard.API != null && Dashboard.API != this)
-                    throw new ArgumentException(nameof(Dashboard), "The given dashboard is already attached to another API!");
-
-                if (_Dashboards.ContainsKey(Dashboard.Id))
-                    return _Dashboards[Dashboard.Id];
-
-                Dashboard.API = this;
-
-                await WriteToLogfile(NotificationMessageType.Parse("addIfNotExistsDashboard"),
-                                     Dashboard.ToJSON(),
-                                     CurrentUserId);
-
-                var newDashboard = _Dashboards.AddAndReturnValue(Dashboard.Id, Dashboard);
-
-                return newDashboard;
-
-            }
-            finally
-            {
-                DashboardsSemaphore.Release();
-            }
-
-        }
-
-        #endregion
-
-        #region AddOrUpdate   (Dashboard,                   CurrentUserId = null)
-
-        /// <summary>
-        /// Add or update the given dashboard to/within the API.
-        /// </summary>
-        /// <param name="Dashboard">A dashboard.</param>
-        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
-        public async Task<Dashboard> AddOrUpdate(Dashboard  Dashboard,
-                                                 User_Id?   CurrentUserId  = null)
-        {
-
-            try
-            {
-
-                await DashboardsSemaphore.WaitAsync();
-
-                if (Dashboard.API != null && Dashboard.API != this)
-                    throw new ArgumentException(nameof(Dashboard), "The given dashboard is already attached to another API!");
-
-                if (_Dashboards.TryGetValue(Dashboard.Id, out Dashboard OldDashboard))
-                {
-                    _Dashboards.Remove(OldDashboard.Id);
-                }
-
-                Dashboard.API = this;
-
-                await WriteToLogfile(NotificationMessageType.Parse("addOrUpdateDashboard"),
-                                     Dashboard.ToJSON(),
-                                     CurrentUserId);
-
-                var newDashboard = _Dashboards.AddAndReturnValue(Dashboard.Id, Dashboard);
-
-                // ToDo: Copy edges!
-
-                return newDashboard;
-
-            }
-            finally
-            {
-                DashboardsSemaphore.Release();
-            }
-
-        }
-
-        #endregion
-
-        #region Update        (Dashboard,                   CurrentUserId = null)
-
-        /// <summary>
-        /// Update the given dashboard within the API.
-        /// </summary>
-        /// <param name="Dashboard">A dashboard.</param>
-        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
-        public async Task<Dashboard> Update(Dashboard  Dashboard,
-                                            User_Id?   CurrentUserId  = null)
-        {
-
-            try
-            {
-
-                await DashboardsSemaphore.WaitAsync();
-
-                if (Dashboard.API != null && Dashboard.API != this)
-                    throw new ArgumentException(nameof(Dashboard), "The given dashboard is already attached to another API!");
-
-                if (!_Dashboards.TryGetValue(Dashboard.Id, out Dashboard OldDashboard))
-                    throw new Exception("Dashboard '" + Dashboard.Id + "' does not exists in this API!");
-
-                else
-                {
-
-                    _Dashboards.Remove(OldDashboard.Id);
-
-                }
-
-                Dashboard.API = this;
-
-                await WriteToLogfile(NotificationMessageType.Parse("updateDashboard"),
-                                     Dashboard.ToJSON(),
-                                     CurrentUserId);
-
-                OldDashboard.CopyAllEdgesTo(Dashboard);
-
-                return _Dashboards.AddAndReturnValue(Dashboard.Id, Dashboard);
-
-            }
-            finally
-            {
-                DashboardsSemaphore.Release();
-            }
-
-        }
-
-        #endregion
-
-        #region Update        (DashboardId, UpdateDelegate, CurrentUserId = null)
-
-        /// <summary>
-        /// Update the given dashboard.
-        /// </summary>
-        /// <param name="DashboardId">An dashboard identification.</param>
-        /// <param name="UpdateDelegate">A delegate to update the given dashboard.</param>
-        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
-        public async Task<Dashboard> Update(Dashboard_Id               DashboardId,
-                                            Action<Dashboard.Builder>  UpdateDelegate,
-                                            User_Id?                   CurrentUserId  = null)
-        {
-
-            try
-            {
-
-                if (UpdateDelegate == null)
-                    throw new Exception("The given update delegate must not be null!");
-
-                await DashboardsSemaphore.WaitAsync();
-
-                if (!_Dashboards.TryGetValue(DashboardId, out Dashboard OldDashboard))
-                    throw new Exception("Dashboard '" + DashboardId + "' does not exists in this API!");
-
-                var Builder = OldDashboard.ToBuilder();
-                UpdateDelegate(Builder);
-                var NewDashboard = Builder.ToImmutable;
-
-                await WriteToLogfile(NotificationMessageType.Parse("updateDashboard"),
-                                     NewDashboard.ToJSON(),
-                                     CurrentUserId);
-
-                NewDashboard.API = this;
-
-                _Dashboards.Remove(OldDashboard.Id);
-                OldDashboard.CopyAllEdgesTo(NewDashboard);
-
-                return _Dashboards.AddAndReturnValue(NewDashboard.Id, NewDashboard);
-
-            }
-            finally
-            {
-                DashboardsSemaphore.Release();
-            }
-
-        }
-
-        #endregion
-
-
-        #region (protected internal) SetDashboardRequest (Request)
-
-        /// <summary>
-        /// An event sent whenever set dashboard (data) request was received.
-        /// </summary>
-        public event RequestLogHandler OnSetDashboardRequest;
-
-        protected internal HTTPRequest SetDashboardRequest(HTTPRequest Request)
-        {
-
-            OnSetDashboardRequest?.Invoke(Request.Timestamp,
-                                          HTTPServer,
-                                          Request);
-
-            return Request;
-
-        }
-
-        #endregion
-
-        #region (protected internal) SetDashboardResponse(Response)
-
-        /// <summary>
-        /// An event sent whenever a response on a set dashboard (data) request was sent.
-        /// </summary>
-        public event AccessLogHandler OnSetDashboardResponse;
-
-        protected internal HTTPResponse SetDashboardResponse(HTTPResponse Response)
-        {
-
-            OnSetDashboardResponse?.Invoke(Response.Timestamp,
-                                           HTTPServer,
-                                           Response.HTTPRequest,
-                                           Response);
-
-            return Response;
-
-        }
-
-        #endregion
-
-
-        #region Contains      (DashboardId)
-
-        /// <summary>
-        /// Whether this API contains a dashboard having the given unique identification.
-        /// </summary>
-        /// <param name="DashboardId">The unique identification of the dashboard.</param>
-        public Boolean Contains(Dashboard_Id DashboardId)
-        {
-
-            try
-            {
-
-                DashboardsSemaphore.Wait();
-
-                return _Dashboards.ContainsKey(DashboardId);
-
-            }
-            finally
-            {
-                DashboardsSemaphore.Release();
-            }
-
-        }
-
-        #endregion
-
-        #region Get           (DashboardId)
-
-        /// <summary>
-        /// Get the dashboard having the given unique identification.
-        /// </summary>
-        /// <param name="DashboardId">The unique identification of the dashboard.</param>
-        public async Task<Dashboard> Get(Dashboard_Id  DashboardId)
-        {
-
-            try
-            {
-
-                await DashboardsSemaphore.WaitAsync();
-
-                if (_Dashboards.TryGetValue(DashboardId, out Dashboard Dashboard))
-                    return Dashboard;
-
-                return null;
-
-            }
-            finally
-            {
-                DashboardsSemaphore.Release();
-            }
-
-        }
-
-        #endregion
-
-        #region TryGet        (DashboardId, out Dashboard)
-
-        /// <summary>
-        /// Try to get the dashboard having the given unique identification.
-        /// </summary>
-        /// <param name="DashboardId">The unique identification of the dashboard.</param>
-        /// <param name="Dashboard">The dashboard.</param>
-        public Boolean TryGet(Dashboard_Id   DashboardId,
-                              out Dashboard  Dashboard)
-        {
-
-            try
-            {
-
-                DashboardsSemaphore.Wait();
-
-                return _Dashboards.TryGetValue(DashboardId, out Dashboard);
-
-            }
-            finally
-            {
-                DashboardsSemaphore.Release();
-            }
-
-        }
-
-        #endregion
-
-
-        #region Remove        (DashboardId,                 CurrentUserId = null)
-
-        /// <summary>
-        /// Remove the given dashboard from this API.
-        /// </summary>
-        /// <param name="DashboardId">The unique identification of the dashboard.</param>
-        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
-        public async Task<Dashboard> Remove(Dashboard_Id  DashboardId,
-                                            User_Id?      CurrentUserId  = null)
-        {
-
-            try
-            {
-
-                await DashboardsSemaphore.WaitAsync();
-
-                if (_Dashboards.TryGetValue(DashboardId, out Dashboard Dashboard))
-                {
-
-                    await WriteToLogfile(NotificationMessageType.Parse("removeDashboard"),
-                                         Dashboard.ToJSON(),
-                                         CurrentUserId);
-
-                    _Dashboards.Remove(DashboardId);
-
-                    //Dashboard.API = null;
-
-                    return Dashboard;
-
-                }
-
-                return null;
-
-            }
-            finally
-            {
-                DashboardsSemaphore.Release();
-            }
-
-        }
-
-        #endregion
-
-        #endregion
-
-
-        #region Reset user password
 
         #region ResetPassword(UserId,  SecurityToken1, SecurityToken2 = null)
 
@@ -13640,6 +11106,44 @@ namespace social.OpenData.UsersAPI
         }
 
         #endregion
+
+        #endregion
+
+        #region Messages
+
+        protected readonly Dictionary<Message_Id, Message> _Messages;
+
+        /// <summary>
+        /// Return an enumeration of all messages.
+        /// </summary>
+        public IEnumerable<Message> Messages
+            => _Messages.Values;
+
+
+        #region CreateMessage(Id, Sender, Receivers, Headline = null, Text = null)
+
+        public async Task<Message> CreateMessage(User_Id               Sender,
+                                                 IEnumerable<User_Id>  Receivers,
+                                                 I18NString            Subject,
+                                                 I18NString            Text,
+                                                 Message_Id?           Id  = null)
+        {
+
+            var Message = new Message(Id.HasValue
+                                          ? Id.Value
+                                          : Message_Id.New,
+                                      Sender,
+                                      Receivers,
+                                      Subject,
+                                      Text);
+
+            return _Messages.AddAndReturnValue(Message.Id, Message);
+
+        }
+
+        #endregion
+
+        // Create Mailinglist
 
         #endregion
 
@@ -14083,7 +11587,7 @@ namespace social.OpenData.UsersAPI
         public IEnumerable<ANotification> GetNotifications<T>(User_Id                   UserId,
                                                                   NotificationMessageType?  NotificationMessageType = null)
 
-            => TryGet(UserId, out User User)
+            => TryGetUser(UserId, out User User)
                    ? User.GetNotifications(NotificationMessageType)
                    : new ANotification[0];
 
@@ -14107,7 +11611,7 @@ namespace social.OpenData.UsersAPI
 
             where T : ANotification
 
-            => TryGet(UserId, out User User)
+            => TryGetUser(UserId, out User User)
                    ? User.GetNotificationsOf<T>(NotificationMessageTypes)
                    : new T[0];
 
@@ -14134,7 +11638,7 @@ namespace social.OpenData.UsersAPI
 
             where T : ANotification
 
-            => TryGet(OrganizationId, out Organization Organization)
+            => TryGetOrganization(OrganizationId, out Organization Organization)
                    ? GetNotificationsOf<T>(Organization, NotificationMessageTypes)
                    : new T[0];
 
@@ -14155,7 +11659,7 @@ namespace social.OpenData.UsersAPI
         public IEnumerable<ANotification> GetNotifications(User_Id                                 UserId,
                                                            Func<NotificationMessageType, Boolean>  NotificationMessageTypeFilter)
 
-            => TryGet(UserId, out User User)
+            => TryGetUser(UserId, out User User)
                    ? User.GetNotifications(NotificationMessageTypeFilter)
                    : new ANotification[0];
 
@@ -14179,7 +11683,7 @@ namespace social.OpenData.UsersAPI
 
             where T : ANotification
 
-            => TryGet(UserId, out User User)
+            => TryGetUser(UserId, out User User)
                    ? User.GetNotificationsOf<T>(NotificationMessageTypeFilter)
                    : new T[0];
 
@@ -14320,43 +11824,2545 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
-        #region Messages
+        #region Groups
 
-        protected readonly Dictionary<Message_Id, Message> _Messages;
+        #region Data
+
+        protected readonly Dictionary<Group_Id, Group> _Groups;
 
         /// <summary>
-        /// Return an enumeration of all messages.
+        /// Return an enumeration of all groups.
         /// </summary>
-        public IEnumerable<Message> Messages
-            => _Messages.Values;
+        public IEnumerable<Group> Groups
+        {
+            get
+            {
+                try
+                {
+                    GroupsSemaphore.Wait();
+                    return _Groups.Values.ToArray();
+                }
+                finally
+                {
+                    GroupsSemaphore.Release();
+                }
+
+            }
+        }
+
+        #endregion
 
 
-        #region CreateMessage(Id, Sender, Receivers, Headline = null, Text = null)
+        #region CreateGroup           (Id, Name = null, Description = null)
 
-        public async Task<Message> CreateMessage(User_Id               Sender,
-                                                 IEnumerable<User_Id>  Receivers,
-                                                 I18NString            Subject,
-                                                 I18NString            Text,
-                                                 Message_Id?           Id  = null)
+        public async Task<Group> CreateGroup(Group_Id   Id,
+                                             User_Id    CurrentUserId,
+                                             I18NString Name         = null,
+                                             I18NString Description  = null)
         {
 
-            var Message = new Message(Id.HasValue
-                                          ? Id.Value
-                                          : Message_Id.New,
-                                      Sender,
-                                      Receivers,
-                                      Subject,
-                                      Text);
+            try
+            {
 
-            return _Messages.AddAndReturnValue(Message.Id, Message);
+                await GroupsSemaphore.WaitAsync();
+
+                if (_Groups.ContainsKey(Id))
+                    throw new ArgumentException("The given group identification already exists!", nameof(Id));
+
+
+                var Group = new Group(Id,
+                                      Name,
+                                      Description);
+
+                if (Group.Id.ToString() != AdminGroupName)
+                    await WriteToLogfile(NotificationMessageType.Parse("createGroup"),
+                                         Group.ToJSON(),
+                                         CurrentUserId);
+
+                return _Groups.AddAndReturnValue(Group.Id, Group);
+
+            }
+            finally
+            {
+                GroupsSemaphore.Release();
+            }
 
         }
 
         #endregion
 
-        // Create Mailinglist
+        #region CreateGroupIfNotExists(Id, Name = null, Description = null)
+
+        public async Task<Group> CreateGroupIfNotExists(Group_Id    Id,
+                                                        User_Id     CurrentUserId,
+                                                        I18NString  Name         = null,
+                                                        I18NString  Description  = null)
+        {
+
+            try
+            {
+
+                await GroupsSemaphore.WaitAsync();
+
+                if (_Groups.ContainsKey(Id))
+                    return _Groups[Id];
+
+                var Group = new Group(Id,
+                                      Name,
+                                      Description);
+
+                if (Group.Id.ToString() != AdminGroupName)
+                    await WriteToLogfile(NotificationMessageType.Parse("createGroup"),
+                                         Group.ToJSON(),
+                                         CurrentUserId);
+
+                return _Groups.AddAndReturnValue(Group.Id, Group);
+
+            }
+            finally
+            {
+                GroupsSemaphore.Release();
+            }
+
+        }
 
         #endregion
+
+
+        #region Contains(GroupId)
+
+        /// <summary>
+        /// Whether this API contains a group having the given unique identification.
+        /// </summary>
+        /// <param name="GroupId">The unique identification of the group.</param>
+        public Boolean Contains(Group_Id GroupId)
+        {
+
+            try
+            {
+
+                GroupsSemaphore.Wait();
+
+                return _Groups.ContainsKey(GroupId);
+
+            }
+            finally
+            {
+                GroupsSemaphore.Release();
+            }
+
+        }
+
+        #endregion
+
+        #region Get     (GroupId)
+
+        /// <summary>
+        /// Get the group having the given unique identification.
+        /// </summary>
+        /// <param name="GroupId">The unique identification of the group.</param>
+        public async Task<Group> Get(Group_Id  GroupId)
+        {
+
+            try
+            {
+
+                await GroupsSemaphore.WaitAsync();
+
+                if (_Groups.TryGetValue(GroupId, out Group Group))
+                    return Group;
+
+                return null;
+
+            }
+            finally
+            {
+                GroupsSemaphore.Release();
+            }
+
+        }
+
+        #endregion
+
+        #region TryGet  (GroupId, out Group)
+
+        /// <summary>
+        /// Try to get the group having the given unique identification.
+        /// </summary>
+        /// <param name="GroupId">The unique identification of the group.</param>
+        /// <param name="Group">The group.</param>
+        public Boolean TryGet(Group_Id   GroupId,
+                              out Group  Group)
+        {
+
+            try
+            {
+
+                GroupsSemaphore.Wait();
+
+                return _Groups.TryGetValue(GroupId, out Group);
+
+            }
+            finally
+            {
+                GroupsSemaphore.Release();
+            }
+
+        }
+
+        #endregion
+
+        #region SearchGroupsByName(GroupName)
+
+        /// <summary>
+        /// Find all groups having the given name.
+        /// </summary>
+        /// <param name="GroupName">The name of an group (might not be unique).</param>
+        public IEnumerable<Group> SearchGroupsByName(String GroupName)
+        {
+
+            try
+            {
+
+                GroupsSemaphore.Wait();
+
+                var FoundGroups = new List<Group>();
+
+                foreach (var group in _Groups.Values)
+                    if (group.Name.Any(i18npair => i18npair.Text == GroupName))
+                        FoundGroups.Add(group);
+
+                return FoundGroups;
+
+            }
+            finally
+            {
+                GroupsSemaphore.Release();
+            }
+
+        }
+
+        /// <summary>
+        /// Find all groups having the given name.
+        /// </summary>
+        /// <param name="GroupName">The name of an group (might not be unique).</param>
+        public IEnumerable<Group> SearchGroupsByName(I18NString GroupName)
+        {
+
+            try
+            {
+
+                GroupsSemaphore.Wait();
+
+                var FoundGroups = new List<Group>();
+
+                foreach (var group in _Groups.Values)
+                    if (group.Name == GroupName)
+                        FoundGroups.Add(group);
+
+                return FoundGroups;
+
+            }
+            finally
+            {
+                GroupsSemaphore.Release();
+            }
+
+        }
+
+        #endregion
+
+        #region SearchGroupsByName(GroupName, out Groups)
+
+        /// <summary>
+        /// Find all groups having the given name.
+        /// </summary>
+        /// <param name="GroupName">The name of an group (might not be unique).</param>
+        /// <param name="Groups">An enumeration of matching groups.</param>
+        public Boolean SearchGroupsByName(String GroupName, out IEnumerable<Group> Groups)
+        {
+
+            try
+            {
+
+                GroupsSemaphore.Wait();
+
+                var FoundGroups = new List<Group>();
+
+                foreach (var group in _Groups.Values)
+                    if (group.Name.Any(i18npair => i18npair.Text == GroupName))
+                        FoundGroups.Add(group);
+
+                Groups = FoundGroups;
+
+                return FoundGroups.Count > 0;
+
+            }
+            finally
+            {
+                GroupsSemaphore.Release();
+            }
+
+        }
+
+        /// <summary>
+        /// Find all groups having the given name.
+        /// </summary>
+        /// <param name="GroupName">The name of an group (might not be unique).</param>
+        /// <param name="Groups">An enumeration of matching groups.</param>
+        public Boolean SearchGroupsByName(I18NString GroupName, out IEnumerable<Group> Groups)
+        {
+
+            try
+            {
+
+                GroupsSemaphore.Wait();
+
+                var FoundGroups = new List<Group>();
+
+                foreach (var group in _Groups.Values)
+                    if (group.Name == GroupName)
+                        FoundGroups.Add(group);
+
+                Groups = FoundGroups;
+
+                return FoundGroups.Count > 0;
+
+            }
+            finally
+            {
+                GroupsSemaphore.Release();
+            }
+
+        }
+
+        #endregion
+
+
+        #region AddToGroup(User, Edge, Group, PrivacyLevel = Private)
+
+        public async Task<Boolean> AddToGroup(User             User,
+                                              User2GroupEdgeTypes  Edge,
+                                              Group            Group,
+                                              PrivacyLevel     PrivacyLevel   = PrivacyLevel.Private,
+                                              User_Id?         CurrentUserId  = null)
+
+        {
+
+            try
+            {
+
+                await UsersSemaphore.WaitAsync();
+                await GroupsSemaphore.WaitAsync();
+
+                if (!User.OutEdges(Group).Any(edge => edge == Edge))
+                {
+
+                    User.AddOutgoingEdge(Edge, Group, PrivacyLevel);
+
+                    if (!Group.Edges(Group).Any(edge => edge == Edge))
+                        Group.AddIncomingEdge(User, Edge,  PrivacyLevel);
+
+                    await WriteToLogfile(NotificationMessageType.Parse("addUserToGroup"),
+                                         new JObject(
+                                             new JProperty("user",   User.Id.ToString()),
+                                             new JProperty("edge",   Edge.   ToString()),
+                                             new JProperty("group",  Group.  ToString()),
+                                             PrivacyLevel.ToJSON()
+                                         ),
+                                         CurrentUserId);
+
+                    return true;
+
+                }
+
+                return false;
+
+            }
+            finally
+            {
+                UsersSemaphore.Release();
+                GroupsSemaphore.Release();
+            }
+
+        }
+
+        #endregion
+
+
+        #region IsAdmin(User)
+
+        /// <summary>
+        /// Check if the given user is an API admin.
+        /// </summary>
+        /// <param name="User">A user.</param>
+        public Access_Levels IsAdmin(User User)
+        {
+
+            if (User.Groups(User2GroupEdgeTypes.IsAdmin_ReadOnly).
+                     Contains(Admins))
+            {
+                return Access_Levels.ReadOnly;
+            }
+
+            if (User.Groups(User2GroupEdgeTypes.IsAdmin_ReadWrite).
+                     Contains(Admins))
+            {
+                return Access_Levels.ReadWrite;
+            }
+
+            return Access_Levels.None;
+
+        }
+
+        #endregion
+
+        #region IsAdmin(UserId)
+
+        /// <summary>
+        /// Check if the given user is an API admin.
+        /// </summary>
+        /// <param name="UserId">A user identification.</param>
+        public Access_Levels IsAdmin(User_Id UserId)
+        {
+
+            if (TryGetUser(UserId, out User User))
+                return IsAdmin(User);
+
+            return Access_Levels.None;
+
+        }
+
+        #endregion
+
+        #endregion
+
+
+        #region Organizations
+
+        #region Data
+
+        protected readonly Dictionary<Organization_Id, Organization> _Organizations;
+
+        /// <summary>
+        /// Return an enumeration of all organizations.
+        /// </summary>
+        public IEnumerable<Organization> Organizations
+        {
+            get
+            {
+                try
+                {
+                    OrganizationsSemaphore.Wait();
+                    return _Organizations.Values.ToArray();
+                }
+                finally
+                {
+                    OrganizationsSemaphore.Release();
+                }
+
+            }
+        }
+
+        #endregion
+
+
+        #region AddOrganization           (Organization,   ParentOrganization = null, CurrentUserId = null)
+
+        /// <summary>
+        /// Add the given organization to the API.
+        /// </summary>
+        /// <param name="Organization">A new organization to be added to this API.</param>
+        /// <param name="ParentOrganization">The parent organization of the organization organization to be added.</param>
+        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
+        public async Task<Organization> AddOrganization(Organization  Organization,
+                                                        Organization  ParentOrganization   = null,
+                                                        User_Id?      CurrentUserId        = null)
+        {
+
+            try
+            {
+
+                await OrganizationsSemaphore.WaitAsync();
+
+                if (Organization.API != null && Organization.API != this)
+                    throw new ArgumentException(nameof(Organization), "The given organization is already attached to another API!");
+
+                if (_Organizations.ContainsKey(Organization.Id))
+                    throw new Exception("Organization '" + Organization.Id + "' already exists in this API!");
+
+                if (ParentOrganization != null && !_Organizations.ContainsKey(ParentOrganization.Id))
+                    throw new Exception("Parent organization '" + ParentOrganization.Id + "' does not exists in this API!");
+
+                Organization.API = this;
+
+
+                // Check Admin!
+                if (CurrentUserId.HasValue)
+                {
+                    if (!GetUser(CurrentUserId.Value).
+                             Organizations(Access_Levels.ReadWrite, true).
+                             Contains(ParentOrganization))
+                    {
+                        throw new Exception("Not allowed!");
+                    }
+                }
+
+
+                await WriteToLogfile(NotificationMessageType.Parse("addOrganization"),
+                                     Organization.ToJSON(),
+                                     CurrentUserId);
+
+                var newOrganization = _Organizations.AddAndReturnValue(Organization.Id, Organization);
+
+                if (ParentOrganization != null)
+                    await _LinkOrganizations(newOrganization,
+                                             Organization2OrganizationEdgeTypes.IsChildOf,
+                                             ParentOrganization,
+                                             CurrentUserId:  CurrentUserId);
+
+                return newOrganization;
+
+            }
+            finally
+            {
+                OrganizationsSemaphore.Release();
+            }
+
+        }
+
+        #endregion
+
+        #region AddOrganizationIfNotExists(Organization,   ParentOrganization = null, CurrentUserId = null)
+
+        /// <summary>
+        /// When it has not been created before, add the given organization to the API.
+        /// </summary>
+        /// <param name="Organization">A new organization to be added to this API.</param>
+        /// <param name="ParentOrganization">The parent organization of the organization to be added.</param>
+        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
+        public async Task<Organization> AddOrganizationIfNotExists(Organization  Organization,
+                                                                   Organization  ParentOrganization   = null,
+                                                                   User_Id?      CurrentUserId        = null)
+        {
+
+            try
+            {
+
+                await OrganizationsSemaphore.WaitAsync();
+
+                if (Organization.API != null && Organization.API != this)
+                    throw new ArgumentException(nameof(Organization), "The given organization is already attached to another API!");
+
+                if (_Organizations.ContainsKey(Organization.Id))
+                    return _Organizations[Organization.Id];
+
+                if (ParentOrganization != null && !_Organizations.ContainsKey(ParentOrganization.Id))
+                    throw new Exception("Parent organization '" + ParentOrganization.Id + "' does not exists in this API!");
+
+                Organization.API = this;
+
+                await WriteToLogfile(NotificationMessageType.Parse("addIfNotExistsOrganization"),
+                                     Organization.ToJSON(),
+                                     CurrentUserId);
+
+                var NewOrg = _Organizations.AddAndReturnValue(Organization.Id, Organization);
+
+                if (ParentOrganization != null)
+                    await _LinkOrganizations(NewOrg, Organization2OrganizationEdgeTypes.IsChildOf, ParentOrganization, CurrentUserId: CurrentUserId);
+
+                return NewOrg;
+
+            }
+            finally
+            {
+                OrganizationsSemaphore.Release();
+            }
+
+        }
+
+        #endregion
+
+        #region AddOrUpdateOrganization   (Organization,   ParentOrganization = null, CurrentUserId = null)
+
+        /// <summary>
+        /// Add or update the given organization to/within the API.
+        /// </summary>
+        /// <param name="Organization">A organization.</param>
+        /// <param name="ParentOrganization">The parent organization of the organization to be added.</param>
+        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
+        public async Task<Organization> AddOrUpdateOrganization(Organization  Organization,
+                                                                Organization  ParentOrganization   = null,
+                                                                User_Id?      CurrentUserId        = null)
+        {
+
+            try
+            {
+
+                await OrganizationsSemaphore.WaitAsync();
+
+                if (Organization.API != null && Organization.API != this)
+                    throw new ArgumentException(nameof(Organization), "The given organization is already attached to another API!");
+
+                if (ParentOrganization != null && !_Organizations.ContainsKey(ParentOrganization.Id))
+                    throw new Exception("Parent organization '" + ParentOrganization.Id + "' does not exists in this API!");
+
+                if (_Organizations.TryGetValue(Organization.Id, out Organization OldOrganization))
+                {
+                    _Organizations.Remove(OldOrganization.Id);
+                }
+
+                Organization.API = this;
+
+                await WriteToLogfile(NotificationMessageType.Parse("addOrUpdateOrganization"),
+                                     Organization.ToJSON(),
+                                     CurrentUserId);
+
+                var NewOrg = _Organizations.AddAndReturnValue(Organization.Id, Organization);
+
+                // ToDo: Copy edges!
+
+                if (ParentOrganization != null)
+                {
+                    await _LinkOrganizations(NewOrg, Organization2OrganizationEdgeTypes.IsChildOf, ParentOrganization, CurrentUserId: CurrentUserId);
+                    //ToDo: Update link to parent organization
+                }
+
+                return NewOrg;
+
+            }
+            finally
+            {
+                OrganizationsSemaphore.Release();
+            }
+
+        }
+
+        #endregion
+
+        #region UpdateOrganization        (Organization,                              CurrentUserId = null)
+
+        /// <summary>
+        /// Update the given organization within the API.
+        /// </summary>
+        /// <param name="Organization">A organization.</param>
+        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
+        public async Task<Organization> UpdateOrganization(Organization  Organization,
+                                                           User_Id?      CurrentUserId  = null)
+        {
+
+            try
+            {
+
+                await OrganizationsSemaphore.WaitAsync();
+
+                if (Organization.API != null && Organization.API != this)
+                    throw new ArgumentException(nameof(Organization), "The given organization is already attached to another API!");
+
+                if (!_Organizations.TryGetValue(Organization.Id, out Organization OldOrganization))
+                    throw new Exception("Organization '" + Organization.Id + "' does not exists in this API!");
+
+                else
+                {
+
+                    _Organizations.Remove(OldOrganization.Id);
+
+                }
+
+                Organization.API = this;
+
+                await WriteToLogfile(NotificationMessageType.Parse("updateOrganization"),
+                                     Organization.ToJSON(),
+                                     CurrentUserId);
+
+                OldOrganization.CopyAllEdgesTo(Organization);
+
+                return _Organizations.AddAndReturnValue(Organization.Id, Organization);
+
+            }
+            finally
+            {
+                OrganizationsSemaphore.Release();
+            }
+
+        }
+
+        #endregion
+
+        #region UpdateOrganization        (OrganizationId, UpdateDelegate,            CurrentUserId = null)
+
+        /// <summary>
+        /// Update the given organization.
+        /// </summary>
+        /// <param name="OrganizationId">An organization identification.</param>
+        /// <param name="UpdateDelegate">A delegate to update the given organization.</param>
+        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
+        public async Task<Organization> UpdateOrganization(Organization_Id               OrganizationId,
+                                                           Action<Organization.Builder>  UpdateDelegate,
+                                                           User_Id?                      CurrentUserId  = null)
+        {
+
+            try
+            {
+
+                if (UpdateDelegate == null)
+                    throw new Exception("The given update delegate must not be null!");
+
+                await OrganizationsSemaphore.WaitAsync();
+
+                if (!_Organizations.TryGetValue(OrganizationId, out Organization OldOrganization))
+                    throw new Exception("Organization '" + OrganizationId + "' does not exists in this API!");
+
+                var Builder = OldOrganization.ToBuilder();
+                UpdateDelegate(Builder);
+                var NewOrganization = Builder.ToImmutable;
+
+                await WriteToLogfile(NotificationMessageType.Parse("updateOrganization"),
+                                     NewOrganization.ToJSON(),
+                                     CurrentUserId);
+
+                NewOrganization.API = this;
+
+                _Organizations.Remove(OldOrganization.Id);
+                OldOrganization.CopyAllEdgesTo(NewOrganization);
+
+                return _Organizations.AddAndReturnValue(NewOrganization.Id, NewOrganization);
+
+            }
+            finally
+            {
+                OrganizationsSemaphore.Release();
+            }
+
+        }
+
+        #endregion
+
+        #region RemoveOrganization        (OrganizationId,                            CurrentUserId = null)
+
+        /// <summary>
+        /// Remove the given organization from this API.
+        /// </summary>
+        /// <param name="OrganizationId">The unique identification of the organization.</param>
+        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
+        public async Task<Organization> RemoveOrganization(Organization_Id  OrganizationId,
+                                                           User_Id?         CurrentUserId  = null)
+        {
+
+            try
+            {
+
+                await OrganizationsSemaphore.WaitAsync();
+
+                if (_Organizations.TryGetValue(OrganizationId, out Organization Organization))
+                {
+
+                    // this --edge--> other_organization
+                    foreach (var edge in Organization.Organization2OrganizationOutEdges)
+                        edge.Target.RemoveInEdge(edge);
+
+                    // this <--edge-- other_organization
+                    foreach (var edge in Organization.Organization2OrganizationInEdges)
+                        edge.Source.RemoveOutEdge(edge);
+
+                    // this <--edge-- user
+                    foreach (var edge in Organization.User2OrganizationEdges)
+                        edge.Source.RemoveOutEdge(edge);
+
+
+                    await WriteToLogfile(NotificationMessageType.Parse("removeOrganization"),
+                                         Organization.ToJSON(),
+                                         CurrentUserId);
+
+                    _Organizations.Remove(OrganizationId);
+
+                    //Organization.API = null;
+
+                    return Organization;
+
+                }
+
+                return null;
+
+            }
+            finally
+            {
+                OrganizationsSemaphore.Release();
+            }
+
+        }
+
+        #endregion
+
+
+        #region CreateOrganization           (Id, Name = null, Description = null, ParentOrganization = null)
+
+        public Task<Organization> CreateOrganization(Organization_Id           Id,
+                                                     I18NString                Name                 = null,
+                                                     I18NString                Description          = null,
+                                                     String                    Website              = null,
+                                                     EMailAddress              EMail                = null,
+                                                     PhoneNumber?              Telephone            = null,
+                                                     Address                   Address              = null,
+                                                     GeoCoordinate?            GeoLocation          = null,
+                                                     Func<Tags.Builder, Tags>  Tags                 = null,
+                                                     PrivacyLevel              PrivacyLevel         = PrivacyLevel.Private,
+                                                     Boolean                   IsDisabled           = false,
+                                                     String                    DataSource           = "",
+                                                     Organization              ParentOrganization   = null,
+                                                     User_Id?                  CurrentUserId        = null)
+
+            => AddOrganization(new Organization(Id,
+                                    Name,
+                                    Description,
+                                    Website,
+                                    EMail,
+                                    Telephone,
+                                    Address,
+                                    GeoLocation,
+                                    Tags,
+                                    PrivacyLevel,
+                                    IsDisabled,
+                                    DataSource),
+                   ParentOrganization,
+                   CurrentUserId);
+
+        #endregion
+
+        #region CreateOrganizationIfNotExists(Id, Name = null, Description = null, ParentOrganization = null)
+
+        public Task<Organization> CreateOrganizationIfNotExists(Organization_Id           Id,
+                                                                I18NString                Name                 = null,
+                                                                I18NString                Description          = null,
+                                                                String                    Website              = null,
+                                                                EMailAddress              EMail                = null,
+                                                                PhoneNumber?              Telephone            = null,
+                                                                Address                   Address              = null,
+                                                                GeoCoordinate?            GeoLocation          = null,
+                                                                Func<Tags.Builder, Tags>  Tags                 = null,
+                                                                PrivacyLevel              PrivacyLevel         = PrivacyLevel.Private,
+                                                                Boolean                   IsDisabled           = false,
+                                                                String                    DataSource           = "",
+                                                                Organization              ParentOrganization   = null,
+                                                                User_Id?                  CurrentUserId        = null)
+
+            => AddOrganizationIfNotExists(new Organization(Id,
+                                               Name,
+                                               Description,
+                                               Website,
+                                               EMail,
+                                               Telephone,
+                                               Address,
+                                               GeoLocation,
+                                               Tags,
+                                               PrivacyLevel,
+                                               IsDisabled,
+                                               DataSource),
+                              ParentOrganization,
+                              CurrentUserId);
+
+        #endregion
+
+
+        #region (protected internal) SetOrganizationRequest (Request)
+
+        /// <summary>
+        /// An event sent whenever set organization (data) request was received.
+        /// </summary>
+        public event RequestLogHandler OnSetOrganizationRequest;
+
+        protected internal HTTPRequest SetOrganizationRequest(HTTPRequest Request)
+        {
+
+            OnSetOrganizationRequest?.Invoke(Request.Timestamp,
+                                              HTTPServer,
+                                              Request);
+
+            return Request;
+
+        }
+
+        #endregion
+
+        #region (protected internal) SetOrganizationResponse(Response)
+
+        /// <summary>
+        /// An event sent whenever a response on a set organization (data) request was sent.
+        /// </summary>
+        public event AccessLogHandler OnSetOrganizationResponse;
+
+        protected internal HTTPResponse SetOrganizationResponse(HTTPResponse Response)
+        {
+
+            OnSetOrganizationResponse?.Invoke(Response.Timestamp,
+                                               HTTPServer,
+                                               Response.HTTPRequest,
+                                               Response);
+
+            return Response;
+
+        }
+
+        #endregion
+
+
+        #region OrganizationExists        (OrganizationId)
+
+        /// <summary>
+        /// Whether this API contains a organization having the given unique identification.
+        /// </summary>
+        /// <param name="OrganizationId">The unique identification of the organization.</param>
+        public Boolean OrganizationExists(Organization_Id OrganizationId)
+        {
+
+            try
+            {
+
+                OrganizationsSemaphore.Wait();
+
+                return _Organizations.ContainsKey(OrganizationId);
+
+            }
+            finally
+            {
+                OrganizationsSemaphore.Release();
+            }
+
+        }
+
+        #endregion
+
+        #region GetOrganization           (OrganizationId)
+
+        /// <summary>
+        /// Get the organization having the given unique identification.
+        /// </summary>
+        /// <param name="OrganizationId">The unique identification of the organization.</param>
+        public async Task<Organization> GetOrganization(Organization_Id  OrganizationId)
+        {
+
+            try
+            {
+
+                await OrganizationsSemaphore.WaitAsync();
+
+                if (_Organizations.TryGetValue(OrganizationId, out Organization Organization))
+                    return Organization;
+
+                return null;
+
+            }
+            finally
+            {
+                OrganizationsSemaphore.Release();
+            }
+
+        }
+
+        #endregion
+
+        #region TryGetOrganization        (OrganizationId, out Organization)
+
+        /// <summary>
+        /// Try to get the organization having the given unique identification.
+        /// </summary>
+        /// <param name="OrganizationId">The unique identification of the organization.</param>
+        /// <param name="Organization">The organization.</param>
+        public Boolean TryGetOrganization(Organization_Id   OrganizationId,
+                              out Organization  Organization)
+        {
+
+            try
+            {
+
+                OrganizationsSemaphore.Wait();
+
+                return _Organizations.TryGetValue(OrganizationId, out Organization);
+
+            }
+            finally
+            {
+                OrganizationsSemaphore.Release();
+            }
+
+        }
+
+        #endregion
+
+        #region SearchOrganizationsByName(OrganizationName)
+
+        /// <summary>
+        /// Find all organizations having the given name.
+        /// </summary>
+        /// <param name="OrganizationName">The name of an organization (might not be unique).</param>
+        public IEnumerable<Organization> SearchOrganizationsByName(String OrganizationName)
+        {
+
+            try
+            {
+
+                OrganizationsSemaphore.Wait();
+
+                var FoundOrganizations = new List<Organization>();
+
+                foreach (var organization in _Organizations.Values)
+                    if (organization.Name.Any(i18npair => i18npair.Text == OrganizationName))
+                        FoundOrganizations.Add(organization);
+
+                return FoundOrganizations;
+
+            }
+            finally
+            {
+                OrganizationsSemaphore.Release();
+            }
+
+        }
+
+        /// <summary>
+        /// Find all organizations having the given name.
+        /// </summary>
+        /// <param name="OrganizationName">The name of an organization (might not be unique).</param>
+        public IEnumerable<Organization> SearchOrganizationsByName(I18NString OrganizationName)
+        {
+
+            try
+            {
+
+                OrganizationsSemaphore.Wait();
+
+                var FoundOrganizations = new List<Organization>();
+
+                foreach (var organization in _Organizations.Values)
+                    if (organization.Name == OrganizationName)
+                        FoundOrganizations.Add(organization);
+
+                return FoundOrganizations;
+
+            }
+            finally
+            {
+                OrganizationsSemaphore.Release();
+            }
+
+        }
+
+        #endregion
+
+        #region SearchOrganizationsByName(OrganizationName, out Organizations)
+
+        /// <summary>
+        /// Find all organizations having the given name.
+        /// </summary>
+        /// <param name="OrganizationName">The name of an organization (might not be unique).</param>
+        /// <param name="Organizations">An enumeration of matching organizations.</param>
+        public Boolean SearchOrganizationsByName(String OrganizationName, out IEnumerable<Organization> Organizations)
+        {
+
+            try
+            {
+
+                OrganizationsSemaphore.Wait();
+
+                var FoundOrganizations = new List<Organization>();
+
+                var sss = _Organizations.Where(o => o.Value.Name?.FirstText()?.StartsWith("P") == true);
+
+                foreach (var organization in _Organizations.Values)
+                    if (organization.Name.Any(i18npair => i18npair.Text == OrganizationName))
+                        FoundOrganizations.Add(organization);
+
+                Organizations = FoundOrganizations;
+
+                return FoundOrganizations.Count > 0;
+
+            }
+            finally
+            {
+                OrganizationsSemaphore.Release();
+            }
+
+        }
+
+        /// <summary>
+        /// Find all organizations having the given name.
+        /// </summary>
+        /// <param name="OrganizationName">The name of an organization (might not be unique).</param>
+        /// <param name="Organizations">An enumeration of matching organizations.</param>
+        public Boolean SearchOrganizationsByName(I18NString OrganizationName, out IEnumerable<Organization> Organizations)
+        {
+
+            try
+            {
+
+                OrganizationsSemaphore.Wait();
+
+                var FoundOrganizations = new List<Organization>();
+
+                foreach (var organization in _Organizations.Values)
+                    if (organization.Name == OrganizationName)
+                        FoundOrganizations.Add(organization);
+
+                Organizations = FoundOrganizations;
+
+                return FoundOrganizations.Count > 0;
+
+            }
+            finally
+            {
+                OrganizationsSemaphore.Release();
+            }
+
+        }
+
+        #endregion
+
+
+        #region AddToOrganization(User, Edge, Organization, PrivacyLevel = Private)
+
+        protected async Task<Boolean> _AddToOrganization(User                    User,
+                                                         User2OrganizationEdgeTypes  Edge,
+                                                         Organization            Organization,
+                                                         PrivacyLevel            PrivacyLevel   = PrivacyLevel.Private,
+                                                         User_Id?                CurrentUserId  = null)
+        {
+
+            if (!User.Edges(Organization).Any(edge => edge == Edge))
+            {
+
+                var edge = User.AddOutgoingEdge(Edge, Organization, PrivacyLevel);
+
+                if (!Organization.User2OrganizationInEdgeLabels(User).Any(edgelabel => edgelabel == Edge))
+                    Organization.LinkUser(edge);// User, Edge, PrivacyLevel);
+
+                await WriteToLogfile(NotificationMessageType.Parse("addUserToOrganization"),
+                                     new JObject(
+                                         new JProperty("user",          User.        Id.ToString()),
+                                         new JProperty("edge",          Edge.           ToString()),
+                                         new JProperty("organization",  Organization.Id.ToString()),
+                                         PrivacyLevel.ToJSON()
+                                     ),
+                                     CurrentUserId);
+
+                return true;
+
+            }
+
+            return false;
+
+        }
+
+        public async Task<Boolean> AddToOrganization(User                    User,
+                                                     User2OrganizationEdgeTypes  Edge,
+                                                     Organization            Organization,
+                                                     PrivacyLevel            PrivacyLevel   = PrivacyLevel.Private,
+                                                     User_Id?                CurrentUserId  = null)
+        {
+
+            try
+            {
+
+                await UsersSemaphore.        WaitAsync();
+                await OrganizationsSemaphore.WaitAsync();
+
+                return await _AddToOrganization(User,
+                                                Edge,
+                                                Organization,
+                                                PrivacyLevel,
+                                                CurrentUserId);
+
+            }
+            finally
+            {
+                OrganizationsSemaphore.Release();
+                UsersSemaphore.        Release();
+            }
+
+        }
+
+        #endregion
+
+        #region LinkOrganizations  (OrganizationOut, EdgeLabel, OrganizationIn, Privacy = Public, CurrentUserId = null)
+
+        protected async Task<Boolean> _LinkOrganizations(Organization                    OrganizationOut,
+                                                         Organization2OrganizationEdgeTypes  EdgeLabel,
+                                                         Organization                    OrganizationIn,
+                                                         PrivacyLevel                    Privacy        = PrivacyLevel.World,
+                                                         User_Id?                        CurrentUserId  = null)
+        {
+
+                if (!OrganizationOut.
+                        Organization2OrganizationOutEdges.
+                        Where(edge => edge.Target    == OrganizationIn).
+                        Any  (edge => edge.EdgeLabel == EdgeLabel))
+                {
+
+                    OrganizationOut.AddOutEdge(EdgeLabel, OrganizationIn, Privacy);
+
+                    if (!OrganizationIn.
+                            Organization2OrganizationInEdges.
+                            Where(edge => edge.Source    == OrganizationOut).
+                            Any  (edge => edge.EdgeLabel == EdgeLabel))
+                    {
+                        OrganizationIn.AddInEdge(EdgeLabel, OrganizationOut, Privacy);
+                    }
+
+                    await WriteToLogfile(NotificationMessageType.Parse("linkOrganizations"),
+                                         new JObject(
+                                             new JProperty("organizationOut", OrganizationOut.Id.ToString()),
+                                             new JProperty("edge",            EdgeLabel.         ToString()),
+                                             new JProperty("organizationIn",  OrganizationIn. Id.ToString()),
+                                             Privacy.ToJSON()
+                                         ),
+                                         CurrentUserId);
+
+                    return true;
+
+                }
+
+                return false;
+
+        }
+
+        public async Task<Boolean> LinkOrganizations(Organization                    OrganizationOut,
+                                                     Organization2OrganizationEdgeTypes  EdgeLabel,
+                                                     Organization                    OrganizationIn,
+                                                     PrivacyLevel                    Privacy        = PrivacyLevel.World,
+                                                     User_Id?                        CurrentUserId  = null)
+        {
+
+            try
+            {
+
+                await OrganizationsSemaphore.WaitAsync();
+
+                return await _LinkOrganizations(OrganizationOut,
+                                                EdgeLabel,
+                                                OrganizationIn,
+                                                Privacy,
+                                                CurrentUserId);
+
+            }
+            finally
+            {
+                OrganizationsSemaphore.Release();
+            }
+
+        }
+
+        #endregion
+
+        #region UnlinkOrganizations(OrganizationOut, EdgeLabel, OrganizationIn,                   CurrentUserId = null)
+
+        protected async Task<Boolean> _UnlinkOrganizations(Organization                    OrganizationOut,
+                                                           Organization2OrganizationEdgeTypes  EdgeLabel,
+                                                           Organization                    OrganizationIn,
+                                                           User_Id?                        CurrentUserId  = null)
+        {
+
+            if (OrganizationOut.
+                    Organization2OrganizationOutEdges.
+                    Where(edge => edge.Target    == OrganizationIn).
+                    Any  (edge => edge.EdgeLabel == EdgeLabel))
+            {
+
+                OrganizationOut.RemoveOutEdges(EdgeLabel, OrganizationIn);
+
+                if (OrganizationIn.
+                        Organization2OrganizationInEdges.
+                        Where(edge => edge.Source    == OrganizationOut).
+                        Any  (edge => edge.EdgeLabel == EdgeLabel))
+                {
+                    OrganizationIn.RemoveInEdges(EdgeLabel, OrganizationOut);
+                }
+
+                await WriteToLogfile(NotificationMessageType.Parse("unlinkOrganizations"),
+                                     new JObject(
+                                         new JProperty("organizationOut", OrganizationOut.Id.ToString()),
+                                         new JProperty("edge",            EdgeLabel.         ToString()),
+                                         new JProperty("organizationIn",  OrganizationIn. Id.ToString())
+                                     ),
+                                     CurrentUserId);
+
+                return true;
+
+            }
+
+            return false;
+
+        }
+
+        public async Task<Boolean> UnlinkOrganizations(Organization                    OrganizationOut,
+                                                       Organization2OrganizationEdgeTypes  EdgeLabel,
+                                                       Organization                    OrganizationIn,
+                                                       User_Id?                        CurrentUserId  = null)
+        {
+
+            try
+            {
+
+                await OrganizationsSemaphore.WaitAsync();
+
+                return await _UnlinkOrganizations(OrganizationOut,
+                                                  EdgeLabel,
+                                                  OrganizationIn,
+                                                  CurrentUserId);
+
+            }
+            finally
+            {
+                OrganizationsSemaphore.Release();
+            }
+
+        }
+
+        #endregion
+
+        #endregion
+
+        #region Dashboards
+
+        #region Data
+
+        protected readonly Dictionary<Dashboard_Id, Dashboard> _Dashboards;
+
+        /// <summary>
+        /// Return an enumeration of all dashboards.
+        /// </summary>
+        public IEnumerable<Dashboard> Dashboards
+        {
+            get
+            {
+                try
+                {
+                    DashboardsSemaphore.Wait();
+                    return _Dashboards.Values.ToArray();
+                }
+                finally
+                {
+                    DashboardsSemaphore.Release();
+                }
+
+            }
+        }
+
+        #endregion
+
+
+        #region AddDashboard           (Dashboard,                   CurrentUserId = null)
+
+        /// <summary>
+        /// Add the given dashboard to the API.
+        /// </summary>
+        /// <param name="Dashboard">A new dashboard to be added to this API.</param>
+        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
+        public async Task<Dashboard> AddDashboard(Dashboard  Dashboard,
+                                                  User_Id?   CurrentUserId  = null)
+        {
+
+            try
+            {
+
+                await DashboardsSemaphore.WaitAsync();
+
+                if (Dashboard.API != null && Dashboard.API != this)
+                    throw new ArgumentException(nameof(Dashboard), "The given dashboard is already attached to another API!");
+
+                if (_Dashboards.ContainsKey(Dashboard.Id))
+                    throw new Exception("Dashboard '" + Dashboard.Id + "' already exists in this API!");
+
+                Dashboard.API = this;
+
+
+                await WriteToLogfile(NotificationMessageType.Parse("addDashboard"),
+                                     Dashboard.ToJSON(),
+                                     CurrentUserId);
+
+                var newDashboard = _Dashboards.AddAndReturnValue(Dashboard.Id, Dashboard);
+
+                return newDashboard;
+
+            }
+            finally
+            {
+                DashboardsSemaphore.Release();
+            }
+
+        }
+
+        #endregion
+
+        #region AddDashboardIfNotExists(Dashboard,                   CurrentUserId = null)
+
+        /// <summary>
+        /// When it has not been created before, add the given dashboard to the API.
+        /// </summary>
+        /// <param name="Dashboard">A new dashboard to be added to this API.</param>
+        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
+        public async Task<Dashboard> AddDashboardIfNotExists(Dashboard  Dashboard,
+                                                             User_Id?   CurrentUserId  = null)
+        {
+
+            try
+            {
+
+                await DashboardsSemaphore.WaitAsync();
+
+                if (Dashboard.API != null && Dashboard.API != this)
+                    throw new ArgumentException(nameof(Dashboard), "The given dashboard is already attached to another API!");
+
+                if (_Dashboards.ContainsKey(Dashboard.Id))
+                    return _Dashboards[Dashboard.Id];
+
+                Dashboard.API = this;
+
+                await WriteToLogfile(NotificationMessageType.Parse("addIfNotExistsDashboard"),
+                                     Dashboard.ToJSON(),
+                                     CurrentUserId);
+
+                var newDashboard = _Dashboards.AddAndReturnValue(Dashboard.Id, Dashboard);
+
+                return newDashboard;
+
+            }
+            finally
+            {
+                DashboardsSemaphore.Release();
+            }
+
+        }
+
+        #endregion
+
+        #region AddOrUpdateDashboard   (Dashboard,                   CurrentUserId = null)
+
+        /// <summary>
+        /// Add or update the given dashboard to/within the API.
+        /// </summary>
+        /// <param name="Dashboard">A dashboard.</param>
+        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
+        public async Task<Dashboard> AddOrUpdateDashboard(Dashboard  Dashboard,
+                                                          User_Id?   CurrentUserId  = null)
+        {
+
+            try
+            {
+
+                await DashboardsSemaphore.WaitAsync();
+
+                if (Dashboard.API != null && Dashboard.API != this)
+                    throw new ArgumentException(nameof(Dashboard), "The given dashboard is already attached to another API!");
+
+                if (_Dashboards.TryGetValue(Dashboard.Id, out Dashboard OldDashboard))
+                {
+                    _Dashboards.Remove(OldDashboard.Id);
+                }
+
+                Dashboard.API = this;
+
+                await WriteToLogfile(NotificationMessageType.Parse("addOrUpdateDashboard"),
+                                     Dashboard.ToJSON(),
+                                     CurrentUserId);
+
+                var newDashboard = _Dashboards.AddAndReturnValue(Dashboard.Id, Dashboard);
+
+                // ToDo: Copy edges!
+
+                return newDashboard;
+
+            }
+            finally
+            {
+                DashboardsSemaphore.Release();
+            }
+
+        }
+
+        #endregion
+
+        #region UpdateDashboard        (Dashboard,                   CurrentUserId = null)
+
+        /// <summary>
+        /// Update the given dashboard within the API.
+        /// </summary>
+        /// <param name="Dashboard">A dashboard.</param>
+        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
+        public async Task<Dashboard> UpdateDashboard(Dashboard  Dashboard,
+                                                     User_Id?   CurrentUserId  = null)
+        {
+
+            try
+            {
+
+                await DashboardsSemaphore.WaitAsync();
+
+                if (Dashboard.API != null && Dashboard.API != this)
+                    throw new ArgumentException(nameof(Dashboard), "The given dashboard is already attached to another API!");
+
+                if (!_Dashboards.TryGetValue(Dashboard.Id, out Dashboard OldDashboard))
+                    throw new Exception("Dashboard '" + Dashboard.Id + "' does not exists in this API!");
+
+                else
+                {
+
+                    _Dashboards.Remove(OldDashboard.Id);
+
+                }
+
+                Dashboard.API = this;
+
+                await WriteToLogfile(NotificationMessageType.Parse("updateDashboard"),
+                                     Dashboard.ToJSON(),
+                                     CurrentUserId);
+
+                OldDashboard.CopyAllEdgesTo(Dashboard);
+
+                return _Dashboards.AddAndReturnValue(Dashboard.Id, Dashboard);
+
+            }
+            finally
+            {
+                DashboardsSemaphore.Release();
+            }
+
+        }
+
+        #endregion
+
+        #region UpdateDashboard        (DashboardId, UpdateDelegate, CurrentUserId = null)
+
+        /// <summary>
+        /// Update the given dashboard.
+        /// </summary>
+        /// <param name="DashboardId">An dashboard identification.</param>
+        /// <param name="UpdateDelegate">A delegate to update the given dashboard.</param>
+        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
+        public async Task<Dashboard> UpdateDashboard(Dashboard_Id               DashboardId,
+                                                     Action<Dashboard.Builder>  UpdateDelegate,
+                                                     User_Id?                   CurrentUserId  = null)
+        {
+
+            try
+            {
+
+                if (UpdateDelegate == null)
+                    throw new Exception("The given update delegate must not be null!");
+
+                await DashboardsSemaphore.WaitAsync();
+
+                if (!_Dashboards.TryGetValue(DashboardId, out Dashboard OldDashboard))
+                    throw new Exception("Dashboard '" + DashboardId + "' does not exists in this API!");
+
+                var Builder = OldDashboard.ToBuilder();
+                UpdateDelegate(Builder);
+                var NewDashboard = Builder.ToImmutable;
+
+                await WriteToLogfile(NotificationMessageType.Parse("updateDashboard"),
+                                     NewDashboard.ToJSON(),
+                                     CurrentUserId);
+
+                NewDashboard.API = this;
+
+                _Dashboards.Remove(OldDashboard.Id);
+                OldDashboard.CopyAllEdgesTo(NewDashboard);
+
+                return _Dashboards.AddAndReturnValue(NewDashboard.Id, NewDashboard);
+
+            }
+            finally
+            {
+                DashboardsSemaphore.Release();
+            }
+
+        }
+
+        #endregion
+
+
+        #region (protected internal) SetDashboardRequest (Request)
+
+        /// <summary>
+        /// An event sent whenever set dashboard (data) request was received.
+        /// </summary>
+        public event RequestLogHandler OnSetDashboardRequest;
+
+        protected internal HTTPRequest SetDashboardRequest(HTTPRequest Request)
+        {
+
+            OnSetDashboardRequest?.Invoke(Request.Timestamp,
+                                          HTTPServer,
+                                          Request);
+
+            return Request;
+
+        }
+
+        #endregion
+
+        #region (protected internal) SetDashboardResponse(Response)
+
+        /// <summary>
+        /// An event sent whenever a response on a set dashboard (data) request was sent.
+        /// </summary>
+        public event AccessLogHandler OnSetDashboardResponse;
+
+        protected internal HTTPResponse SetDashboardResponse(HTTPResponse Response)
+        {
+
+            OnSetDashboardResponse?.Invoke(Response.Timestamp,
+                                           HTTPServer,
+                                           Response.HTTPRequest,
+                                           Response);
+
+            return Response;
+
+        }
+
+        #endregion
+
+
+        #region DashboardExists        (DashboardId)
+
+        /// <summary>
+        /// Whether this API contains a dashboard having the given unique identification.
+        /// </summary>
+        /// <param name="DashboardId">The unique identification of the dashboard.</param>
+        public Boolean DashboardExists(Dashboard_Id DashboardId)
+        {
+
+            try
+            {
+
+                DashboardsSemaphore.Wait();
+
+                return _Dashboards.ContainsKey(DashboardId);
+
+            }
+            finally
+            {
+                DashboardsSemaphore.Release();
+            }
+
+        }
+
+        #endregion
+
+        #region GetDashboard           (DashboardId)
+
+        /// <summary>
+        /// Get the dashboard having the given unique identification.
+        /// </summary>
+        /// <param name="DashboardId">The unique identification of the dashboard.</param>
+        public async Task<Dashboard> GetDashboard(Dashboard_Id  DashboardId)
+        {
+
+            try
+            {
+
+                await DashboardsSemaphore.WaitAsync();
+
+                if (_Dashboards.TryGetValue(DashboardId, out Dashboard Dashboard))
+                    return Dashboard;
+
+                return null;
+
+            }
+            finally
+            {
+                DashboardsSemaphore.Release();
+            }
+
+        }
+
+        #endregion
+
+        #region TryGetDashboard        (DashboardId, out Dashboard)
+
+        /// <summary>
+        /// Try to get the dashboard having the given unique identification.
+        /// </summary>
+        /// <param name="DashboardId">The unique identification of the dashboard.</param>
+        /// <param name="Dashboard">The dashboard.</param>
+        public Boolean TryGetDashboard(Dashboard_Id   DashboardId,
+                                       out Dashboard  Dashboard)
+        {
+
+            try
+            {
+
+                DashboardsSemaphore.Wait();
+
+                return _Dashboards.TryGetValue(DashboardId, out Dashboard);
+
+            }
+            finally
+            {
+                DashboardsSemaphore.Release();
+            }
+
+        }
+
+        #endregion
+
+
+        #region RemoveDashboard        (DashboardId,                 CurrentUserId = null)
+
+        /// <summary>
+        /// Remove the given dashboard from this API.
+        /// </summary>
+        /// <param name="DashboardId">The unique identification of the dashboard.</param>
+        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
+        public async Task<Dashboard> RemoveDashboard(Dashboard_Id  DashboardId,
+                                                     User_Id?      CurrentUserId  = null)
+        {
+
+            try
+            {
+
+                await DashboardsSemaphore.WaitAsync();
+
+                if (_Dashboards.TryGetValue(DashboardId, out Dashboard Dashboard))
+                {
+
+                    await WriteToLogfile(NotificationMessageType.Parse("removeDashboard"),
+                                         Dashboard.ToJSON(),
+                                         CurrentUserId);
+
+                    _Dashboards.Remove(DashboardId);
+
+                    //Dashboard.API = null;
+
+                    return Dashboard;
+
+                }
+
+                return null;
+
+            }
+            finally
+            {
+                DashboardsSemaphore.Release();
+            }
+
+        }
+
+        #endregion
+
+        #endregion
+
+        #region ServiceTickets
+
+        #region Data
+
+        protected readonly ConcurrentDictionary<ServiceTicket_Id, AServiceTicket> _ServiceTickets;
+
+        /// <summary>
+        /// Return an enumeration of all service tickets.
+        /// </summary>
+        public IEnumerable<AServiceTicket> ServiceTickets
+        {
+            get
+            {
+                try
+                {
+                    ServiceTicketsSemaphore.Wait();
+                    return _ServiceTickets.Values.ToArray();
+                }
+                finally
+                {
+                    ServiceTicketsSemaphore.Release();
+                }
+
+            }
+        }
+
+        #endregion
+
+
+        #region WriteToLogfileAndNotify(ServiceTicket,        MessageType, OldServiceTicket        = null, CurrentUserId = null)
+
+        public async Task WriteToLogfileAndNotify<TServiceTicket>(TServiceTicket           ServiceTicket,
+                                                                  NotificationMessageType  MessageType,
+                                                                  TServiceTicket           OldServiceTicket  = null,
+                                                                  User_Id?                 CurrentUserId     = null)
+            where TServiceTicket : AServiceTicket
+        {
+
+            if (ServiceTicket == null)
+                return;
+
+            await WriteToLogfile(MessageType,
+                                 ServiceTicket.ToJSON(),
+                                 ServiceTicketsPath + ServiceTicketsDBFile,
+                                 CurrentUserId);
+
+
+            var _MessageTypes  = new HashSet<NotificationMessageType>() { MessageType };
+
+            if (MessageType == addIfNotExistsServiceTicket_MessageType)
+            {
+                _MessageTypes.Add(addServiceTicket_MessageType);
+            }
+
+            else if (MessageType == addOrUpdateServiceTicket_MessageType)
+            {
+                _MessageTypes.Add(addServiceTicket_MessageType);
+            }
+
+            var MessageTypes   = _MessageTypes.ToArray();
+
+
+            if (!DisableNotifications)
+            {
+
+                #region Telegram Notifications
+
+                try
+                {
+
+                    var AllTelegramNotifications = this.GetTelegramNotifications(ServiceTicket.Author, MessageTypes).
+                                                        ToHashSet();
+
+                    if (DevMachines.Contains(Environment.MachineName))
+                    {
+                        AllTelegramNotifications.Clear();
+                        //AllTelegramNotifications.Add(PhoneNumber.Parse("+491728930852"));
+                    }
+
+                    if (AllTelegramNotifications.Count > 0)
+                    {
+
+                        await TelegramStore.SendTelegrams("ServiceTicket '" + ServiceTicket.Id + "' sent '" + MessageType + "'!",
+                                                          AllTelegramNotifications.Select(telegramNotification => telegramNotification.Username));
+
+                    }
+
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e);
+                }
+
+                #endregion
+
+                #region SMS Notifications
+
+                try
+                {
+
+                    var AllSMSNotifications = this.GetSMSNotifications(ServiceTicket.Author, MessageTypes).
+                                                   ToHashSet();
+
+                    if (DevMachines.Contains(Environment.MachineName))
+                    {
+                        AllSMSNotifications.Clear();
+                        //AllNotificationSMSPhoneNumbers.Add(PhoneNumber.Parse("+491728930852"));
+                    }
+
+                    if (AllSMSNotifications.Count > 0)
+                    {
+
+                        SendSMS("ServiceTicket '" + ServiceTicket.Id + "' sent '" + MessageType + "'!",
+                                AllSMSNotifications.Select(smsPhoneNumber => smsPhoneNumber.PhoneNumber.ToString()).ToArray(),
+                                "CardiCloud");
+
+                    }
+
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e);
+                }
+
+                #endregion
+
+                #region HTTPS Notifications
+
+                try
+                {
+
+                    var AllHTTPSNotifications = this.GetHTTPSNotifications(ServiceTicket.Author, MessageTypes).
+                                                     ToHashSet();
+
+                    if (DevMachines.Contains(Environment.MachineName))
+                        AllHTTPSNotifications.Clear();
+
+                    if (AllHTTPSNotifications.Count > 0)
+                    {
+
+                        #region Create JSON...
+
+                        JObject JSONNotification = null;
+
+                        if (MessageType == addServiceTicket_MessageType)
+                            JSONNotification = new JObject(
+                                                   new JProperty("addServiceTicket",
+                                                       ServiceTicket.ToJSON()
+                                                   ),
+                                                   new JProperty("timestamp", DateTime.UtcNow.ToIso8601())
+                                               );
+
+                        else if (MessageType == addIfNotExistsServiceTicket_MessageType)
+                            JSONNotification = new JObject(
+                                                   new JProperty("addIfNotExistsServiceTicket",
+                                                       ServiceTicket.ToJSON()
+                                                   ),
+                                                   new JProperty("timestamp", DateTime.UtcNow.ToIso8601())
+                                               );
+
+                        else if (MessageType == addOrUpdateServiceTicket_MessageType)
+                            JSONNotification = new JObject(
+                                                   new JProperty("addOrUpdateServiceTicket",
+                                                       ServiceTicket.ToJSON()
+                                                   ),
+                                                   new JProperty("timestamp", DateTime.UtcNow.ToIso8601())
+                                               );
+
+                        else if (MessageType == updateServiceTicket_MessageType)
+                            JSONNotification = new JObject(
+                                                   new JProperty("updateServiceTicket",
+                                                       ServiceTicket.ToJSON()
+                                                   ),
+                                                   new JProperty("timestamp", DateTime.UtcNow.ToIso8601())
+                                               );
+
+                        else if (MessageType == removeServiceTicket_MessageType)
+                            JSONNotification = new JObject(
+                                                   new JProperty("removeServiceTicket",
+                                                       ServiceTicket.ToJSON()
+                                                   ),
+                                                   new JProperty("timestamp", DateTime.UtcNow.ToIso8601())
+                                               );
+
+                        else if (MessageType == changeServiceTicketStatus_MessageType)
+                            JSONNotification = new JObject(
+                                                   new JProperty("changeServiceTicketStatus",
+                                                       ServiceTicket.ToJSON()
+                                                   ),
+                                                   new JProperty("timestamp", DateTime.UtcNow.ToIso8601())
+                                               );
+
+                        #endregion
+
+                        await SendHTTPSNotifications(AllHTTPSNotifications,
+                                                     JSONNotification);
+
+                    }
+
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e);
+                }
+
+                #endregion
+
+                #region EMailNotifications
+
+                try
+                {
+
+                    var AllEMailNotifications = new HashSet<EMailNotification>();
+
+                    // Add author
+                    this.GetEMailNotifications(ServiceTicket.Author, MessageTypes).
+                         ForEach(notificationemail => AllEMailNotifications.Add(notificationemail));
+
+                    // Add defibrillator owners
+
+                    // Add communicator owners
+
+
+                    if (DevMachines.Contains(Environment.MachineName))
+                    {
+                        AllEMailNotifications.Clear();
+                        AllEMailNotifications.Add(new EMailNotification(EMailAddress.Parse("cardilogs@graphdefined.com")));
+                    }
+
+                    if (AllEMailNotifications.Count > 0)
+                    {
+
+                        await APISMTPClient.Send(__ServiceTicketChangedEMailDelegate(BaseURL, Robot.EMail, APIPassphrase)
+                                                 (ServiceTicket,
+                                                  MessageType,
+                                                  MessageTypes,
+                                                  EMailAddressList.Create(AllEMailNotifications.Select(emailnotification => emailnotification.EMailAddress))
+                                                 ));
+
+                    }
+
+                } catch (Exception e)
+                {
+                    Console.WriteLine(e);
+                }
+
+                #endregion
+
+            }
+
+        }
+
+        #endregion
+
+
+        #region AddServiceTicket           (ServiceTicket,   CurrentUserId = null)
+
+        /// <summary>
+        /// Add the given service ticket to the API.
+        /// </summary>
+        /// <param name="ServiceTicket">A service ticket.</param>
+        /// <param name="AfterAddition">A delegate to call after the service ticket was added to the API.</param>
+        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
+        public async Task<TServiceTicket> AddServiceTicket<TServiceTicket>(TServiceTicket          ServiceTicket,
+                                                                           Action<TServiceTicket>  AfterAddition  = null,
+                                                                           User_Id?                CurrentUserId  = null)
+
+            where TServiceTicket : AServiceTicket
+
+        {
+
+            if (ServiceTicket == null)
+                throw new ArgumentException(nameof(ServiceTicket), "The given service ticket must not be null!");
+
+            if (ServiceTicket.API != null && ServiceTicket.API != this)
+                throw new ArgumentException(nameof(ServiceTicket), "The given service ticket is already attached to another API!");
+
+            try
+            {
+
+                await ServiceTicketsSemaphore.WaitAsync();
+
+                if (_ServiceTickets.ContainsKey(ServiceTicket.Id))
+                    throw new Exception("ServiceTicket '" + ServiceTicket.Id + "' already exists in this API!");
+
+                await WriteToLogfileAndNotify(ServiceTicket,
+                                              addServiceTicket_MessageType,
+                                              CurrentUserId: CurrentUserId);
+
+                ServiceTicket.API = this;
+
+                _ServiceTickets.AddOrUpdate(ServiceTicket.Id,
+                                            id                     => ServiceTicket,
+                                            (id, oldServiceTicket) => ServiceTicket);
+
+                AfterAddition?.Invoke(ServiceTicket);
+
+                return ServiceTicket;
+
+            }
+            finally
+            {
+                ServiceTicketsSemaphore.Release();
+            }
+
+        }
+
+        #endregion
+
+        #region AddServiceTicketIfNotExists(ServiceTicket,   CurrentUserId = null)
+
+        /// <summary>
+        /// Add the given service ticket to the API.
+        /// </summary>
+        /// <param name="ServiceTicket">A service ticket.</param>
+        /// <param name="WhenNotExisted">A delegate to call when the service ticket did not exist before.</param>
+        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
+        public async Task<TServiceTicket> AddServiceTicketIfNotExists<TServiceTicket>(TServiceTicket          ServiceTicket,
+                                                                                      Action<TServiceTicket>  WhenNotExisted  = null,
+                                                                                      User_Id?                CurrentUserId   = null)
+
+            where TServiceTicket : AServiceTicket
+
+        {
+
+            if (ServiceTicket == null)
+                throw new ArgumentException(nameof(ServiceTicket), "The given service ticket must not be null!");
+
+            if (ServiceTicket.API != null && ServiceTicket.API != this)
+                throw new ArgumentException(nameof(ServiceTicket), "The given service ticket is already attached to another API!");
+
+            try
+            {
+
+                await ServiceTicketsSemaphore.WaitAsync();
+
+                if (_ServiceTickets.TryGetValue(ServiceTicket.Id, out AServiceTicket OldServiceTicket))
+                    return OldServiceTicket as TServiceTicket;
+
+                await WriteToLogfileAndNotify(ServiceTicket,
+                                              addIfNotExistsServiceTicket_MessageType,
+                                              CurrentUserId: CurrentUserId);
+
+                ServiceTicket.API = this;
+
+                _ServiceTickets.AddOrUpdate(ServiceTicket.Id,
+                                            id                     => ServiceTicket,
+                                            (id, oldServiceTicket) => ServiceTicket);
+
+                WhenNotExisted?.Invoke(ServiceTicket);
+
+                return ServiceTicket;
+
+            }
+            finally
+            {
+                ServiceTicketsSemaphore.Release();
+            }
+
+        }
+
+        #endregion
+
+        #region AddOrUpdateServiceTicket   (ServiceTicket, DisableAnalyzeServiceTicketStatus = false,   CurrentUserId = null)
+
+        /// <summary>
+        /// Add or update the given service ticket to/within the API.
+        /// </summary>
+        /// <param name="ServiceTicket">A service ticket.</param>
+        /// <param name="AfterAddOrUpdate">A delegate to call after the service ticket was added to or updated within the API.</param>
+        /// <param name="DoNotAnalyzeTheServiceTicketStatus">Do not analyze the service ticket status.</param>
+        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
+        public async Task<TServiceTicket> AddOrUpdateServiceTicket<TServiceTicket>(TServiceTicket                   ServiceTicket,
+                                                                                   Action<TServiceTicket, Boolean>  AfterAddOrUpdate                     = null,
+                                                                                   Boolean                          DoNotAnalyzeTheServiceTicketStatus   = false,
+                                                                                   User_Id?                         CurrentUserId                        = null)
+
+            where TServiceTicket : AServiceTicket
+
+        {
+
+            if (ServiceTicket == null)
+                throw new ArgumentException(nameof(ServiceTicket), "The given service ticket must not be null!");
+
+            if (ServiceTicket.API != null && ServiceTicket.API != this)
+                throw new ArgumentException(nameof(ServiceTicket), "The given service ticket is already attached to another API!");
+
+            AServiceTicket  OldServiceTicket                = null;
+            DateTime        Now                             = DateTime.UtcNow;
+            Boolean         FastAnalyzeServiceTicketStatus  = false;
+
+            try
+            {
+
+                await ServiceTicketsSemaphore.WaitAsync();
+
+                ServiceTicket.API = this;
+
+                if (_ServiceTickets.TryGetValue(ServiceTicket.Id, out OldServiceTicket))
+                {
+
+                    _ServiceTickets.TryRemove(OldServiceTicket.Id, out AServiceTicket removedServiceTicket);
+                    (OldServiceTicket as TServiceTicket).CopyAllEdgesTo(ServiceTicket);
+
+                    //// Only run when the admin status changed!
+                    //if (!DoNotAnalyzeTheServiceTicketStatus &&
+                    //    OldServiceTicket.AdminStatus.Value != ServiceTicketAdminStatusTypes.Monitored &&
+                    //    OldServiceTicket.AdminStatus.Value != ServiceTicketAdminStatusTypes.Tracked   &&
+                    //   (ServiceTicket.   AdminStatus.Value == ServiceTicketAdminStatusTypes.Monitored ||
+                    //    ServiceTicket.   AdminStatus.Value == ServiceTicketAdminStatusTypes.Tracked))
+                    //{
+                    //    FastAnalyzeServiceTicketStatus = true;
+                    //}
+
+                }
+
+                await WriteToLogfileAndNotify(ServiceTicket,
+                                              addOrUpdateServiceTicket_MessageType,
+                                              OldServiceTicket,
+                                              CurrentUserId);
+
+                _ServiceTickets.AddOrUpdate(ServiceTicket.Id,
+                                            id                     => ServiceTicket,
+                                            (id, oldServiceTicket) => ServiceTicket);
+
+                AfterAddOrUpdate?.Invoke(ServiceTicket,
+                                         OldServiceTicket != null);
+
+            }
+            finally
+            {
+                ServiceTicketsSemaphore.Release();
+            }
+
+
+            #region Analyze service ticket status...
+
+            //// AnalyzeServiceTicketStatus(ServiceTicket) might enter this method again!
+            //if (FastAnalyzeServiceTicketStatus)
+            //    await AnalyzeServiceTicketStatus(ServiceTicket);
+
+            #endregion
+
+            #region Call OnServiceTicket(Admin)StatusChanged events...
+
+            if (OldServiceTicket != null)
+            {
+
+                if (OldServiceTicket.Status != ServiceTicket.Status)
+                    OnServiceTicketStatusChanged?.Invoke(Now,
+                                                         ServiceTicket.Id,
+                                                         OldServiceTicket.Status,
+                                                         ServiceTicket.Status);
+
+            }
+
+            #endregion
+
+            return ServiceTicket;
+
+        }
+
+        #endregion
+
+        #region UpdateServiceTicket        (ServiceTicket, DisableAnalyzeServiceTicketStatus = false,   CurrentUserId = null)
+
+        /// <summary>
+        /// Update the given service ticket within the API.
+        /// </summary>
+        /// <param name="ServiceTicket">A service ticket.</param>
+        /// <param name="AfterUpdate">A delegate to call after the service ticket was updated within the API.</param>
+        /// <param name="DoNotAnalyzeTheServiceTicketStatus">Do not analyze the service ticket status.</param>
+        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
+        public async Task<TServiceTicket> UpdateServiceTicket<TServiceTicket>(TServiceTicket          ServiceTicket,
+                                                                              Action<TServiceTicket>  AfterUpdate                          = null,
+                                                                              Boolean                 DoNotAnalyzeTheServiceTicketStatus   = false,
+                                                                              User_Id?                CurrentUserId                        = null)
+
+            where TServiceTicket : AServiceTicket
+
+        {
+
+            if (ServiceTicket == null)
+                throw new ArgumentException(nameof(ServiceTicket), "The given service ticket must not be null!");
+
+            if (ServiceTicket.API != null && ServiceTicket.API != this)
+                throw new ArgumentException(nameof(ServiceTicket), "The given service ticket is already attached to another API!");
+
+            AServiceTicket OldServiceTicket;
+            DateTime       Now = DateTime.UtcNow;
+
+            try
+            {
+
+                await ServiceTicketsSemaphore.WaitAsync();
+
+                if (!_ServiceTickets.TryGetValue(ServiceTicket.Id, out OldServiceTicket))
+                    throw new Exception("ServiceTicket '" + ServiceTicket.Id + "' does not exists in this API!");
+
+
+                await WriteToLogfileAndNotify(ServiceTicket,
+                                              updateServiceTicket_MessageType,
+                                              OldServiceTicket,
+                                              CurrentUserId);
+
+                //if (ServiceTicket.API == null)
+                    ServiceTicket.API = this;
+
+                _ServiceTickets.TryRemove(OldServiceTicket.Id, out AServiceTicket removedServiceTicket);
+                OldServiceTicket.CopyAllEdgesTo(ServiceTicket);
+
+                _ServiceTickets.AddOrUpdate(ServiceTicket.Id,
+                                            id                     => ServiceTicket,
+                                            (id, oldServiceTicket) => ServiceTicket);
+
+                AfterUpdate?.Invoke(ServiceTicket);
+
+            }
+            finally
+            {
+                ServiceTicketsSemaphore.Release();
+            }
+
+
+            #region Analyze service ticket status...
+
+            //// Only run when the admin status changed!
+            //// AnalyzeServiceTicketStatus(ServiceTicket) might enter this method again!
+            //if (!DoNotAnalyzeTheServiceTicketStatus &&
+            //    OldServiceTicket.AdminStatus.Value != ServiceTicketAdminStatusTypes.Monitored &&
+            //    OldServiceTicket.AdminStatus.Value != ServiceTicketAdminStatusTypes.Tracked   &&
+            //   (ServiceTicket.   AdminStatus.Value == ServiceTicketAdminStatusTypes.Monitored ||
+            //    ServiceTicket.   AdminStatus.Value == ServiceTicketAdminStatusTypes.Tracked))
+            //{
+            //    await AnalyzeServiceTicketStatus(ServiceTicket);
+            //}
+
+            #endregion
+
+            #region Call OnServiceTicket(Admin)StatusChanged events...
+
+            if (OldServiceTicket.Status != ServiceTicket.Status)
+                OnServiceTicketStatusChanged?.Invoke(Now,
+                                                     ServiceTicket.Id,
+                                                     OldServiceTicket.Status,
+                                                     ServiceTicket.Status);
+
+            #endregion
+
+
+            return ServiceTicket;
+
+        }
+
+        #endregion
+
+        #region UpdateServiceTicket        (ServiceTicketId, UpdateDelegate, DoNotAnalyzeTheServiceTicketStatus = false, CurrentUserId = null)
+
+        /// <summary>
+        /// Update the given service ticket.
+        /// </summary>
+        /// <param name="ServiceTicketId">A service ticket identification.</param>
+        /// <param name="UpdateDelegate">A delegate to update the given service ticket.</param>
+        /// <param name="AfterUpdate">A delegate to call after the service ticket was updated within the API.</param>
+        /// <param name="DoNotAnalyzeTheServiceTicketStatus">Do not analyze the service ticket status.</param>
+        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
+        public async Task<TServiceTicket> UpdateServiceTicket<TServiceTicket>(ServiceTicket_Id                      ServiceTicketId,
+                                                                              Func<TServiceTicket, TServiceTicket>  UpdateDelegate,
+                                                                              Action<TServiceTicket>                AfterUpdate                          = null,
+                                                                              Boolean                               DoNotAnalyzeTheServiceTicketStatus   = false,
+                                                                              User_Id?                              CurrentUserId                        = null)
+            where TServiceTicket : AServiceTicket
+        {
+
+            TServiceTicket  castedOldServiceTicket;
+            TServiceTicket  ServiceTicket;
+            DateTime        Now = DateTime.UtcNow;
+
+            try
+            {
+
+                if (UpdateDelegate == null)
+                    throw new Exception("The given update delegate must not be null!");
+
+                await ServiceTicketsSemaphore.WaitAsync();
+
+                if (!_ServiceTickets.TryGetValue(ServiceTicketId, out AServiceTicket OldServiceTicket))
+                    throw new Exception("ServiceTicket '" + ServiceTicketId + "' does not exists in this API!");
+
+                castedOldServiceTicket = OldServiceTicket as TServiceTicket;
+
+                if (castedOldServiceTicket == null)
+                    throw new Exception("ServiceTicket '" + ServiceTicketId + "' is not of type TServiceTicket!");
+
+                ServiceTicket = UpdateDelegate(castedOldServiceTicket);
+                ServiceTicket.API = this;
+
+                await WriteToLogfileAndNotify(ServiceTicket,
+                                              updateServiceTicket_MessageType,
+                                              castedOldServiceTicket,
+                                              CurrentUserId);
+
+                _ServiceTickets.TryRemove(OldServiceTicket.Id, out AServiceTicket RemovedServiceTicket);
+                //OldServiceTicket.CopyAllEdgesTo(ServiceTicket);
+                _ServiceTickets.AddOrUpdate(ServiceTicket.Id,
+                                            id                     => ServiceTicket,
+                                            (id, oldServiceTicket) => ServiceTicket);
+
+                AfterUpdate?.Invoke(ServiceTicket);
+
+            }
+            finally
+            {
+                ServiceTicketsSemaphore.Release();
+            }
+
+
+            #region Analyze service ticket status...
+
+            //// Only run when the admin status changed!
+            //// AnalyzeServiceTicketStatus(ServiceTicket) might enter this method again!
+            //if (!DoNotAnalyzeTheServiceTicketStatus &&
+            //    OldServiceTicket.AdminStatus.Value != ServiceTicketAdminStatusTypes.Monitored &&
+            //    OldServiceTicket.AdminStatus.Value != ServiceTicketAdminStatusTypes.Tracked   &&
+            //   (ServiceTicket.   AdminStatus.Value == ServiceTicketAdminStatusTypes.Monitored ||
+            //    ServiceTicket.   AdminStatus.Value == ServiceTicketAdminStatusTypes.Tracked))
+            //{
+            //    await AnalyzeServiceTicketStatus(ServiceTicket);
+            //}
+
+            #endregion
+
+            #region Call OnServiceTicket(Admin)StatusChanged events...
+
+            if (castedOldServiceTicket.Status != ServiceTicket.Status)
+                OnServiceTicketStatusChanged?.Invoke(Now,
+                                                     ServiceTicket.Id,
+                                                     castedOldServiceTicket.Status,
+                                                     ServiceTicket.Status);
+
+            #endregion
+
+
+            return ServiceTicket;
+
+        }
+
+        #endregion
+
+        #region RemoveServiceTicket        (ServiceTicketId, CurrentUserId = null)
+
+        /// <summary>
+        /// Remove the given service ticket from this API.
+        /// </summary>
+        /// <param name="ServiceTicketId">The unique identification of the service ticket.</param>
+        /// <param name="AfterRemoval">A delegate to call after the service ticket was removed from the API.</param>
+        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
+        public async Task<AServiceTicket> RemoveServiceTicket(ServiceTicket_Id        ServiceTicketId,
+                                                              Action<AServiceTicket>  AfterRemoval    = null,
+                                                              User_Id?                CurrentUserId   = null)
+        {
+
+            try
+            {
+
+                await ServiceTicketsSemaphore.WaitAsync();
+
+                if (_ServiceTickets.TryGetValue(ServiceTicketId, out AServiceTicket ServiceTicket))
+                {
+
+                    await WriteToLogfileAndNotify(ServiceTicket,
+                                                  removeServiceTicket_MessageType,
+                                                  CurrentUserId: CurrentUserId);
+
+                    _ServiceTickets.TryRemove(ServiceTicketId, out AServiceTicket RemovedServiceTicket);
+
+                    ServiceTicket.API = null;
+
+                    AfterRemoval?.Invoke(ServiceTicket);
+
+                    return ServiceTicket;
+
+                }
+
+                return null;
+
+            }
+            finally
+            {
+                ServiceTicketsSemaphore.Release();
+            }
+
+        }
+
+        #endregion
+
+
+        #region ServiceTicketExists      (ServiceTicketId)
+
+        /// <summary>
+        /// Whether this API contains a service ticket having the given unique identification.
+        /// </summary>
+        /// <param name="ServiceTicketId">The unique identification of the service ticket.</param>
+        public Boolean ServiceTicketExists(ServiceTicket_Id ServiceTicketId)
+        {
+
+            try
+            {
+
+                ServiceTicketsSemaphore.Wait();
+
+                return _ServiceTickets.ContainsKey(ServiceTicketId);
+
+            }
+            finally
+            {
+                ServiceTicketsSemaphore.Release();
+            }
+
+        }
+
+        #endregion
+
+        #region GetServiceTicket           (ServiceTicketId)
+
+        /// <summary>
+        /// Get the service ticket having the given unique identification.
+        /// </summary>
+        /// <param name="ServiceTicketId">The unique identification of the service ticket.</param>
+        public async Task<TServiceTicket> GetServiceTicket<TServiceTicket>(ServiceTicket_Id  ServiceTicketId)
+
+            where TServiceTicket : AServiceTicket
+
+        {
+
+            try
+            {
+
+                await ServiceTicketsSemaphore.WaitAsync();
+
+                if (_ServiceTickets.TryGetValue(ServiceTicketId, out AServiceTicket serviceTicket))
+                    return serviceTicket as TServiceTicket;
+
+                return null;
+
+            }
+            finally
+            {
+                ServiceTicketsSemaphore.Release();
+            }
+
+        }
+
+        #endregion
+
+        #region TryGetServiceTicket        (ServiceTicketId, out ServiceTicket)
+
+        /// <summary>
+        /// Try to get the service ticket having the given unique identification.
+        /// </summary>
+        /// <param name="ServiceTicketId">The unique identification of the service ticket.</param>
+        /// <param name="ServiceTicket">The service ticket.</param>
+        public Boolean TryGetServiceTicket<TServiceTicket>(ServiceTicket_Id    ServiceTicketId,
+                                                           out TServiceTicket  ServiceTicket)
+
+            where TServiceTicket : AServiceTicket
+
+        {
+
+            try
+            {
+
+                ServiceTicketsSemaphore.Wait();
+
+                if (_ServiceTickets.TryGetValue(ServiceTicketId, out AServiceTicket serviceTicket))
+                {
+                    ServiceTicket = serviceTicket as TServiceTicket;
+                    return ServiceTicket != null;
+                }
+
+                ServiceTicket = null;
+                return false;
+
+            }
+            finally
+            {
+                ServiceTicketsSemaphore.Release();
+            }
+
+        }
+
+        #endregion
+
+
+        /// <summary>
+        /// A delegate used whenever a service ticket status changed.
+        /// </summary>
+        /// <param name="Timestamp">The timestamp of the event.</param>
+        /// <param name="ServiceTicketId">The unique service ticket identification.</param>
+        /// <param name="OldStatus">The old status.</param>
+        /// <param name="NewStatus">The new status.</param>
+        public delegate Task ServiceTicketStatusChangedDelegate     (DateTime                               Timestamp,
+                                                                     ServiceTicket_Id                       ServiceTicketId,
+                                                                     Timestamped<ServiceTicketStatusTypes>  OldStatus,
+                                                                     Timestamped<ServiceTicketStatusTypes>  NewStatus);
+
+        /// <summary>
+        /// An event sent whenever a service ticket status changed.
+        /// </summary>
+        public event ServiceTicketStatusChangedDelegate       OnServiceTicketStatusChanged;
+
+        #endregion
+
 
         #region DataLicenses
 
