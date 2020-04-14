@@ -171,7 +171,7 @@ namespace social.OpenData.UsersAPI
         /// <summary>
         /// An enumeration of historichal changes to this ticket.
         /// </summary>
-        public IEnumerable<AServiceTicketChangeSet>       ChangeSets                 { get; }
+        public IEnumerable<AServiceTicketChangeSet>     ChangeSets              { get; }
 
 
         /// <summary>

@@ -2654,10 +2654,10 @@ namespace social.OpenData.UsersAPI
         #endregion
 
 
-        #region (private) GetOrganizationSerializator(Request, User)
+        #region (protected) GetOrganizationSerializator(Request, User)
 
-        private OrganizationToJSONDelegate GetOrganizationSerializator(HTTPRequest  Request,
-                                                                       User         User)
+        protected OrganizationToJSONDelegate GetOrganizationSerializator(HTTPRequest  Request,
+                                                                         User         User)
         {
 
             switch (User?.Id.ToString())
@@ -2688,10 +2688,10 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
-        #region (private) GetUserSerializator        (Request, User)
+        #region (protected) GetUserSerializator        (Request, User)
 
-        private UserToJSONDelegate GetUserSerializator(HTTPRequest  Request,
-                                                       User         User)
+        protected UserToJSONDelegate GetUserSerializator(HTTPRequest  Request,
+                                                         User         User)
         {
 
             switch (User?.Id.ToString())
@@ -2714,10 +2714,10 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
-        #region (private) GetBlogPostingSerializator (Request, User)
+        #region (protected) GetBlogPostingSerializator (Request, User)
 
-        private BlogPostingToJSONDelegate GetBlogPostingSerializator(HTTPRequest  Request,
-                                                                     User         User)
+        protected BlogPostingToJSONDelegate GetBlogPostingSerializator(HTTPRequest  Request,
+                                                                       User         User)
         {
 
             switch (User?.Id.ToString())
