@@ -26,6 +26,10 @@ using System.Diagnostics;
 using System.Net.Security;
 using System.Globalization;
 using System.Threading.Tasks;
+using System.Reflection;
+using System.Drawing;
+using System.Drawing.Imaging;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Security.Cryptography;
 using System.Security.Authentication;
@@ -59,9 +63,6 @@ using com.GraphDefined.SMSApi.API.Response;
 
 using Org.BouncyCastle.Security;
 using Org.BouncyCastle.Crypto.Parameters;
-using System.Collections.Concurrent;
-using System.Drawing;
-using System.Drawing.Imaging;
 using org.GraphDefined.Vanaheimr.BouncyCastle;
 
 #endregion
@@ -549,7 +550,7 @@ namespace social.OpenData.UsersAPI
 
         #region Properties
 
-                /// <summary>
+        /// <summary>
         /// The maintenance interval.
         /// </summary>
         public TimeSpan                  MaintenanceEvery                   { get; }
@@ -1728,6 +1729,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="LocalPort">A TCP port to listen on.</param>
         /// <param name="BaseURL">The base url of the service.</param>
         /// <param name="URLPathPrefix">A common prefix for all URLs.</param>
+        /// <param name="HTMLTemplate">An optional HTML template.</param>
         /// 
         /// <param name="ServerCertificateSelector">An optional delegate to select a SSL/TLS server certificate.</param>
         /// <param name="ClientCertificateValidator">An optional delegate to verify the SSL/TLS client certificate used for authentication.</param>
@@ -1780,6 +1782,7 @@ namespace social.OpenData.UsersAPI
                         IPPort?                              LocalPort                          = null,
                         String                               BaseURL                            = "",
                         HTTPPath?                            URLPathPrefix                      = null,
+                        String                               HTMLTemplate                       = null,
 
                         ServerCertificateSelectorDelegate    ServerCertificateSelector          = null,
                         RemoteCertificateValidationCallback  ClientCertificateValidator         = null,
@@ -1855,6 +1858,7 @@ namespace social.OpenData.UsersAPI
                    ServiceName,
                    BaseURL,
                    URLPathPrefix,
+                   HTMLTemplate,
 
                    APIEMailAddress,
                    APIPassphrase,
@@ -1909,6 +1913,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="ServiceName">The name of the service.</param>
         /// <param name="BaseURL">The base URL of the service.</param>
         /// <param name="URLPathPrefix">A common prefix for all URLs.</param>
+        /// <param name="HTMLTemplate">An optional HTML template.</param>
         /// 
         /// <param name="APIEMailAddress">An e-mail address for this API.</param>
         /// <param name="APIPassphrase">A GPG passphrase for this API.</param>
@@ -1943,6 +1948,7 @@ namespace social.OpenData.UsersAPI
                            String                               ServiceName                   = "GraphDefined Users API",
                            String                               BaseURL                       = "",
                            HTTPPath?                            URLPathPrefix                 = null,
+                           String                               HTMLTemplate                  = null,
 
                            EMailAddress                         APIEMailAddress               = null,
                            String                               APIPassphrase                 = null,
@@ -1980,7 +1986,8 @@ namespace social.OpenData.UsersAPI
                    HTTPHostname,
                    ServiceName,
                    BaseURL,
-                   URLPathPrefix)
+                   URLPathPrefix,
+                   HTMLTemplate)
 
         {
 
@@ -2393,6 +2400,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="ServiceName">The name of the service.</param>
         /// <param name="BaseURL">The base URL of the service.</param>
         /// <param name="URLPathPrefix">A common prefix for all URLs.</param>
+        /// <param name="HTMLTemplate">An optional HTML template.</param>
         /// 
         /// <param name="APIEMailAddress">An e-mail address for this API.</param>
         /// <param name="APIPassphrase">A GPG passphrase for this API.</param>
@@ -2423,6 +2431,7 @@ namespace social.OpenData.UsersAPI
                                                String                               ServiceName                   = "GraphDefined Users API",
                                                String                               BaseURL                       = "",
                                                HTTPPath?                            URLPathPrefix                 = null,
+                                               String                               HTMLTemplate                  = null,
 
                                                EMailAddress                         APIEMailAddress               = null,
                                                String                               APIPassphrase                 = null,
@@ -2461,6 +2470,7 @@ namespace social.OpenData.UsersAPI
                             ServiceName,
                             BaseURL,
                             URLPathPrefix,
+                            HTMLTemplate,
 
                             APIEMailAddress,
                             APIPassphrase,
@@ -2495,43 +2505,40 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
-        #region (private) GetResourceStream[...](ResourceName)
+
+        #region (private) GetResourceStream      (ResourceName)
 
         private Stream GetResourceStream(String ResourceName)
-            => GetType().Assembly.GetManifestResourceStream(HTTPRoot + ResourceName);
 
-
-        private MemoryStream GetResourceMemoryStream(String ResourceName)
-        {
-
-            var OutputStream    = new MemoryStream();
-            var ResourceStream  = GetType().Assembly.GetManifestResourceStream(HTTPRoot + ResourceName);
-
-            ResourceStream.CopyTo(OutputStream);
-            OutputStream.  Seek(0, SeekOrigin.Begin);
-
-            return OutputStream;
-
-        }
-
-        private String GetResourceString(String ResourceName)
-        {
-
-            var OutputStream    = new MemoryStream();
-            var ResourceStream  = GetType().Assembly.GetManifestResourceStream(HTTPRoot + ResourceName);
-
-            ResourceStream.Seek(0, SeekOrigin.Begin);
-            ResourceStream.CopyTo(OutputStream);
-
-            return OutputStream.ToArray().ToUTF8String();
-
-        }
+            => GetResourceStream(typeof(UsersAPI).Assembly, ResourceName);
 
         #endregion
 
-        #region (protected) MixWithHTMLTemplate(ResourceName)
+        #region (private) GetResourceMemoryStream(ResourceName)
 
-        String HTMLTemplate = null;
+        private MemoryStream GetResourceMemoryStream(String ResourceName)
+
+            => GetResourceMemoryStream(typeof(UsersAPI).Assembly, ResourceName);
+
+        #endregion
+
+        #region (private) GetResourceString      (ResourceName)
+
+        private String GetResourceString(String ResourceName)
+
+            => GetResourceString(typeof(UsersAPI).Assembly, ResourceName);
+
+        #endregion
+
+        #region (private) GetResourceBytes       (ResourceName)
+        private Byte[] GetResourceBytes(String ResourceName)
+
+            => GetResourceBytes(typeof(UsersAPI).Assembly, ResourceName);
+
+        #endregion
+
+
+        #region (protected) MixWithHTMLTemplate(ResourceName)
 
         //protected String MixWithHTMLTemplate(String ResourceName)
         //{
@@ -2561,35 +2568,6 @@ namespace social.OpenData.UsersAPI
         //    return HTMLTemplate.Replace("<%= content %>", HTMLStream.ToArray().ToUTF8String());
 
         //}
-
-        protected String MixWithHTMLTemplate(String HTTPRoot2, String ResourceName)
-        {
-
-            if (HTMLTemplate == null)
-            {
-
-                var OutputStream    = new MemoryStream();
-                var TemplateStream  = GetType().Assembly.GetManifestResourceStream(HTTPRoot2 + "template.html");
-
-                TemplateStream.Seek(0, SeekOrigin.Begin);
-                TemplateStream.CopyTo(OutputStream);
-
-                HTMLTemplate = OutputStream.ToArray().ToUTF8String();
-
-            }
-
-            var HTMLStream      = new MemoryStream();
-            var ResourceStream  = GetType().Assembly.GetManifestResourceStream(HTTPRoot2 + ResourceName);
-
-            if (ResourceStream != null)
-            {
-                ResourceStream.Seek(3, SeekOrigin.Begin);
-                ResourceStream.CopyTo(HTMLStream);
-            }
-
-            return HTMLTemplate.Replace("<%= content %>", HTMLStream.ToArray().ToUTF8String());
-
-        }
 
         #endregion
 
@@ -3154,6 +3132,12 @@ namespace social.OpenData.UsersAPI
         #endregion
 
 
+
+
+
+
+
+
         #region (private) RegisterURITemplates()
 
         private void RegisterURITemplates()
@@ -3643,7 +3627,7 @@ namespace social.OpenData.UsersAPI
                                                     AccessControlAllowMethods  = "GET",
                                                     AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
                                                     ContentType                = HTTPContentType.HTML_UTF8,
-                                                    ContentStream              = GetResourceStream("SignInOut.LostPassword-" + DefaultLanguage.ToString() + ".html"),
+                                                    ContentStream              = GetResourceStream( "SignInOut.LostPassword-" + DefaultLanguage.ToString() + ".html"),
                                                     Connection                 = "close"
                                                 }.AsImmutable),
 
