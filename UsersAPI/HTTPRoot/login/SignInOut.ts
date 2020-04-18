@@ -567,7 +567,7 @@ function SignIn() {
 
 }
 
-function checkSignedIn(RedirectUnkownUsers: Boolean) {
+function checkSignedIn(RedirectUnkownUsers: boolean) {
 
     WithCookie(HTTPCookieId,
 
@@ -652,7 +652,7 @@ function checkSignedIn(RedirectUnkownUsers: Boolean) {
 
 }
 
-function checkAdminSignedIn(RedirectUnkownUsers: Boolean) {
+function checkAdminSignedIn(RedirectUnkownUsers: boolean) {
 
     WithCookie(HTTPCookieId,
 

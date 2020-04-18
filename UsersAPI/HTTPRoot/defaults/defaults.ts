@@ -76,21 +76,21 @@ function MenuHighlight(name: string, NoURIupdate?: boolean) {
 
     if (CurrentlyHighlightedMenuItem != "") {
 
-        var OldItem = <HTMLDivElement> document.getElementById('Item' + CurrentlyHighlightedMenuItem);
+        const OldItem = document.getElementById('Item' + CurrentlyHighlightedMenuItem) as HTMLDivElement;
         if (OldItem != null)
             OldItem.classList.remove('active');
 
-        var OldMenu = <HTMLDivElement> document.getElementById('Menu' + CurrentlyHighlightedMenuItem);
+        const OldMenu = document.getElementById('Menu' + CurrentlyHighlightedMenuItem) as HTMLDivElement;
         if (OldMenu != null)
             OldMenu.style.display = "none";
 
     }
 
-    var NewItem = <HTMLDivElement> document.getElementById('Item' + name);
+    const NewItem = document.getElementById('Item' + name) as HTMLDivElement;
     if (NewItem != null)
         NewItem.classList.add('active');
 
-    var NewMenu = <HTMLDivElement> document.getElementById('Menu' + name);
+    const NewMenu = document.getElementById('Menu' + name) as HTMLDivElement;
     if (NewMenu != null)
         NewMenu.style.display = "block";
 
@@ -112,13 +112,13 @@ function SubmenuHighlight(name: string, subname: string, NoURIupdate?: boolean) 
 
     if (CurrentlyHighlightedSubmenuItem != "") {
 
-        var OldItem = <HTMLDivElement> document.getElementById('Item' + CurrentlyHighlightedSubmenuItem);
+        const OldItem = document.getElementById('Item' + CurrentlyHighlightedSubmenuItem) as HTMLDivElement;
         if (OldItem != null)
             OldItem.classList.remove('active');
 
     }
 
-    var NewItem = <HTMLDivElement> document.getElementById('Item' + name + "/" + subname);
+    const NewItem = document.getElementById('Item' + name + "/" + subname) as HTMLDivElement;
     if (NewItem != null)
         NewItem.classList.add('active');
 
@@ -136,7 +136,7 @@ function SubmenuHighlight(name: string, subname: string, NoURIupdate?: boolean) 
 
 function SendJSON(HTTPVerb, URI, Data, OnSuccess, OnError) {
 
-    var ajax = new XMLHttpRequest();
+    const ajax = new XMLHttpRequest();
     ajax.open(HTTPVerb, URI, true); // , user, password);
     ajax.setRequestHeader("Accept",       "application/json; charset=UTF-8");
     ajax.setRequestHeader("Content-Type", "application/json; charset=UTF-8");
@@ -184,7 +184,7 @@ function SendJSON(HTTPVerb, URI, Data, OnSuccess, OnError) {
 function ParseJSON_LD<T>(Text:    string,
                          Context: string = null): T {
 
-    var JObject = JSON.parse(Text);
+    const JObject = JSON.parse(Text);
 
     JObject["id"] = JObject["@id"];
 
@@ -193,11 +193,11 @@ function ParseJSON_LD<T>(Text:    string,
 }
 
 function firstKey(obj) {
-    for (var a in obj) return a;
+    for (const a in obj) return a;
 }
 
 function firstValue(obj) {
-    for (var a in obj) return obj[a];
+    for (const a in obj) return obj[a];
 }
 
 function UpdateI18N(Div:  HTMLDivElement,
@@ -208,7 +208,7 @@ function UpdateI18N(Div:  HTMLDivElement,
         firstValue(JSON) != null)
     {
 
-        var opt = document.createElement('option') as HTMLOptionElement;
+        const opt = document.createElement('option') as HTMLOptionElement;
         opt.value     = firstKey(JSON);
         opt.innerHTML = firstKey(JSON);
         opt.selected  = true;
@@ -231,7 +231,7 @@ function HTTP(Method:       string,
 
     // #region Make HTTP call
 
-    let ajax = new XMLHttpRequest();
+    const ajax = new XMLHttpRequest();
     ajax.open(Method, RessourceURI, true);
     ajax.setRequestHeader("Accept",       "application/json; charset=UTF-8");
     ajax.setRequestHeader("Content-Type", "application/json; charset=UTF-8");
@@ -285,7 +285,7 @@ function HTTPGet(RessourceURI: string,
 
     // #region Make HTTP call
 
-    let ajax = new XMLHttpRequest();
+    const ajax = new XMLHttpRequest();
     ajax.open("GET", RessourceURI, true);
     ajax.setRequestHeader("Accept",   "application/json; charset=UTF-8");
     ajax.setRequestHeader("X-Portal", "true");
@@ -337,7 +337,7 @@ function HTTPCount(RessourceURI: string,
 
     // #region Make HTTP call
 
-    let ajax = new XMLHttpRequest();
+    const ajax = new XMLHttpRequest();
     ajax.open("COUNT", RessourceURI, true); // , user, password);
     ajax.setRequestHeader("Accept",       "application/json; charset=UTF-8");
     //ajax.setRequestHeader("Content-Type", "application/json; charset=UTF-8");
@@ -390,7 +390,7 @@ function Exists(RessourceURI: string,
 
     // #region Make HTTP call
 
-    let ajax = new XMLHttpRequest();
+    const ajax = new XMLHttpRequest();
     ajax.open("GET", RessourceURI, true); // , user, password);
     ajax.setRequestHeader("Accept",       "application/json; charset=UTF-8");
     //ajax.setRequestHeader("Content-Type", "application/json; charset=UTF-8");
@@ -441,7 +441,7 @@ function HTTPSet(RessourceURI: string,
 
     // #region Make HTTP call
 
-    let ajax = new XMLHttpRequest();
+    const ajax = new XMLHttpRequest();
     ajax.open("SET", RessourceURI, true);
     ajax.setRequestHeader("Accept",       "application/json; charset=UTF-8");
     ajax.setRequestHeader("Content-Type", "application/json; charset=UTF-8");
@@ -549,7 +549,7 @@ function HTTPAddIfNotExists(RessourceURI: string,
 
     // #region Make HTTP call
 
-    let ajax = new XMLHttpRequest();
+    const ajax = new XMLHttpRequest();
     ajax.open("ADDIFNOTEXISTS", RessourceURI, true); // , user, password);
     ajax.setRequestHeader("Accept",       "application/json; charset=UTF-8");
     ajax.setRequestHeader("Content-Type", "application/json; charset=UTF-8");
@@ -602,7 +602,7 @@ function HTTPDelete(RessourceURI: string,
 
     // #region Make HTTP call
 
-    let ajax = new XMLHttpRequest();
+    const ajax = new XMLHttpRequest();
     ajax.open("DELETE", RessourceURI, true); // , user, password);
     ajax.setRequestHeader("Accept",       "application/json; charset=UTF-8");
 
@@ -652,7 +652,7 @@ function HTTPChown(RessourceURI: string,
 
     // #region Make HTTP call
 
-    let ajax = new XMLHttpRequest();
+    const ajax = new XMLHttpRequest();
     ajax.open("CHOWN", RessourceURI, true); // , user, password);
     ajax.setRequestHeader("Accept",       "application/json; charset=UTF-8");
     ajax.setRequestHeader("Content-Type", "application/json; charset=UTF-8");
@@ -704,7 +704,7 @@ function HTTPCheck(RessourceURI: string,
                    OnSuccess,
                    OnError) {
 
-    let ajax = new XMLHttpRequest();
+    const ajax = new XMLHttpRequest();
     ajax.open("CHECK", RessourceURI, true); // , user, password);
     ajax.setRequestHeader("Accept",       "application/json; charset=UTF-8");
     ajax.setRequestHeader("Content-Type", "application/json; charset=UTF-8");
@@ -752,7 +752,7 @@ function HTTPCheck(RessourceURI: string,
 function HTTPAuth(RessourceURI: string,
                   Data) : string {
 
-    let ajax = new XMLHttpRequest();
+    const ajax = new XMLHttpRequest();
     ajax.open("AUTH", RessourceURI, false); // NOT ASYNC!
     ajax.setRequestHeader("Accept",       "application/json; charset=UTF-8");
     ajax.setRequestHeader("Content-Type", "application/json; charset=UTF-8");
@@ -777,7 +777,7 @@ function HTTPImpersonate(RessourceURI: string,
                          OnSuccess,
                          OnError) {
 
-    let ajax = new XMLHttpRequest();
+    const ajax = new XMLHttpRequest();
     ajax.open("IMPERSONATE", RessourceURI, true); // NOT ASYNC!
 
     ajax.onreadystatechange = function () {
@@ -818,7 +818,7 @@ function HTTPDepersonate(RessourceURI: string,
                          OnSuccess,
                          OnError) {
 
-    let ajax = new XMLHttpRequest();
+    const ajax = new XMLHttpRequest();
     ajax.open("DEPERSONATE", RessourceURI, true); // NOT ASYNC!
 
     ajax.onreadystatechange = function () {
@@ -858,7 +858,7 @@ function HTTPDepersonate(RessourceURI: string,
 function HTTPSet__SYNCED(RessourceURI: string,
                          Data):        string {
 
-    let ajax = new XMLHttpRequest();
+    const ajax = new XMLHttpRequest();
     ajax.open("SET", RessourceURI, false); // NOT ASYNC!
     ajax.setRequestHeader("Accept",       "application/json; charset=UTF-8");
     ajax.setRequestHeader("Content-Type", "application/json; charset=UTF-8");
@@ -886,17 +886,17 @@ function PrintArray(array:           any,
                     recursionLevel:  number,
                     CSSClassNames?:  string) : HTMLDivElement {
 
-    let listDiv        = <HTMLDivElement> document.createElement('div');
+    const listDiv      = document.createElement('div') as HTMLDivElement;
     listDiv.className  = "List" + (CSSClassNames ? " " + CSSClassNames : "");
 
-    for (var number in array) {
+    for (const number in array) {
 
-        let item = array[number];
+        const item = array[number];
 
         if (typeof item === "string" || typeof item === "number")
         {
 
-            let propertyValueDiv = <HTMLDivElement> listDiv.appendChild(document.createElement('div'));
+            const propertyValueDiv = listDiv.appendChild(document.createElement('div')) as HTMLDivElement;
 
             if (typeof item === "string")
                 propertyValueDiv.innerHTML = '<p>' + item + '</p>';
@@ -929,14 +929,14 @@ function PrintProperties(id:              string,
                          recursionLevel:  number,
                          CSSClassNames?:  string) : HTMLDivElement {
 
-    let propertiesDiv        = <HTMLDivElement> document.createElement('div');
+    const propertiesDiv      = document.createElement('div') as HTMLDivElement;
 
     if (id != undefined)
         propertiesDiv.id     = id;
 
     propertiesDiv.className  = "Properties" + (CSSClassNames ? " " + CSSClassNames : "");
 
-    for (var propertyKey in properties) {
+    for (const propertyKey in properties) {
 
         // #region Omit @id and @context at the top-level...
 
@@ -948,12 +948,12 @@ function PrintProperties(id:              string,
 
         // #endregion
 
-        let propertyValue = properties[propertyKey];
+        const propertyValue         = properties[propertyKey];
 
-        let propertyDiv             = <HTMLDivElement> propertiesDiv.appendChild(document.createElement('div'));
+        const propertyDiv           = propertiesDiv.appendChild(document.createElement('div')) as HTMLDivElement;
         propertyDiv.className       = "Property";
 
-        let propertyKeyDiv          = <HTMLDivElement> propertyDiv.  appendChild(document.createElement('div'));
+        const propertyKeyDiv        = propertyDiv.  appendChild(document.createElement('div')) as HTMLDivElement;
         propertyKeyDiv.className    = "PropertyKey";
         propertyKeyDiv.innerText    = propertyKey;
 
@@ -963,7 +963,7 @@ function PrintProperties(id:              string,
             propertyValue instanceof HTMLDivElement)
         {
 
-            let propertyValueDiv        = <HTMLDivElement> propertyDiv.appendChild(document.createElement('div'));
+            const propertyValueDiv      = propertyDiv.appendChild(document.createElement('div')) as HTMLDivElement;
             propertyValueDiv.className  = "PropertyValue";
 
             if (typeof propertyValue === "string")
@@ -998,15 +998,15 @@ function PrintProperties(id:              string,
 
 function ShowI18N(I18NString: object): string {
 
-    let I18NDiv = document.createElement('div') as HTMLDivElement;
+    const I18NDiv = document.createElement('div') as HTMLDivElement;
 
-    for (var I18NKey in I18NString) {
+    for (const I18NKey in I18NString) {
 
-        let propertyKeyDiv          = <HTMLDivElement> I18NDiv.appendChild(document.createElement('div'));
+        const propertyKeyDiv        = I18NDiv.appendChild(document.createElement('div')) as HTMLDivElement;
         propertyKeyDiv.className    = "I18NLanguage";
         propertyKeyDiv.innerText    = I18NKey;
 
-        let propertyValueDiv        = <HTMLDivElement> I18NDiv.appendChild(document.createElement('div'));
+        const propertyValueDiv      = I18NDiv.appendChild(document.createElement('div')) as HTMLDivElement;
         propertyValueDiv.className  = "I18NValue";
         propertyValueDiv.innerText  = I18NString[I18NKey];
 
@@ -1025,13 +1025,13 @@ function CreateI18NPrefixDiv(Prefix: string, I18NString: object, CSSClassNames?:
     const I18NDiv = document.createElement('div') as HTMLDivElement;
     I18NDiv.className = "I18N" + (CSSClassNames ? " " + CSSClassNames : "");
 
-    for (let I18NKey in I18NString) {
+    for (const I18NKey in I18NString) {
 
-        let propertyKeyDiv          = <HTMLDivElement> I18NDiv.appendChild(document.createElement('div'));
+        const propertyKeyDiv          = <HTMLDivElement> I18NDiv.appendChild(document.createElement('div'));
         propertyKeyDiv.className    = "I18NLanguage";
         propertyKeyDiv.innerHTML    = "<p>" + I18NKey  + "</p>";
 
-        let propertyValueDiv        = <HTMLDivElement> I18NDiv.appendChild(document.createElement('div'));
+        const propertyValueDiv        = <HTMLDivElement> I18NDiv.appendChild(document.createElement('div'));
         propertyValueDiv.className  = "I18NValue";
         propertyValueDiv.innerHTML  = Prefix + I18NString[I18NKey];
 
@@ -1050,7 +1050,7 @@ function CreateI18NDiv(I18NString: object, CSSClassNames?: string) : HTMLDivElem
     const I18NDiv = document.createElement('div') as HTMLDivElement;
     I18NDiv.className = "I18N" + (CSSClassNames ? " " + CSSClassNames : "");
 
-    for (let I18NKey in I18NString) {
+    for (const I18NKey in I18NString) {
 
         const propertyKeyDiv        = I18NDiv.appendChild(document.createElement('div')) as HTMLDivElement;
         propertyKeyDiv.className    = "I18NLanguage";
@@ -1104,7 +1104,7 @@ function CreateDiv(parent: HTMLDivElement|HTMLAnchorElement, className?: string,
 
 // #endregion
 
-var months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
 declare var moment: any;
 
