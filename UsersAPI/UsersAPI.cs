@@ -520,11 +520,6 @@ namespace social.OpenData.UsersAPI
         /// </summary>
         protected readonly        Dictionary<SecurityToken_Id, PasswordReset>   PasswordResets;
 
-        /// <summary>
-        /// The mother of all organizations.
-        /// </summary>
-        public                    Organization                                  NoOwner;
-
         //private readonly Queue<NotificationMessage> _NotificationMessages;
 
         //public IEnumerable<NotificationMessage> NotificationMessages
@@ -579,6 +574,11 @@ namespace social.OpenData.UsersAPI
         /// The current async local user identification to simplify API usage.
         /// </summary>
         protected internal static AsyncLocal<User_Id?> CurrentAsyncLocalUserId = new AsyncLocal<User_Id?>();
+
+        /// <summary>
+        /// The mother of all organizations.
+        /// </summary>
+        public Organization              NoOwner                            { get; }
 
         public User                      Robot                              { get; }
 
