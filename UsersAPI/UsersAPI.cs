@@ -523,7 +523,7 @@ namespace social.OpenData.UsersAPI
         /// <summary>
         /// The mother of all organizations.
         /// </summary>
-        public static             Organization                                  NoOwner;
+        public                    Organization                                  NoOwner;
 
         //private readonly Queue<NotificationMessage> _NotificationMessages;
 
@@ -12275,6 +12275,9 @@ namespace social.OpenData.UsersAPI
                 if (_Organizations.ContainsKey(Organization.Id))
                     throw new Exception("Organization '" + Organization.Id + "' already exists in this API!");
 
+                if (ParentOrganization == null)
+                    ParentOrganization = NoOwner;
+
                 if (ParentOrganization != null && !_Organizations.ContainsKey(ParentOrganization.Id))
                     throw new Exception("Parent organization '" + ParentOrganization.Id + "' does not exists in this API!");
 
@@ -12341,6 +12344,9 @@ namespace social.OpenData.UsersAPI
                 if (_Organizations.ContainsKey(Organization.Id))
                     return _Organizations[Organization.Id];
 
+                if (ParentOrganization == null)
+                    ParentOrganization = NoOwner;
+
                 if (ParentOrganization != null && !_Organizations.ContainsKey(ParentOrganization.Id))
                     throw new Exception("Parent organization '" + ParentOrganization.Id + "' does not exists in this API!");
 
@@ -12387,6 +12393,9 @@ namespace social.OpenData.UsersAPI
 
                 if (Organization.API != null && Organization.API != this)
                     throw new ArgumentException(nameof(Organization), "The given organization is already attached to another API!");
+
+                if (ParentOrganization == null)
+                    ParentOrganization = NoOwner;
 
                 if (ParentOrganization != null && !_Organizations.ContainsKey(ParentOrganization.Id))
                     throw new Exception("Parent organization '" + ParentOrganization.Id + "' does not exists in this API!");
@@ -12597,19 +12606,19 @@ namespace social.OpenData.UsersAPI
                                                      User_Id?                  CurrentUserId        = null)
 
             => AddOrganization(new Organization(Id,
-                                    Name,
-                                    Description,
-                                    Website,
-                                    EMail,
-                                    Telephone,
-                                    Address,
-                                    GeoLocation,
-                                    Tags,
-                                    PrivacyLevel,
-                                    IsDisabled,
-                                    DataSource),
-                   ParentOrganization,
-                   CurrentUserId);
+                                                Name,
+                                                Description,
+                                                Website,
+                                                EMail,
+                                                Telephone,
+                                                Address,
+                                                GeoLocation,
+                                                Tags,
+                                                PrivacyLevel,
+                                                IsDisabled,
+                                                DataSource),
+                               ParentOrganization,
+                               CurrentUserId);
 
         #endregion
 
@@ -12631,19 +12640,19 @@ namespace social.OpenData.UsersAPI
                                                                 User_Id?                  CurrentUserId        = null)
 
             => AddOrganizationIfNotExists(new Organization(Id,
-                                               Name,
-                                               Description,
-                                               Website,
-                                               EMail,
-                                               Telephone,
-                                               Address,
-                                               GeoLocation,
-                                               Tags,
-                                               PrivacyLevel,
-                                               IsDisabled,
-                                               DataSource),
-                              ParentOrganization,
-                              CurrentUserId);
+                                                           Name,
+                                                           Description,
+                                                           Website,
+                                                           EMail,
+                                                           Telephone,
+                                                           Address,
+                                                           GeoLocation,
+                                                           Tags,
+                                                           PrivacyLevel,
+                                                           IsDisabled,
+                                                           DataSource),
+                                          ParentOrganization,
+                                          CurrentUserId);
 
         #endregion
 
