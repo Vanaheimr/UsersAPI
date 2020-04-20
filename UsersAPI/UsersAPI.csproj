@@ -217,6 +217,7 @@
     <EmbeddedResource Include="HTTPRoot\defaults\views.js.map">
       <DependentUpon>views.ts</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="HTTPRoot\defaults\_search.scss" />
     <None Include="HTTPRoot\libs\EventSource.js.map">
       <DependentUpon>EventSource.ts</DependentUpon>
     </None>
