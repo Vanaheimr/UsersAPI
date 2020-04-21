@@ -261,6 +261,9 @@
     <Content Include="HTTPRoot\admin\admin.css">
       <DependentUpon>admin.scss</DependentUpon>
     </Content>
+    <EmbeddedResource Include="HTTPRoot\login\lostPassword.html" />
+    <EmbeddedResource Include="HTTPRoot\login\setPassword.html" />
+    <EmbeddedResource Include="HTTPRoot\login\login.html" />
     <EmbeddedResource Include="HTTPRoot\images\building-2696768_640.png" />
     <Content Include="HTTPRoot\libs\qrcode\qrcode.js" />
     <EmbeddedResource Include="HTTPRoot\libs\qrcode\qrcode.min.js" />
