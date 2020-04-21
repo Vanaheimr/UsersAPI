@@ -192,7 +192,7 @@
     <None Include="compilerconfig.json.defaults">
       <DependentUpon>compilerconfig.json</DependentUpon>
     </None>
-    <EmbeddedResource Include="HTTPRoot\defaults\defaults.scss" />
+    <EmbeddedResource Include="HTTPRoot\defaults\_defaults.scss" />
     <EmbeddedResource Include="HTTPRoot\styles.scss" />
     <EmbeddedResource Include="HTTPRoot\profile\profile.scss" />
     <EmbeddedResource Include="HTTPRoot\admin\admin.scss" />
@@ -218,6 +218,7 @@
       <DependentUpon>views.ts</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="HTTPRoot\defaults\_search.scss" />
+    <EmbeddedResource Include="HTTPRoot\defaults\datePicker.scss" />
     <None Include="HTTPRoot\libs\EventSource.js.map">
       <DependentUpon>EventSource.ts</DependentUpon>
     </None>
@@ -230,6 +231,14 @@
     <EmbeddedResource Include="HTTPRoot\organization\organization.scss" />
     <None Include="HTTPRoot\libs\qrcode\LICENSE" />
     <None Include="HTTPRoot\libs\qrcode\README.md" />
+    <EmbeddedResource Include="HTTPRoot\notification\editNotification.scss" />
+    <EmbeddedResource Include="HTTPRoot\notification\editNotification.js.map">
+      <DependentUpon>editNotification.ts</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="HTTPRoot\notification\notifications.scss" />
+    <EmbeddedResource Include="HTTPRoot\notification\notifications.js.map">
+      <DependentUpon>notifications.ts</DependentUpon>
+    </EmbeddedResource>
     <None Include="README.md" />
     <None Include="tsconfig.json" />
   </ItemGroup>
@@ -261,10 +270,36 @@
     <Content Include="HTTPRoot\admin\admin.css">
       <DependentUpon>admin.scss</DependentUpon>
     </Content>
+    <EmbeddedResource Include="HTTPRoot\notification\notifications.js">
+      <DependentUpon>notifications.ts</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="HTTPRoot\notification\notifications.shtml" />
+    <EmbeddedResource Include="HTTPRoot\notification\notifications.min.css">
+      <DependentUpon>notifications.css</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="HTTPRoot\notification\notifications.css">
+      <DependentUpon>notifications.scss</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="HTTPRoot\notification\editNotification.js">
+      <DependentUpon>editNotification.ts</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="HTTPRoot\notification\editNotification.shtml" />
+    <EmbeddedResource Include="HTTPRoot\notification\editNotification.min.css">
+      <DependentUpon>editNotification.css</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="HTTPRoot\notification\editNotification.css">
+      <DependentUpon>editNotification.scss</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="HTTPRoot\login\lostPassword.html" />
     <EmbeddedResource Include="HTTPRoot\login\setPassword.html" />
     <EmbeddedResource Include="HTTPRoot\login\login.html" />
     <EmbeddedResource Include="HTTPRoot\images\building-2696768_640.png" />
+    <EmbeddedResource Include="HTTPRoot\defaults\datePicker.css">
+      <DependentUpon>datePicker.scss</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="HTTPRoot\defaults\datePicker.min.css">
+      <DependentUpon>datePicker.css</DependentUpon>
+    </EmbeddedResource>
     <Content Include="HTTPRoot\libs\qrcode\qrcode.js" />
     <EmbeddedResource Include="HTTPRoot\libs\qrcode\qrcode.min.js" />
     <EmbeddedResource Include="HTTPRoot\profile\password.css">
@@ -321,6 +356,8 @@
     <EmbeddedResource Include="HTTPRoot\defaults\views.ts" />
     <TypeScriptCompile Include="HTTPRoot\libs\sse.d.ts" />
     <EmbeddedResource Include="HTTPRoot\login\SignInOut.ts" />
+    <EmbeddedResource Include="HTTPRoot\notification\editNotification.ts" />
+    <EmbeddedResource Include="HTTPRoot\notification\notifications.ts" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\BouncyCastle\crypto\crypto.csproj">

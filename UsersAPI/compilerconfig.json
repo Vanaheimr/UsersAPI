@@ -22,5 +22,13 @@
   {
     "outputFile": "HTTPRoot/profile/notifications.css",
     "inputFile": "HTTPRoot/profile/notifications.scss"
+  },
+  {
+    "outputFile": "HTTPRoot/notification/editNotification.css",
+    "inputFile": "HTTPRoot/notification/editNotification.scss"
+  },
+  {
+    "outputFile": "HTTPRoot/notification/notifications.css",
+    "inputFile": "HTTPRoot/notification/notifications.scss"
   }
 ]

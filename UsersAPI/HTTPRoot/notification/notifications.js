@@ -1,0 +1,176 @@
+///<reference path="../../../../UsersAPI/UsersAPI/HTTPRoot/libs/date.format.ts" />
+function StartUserNotifications() {
+    var notificationGroups = [];
+    var userInfos = {};
+    var DashboardNotification_Context = "https://opendata.social/contexts/UsersAPI+json/DashboardNotification";
+    var TelegramNotification_Context = "https://opendata.social/contexts/UsersAPI+json/TelegramNotification";
+    var TelegramGroupNotification_Context = "https://opendata.social/contexts/UsersAPI+json/TelegramGroupNotification";
+    var SMSNotification_Context = "https://opendata.social/contexts/UsersAPI+json/SMSNotification";
+    var HTTPSNotification_Context = "https://opendata.social/contexts/UsersAPI+json/HTTPSNotification";
+    var EMailNotification_Context = "https://opendata.social/contexts/UsersAPI+json/EMailNotification";
+    var notificationsCounter = 1;
+    function ShowNotification(parentDiv, JSON) {
+        function ShowDashboardNotification(parentDiv, JSON) {
+            var typeDiv = parentDiv.appendChild(document.createElement('div'));
+            typeDiv.className = "type";
+            typeDiv.innerText = "Dashboard Notification";
+            var valueDiv = parentDiv.appendChild(document.createElement('div'));
+            valueDiv.className = "infos";
+            valueDiv.innerHTML = "<i class=\"fas fa-chart-line\"></i> " + JSON["name"];
+            if (JSON["description"] != null) {
+                var descriptionDiv = parentDiv.appendChild(document.createElement('div'));
+                descriptionDiv.className = "description";
+                descriptionDiv.innerText = JSON["description"];
+            }
+        }
+        function ShowTelegramNotification(parentDiv, JSON) {
+            var typeDiv = parentDiv.appendChild(document.createElement('div'));
+            typeDiv.className = "type";
+            typeDiv.innerText = "Telegram Notification";
+            var valueDiv = parentDiv.appendChild(document.createElement('div'));
+            valueDiv.className = "infos";
+            valueDiv.innerHTML = "<i class=\"fab fa-telegram-plane\"></i> " + JSON["username"];
+            if (JSON["description"] != null) {
+                var descriptionDiv = parentDiv.appendChild(document.createElement('div'));
+                descriptionDiv.className = "description";
+                descriptionDiv.innerText = JSON["description"];
+            }
+        }
+        function ShowTelegramGroupNotification(parentDiv, JSON) {
+            var typeDiv = parentDiv.appendChild(document.createElement('div'));
+            typeDiv.className = "type";
+            typeDiv.innerText = "Telegram Notification";
+            var valueDiv = parentDiv.appendChild(document.createElement('div'));
+            valueDiv.className = "infos";
+            valueDiv.innerHTML = "<i class=\"fab fa-telegram-plane\"></i> " + JSON["groupName"];
+            if (JSON["description"] != null) {
+                var descriptionDiv = parentDiv.appendChild(document.createElement('div'));
+                descriptionDiv.className = "description";
+                descriptionDiv.innerText = JSON["description"];
+            }
+        }
+        function ShowSMSNotification(parentDiv, JSON) {
+            var typeDiv = parentDiv.appendChild(document.createElement('div'));
+            typeDiv.className = "type";
+            typeDiv.innerText = "SMS Notification";
+            var valueDiv = parentDiv.appendChild(document.createElement('div'));
+            valueDiv.className = "infos";
+            valueDiv.innerHTML = "<i class=\"fas fa-mobile-alt\"></i> " + JSON["phoneNumber"];
+            if (JSON["description"] != null) {
+                var descriptionDiv = parentDiv.appendChild(document.createElement('div'));
+                descriptionDiv.className = "description";
+                descriptionDiv.innerText = JSON["description"];
+            }
+        }
+        function ShowHTTPSNotification(parentDiv, JSON) {
+            var typeDiv = parentDiv.appendChild(document.createElement('div'));
+            typeDiv.className = "type";
+            typeDiv.innerText = "HTTPS Notification";
+            var valueDiv = parentDiv.appendChild(document.createElement('div'));
+            valueDiv.className = "infos";
+            valueDiv.innerHTML = "<i class=\"fas fa-globe\"></i> " + JSON["URL"];
+            if (JSON["APIKey"] != null && JSON["APIKey"] != "") {
+                var APIKeyDiv = parentDiv.appendChild(document.createElement('div'));
+                APIKeyDiv.className = "parameter";
+                APIKeyDiv.innerText = "APIKey: " + JSON["APIKey"];
+            }
+            if (JSON["basicAuth"] != null && JSON["basicAuth"] != "") {
+                var basicAuthDiv = parentDiv.appendChild(document.createElement('div'));
+                basicAuthDiv.className = "parameter";
+                basicAuthDiv.innerHTML = "Basic Authentication '" + JSON["basicAuth"]["login"] + "' / '" + JSON["basicAuth"]["password"];
+            }
+            if (JSON["description"] != null && JSON["description"] != "") {
+                var descriptionDiv = parentDiv.appendChild(document.createElement('div'));
+                descriptionDiv.className = "description";
+                descriptionDiv.innerText = "Description: " + JSON["description"];
+            }
+        }
+        function ShowEMailNotification(parentDiv, JSON) {
+            // {
+            //     "type": "EMailNotification",
+            //     "email": {
+            //         "ownerName": "Achim Friedland (CardiLogs)",
+            //         "address":   "cardilogs@graphdefined.com"
+            //     },
+            //     "messageTypes": [
+            //         "DAILY self tests received",
+            //         "MONTHLY self tests received"
+            //     ]
+            // }
+            var typeDiv = parentDiv.appendChild(document.createElement('div'));
+            typeDiv.className = "type";
+            typeDiv.innerText = "E-Mail Notification";
+            var valueDiv = parentDiv.appendChild(document.createElement('div'));
+            valueDiv.className = "infos";
+            valueDiv.innerHTML = "<i class=\"far fa-envelope\"></i> " + JSON["email"]["ownerName"] + " &lt;" + JSON["email"]["address"] + "&gt;";
+            if (JSON["description"] != null) {
+                var descriptionDiv = parentDiv.appendChild(document.createElement('div'));
+                descriptionDiv.className = "description";
+                descriptionDiv.innerText = JSON["description"];
+            }
+        }
+        var valueDiv = parentDiv.appendChild(document.createElement('a'));
+        valueDiv.className = "notification";
+        valueDiv.href = "/profile/notifications/" + notificationsCounter++;
+        switch (JSON["@context"]) {
+            case DashboardNotification_Context:
+                ShowDashboardNotification(valueDiv, JSON);
+                break;
+            case TelegramNotification_Context:
+                ShowTelegramNotification(valueDiv, JSON);
+                break;
+            case TelegramGroupNotification_Context:
+                ShowTelegramGroupNotification(valueDiv, JSON);
+                break;
+            case SMSNotification_Context:
+                ShowSMSNotification(valueDiv, JSON);
+                break;
+            case HTTPSNotification_Context:
+                ShowHTTPSNotification(valueDiv, JSON);
+                break;
+            case EMailNotification_Context:
+                ShowEMailNotification(valueDiv, JSON);
+                break;
+        }
+        if (JSON.messageTypes != null && valueDiv != null) {
+            var messageTypesDiv = valueDiv.appendChild(document.createElement('div'));
+            messageTypesDiv.className = "messageTypes";
+            for (var _i = 0, _a = JSON.messageTypes; _i < _a.length; _i++) {
+                var messageType = _a[_i];
+                var messageTypeDiv = messageTypesDiv.appendChild(document.createElement('div'));
+                messageTypeDiv.className = "messageType";
+                messageTypeDiv.innerHTML = messageType;
+            }
+        }
+    }
+    checkSignedIn(true);
+    HTTPGet("/users/" + SignInUser + "/notifications", function (HTTPStatus, ResponseText) {
+        try {
+            var response = JSON.parse(ResponseText);
+            notificationGroups = response.notificationGroups;
+            userInfos = response.user;
+            if (notificationGroups == null || userInfos == null || response.notifications == null)
+                responseDiv.innerHTML = "<div class=\"HTTP Error\">Could not fetch notification data from server!</div>";
+            else {
+                var notificationsDiv = document.getElementById('notifications');
+                notificationsDiv.innerText = "";
+                if (notificationsDiv != null && response.notifications.length > 0) {
+                    for (var i = 0, len = response.notifications.length; i < len; i++)
+                        ShowNotification(notificationsDiv, response.notifications[i]);
+                }
+            }
+        }
+        catch (e) {
+            responseDiv.innerHTML = "<div class=\"HTTP Error\">Could not fetch notification data from server!</div>";
+        }
+    }, function (HTTPStatus, StatusText, ResponseText) {
+        responseDiv.innerHTML = "<div class=\"HTTP Error\">Could not fetch notification data from server!</div>";
+    });
+    var responseDiv = document.getElementById("response");
+    var newNotificationButton = document.getElementById("newNotificationButton");
+    newNotificationButton.onclick = function (ev) {
+        var redirectURL = document.location.href.substring(0, document.location.href.lastIndexOf("/"));
+        document.location.href = redirectURL + "/notification/_new";
+    };
+}
+//# sourceMappingURL=notifications.js.map

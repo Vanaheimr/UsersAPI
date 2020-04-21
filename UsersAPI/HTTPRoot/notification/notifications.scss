@@ -1,0 +1,203 @@
+﻿@import "../defaults/_defaults.scss";
+
+#text {
+
+    background-color: #eeeeee;
+
+    #notificationinfos {
+
+        #notifications {
+
+            a.notification {
+
+                .row {
+
+                    .value {
+
+                        input[type=checkbox]:checked {
+                            color: $NavigationBackground;
+                        }
+
+                        input:focus, textarea:focus {
+                            outline-color:  $NavigationBackground;
+                            border-color:   $NavigationBackground;
+                            box-shadow:     0 0 6px $NavigationBackground;
+                        }
+
+                    }
+
+                }
+
+            }
+
+        }
+
+        #AddNotificationsView {
+
+            position:           absolute;
+            top:                20%;
+            left:               10%;
+            box-shadow:         2px 0 8px 0 rgba(0,0,0,.3);
+            border-radius:      5px;
+
+            #headline {
+                background-color:   #ffc494;
+                border-radius:      5px 5px 0px 0px;
+                color:              #000000;
+                display:            block;
+                padding:            15px 15px 12px 15px;
+            }
+
+            #content {
+
+                display:            table;
+                padding:            25px 25px 10px 35px;
+                background-color:   rgba(255, 255, 255, 0.95);
+                border-spacing:     0px 1px;
+
+                .rowGroup {
+                    display:        table-row-group;
+                }
+
+                .row {
+
+                    display:            table-row;
+
+                    .key {
+                        display:                     table-cell;
+                        padding:                     0px 30px 0px 0px;
+                        white-space:                 nowrap;
+                    }
+
+                    .keyTop {
+                        vertical-align:             top;
+                        padding-top:                7px;
+                    }
+
+                    .value {
+
+                        display:                    table-cell;
+                        padding:                    2px 0px;
+                        white-space:                nowrap;
+
+                        input, textarea, select {
+                            background-color:       rgba(200, 200, 200, 0.3);
+                            padding:                6px 8px;
+                            border:                 0px;
+                            border-radius:          4px;
+                            color:                  #777;
+                            font-size:              90%;
+                            min-width:              30vw;
+                        }
+
+                        select {
+                            min-width:              calc(30vw + 16px);
+                        }
+
+                        textarea {
+                            display:            block;
+                            resize:             vertical;
+                            min-height:         100px;
+                            font-family:        "Source Sans Pro","Helvetica Neue",Helvetica,Arial,sans-serif;
+                        }
+
+                        input[type=checkbox] {
+                            width:              30px;
+                            height:             18px;
+                            margin-top:         8px;
+                        }
+
+                        input[type=checkbox]:checked {
+                            color:              $NavigationBackground;
+                        }
+
+                        input:focus, textarea:focus {
+                            outline-color:      $NavigationBackground;
+                            border-color:       $NavigationBackground;
+                            box-shadow:         0 0 6px $NavigationBackground;
+                            background:         rgb(245, 238, 227);
+                        }
+
+                        input::-webkit-input-placeholder, textarea::-webkit-input-placeholder { /* Chrome/Opera/Safari */
+                            color:          #b3b2b2;
+                            font-size:      80%;
+                            font-style:     italic;
+                        }
+
+                        input::-moz-placeholder, textarea::-moz-placeholder { /* Firefox 19+ */
+                            color:          #b3b2b2;
+                            font-size:      80%;
+                            font-style:     italic;
+                        }
+
+                        input:-ms-input-placeholder, textarea:-ms-input-placeholder { /* IE 10+ */
+                            color:          #b3b2b2;
+                            font-size:      80%;
+                            font-style:     italic;
+                        }
+
+                        input:-moz-placeholder, textarea::-moz-placeholder { /* Firefox 18- */
+                            color:          #b3b2b2;
+                            font-size:      80%;
+                            font-style:     italic;
+                        }
+
+                        .messageTypes {
+
+                            height:             100px;
+                            overflow:           auto;
+                            background-color:   rgba(200,200,200,.3);
+                            padding:            6px 4px;
+                            border-radius:      4px;
+
+                            .messageType {
+
+                                font-size:      85%;
+                                padding:        2px 8px;
+                                border-radius:  4px;
+                                cursor:         pointer;
+                                color:          #888888;
+
+                                i {
+                                    color:          rgba(0, 0, 0, 0.10);
+                                    padding-right:  5px;
+                                }
+
+                                i.on {
+                                    color:          #67af21;
+                                }
+
+                            }
+
+                            .messageType.on {
+                                color:          #000000;
+                            }
+
+                            .messageType:hover {
+                                background-color:   rgba(0, 0, 0, 0.10);
+                            }
+
+                        }
+
+                    }
+
+                }
+
+
+            }
+
+            #buttons {
+                background-color:   rgba(255, 255, 255, 0.95);
+                border-radius:      0px 0px 5px 5px;
+                padding:            20px 25px;
+            }
+
+        }
+
+    }
+
+    #AddOrEditNotification {
+        display: none;
+    }
+
+}

@@ -7,6 +7,12 @@
   },
   "files": [
     "HTTPRoot/defaults/defaults.ts",
-    "HTTPRoot/login/SignInOut.ts"
+    "HTTPRoot/login/SignInOut.ts",
+
+    "HTTPRoot/defaults/defaults.ts",
+    "HTTPRoot/defaults/views.ts",
+
+    "HTTPRoot/notification/editNotification.ts",
+    "HTTPRoot/notification/notifications.ts"
   ]
 }
