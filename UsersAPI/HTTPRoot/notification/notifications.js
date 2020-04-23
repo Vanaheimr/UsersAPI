@@ -111,7 +111,7 @@ function StartUserNotifications() {
         }
         var valueDiv = parentDiv.appendChild(document.createElement('a'));
         valueDiv.className = "notification";
-        valueDiv.href = "/profile/notifications/" + notificationsCounter++;
+        valueDiv.href = "/notifications/" + notificationsCounter++;
         switch (JSON["@context"]) {
             case DashboardNotification_Context:
                 ShowDashboardNotification(valueDiv, JSON);

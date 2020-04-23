@@ -1,5 +1,4 @@
-﻿///<reference path="../libs/date.format.ts" />
-///<reference path="../defaults/views.ts" />
+﻿///<reference path="../../../../UsersAPI/UsersAPI/HTTPRoot/libs/date.format.ts" />
 
 function StartEditUserNotifications() {
 
@@ -16,6 +15,7 @@ function StartEditUserNotifications() {
     const HTTPSNotification_Context                 = "https://opendata.social/contexts/UsersAPI+json/HTTPSNotification";
     const EMailNotification_Context                 = "https://opendata.social/contexts/UsersAPI+json/EMailNotification";
 
+    const responseDiv                               = document.getElementById("response") as HTMLDivElement;
 
     checkSignedIn(true);
 
@@ -50,17 +50,17 @@ function StartEditUserNotifications() {
 
         function SaveOrDeleteNotification(Delete: boolean) {
 
-            let messageTypes           = [];
-            let messageTypesList       = document.getElementsByClassName('messageType');
-            for (var i = 0; i < messageTypesList.length; i++) {
+            const messageTypes           = [];
+            const messageTypesList       = document.getElementsByClassName('messageType');
+            for (let i = 0; i < messageTypesList.length; i++) {
 
                 if (messageTypesList[i].children[0].classList.contains("on"))
                     messageTypes.push(messageTypesList[i].id);
 
             }
 
-            let newNotificationJSON    = {};
-            let DescriptionValue       = (document.getElementById('DescriptionValue').children[0] as HTMLInputElement).value;
+            let   newNotificationJSON    = {};
+            const DescriptionValue       = (document.getElementById('DescriptionValue').children[0] as HTMLInputElement).value;
 
             switch (existingNotification != null && existingNotification["@context"] != newNotification_Context
                         ? existingNotification["@context"]
@@ -110,12 +110,12 @@ function StartEditUserNotifications() {
                         "URL":            (document.getElementById('URLValue').children[0] as HTMLInputElement).value
                     }
 
-                    let APIKey = (document.getElementById('APIKeyValue').children[0] as HTMLInputElement).value;
+                    const APIKey = (document.getElementById('APIKeyValue').children[0] as HTMLInputElement).value;
                     if (APIKey != null && APIKey != "")
                         newNotificationJSON["APIKey"] = APIKey;
 
-                    let basicAuthLogin    = (document.getElementById('BasicAuthLoginValue').children[0]    as HTMLInputElement).value;
-                    let basicAuthPassword = (document.getElementById('BasicAuthPasswordValue').children[0] as HTMLInputElement).value;
+                    const basicAuthLogin    = (document.getElementById('BasicAuthLoginValue').children[0]    as HTMLInputElement).value;
+                    const basicAuthPassword = (document.getElementById('BasicAuthPasswordValue').children[0] as HTMLInputElement).value;
 
                     if (basicAuthLogin != null && basicAuthLogin != "" && basicAuthPassword != null && basicAuthPassword != "") {
                         newNotificationJSON["basicAuth"]              = {};
@@ -152,10 +152,13 @@ function StartEditUserNotifications() {
 
                     (HTTPStatus, ResponseText) => {
 
-                        try {
+                        try
+                        {
 
-                            //var responseJSON = JSON.parse(ResponseText);
-                            responseDiv.innerHTML = "<div class=\"HTTP OK\">Successfully stored updated notification data.</div>";
+                            //const responseJSON = JSON.parse(ResponseText);
+                            responseDiv.innerHTML = Delete
+                                                        ? "<div class=\"HTTP OK\">Successfully removed notification.</div>"
+                                                        : "<div class=\"HTTP OK\">Successfully stored updated notification.</div>";
 
                             setTimeout(function () {
 
@@ -175,7 +178,7 @@ function StartEditUserNotifications() {
 
                     (HTTPStatus, StatusText, ResponseText) => {
 
-                        var responseJSON = { "description": "HTTP Error " + HTTPStatus + " - " + StatusText + "!" };
+                        let responseJSON = { "description": "HTTP Error " + HTTPStatus + " - " + StatusText + "!" };
 
                         if (ResponseText != null && ResponseText != "") {
                             try
@@ -193,54 +196,53 @@ function StartEditUserNotifications() {
 
         }
 
-        var AddOrEditNotificationDiv = document.getElementById('AddOrEditNotification')  as HTMLDivElement;
+        const AddOrEditNotificationDiv = document.getElementById('AddOrEditNotification')  as HTMLDivElement;
 
         AddOrEditNotificationDiv.querySelector("#headline #title").innerHTML = (existingNotification == null || existingNotification["@context"] === newNotification_Context) ? "Create a new notification" : "Edit notification";
 
-        var AddNotificationsView    = new View(AddOrEditNotificationDiv.querySelector("#notification"));
+        const AddNotificationsView    = new View(AddOrEditNotificationDiv.querySelector("#notification"));
 
-        var NotificationValue       = (existingNotification == null || existingNotification["@context"] === newNotification_Context)
-                                          ? AddNotificationsView.CreateRow("NotificationType", "Notification type")
-                                          : null;
+        const NotificationValue       = (existingNotification == null || existingNotification["@context"] === newNotification_Context)
+                                            ? AddNotificationsView.CreateRow("NotificationType", "Notification type")
+                                            : null;
 
-        var DescriptionValue        = AddNotificationsView.CreateRow   ("Description",
-                                                                        "Description", _ => _.innerHTML = "<input placeholder=\"Some description for you to remember why you created this notification...\" />");
+        const DescriptionValue        = AddNotificationsView.CreateRow   ("Description",
+                                                                          "Description", _ => _.innerHTML = "<input placeholder=\"Some description for you to remember why you created this notification...\" />");
 
 
-        var DashboardGroup          = AddNotificationsView.CreateGroup ("Dashboard",         false);
-        var DashboardNameValue      = AddNotificationsView.CreateRow   ("Dashboard",         "Dashboard Name",        _ => _.innerHTML = "<input placeholder=\"The name of the dashboard...\"/>");
+        const DashboardGroup          = AddNotificationsView.CreateGroup ("Dashboard",         false);
+        const DashboardNameValue      = AddNotificationsView.CreateRow   ("Dashboard",         "Dashboard Name",        _ => _.innerHTML = "<input placeholder=\"The name of the dashboard...\"/>");
 
-        var TelegramGroup           = AddNotificationsView.CreateGroup ("Telegram",          false);
-        var TelegramUsernameValue   = AddNotificationsView.CreateRow   ("Telegram",          "Telegram Username",     _ => _.innerHTML = "<input placeholder=\"Your telegram username...\"/>");
+        const TelegramGroup           = AddNotificationsView.CreateGroup ("Telegram",          false);
+        const TelegramUsernameValue   = AddNotificationsView.CreateRow   ("Telegram",          "Telegram Username",     _ => _.innerHTML = "<input placeholder=\"Your telegram username...\"/>");
 
-        var TelegramGroupGroup      = AddNotificationsView.CreateGroup ("TelegramGroup",     false);
-        var TelegramGroupNameValue  = AddNotificationsView.CreateRow   ("TelegramGroup",     "Telegram Group Name",   _ => _.innerHTML = "<input placeholder=\"Your telegram group name...\"/>");
+        const TelegramGroupGroup      = AddNotificationsView.CreateGroup ("TelegramGroup",     false);
+        const TelegramGroupNameValue  = AddNotificationsView.CreateRow   ("TelegramGroup",     "Telegram Group Name",   _ => _.innerHTML = "<input placeholder=\"Your telegram group name...\"/>");
 
-        var SMSGroup                = AddNotificationsView.CreateGroup ("SMS",               false);
-        var PhoneNumberValue        = AddNotificationsView.CreateRow   ("SMS",               "Phone number",          _ => _.innerHTML = "<input placeholder=\"Your phone number...\"/>");
+        const SMSGroup                = AddNotificationsView.CreateGroup ("SMS",               false);
+        const PhoneNumberValue        = AddNotificationsView.CreateRow   ("SMS",               "Phone number",          _ => _.innerHTML = "<input placeholder=\"Your phone number...\"/>");
         if (notification.user != null && notification.user.phoneNumber != null && notification.user.phoneNumber != "")
             (PhoneNumberValue.children[0] as HTMLInputElement).value = notification.user.phoneNumber;
 
-        var HTTPSGroup              = AddNotificationsView.CreateGroup ("HTTPS",             false);
-        var URLValue                = AddNotificationsView.CreateRow   ("URL",               "HTTPS URL",             _ => _.innerHTML = "<input placeholder=\"Your HTTPS URL...\" />");
-        var APIKeyValue             = AddNotificationsView.CreateRow   ("APIKey",            "API Key",               _ => _.innerHTML = "<input placeholder=\"An optional API key...\" />");
-        var BasicAuthLoginValue     = AddNotificationsView.CreateRow   ("BasicAuthLogin",    "Login",                 _ => _.innerHTML = "<input placeholder=\"An optional login for HTTPS basic authentication...\" />");
-        var BasicAuthPasswordValue  = AddNotificationsView.CreateRow   ("BasicAuthPassword", "Password",              _ => _.innerHTML = "<input placeholder=\"An optional password for HTTPS basic authentication...\" />");
+        const HTTPSGroup              = AddNotificationsView.CreateGroup ("HTTPS",             false);
+        const URLValue                = AddNotificationsView.CreateRow   ("URL",               "HTTPS URL",             _ => _.innerHTML = "<input placeholder=\"Your HTTPS URL...\" />");
+        const APIKeyValue             = AddNotificationsView.CreateRow   ("APIKey",            "API Key",               _ => _.innerHTML = "<input placeholder=\"An optional API key...\" />");
+        const BasicAuthLoginValue     = AddNotificationsView.CreateRow   ("BasicAuthLogin",    "Login",                 _ => _.innerHTML = "<input placeholder=\"An optional login for HTTPS basic authentication...\" />");
+        const BasicAuthPasswordValue  = AddNotificationsView.CreateRow   ("BasicAuthPassword", "Password",              _ => _.innerHTML = "<input placeholder=\"An optional password for HTTPS basic authentication...\" />");
 
-        var EMailGroup              = AddNotificationsView.CreateGroup ("EMail",             false);
-        var NameValue               = AddNotificationsView.CreateRow   ("Name",              "Your name",             _ => _.innerHTML = "<input placeholder=\"Your name...\" value=\"" + notification.user.name + "\" />");
-        var EMailValue              = AddNotificationsView.CreateRow   ("EMail",             "E-Mail address",        _ => _.innerHTML = "<input placeholder=\"Your e-mail address...\" value=\"" + notification.user.email + "\" />");
-        var SignedMailsValue        = AddNotificationsView.CreateRow   ("SignMails",         "Sign E-Mails",          _ => _.innerHTML = "<select><option>yes</option><option>no</option></select>");
-        var PublicKeyValue          = AddNotificationsView.CreateRow2  ("EncryptMails",      "Encrypt E-Mails", true, _ => _.innerHTML = "<textarea placeholder=\"You can provide an optional GPG/PGP public key to receive encrypted e-mails...\" />");
+        const EMailGroup              = AddNotificationsView.CreateGroup ("EMail",             false);
+        const NameValue               = AddNotificationsView.CreateRow   ("Name",              "Your name",             _ => _.innerHTML = "<input placeholder=\"Your name...\" value=\"" + notification.user.name + "\" />");
+        const EMailValue              = AddNotificationsView.CreateRow   ("EMail",             "E-Mail address",        _ => _.innerHTML = "<input placeholder=\"Your e-mail address...\" value=\"" + notification.user.email + "\" />");
+        const SignedMailsValue        = AddNotificationsView.CreateRow   ("SignMails",         "Sign E-Mails",          _ => _.innerHTML = "<select><option>yes</option><option>no</option></select>");
+        const PublicKeyValue          = AddNotificationsView.CreateRow2  ("EncryptMails",      "Encrypt E-Mails", true, _ => _.innerHTML = "<textarea placeholder=\"You can provide an optional GPG/PGP public key to receive encrypted e-mails...\" />");
 
-
-        var SaveButton              = AddOrEditNotificationDiv.querySelector("#SaveButton")   as HTMLButtonElement;
-        var RemoveButton            = AddOrEditNotificationDiv.querySelector("#RemoveButton") as HTMLButtonElement;
+        const SaveButton              = AddOrEditNotificationDiv.querySelector("#SaveButton")   as HTMLButtonElement;
+        const RemoveButton            = AddOrEditNotificationDiv.querySelector("#RemoveButton") as HTMLButtonElement;
 
         SaveButton.style.display = "block";
         SaveButton.disabled = false;
 
-        SaveButton.onclick = (ev: MouseEvent) => {
+        SaveButton.onclick = () => {
             SaveOrDeleteNotification(false);
         };
 
@@ -249,7 +251,7 @@ function StartEditUserNotifications() {
             RemoveButton.style.display = "block";
             RemoveButton.disabled = false;
 
-            RemoveButton.onclick = (ev: MouseEvent) => {
+            RemoveButton.onclick = () => {
                 SaveOrDeleteNotification(true);
             };
 
@@ -257,58 +259,58 @@ function StartEditUserNotifications() {
 
         AddNotificationsView.ResetGroup();
 
-        let MessageTypesDiv   = AddNotificationsView.CreateRow2("MessageType", "Notification messages", true).appendChild(document.createElement('div')) as HTMLDivElement;
+        const MessageTypesDiv   = AddNotificationsView.CreateRow2("MessageType", "Notification messages", true).appendChild(document.createElement('div')) as HTMLDivElement;
         MessageTypesDiv.className = "messageTypeGroups";
 
-        for (let notificationGroup of notification.notificationGroups) {
+        for (const notificationGroup of notification.notificationGroups) {
 
-            let MessageTypeGroupDiv = MessageTypesDiv.appendChild(document.createElement('div')) as HTMLDivElement;
+            const MessageTypeGroupDiv = MessageTypesDiv.appendChild(document.createElement('div')) as HTMLDivElement;
             MessageTypeGroupDiv.className = "messageTypeGroup";
-            MessageTypeGroupDiv.onclick = () => {
+            MessageTypeGroupDiv.onclick = (ev: MouseEvent) => {
 
-                let subDiv = MessageTypeGroupDiv.lastChild as HTMLDivElement;
+                const subDiv = MessageTypeGroupDiv.lastChild as HTMLDivElement;
                 subDiv.style.display = subDiv.style.display == "none"
                                            ? "block"
                                            : "none";
 
             };
 
-            let MessageTypeGroupHeadlineDiv = MessageTypeGroupDiv.appendChild(document.createElement('div')) as HTMLDivElement;
+            const MessageTypeGroupHeadlineDiv = MessageTypeGroupDiv.appendChild(document.createElement('div')) as HTMLDivElement;
             MessageTypeGroupHeadlineDiv.className = "headline";
 
-            let MessageTypeGroupTitleDiv = MessageTypeGroupHeadlineDiv.appendChild(document.createElement('div')) as HTMLDivElement;
+            const MessageTypeGroupTitleDiv = MessageTypeGroupHeadlineDiv.appendChild(document.createElement('div')) as HTMLDivElement;
             MessageTypeGroupTitleDiv.className = "title";
             MessageTypeGroupTitleDiv.innerHTML = firstValue(notificationGroup.title);
 
-            let MessageTypeGroupDescriptionDiv = MessageTypeGroupHeadlineDiv.appendChild(document.createElement('div')) as HTMLDivElement;
+            const MessageTypeGroupDescriptionDiv = MessageTypeGroupHeadlineDiv.appendChild(document.createElement('div')) as HTMLDivElement;
             MessageTypeGroupDescriptionDiv.className = "description";
             MessageTypeGroupDescriptionDiv.innerHTML = firstValue(notificationGroup.description);
 
 
-            let MessageTypeGroupMessagesDiv = MessageTypeGroupDiv.appendChild(document.createElement('div')) as HTMLDivElement;
+            const MessageTypeGroupMessagesDiv = MessageTypeGroupDiv.appendChild(document.createElement('div')) as HTMLDivElement;
             MessageTypeGroupMessagesDiv.className = "messageTypes";
             MessageTypeGroupMessagesDiv.style.display = "none";
 
-            for (let MessageType of notificationGroup.notifications) {
+            for (const MessageType of notificationGroup.notifications) {
 
-                let MessageTypeOption = MessageTypeGroupMessagesDiv.appendChild(document.createElement('div')) as HTMLDivElement;
+                const MessageTypeOption = MessageTypeGroupMessagesDiv.appendChild(document.createElement('div')) as HTMLDivElement;
                 MessageTypeOption.id        = MessageType.messages[0];
                 MessageTypeOption.dataset.messageType = MessageType.messages[0];
                 MessageTypeOption.className = "messageType";
                 MessageTypeOption.innerHTML = "<i class=\"fas fa-check\"></i>";
 
-                let MessageTypeOptionText = MessageTypeOption.appendChild(document.createElement('div')) as HTMLDivElement;
+                const MessageTypeOptionText = MessageTypeOption.appendChild(document.createElement('div')) as HTMLDivElement;
                 MessageTypeOptionText.className = "text";
 
-                let MessageTypeOptionTitle       = MessageTypeOptionText.appendChild(document.createElement('div')) as HTMLDivElement;
+                const MessageTypeOptionTitle       = MessageTypeOptionText.appendChild(document.createElement('div')) as HTMLDivElement;
                 MessageTypeOptionTitle.className = "title";
                 MessageTypeOptionTitle.innerHTML = firstValue(MessageType.title);
 
-                let MessageTypeOptionDescription = MessageTypeOptionText.appendChild(document.createElement('div')) as HTMLDivElement;
+                const MessageTypeOptionDescription = MessageTypeOptionText.appendChild(document.createElement('div')) as HTMLDivElement;
                 MessageTypeOptionDescription.className = "description";
                 MessageTypeOptionDescription.innerHTML = firstValue(MessageType.description);
 
-                MessageTypeOption.onclick = (ev) => {
+                MessageTypeOption.onclick = (ev: MouseEvent) => {
 
                     // Text...
                     if (MessageTypeOption.classList.contains("on"))
@@ -343,15 +345,15 @@ function StartEditUserNotifications() {
             NotificationTypeSelect = NotificationValue.appendChild(document.createElement('select')) as HTMLSelectElement;
             NotificationTypeSelect.id = "NotificationSelect";
 
-            let NotificationTypes      = [ "Dashboard Notification",
+            const NotificationTypes    = [ "Dashboard Notification",
                                            "Telegram Notification",
                                            "Telegram Group Notification",
                                            "SMS Notification",
                                            "HTTPS Notification",
                                            "E-Mail Notification" ];
 
-            for (let NotificationType in NotificationTypes) {
-                let NotificationTypeOption  = NotificationTypeSelect.appendChild(document.createElement('option')) as HTMLOptionElement;
+            for (const NotificationType in NotificationTypes) {
+                const NotificationTypeOption  = NotificationTypeSelect.appendChild(document.createElement('option')) as HTMLOptionElement;
                 NotificationTypeOption.text = NotificationTypes[NotificationType];
             }
 
@@ -451,7 +453,5 @@ function StartEditUserNotifications() {
 
     }
 
-
-    let responseDiv             = document.getElementById("response")                as HTMLDivElement;
 
 }

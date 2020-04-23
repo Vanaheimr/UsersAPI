@@ -1,5 +1,4 @@
-///<reference path="../libs/date.format.ts" />
-///<reference path="../defaults/views.ts" />
+///<reference path="../../../../UsersAPI/UsersAPI/HTTPRoot/libs/date.format.ts" />
 function StartEditUserNotifications() {
     var pathElements = window.location.pathname.split("/");
     var notificationId = pathElements[pathElements.length - 1];
@@ -12,6 +11,7 @@ function StartEditUserNotifications() {
     var SMSNotification_Context = "https://opendata.social/contexts/UsersAPI+json/SMSNotification";
     var HTTPSNotification_Context = "https://opendata.social/contexts/UsersAPI+json/HTTPSNotification";
     var EMailNotification_Context = "https://opendata.social/contexts/UsersAPI+json/EMailNotification";
+    var responseDiv = document.getElementById("response");
     checkSignedIn(true);
     HTTPGet("/users/" + SignInUser + "/notifications/" + notificationId, function (HTTPStatus, ResponseText) {
         try {
@@ -102,8 +102,10 @@ function StartEditUserNotifications() {
                 newNotificationJSON["description"] = DescriptionValue;
             HTTP(Delete ? "DELETE" : "SET", "/users/" + SignInUser + "/notifications", [newNotificationJSON], function (HTTPStatus, ResponseText) {
                 try {
-                    //var responseJSON = JSON.parse(ResponseText);
-                    responseDiv.innerHTML = "<div class=\"HTTP OK\">Successfully stored updated notification data.</div>";
+                    //const responseJSON = JSON.parse(ResponseText);
+                    responseDiv.innerHTML = Delete
+                        ? "<div class=\"HTTP OK\">Successfully removed notification.</div>"
+                        : "<div class=\"HTTP OK\">Successfully stored updated notification.</div>";
                     setTimeout(function () {
                         var redirectURL = document.location.href.substring(0, document.location.href.lastIndexOf("/"));
                         redirectURL = redirectURL.substring(0, redirectURL.lastIndexOf("/"));
@@ -155,13 +157,13 @@ function StartEditUserNotifications() {
         var RemoveButton = AddOrEditNotificationDiv.querySelector("#RemoveButton");
         SaveButton.style.display = "block";
         SaveButton.disabled = false;
-        SaveButton.onclick = function (ev) {
+        SaveButton.onclick = function () {
             SaveOrDeleteNotification(false);
         };
         if (existingNotification != null && existingNotification["@context"] != newNotification_Context) {
             RemoveButton.style.display = "block";
             RemoveButton.disabled = false;
-            RemoveButton.onclick = function (ev) {
+            RemoveButton.onclick = function () {
                 SaveOrDeleteNotification(true);
             };
         }
@@ -171,7 +173,7 @@ function StartEditUserNotifications() {
         var _loop_1 = function (notificationGroup) {
             var MessageTypeGroupDiv = MessageTypesDiv.appendChild(document.createElement('div'));
             MessageTypeGroupDiv.className = "messageTypeGroup";
-            MessageTypeGroupDiv.onclick = function () {
+            MessageTypeGroupDiv.onclick = function (ev) {
                 var subDiv = MessageTypeGroupDiv.lastChild;
                 subDiv.style.display = subDiv.style.display == "none"
                     ? "block"
@@ -327,6 +329,5 @@ function StartEditUserNotifications() {
             }
         }
     }
-    var responseDiv = document.getElementById("response");
 }
 //# sourceMappingURL=editNotification.js.map

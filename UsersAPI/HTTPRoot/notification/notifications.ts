@@ -2,15 +2,15 @@
 
 function StartUserNotifications() {
 
-    let notificationGroups                 = [];
-    let userInfos = {}
-    let DashboardNotification_Context      = "https://opendata.social/contexts/UsersAPI+json/DashboardNotification";
-    let TelegramNotification_Context       = "https://opendata.social/contexts/UsersAPI+json/TelegramNotification";
-    let TelegramGroupNotification_Context  = "https://opendata.social/contexts/UsersAPI+json/TelegramGroupNotification";
-    let SMSNotification_Context            = "https://opendata.social/contexts/UsersAPI+json/SMSNotification";
-    let HTTPSNotification_Context          = "https://opendata.social/contexts/UsersAPI+json/HTTPSNotification";
-    let EMailNotification_Context          = "https://opendata.social/contexts/UsersAPI+json/EMailNotification";
-    let notificationsCounter               = 1;
+    let   notificationGroups                 = [];
+    let   userInfos                          = {}
+    const DashboardNotification_Context      = "https://opendata.social/contexts/UsersAPI+json/DashboardNotification";
+    const TelegramNotification_Context       = "https://opendata.social/contexts/UsersAPI+json/TelegramNotification";
+    const TelegramGroupNotification_Context  = "https://opendata.social/contexts/UsersAPI+json/TelegramGroupNotification";
+    const SMSNotification_Context            = "https://opendata.social/contexts/UsersAPI+json/SMSNotification";
+    const HTTPSNotification_Context          = "https://opendata.social/contexts/UsersAPI+json/HTTPSNotification";
+    const EMailNotification_Context          = "https://opendata.social/contexts/UsersAPI+json/EMailNotification";
+    let   notificationsCounter               = 1;
 
     function ShowNotification(parentDiv: HTMLDivElement, JSON: any)
     {
@@ -150,7 +150,7 @@ function StartUserNotifications() {
 
         var valueDiv = parentDiv.appendChild(document.createElement('a')) as HTMLAnchorElement;
         valueDiv.className = "notification";
-        valueDiv.href      = "/profile/notifications/" + notificationsCounter++;
+        valueDiv.href      = "/notifications/" + notificationsCounter++;
 
         switch (JSON["@context"]) {
 

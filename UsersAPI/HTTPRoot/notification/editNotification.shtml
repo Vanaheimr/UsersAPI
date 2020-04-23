@@ -1,8 +1,8 @@
-﻿<link href="/user/editNotification.min.css" type="text/css" rel="stylesheet" />
+﻿<link href="/notification/editNotification.min.css" type="text/css" rel="stylesheet" />
 
 <script type="text/javascript" src="/shared/UsersAPI/js/date.format.js"></script>
 <script type="text/javascript" src="/defaults/defaults.js"></script>
-<script type="text/javascript" src="/user/editNotification.js"></script>
+<script type="text/javascript" src="/notification/editNotification.js"></script>
 <script type="text/javascript" src="/shared/UsersAPI/defaults/views.js"></script>
 
 <div id="AddOrEditNotification" class="entity">

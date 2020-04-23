@@ -2378,6 +2378,8 @@ namespace social.OpenData.UsersAPI
             #endregion
 
 
+            RegisterNotifications();
+
             if (!SkipURLTemplates)
                 RegisterURITemplates();
 
@@ -3135,8 +3137,24 @@ namespace social.OpenData.UsersAPI
 
 
 
+        #region (private) RegisterNotifications()
+        private void RegisterNotifications()
+        {
+            Add23(new NotificationMessageGroup(
+                  I18NString.Create(Languages.eng, "Service Tickets"),
+                  I18NString.Create(Languages.eng, "Service Ticket notifications"),
+                  NotificationVisibility.Customers,
+                  new NotificationMessageDescription[] {
+                      new NotificationMessageDescription(I18NString.Create(Languages.eng, "(New) service ticket added"),                  I18NString.Create(Languages.eng, ""), NotificationVisibility.Customers,  addServiceTicket_MessageType),
+                      new NotificationMessageDescription(I18NString.Create(Languages.eng, "(New) service ticket added (did not exist)"),  I18NString.Create(Languages.eng, ""), NotificationVisibility.System,     addIfNotExistsServiceTicket_MessageType),
+                      new NotificationMessageDescription(I18NString.Create(Languages.eng, "(New) service ticket added or updated"),       I18NString.Create(Languages.eng, ""), NotificationVisibility.System,     addOrUpdateServiceTicket_MessageType),
+                      new NotificationMessageDescription(I18NString.Create(Languages.eng, "ServiceTicket updated"),                       I18NString.Create(Languages.eng, ""), NotificationVisibility.Customers,  updateServiceTicket_MessageType),
+                      new NotificationMessageDescription(I18NString.Create(Languages.eng, "ServiceTicket removed"),                       I18NString.Create(Languages.eng, ""), NotificationVisibility.Customers,  removeServiceTicket_MessageType),
+                      new NotificationMessageDescription(I18NString.Create(Languages.eng, "ServiceTicket status changed"),                I18NString.Create(Languages.eng, ""), NotificationVisibility.Customers,  changeServiceTicketStatus_MessageType)
+                  }));
+        }
 
-
+        #endregion
 
         #region (private) RegisterURITemplates()
 
