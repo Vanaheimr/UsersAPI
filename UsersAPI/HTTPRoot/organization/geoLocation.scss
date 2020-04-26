@@ -1,0 +1,276 @@
+﻿@import "../defaults/_defaults.scss";
+
+#mainmenu {
+    display: none;
+}
+
+#organizationMenu {
+    display: block !important;
+}
+
+#text {
+    background-color: #eeeeee;
+}
+
+#organization {
+
+    padding:    30px 30px 20px 25px;
+    font-size:  140%;
+
+    #headline {
+
+        padding-bottom:     30px;
+        color:              #999;
+
+        #language {
+            display:            inline-block;
+            margin-top:         2px;
+            font-size:          60%;
+            vertical-align:     top;
+            background-color:   #ddd;
+            padding:            2px 4px;
+            border-radius:      4px;
+        }
+
+        #I18NText {
+            display:            inline-block;
+            font-size:          170%;
+        }
+
+        #description {
+            display:            none;
+            font-size:          60%;
+        }
+
+    }
+
+    #buttons
+    {
+
+        text-align:     right;
+
+        button {
+            border:         0;
+            white-space:    nowrap;
+            color:          #6b6b6b;
+            padding:        8px 14px;
+            margin:         10px 0 15px 0;
+            border-radius:  5px;
+            font-size:      70%;
+        }
+
+        button i:first-child {
+            margin-right: 2px;
+            font-size:    75%;
+        }
+
+    }
+
+    #data {
+
+        margin-left:        15px;
+        width:              calc(100% - 15px);
+        display:            table;
+        border-collapse:    collapse;
+        width:              100%;
+
+        .row {
+
+            display:    table-row;
+            width:      100%;
+
+            .key {
+                display:            table-cell;
+                padding:            8px 42px 8px 0;
+                white-space:        nowrap;
+                color:              #666;
+                vertical-align:     top;
+            }
+
+            .value {
+
+                display:            table-cell;
+                vertical-align:     middle;
+                width:              100%;
+
+                #name {
+                    min-height:     10px;
+                }
+
+                input {
+                    background-color:   rgba(255,255,255,.7);
+                    width:              calc(100% - 16px);
+                    padding:            6px 8px;
+                    border:             0;
+                    border-radius:      4px;
+                    color:              #777;
+                    color:              #000;
+                    font-size:          100%;
+                }
+
+                input[type=checkbox]:checked {
+                    color:              $NavigationBackground;
+                }
+
+                textarea {
+                    background-color:   rgba(255,255,255,.7);
+                    width:              calc(100% - 16px);
+                    height:             100px;
+                    padding:            6px 8px;
+                    border:             0;
+                    color:              #777;
+                    color:              #000;
+                    font-size:          100%;
+                    resize:             vertical;
+                }
+
+                input:focus, textarea:focus {
+                    outline-color:      $NavigationBackground;
+                    border-color:       $NavigationBackground;
+                    box-shadow:         0 0 6px $NavigationBackground;
+                }
+
+                input::placeholder {
+                    font-size:          90%;
+                    font-style:         italic;
+                    color:              rgb(172, 172, 172);
+                    opacity:            1;      /* Firefox fix */
+                }
+
+                #address {
+                    margin-top:         2px;
+                    border-radius:      4px;
+                }
+
+            }
+
+            .organizationsList {
+
+                display:        flex;
+                flex-wrap:      wrap;
+                padding-top:    7px;
+
+                .organization {
+                    padding: 4px 8px;
+                    margin: 2px;
+                    border: 0;
+                    border-radius: 3px;
+                }
+
+                .organization:hover {
+                    background-color:   rgba(255, 115, 0, 0.2);
+                }
+
+            }
+
+        }
+
+    }
+
+    #response {
+
+    }
+
+    #saveButton {
+        margin-top:         2vh;
+    }
+
+
+}
+
+
+.I18N {
+
+    select {
+        width:              100%;
+        padding:            6px 8px;
+        margin-bottom:      1px;
+        border:             0;
+        border-radius:      4px 4px 0px 0px;
+        background-color:   rgba(255,255,255,.7);
+        font-size:          80%;
+    }
+
+    textarea {
+        width:              calc(100% - 16px);
+        padding:            6px 8px;
+        margin-bottom:      5px;
+        border:             0;
+        border-radius:      0px 0px 4px 4px;
+        vertical-align:     top;
+        min-height:         100px;
+        background-color:   rgba(255,255,255,.7);
+        font-size:          90%;
+        resize:             vertical;
+    }
+
+}
+
+
+#confirmToDeleteOrganization {
+
+    display:            none;   // flex
+    position:           fixed;
+    top:                0;
+    left:               0;
+    width:              100vw;
+    height:             100vh;
+    z-index:            10000;
+    justify-content:    center;
+    align-items:        center;
+    background-color:   rgba(0, 0, 0, 0.6);
+
+    #box {
+
+        position:           relative;
+        width:              30vw;
+        background-color:   #CCCCCC;
+        border-radius:      6px;
+        box-shadow:         2px 0 16px 0 rgba(0, 0, 0, 0.3);
+
+        #headline {
+            background-color:   #ff7300;
+            border-radius:      6px 6px 0px 0px;
+            padding:            10px 20px;
+            text-align:         center;
+            font-weight:        bold;
+        }
+
+        #body {
+
+            background-color:       #DDDDDD;
+            border-radius:          0px 0px 6px 6px;
+            padding:                10px 20px;
+
+            #text {
+                position:               unset;
+                top:                    auto;
+                left:                   auto;
+                padding:                10px;
+                min-width:              unset;
+                min-height:             unset;
+                overflow-y:             unset;
+                background-color:       unset;
+                color:                  black;
+            }
+
+            #buttons {
+
+                display:                flex;
+                justify-content:        flex-end;
+
+                button {
+                    border:                 0;
+                    border-radius:          4px;
+                    background-color:       orangered;
+                    margin-left:            5px;
+                    padding:                6px 16px;
+                }
+
+            }
+
+        }
+
+    }
+
+}

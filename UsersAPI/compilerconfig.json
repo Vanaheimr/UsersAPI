@@ -30,5 +30,37 @@
   {
     "outputFile": "HTTPRoot/notification/notifications.css",
     "inputFile": "HTTPRoot/notification/notifications.scss"
+  },
+  {
+    "outputFile": "HTTPRoot/organization/devices.css",
+    "inputFile": "HTTPRoot/organization/devices.scss"
+  },
+  {
+    "outputFile": "HTTPRoot/organization/geoLocation.css",
+    "inputFile": "HTTPRoot/organization/geoLocation.scss"
+  },
+  {
+    "outputFile": "HTTPRoot/organization/members.css",
+    "inputFile": "HTTPRoot/organization/members.scss"
+  },
+  {
+    "outputFile": "HTTPRoot/organization/newMember.css",
+    "inputFile": "HTTPRoot/organization/newMember.scss"
+  },
+  {
+    "outputFile": "HTTPRoot/organization/organization.css",
+    "inputFile": "HTTPRoot/organization/organization.scss"
+  },
+  {
+    "outputFile": "HTTPRoot/organization/newSubOrganization.css",
+    "inputFile": "HTTPRoot/organization/newSubOrganization.scss"
+  },
+  {
+    "outputFile": "HTTPRoot/organization/organizations.css",
+    "inputFile": "HTTPRoot/organization/organizations.scss"
+  },
+  {
+    "outputFile": "HTTPRoot/organization/subOrganizations.css",
+    "inputFile": "HTTPRoot/organization/subOrganizations.scss"
   }
 ]

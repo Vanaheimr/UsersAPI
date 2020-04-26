@@ -1,0 +1,247 @@
+﻿/*background: lighten($bg-color, 10%);*/
+/*$CITMBlue:                  rgba( 86, 132, 204,   1);*/
+/*$CITMGray:                  rgba(143, 145, 149,   1);*/
+.fa, .far, .fas {
+  font-style: normal; }
+
+.buttons {
+  display: flex;
+  margin-top: 30px; }
+
+.button {
+  background: #ffba83;
+  background-image: linear-gradient(to bottom, #ffc99e, #ffba83);
+  color: #b36630;
+  padding: 10px 20px;
+  margin-left: 5px;
+  border-radius: 4px;
+  border: 0px;
+  box-shadow: 2px 2px 6px #999; }
+  .button .text {
+    display: inline-block; }
+    .button .text .text2 {
+      display: inline-block;
+      padding-left: 8px;
+      vertical-align: top;
+      padding-top: 7px; }
+
+.button:hover {
+  background-color: #fbd1af;
+  background-image: linear-gradient(to bottom, #ffe5d1, #fbd1af);
+  color: #cb8f64; }
+
+.button:active {
+  box-shadow: 0 1px 2px #999;
+  transform: translateY(4px); }
+
+.button:focus {
+  outline: 0px; }
+
+.button:disabled {
+  background-color: #eee2d7;
+  background-image: none;
+  color: #ceb9aa;
+  box-shadow: none; }
+
+body #page #right #text {
+  display: flex;
+  flex-direction: column;
+  /*height:             calc(100vh - 13vw*.35);
+                overflow-y:         hidden;*/ }
+  body #page #right #text .entity {
+    padding: 0;
+    font-size: 100%; }
+    body #page #right #text .entity #headline {
+      font-size: 125%;
+      color: #8c8c8c;
+      background-color: #f3f3f3;
+      display: block;
+      padding: 20px 15px 12px 23px; }
+      body #page #right #text .entity #headline #title {
+        margin: 0;
+        padding-bottom: 10px; }
+        body #page #right #text .entity #headline #title .fa {
+          height: 20px; }
+      body #page #right #text .entity #headline #controls {
+        display: flex;
+        flex-direction: column;
+        /*#new {
+
+                                display: flex;
+
+                                button {
+                                    border-radius:          4px;
+                                    margin:                 6px 0px 6px 0px;
+                                    padding:                0px 10px;
+                                }
+
+                            }*/ }
+        body #page #right #text .entity #headline #controls #search {
+          margin-bottom: 5px; }
+          body #page #right #text .entity #headline #controls #search .StreamFilterDiv {
+            display: inline-block;
+            padding: 2px 3px 2px 17px;
+            font-size: 9pt; }
+            body #page #right #text .entity #headline #controls #search .StreamFilterDiv .group {
+              margin-right: 0;
+              position: relative; }
+              body #page #right #text .entity #headline #controls #search .StreamFilterDiv .group #search {
+                background-color: #e8e8e8;
+                padding: 4px 6px 4px 23px;
+                width: 40vw;
+                border: 0;
+                border-radius: 4px; }
+              body #page #right #text .entity #headline #controls #search .StreamFilterDiv .group #sign1 {
+                position: absolute;
+                top: 4px;
+                right: calc(100% - 18px);
+                font-size: 10pt;
+                color: #AAAAAA; }
+              body #page #right #text .entity #headline #controls #search .StreamFilterDiv .group #filter {
+                background-color: #e8e8e8;
+                padding: 4px 6px 4px 23px;
+                width: 40vw;
+                border: 0;
+                border-radius: 4px; }
+              body #page #right #text .entity #headline #controls #search .StreamFilterDiv .group #sign {
+                position: absolute;
+                top: 4px;
+                right: calc(100% - 18px);
+                font-size: 10pt;
+                color: #AAAAAA; }
+          body #page #right #text .entity #headline #controls #search #take {
+            display: inline-block; }
+            body #page #right #text .entity #headline #controls #search #take select {
+              border: 0;
+              padding: 4px 6px;
+              outline: 0;
+              background-color: #e8e8e8; }
+              body #page #right #text .entity #headline #controls #search #take select option {
+                padding: 2px 3px; }
+          body #page #right #text .entity #headline #controls #search button {
+            border: 0;
+            background-color: #e4e4e4;
+            border-radius: 50%;
+            outline: none;
+            width: 28px;
+            height: 28px;
+            font-size: 80%;
+            color: black;
+            margin: 0px 2px; }
+          body #page #right #text .entity #headline #controls #search button[disabled] {
+            background: none;
+            cursor: not-allowed; }
+          body #page #right #text .entity #headline #controls #search button[disabled]:hover {
+            background: none;
+            cursor: not-allowed; }
+          body #page #right #text .entity #headline #controls #search button[disabled].busy {
+            background-color: #e4e4e4;
+            color: black; }
+          body #page #right #text .entity #headline #controls #search button[disabled].busyActive {
+            background-color: #ffab66; }
+          body #page #right #text .entity #headline #controls #search button.busy {
+            background-color: #e4e4e4;
+            color: black; }
+          body #page #right #text .entity #headline #controls #search button:hover {
+            background-color: #ffd5b2; }
+          body #page #right #text .entity #headline #controls #search button:active {
+            background-color: #ffab66; }
+          body #page #right #text .entity #headline #controls #search #searchButton {
+            display: inline-block; }
+          body #page #right #text .entity #headline #controls #search #leftButton {
+            display: inline-block; }
+          body #page #right #text .entity #headline #controls #search #rightButton {
+            display: inline-block; }
+          body #page #right #text .entity #headline #controls #search #dateFilters {
+            margin: 5px 0px 0px 30px; }
+            body #page #right #text .entity #headline #controls #search #dateFilters #dateFrom {
+              display: inline-block; }
+            body #page #right #text .entity #headline #controls #search #dateFilters #dateTo {
+              display: inline-block;
+              margin-left: 20px; }
+            body #page #right #text .entity #headline #controls #search #dateFilters label {
+              font-size: 80%; }
+            body #page #right #text .entity #headline #controls #search #dateFilters .datepicker {
+              display: inline-block;
+              position: relative; }
+              body #page #right #text .entity #headline #controls #search #dateFilters .datepicker input {
+                background-color: #e8e8e8;
+                padding: 4px 23px 4px 6px;
+                border: 0;
+                border-radius: 4px; }
+              body #page #right #text .entity #headline #controls #search #dateFilters .datepicker i {
+                font-size: 83%;
+                position: absolute;
+                right: 5px;
+                top: 5px; }
+        body #page #right #text .entity #headline #controls #searchButtons {
+          margin-top: 12px; }
+          body #page #right #text .entity #headline #controls #searchButtons button {
+            padding: 2px 6px;
+            /*border-radius:  3px;*/ }
+    body #page #right #text .entity #message {
+      padding: 5px 30px;
+      font-size: 80%;
+      color: #707070; }
+    body #page #right #text .entity #resultsBox {
+      /*overflow-y:     scroll;*/ }
+      body #page #right #text .entity #resultsBox .searchResults {
+        display: flex;
+        flex-direction: column;
+        cursor: pointer; }
+        body #page #right #text .entity #resultsBox .searchResults .searchResult {
+          position: relative;
+          display: block;
+          padding: 10px 11px 8px 16px;
+          margin-bottom: 2px;
+          color: black;
+          background-color: rgba(136, 136, 136, 0.1);
+          text-decoration: none; }
+          body #page #right #text .entity #resultsBox .searchResults .searchResult .I18N {
+            display: table; }
+            body #page #right #text .entity #resultsBox .searchResults .searchResult .I18N .I18NLanguage {
+              display: table-cell;
+              font-size: 80%;
+              color: #888888;
+              vertical-align: top; }
+              body #page #right #text .entity #resultsBox .searchResults .searchResult .I18N .I18NLanguage p {
+                background: rgba(136, 136, 136, 0.38);
+                border-radius: 4px;
+                padding: 0 5px 2px 5px;
+                margin: 0; }
+            body #page #right #text .entity #resultsBox .searchResults .searchResult .I18N .I18NValue {
+              display: table-cell;
+              padding-left: 6px; }
+          body #page #right #text .entity #resultsBox .searchResults .searchResult .properties {
+            display: table;
+            margin-top: 8px;
+            font-size: 90%; }
+            body #page #right #text .entity #resultsBox .searchResults .searchResult .properties .property {
+              display: table-row; }
+              body #page #right #text .entity #resultsBox .searchResults .searchResult .properties .property .key {
+                display: table-cell;
+                padding: 0px 15px 3px 0px; }
+              body #page #right #text .entity #resultsBox .searchResults .searchResult .properties .property .value {
+                display: table-cell;
+                padding: 0px 0px 3px 0px; }
+        body #page #right #text .entity #resultsBox .searchResults .searchResult:hover {
+          background-color: rgba(255, 115, 0, 0.2); }
+
+#text .entity #resultsBox .searchResults .searchResult .id {
+  font-size: 85%;
+  padding-bottom: 10px; }
+  #text .entity #resultsBox .searchResults .searchResult .id .I18NValue {
+    position: relative;
+    top: 1px; }
+
+#text .entity #resultsBox .searchResults .searchResult .name {
+  margin-bottom: 2px; }
+  #text .entity #resultsBox .searchResults .searchResult .name .I18NLanguage p {
+    position: relative;
+    top: 3px; }
+  #text .entity #resultsBox .searchResults .searchResult .name .I18NValue {
+    font-size: 150%;
+    margin: 5px; }
+
+#text .entity #resultsBox .searchResults .searchResult .description .I18NValue {
+  margin: 5px; }

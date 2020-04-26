@@ -239,6 +239,13 @@
     <EmbeddedResource Include="HTTPRoot\notification\notifications.js.map">
       <DependentUpon>notifications.ts</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="HTTPRoot\organization\devices.scss" />
+    <EmbeddedResource Include="HTTPRoot\organization\geoLocation.scss" />
+    <EmbeddedResource Include="HTTPRoot\organization\members.scss" />
+    <EmbeddedResource Include="HTTPRoot\organization\newMember.scss" />
+    <EmbeddedResource Include="HTTPRoot\organization\newSubOrganization.scss" />
+    <EmbeddedResource Include="HTTPRoot\organization\subOrganizations.scss" />
+    <EmbeddedResource Include="HTTPRoot\organization\organizations.scss" />
     <None Include="README.md" />
     <None Include="tsconfig.json" />
   </ItemGroup>
@@ -270,6 +277,54 @@
     <Content Include="HTTPRoot\admin\admin.css">
       <DependentUpon>admin.scss</DependentUpon>
     </Content>
+    <EmbeddedResource Include="HTTPRoot\organization\devices.css">
+      <DependentUpon>devices.scss</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="HTTPRoot\organization\devices.min.css">
+      <DependentUpon>devices.css</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="HTTPRoot\organization\geoLocation.css">
+      <DependentUpon>geoLocation.scss</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="HTTPRoot\organization\geoLocation.min.css">
+      <DependentUpon>geoLocation.css</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="HTTPRoot\organization\members.css">
+      <DependentUpon>members.scss</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="HTTPRoot\organization\members.min.css">
+      <DependentUpon>members.css</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="HTTPRoot\organization\newMember.css">
+      <DependentUpon>newMember.scss</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="HTTPRoot\organization\newMember.min.css">
+      <DependentUpon>newMember.css</DependentUpon>
+    </EmbeddedResource>
+    <Content Include="HTTPRoot\organization\newSubOrganization.css">
+      <DependentUpon>newSubOrganization.scss</DependentUpon>
+    </Content>
+    <Content Include="HTTPRoot\organization\newSubOrganization.min.css">
+      <DependentUpon>newSubOrganization.css</DependentUpon>
+    </Content>
+    <EmbeddedResource Include="HTTPRoot\organization\organization.css">
+      <DependentUpon>organization.scss</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="HTTPRoot\organization\organization.min.css">
+      <DependentUpon>organization.css</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="HTTPRoot\organization\organizations.css">
+      <DependentUpon>organizations.scss</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="HTTPRoot\organization\organizations.min.css">
+      <DependentUpon>organizations.css</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="HTTPRoot\organization\subOrganizations.css">
+      <DependentUpon>subOrganizations.scss</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="HTTPRoot\organization\subOrganizations.min.css">
+      <DependentUpon>subOrganizations.css</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="HTTPRoot\notification\notifications.js">
       <DependentUpon>notifications.ts</DependentUpon>
     </EmbeddedResource>
