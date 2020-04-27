@@ -11,6 +11,7 @@
 
     "HTTPRoot/defaults/defaults.ts",
     "HTTPRoot/defaults/views.ts",
+    "HTTPRoot/defaults/datePicker.ts",
 
     "HTTPRoot/notification/editNotification.ts",
     "HTTPRoot/notification/notifications.ts"

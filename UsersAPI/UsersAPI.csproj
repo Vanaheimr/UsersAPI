@@ -219,6 +219,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="HTTPRoot\defaults\_search.scss" />
     <EmbeddedResource Include="HTTPRoot\defaults\datePicker.scss" />
+    <EmbeddedResource Include="HTTPRoot\defaults\datePicker.js.map">
+      <DependentUpon>datePicker.ts</DependentUpon>
+    </EmbeddedResource>
     <None Include="HTTPRoot\libs\EventSource.js.map">
       <DependentUpon>EventSource.ts</DependentUpon>
     </None>
@@ -246,6 +249,7 @@
     <EmbeddedResource Include="HTTPRoot\organization\newSubOrganization.scss" />
     <EmbeddedResource Include="HTTPRoot\organization\subOrganizations.scss" />
     <EmbeddedResource Include="HTTPRoot\organization\organizations.scss" />
+    <EmbeddedResource Include="HTTPRoot\support\support.scss" />
     <None Include="README.md" />
     <None Include="tsconfig.json" />
   </ItemGroup>
@@ -277,6 +281,12 @@
     <Content Include="HTTPRoot\admin\admin.css">
       <DependentUpon>admin.scss</DependentUpon>
     </Content>
+    <EmbeddedResource Include="HTTPRoot\support\notifications.min.css">
+      <DependentUpon>notifications.css</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="HTTPRoot\support\notifications.css">
+      <DependentUpon>support.scss</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="HTTPRoot\organization\devices.css">
       <DependentUpon>devices.scss</DependentUpon>
     </EmbeddedResource>
@@ -300,6 +310,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="HTTPRoot\organization\newMember.min.css">
       <DependentUpon>newMember.css</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="HTTPRoot\defaults\datePicker.js">
+      <DependentUpon>datePicker.ts</DependentUpon>
     </EmbeddedResource>
     <Content Include="HTTPRoot\organization\newSubOrganization.css">
       <DependentUpon>newSubOrganization.scss</DependentUpon>
@@ -409,6 +422,7 @@
     <EmbeddedResource Include="HTTPRoot\libs\EventSource.ts" />
     <EmbeddedResource Include="HTTPRoot\defaults\defaults.ts" />
     <EmbeddedResource Include="HTTPRoot\defaults\views.ts" />
+    <EmbeddedResource Include="HTTPRoot\defaults\datePicker.ts" />
     <TypeScriptCompile Include="HTTPRoot\libs\sse.d.ts" />
     <EmbeddedResource Include="HTTPRoot\login\SignInOut.ts" />
     <EmbeddedResource Include="HTTPRoot\notification\editNotification.ts" />
