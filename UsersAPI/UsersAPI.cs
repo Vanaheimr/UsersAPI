@@ -4630,7 +4630,8 @@ namespace social.OpenData.UsersAPI
                                                                  AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
                                                                  ContentType                = HTTPContentType.JSON_UTF8,
                                                                  Content                    = JSONObject.Create(
-                                                                                                  new JProperty("description", "Could not send an e-mail to the user!")
+                                                                                                  new JProperty("description",     "Could not send an e-mail to the user!"),
+                                                                                                  new JProperty("mailSentResult",  MailSentResult.ToString())
                                                                                               ).ToUTF8Bytes()
                                                              }.AsImmutable;
 

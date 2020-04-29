@@ -243,7 +243,7 @@
       <DependentUpon>notifications.ts</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="HTTPRoot\organization\devices.scss" />
-    <EmbeddedResource Include="HTTPRoot\organization\geoLocation.scss" />
+    <EmbeddedResource Include="HTTPRoot\organization\address.scss" />
     <EmbeddedResource Include="HTTPRoot\organization\members.scss" />
     <EmbeddedResource Include="HTTPRoot\organization\newMember.scss" />
     <EmbeddedResource Include="HTTPRoot\organization\newSubOrganization.scss" />
@@ -293,12 +293,6 @@
     <EmbeddedResource Include="HTTPRoot\organization\devices.min.css">
       <DependentUpon>devices.css</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="HTTPRoot\organization\geoLocation.css">
-      <DependentUpon>geoLocation.scss</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="HTTPRoot\organization\geoLocation.min.css">
-      <DependentUpon>geoLocation.css</DependentUpon>
-    </EmbeddedResource>
     <EmbeddedResource Include="HTTPRoot\organization\members.css">
       <DependentUpon>members.scss</DependentUpon>
     </EmbeddedResource>
@@ -313,6 +307,12 @@
     </EmbeddedResource>
     <EmbeddedResource Include="HTTPRoot\defaults\datePicker.js">
       <DependentUpon>datePicker.ts</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="HTTPRoot\organization\address.css">
+      <DependentUpon>address.scss</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="HTTPRoot\organization\address.min.css">
+      <DependentUpon>address.css</DependentUpon>
     </EmbeddedResource>
     <Content Include="HTTPRoot\organization\newSubOrganization.css">
       <DependentUpon>newSubOrganization.scss</DependentUpon>

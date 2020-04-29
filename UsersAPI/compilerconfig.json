@@ -36,8 +36,8 @@
     "inputFile": "HTTPRoot/organization/devices.scss"
   },
   {
-    "outputFile": "HTTPRoot/organization/geoLocation.css",
-    "inputFile": "HTTPRoot/organization/geoLocation.scss"
+    "outputFile": "HTTPRoot/organization/address.css",
+    "inputFile": "HTTPRoot/organization/address.scss"
   },
   {
     "outputFile": "HTTPRoot/organization/members.css",
