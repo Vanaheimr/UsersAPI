@@ -8409,10 +8409,10 @@ namespace social.OpenData.UsersAPI
 
         //ToDo: Receive Network Database Commands
 
-        #region (private) ProcessCommand(Command, Parameters)
+        #region (protected) ProcessCommand(Command, JSONObject)
 
-        private async Task ProcessCommand(String   Command,
-                                          JObject  JSONObject)
+        protected async Task ProcessCommand(String   Command,
+                                            JObject  JSONObject)
         {
 
             User_Id          userId;
