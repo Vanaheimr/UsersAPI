@@ -34,11 +34,6 @@ function ShowElement2(DivName, displaymode) {
 }
 
 
-//interface CookieEater {
-//    (cookie: string): void;
-//}
-
-
 function GetCookie(CookieName: string): string {
 
     const CookieMatch = document.cookie.match('(^|;) ?' + CookieName + '=([^;]*)(;|$)');
@@ -222,7 +217,7 @@ function VerifyLogin() {
 
     }
 
-    checkNotSignedIn();
+    //checkNotSignedIn();
 
 }
 

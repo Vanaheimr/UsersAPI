@@ -9313,7 +9313,7 @@ namespace social.OpenData.UsersAPI
                 return true;
             }
 
-            SecurityTokenId = default(SecurityToken_Id);
+            SecurityTokenId = default;
             return false;
 
         }

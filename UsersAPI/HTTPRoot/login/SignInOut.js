@@ -20,9 +20,6 @@ function ShowElement2(DivName, displaymode) {
         div.style.display = displaymode;
     return div;
 }
-//interface CookieEater {
-//    (cookie: string): void;
-//}
 function GetCookie(CookieName) {
     var CookieMatch = document.cookie.match('(^|;) ?' + CookieName + '=([^;]*)(;|$)');
     if (CookieMatch == null)
@@ -143,7 +140,7 @@ function VerifyLogin() {
         }
         return true;
     }
-    checkNotSignedIn();
+    //checkNotSignedIn();
 }
 function LostPassword() {
     var loginform = document.getElementById("loginform");
