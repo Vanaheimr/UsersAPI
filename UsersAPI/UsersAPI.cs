@@ -8067,7 +8067,7 @@ namespace social.OpenData.UsersAPI
                 JObject JSONObject;
 
                 // Info: File.Exists(...) is harmful!
-                File.ReadLines(this.UsersAPIPath + DefaultUsersAPIFile).ForEachCounted(async (line, linenumber) => {
+                File.ReadLines(UsersAPIPath + DefaultUsersAPIFile).ForEachCounted(async (line, linenumber) => {
 
                     if (line.IsNeitherNullNorEmpty() &&
                        !line.StartsWith("#")         &&
@@ -8088,7 +8088,7 @@ namespace social.OpenData.UsersAPI
                         }
                         catch (Exception e)
                         {
-                            DebugX.Log("Could not read database file '" + this.UsersAPIPath + DefaultUsersAPIFile + "' line " + linenumber + ": " + e.Message);
+                            DebugX.Log("Could not read database file '" + UsersAPIPath + DefaultUsersAPIFile + "' line " + linenumber + ": " + e.Message);
                         }
 
                     }
@@ -8100,7 +8100,7 @@ namespace social.OpenData.UsersAPI
             { }
             catch (Exception e)
             {
-                DebugX.LogT("Could not read database file '" + this.UsersAPIPath + DefaultUsersAPIFile + "': " + e.Message);
+                DebugX.LogT("Could not read database file '" + UsersAPIPath + DefaultUsersAPIFile + "': " + e.Message);
             }
 
             #endregion
