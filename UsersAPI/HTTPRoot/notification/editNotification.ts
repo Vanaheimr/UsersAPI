@@ -3,7 +3,7 @@
 function StartEditUserNotifications() {
 
     const pathElements                              = window.location.pathname.split("/");
-    const notificationId                            = pathElements[pathElements.length - 1];
+    const notificationId                            = pathElements.length > 2 ? pathElements[pathElements.length - 1] : "";
     let   NotificationTypeSelect:HTMLSelectElement  = null;
 
     let   notification:any                          = {}
@@ -19,13 +19,16 @@ function StartEditUserNotifications() {
 
     checkSignedIn(true);
 
-    HTTPGet("/users/" + SignInUser + "/notifications/" + notificationId,
+    HTTPGet(notificationId != ""
+                ? "/users/" + SignInUser + "/notifications/" + notificationId
+                : "/newNotification",
 
-            (HTTPStatus, ResponseText) => {
+            (status, response) => {
 
-                try {
+                try
+                {
 
-                    notification = JSON.parse(ResponseText);
+                    notification = JSON.parse(response);
 
                     if (notification["@context"] == null)
                         responseDiv.innerHTML = "<div class=\"HTTP Error\">Could not fetch notification data from server!</div>";
@@ -41,7 +44,7 @@ function StartEditUserNotifications() {
 
             },
 
-            (HTTPStatus, StatusText, ResponseText) => {
+            (HTTPStatus, status, response) => {
                 responseDiv.innerHTML = "<div class=\"HTTP Error\">Could not fetch notification data from server!</div>";
             });
 
@@ -150,7 +153,7 @@ function StartEditUserNotifications() {
                  "/users/" + SignInUser + "/notifications",
                  [ newNotificationJSON ],
 
-                    (HTTPStatus, ResponseText) => {
+                    (status, response) => {
 
                         try
                         {
@@ -176,14 +179,14 @@ function StartEditUserNotifications() {
 
                     },
 
-                    (HTTPStatus, StatusText, ResponseText) => {
+                    (HTTPStatus, status, response) => {
 
-                        let responseJSON = { "description": "HTTP Error " + HTTPStatus + " - " + StatusText + "!" };
+                        let responseJSON = { "description": "HTTP Error " + HTTPStatus + " - " + status + "!" };
 
-                        if (ResponseText != null && ResponseText != "") {
+                        if (response != null && response != "") {
                             try
                             {
-                                responseJSON = JSON.parse(ResponseText);
+                                responseJSON = JSON.parse(response);
                             }
                             catch { }
                         }

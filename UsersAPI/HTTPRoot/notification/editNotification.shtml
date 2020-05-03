@@ -7,7 +7,11 @@
 
 <div id="AddOrEditNotification" class="entity">
 
-    <div id="headline"><div id="title">Edit notification</div></div>
+    <div id="headline">
+        <div id="title">
+            Edit notification
+        </div>
+    </div>
 
     <div id="buttons">
         <button id="RemoveButton" disabled><i class="fas fa-trash-alt"></i> Remove</button>

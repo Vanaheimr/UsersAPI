@@ -153,7 +153,7 @@ function StartOrganizationMembers() {
         }
     }
     var organizationDiv = document.getElementById("organization");
-    var headlineDiv = organizationDiv.querySelector('.headline');
+    var headlineDiv = organizationDiv.querySelector("#headline");
     var addNewMemberButton = organizationDiv.querySelector('#addNewMemberButton');
     var nameDiv = organizationDiv.querySelector('#nameDiv');
     var name = organizationDiv.querySelector('#name');

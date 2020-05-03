@@ -1,7 +1,7 @@
 ///<reference path="../../../../UsersAPI/UsersAPI/HTTPRoot/libs/date.format.ts" />
 function StartEditUserNotifications() {
     var pathElements = window.location.pathname.split("/");
-    var notificationId = pathElements[pathElements.length - 1];
+    var notificationId = pathElements.length > 2 ? pathElements[pathElements.length - 1] : "";
     var NotificationTypeSelect = null;
     var notification = {};
     var newNotification_Context = "https://opendata.social/contexts/UsersAPI+json/newNotification";
@@ -13,9 +13,11 @@ function StartEditUserNotifications() {
     var EMailNotification_Context = "https://opendata.social/contexts/UsersAPI+json/EMailNotification";
     var responseDiv = document.getElementById("response");
     checkSignedIn(true);
-    HTTPGet("/users/" + SignInUser + "/notifications/" + notificationId, function (HTTPStatus, ResponseText) {
+    HTTPGet(notificationId != ""
+        ? "/users/" + SignInUser + "/notifications/" + notificationId
+        : "/newNotification", function (status, response) {
         try {
-            notification = JSON.parse(ResponseText);
+            notification = JSON.parse(response);
             if (notification["@context"] == null)
                 responseDiv.innerHTML = "<div class=\"HTTP Error\">Could not fetch notification data from server!</div>";
             else
@@ -24,7 +26,7 @@ function StartEditUserNotifications() {
         catch (e) {
             responseDiv.innerHTML = "<div class=\"HTTP Error\">Could not fetch notification data from server!</div>";
         }
-    }, function (HTTPStatus, StatusText, ResponseText) {
+    }, function (HTTPStatus, status, response) {
         responseDiv.innerHTML = "<div class=\"HTTP Error\">Could not fetch notification data from server!</div>";
     });
     function AddOrEditNotificationView(existingNotification) {
@@ -100,7 +102,7 @@ function StartEditUserNotifications() {
                 newNotificationJSON["messageTypes"] = messageTypes;
             if (DescriptionValue != null && DescriptionValue != "")
                 newNotificationJSON["description"] = DescriptionValue;
-            HTTP(Delete ? "DELETE" : "SET", "/users/" + SignInUser + "/notifications", [newNotificationJSON], function (HTTPStatus, ResponseText) {
+            HTTP(Delete ? "DELETE" : "SET", "/users/" + SignInUser + "/notifications", [newNotificationJSON], function (status, response) {
                 try {
                     //const responseJSON = JSON.parse(ResponseText);
                     responseDiv.innerHTML = Delete
@@ -115,11 +117,11 @@ function StartEditUserNotifications() {
                 catch (e) {
                     responseDiv.innerHTML = "<div class=\"HTTP Error\">Storing notification data failed!</div>";
                 }
-            }, function (HTTPStatus, StatusText, ResponseText) {
-                var responseJSON = { "description": "HTTP Error " + HTTPStatus + " - " + StatusText + "!" };
-                if (ResponseText != null && ResponseText != "") {
+            }, function (HTTPStatus, status, response) {
+                var responseJSON = { "description": "HTTP Error " + HTTPStatus + " - " + status + "!" };
+                if (response != null && response != "") {
                     try {
-                        responseJSON = JSON.parse(ResponseText);
+                        responseJSON = JSON.parse(response);
                     }
                     catch (_a) { }
                 }

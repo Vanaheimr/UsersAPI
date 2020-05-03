@@ -41,7 +41,7 @@ function StartSubOrganizations() {
         }
     }
     var organizationDiv = document.getElementById("organization");
-    var headlineDiv = organizationDiv.querySelector('.headline');
+    var headlineDiv = organizationDiv.querySelector("#headline");
     var newSubOrganizationButton = organizationDiv.querySelector('#buttons #new');
     var subOrganizationsDiv = organizationDiv.querySelector('#subOrganizations');
     var responseDiv = document.getElementById("response");

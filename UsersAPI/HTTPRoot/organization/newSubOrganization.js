@@ -8,9 +8,9 @@ function StartNewSubOrganization() {
             links[i].href = links[i].href.replace("00000000", organizationId);
         }
     }
-    var organizationDiv = document.getElementById("organization");
-    var headlineDiv = organizationDiv.querySelector('.headline');
-    var dataDiv = organizationDiv.querySelector('#data');
+    var newSubOrganizationDiv = document.getElementById("newSubOrganization");
+    var headlineDiv = newSubOrganizationDiv.querySelector("#headline");
+    var dataDiv = newSubOrganizationDiv.querySelector('#data');
     var name = dataDiv.querySelector('#name');
     var description = dataDiv.querySelector('#description');
     var website = dataDiv.querySelector('#website');

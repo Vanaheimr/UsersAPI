@@ -70,7 +70,7 @@ function StartSubOrganizations() {
     }
 
     const organizationDiv           = document.       getElementById("organization")        as HTMLDivElement;
-    const headlineDiv               = organizationDiv.querySelector ('.headline')           as HTMLDivElement;
+    const headlineDiv               = organizationDiv.querySelector ("#headline")           as HTMLDivElement;
 
     const newSubOrganizationButton  = organizationDiv.querySelector ('#buttons #new')       as HTMLButtonElement;
     const subOrganizationsDiv       = organizationDiv.querySelector ('#subOrganizations')   as HTMLDivElement;

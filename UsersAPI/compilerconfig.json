@@ -8,20 +8,32 @@
     "inputFile": "HTTPRoot/styles.scss"
   },
   {
+    "outputFile": "HTTPRoot/user/user.css",
+    "inputFile": "HTTPRoot/user/user.scss"
+  },
+  {
+    "outputFile": "HTTPRoot/user/users.css",
+    "inputFile": "HTTPRoot/user/users.scss"
+  },
+  {
     "outputFile": "HTTPRoot/profile/profile.css",
     "inputFile": "HTTPRoot/profile/profile.scss"
+  },
+  {
+    "outputFile": "HTTPRoot/profile/APIKeys.css",
+    "inputFile": "HTTPRoot/profile/APIKeys.scss"
   },
   {
     "outputFile": "HTTPRoot/profile/password.css",
     "inputFile": "HTTPRoot/profile/password.scss"
   },
   {
-    "outputFile": "HTTPRoot/admin/admin.css",
-    "inputFile": "HTTPRoot/admin/admin.scss"
+    "outputFile": "HTTPRoot/profile/organizations.css",
+    "inputFile": "HTTPRoot/profile/organizations.scss"
   },
   {
-    "outputFile": "HTTPRoot/profile/notifications.css",
-    "inputFile": "HTTPRoot/profile/notifications.scss"
+    "outputFile": "HTTPRoot/admin/admin.css",
+    "inputFile": "HTTPRoot/admin/admin.scss"
   },
   {
     "outputFile": "HTTPRoot/notification/editNotification.css",
@@ -30,10 +42,6 @@
   {
     "outputFile": "HTTPRoot/notification/notifications.css",
     "inputFile": "HTTPRoot/notification/notifications.scss"
-  },
-  {
-    "outputFile": "HTTPRoot/organization/devices.css",
-    "inputFile": "HTTPRoot/organization/devices.scss"
   },
   {
     "outputFile": "HTTPRoot/organization/address.css",
@@ -62,13 +70,5 @@
   {
     "outputFile": "HTTPRoot/organization/subOrganizations.css",
     "inputFile": "HTTPRoot/organization/subOrganizations.scss"
-  },
-  {
-    "outputFile": "HTTPRoot/user/user.css",
-    "inputFile": "HTTPRoot/user/user.scss"
-  },
-  {
-    "outputFile": "HTTPRoot/user/users.css",
-    "inputFile": "HTTPRoot/user/users.scss"
   }
 ]

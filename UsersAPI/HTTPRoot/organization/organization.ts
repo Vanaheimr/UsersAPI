@@ -214,9 +214,9 @@ function StartOrganization() {
     }
 
     const organizationDiv           = document.       getElementById("organization")                   as HTMLDivElement;
-    const headlineDiv               = organizationDiv.querySelector ('.headline')                      as HTMLDivElement;
-
+    const headlineDiv               = organizationDiv.querySelector ("#headline")                      as HTMLDivElement;
     const dataDiv                   = organizationDiv.querySelector ('#data')                          as HTMLDivElement;
+
     const name                      = dataDiv.        querySelector ('#name')                          as HTMLInputElement;
     const description               = dataDiv.        querySelector ('#description')                   as HTMLTextAreaElement;
     const website                   = dataDiv.        querySelector ('#website')                       as HTMLInputElement;

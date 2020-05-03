@@ -1,23 +1,11 @@
 ﻿@import "../defaults/_defaults.scss";
 
-#mainmenu {
-    display: none;
-}
-
-#organizationMenu {
-    display: block !important;
-}
-
-#text {
-    background-color: #eeeeee;
-}
-
-#organization {
+#newSubOrganization {
 
     padding:    30px 30px 20px 25px;
     font-size:  140%;
 
-    #headline {
+    #head2line {
 
         padding-bottom:     30px;
         color:              #999;
@@ -46,8 +34,8 @@
 
     #about
     {
-        color: #777;
-        margin-bottom: 20px;
+        color:              #777;
+        margin:             1vh 1vw 3vh 1vw;
     }
 
     #data {

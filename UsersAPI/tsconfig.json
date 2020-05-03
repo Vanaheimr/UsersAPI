@@ -23,7 +23,6 @@
     "HTTPRoot/organization/organization.ts",
     "HTTPRoot/organization/organizations.ts",
     "HTTPRoot/organization/address.ts",
-    "HTTPRoot/organization/devices.ts",
     "HTTPRoot/organization/members.ts",
     "HTTPRoot/organization/newMember.ts",
     "HTTPRoot/organization/subOrganizations.ts",

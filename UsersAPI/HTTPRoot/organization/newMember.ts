@@ -14,22 +14,21 @@ function StartNewMember() {
 
     }
 
-    const organizationDiv      = document.getElementById("organization")      as HTMLDivElement;
-    const headlineDiv          = organizationDiv.querySelector ('.headline')  as HTMLDivElement;
+    const newMemberDiv         = document.getElementById("newMember")      as HTMLDivElement;
+    const headlineDiv          = newMemberDiv.querySelector("#headline")   as HTMLDivElement;
+    const dataDiv              = newMemberDiv.querySelector('#data')       as HTMLDivElement;
 
-    const dataDiv              = organizationDiv.querySelector ('#data')      as HTMLDivElement;
+    const accessRights         = dataDiv.querySelector('#accessRights')    as HTMLSelectElement;
+    const login                = dataDiv.querySelector('#login')           as HTMLTextAreaElement;
+    const name                 = dataDiv.querySelector('#name')            as HTMLTextAreaElement;
+    const email                = dataDiv.querySelector('#email')           as HTMLInputElement;
+    const telephone            = dataDiv.querySelector('#telephone')       as HTMLInputElement;
+    const mobilephone          = dataDiv.querySelector('#mobilephone')     as HTMLInputElement;
+    const homepage             = dataDiv.querySelector('#homepage')        as HTMLInputElement;
+    const description          = dataDiv.querySelector('#description')     as HTMLTextAreaElement;
 
-    const accessRights         = dataDiv.querySelector ('#accessRights')      as HTMLSelectElement;
-    const login                = dataDiv.querySelector ('#login')             as HTMLTextAreaElement;
-    const name                 = dataDiv.querySelector ('#name')              as HTMLTextAreaElement;
-    const email                = dataDiv.querySelector ('#email')             as HTMLInputElement;
-    const telephone            = dataDiv.querySelector ('#telephone')         as HTMLInputElement;
-    const mobilephone          = dataDiv.querySelector ('#mobilephone')       as HTMLInputElement;
-    const homepage             = dataDiv.querySelector ('#homepage')          as HTMLInputElement;
-    const description          = dataDiv.querySelector ('#description')       as HTMLTextAreaElement;
-
-    const responseDiv          = document.getElementById("response")          as HTMLDivElement;
-    const saveButton           = document.getElementById("saveButton")        as HTMLButtonElement;
+    const responseDiv          = document.getElementById("response")       as HTMLDivElement;
+    const saveButton           = document.getElementById("saveButton")     as HTMLButtonElement;
 
 
 

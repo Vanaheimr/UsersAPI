@@ -240,7 +240,7 @@ function StartOrganizationMembers() {
     }
 
     const organizationDiv      = document.getElementById("organization")                as HTMLDivElement;
-    const headlineDiv          = organizationDiv.querySelector ('.headline')            as HTMLDivElement;
+    const headlineDiv          = organizationDiv.querySelector ("#headline")            as HTMLDivElement;
 
     const addNewMemberButton   = organizationDiv.querySelector ('#addNewMemberButton')  as HTMLButtonElement;
 

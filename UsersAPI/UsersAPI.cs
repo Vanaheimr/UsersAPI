@@ -2508,72 +2508,6 @@ namespace social.OpenData.UsersAPI
         #endregion
 
 
-        #region (private) GetResourceStream      (ResourceName)
-
-        private Stream GetResourceStream(String ResourceName)
-
-            => GetResourceStream(typeof(UsersAPI).Assembly, ResourceName);
-
-        #endregion
-
-        #region (private) GetResourceMemoryStream(ResourceName)
-
-        private MemoryStream GetResourceMemoryStream(String ResourceName)
-
-            => GetResourceMemoryStream(typeof(UsersAPI).Assembly, ResourceName);
-
-        #endregion
-
-        #region (private) GetResourceString      (ResourceName)
-
-        private String GetResourceString(String ResourceName)
-
-            => GetResourceString(typeof(UsersAPI).Assembly, ResourceName);
-
-        #endregion
-
-        #region (private) GetResourceBytes       (ResourceName)
-        private Byte[] GetResourceBytes(String ResourceName)
-
-            => GetResourceBytes(typeof(UsersAPI).Assembly, ResourceName);
-
-        #endregion
-
-
-        #region (protected) MixWithHTMLTemplate(ResourceName)
-
-        //protected String MixWithHTMLTemplate(String ResourceName)
-        //{
-
-        //    if (HTMLTemplate == null)
-        //    {
-
-        //        var OutputStream    = new MemoryStream();
-        //        var TemplateStream  = GetType().Assembly.GetManifestResourceStream(HTTPRoot + "template.html");
-
-        //        TemplateStream.Seek(0, SeekOrigin.Begin);
-        //        TemplateStream.CopyTo(OutputStream);
-
-        //        HTMLTemplate = OutputStream.ToArray().ToUTF8String();
-
-        //    }
-
-        //    var HTMLStream      = new MemoryStream();
-        //    var ResourceStream  = GetType().Assembly.GetManifestResourceStream(HTTPRoot + ResourceName);
-
-        //    if (ResourceStream != null)
-        //    {
-        //        ResourceStream.Seek(3, SeekOrigin.Begin);
-        //        ResourceStream.CopyTo(HTMLStream);
-        //    }
-
-        //    return HTMLTemplate.Replace("<%= content %>", HTMLStream.ToArray().ToUTF8String());
-
-        //}
-
-        #endregion
-
-
         #region (Timer) DoMaintenance(State)
 
         private void DoMaintenance(Object State)
@@ -3134,7 +3068,49 @@ namespace social.OpenData.UsersAPI
         #endregion
 
 
+        #region HTTP Resources
 
+        #region (private) GetResourceStream      (ResourceName)
+
+        private Stream GetResourceStream(String ResourceName)
+
+            => GetResourceStream(typeof(UsersAPI).Assembly, ResourceName);
+
+        #endregion
+
+        #region (private) GetResourceMemoryStream(ResourceName)
+
+        private MemoryStream GetResourceMemoryStream(String ResourceName)
+
+            => GetResourceMemoryStream(typeof(UsersAPI).Assembly, ResourceName);
+
+        #endregion
+
+        #region (private) GetResourceString      (ResourceName)
+
+        private String GetResourceString(String ResourceName)
+
+            => GetResourceString(typeof(UsersAPI).Assembly, ResourceName);
+
+        #endregion
+
+        #region (private) GetResourceBytes       (ResourceName)
+        private Byte[] GetResourceBytes(String ResourceName)
+
+            => GetResourceBytes(typeof(UsersAPI).Assembly, ResourceName);
+
+        #endregion
+
+        #region (private) MixWithHTMLTemplate    (ResourceName)
+
+        private String MixWithHTMLTemplate(String ResourceName)
+
+            => MixWithHTMLTemplate(ResourceName,
+                                   new Tuple<String, System.Reflection.Assembly>(UsersAPI.HTTPRoot, typeof(UsersAPI).    Assembly));
+
+        #endregion
+
+        #endregion
 
 
         #region (private) RegisterNotifications()
@@ -5627,6 +5603,7 @@ namespace social.OpenData.UsersAPI
 
             #endregion
 
+
             #region GET         ~/users/{UserId}/notifications
 
             // --------------------------------------------------------------------------------------
@@ -6094,45 +6071,6 @@ namespace social.OpenData.UsersAPI
 
                                              #endregion
 
-                                             #region _new
-
-                                             if (notificationId == "_new")
-                                             {
-
-                                                 return Task.FromResult(
-                                                            new HTTPResponse.Builder(Request) {
-                                                                HTTPStatusCode             = HTTPStatusCode.OK,
-                                                                Server                     = HTTPServer.DefaultServerName,
-                                                                Date                       = DateTime.UtcNow,
-                                                                AccessControlAllowOrigin   = "*",
-                                                                AccessControlAllowMethods  = "GET, SET",
-                                                                AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
-                                                                ETag                       = "1",
-                                                                ContentType                = HTTPContentType.JSON_UTF8,
-                                                                Content                    = JSONObject.Create(
-                                                                                                 new JProperty("@context",  "https://opendata.social/contexts/UsersAPI+json/newNotification"),
-                                                                                                 new JProperty("user",      JSONObject.Create(
-
-                                                                                                     new JProperty("name",  HTTPUser.EMail.OwnerName),
-                                                                                                     new JProperty("email", HTTPUser.EMail.Address.ToString()),
-
-                                                                                                     HTTPUser.MobilePhone.HasValue
-                                                                                                         ? new JProperty("phoneNumber", HTTPUser.MobilePhone.Value.ToString())
-                                                                                                         : null
-
-                                                                                                 )),
-                                                                                                 new JProperty("notificationGroups", new JArray(
-                                                                                                      _NotificationMessageGroups.Select(notificationMessageGroup => notificationMessageGroup.ToJSON())
-                                                                                                 ))
-                                                                                              ).ToUTF8Bytes(),
-                                                                Connection                 = "close",
-                                                                Vary                       = "Accept"
-                                                            }.AsImmutable);
-
-                                             }
-
-                                             #endregion
-
                                              #region Return notification for notification identification
 
                                              if (UInt32.TryParse(notificationId, out UInt32 NotificationId))
@@ -6424,6 +6362,8 @@ namespace social.OpenData.UsersAPI
 
             #region GET         ~/organizations
 
+            #region JSON
+
             // ---------------------------------------------------------------------------
             // curl -v -H "Accept: application/json" http://127.0.0.1:2000/organizations
             // ---------------------------------------------------------------------------
@@ -6492,6 +6432,51 @@ namespace social.OpenData.UsersAPI
                                                  }.AsImmutable);
 
                                          });
+
+            #endregion
+
+            #region HTML
+
+            // ----------------------------------------------------------------------------
+            // curl -v -H "Accept: application/json" http://127.0.0.1:3001/organizations
+            // ----------------------------------------------------------------------------
+            HTTPServer.AddMethodCallback(Hostname,
+                                         HTTPMethod.GET,
+                                         URLPathPrefix + "organizations",
+                                         HTTPContentType.HTML_UTF8,
+                                         HTTPDelegate: Request => {
+
+                                             #region Get HTTP user and its organizations
+
+                                             // Will return HTTP 401 Unauthorized, when the HTTP user is unknown!
+                                             if (!TryGetHTTPUser(Request,
+                                                                 out User                   HTTPUser,
+                                                                 out HashSet<Organization>  HTTPOrganizations,
+                                                                 out HTTPResponse           Response,
+                                                                 Recursive:                 true))
+                                             {
+                                                 return Task.FromResult(Response);
+                                             }
+
+                                             #endregion
+
+                                             return Task.FromResult(
+                                                     new HTTPResponse.Builder(Request) {
+                                                         HTTPStatusCode             = HTTPStatusCode.OK,
+                                                         Server                     = HTTPServer.DefaultServerName,
+                                                         Date                       = DateTime.UtcNow,
+                                                         AccessControlAllowOrigin   = "*",
+                                                         AccessControlAllowMethods  = "GET",
+                                                         AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
+                                                         ContentType                = HTTPContentType.HTML_UTF8,
+                                                         Content                    = MixWithHTMLTemplate("organization.organizations.shtml").ToUTF8Bytes(),
+                                                         Connection                 = "close",
+                                                         Vary                       = "Accept"
+                                                     }.AsImmutable);
+
+                                         });
+
+            #endregion
 
             #endregion
 
@@ -6689,11 +6674,10 @@ namespace social.OpenData.UsersAPI
 
             #endregion
 
-            #endregion
-
-            #region ~/organizations/{OrganizationId}
 
             #region GET         ~/organizations/{OrganizationId}
+
+            #region JSON
 
             // -------------------------------------------------------------------------------------
             // curl -v -H "Accept: application/json" http://127.0.0.1:2000/organizations/214080158
@@ -6777,6 +6761,80 @@ namespace social.OpenData.UsersAPI
                                                               }.AsImmutable);
 
                                          });
+
+            #endregion
+
+            #region HTML
+
+            // ------------------------------------------------------------------------------
+            // curl -v -H "Accept: text/html" http://127.0.0.1:3001/organizations/CardiLink
+            // ------------------------------------------------------------------------------
+            HTTPServer.AddMethodCallback(Hostname,
+                                         HTTPMethod.GET,
+                                         URLPathPrefix + "organizations/{OrganizationId}",
+                                         HTTPContentType.HTML_UTF8,
+                                         HTTPDelegate: Request => {
+
+                                             #region Get HTTP user and its organizations
+
+                                             // Will return HTTP 401 Unauthorized, when the HTTP user is unknown!
+                                             if (!TryGetHTTPUser(Request,
+                                                                 out User                   HTTPUser,
+                                                                 out HashSet<Organization>  HTTPOrganizations,
+                                                                 out HTTPResponse           Response,
+                                                                 Recursive:                 true))
+                                             {
+                                                 return Task.FromResult(Response);
+                                             }
+
+                                             #endregion
+
+                                             #region Check OrganizationId URI parameter
+
+                                             if (!Request.ParseOrganization(this,
+                                                                            out Organization_Id?  OrganizationId,
+                                                                            out Organization      Organization,
+                                                                            out HTTPResponse      HTTPResponse))
+                                             {
+                                                 return Task.FromResult(HTTPResponse);
+                                             }
+
+                                             #endregion
+
+
+                                             if (Organization != null && HTTPOrganizations.Contains(Organization))
+                                             {
+
+                                                 return Task.FromResult(
+                                                     new HTTPResponse.Builder(Request) {
+                                                         HTTPStatusCode              = HTTPStatusCode.OK,
+                                                         Server                      = HTTPServer.DefaultServerName,
+                                                         Date                        = DateTime.UtcNow,
+                                                         AccessControlAllowOrigin    = "*",
+                                                         AccessControlAllowMethods   = "GET",
+                                                         AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
+                                                         ContentType                 = HTTPContentType.HTML_UTF8,
+                                                         Content                     = MixWithHTMLTemplate("organization.organization.shtml").ToUTF8Bytes(),
+                                                         Connection                  = "close",
+                                                         Vary                        = "Accept"
+                                                     }.AsImmutable);
+
+                                             }
+
+                                             return Task.FromResult(
+                                                        new HTTPResponse.Builder(Request) {
+                                                            HTTPStatusCode              = HTTPStatusCode.Unauthorized,
+                                                            Server                      = HTTPServer.DefaultServerName,
+                                                            Date                        = DateTime.UtcNow,
+                                                            AccessControlAllowOrigin    = "*",
+                                                            AccessControlAllowMethods   = "GET",
+                                                            AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
+                                                            Connection                  = "close"
+                                                        }.AsImmutable);
+
+                                         });
+
+            #endregion
 
             #endregion
 
@@ -7323,6 +7381,367 @@ namespace social.OpenData.UsersAPI
             #endregion
 
 
+            #region GET         ~/organizations/{OrganizationId}/address
+
+            // --------------------------------------------------------------------------------------
+            // curl -v -H "Accept: text/html" http://127.0.0.1:3001/organizations/CardiLink/address
+            // --------------------------------------------------------------------------------------
+            HTTPServer.AddMethodCallback(Hostname,
+                                         HTTPMethod.GET,
+                                         URLPathPrefix + "organizations/{OrganizationId}/address",
+                                         HTTPContentType.HTML_UTF8,
+                                         HTTPDelegate: Request => {
+
+                                             #region Get HTTP user and its organizations
+
+                                             // Will return HTTP 401 Unauthorized, when the HTTP user is unknown!
+                                             if (!TryGetHTTPUser(Request,
+                                                                 out User                   HTTPUser,
+                                                                 out HashSet<Organization>  HTTPOrganizations,
+                                                                 out HTTPResponse           Response,
+                                                                 Recursive:                 true))
+                                             {
+                                                 return Task.FromResult(Response);
+                                             }
+
+                                             #endregion
+
+                                             #region Check OrganizationId URI parameter
+
+                                             if (!Request.ParseOrganization(this,
+                                                                            out Organization_Id?  OrganizationId,
+                                                                            out Organization      Organization,
+                                                                            out HTTPResponse      HTTPResponse))
+                                             {
+                                                 return Task.FromResult(HTTPResponse);
+                                             }
+
+                                             #endregion
+
+
+                                             if (Organization != null && HTTPOrganizations.Contains(Organization))
+                                             {
+
+                                                 return Task.FromResult(
+                                                     new HTTPResponse.Builder(Request) {
+                                                         HTTPStatusCode              = HTTPStatusCode.OK,
+                                                         Server                      = HTTPServer.DefaultServerName,
+                                                         Date                        = DateTime.UtcNow,
+                                                         AccessControlAllowOrigin    = "*",
+                                                         AccessControlAllowMethods   = "GET",
+                                                         AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
+                                                         ContentType                 = HTTPContentType.HTML_UTF8,
+                                                         Content                     = MixWithHTMLTemplate("organization.address.shtml").ToUTF8Bytes(),
+                                                         Connection                  = "close",
+                                                         Vary                        = "Accept"
+                                                     }.AsImmutable);
+
+                                             }
+
+                                             return Task.FromResult(
+                                                        new HTTPResponse.Builder(Request) {
+                                                            HTTPStatusCode              = HTTPStatusCode.Unauthorized,
+                                                            Server                      = HTTPServer.DefaultServerName,
+                                                            Date                        = DateTime.UtcNow,
+                                                            AccessControlAllowOrigin    = "*",
+                                                            AccessControlAllowMethods   = "GET",
+                                                            AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
+                                                            Connection                  = "close"
+                                                        }.AsImmutable);
+
+                                         });
+
+            #endregion
+
+            #region GET         ~/organizations/{OrganizationId}/members
+
+            // -----------------------------------------------------------------------------------------------
+            // curl -v -H "Accept: text/html" http://127.0.0.1:3001/organizations/CardiLink/members
+            // -----------------------------------------------------------------------------------------------
+            HTTPServer.AddMethodCallback(Hostname,
+                                         HTTPMethod.GET,
+                                         URLPathPrefix + "organizations/{OrganizationId}/members",
+                                         HTTPContentType.HTML_UTF8,
+                                         HTTPDelegate: Request => {
+
+                                             #region Get HTTP user and its organizations
+
+                                             // Will return HTTP 401 Unauthorized, when the HTTP user is unknown!
+                                             if (!TryGetHTTPUser(Request,
+                                                                 out User                   HTTPUser,
+                                                                 out HashSet<Organization>  HTTPOrganizations,
+                                                                 out HTTPResponse           Response,
+                                                                 Recursive:                 true))
+                                             {
+                                                 return Task.FromResult(Response);
+                                             }
+
+                                             #endregion
+
+                                             #region Check OrganizationId URI parameter
+
+                                             if (!Request.ParseOrganization(this,
+                                                                            out Organization_Id?  OrganizationId,
+                                                                            out Organization      Organization,
+                                                                            out HTTPResponse      HTTPResponse))
+                                             {
+                                                 return Task.FromResult(HTTPResponse);
+                                             }
+
+                                             #endregion
+
+
+                                             if (Organization != null && HTTPOrganizations.Contains(Organization))
+                                             {
+
+                                                 return Task.FromResult(
+                                                     new HTTPResponse.Builder(Request) {
+                                                         HTTPStatusCode              = HTTPStatusCode.OK,
+                                                         Server                      = HTTPServer.DefaultServerName,
+                                                         Date                        = DateTime.UtcNow,
+                                                         AccessControlAllowOrigin    = "*",
+                                                         AccessControlAllowMethods   = "GET",
+                                                         AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
+                                                         ContentType                 = HTTPContentType.HTML_UTF8,
+                                                         Content                     = MixWithHTMLTemplate("organization.members.shtml").ToUTF8Bytes(),
+                                                         Connection                  = "close",
+                                                         Vary                        = "Accept"
+                                                     }.AsImmutable);
+
+                                             }
+
+                                             return Task.FromResult(
+                                                        new HTTPResponse.Builder(Request) {
+                                                            HTTPStatusCode              = HTTPStatusCode.Unauthorized,
+                                                            Server                      = HTTPServer.DefaultServerName,
+                                                            Date                        = DateTime.UtcNow,
+                                                            AccessControlAllowOrigin    = "*",
+                                                            AccessControlAllowMethods   = "GET",
+                                                            AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
+                                                            Connection                  = "close"
+                                                        }.AsImmutable);
+
+                                         });
+
+            #endregion
+
+            #region GET         ~/organizations/{OrganizationId}/newMember
+
+            // -----------------------------------------------------------------------------------------------
+            // curl -v -H "Accept: text/html" http://127.0.0.1:3001/organizations/CardiLink/newMember
+            // -----------------------------------------------------------------------------------------------
+            HTTPServer.AddMethodCallback(Hostname,
+                                         HTTPMethod.GET,
+                                         URLPathPrefix + "organizations/{OrganizationId}/newMember",
+                                         HTTPContentType.HTML_UTF8,
+                                         HTTPDelegate: Request => {
+
+                                             #region Get HTTP user and its organizations
+
+                                             // Will return HTTP 401 Unauthorized, when the HTTP user is unknown!
+                                             if (!TryGetHTTPUser(Request,
+                                                                 out User                   HTTPUser,
+                                                                 out HashSet<Organization>  HTTPOrganizations,
+                                                                 out HTTPResponse           Response,
+                                                                 Recursive:                 true))
+                                             {
+                                                 return Task.FromResult(Response);
+                                             }
+
+                                             #endregion
+
+                                             #region Check OrganizationId URI parameter
+
+                                             if (!Request.ParseOrganization(this,
+                                                                            out Organization_Id?  OrganizationId,
+                                                                            out Organization      Organization,
+                                                                            out HTTPResponse      HTTPResponse))
+                                             {
+                                                 return Task.FromResult(HTTPResponse);
+                                             }
+
+                                             #endregion
+
+
+                                             if (Organization != null && HTTPOrganizations.Contains(Organization))
+                                             {
+
+                                                 return Task.FromResult(
+                                                     new HTTPResponse.Builder(Request) {
+                                                         HTTPStatusCode              = HTTPStatusCode.OK,
+                                                         Server                      = HTTPServer.DefaultServerName,
+                                                         Date                        = DateTime.UtcNow,
+                                                         AccessControlAllowOrigin    = "*",
+                                                         AccessControlAllowMethods   = "GET",
+                                                         AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
+                                                         ContentType                 = HTTPContentType.HTML_UTF8,
+                                                         Content                     = MixWithHTMLTemplate("organization.newMember.shtml").ToUTF8Bytes(),
+                                                         Connection                  = "close",
+                                                         Vary                        = "Accept"
+                                                     }.AsImmutable);
+
+                                             }
+
+                                             return Task.FromResult(
+                                                        new HTTPResponse.Builder(Request) {
+                                                            HTTPStatusCode              = HTTPStatusCode.Unauthorized,
+                                                            Server                      = HTTPServer.DefaultServerName,
+                                                            Date                        = DateTime.UtcNow,
+                                                            AccessControlAllowOrigin    = "*",
+                                                            AccessControlAllowMethods   = "GET",
+                                                            AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
+                                                            Connection                  = "close"
+                                                        }.AsImmutable);
+
+                                         });
+
+            #endregion
+
+            #region GET         ~/organizations/{OrganizationId}/subOrganizations
+
+            // -----------------------------------------------------------------------------------------------
+            // curl -v -H "Accept: text/html" http://127.0.0.1:3001/organizations/CardiLink/subOrganizations
+            // -----------------------------------------------------------------------------------------------
+            HTTPServer.AddMethodCallback(Hostname,
+                                         HTTPMethod.GET,
+                                         URLPathPrefix + "organizations/{OrganizationId}/subOrganizations",
+                                         HTTPContentType.HTML_UTF8,
+                                         HTTPDelegate: Request => {
+
+                                             #region Get HTTP user and its organizations
+
+                                             // Will return HTTP 401 Unauthorized, when the HTTP user is unknown!
+                                             if (!TryGetHTTPUser(Request,
+                                                                 out User                   HTTPUser,
+                                                                 out HashSet<Organization>  HTTPOrganizations,
+                                                                 out HTTPResponse           Response,
+                                                                 Recursive:                 true))
+                                             {
+                                                 return Task.FromResult(Response);
+                                             }
+
+                                             #endregion
+
+                                             #region Check OrganizationId URI parameter
+
+                                             if (!Request.ParseOrganization(this,
+                                                                            out Organization_Id?  OrganizationId,
+                                                                            out Organization      Organization,
+                                                                            out HTTPResponse      HTTPResponse))
+                                             {
+                                                 return Task.FromResult(HTTPResponse);
+                                             }
+
+                                             #endregion
+
+
+                                             if (Organization != null && HTTPOrganizations.Contains(Organization))
+                                             {
+
+                                                 return Task.FromResult(
+                                                     new HTTPResponse.Builder(Request) {
+                                                         HTTPStatusCode              = HTTPStatusCode.OK,
+                                                         Server                      = HTTPServer.DefaultServerName,
+                                                         Date                        = DateTime.UtcNow,
+                                                         AccessControlAllowOrigin    = "*",
+                                                         AccessControlAllowMethods   = "GET",
+                                                         AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
+                                                         ContentType                 = HTTPContentType.HTML_UTF8,
+                                                         Content                     = MixWithHTMLTemplate("organization.subOrganizations.shtml").ToUTF8Bytes(),
+                                                         Connection                  = "close",
+                                                         Vary                        = "Accept"
+                                                     }.AsImmutable);
+
+                                             }
+
+                                             return Task.FromResult(
+                                                        new HTTPResponse.Builder(Request) {
+                                                            HTTPStatusCode              = HTTPStatusCode.Unauthorized,
+                                                            Server                      = HTTPServer.DefaultServerName,
+                                                            Date                        = DateTime.UtcNow,
+                                                            AccessControlAllowOrigin    = "*",
+                                                            AccessControlAllowMethods   = "GET",
+                                                            AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
+                                                            Connection                  = "close"
+                                                        }.AsImmutable);
+
+                                         });
+
+            #endregion
+
+            #region GET         ~/organizations/{OrganizationId}/newSubOrganization
+
+            // -----------------------------------------------------------------------------------------------
+            // curl -v -H "Accept: text/html" http://127.0.0.1:3001/organizations/CardiLink/newSubOrganization
+            // -----------------------------------------------------------------------------------------------
+            HTTPServer.AddMethodCallback(Hostname,
+                                         HTTPMethod.GET,
+                                         URLPathPrefix + "organizations/{OrganizationId}/newSubOrganization",
+                                         HTTPContentType.HTML_UTF8,
+                                         HTTPDelegate: Request => {
+
+                                             #region Get HTTP user and its organizations
+
+                                             // Will return HTTP 401 Unauthorized, when the HTTP user is unknown!
+                                             if (!TryGetHTTPUser(Request,
+                                                                 out User                   HTTPUser,
+                                                                 out HashSet<Organization>  HTTPOrganizations,
+                                                                 out HTTPResponse           Response,
+                                                                 Recursive:                 true))
+                                             {
+                                                 return Task.FromResult(Response);
+                                             }
+
+                                             #endregion
+
+                                             #region Check OrganizationId URI parameter
+
+                                             if (!Request.ParseOrganization(this,
+                                                                            out Organization_Id?  OrganizationId,
+                                                                            out Organization      Organization,
+                                                                            out HTTPResponse      HTTPResponse))
+                                             {
+                                                 return Task.FromResult(HTTPResponse);
+                                             }
+
+                                             #endregion
+
+
+                                             if (Organization != null && HTTPOrganizations.Contains(Organization))
+                                             {
+
+                                                 return Task.FromResult(
+                                                     new HTTPResponse.Builder(Request) {
+                                                         HTTPStatusCode              = HTTPStatusCode.OK,
+                                                         Server                      = HTTPServer.DefaultServerName,
+                                                         Date                        = DateTime.UtcNow,
+                                                         AccessControlAllowOrigin    = "*",
+                                                         AccessControlAllowMethods   = "GET",
+                                                         AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
+                                                         ContentType                 = HTTPContentType.HTML_UTF8,
+                                                         Content                     = MixWithHTMLTemplate("organization.newSubOrganization.shtml").ToUTF8Bytes(),
+                                                         Connection                  = "close",
+                                                         Vary                        = "Accept"
+                                                     }.AsImmutable);
+
+                                             }
+
+                                             return Task.FromResult(
+                                                        new HTTPResponse.Builder(Request) {
+                                                            HTTPStatusCode              = HTTPStatusCode.Unauthorized,
+                                                            Server                      = HTTPServer.DefaultServerName,
+                                                            Date                        = DateTime.UtcNow,
+                                                            AccessControlAllowOrigin    = "*",
+                                                            AccessControlAllowMethods   = "GET",
+                                                            AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
+                                                            Connection                  = "close"
+                                                        }.AsImmutable);
+
+                                         });
+
+            #endregion
+
+
             #region GET         ~/organizations/{OrganizationId}/notifications
 
             // --------------------------------------------------------------------------------------
@@ -7751,6 +8170,7 @@ namespace social.OpenData.UsersAPI
 
             #endregion
 
+            #region ~/groups
 
             #region GET         ~/groups
 
@@ -7791,6 +8211,276 @@ namespace social.OpenData.UsersAPI
                                                  ItemFilterDelegate:  group => group.PrivacyLevel == PrivacyLevel.World,
                                                  TryGetItemError:     groupId => "Unknown group '" + groupId + "'!",
                                                  ToJSONDelegate:      _ => _.ToJSON());
+
+            #endregion
+
+            #endregion
+
+            #region ~/notifications
+
+            #region GET         ~/notifications
+
+            // ----------------------------------------------------------------------------
+            // curl -v -H "Accept: text/html" http://127.0.0.1:3001/notifications
+            // ----------------------------------------------------------------------------
+            HTTPServer.AddMethodCallback(Hostname,
+                                         HTTPMethod.GET,
+                                         URLPathPrefix + "notifications",
+                                         HTTPContentType.HTML_UTF8,
+                                         HTTPDelegate: Request => {
+
+                                             #region Get HTTP user and its organizations
+
+                                             // Will return HTTP 401 Unauthorized, when the HTTP user is unknown!
+                                             if (!TryGetHTTPUser(Request,
+                                                                 out User                   HTTPUser,
+                                                                 out HashSet<Organization>  HTTPOrganizations,
+                                                                 out HTTPResponse           Response,
+                                                                 Recursive:                 true))
+                                             {
+                                                 return Task.FromResult(Response);
+                                             }
+
+                                             #endregion
+
+
+                                             return Task.FromResult(
+                                                 new HTTPResponse.Builder(Request) {
+                                                     HTTPStatusCode              = HTTPStatusCode.OK,
+                                                     Server                      = HTTPServer.DefaultServerName,
+                                                     Date                        = DateTime.UtcNow,
+                                                     AccessControlAllowOrigin    = "*",
+                                                     AccessControlAllowMethods   = "GET",
+                                                     AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
+                                                     ContentType                 = HTTPContentType.HTML_UTF8,
+                                                     Content                     = MixWithHTMLTemplate("notification.notifications.shtml").ToUTF8Bytes(),
+                                                     Connection                  = "close",
+                                                     Vary                        = "Accept"
+                                                 }.AsImmutable);
+
+                                         });
+
+            #endregion
+
+            #region GET         ~/notifications/{notificationId}
+
+            // ------------------------------------------------------------------------------------------------
+            // curl -v -H "Accept: text/html" http://127.0.0.1:3001/notifications/{notificationId}
+            // ------------------------------------------------------------------------------------------------
+            HTTPServer.AddMethodCallback(Hostname,
+                                         HTTPMethod.GET,
+                                         URLPathPrefix + "notifications/{notificationId}",
+                                         HTTPContentType.HTML_UTF8,
+                                         HTTPDelegate: Request => {
+
+                                             #region Get HTTP user and its organizations
+
+                                             // Will return HTTP 401 Unauthorized, when the HTTP user is unknown!
+                                             if (!TryGetHTTPUser(Request,
+                                                                 out User                   HTTPUser,
+                                                                 out HashSet<Organization>  HTTPOrganizations,
+                                                                 out HTTPResponse           Response,
+                                                                 Recursive:                 true))
+                                             {
+                                                 return Task.FromResult(Response);
+                                             }
+
+                                             #endregion
+
+                                             #region Get notificationId URL parameter
+
+                                             if (Request.ParsedURIParameters.Length < 1 ||
+                                                 !UInt32.TryParse(Request.ParsedURIParameters[0], out UInt32 NotificationId))
+                                             {
+
+                                                 return Task.FromResult(
+                                                            new HTTPResponse.Builder(Request) {
+                                                                HTTPStatusCode  = HTTPStatusCode.BadRequest,
+                                                                Server          = HTTPServer.DefaultServerName,
+                                                                Date            = DateTime.UtcNow,
+                                                                Connection      = "close"
+                                                            }.AsImmutable);
+
+                                             }
+
+                                             #endregion
+
+
+                                             return Task.FromResult(
+                                                 new HTTPResponse.Builder(Request) {
+                                                     HTTPStatusCode              = HTTPStatusCode.OK,
+                                                     Server                      = HTTPServer.DefaultServerName,
+                                                     Date                        = DateTime.UtcNow,
+                                                     AccessControlAllowOrigin    = "*",
+                                                     AccessControlAllowMethods   = "GET",
+                                                     AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
+                                                     ContentType                 = HTTPContentType.HTML_UTF8,
+                                                     Content                     = MixWithHTMLTemplate("notification.editNotification.shtml").ToUTF8Bytes(),
+                                                     Connection                  = "close",
+                                                     Vary                        = "Accept"
+                                                 }.AsImmutable);
+
+                                         });
+
+            #endregion
+
+
+            #region GET         ~/newNotification
+
+            #region JSON
+
+            // -----------------------------------------------------------------------------
+            // curl -v -H "Accept: application/json" http://127.0.0.1:2100/newNotification
+            // -----------------------------------------------------------------------------
+            HTTPServer.AddMethodCallback(Hostname,
+                                         HTTPMethod.GET,
+                                         URLPathPrefix + "newNotification",
+                                         HTTPContentType.JSON_UTF8,
+                                         HTTPDelegate: Request => {
+
+                                             #region Get HTTP user and its organizations
+
+                                             // Will return HTTP 401 Unauthorized, when the HTTP user is unknown!
+                                             if (!TryGetHTTPUser(Request,
+                                                                 out User                   HTTPUser,
+                                                                 out HashSet<Organization>  HTTPOrganizations,
+                                                                 out HTTPResponse           Response,
+                                                                 Recursive: true))
+                                             {
+                                                 return Task.FromResult(Response);
+                                             }
+
+                                             #endregion
+
+
+                                             return Task.FromResult(
+                                                        new HTTPResponse.Builder(Request) {
+                                                            HTTPStatusCode             = HTTPStatusCode.OK,
+                                                            Server                     = HTTPServer.DefaultServerName,
+                                                            Date                       = DateTime.UtcNow,
+                                                            AccessControlAllowOrigin   = "*",
+                                                            AccessControlAllowMethods  = "GET, SET",
+                                                            AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
+                                                            ETag                       = "1",
+                                                            ContentType                = HTTPContentType.JSON_UTF8,
+                                                            Content                    = JSONObject.Create(
+                                                                                             new JProperty("@context",  "https://opendata.social/contexts/UsersAPI+json/newNotification"),
+                                                                                             new JProperty("user",      JSONObject.Create(
+
+                                                                                                 new JProperty("name",  HTTPUser.EMail.OwnerName),
+                                                                                                 new JProperty("email", HTTPUser.EMail.Address.ToString()),
+
+                                                                                                 HTTPUser.MobilePhone.HasValue
+                                                                                                     ? new JProperty("phoneNumber", HTTPUser.MobilePhone.Value.ToString())
+                                                                                                     : null
+
+                                                                                             )),
+                                                                                             new JProperty("notificationGroups", new JArray(
+                                                                                                  _NotificationMessageGroups.Select(notificationMessageGroup => notificationMessageGroup.ToJSON())
+                                                                                             ))
+                                                                                          ).ToUTF8Bytes(),
+                                                            Connection                 = "close",
+                                                            Vary                       = "Accept"
+                                                        }.AsImmutable);
+
+            });
+
+            #endregion
+
+            #region HTML
+
+            // ----------------------------------------------------------------------
+            // curl -v -H "Accept: text/html" http://127.0.0.1:3001/newNotification
+            // ----------------------------------------------------------------------
+            HTTPServer.AddMethodCallback(Hostname,
+                                         HTTPMethod.GET,
+                                         URLPathPrefix + "newNotification",
+                                         HTTPContentType.HTML_UTF8,
+                                         HTTPDelegate: Request => {
+
+                                             #region Get HTTP user and its organizations
+
+                                             // Will return HTTP 401 Unauthorized, when the HTTP user is unknown!
+                                             if (!TryGetHTTPUser(Request,
+                                                                 out User                   HTTPUser,
+                                                                 out HashSet<Organization>  HTTPOrganizations,
+                                                                 out HTTPResponse           Response,
+                                                                 Recursive:                 true))
+                                             {
+                                                 return Task.FromResult(Response);
+                                             }
+
+                                             #endregion
+
+
+                                             return Task.FromResult(
+                                                 new HTTPResponse.Builder(Request) {
+                                                     HTTPStatusCode              = HTTPStatusCode.OK,
+                                                     Server                      = HTTPServer.DefaultServerName,
+                                                     Date                        = DateTime.UtcNow,
+                                                     AccessControlAllowOrigin    = "*",
+                                                     AccessControlAllowMethods   = "GET",
+                                                     AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
+                                                     ContentType                 = HTTPContentType.HTML_UTF8,
+                                                     Content                     = MixWithHTMLTemplate("notification.editNotification.shtml").ToUTF8Bytes(),
+                                                     Connection                  = "close",
+                                                     Vary                        = "Accept"
+                                                 }.AsImmutable);
+
+                                         });
+
+            #endregion
+
+            #endregion
+
+            #endregion
+
+
+            #region ~/dashboard
+
+            #region GET         ~/dashboard
+
+            // ----------------------------------------------------------------
+            // curl -v -H "Accept: text/html" http://127.0.0.1:3001/dashboard
+            // ----------------------------------------------------------------
+            HTTPServer.AddMethodCallback(Hostname,
+                                         HTTPMethod.GET,
+                                         URLPathPrefix + "dashboard",
+                                         HTTPContentType.HTML_UTF8,
+                                         HTTPDelegate: Request => {
+
+                                             #region Get HTTP user and its organizations
+
+                                             // Will return HTTP 401 Unauthorized, when the HTTP user is unknown!
+                                             if (!TryGetHTTPUser(Request,
+                                                                 out User                   HTTPUser,
+                                                                 out HashSet<Organization>  HTTPOrganizations,
+                                                                 out HTTPResponse           Response,
+                                                                 Recursive:                 true))
+                                             {
+                                                 return Task.FromResult(Response);
+                                             }
+
+                                             #endregion
+
+
+                                             return Task.FromResult(
+                                                 new HTTPResponse.Builder(Request) {
+                                                     HTTPStatusCode              = HTTPStatusCode.OK,
+                                                     Server                      = HTTPServer.DefaultServerName,
+                                                     Date                        = DateTime.UtcNow,
+                                                     AccessControlAllowOrigin    = "*",
+                                                     AccessControlAllowMethods   = "GET",
+                                                     AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
+                                                     ContentType                 = HTTPContentType.HTML_UTF8,
+                                                     Content                     = MixWithHTMLTemplate("dashboard.dashboard.shtml").ToUTF8Bytes(),
+                                                     Connection                  = "close",
+                                                     Vary                        = "Accept"
+                                                 }.AsImmutable);
+
+                                         }, AllowReplacement: URIReplacement.Allow);
+
+            #endregion
 
             #endregion
 

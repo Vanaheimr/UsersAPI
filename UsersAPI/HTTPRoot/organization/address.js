@@ -143,7 +143,7 @@ function StartOrganizationGeoLocation() {
         }
     }
     var organizationDiv = document.getElementById("organization");
-    var headlineDiv = organizationDiv.querySelector('.headline');
+    var headlineDiv = organizationDiv.querySelector("#headline");
     var dataDiv = organizationDiv.querySelector('#data');
     var street = dataDiv.querySelector('#street');
     var houseNumber = dataDiv.querySelector('#houseNumber');
@@ -162,36 +162,36 @@ function StartOrganizationGeoLocation() {
     var yes = confirmToDelete.querySelector('#yes');
     var no = confirmToDelete.querySelector('#no');
     var saveButton = document.getElementById("saveButton");
-    street.oninput = function (ev) {
+    street.oninput = function () {
         ToogleSaveButton();
     };
-    houseNumber.oninput = function (ev) {
+    houseNumber.oninput = function () {
         ToogleSaveButton();
     };
-    floorLevel.oninput = function (ev) {
+    floorLevel.oninput = function () {
         ToogleSaveButton();
     };
-    postalCode.oninput = function (ev) {
+    postalCode.oninput = function () {
         ToogleSaveButton();
     };
-    city.oninput = function (ev) {
+    city.oninput = function () {
         ToogleSaveButton();
     };
-    country.oninput = function (ev) {
+    country.oninput = function () {
         ToogleSaveButton();
     };
-    latitude.oninput = function (ev) {
+    latitude.oninput = function () {
         ToogleSaveButton();
     };
-    longitude.oninput = function (ev) {
+    longitude.oninput = function () {
         ToogleSaveButton();
     };
-    saveButton.onclick = function (ev) {
+    saveButton.onclick = function () {
         SaveData();
     };
-    HTTPGet("/organizations/" + organizationId + "?showMgt&expand=parents,subOrganizations", function (HTTPStatus, ResponseText) {
+    HTTPGet("/organizations/" + organizationId + "?showMgt&expand=parents,subOrganizations", function (status, response) {
         try {
-            organizationJSON = ParseJSON_LD(ResponseText);
+            organizationJSON = ParseJSON_LD(response);
             headlineDiv.querySelector("#name #language").innerText = firstKey(organizationJSON.name);
             headlineDiv.querySelector("#name #I18NText").innerText = firstValue(organizationJSON.name);
             if (organizationJSON.description) {
@@ -215,7 +215,7 @@ function StartOrganizationGeoLocation() {
         }
         catch (exception) {
         }
-    }, function (HTTPStatus, StatusText, ResponseText) {
+    }, function (HTTPStatus, status, response) {
     });
 }
 //# sourceMappingURL=address.js.map

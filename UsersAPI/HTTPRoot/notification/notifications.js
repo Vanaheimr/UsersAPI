@@ -144,33 +144,33 @@ function StartUserNotifications() {
         }
     }
     checkSignedIn(true);
-    HTTPGet("/users/" + SignInUser + "/notifications", function (HTTPStatus, ResponseText) {
+    HTTPGet("/users/" + SignInUser + "/notifications", function (status, response) {
         try {
-            var response = JSON.parse(ResponseText);
-            notificationGroups = response.notificationGroups;
-            userInfos = response.user;
-            if (notificationGroups == null || userInfos == null || response.notifications == null)
+            var responseJSON = JSON.parse(response);
+            notificationGroups = responseJSON.notificationGroups;
+            userInfos = responseJSON.user;
+            if (notificationGroups == null || userInfos == null || responseJSON.notifications == null)
                 responseDiv.innerHTML = "<div class=\"HTTP Error\">Could not fetch notification data from server!</div>";
             else {
-                var notificationsDiv = document.getElementById('notifications');
-                notificationsDiv.innerText = "";
-                if (notificationsDiv != null && response.notifications.length > 0) {
-                    for (var i = 0, len = response.notifications.length; i < len; i++)
-                        ShowNotification(notificationsDiv, response.notifications[i]);
+                var showNotificationsDiv = document.getElementById('showNotifications');
+                showNotificationsDiv.innerText = "";
+                if (showNotificationsDiv != null && responseJSON.notifications.length > 0) {
+                    for (var i = 0, len = responseJSON.notifications.length; i < len; i++)
+                        ShowNotification(showNotificationsDiv, responseJSON.notifications[i]);
                 }
             }
         }
         catch (e) {
             responseDiv.innerHTML = "<div class=\"HTTP Error\">Could not fetch notification data from server!</div>";
         }
-    }, function (HTTPStatus, StatusText, ResponseText) {
+    }, function (HTTPStatus, status, response) {
         responseDiv.innerHTML = "<div class=\"HTTP Error\">Could not fetch notification data from server!</div>";
     });
     var responseDiv = document.getElementById("response");
     var newNotificationButton = document.getElementById("newNotificationButton");
     newNotificationButton.onclick = function (ev) {
         var redirectURL = document.location.href.substring(0, document.location.href.lastIndexOf("/"));
-        document.location.href = redirectURL + "/notification/_new";
+        document.location.href = redirectURL + "/newNotification";
     };
 }
 //# sourceMappingURL=notifications.js.map

@@ -123,7 +123,7 @@ function StartOrganization() {
         }
     }
     var organizationDiv = document.getElementById("organization");
-    var headlineDiv = organizationDiv.querySelector('.headline');
+    var headlineDiv = organizationDiv.querySelector("#headline");
     var dataDiv = organizationDiv.querySelector('#data');
     var name = dataDiv.querySelector('#name');
     var description = dataDiv.querySelector('#description');

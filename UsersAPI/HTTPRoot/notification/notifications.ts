@@ -200,27 +200,28 @@ function StartUserNotifications() {
 
     HTTPGet("/users/" + SignInUser + "/notifications",
 
-            (HTTPStatus, ResponseText) => {
+            (status, response) => {
 
-                try {
+                try
+                {
 
-                    var response = JSON.parse(ResponseText);
+                    const responseJSON  = JSON.parse(response);
 
-                    notificationGroups  = response.notificationGroups;
-                    userInfos           = response.user;
+                    notificationGroups  = responseJSON.notificationGroups;
+                    userInfos           = responseJSON.user;
 
-                    if (notificationGroups == null || userInfos == null || response.notifications == null)
+                    if (notificationGroups == null || userInfos == null || responseJSON.notifications == null)
                         responseDiv.innerHTML = "<div class=\"HTTP Error\">Could not fetch notification data from server!</div>";
 
                     else
                     {
 
-                        let notificationsDiv = document.getElementById('notifications') as HTMLDivElement;
-                        notificationsDiv.innerText = "";
+                        const showNotificationsDiv = document.getElementById('showNotifications') as HTMLDivElement;
+                        showNotificationsDiv.innerText = "";
 
-                        if (notificationsDiv != null && response.notifications.length > 0) {
-                            for (var i = 0, len = response.notifications.length; i < len; i++)
-                                ShowNotification(notificationsDiv, response.notifications[i]);
+                        if (showNotificationsDiv != null && responseJSON.notifications.length > 0) {
+                            for (let i = 0, len = responseJSON.notifications.length; i < len; i++)
+                                ShowNotification(showNotificationsDiv, responseJSON.notifications[i]);
                         }
 
                     }
@@ -233,7 +234,7 @@ function StartUserNotifications() {
 
             },
 
-            (HTTPStatus, StatusText, ResponseText) => {
+            (HTTPStatus, status, response) => {
                 responseDiv.innerHTML = "<div class=\"HTTP Error\">Could not fetch notification data from server!</div>";
             });
 
@@ -244,7 +245,7 @@ function StartUserNotifications() {
 
     newNotificationButton.onclick = function (this: HTMLElement, ev: Event) {
         let redirectURL = document.location.href.substring(0, document.location.href.lastIndexOf("/"));
-        document.location.href = redirectURL + "/notification/_new";
+        document.location.href = redirectURL + "/newNotification";
     }
 
 }

@@ -231,7 +231,6 @@
     <EmbeddedResource Include="HTTPRoot\login\SignInOut.js.map">
       <DependentUpon>SignInOut.ts</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="HTTPRoot\profile\notifications.scss" />
     <EmbeddedResource Include="HTTPRoot\profile\APIKeys.scss" />
     <EmbeddedResource Include="HTTPRoot\profile\password.scss" />
     <EmbeddedResource Include="HTTPRoot\organization\organization.scss" />
@@ -245,7 +244,6 @@
     <EmbeddedResource Include="HTTPRoot\notification\notifications.js.map">
       <DependentUpon>notifications.ts</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="HTTPRoot\organization\devices.scss" />
     <EmbeddedResource Include="HTTPRoot\organization\address.scss" />
     <EmbeddedResource Include="HTTPRoot\organization\members.scss" />
     <EmbeddedResource Include="HTTPRoot\organization\newMember.scss" />
@@ -258,9 +256,6 @@
     </EmbeddedResource>
     <EmbeddedResource Include="HTTPRoot\organization\organization.js.map">
       <DependentUpon>organization.ts</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="HTTPRoot\organization\devices.js.map">
-      <DependentUpon>devices.ts</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="HTTPRoot\organization\members.js.map">
       <DependentUpon>members.ts</DependentUpon>
@@ -297,6 +292,7 @@
     </EmbeddedResource>
     <EmbeddedResource Include="HTTPRoot\user\user.scss" />
     <EmbeddedResource Include="HTTPRoot\user\users.scss" />
+    <EmbeddedResource Include="HTTPRoot\profile\organizations.scss" />
     <None Include="README.md" />
     <None Include="tsconfig.json" />
   </ItemGroup>
@@ -328,6 +324,18 @@
     <Content Include="HTTPRoot\admin\admin.css">
       <DependentUpon>admin.scss</DependentUpon>
     </Content>
+    <EmbeddedResource Include="HTTPRoot\profile\organizations.css">
+      <DependentUpon>organizations.scss</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="HTTPRoot\profile\organizations.min.css">
+      <DependentUpon>organizations.css</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="HTTPRoot\profile\APIKeys.css">
+      <DependentUpon>APIKeys.scss</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="HTTPRoot\profile\APIKeys.min.css">
+      <DependentUpon>APIKeys.css</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="HTTPRoot\user\user.css">
       <DependentUpon>user.scss</DependentUpon>
     </EmbeddedResource>
@@ -383,12 +391,6 @@
     <EmbeddedResource Include="HTTPRoot\support\notifications.css">
       <DependentUpon>support.scss</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="HTTPRoot\organization\devices.css">
-      <DependentUpon>devices.scss</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="HTTPRoot\organization\devices.min.css">
-      <DependentUpon>devices.css</DependentUpon>
-    </EmbeddedResource>
     <EmbeddedResource Include="HTTPRoot\organization\members.css">
       <DependentUpon>members.scss</DependentUpon>
     </EmbeddedResource>
@@ -414,10 +416,6 @@
       <DependentUpon>address.ts</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="HTTPRoot\organization\address.shtml" />
-    <EmbeddedResource Include="HTTPRoot\organization\devices.js">
-      <DependentUpon>devices.ts</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="HTTPRoot\organization\devices.shtml" />
     <EmbeddedResource Include="HTTPRoot\organization\members.js">
       <DependentUpon>members.ts</DependentUpon>
     </EmbeddedResource>
@@ -494,18 +492,6 @@
     <EmbeddedResource Include="HTTPRoot\profile\password.min.css">
       <DependentUpon>password.css</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="HTTPRoot\profile\profile - Copy.min.css">
-      <DependentUpon>profile - Copy.css</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="HTTPRoot\profile\profile - Copy.css">
-      <DependentUpon>APIKeys.scss</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="HTTPRoot\profile\notifications.css">
-      <DependentUpon>notifications.scss</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="HTTPRoot\profile\notifications.min.css">
-      <DependentUpon>notifications.css</DependentUpon>
-    </EmbeddedResource>
     <EmbeddedResource Include="HTTPRoot\defaults\defaults.js">
       <DependentUpon>defaults.ts</DependentUpon>
     </EmbeddedResource>
@@ -548,7 +534,6 @@
     <EmbeddedResource Include="HTTPRoot\notification\notifications.ts" />
     <EmbeddedResource Include="HTTPRoot\organization\address.ts" />
     <EmbeddedResource Include="HTTPRoot\organization\organization.ts" />
-    <EmbeddedResource Include="HTTPRoot\organization\devices.ts" />
     <EmbeddedResource Include="HTTPRoot\organization\members.ts" />
     <EmbeddedResource Include="HTTPRoot\organization\newMember.ts" />
     <EmbeddedResource Include="HTTPRoot\organization\newSubOrganization.ts" />

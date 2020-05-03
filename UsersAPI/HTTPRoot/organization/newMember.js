@@ -8,9 +8,9 @@ function StartNewMember() {
             links[i].href = links[i].href.replace("00000000", organizationId);
         }
     }
-    var organizationDiv = document.getElementById("organization");
-    var headlineDiv = organizationDiv.querySelector('.headline');
-    var dataDiv = organizationDiv.querySelector('#data');
+    var newMemberDiv = document.getElementById("newMember");
+    var headlineDiv = newMemberDiv.querySelector("#headline");
+    var dataDiv = newMemberDiv.querySelector('#data');
     var accessRights = dataDiv.querySelector('#accessRights');
     var login = dataDiv.querySelector('#login');
     var name = dataDiv.querySelector('#name');
