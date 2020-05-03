@@ -165,10 +165,10 @@ function StartEditUserNotifications() {
 
                             setTimeout(function () {
 
-                                let redirectURL = document.location.href.substring(0, document.location.href.lastIndexOf("/"));
-                                redirectURL     = redirectURL.substring(0, redirectURL.lastIndexOf("/"));
+                                //let redirectURL = document.location.href.substring(0, document.location.href.lastIndexOf("/"));
+                                //redirectURL     = redirectURL.substring(0, redirectURL.lastIndexOf("/"));
 
-                                document.location.href = redirectURL + "/notifications";
+                                document.location.href = "/notifications";
 
                             }, 2000);
 
