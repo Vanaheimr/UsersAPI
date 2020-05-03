@@ -1,0 +1,93 @@
+﻿<link href="../../organization/address.min.css" type="text/css" rel="stylesheet" />
+
+<script type="text/javascript" src="../../organization/address.js"></script>
+
+<div id="organization" class="entity">
+
+    <div id="headline" class="headline">
+        <div id="name" class="I18NString">
+            <div id="language"></div>
+            <div id="I18NText"></div>
+        </div>
+        <div id="description" class="I18NString">
+            <div id="language"></div>
+            <div id="I18NText"></div>
+        </div>
+    </div>
+
+    <div id="buttons">
+    </div>
+
+    <div id="data">
+
+        <div class="row">
+            <div class="key">Street</div>
+            <div class="value"><input id="street" placeholder="The name of the street..." /></div>
+        </div>
+
+        <div class="row">
+            <div class="key">House number</div>
+            <div class="value"><input id="houseNumber" placeholder="The house number..." /></div>
+        </div>
+
+        <div class="row">
+            <div class="key">Floor level</div>
+            <div class="value"><input id="floorLevel" placeholder="The floor level..." /></div>
+        </div>
+
+        <div class="row">
+            <div class="key">Postal code</div>
+            <div class="value"><input id="postalCode" placeholder="The postal code..." /></div>
+        </div>
+
+        <div class="row">
+            <div class="key">City</div>
+            <div class="value"><input id="city" placeholder="The city..." /></div>
+        </div>
+
+        <div class="row">
+            <div class="key">Country</div>
+            <div class="value"><input id="country" placeholder="The country..." /></div>
+        </div>
+
+        <div class="row">
+            <div class="key">Geo Latitude</div>
+            <div class="value"><input id="latitude" type="number" placeholder="The latitude of the geo location" /></div>
+        </div>
+
+        <div class="row">
+            <div class="key">Geo Longitude</div>
+            <div class="value"><input id="longitude" type="number" placeholder="The longitude of the geo location" /></div>
+        </div>
+
+    </div>
+
+    <div id="response"></div>
+
+    <div class="buttons">
+        <button id="saveButton" class="button" disabled>Save changes</button>
+    </div>
+
+</div>
+
+<div id="confirmToDeleteOrganization">
+    <div id="box">
+        <div id="headline">
+            Please confirm!
+        </div>
+        <div id="body">
+            <div id="text">
+                Do you really want to delete this organization?
+            </div>
+            <div id="buttons">
+                <button id="yes">Yes</button>
+                <button id="no">No</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    StartOrganizationGeoLocation();
+</script>
+

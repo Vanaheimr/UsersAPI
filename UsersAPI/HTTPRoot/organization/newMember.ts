@@ -1,0 +1,197 @@
+﻿
+function StartNewMember() {
+
+    const pathElements         = window.location.pathname.split("/");
+    const organizationId       = pathElements[pathElements.length - 2];
+
+    const organizationMenuDiv  = document.getElementById("organizationMenu")  as HTMLDivElement;
+    const links                = organizationMenuDiv.querySelectorAll("a");
+    for (let i = 0; i < links.length; i++) {
+
+        if (links[i].href.indexOf("00000000") > 0) {
+            links[i].href = links[i].href.replace("00000000", organizationId);
+        }
+
+    }
+
+    const organizationDiv      = document.getElementById("organization")      as HTMLDivElement;
+    const headlineDiv          = organizationDiv.querySelector ('.headline')  as HTMLDivElement;
+
+    const dataDiv              = organizationDiv.querySelector ('#data')      as HTMLDivElement;
+
+    const accessRights         = dataDiv.querySelector ('#accessRights')      as HTMLSelectElement;
+    const login                = dataDiv.querySelector ('#login')             as HTMLTextAreaElement;
+    const name                 = dataDiv.querySelector ('#name')              as HTMLTextAreaElement;
+    const email                = dataDiv.querySelector ('#email')             as HTMLInputElement;
+    const telephone            = dataDiv.querySelector ('#telephone')         as HTMLInputElement;
+    const mobilephone          = dataDiv.querySelector ('#mobilephone')       as HTMLInputElement;
+    const homepage             = dataDiv.querySelector ('#homepage')          as HTMLInputElement;
+    const description          = dataDiv.querySelector ('#description')       as HTMLTextAreaElement;
+
+    const responseDiv          = document.getElementById("response")          as HTMLDivElement;
+    const saveButton           = document.getElementById("saveButton")        as HTMLButtonElement;
+
+
+
+    function ToogleSaveButton(): boolean {
+
+        let isValid = false;
+
+        if (name.value.trim() !== "" && name.value.trim().length > 4)
+            isValid = true;
+
+        saveButton.disabled = !isValid;
+
+        if (isValid)
+            responseDiv.innerHTML = "";
+
+        return isValid;
+
+    }
+
+    function SaveData() {
+
+        const newUserJSON = {
+            "@context":            "https://opendata.social/contexts/UsersAPI+json/user",
+         //   "parentOrganization":  organizationId,
+            "name":                { "eng": name.value.trim() }
+        };
+
+        newUserJSON["accessRights"]     = accessRights.selectedOptions[accessRights.selectedIndex].value;
+
+        if (email.value.trim() !== "")
+            newUserJSON["email"]        = email.      value.trim();
+
+        if (telephone.value.trim() !== "")
+            newUserJSON["telephone"]    = telephone.  value.trim();
+
+        if (mobilephone.value.trim() !== "")
+            newUserJSON["mobilephone"]  = mobilephone.value.trim();
+
+        if (homepage.value.trim() !== "")
+            newUserJSON["homepage"]     = homepage.   value.trim();
+
+        if (description.value.trim() !== "")
+            newUserJSON["description"]  = { "eng": description.value.trim() };
+
+
+        HTTPAdd("/users",
+                newUserJSON,
+
+                (statusCode, status, response) => {
+
+                    try
+                    {
+
+                        const responseJSON         = JSON.parse(response);
+                        responseDiv.style.display  = "block";
+                        responseDiv.innerHTML      = "<div class=\"HTTP OK\">Successfully created this new member.</div>";
+
+                        // Redirect to updated organization members view after 2 sec!
+                        setTimeout(function () {
+                            if (responseJSON["@id"] != null)
+                                window.location.href = "../" + responseJSON["@id"];
+                        }, 2000);
+
+                    }
+                    catch (exception)
+                    {
+                        responseDiv.style.display  = "block";
+                        responseDiv.innerHTML      = "<div class=\"HTTP Error\">Storing the new member failed!<br />" +
+                                                         "Exception: " + exception +
+                                                     "</div>";
+                    }
+
+                },
+
+                (statusCode, status, response) => {
+
+                    responseDiv.style.display = "block";
+
+                    try
+                    {
+
+                        const responseJSON     = JSON.parse(response);
+                        responseDiv.innerHTML  = "<div class=\"HTTP Error\">Storing the new member failed!<br />" +
+                                                     (responseJSON.description != null
+                                                          ? responseJSON.description
+                                                          : "HTTP Error " + statusCode + " - " + status) +
+                                                 "</div>";
+
+                    }
+                    catch (exception)
+                    {
+                        responseDiv.innerHTML  = "<div class=\"HTTP Error\">Storing the new member failed!<br />" +
+                                                     "Exception: " + exception +
+                                                 "</div>";
+                    }
+
+                });
+
+    }
+
+
+    name.onchange       = () => {
+        ToogleSaveButton();
+    }
+
+    name.onkeyup        = () => {
+        ToogleSaveButton();
+    }
+
+    saveButton.onclick  = () => {
+        SaveData();
+    }
+
+
+    HTTPGet("/organizations/" + organizationId + "?showMgt&expand=subOrganizations",
+
+            (status, response) => {
+
+                try
+                {
+
+                    organizationJSON    = ParseJSON_LD<IOrganization>(response);
+
+                    (headlineDiv.querySelector("#name #language")        as HTMLDivElement).innerText = firstKey  (organizationJSON.name);
+                    (headlineDiv.querySelector("#name #I18NText")        as HTMLDivElement).innerText = firstValue(organizationJSON.name);
+
+                    if (organizationJSON.description != null && firstValue(organizationJSON.description) != null) {
+                        (headlineDiv.querySelector("#description")           as HTMLDivElement).style.display = "block";
+                        (headlineDiv.querySelector("#description #language") as HTMLDivElement).innerText = firstKey  (organizationJSON.description);
+                        (headlineDiv.querySelector("#description #I18NText") as HTMLDivElement).innerText = firstValue(organizationJSON.description);
+                    }
+
+                }
+                catch (exception)
+                {
+                    responseDiv.innerHTML  = "<div class=\"HTTP Error\">Could not fetch organization data from server!<br />" +
+                                                 "Exception: " + exception +
+                                             "</div>";
+                }
+
+            },
+
+            (statusCode, status, response) => {
+
+                try
+                {
+
+                    const responseJSON     = JSON.parse(response);
+                    responseDiv.innerHTML  = "<div class=\"HTTP Error\">Could not fetch organization data from server!<br />" +
+                                                 (responseJSON.description != null
+                                                      ? responseJSON.description
+                                                      : "HTTP Error " + statusCode + " - " + status) +
+                                             "</div>";
+
+                }
+                catch (exception)
+                {
+                    responseDiv.innerHTML  = "<div class=\"HTTP Error\">Could not fetch organization data from server!<br />" +
+                                                 "Exception: " + exception +
+                                             "</div>";
+                }
+
+            });
+
+}

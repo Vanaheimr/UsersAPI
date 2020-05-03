@@ -70,6 +70,31 @@ interface IOwner {
     Id:                              string;
 }
 
+
+
+
+
+interface SearchListView<TSearch> {
+    (searchResult:    TSearch,
+     searchResultDiv: HTMLAnchorElement): void;
+}
+
+interface SearchTableView<TSearch> {
+    (searchResult:    Array<TSearch>,
+     searchResultDiv: HTMLDivElement):    void;
+}
+
+interface SearchContext {
+    (context:         any):               void;
+}
+
+
+
+
+
+
+
+
 // #region MenuHighlight(name, NoURIupdate?)
 
 function MenuHighlight(name: string, NoURIupdate?: boolean) {
@@ -641,7 +666,8 @@ function HTTPDelete(RessourceURI: string,
 
 }
 
-// #endregion
+// #endregion
+
 
 // #region HTTPChown(RessourceURI, Data, OnSuccess, OnError)
 

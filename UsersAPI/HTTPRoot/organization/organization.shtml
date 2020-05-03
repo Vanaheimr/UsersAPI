@@ -1,0 +1,90 @@
+﻿<link href="../../organization/organization.min.css" type="text/css" rel="stylesheet" />
+
+<script type="text/javascript" src="../../organization/organization.js"></script>
+
+<div id="organization" class="entity">
+
+    <div id="headline" class="headline">
+        <div id="name" class="I18NString">
+            <div id="language"></div>
+            <div id="I18NText"></div>
+        </div>
+        <div id="description" class="I18NString">
+            <div id="language"></div>
+            <div id="I18NText"></div>
+        </div>
+    </div>
+
+    <div id="buttons">
+        <button id="delete" disabled><i class="fas fa-trash-alt"></i> Delete organization</button>
+    </div>
+
+    <div id="data">
+
+        <div class="row">
+            <div class="key">Name</div>
+            <div class="value I18N"><select id="nameLanguage" name="nameLanguage" size="1"></select><textarea id="name"></textarea></div>
+        </div>
+
+        <div class="row">
+            <div class="key keyTop">Description</div>
+            <div class="value I18N"><select id="descriptionLanguage" name="descriptionLanguage" size="1"></select><textarea id="description"></textarea></div>
+        </div>
+
+        <div class="row">
+            <div class="key">Website</div>
+            <div class="value"><input id="website" placeholder="The offical website..." /></div>
+        </div>
+
+        <div class="row">
+            <div class="key">E-Mail</div>
+            <div class="value"><input id="email" placeholder="The offical e-mail address..." /></div>
+        </div>
+
+        <div class="row">
+            <div class="key">Telephone</div>
+            <div class="value"><input id="telephone" placeholder="The offical telephone number..." /></div>
+        </div>
+
+
+        <div class="row">
+            <div class="key">Parent Organizations</div>
+            <div class="value organizationsList" id="parentsDiv"></div>
+        </div>
+
+        <div class="row">
+            <div class="key keyTop">Sub-Organizations</div>
+            <div class="value organizationsList" id="subOrganizationsDiv"></div>
+        </div>
+
+    </div>
+
+    <div id="response"></div>
+
+    <div class="buttons">
+        <button id="saveButton" class="button" disabled>Save changes</button>
+    </div>
+
+</div>
+
+<div id="confirmToDeleteOrganization">
+    <div id="box">
+        <div id="headline">
+            Please confirm!
+        </div>
+        <div id="body">
+            <div id="text">
+                Do you really want to delete this organization?
+            </div>
+            <div id="buttons">
+                <button id="yes">Yes</button>
+                <button id="no">No</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    StartOrganization();
+</script>
+

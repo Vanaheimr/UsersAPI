@@ -1,0 +1,43 @@
+﻿<link href="../../organization/members.min.css" type="text/css" rel="stylesheet" />
+
+<script type="text/javascript" src="../../organization/members.js"></script>
+
+<div id="organization" class="entity">
+
+    <div id="headline" class="headline">
+        <div id="name" class="I18NString">
+            <div id="language"></div>
+            <div id="I18NText"></div>
+        </div>
+        <div id="description" class="I18NString">
+            <div id="language"></div>
+            <div id="I18NText"></div>
+        </div>
+    </div>
+
+    <div id="buttons">
+        <button id="addNewMemberButton" disabled><i class="fas fa-plus"></i><i class="fas fa-user"></i> New member</button>
+    </div>
+
+    <div id="data">
+
+        <div class="row">
+            <div class="key keyTop">Admins</div>
+            <div class="value memberGroup" id="adminsDiv"></div>
+        </div>
+
+        <div class="row">
+            <div class="key keyTop">Members</div>
+            <div class="value memberGroup" id="membersDiv"></div>
+        </div>
+
+    </div>
+
+    <div id="response"></div>
+
+</div>
+
+<script type="text/javascript">
+    StartOrganizationMembers();
+</script>
+

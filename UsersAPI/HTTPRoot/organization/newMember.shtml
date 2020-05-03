@@ -1,0 +1,82 @@
+﻿<link href="../../organization/newMember.min.css" type="text/css" rel="stylesheet" />
+
+<script type="text/javascript" src="../../organization/newMember.js"></script>
+
+<div id="organization" class="entity">
+
+    <div id="headline" class="headline">
+        <div id="name" class="I18NString">
+            <div id="language"></div>
+            <div id="I18NText"></div>
+        </div>
+        <div id="description" class="I18NString">
+            <div id="language"></div>
+            <div id="I18NText"></div>
+        </div>
+    </div>
+
+    <div id="about">
+        Add a new member...
+    </div>
+
+    <div id="data">
+
+        <div class="row">
+            <div class="key keyTop">Access Rights</div>
+            <div class="value" id="accessRightsDiv">
+                <select id="accessRights" name="accessRights" size="1">
+                    <option>Admin</option>
+                    <option selected>Member</option>
+                    <option>Guest</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="key">Login</div>
+            <div class="value" id="loginDiv"><input id="login" type="text"></div>
+        </div>
+
+        <div class="row">
+            <div class="key">Name</div>
+            <div class="value" id="nameDiv"><input id="name" type="text"></div>
+        </div>
+
+        <div class="row">
+            <div class="key keyTop">E-Mail Address</div>
+            <div class="value"><input id="email" type="text" /></div>
+        </div>
+
+        <div class="row">
+            <div class="key keyTop">Telephone</div>
+            <div class="value"><input id="telephone" type="text" /></div>
+        </div>
+
+        <div class="row">
+            <div class="key keyTop">Mobile Phone</div>
+            <div class="value"><input id="mobilephone" type="text" /></div>
+        </div>
+
+        <div class="row">
+            <div class="key keyTop">Homepage</div>
+            <div class="value"><input id="homepage" type="text" /></div>
+        </div>
+
+        <div class="row">
+            <div class="key keyTop">Description</div>
+            <div class="value I18N" id="descriptionDiv"><select id="descriptionLanguage" name="descriptionLanguage" size="1"></select><textarea id="description"></textarea></div>
+        </div>
+
+    </div>
+
+    <div id="response"></div>
+
+    <div class="buttons">
+        <button id="saveButton" class="button" disabled>Save new member</button>
+    </div>
+
+</div>
+
+<script type="text/javascript">
+    StartNewMember();
+</script>

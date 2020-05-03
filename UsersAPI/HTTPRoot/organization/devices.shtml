@@ -1,0 +1,38 @@
+﻿<link href="../../organization/devices.min.css" type="text/css" rel="stylesheet" />
+
+<script type="text/javascript" src="../../organization/devices.js"></script>
+
+<div id="organization" class="entity">
+
+    <div id="headline" class="headline">
+        <div id="name" class="I18NString">
+            <div id="language"></div>
+            <div id="I18NText"></div>
+        </div>
+        <div id="description" class="I18NString">
+            <div id="language"></div>
+            <div id="I18NText"></div>
+        </div>
+    </div>
+
+    <div id="buttons">
+        <button id="newDefibrillatorButton" disabled><i class="fas fa-plus"></i><i class="fas fa-heartbeat"></i> New defibrillator</button>
+        <button id="newCommunicatorButton"  disabled><i class="fas fa-plus"></i><i class="fas fa-wifi "></i> New communicator</button>
+        <button id="newSimCardButton"       disabled><i class="fas fa-plus"></i><i class="fas fa-sim-card"></i> New SIM card</button>
+    </div>
+
+    <div id="data">
+
+
+    </div>
+
+    <div id="response"></div>
+
+    <!--<button id="saveButton" class="button" disabled>Save changes</button>-->
+
+</div>
+
+<script type="text/javascript">
+    StartOrganizationDevices();
+</script>
+

@@ -222,6 +222,9 @@
     <EmbeddedResource Include="HTTPRoot\defaults\datePicker.js.map">
       <DependentUpon>datePicker.ts</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="HTTPRoot\defaults\search.js.map">
+      <DependentUpon>search.ts</DependentUpon>
+    </EmbeddedResource>
     <None Include="HTTPRoot\libs\EventSource.js.map">
       <DependentUpon>EventSource.ts</DependentUpon>
     </None>
@@ -250,6 +253,30 @@
     <EmbeddedResource Include="HTTPRoot\organization\subOrganizations.scss" />
     <EmbeddedResource Include="HTTPRoot\organization\organizations.scss" />
     <EmbeddedResource Include="HTTPRoot\support\support.scss" />
+    <EmbeddedResource Include="HTTPRoot\organization\address.js.map">
+      <DependentUpon>address.ts</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="HTTPRoot\organization\organization.js.map">
+      <DependentUpon>organization.ts</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="HTTPRoot\organization\devices.js.map">
+      <DependentUpon>devices.ts</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="HTTPRoot\organization\members.js.map">
+      <DependentUpon>members.ts</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="HTTPRoot\organization\newMember.js.map">
+      <DependentUpon>newMember.ts</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="HTTPRoot\organization\newSubOrganization.js.map">
+      <DependentUpon>newSubOrganization.ts</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="HTTPRoot\organization\organizations.js.map">
+      <DependentUpon>organizations.ts</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="HTTPRoot\organization\subOrganizations.js.map">
+      <DependentUpon>subOrganizations.ts</DependentUpon>
+    </EmbeddedResource>
     <None Include="README.md" />
     <None Include="tsconfig.json" />
   </ItemGroup>
@@ -281,6 +308,19 @@
     <Content Include="HTTPRoot\admin\admin.css">
       <DependentUpon>admin.scss</DependentUpon>
     </Content>
+    <EmbeddedResource Include="HTTPRoot\organization\subOrganizations.js">
+      <DependentUpon>subOrganizations.ts</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="HTTPRoot\organization\subOrganizations.shtml" />
+    <EmbeddedResource Include="HTTPRoot\organization\organizations.js">
+      <DependentUpon>organizations.ts</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="HTTPRoot\organization\organizations.shtml" />
+    <EmbeddedResource Include="HTTPRoot\organization\newSubOrganization.shtml" />
+    <EmbeddedResource Include="HTTPRoot\organization\organization.shtml" />
+    <EmbeddedResource Include="HTTPRoot\organization\organization.js">
+      <DependentUpon>organization.ts</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="HTTPRoot\support\notifications.min.css">
       <DependentUpon>notifications.css</DependentUpon>
     </EmbeddedResource>
@@ -314,9 +354,31 @@
     <EmbeddedResource Include="HTTPRoot\organization\address.min.css">
       <DependentUpon>address.css</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="HTTPRoot\organization\address.js">
+      <DependentUpon>address.ts</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="HTTPRoot\organization\address.shtml" />
+    <EmbeddedResource Include="HTTPRoot\organization\devices.js">
+      <DependentUpon>devices.ts</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="HTTPRoot\organization\devices.shtml" />
+    <EmbeddedResource Include="HTTPRoot\organization\members.js">
+      <DependentUpon>members.ts</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="HTTPRoot\organization\members.shtml" />
+    <EmbeddedResource Include="HTTPRoot\organization\newMember.shtml" />
+    <EmbeddedResource Include="HTTPRoot\organization\newMember.js">
+      <DependentUpon>newMember.ts</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="HTTPRoot\defaults\search.js">
+      <DependentUpon>search.ts</DependentUpon>
+    </EmbeddedResource>
     <Content Include="HTTPRoot\organization\newSubOrganization.css">
       <DependentUpon>newSubOrganization.scss</DependentUpon>
     </Content>
+    <EmbeddedResource Include="HTTPRoot\organization\newSubOrganization.js">
+      <DependentUpon>newSubOrganization.ts</DependentUpon>
+    </EmbeddedResource>
     <Content Include="HTTPRoot\organization\newSubOrganization.min.css">
       <DependentUpon>newSubOrganization.css</DependentUpon>
     </Content>
@@ -423,10 +485,19 @@
     <EmbeddedResource Include="HTTPRoot\defaults\defaults.ts" />
     <EmbeddedResource Include="HTTPRoot\defaults\views.ts" />
     <EmbeddedResource Include="HTTPRoot\defaults\datePicker.ts" />
+    <EmbeddedResource Include="HTTPRoot\defaults\search.ts" />
     <TypeScriptCompile Include="HTTPRoot\libs\sse.d.ts" />
     <EmbeddedResource Include="HTTPRoot\login\SignInOut.ts" />
     <EmbeddedResource Include="HTTPRoot\notification\editNotification.ts" />
     <EmbeddedResource Include="HTTPRoot\notification\notifications.ts" />
+    <EmbeddedResource Include="HTTPRoot\organization\address.ts" />
+    <EmbeddedResource Include="HTTPRoot\organization\organization.ts" />
+    <EmbeddedResource Include="HTTPRoot\organization\devices.ts" />
+    <EmbeddedResource Include="HTTPRoot\organization\members.ts" />
+    <EmbeddedResource Include="HTTPRoot\organization\newMember.ts" />
+    <EmbeddedResource Include="HTTPRoot\organization\newSubOrganization.ts" />
+    <EmbeddedResource Include="HTTPRoot\organization\organizations.ts" />
+    <EmbeddedResource Include="HTTPRoot\organization\subOrganizations.ts" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\BouncyCastle\crypto\crypto.csproj">
