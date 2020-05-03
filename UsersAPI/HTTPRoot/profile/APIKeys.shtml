@@ -1,0 +1,21 @@
+﻿<link href="../profile/APIKeys.min.css" type="text/css" rel="stylesheet" />
+
+<script type="text/javascript" src="/shared/UsersAPI/js/date.format.js"></script>
+<script type="text/javascript" src="/defaults/defaults.js"></script>
+<script type="text/javascript" src="../profile/APIKeys.js"></script>
+<script type="text/javascript" src="/shared/UsersAPI/defaults/views.js"></script>
+
+<div id="APIKeyInfos">
+
+    <div id="APIKeys_headline" class="headline">Your API keys</div>
+
+    <div id="APIKeys"></div>
+    <div id="messages"></div>
+
+    <!--<button class="button" onclick="AddAPIKeysView()"><div class="text"><i class="fa fa-plus  fa-2x menuicons"></i><div class="text2">New API key</div></div></button>-->
+
+</div>
+
+<script type="text/javascript">
+    StartAPIKeys();
+</script>

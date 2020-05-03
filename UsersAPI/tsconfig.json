@@ -14,6 +14,11 @@
     "HTTPRoot/defaults/views.ts",
     "HTTPRoot/defaults/datePicker.ts",
 
+    "HTTPRoot/profile/profile.ts",
+    "HTTPRoot/profile/APIKeys.ts",
+    "HTTPRoot/profile/password.ts",
+    "HTTPRoot/profile/organizations.ts",
+
     "HTTPRoot/organization/organization.ts",
     "HTTPRoot/organization/organization.ts",
     "HTTPRoot/organization/organizations.ts",

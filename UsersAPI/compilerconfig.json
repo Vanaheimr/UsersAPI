@@ -62,5 +62,13 @@
   {
     "outputFile": "HTTPRoot/organization/subOrganizations.css",
     "inputFile": "HTTPRoot/organization/subOrganizations.scss"
+  },
+  {
+    "outputFile": "HTTPRoot/user/user.css",
+    "inputFile": "HTTPRoot/user/user.scss"
+  },
+  {
+    "outputFile": "HTTPRoot/user/users.css",
+    "inputFile": "HTTPRoot/user/users.scss"
   }
 ]

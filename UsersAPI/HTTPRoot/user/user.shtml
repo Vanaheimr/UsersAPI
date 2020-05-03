@@ -1,0 +1,73 @@
+﻿<link href="../user/user.min.css" type="text/css" rel="stylesheet" />
+
+<script type="text/javascript" src="../user/user.js"></script>
+
+<div id="profileinfos" class="entity">
+
+    <div id="profile_headline" class="headline">User profile</div>
+
+    <div id="buttons">
+        <button id="impersonateButton" disabled><i class="fas fa-theater-masks"></i> Impersonate</button>
+    </div>
+
+    <div id="profile">
+
+        <div id="avatar" class="row">
+            <div class="key keyTop">Public Avatar</div>
+            <div class="value"><img src="/shared/UsersAPI/images/dummy-user-gray-150x150.png" /></div>
+        </div>
+
+        <div class="row">
+            <div class="key">Login</div>
+            <div class="value"><input id="login"         readonly type="text" value="" /></div>
+        </div>
+
+        <div class="row">
+            <div class="key">Name</div>
+            <div class="value"><input id="username"      readonly type="text" value="" /></div>
+        </div>
+
+        <div class="row">
+            <div class="key">E-Mail Address</div>
+            <div class="value"><input id="eMailAddress"  readonly type="text" value="" /></div>
+        </div>
+
+        <div class="row">
+            <div class="key">Telephone</div>
+            <div class="value"><input id="telephone"     readonly type="text" value="" /></div>
+        </div>
+
+        <div class="row">
+            <div class="key">Mobil phone</div>
+            <div class="value"><input id="mobilePhone"   readonly type="text" value="" /></div>
+        </div>
+
+        <div class="row">
+            <div class="key">Homepage</div>
+            <div class="value"><input id="homepage"      readonly type="text" value="" /></div>
+        </div>
+
+        <div class="row">
+            <div class="key keyTop">Description</div>
+            <div class="value" id="userDescription"><select id="language" name="language" size="1"></select><textarea id="description" readonly></textarea></div>
+        </div>
+
+        <!--<div class="row">
+            <div class="key keyTop">2-Factor-Auth</div>
+            <div class="value"><select id="TwoFactorAuthentication"></select></div>
+        </div>-->
+
+    </div>
+
+    <div id="response"></div>
+
+    <div class="buttons">
+        <button id="saveButton" class="button" disabled>Save changes</button>
+    </div>
+
+</div>
+
+<script type="text/javascript">
+    StartUser();
+</script>
+

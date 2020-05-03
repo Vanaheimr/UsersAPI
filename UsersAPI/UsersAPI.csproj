@@ -277,6 +277,26 @@
     <EmbeddedResource Include="HTTPRoot\organization\subOrganizations.js.map">
       <DependentUpon>subOrganizations.ts</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="HTTPRoot\profile\APIKeys.js.map">
+      <DependentUpon>APIKeys.ts</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="HTTPRoot\profile\organizations.js.map">
+      <DependentUpon>organizations.ts</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="HTTPRoot\profile\password.js.map">
+      <DependentUpon>password.ts</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="HTTPRoot\profile\profile.js.map">
+      <DependentUpon>profile.ts</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="HTTPRoot\user\user.js.map">
+      <DependentUpon>user.ts</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="HTTPRoot\user\users.js.map">
+      <DependentUpon>users.ts</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="HTTPRoot\user\user.scss" />
+    <EmbeddedResource Include="HTTPRoot\user\users.scss" />
     <None Include="README.md" />
     <None Include="tsconfig.json" />
   </ItemGroup>
@@ -308,6 +328,42 @@
     <Content Include="HTTPRoot\admin\admin.css">
       <DependentUpon>admin.scss</DependentUpon>
     </Content>
+    <EmbeddedResource Include="HTTPRoot\user\user.css">
+      <DependentUpon>user.scss</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="HTTPRoot\user\user.min.css">
+      <DependentUpon>user.css</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="HTTPRoot\user\users.css">
+      <DependentUpon>users.scss</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="HTTPRoot\user\users.min.css">
+      <DependentUpon>users.css</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="HTTPRoot\user\users.js">
+      <DependentUpon>users.ts</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="HTTPRoot\user\users.shtml" />
+    <EmbeddedResource Include="HTTPRoot\user\user.js">
+      <DependentUpon>user.ts</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="HTTPRoot\user\user.shtml" />
+    <EmbeddedResource Include="HTTPRoot\profile\profile.js">
+      <DependentUpon>profile.ts</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="HTTPRoot\profile\profile.shtml" />
+    <EmbeddedResource Include="HTTPRoot\profile\password.js">
+      <DependentUpon>password.ts</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="HTTPRoot\profile\password.shtml" />
+    <EmbeddedResource Include="HTTPRoot\profile\organizations.js">
+      <DependentUpon>organizations.ts</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="HTTPRoot\profile\organizations.shtml" />
+    <EmbeddedResource Include="HTTPRoot\profile\APIKeys.js">
+      <DependentUpon>APIKeys.ts</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="HTTPRoot\profile\APIKeys.shtml" />
     <EmbeddedResource Include="HTTPRoot\organization\subOrganizations.js">
       <DependentUpon>subOrganizations.ts</DependentUpon>
     </EmbeddedResource>
@@ -498,6 +554,12 @@
     <EmbeddedResource Include="HTTPRoot\organization\newSubOrganization.ts" />
     <EmbeddedResource Include="HTTPRoot\organization\organizations.ts" />
     <EmbeddedResource Include="HTTPRoot\organization\subOrganizations.ts" />
+    <EmbeddedResource Include="HTTPRoot\profile\APIKeys.ts" />
+    <EmbeddedResource Include="HTTPRoot\profile\organizations.ts" />
+    <EmbeddedResource Include="HTTPRoot\profile\password.ts" />
+    <EmbeddedResource Include="HTTPRoot\profile\profile.ts" />
+    <EmbeddedResource Include="HTTPRoot\user\user.ts" />
+    <EmbeddedResource Include="HTTPRoot\user\users.ts" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\BouncyCastle\crypto\crypto.csproj">

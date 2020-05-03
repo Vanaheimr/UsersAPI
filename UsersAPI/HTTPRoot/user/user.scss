@@ -1,0 +1,35 @@
+﻿@import "../defaults/_defaults.scss";
+
+
+#profileinfos {
+
+    #profile {
+
+        padding:        0px 0px 0px 20px;
+
+        .row {
+
+            .value {
+
+                input[type=checkbox]:checked {
+                    color:              $NavigationBackground;
+                }
+
+                input:focus, textarea:focus {
+                    outline-color:      $NavigationBackground;
+                    border-color:       $NavigationBackground;
+                    box-shadow:         0 0 6px $NavigationBackground;
+                }
+            }
+        }
+    }
+
+    #impersonateButton {
+        display:        none;
+    }
+
+    #saveButton {
+        display:        none;
+    }
+
+}
