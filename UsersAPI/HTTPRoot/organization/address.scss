@@ -1,171 +1,192 @@
 ﻿@import "../defaults/_defaults.scss";
 
-#organization {
+body {
+    #page {
+        #right {
+            #text {
 
-    padding:    30px 30px 20px 25px;
-    font-size:  140%;
+                position:           relative;
 
-    #headline {
+                #organization {
 
-        padding-bottom:     30px;
-        color:              #999;
+                    width:              calc(50% - 55px);
+                    padding:            30px 30px 20px 25px;
+                    font-size:          140%;
 
-        #language {
-            display:            inline-block;
-            margin-top:         2px;
-            font-size:          60%;
-            vertical-align:     top;
-            background-color:   #ddd;
-            padding:            2px 4px;
-            border-radius:      4px;
-        }
+                    #headline {
 
-        #I18NText {
-            display:            inline-block;
-            font-size:          170%;
-        }
+                        padding-bottom:     30px;
+                        color:              #999;
 
-        #description {
-            display:            none;
-            font-size:          60%;
-        }
+                        #language {
+                            display:            inline-block;
+                            margin-top:         2px;
+                            font-size:          60%;
+                            vertical-align:     top;
+                            background-color:   #ddd;
+                            padding:            2px 4px;
+                            border-radius:      4px;
+                        }
 
-    }
+                        #I18NText {
+                            display:            inline-block;
+                            font-size:          170%;
+                        }
 
-    #buttons
-    {
+                        #description {
+                            display:            none;
+                            font-size:          60%;
+                        }
 
-        text-align:     right;
+                    }
 
-        button {
-            border:         0;
-            white-space:    nowrap;
-            color:          #6b6b6b;
-            padding:        8px 14px;
-            margin:         10px 0 15px 0;
-            border-radius:  5px;
-            font-size:      70%;
-        }
+                    #buttons
+                    {
 
-        button i:first-child {
-            margin-right: 2px;
-            font-size:    75%;
-        }
+                        text-align:     right;
 
-    }
+                        button {
+                            border:         0;
+                            white-space:    nowrap;
+                            color:          #6b6b6b;
+                            padding:        8px 14px;
+                            margin:         10px 0 15px 0;
+                            border-radius:  5px;
+                            font-size:      70%;
+                        }
 
-    #data {
+                        button i:first-child {
+                            margin-right: 2px;
+                            font-size:    75%;
+                        }
 
-        margin-left:        15px;
-        width:              calc(100% - 15px);
-        display:            table;
-        border-collapse:    collapse;
-        width:              100%;
+                    }
 
-        .row {
+                    #data {
 
-            display:    table-row;
-            width:      100%;
+                        margin-left:        15px;
+                        width:              calc(100% - 15px);
+                        display:            table;
+                        border-collapse:    collapse;
+                        width:              100%;
 
-            .key {
-                display:            table-cell;
-                padding:            8px 42px 8px 0;
-                white-space:        nowrap;
-                color:              #666;
-                vertical-align:     top;
+                        .row {
+
+                            display:    table-row;
+                            width:      100%;
+
+                            .key {
+                                display:            table-cell;
+                                padding:            8px 42px 8px 0;
+                                white-space:        nowrap;
+                                color:              #666;
+                                vertical-align:     top;
+                            }
+
+                            .value {
+
+                                display:            table-cell;
+                                vertical-align:     middle;
+                                width:              100%;
+
+                                #name {
+                                    min-height:     10px;
+                                }
+
+                                input {
+                                    background-color:   rgba(255,255,255,.7);
+                                    width:              calc(100% - 16px);
+                                    padding:            6px 8px;
+                                    border:             0;
+                                    border-radius:      4px;
+                                    color:              #777;
+                                    color:              #000;
+                                    font-size:          100%;
+                                }
+
+                                input[type=checkbox]:checked {
+                                    color:              $NavigationBackground;
+                                }
+
+                                textarea {
+                                    background-color:   rgba(255,255,255,.7);
+                                    width:              calc(100% - 16px);
+                                    height:             100px;
+                                    padding:            6px 8px;
+                                    border:             0;
+                                    color:              #777;
+                                    color:              #000;
+                                    font-size:          100%;
+                                    resize:             vertical;
+                                }
+
+                                input:focus, textarea:focus {
+                                    outline-color:      $NavigationBackground;
+                                    border-color:       $NavigationBackground;
+                                    box-shadow:         0 0 6px $NavigationBackground;
+                                }
+
+                                input::placeholder {
+                                    font-size:          90%;
+                                    font-style:         italic;
+                                    color:              rgb(172, 172, 172);
+                                    opacity:            1;      /* Firefox fix */
+                                }
+
+                                #address {
+                                    margin-top:         2px;
+                                    border-radius:      4px;
+                                }
+
+                            }
+
+                            .organizationsList {
+
+                                display:        flex;
+                                flex-wrap:      wrap;
+                                padding-top:    7px;
+
+                                .organization {
+                                    padding: 4px 8px;
+                                    margin: 2px;
+                                    border: 0;
+                                    border-radius: 3px;
+                                }
+
+                                .organization:hover {
+                                    background-color:   rgba(255, 115, 0, 0.2);
+                                }
+
+                            }
+
+                        }
+
+                    }
+
+                    #response {
+
+                    }
+
+                    #saveButton {
+                        margin-top:         2vh;
+                    }
+
+                }
+
+                #map {
+                    width:              50%;
+                    display:            inline-block;
+                    top:                0px;
+                    bottom:             0px;
+                    right:              0px;
+                    position:           absolute;
+                    cursor:             pointer;
+                }
+
             }
-
-            .value {
-
-                display:            table-cell;
-                vertical-align:     middle;
-                width:              100%;
-
-                #name {
-                    min-height:     10px;
-                }
-
-                input {
-                    background-color:   rgba(255,255,255,.7);
-                    width:              calc(100% - 16px);
-                    padding:            6px 8px;
-                    border:             0;
-                    border-radius:      4px;
-                    color:              #777;
-                    color:              #000;
-                    font-size:          100%;
-                }
-
-                input[type=checkbox]:checked {
-                    color:              $NavigationBackground;
-                }
-
-                textarea {
-                    background-color:   rgba(255,255,255,.7);
-                    width:              calc(100% - 16px);
-                    height:             100px;
-                    padding:            6px 8px;
-                    border:             0;
-                    color:              #777;
-                    color:              #000;
-                    font-size:          100%;
-                    resize:             vertical;
-                }
-
-                input:focus, textarea:focus {
-                    outline-color:      $NavigationBackground;
-                    border-color:       $NavigationBackground;
-                    box-shadow:         0 0 6px $NavigationBackground;
-                }
-
-                input::placeholder {
-                    font-size:          90%;
-                    font-style:         italic;
-                    color:              rgb(172, 172, 172);
-                    opacity:            1;      /* Firefox fix */
-                }
-
-                #address {
-                    margin-top:         2px;
-                    border-radius:      4px;
-                }
-
-            }
-
-            .organizationsList {
-
-                display:        flex;
-                flex-wrap:      wrap;
-                padding-top:    7px;
-
-                .organization {
-                    padding: 4px 8px;
-                    margin: 2px;
-                    border: 0;
-                    border-radius: 3px;
-                }
-
-                .organization:hover {
-                    background-color:   rgba(255, 115, 0, 0.2);
-                }
-
-            }
-
         }
-
     }
-
-    #response {
-
-    }
-
-    #saveButton {
-        margin-top:         2vh;
-    }
-
-
 }
-
 
 .I18N {
 

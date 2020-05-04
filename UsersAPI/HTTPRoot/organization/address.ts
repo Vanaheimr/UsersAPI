@@ -1,6 +1,25 @@
 ﻿
 function StartOrganizationGeoLocation() {
 
+    let geoPosition: any;
+
+
+    function DrawGeoPosition() {
+
+        if (geoPosition != null) {
+            map.removeLayer(geoPosition);
+            geoPosition = null;
+        }
+
+        if (latitude.value != "" && longitude.value != "")
+            geoPosition = leaflet.marker([latitude.value, longitude.value]).addTo(map);
+
+
+        if (geoPosition != null)
+            map.panTo([latitude.value, longitude.value]);
+
+    }
+
     function AnyChangesMade(): boolean {
 
         // street
@@ -240,31 +259,23 @@ function StartOrganizationGeoLocation() {
 
     }
 
-    const organizationDiv           = document.       getElementById("organization")                   as HTMLDivElement;
-    const headlineDiv               = organizationDiv.querySelector ("#headline")                      as HTMLDivElement;
-    const dataDiv                   = organizationDiv.querySelector ('#data')                          as HTMLDivElement;
+    const organizationDiv  = document.       getElementById("organization")   as HTMLDivElement;
+    const headlineDiv      = organizationDiv.querySelector ("#headline")      as HTMLDivElement;
+    const dataDiv          = organizationDiv.querySelector ('#data')          as HTMLDivElement;
 
-    const street                    = dataDiv.        querySelector ('#street')                        as HTMLInputElement;
-    const houseNumber               = dataDiv.        querySelector ('#houseNumber')                   as HTMLInputElement;
-    const floorLevel                = dataDiv.        querySelector ('#floorLevel')                    as HTMLInputElement;
-    const postalCode                = dataDiv.        querySelector ('#postalCode')                    as HTMLInputElement;
-    const city                      = dataDiv.        querySelector ('#city')                          as HTMLInputElement;
-    const country                   = dataDiv.        querySelector ('#country')                       as HTMLInputElement;
-    const latitude                  = dataDiv.        querySelector ('#latitude')                      as HTMLInputElement;
-    const longitude                 = dataDiv.        querySelector ('#longitude')                     as HTMLInputElement;
+    const street           = dataDiv.        querySelector ('#street')        as HTMLInputElement;
+    const houseNumber      = dataDiv.        querySelector ('#houseNumber')   as HTMLInputElement;
+    const floorLevel       = dataDiv.        querySelector ('#floorLevel')    as HTMLInputElement;
+    const postalCode       = dataDiv.        querySelector ('#postalCode')    as HTMLInputElement;
+    const city             = dataDiv.        querySelector ('#city')          as HTMLInputElement;
+    const country          = dataDiv.        querySelector ('#country')       as HTMLInputElement;
+    const comment          = dataDiv.        querySelector ("#comment")       as HTMLInputElement;
 
-    const parentsDiv                = dataDiv.        querySelector ('#parentsDiv')                    as HTMLDivElement;
-    const subOrganizationsDiv       = dataDiv.        querySelector ('#subOrganizationsDiv')           as HTMLDivElement;
+    const latitude         = dataDiv.        querySelector ('#latitude')      as HTMLInputElement;
+    const longitude        = dataDiv.        querySelector ('#longitude')     as HTMLInputElement;
 
-    const responseDiv               = document.       getElementById("response")                       as HTMLDivElement;
-
-    const buttonsDiv                = organizationDiv.querySelector ('#buttons')                       as HTMLDivElement;
-    const deleteOrganizationButton  = buttonsDiv.     querySelector ('#delete')                        as HTMLButtonElement;
-    const confirmToDelete           = document.       getElementById("confirmToDeleteOrganization")    as HTMLDivElement;
-    const yes                       = confirmToDelete.querySelector ('#yes')                           as HTMLButtonElement;
-    const no                        = confirmToDelete.querySelector ('#no')                            as HTMLButtonElement;
-
-    const saveButton                = document.       getElementById("saveButton")                     as HTMLButtonElement;
+    const responseDiv      = document.       getElementById("response")       as HTMLDivElement;
+    const saveButton       = document.       getElementById("saveButton")     as HTMLButtonElement;
 
     street.oninput = () => {
         ToogleSaveButton();
@@ -291,10 +302,12 @@ function StartOrganizationGeoLocation() {
     }
 
     latitude.oninput = () => {
+        DrawGeoPosition();
         ToogleSaveButton();
     }
 
     longitude.oninput = () => {
+        DrawGeoPosition();
         ToogleSaveButton();
     }
 
@@ -302,6 +315,18 @@ function StartOrganizationGeoLocation() {
     saveButton.onclick = () => {
         SaveData();
     }
+
+
+    map.on('click', function (e) {
+
+        let coordinate   = e.latlng.wrap();
+        latitude. value  = coordinate.lat;
+        longitude.value  = coordinate.lng;
+
+        DrawGeoPosition();
+        ToogleSaveButton();
+
+    });
 
 
     HTTPGet("/organizations/" + organizationId + "?showMgt&expand=parents,subOrganizations",
@@ -340,13 +365,13 @@ function StartOrganizationGeoLocation() {
                 }
                 catch (exception)
                 {
-
+                    responseDiv.innerHTML = "<div class=\"HTTP Error\">Could not fetch organization data from server!</div>";
                 }
 
             },
 
             (HTTPStatus, status, response) => {
-
+                responseDiv.innerHTML = "<div class=\"HTTP Error\">Could not fetch organization data from server!</div>";
             });
 
 }

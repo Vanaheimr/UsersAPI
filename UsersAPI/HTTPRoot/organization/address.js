@@ -1,4 +1,15 @@
 function StartOrganizationGeoLocation() {
+    var geoPosition;
+    function DrawGeoPosition() {
+        if (geoPosition != null) {
+            map.removeLayer(geoPosition);
+            geoPosition = null;
+        }
+        if (latitude.value != "" && longitude.value != "")
+            geoPosition = leaflet.marker([latitude.value, longitude.value]).addTo(map);
+        if (geoPosition != null)
+            map.panTo([latitude.value, longitude.value]);
+    }
     function AnyChangesMade() {
         // street
         if ((organizationJSON.address !== undefined && organizationJSON.address.street !== undefined ? organizationJSON.address.street : "") !== street.value) {
@@ -151,16 +162,10 @@ function StartOrganizationGeoLocation() {
     var postalCode = dataDiv.querySelector('#postalCode');
     var city = dataDiv.querySelector('#city');
     var country = dataDiv.querySelector('#country');
+    var comment = dataDiv.querySelector("#comment");
     var latitude = dataDiv.querySelector('#latitude');
     var longitude = dataDiv.querySelector('#longitude');
-    var parentsDiv = dataDiv.querySelector('#parentsDiv');
-    var subOrganizationsDiv = dataDiv.querySelector('#subOrganizationsDiv');
     var responseDiv = document.getElementById("response");
-    var buttonsDiv = organizationDiv.querySelector('#buttons');
-    var deleteOrganizationButton = buttonsDiv.querySelector('#delete');
-    var confirmToDelete = document.getElementById("confirmToDeleteOrganization");
-    var yes = confirmToDelete.querySelector('#yes');
-    var no = confirmToDelete.querySelector('#no');
     var saveButton = document.getElementById("saveButton");
     street.oninput = function () {
         ToogleSaveButton();
@@ -181,14 +186,23 @@ function StartOrganizationGeoLocation() {
         ToogleSaveButton();
     };
     latitude.oninput = function () {
+        DrawGeoPosition();
         ToogleSaveButton();
     };
     longitude.oninput = function () {
+        DrawGeoPosition();
         ToogleSaveButton();
     };
     saveButton.onclick = function () {
         SaveData();
     };
+    map.on('click', function (e) {
+        var coordinate = e.latlng.wrap();
+        latitude.value = coordinate.lat;
+        longitude.value = coordinate.lng;
+        DrawGeoPosition();
+        ToogleSaveButton();
+    });
     HTTPGet("/organizations/" + organizationId + "?showMgt&expand=parents,subOrganizations", function (status, response) {
         try {
             organizationJSON = ParseJSON_LD(response);
@@ -214,8 +228,10 @@ function StartOrganizationGeoLocation() {
             }
         }
         catch (exception) {
+            responseDiv.innerHTML = "<div class=\"HTTP Error\">Could not fetch organization data from server!</div>";
         }
     }, function (HTTPStatus, status, response) {
+        responseDiv.innerHTML = "<div class=\"HTTP Error\">Could not fetch organization data from server!</div>";
     });
 }
 //# sourceMappingURL=address.js.map

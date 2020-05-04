@@ -109,8 +109,8 @@ function StartEditUserNotifications() {
                         ? "<div class=\"HTTP OK\">Successfully removed notification.</div>"
                         : "<div class=\"HTTP OK\">Successfully stored updated notification.</div>";
                     setTimeout(function () {
-                        var redirectURL = document.location.href.substring(0, document.location.href.lastIndexOf("/"));
-                        redirectURL = redirectURL.substring(0, redirectURL.lastIndexOf("/"));
+                        //let redirectURL = document.location.href.substring(0, document.location.href.lastIndexOf("/"));
+                        //redirectURL     = redirectURL.substring(0, redirectURL.lastIndexOf("/"));
                         document.location.href = "/notifications";
                     }, 2000);
                 }

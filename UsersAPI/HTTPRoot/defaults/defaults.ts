@@ -4,6 +4,12 @@ var APIKey:       string = null;
 var CurrentlyHighlightedMenuItem     = "";
 var CurrentlyHighlightedSubmenuItem  = "";
 
+ // @ts-ignore
+var map:     any = {};
+ // @ts-ignore
+var leaflet: any = {};
+var markers      = [];
+
 let UserProfileJSON: IUserProfile;
 
 interface IUserProfile {

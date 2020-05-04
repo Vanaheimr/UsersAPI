@@ -2,6 +2,11 @@ var HTTPCookieId = "UsersAPI";
 var APIKey = null;
 var CurrentlyHighlightedMenuItem = "";
 var CurrentlyHighlightedSubmenuItem = "";
+// @ts-ignore
+var map = {};
+// @ts-ignore
+var leaflet = {};
+var markers = [];
 var UserProfileJSON;
 var organizationJSON;
 // #region MenuHighlight(name, NoURIupdate?)
