@@ -10744,7 +10744,7 @@ namespace social.OpenData.UsersAPI
 
                                                  #endregion
 
-                                                 var State        = CreatePerRequestState != null ? CreatePerRequestState() : default(TState);
+                                                 var State        = CreatePerRequestState != null ? CreatePerRequestState() : default;
                                                  var _HTTPEvents  = _EventSource.GetAllEventsGreater(Request.GetHeaderField_UInt64("Last-Event-ID")).
                                                                                  Where  (httpEvent => IncludeFilterAtRuntime(State,
                                                                                                                              HTTPUser,
