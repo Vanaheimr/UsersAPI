@@ -1,6 +1,13 @@
 ﻿
 function StartNewMember() {
 
+    let newUserJSON = {
+        "@id":      "",
+        "@context": "https://opendata.social/contexts/UsersAPI+json/user",
+        "name":     null,
+        "email":    ""
+    };
+
     const pathElements         = window.location.pathname.split("/");
     const organizationId       = pathElements[pathElements.length - 2];
 
@@ -20,8 +27,11 @@ function StartNewMember() {
 
     const accessRights         = dataDiv.querySelector('#accessRights')    as HTMLSelectElement;
     const login                = dataDiv.querySelector('#login')           as HTMLTextAreaElement;
+    const loginError           = dataDiv.querySelector('#loginError')      as HTMLDivElement;
     const name                 = dataDiv.querySelector('#name')            as HTMLTextAreaElement;
+    const nameError            = dataDiv.querySelector('#nameError')       as HTMLDivElement;
     const email                = dataDiv.querySelector('#email')           as HTMLInputElement;
+    const emailError           = dataDiv.querySelector('#emailError')      as HTMLDivElement;
     const telephone            = dataDiv.querySelector('#telephone')       as HTMLInputElement;
     const mobilephone          = dataDiv.querySelector('#mobilephone')     as HTMLInputElement;
     const homepage             = dataDiv.querySelector('#homepage')        as HTMLInputElement;
@@ -30,36 +40,143 @@ function StartNewMember() {
     const responseDiv          = document.getElementById("response")       as HTMLDivElement;
     const saveButton           = document.getElementById("saveButton")     as HTMLButtonElement;
 
+    login.onchange     = () => { VerifyLogin(); }
+    login.onkeyup      = () => { VerifyLogin(); }
+    name.onchange      = () => { VerifyName();  }
+    name.onkeyup       = () => { VerifyName();  }
+    email.onchange     = () => { VerifyEMail(); }
+    email.onkeyup      = () => { VerifyEMail(); }
+    saveButton.onclick = () => { SaveData();    }
 
 
-    function ToogleSaveButton(): boolean {
+    function VerifyLogin() {
 
-        let isValid = false;
+        const UserId = login.value.toLowerCase().trim();
+        login.value = UserId;
 
-        if (name.value.trim() !== "" && name.value.trim().length > 4)
-            isValid = true;
+        if (UserId == "")
+        {
+            newUserJSON["@id"] = "";
+            login.classList.remove("error");
+            loginError.style.display = "none";
+            VerifyAll();
+        }
 
-        saveButton.disabled = !isValid;
+        else if (/^([a-zA-Z0-9]{3,})$/.test(UserId) == false) {
+            saveButton.disabled = true;
+            newUserJSON["@id"] = null;
+            login.classList.add("error");
+            loginError.innerText     = "Invalid user identification!";
+            loginError.style.display = "flex";
+        }
 
-        if (isValid)
+        else if (newUserJSON["@id"] != UserId) {
+
             responseDiv.innerHTML = "";
 
-        return isValid;
+            HTTPGet("/users/" + UserId,
+
+                    // HTTP OK    => bad!
+                    (status, response) => {
+                        newUserJSON["@id"] = null;
+                        login.classList.add("error");
+                        loginError.innerText     = "This user identification already exists!";
+                        loginError.style.display = "flex";
+                        saveButton.disabled = true;
+                    },
+
+                    // HTTP Error => Maybe good!
+                    (HTTPStatus, status, response) => {
+
+                        // HTTP Not Found => good!
+                        if (HTTPStatus == 404) {
+                            newUserJSON["@id"] = UserId;
+                            login.classList.remove("error");
+                            loginError.style.display = "none";
+                            VerifyAll();
+                        }
+
+                        // Any other status => bad!
+                        else {
+                            responseDiv.innerHTML = "<div class=\"HTTP Error\">Could not validate the given user identification!</div>";
+                            newUserJSON["@id"] = null;
+                            saveButton.disabled = true;
+                        }
+
+                    });
+
+        }
 
     }
 
+    function VerifyName() {
+
+        const UserName = name.value;
+
+        if (UserName == "") {
+            saveButton.disabled = true;
+            newUserJSON.name = null;
+        }
+
+        else if (/^(.{4,})$/.test(UserName) == false) {
+            saveButton.disabled = true;
+            newUserJSON.name = null;
+            name.classList.add("error");
+            nameError.innerText = "Invalid user name!";
+            nameError.style.display = "flex";
+        }
+
+        else {
+            name.classList.remove("error");
+            nameError.style.display = "none";
+            newUserJSON.name = { "eng": UserName };
+            VerifyAll();
+        }
+    }
+
+    function VerifyEMail() {
+
+        const EMail = email.value.trim();
+        email.value = EMail;
+
+        if (EMail == "") {
+            saveButton.disabled = true;
+            newUserJSON.email = "";
+        }
+
+        else if (/^(\S{1,}@\S{2,}\.\S{2,})$/.test(EMail) == false) {
+            saveButton.disabled = true;
+            newUserJSON.email = "";
+            email.classList.add("error");
+            emailError.innerText = "Invalid e-mail address!";
+            emailError.style.display = "flex";
+        }
+
+        else {
+            email.classList.remove("error");
+            emailError.style.display = "none";
+            newUserJSON.email = EMail;
+            VerifyAll();
+        }
+    }
+
+    function VerifyAll() {
+
+        if (newUserJSON["@id"] != null &&
+            newUserJSON.name   != null &&
+            newUserJSON.email  != "")
+        {
+            saveButton.disabled = false;
+            responseDiv.innerHTML = "";
+        }
+
+    }
+
+
     function SaveData() {
 
-        const newUserJSON = {
-            "@context":            "https://opendata.social/contexts/UsersAPI+json/user",
-         //   "parentOrganization":  organizationId,
-            "name":                { "eng": name.value.trim() }
-        };
-
-        newUserJSON["accessRights"]     = accessRights.selectedOptions[accessRights.selectedIndex].value;
-
-        if (email.value.trim() !== "")
-            newUserJSON["email"]        = email.      value.trim();
+        if (newUserJSON["@id"] == "")
+            delete newUserJSON["@id"];
 
         if (telephone.value.trim() !== "")
             newUserJSON["telephone"]    = telephone.  value.trim();
@@ -72,6 +189,11 @@ function StartNewMember() {
 
         if (description.value.trim() !== "")
             newUserJSON["description"]  = { "eng": description.value.trim() };
+
+        newUserJSON["organizations"] = [{
+            "organizationId":  organizationId,
+            "accessRights":    accessRights.selectedOptions[0].value.toLowerCase()
+        }],
 
 
         HTTPAdd("/users",
@@ -130,20 +252,7 @@ function StartNewMember() {
     }
 
 
-    name.onchange       = () => {
-        ToogleSaveButton();
-    }
-
-    name.onkeyup        = () => {
-        ToogleSaveButton();
-    }
-
-    saveButton.onclick  = () => {
-        SaveData();
-    }
-
-
-    HTTPGet("/organizations/" + organizationId + "?showMgt&expand=subOrganizations",
+    HTTPGet("/organizations/" + organizationId,
 
             (status, response) => {
 

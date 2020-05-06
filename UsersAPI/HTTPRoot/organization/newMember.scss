@@ -5,33 +5,6 @@
     padding:    30px 30px 20px 25px;
     font-size:  140%;
 
-    #head2line {
-
-        padding-bottom:     30px;
-        color:              #999;
-
-        #language {
-            display:            inline-block;
-            margin-top:         2px;
-            font-size:          60%;
-            vertical-align:     top;
-            background-color:   #ddd;
-            padding:            2px 4px;
-            border-radius:      4px;
-        }
-
-        #I18NText {
-            display:            inline-block;
-            font-size:          170%;
-        }
-
-        #description {
-            display:            none;
-            font-size:          60%;
-        }
-
-    }
-
     #about
     {
         color:              #777;
@@ -223,6 +196,26 @@
         }
 
     }
+
+
+    #login {
+        position:       relative;
+    }
+
+    #name {
+        position:       relative;
+    }
+
+    .validationError {
+        position:       absolute;
+        right:          10px;
+        top:            2px;
+        height:         100%;
+        align-items:    center;
+        font-size:      75%;
+        color:          #c80000;
+    }
+
 
 }
 

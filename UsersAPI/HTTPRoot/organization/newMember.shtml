@@ -27,26 +27,35 @@
             <div class="key keyTop">Access Rights</div>
             <div class="value" id="accessRightsDiv">
                 <select id="accessRights" name="accessRights" size="1">
-                    <option>Admin</option>
-                    <option selected>Member</option>
-                    <option>Guest</option>
+                    <option value="guest">Guest</option>
+                    <option value="member" selected>Member</option>
+                    <option value="admin">Admin</option>
                 </select>
             </div>
         </div>
 
         <div class="row">
             <div class="key">Login</div>
-            <div class="value" id="loginDiv"><input id="login" type="text"></div>
+            <div class="value" id="loginDiv">
+                <input id="login" type="text" placeholder = "The login (unqiue identification) of the new user...">
+                <div id="loginError" class="validationError"></div>
+            </div>
         </div>
 
         <div class="row">
             <div class="key">Name</div>
-            <div class="value" id="nameDiv"><input id="name" type="text"></div>
+            <div class="value" id="nameDiv">
+                <input id="name" type="text" placeholder = "The name of the new user...">
+                <div id="nameError" class="validationError"></div>
+            </div>
         </div>
 
         <div class="row">
             <div class="key keyTop">E-Mail Address</div>
-            <div class="value"><input id="email" type="text" /></div>
+            <div class="value">
+                <input id="email" type="text" placeholder = "The e-mail address of the new user..." />
+                <div id="emailError" class="validationError"></div>
+            </div>
         </div>
 
         <div class="row">

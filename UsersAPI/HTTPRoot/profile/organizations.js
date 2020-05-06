@@ -67,11 +67,11 @@ function ShowOrganizations() {
             newUserIdInput.placeholder = "The login (unqiue identification) of the new user...";
             var newUserIdError = newUserIdValue.appendChild(document.createElement('div'));
             newUserIdError.className = "ErrorMessage";
-            newUserIdInput.onchange = function (ev) {
+            newUserIdInput.onchange = function () {
                 newUserIdInput.value = newUserIdInput.value.toLowerCase();
                 VerifyNewUserId();
             };
-            newUserIdInput.onkeyup = function (ev) {
+            newUserIdInput.onkeyup = function () {
                 newUserIdInput.value = newUserIdInput.value.toLowerCase();
                 VerifyNewUserId();
             };

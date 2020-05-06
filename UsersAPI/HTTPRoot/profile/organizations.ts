@@ -66,7 +66,7 @@ function ShowOrganizations() {
 
         function CreateNewUser(organization, membersDiv, CreateNewUserButton) {
 
-            var userJSON = {
+            let userJSON = {
                 "@id":          "",
                 "@context":     "https://opendata.social/contexts/UsersAPI+json/user",
                 "name":         "",
@@ -77,37 +77,37 @@ function ShowOrganizations() {
 
             CreateNewUserButton.style.display = 'none';
 
-            let newUserDiv = membersDiv.appendChild(document.createElement('div')) as HTMLDivElement;
+            const newUserDiv = membersDiv.appendChild(document.createElement('div')) as HTMLDivElement;
             newUserDiv.className = "newUser";
 
-            let newUserData = newUserDiv.appendChild(document.createElement('div')) as HTMLDivElement;
+            const newUserData = newUserDiv.appendChild(document.createElement('div')) as HTMLDivElement;
             newUserData.className = "data";
 
 
             //- Id -------------------------------------------------------------
-            let newUserIdRow = newUserData.appendChild(document.createElement('div')) as HTMLDivElement;
+            const newUserIdRow = newUserData.appendChild(document.createElement('div')) as HTMLDivElement;
             newUserIdRow.className = "row";
 
-            let newUserIdKey = newUserIdRow.appendChild(document.createElement('div')) as HTMLDivElement;
+            const newUserIdKey = newUserIdRow.appendChild(document.createElement('div')) as HTMLDivElement;
             newUserIdKey.className = "key";
             newUserIdKey.innerHTML = "Login";
 
-            let newUserIdValue = newUserIdRow.appendChild(document.createElement('div')) as HTMLDivElement;
+            const newUserIdValue = newUserIdRow.appendChild(document.createElement('div')) as HTMLDivElement;
             newUserIdValue.className = "value";
 
-            let newUserIdInput = newUserIdValue.appendChild(document.createElement('input')) as HTMLInputElement;
+            const newUserIdInput = newUserIdValue.appendChild(document.createElement('input')) as HTMLInputElement;
             newUserIdInput.className = "value";
             newUserIdInput.placeholder = "The login (unqiue identification) of the new user...";
 
-            let newUserIdError = newUserIdValue.appendChild(document.createElement('div')) as HTMLDivElement;
+            const newUserIdError = newUserIdValue.appendChild(document.createElement('div')) as HTMLDivElement;
             newUserIdError.className = "ErrorMessage";
 
-            newUserIdInput.onchange = function (this: HTMLElement, ev: Event) {
+            newUserIdInput.onchange = () => {
                 newUserIdInput.value = newUserIdInput.value.toLowerCase();
                 VerifyNewUserId();
             }
 
-            newUserIdInput.onkeyup  = function (this: HTMLElement, ev: Event) {
+            newUserIdInput.onkeyup = () => {
                 newUserIdInput.value = newUserIdInput.value.toLowerCase();
                 VerifyNewUserId();
             }

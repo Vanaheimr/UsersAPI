@@ -368,23 +368,6 @@ body {
 #newMember {
   padding: 30px 30px 20px 25px;
   font-size: 140%; }
-  #newMember #head2line {
-    padding-bottom: 30px;
-    color: #999; }
-    #newMember #head2line #language {
-      display: inline-block;
-      margin-top: 2px;
-      font-size: 60%;
-      vertical-align: top;
-      background-color: #ddd;
-      padding: 2px 4px;
-      border-radius: 4px; }
-    #newMember #head2line #I18NText {
-      display: inline-block;
-      font-size: 170%; }
-    #newMember #head2line #description {
-      display: none;
-      font-size: 60%; }
   #newMember #about {
     color: #777;
     margin: 1vh 1vw 3vh 1vw; }
@@ -485,6 +468,18 @@ body {
         border-bottom-left-radius: 6px;
         border-bottom-right-radius: 6px;
         margin-bottom: 4px; }
+  #newMember #login {
+    position: relative; }
+  #newMember #name {
+    position: relative; }
+  #newMember .validationError {
+    position: absolute;
+    right: 10px;
+    top: 2px;
+    height: 100%;
+    align-items: center;
+    font-size: 75%;
+    color: #c80000; }
 
 .I18N select {
   width: 100%;
