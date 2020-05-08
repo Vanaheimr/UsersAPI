@@ -705,6 +705,7 @@ namespace social.OpenData.UsersAPI
                                                                 String            Username,
                                                                 SecurityToken_Id  SecurityToken,
                                                                 Boolean           Use2FactorAuth,
+                                                                String            ServiceName,
                                                                 String            DNSHostname,
                                                                 Languages         Language);
 
@@ -722,6 +723,8 @@ namespace social.OpenData.UsersAPI
         /// </summary>
         public delegate EMail NewUserWelcomeEMailCreatorDelegate(User_Id       UserId,
                                                                  EMailAddress  EMail,
+                                                                 String        ServiceName,
+                                                                 String        DNSHostname,
                                                                  Languages     Language);
 
         /// <summary>
@@ -741,6 +744,7 @@ namespace social.OpenData.UsersAPI
                                                                 String            Username,
                                                                 SecurityToken_Id  SecurityToken,
                                                                 Boolean           Use2FactorAuth,
+                                                                String            ServiceName,
                                                                 String            DNSHostname,
                                                                 Languages         Language);
 
@@ -759,6 +763,7 @@ namespace social.OpenData.UsersAPI
         public delegate EMail PasswordChangedEMailCreatorDelegate(User_Id       UserId,
                                                                   EMailAddress  EMail,
                                                                   String        Username,
+                                                                  String        ServiceName,
                                                                   String        DNSHostname,
                                                                   Languages     Language);
 
@@ -3316,9 +3321,11 @@ namespace social.OpenData.UsersAPI
                                               if (NewUserWelcomeEMailCreatorLocal != null)
                                               {
 
-                                                  var NewUserMail = NewUserWelcomeEMailCreatorLocal(UserId:     VerificationToken.Login,
-                                                                                                    EMail:     _User.EMail,
-                                                                                                    Language:  DefaultLanguage);
+                                                  var NewUserMail = NewUserWelcomeEMailCreatorLocal(UserId:        VerificationToken.Login,
+                                                                                                    EMail:        _User.EMail,
+                                                                                                    ServiceName:  ServiceName,
+                                                                                                    DNSHostname:  "https://" + Request.Host.SimpleString,
+                                                                                                    Language:     DefaultLanguage);
 
                                                   var MailResultTask = APISMTPClient.Send(NewUserMail);
 
@@ -3806,6 +3813,7 @@ namespace social.OpenData.UsersAPI
                                                                                                                        user.Name,
                                                                                                                        PasswordReset.SecurityToken1,
                                                                                                                        user.MobilePhone.HasValue,
+                                                                                                                       ServiceName,
                                                                                                                        "https://" + Request.Host.SimpleString,
                                                                                                                        DefaultLanguage));
 
@@ -4063,6 +4071,7 @@ namespace social.OpenData.UsersAPI
                                                  var MailResultTask = APISMTPClient.Send(PasswordChangedEMailCreator(user.Id,
                                                                                                                      user.EMail,
                                                                                                                      user.Name,
+                                                                                                                     ServiceName,
                                                                                                                      "https://" + Request.Host.SimpleString,
                                                                                                                      DefaultLanguage));
 
@@ -4643,6 +4652,7 @@ namespace social.OpenData.UsersAPI
                                                                                                                     Username,
                                                                                                                     SetPasswordRequest.SecurityToken1,
                                                                                                                     MobilePhone.HasValue,
+                                                                                                                    ServiceName,
                                                                                                                     "https://" + Request.Host.SimpleString,
                                                                                                                     DefaultLanguage));
 
@@ -5162,6 +5172,7 @@ namespace social.OpenData.UsersAPI
                                                                                                                      Name,
                                                                                                                      SetPasswordRequest.SecurityToken1,
                                                                                                                      MobilePhone.HasValue,
+                                                                                                                     ServiceName,
                                                                                                                      "https://" + Request.Host.SimpleString,
                                                                                                                      DefaultLanguage));
 
@@ -6949,6 +6960,7 @@ namespace social.OpenData.UsersAPI
                                                  var MailSentResult = await APISMTPClient.Send(PasswordChangedEMailCreator(HTTPUser.Id,
                                                                                                                            HTTPUser.EMail,
                                                                                                                            HTTPUser.Name,
+                                                                                                                           ServiceName,
                                                                                                                            "https://" + Request.Host.SimpleString,
                                                                                                                            DefaultLanguage));
 
