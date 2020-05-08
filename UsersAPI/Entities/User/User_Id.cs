@@ -84,7 +84,7 @@ namespace social.OpenData.UsersAPI
                         String  Realm = null)
         {
 
-            this.InternalId  = String.ToLower();
+            this.InternalId  = String.ToLower().Trim();
             this.Realm       = Realm?.ToLower() ?? "";
 
         }
@@ -233,7 +233,7 @@ namespace social.OpenData.UsersAPI
             }
             catch (Exception)
             {
-                UserId = default(User_Id);
+                UserId = default;
                 return false;
             }
 
@@ -285,7 +285,7 @@ namespace social.OpenData.UsersAPI
             }
             catch (Exception)
             {
-                UserId = default(User_Id);
+                UserId = default;
                 return false;
             }
 

@@ -27,9 +27,9 @@
             <div class="key keyTop">Access Rights</div>
             <div class="value" id="accessRightsDiv">
                 <select id="accessRights" name="accessRights" size="1">
-                    <option value="guest">Guest</option>
-                    <option value="member" selected>Member</option>
-                    <option value="admin">Admin</option>
+                    <option value="IsGuest">Guest</option>
+                    <option value="IsMember" selected>Member</option>
+                    <option value="IsAdmin">Admin</option>
                 </select>
             </div>
         </div>
@@ -37,16 +37,16 @@
         <div class="row">
             <div class="key">Login</div>
             <div class="value" id="loginDiv">
-                <input id="login" type="text" placeholder = "The login (unqiue identification) of the new user...">
-                <div id="loginError" class="validationError"></div>
+                <input id="login" type="text" placeholder = "An optional login (unqiue identification) of the new user...">
+                <div class="validationError"></div>
             </div>
         </div>
 
         <div class="row">
             <div class="key">Name</div>
-            <div class="value" id="nameDiv">
-                <input id="name" type="text" placeholder = "The name of the new user...">
-                <div id="nameError" class="validationError"></div>
+            <div class="value" id="usernameDiv">
+                <input id="username" type="text" placeholder = "The name of the new user...">
+                <div class="validationError"></div>
             </div>
         </div>
 
@@ -54,28 +54,48 @@
             <div class="key keyTop">E-Mail Address</div>
             <div class="value">
                 <input id="email" type="text" placeholder = "The e-mail address of the new user..." />
-                <div id="emailError" class="validationError"></div>
+                <div class="validationError"></div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="key keyTop">Language</div>
+            <div class="value">
+                <select id="language" name="language" size="1">
+                    <option value="eng">English</option>
+                </select>
             </div>
         </div>
 
         <div class="row">
             <div class="key keyTop">Telephone</div>
-            <div class="value"><input id="telephone" type="text" /></div>
+            <div class="value">
+                <input id="telephone" type="text"  placeholder = "An optional telephone number of the new user..." />
+                <div class="validationError"></div>
+            </div>
         </div>
 
         <div class="row">
             <div class="key keyTop">Mobile Phone</div>
-            <div class="value"><input id="mobilephone" type="text" /></div>
+            <div class="value">
+                <input id="mobilephone" type="text" placeholder = "An optional mobile phone number of the new user..." />
+                <div class="validationError"></div>
+            </div>
         </div>
 
         <div class="row">
             <div class="key keyTop">Homepage</div>
-            <div class="value"><input id="homepage" type="text" /></div>
+            <div class="value">
+                <input id="homepage" type="text"  placeholder = "An optional homepage of the new user..." />
+                <div class="validationError"></div>
+            </div>
         </div>
 
         <div class="row">
             <div class="key keyTop">Description</div>
-            <div class="value I18N" id="descriptionDiv"><select id="descriptionLanguage" name="descriptionLanguage" size="1"></select><textarea id="description"></textarea></div>
+            <div class="value I18N" id="descriptionDiv">
+                <select id="descriptionLanguage" name="descriptionLanguage" size="1"><option>eng</option></select><textarea id="description" placeholder = "An optional description of the new user..."></textarea>
+            </div>
         </div>
 
     </div>

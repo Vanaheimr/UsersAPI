@@ -2,10 +2,13 @@
 function StartNewMember() {
 
     let newUserJSON = {
-        "@id":      "",
-        "@context": "https://opendata.social/contexts/UsersAPI+json/user",
-        "name":     null,
-        "email":    ""
+        "@id":          "",
+        "@context":     "https://opendata.social/contexts/UsersAPI+json/user",
+        "username":      null,
+        "email":        "",
+        "telephone":    "",
+        "mobilephone":  "",
+        "homepage":     ""
     };
 
     const pathElements         = window.location.pathname.split("/");
@@ -21,32 +24,37 @@ function StartNewMember() {
 
     }
 
-    const newMemberDiv         = document.getElementById("newMember")      as HTMLDivElement;
-    const headlineDiv          = newMemberDiv.querySelector("#headline")   as HTMLDivElement;
-    const dataDiv              = newMemberDiv.querySelector('#data')       as HTMLDivElement;
+    const newMemberDiv      = document.getElementById("newMember")                         as HTMLDivElement;
+    const headlineDiv       = newMemberDiv.querySelector("#headline")                      as HTMLDivElement;
+    const dataDiv           = newMemberDiv.querySelector('#data')                          as HTMLDivElement;
 
-    const accessRights         = dataDiv.querySelector('#accessRights')    as HTMLSelectElement;
-    const login                = dataDiv.querySelector('#login')           as HTMLTextAreaElement;
-    const loginError           = dataDiv.querySelector('#loginError')      as HTMLDivElement;
-    const name                 = dataDiv.querySelector('#name')            as HTMLTextAreaElement;
-    const nameError            = dataDiv.querySelector('#nameError')       as HTMLDivElement;
-    const email                = dataDiv.querySelector('#email')           as HTMLInputElement;
-    const emailError           = dataDiv.querySelector('#emailError')      as HTMLDivElement;
-    const telephone            = dataDiv.querySelector('#telephone')       as HTMLInputElement;
-    const mobilephone          = dataDiv.querySelector('#mobilephone')     as HTMLInputElement;
-    const homepage             = dataDiv.querySelector('#homepage')        as HTMLInputElement;
-    const description          = dataDiv.querySelector('#description')     as HTMLTextAreaElement;
+    const accessRights      = dataDiv.querySelector('#accessRights')                       as HTMLSelectElement;
+    const login             = dataDiv.querySelector('#login')                              as HTMLTextAreaElement;
+    const Username          = dataDiv.querySelector('#username')                           as HTMLTextAreaElement;
+    const email             = dataDiv.querySelector('#email')                              as HTMLInputElement;
+    const language          = dataDiv.querySelector('#language')                           as HTMLSelectElement;
+    const telephone         = dataDiv.querySelector('#telephone')                          as HTMLInputElement;
+    const mobilephone       = dataDiv.querySelector('#mobilephone')                        as HTMLInputElement;
+    const homepage          = dataDiv.querySelector('#homepage')                           as HTMLInputElement;
+    const description       = dataDiv.querySelector('#description')                        as HTMLTextAreaElement;
 
-    const responseDiv          = document.getElementById("response")       as HTMLDivElement;
-    const saveButton           = document.getElementById("saveButton")     as HTMLButtonElement;
+    const loginError        = login.      parentElement.querySelector('.validationError')  as HTMLDivElement;
+    const UsernameError     = Username.   parentElement.querySelector('.validationError')  as HTMLDivElement;
+    const emailError        = email.      parentElement.querySelector('.validationError')  as HTMLDivElement;
+    const telephoneError    = telephone.  parentElement.querySelector('.validationError')  as HTMLDivElement;
+    const mobilephoneError  = mobilephone.parentElement.querySelector('.validationError')  as HTMLDivElement;
+    const homepageError     = homepage.   parentElement.querySelector('.validationError')  as HTMLDivElement;
 
-    login.onchange     = () => { VerifyLogin(); }
-    login.onkeyup      = () => { VerifyLogin(); }
-    name.onchange      = () => { VerifyName();  }
-    name.onkeyup       = () => { VerifyName();  }
-    email.onchange     = () => { VerifyEMail(); }
-    email.onkeyup      = () => { VerifyEMail(); }
-    saveButton.onclick = () => { SaveData();    }
+    const responseDiv       = document.getElementById("response")                          as HTMLDivElement;
+    const saveButton        = document.getElementById("saveButton")                        as HTMLButtonElement;
+
+    login.oninput           = () => { VerifyLogin();       }
+    Username.oninput        = () => { VerifyName();        }
+    email.oninput           = () => { VerifyEMail();       }
+    telephone.oninput       = () => { VerifyTelephone();   }
+    mobilephone.oninput     = () => { VerifyMobilephone(); }
+    homepage.oninput        = () => { VerifyHomepage();    }
+    saveButton.onclick      = () => { SaveData();          }
 
 
     function VerifyLogin() {
@@ -111,25 +119,25 @@ function StartNewMember() {
 
     function VerifyName() {
 
-        const UserName = name.value;
+        const name = Username.value;
 
-        if (UserName == "") {
+        if (name == "") {
             saveButton.disabled = true;
-            newUserJSON.name = null;
+            newUserJSON.username = "";
         }
 
-        else if (/^(.{4,})$/.test(UserName) == false) {
+        else if (/^(.{4,})$/.test(name) == false) {
             saveButton.disabled = true;
-            newUserJSON.name = null;
-            name.classList.add("error");
-            nameError.innerText = "Invalid user name!";
-            nameError.style.display = "flex";
+            newUserJSON.username = "";
+            Username.classList.add("error");
+            UsernameError.innerText = "Invalid user name!";
+            UsernameError.style.display = "flex";
         }
 
         else {
-            name.classList.remove("error");
-            nameError.style.display = "none";
-            newUserJSON.name = { "eng": UserName };
+            Username.classList.remove("error");
+            UsernameError.style.display = "none";
+            newUserJSON.username = name;
             VerifyAll();
         }
     }
@@ -158,16 +166,103 @@ function StartNewMember() {
             newUserJSON.email = EMail;
             VerifyAll();
         }
+
     }
+
+    function VerifyTelephone() {
+
+        const Telephone = telephone.value.trim();
+        telephone.value = Telephone;
+
+        if (Telephone == "") {
+            telephone.classList.remove("error");
+            telephoneError.style.display = "none";
+            newUserJSON.telephone = "";
+        }
+
+        else if (/^(\+?[0-9\ \-\/]{5,30})$/.test(Telephone) == false) {
+            saveButton.disabled = true;
+            newUserJSON.telephone = null;
+            telephone.classList.add("error");
+            telephoneError.innerText     = "Invalid telephone number!";
+            telephoneError.style.display = "flex";
+        }
+
+        else {
+            telephone.classList.remove("error");
+            telephoneError.style.display = "none";
+            newUserJSON.telephone = Telephone;
+            VerifyAll();
+        }
+
+    }
+
+    function VerifyMobilephone() {
+
+        const Mobilephone = mobilephone.value.trim();
+        mobilephone.value = Mobilephone;
+
+        if (Mobilephone == "") {
+            mobilephone.classList.remove("error");
+            mobilephoneError.style.display = "none";
+            newUserJSON.mobilephone = "";
+        }
+
+        else if (/^(\+?[0-9\ \-\/]{5,30})$/.test(Mobilephone) == false) {
+            saveButton.disabled = true;
+            newUserJSON.mobilephone = null;
+            mobilephone.classList.add("error");
+            mobilephoneError.innerText     = "Invalid mobile phone number!";
+            mobilephoneError.style.display = "flex";
+        }
+
+        else {
+            mobilephone.classList.remove("error");
+            mobilephoneError.style.display = "none";
+            newUserJSON.mobilephone = Mobilephone;
+            VerifyAll();
+        }
+
+    }
+
+    function VerifyHomepage() {
+
+        const Homepage = homepage.value.trim();
+        homepage.value = Homepage;
+
+        if (Homepage == "") {
+            newUserJSON.homepage = "";
+        }
+
+        else if (/^(http:\/\/|https:\/\/)(\S{2,}\.\S{2,})$/.test(Homepage) == false) {
+            saveButton.disabled = true;
+            newUserJSON.homepage = null;
+            homepage.classList.add("error");
+            homepageError.innerText = "Invalid homepage URL!";
+            homepageError.style.display = "flex";
+        }
+
+        else {
+            homepage.classList.remove("error");
+            homepageError.style.display = "none";
+            newUserJSON.homepage = Homepage;
+            VerifyAll();
+        }
+
+    }
+
 
     function VerifyAll() {
 
-        if (newUserJSON["@id"] != null &&
-            newUserJSON.name   != null &&
-            newUserJSON.email  != "")
+        if (newUserJSON["@id"]      != null &&
+            newUserJSON.username    != ""   &&
+            newUserJSON.email       != ""   &&
+            newUserJSON.telephone   != null &&
+            newUserJSON.mobilephone != null &&
+            newUserJSON.homepage    != null)
         {
-            saveButton.disabled = false;
-            responseDiv.innerHTML = "";
+            saveButton.disabled    = false;
+            responseDiv.innerHTML  = "";
         }
 
     }
@@ -178,21 +273,23 @@ function StartNewMember() {
         if (newUserJSON["@id"] == "")
             delete newUserJSON["@id"];
 
-        if (telephone.value.trim() !== "")
-            newUserJSON["telephone"]    = telephone.  value.trim();
+        newUserJSON["language"]         = language.selectedOptions[0].value;
 
-        if (mobilephone.value.trim() !== "")
-            newUserJSON["mobilephone"]  = mobilephone.value.trim();
+        if (newUserJSON.telephone   == "")
+            delete newUserJSON.telephone;
 
-        if (homepage.value.trim() !== "")
-            newUserJSON["homepage"]     = homepage.   value.trim();
+        if (newUserJSON.mobilephone == "")
+            delete newUserJSON.mobilephone;
+
+        if (newUserJSON.homepage    == "")
+            delete newUserJSON.homepage;
 
         if (description.value.trim() !== "")
-            newUserJSON["description"]  = { "eng": description.value.trim() };
+            newUserJSON["description"] = { "eng": description.value.trim() };
 
-        newUserJSON["organizations"] = [{
+        newUserJSON["accessRights"] = [{
             "organizationId":  organizationId,
-            "accessRights":    accessRights.selectedOptions[0].value.toLowerCase()
+            "accessRight":     accessRights.selectedOptions[0].value.toLowerCase()
         }],
 
 
@@ -201,26 +298,26 @@ function StartNewMember() {
 
                 (statusCode, status, response) => {
 
+                    responseDiv.style.display  = "block";
+                    responseDiv.innerHTML      = "<div class=\"HTTP OK\">Successfully created this new member.</div>";
+
                     try
                     {
 
-                        const responseJSON         = JSON.parse(response);
-                        responseDiv.style.display  = "block";
-                        responseDiv.innerHTML      = "<div class=\"HTTP OK\">Successfully created this new member.</div>";
+                        const responseJSON  = JSON.parse(response);
+                        const userId        = responseJSON["@id"];
 
                         // Redirect to updated organization members view after 2 sec!
-                        setTimeout(function () {
-                            if (responseJSON["@id"] != null)
-                                window.location.href = "../" + responseJSON["@id"];
-                        }, 2000);
+                        if (userId != null && userId != "") {
+                            setTimeout(function () {
+                                window.location.href = "../../users/" + userId;
+                            }, 2000);
+                        }
 
                     }
                     catch (exception)
                     {
-                        responseDiv.style.display  = "block";
-                        responseDiv.innerHTML      = "<div class=\"HTTP Error\">Storing the new member failed!<br />" +
-                                                         "Exception: " + exception +
-                                                     "</div>";
+                        console.debug("Could not parse 'new member'-JSON result: " + exception);
                     }
 
                 },

@@ -176,6 +176,12 @@ namespace social.OpenData.UsersAPI
         public PgpSecretKeyRing    SecretKeyRing        { get; }
 
         /// <summary>
+        /// The language setting of the user.
+        /// </summary>
+        [Mandatory]
+        public Languages           UserLanguage         { get; }
+
+        /// <summary>
         /// The telephone number of the user.
         /// </summary>
         [Optional]
@@ -629,6 +635,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="Description">An optional (multi-language) description of the user.</param>
         /// <param name="PublicKeyRing">An optional PGP/GPG public keyring of the user.</param>
         /// <param name="SecretKeyRing">An optional PGP/GPG secret keyring of the user.</param>
+        /// <param name="UserLanguage">The language setting of the user.</param>
         /// <param name="Telephone">An optional telephone number of the user.</param>
         /// <param name="MobilePhone">An optional mobile telephone number of the user.</param>
         /// <param name="Homepage">The homepage of the user.</param>
@@ -645,6 +652,7 @@ namespace social.OpenData.UsersAPI
                       I18NString                          Description              = null,
                       PgpPublicKeyRing                    PublicKeyRing            = null,
                       PgpSecretKeyRing                    SecretKeyRing            = null,
+                      Languages                           UserLanguage             = Languages.eng,
                       PhoneNumber?                        Telephone                = null,
                       PhoneNumber?                        MobilePhone              = null,
                       String                              Homepage                 = null,
@@ -925,6 +933,8 @@ namespace social.OpenData.UsersAPI
                        ? new JProperty("secretKeyRing",  SecretKeyRing.GetEncoded().ToHexString())
                        : null,
 
+                   new JProperty("language",             UserLanguage.ToString()),
+
                    Telephone.HasValue
                        ? new JProperty("telephone",      Telephone.ToString())
                        : null,
@@ -1095,6 +1105,21 @@ namespace social.OpenData.UsersAPI
 
                 #endregion
 
+                #region Parse Language         [optional]
+
+                if (!JSONObject.ParseOptionalEnum("language",
+                                                  "user language",
+                                                  out Languages? UserLanguage,
+                                                  out ErrorResponse))
+                {
+
+                    if (ErrorResponse != null)
+                        return false;
+
+                }
+
+                #endregion
+
                 #region Parse Telephone        [optional]
 
                 if (JSONObject.ParseOptional("telephone",
@@ -1226,6 +1251,7 @@ namespace social.OpenData.UsersAPI
                                 Description,
                                 PublicKeyRing,
                                 SecretKeyRing,
+                                UserLanguage ?? Languages.eng,
                                 Telephone,
                                 MobilePhone,
                                 Homepage,
@@ -1529,6 +1555,7 @@ namespace social.OpenData.UsersAPI
                            Description,
                            PublicKeyRing,
                            SecretKeyRing,
+                           UserLanguage,
                            Telephone,
                            MobilePhone,
                            Homepage,
@@ -1592,6 +1619,12 @@ namespace social.OpenData.UsersAPI
             /// </summary>
             [Optional]
             public PgpSecretKeyRing    SecretKeyRing        { get; set; }
+
+            /// <summary>
+            /// The language setting of the user.
+            /// </summary>
+            [Mandatory]
+            public Languages           UserLanguage         { get; set; }
 
             /// <summary>
             /// An optional telephone number of the user.
@@ -1748,6 +1781,7 @@ namespace social.OpenData.UsersAPI
             /// <param name="Description">An optional (multi-language) description of the user.</param>
             /// <param name="PublicKeyRing">An optional PGP/GPG public keyring of the user.</param>
             /// <param name="SecretKeyRing">An optional PGP/GPG secret keyring of the user.</param>
+            /// <param name="UserLanguage">The language setting of the user.</param>
             /// <param name="Telephone">An optional telephone number of the user.</param>
             /// <param name="MobilePhone">An optional telephone number of the user.</param>
             /// <param name="Homepage">The homepage of the user.</param>
@@ -1764,6 +1798,7 @@ namespace social.OpenData.UsersAPI
                            I18NString                          Description              = null,
                            PgpPublicKeyRing                    PublicKeyRing            = null,
                            PgpSecretKeyRing                    SecretKeyRing            = null,
+                           Languages                           UserLanguage             = Languages.eng,
                            PhoneNumber?                        Telephone                = null,
                            PhoneNumber?                        MobilePhone              = null,
                            String                              Homepage                 = null,
@@ -1982,6 +2017,7 @@ namespace social.OpenData.UsersAPI
                             Description,
                             PublicKeyRing,
                             SecretKeyRing,
+                            UserLanguage,
                             Telephone,
                             MobilePhone,
                             Homepage,

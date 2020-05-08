@@ -2,8 +2,11 @@ function StartNewMember() {
     var newUserJSON = {
         "@id": "",
         "@context": "https://opendata.social/contexts/UsersAPI+json/user",
-        "name": null,
-        "email": ""
+        "username": null,
+        "email": "",
+        "telephone": "",
+        "mobilephone": "",
+        "homepage": ""
     };
     var pathElements = window.location.pathname.split("/");
     var organizationId = pathElements[pathElements.length - 2];
@@ -19,23 +22,27 @@ function StartNewMember() {
     var dataDiv = newMemberDiv.querySelector('#data');
     var accessRights = dataDiv.querySelector('#accessRights');
     var login = dataDiv.querySelector('#login');
-    var loginError = dataDiv.querySelector('#loginError');
-    var name = dataDiv.querySelector('#name');
-    var nameError = dataDiv.querySelector('#nameError');
+    var Username = dataDiv.querySelector('#username');
     var email = dataDiv.querySelector('#email');
-    var emailError = dataDiv.querySelector('#emailError');
+    var language = dataDiv.querySelector('#language');
     var telephone = dataDiv.querySelector('#telephone');
     var mobilephone = dataDiv.querySelector('#mobilephone');
     var homepage = dataDiv.querySelector('#homepage');
     var description = dataDiv.querySelector('#description');
+    var loginError = login.parentElement.querySelector('.validationError');
+    var UsernameError = Username.parentElement.querySelector('.validationError');
+    var emailError = email.parentElement.querySelector('.validationError');
+    var telephoneError = telephone.parentElement.querySelector('.validationError');
+    var mobilephoneError = mobilephone.parentElement.querySelector('.validationError');
+    var homepageError = homepage.parentElement.querySelector('.validationError');
     var responseDiv = document.getElementById("response");
     var saveButton = document.getElementById("saveButton");
-    login.onchange = function () { VerifyLogin(); };
-    login.onkeyup = function () { VerifyLogin(); };
-    name.onchange = function () { VerifyName(); };
-    name.onkeyup = function () { VerifyName(); };
-    email.onchange = function () { VerifyEMail(); };
-    email.onkeyup = function () { VerifyEMail(); };
+    login.oninput = function () { VerifyLogin(); };
+    Username.oninput = function () { VerifyName(); };
+    email.oninput = function () { VerifyEMail(); };
+    telephone.oninput = function () { VerifyTelephone(); };
+    mobilephone.oninput = function () { VerifyMobilephone(); };
+    homepage.oninput = function () { VerifyHomepage(); };
     saveButton.onclick = function () { SaveData(); };
     function VerifyLogin() {
         var UserId = login.value.toLowerCase().trim();
@@ -83,22 +90,22 @@ function StartNewMember() {
         }
     }
     function VerifyName() {
-        var UserName = name.value;
-        if (UserName == "") {
+        var name = Username.value;
+        if (name == "") {
             saveButton.disabled = true;
-            newUserJSON.name = null;
+            newUserJSON.username = "";
         }
-        else if (/^(.{4,})$/.test(UserName) == false) {
+        else if (/^(.{4,})$/.test(name) == false) {
             saveButton.disabled = true;
-            newUserJSON.name = null;
-            name.classList.add("error");
-            nameError.innerText = "Invalid user name!";
-            nameError.style.display = "flex";
+            newUserJSON.username = "";
+            Username.classList.add("error");
+            UsernameError.innerText = "Invalid user name!";
+            UsernameError.style.display = "flex";
         }
         else {
-            name.classList.remove("error");
-            nameError.style.display = "none";
-            newUserJSON.name = { "eng": UserName };
+            Username.classList.remove("error");
+            UsernameError.style.display = "none";
+            newUserJSON.username = name;
             VerifyAll();
         }
     }
@@ -123,10 +130,77 @@ function StartNewMember() {
             VerifyAll();
         }
     }
+    function VerifyTelephone() {
+        var Telephone = telephone.value.trim();
+        telephone.value = Telephone;
+        if (Telephone == "") {
+            telephone.classList.remove("error");
+            telephoneError.style.display = "none";
+            newUserJSON.telephone = "";
+        }
+        else if (/^(\+?[0-9\ \-\/]{5,30})$/.test(Telephone) == false) {
+            saveButton.disabled = true;
+            newUserJSON.telephone = null;
+            telephone.classList.add("error");
+            telephoneError.innerText = "Invalid telephone number!";
+            telephoneError.style.display = "flex";
+        }
+        else {
+            telephone.classList.remove("error");
+            telephoneError.style.display = "none";
+            newUserJSON.telephone = Telephone;
+            VerifyAll();
+        }
+    }
+    function VerifyMobilephone() {
+        var Mobilephone = mobilephone.value.trim();
+        mobilephone.value = Mobilephone;
+        if (Mobilephone == "") {
+            mobilephone.classList.remove("error");
+            mobilephoneError.style.display = "none";
+            newUserJSON.mobilephone = "";
+        }
+        else if (/^(\+?[0-9\ \-\/]{5,30})$/.test(Mobilephone) == false) {
+            saveButton.disabled = true;
+            newUserJSON.mobilephone = null;
+            mobilephone.classList.add("error");
+            mobilephoneError.innerText = "Invalid mobile phone number!";
+            mobilephoneError.style.display = "flex";
+        }
+        else {
+            mobilephone.classList.remove("error");
+            mobilephoneError.style.display = "none";
+            newUserJSON.mobilephone = Mobilephone;
+            VerifyAll();
+        }
+    }
+    function VerifyHomepage() {
+        var Homepage = homepage.value.trim();
+        homepage.value = Homepage;
+        if (Homepage == "") {
+            newUserJSON.homepage = "";
+        }
+        else if (/^(http:\/\/|https:\/\/)(\S{2,}\.\S{2,})$/.test(Homepage) == false) {
+            saveButton.disabled = true;
+            newUserJSON.homepage = null;
+            homepage.classList.add("error");
+            homepageError.innerText = "Invalid homepage URL!";
+            homepageError.style.display = "flex";
+        }
+        else {
+            homepage.classList.remove("error");
+            homepageError.style.display = "none";
+            newUserJSON.homepage = Homepage;
+            VerifyAll();
+        }
+    }
     function VerifyAll() {
         if (newUserJSON["@id"] != null &&
-            newUserJSON.name != null &&
-            newUserJSON.email != "") {
+            newUserJSON.username != "" &&
+            newUserJSON.email != "" &&
+            newUserJSON.telephone != null &&
+            newUserJSON.mobilephone != null &&
+            newUserJSON.homepage != null) {
             saveButton.disabled = false;
             responseDiv.innerHTML = "";
         }
@@ -134,34 +208,34 @@ function StartNewMember() {
     function SaveData() {
         if (newUserJSON["@id"] == "")
             delete newUserJSON["@id"];
-        if (telephone.value.trim() !== "")
-            newUserJSON["telephone"] = telephone.value.trim();
-        if (mobilephone.value.trim() !== "")
-            newUserJSON["mobilephone"] = mobilephone.value.trim();
-        if (homepage.value.trim() !== "")
-            newUserJSON["homepage"] = homepage.value.trim();
+        newUserJSON["language"] = language.selectedOptions[0].value;
+        if (newUserJSON.telephone == "")
+            delete newUserJSON.telephone;
+        if (newUserJSON.mobilephone == "")
+            delete newUserJSON.mobilephone;
+        if (newUserJSON.homepage == "")
+            delete newUserJSON.homepage;
         if (description.value.trim() !== "")
             newUserJSON["description"] = { "eng": description.value.trim() };
-        newUserJSON["organizations"] = [{
+        newUserJSON["accessRights"] = [{
                 "organizationId": organizationId,
-                "accessRights": accessRights.selectedOptions[0].value.toLowerCase()
+                "accessRight": accessRights.selectedOptions[0].value.toLowerCase()
             }],
             HTTPAdd("/users", newUserJSON, function (statusCode, status, response) {
+                responseDiv.style.display = "block";
+                responseDiv.innerHTML = "<div class=\"HTTP OK\">Successfully created this new member.</div>";
                 try {
-                    var responseJSON_1 = JSON.parse(response);
-                    responseDiv.style.display = "block";
-                    responseDiv.innerHTML = "<div class=\"HTTP OK\">Successfully created this new member.</div>";
+                    var responseJSON = JSON.parse(response);
+                    var userId_1 = responseJSON["@id"];
                     // Redirect to updated organization members view after 2 sec!
-                    setTimeout(function () {
-                        if (responseJSON_1["@id"] != null)
-                            window.location.href = "../" + responseJSON_1["@id"];
-                    }, 2000);
+                    if (userId_1 != null && userId_1 != "") {
+                        setTimeout(function () {
+                            window.location.href = "../../users/" + userId_1;
+                        }, 2000);
+                    }
                 }
                 catch (exception) {
-                    responseDiv.style.display = "block";
-                    responseDiv.innerHTML = "<div class=\"HTTP Error\">Storing the new member failed!<br />" +
-                        "Exception: " + exception +
-                        "</div>";
+                    console.debug("Could not parse 'new member'-JSON result: " + exception);
                 }
             }, function (statusCode, status, response) {
                 responseDiv.style.display = "block";

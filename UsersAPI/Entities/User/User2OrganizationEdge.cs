@@ -47,11 +47,11 @@ namespace social.OpenData.UsersAPI
         /// <param name="Organization">The target of the edge</param>
         /// <param name="PrivacyLevel">The level of privacy of this edge.</param>
         /// <param name="Created">The creation timestamp of the miniedge.</param>
-        public User2OrganizationEdge(User                    User,
+        public User2OrganizationEdge(User                        User,
                                      User2OrganizationEdgeTypes  EdgeLabel,
-                                     Organization            Organization,
-                                     PrivacyLevel            PrivacyLevel  = PrivacyLevel.Private,
-                                     DateTime?               Created       = null)
+                                     Organization                Organization,
+                                     PrivacyLevel                PrivacyLevel  = PrivacyLevel.Private,
+                                     DateTime?                   Created       = null)
 
             : base(User         ?? throw new ArgumentNullException(nameof(User),         "The given user must not be null!"),
                    EdgeLabel,
