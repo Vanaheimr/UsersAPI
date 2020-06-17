@@ -18,6 +18,7 @@ var DatePicker = /** @class */ (function () {
         var leftDiv = topDiv.appendChild(document.createElement('div'));
         leftDiv.className = "left";
         var leftButton = leftDiv.appendChild(document.createElement('button'));
+        leftButton.id = "calendarPickerLeftButton";
         leftButton.innerHTML = "<i class=\"fas fa-angle-left\"></i>";
         leftButton.onclick = function () {
             _this.currentMonth = _this.currentMonth.subtract(1, 'months');
@@ -28,7 +29,8 @@ var DatePicker = /** @class */ (function () {
         var rightDiv = topDiv.appendChild(document.createElement('div'));
         rightDiv.className = "right";
         var rightButton = rightDiv.appendChild(document.createElement('button'));
-        rightButton.innerHTML = "<i class=\"fas fa-angle-right\"></i>";
+        rightButton.id = "calendarPickerRightButton";
+        rightButton.innerHTML = "<i id=\"rightArrow\" class=\"fas fa-angle-right\"></i>";
         rightButton.onclick = function () {
             _this.currentMonth = _this.currentMonth.add(1, 'months');
             _this.paint();
@@ -38,7 +40,8 @@ var DatePicker = /** @class */ (function () {
         var removeDateDiv = this.frameDiv.appendChild(document.createElement('div'));
         removeDateDiv.className = "removeDate";
         var removeDateButton = removeDateDiv.appendChild(document.createElement('button'));
-        removeDateButton.innerHTML = "<i class=\"fas fa-trash-alt\"></i> remove date";
+        removeDateButton.id = "removeDateButton";
+        removeDateButton.innerHTML = "<i id=\"trashIcon\" class=\"fas fa-trash-alt\"></i> remove date";
         removeDateButton.onclick = function () {
             _this.selectedDate = null;
             document.removeEventListener('click', _this.hide, true);

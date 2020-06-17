@@ -16,11 +16,17 @@
         border-radius:      6px 6px 0px 0px;
 
         .left {
-            button {
+            #calendarPickerLeftButton {
+
                 height:             100%;
                 background-color:   transparent;
                 border:             0;
                 outline:            0;
+
+                i {
+                    position:           initial !important;
+                }
+
             }
         }
 
@@ -38,11 +44,17 @@
         }
 
         .right {
-            button {
+            #calendarPickerRightButton {
+
                 height:             100%;
                 background-color:   transparent;
                 border:             0;
                 outline:            0;
+
+                #rightArrow {
+                    position:           initial !important;
+                }
+
             }
         }
 
@@ -94,15 +106,21 @@
         text-align:         right;
         line-height:        0;
 
-        button {
+        #removeDateButton {
+
             background-color:   #dfdfdf;
             border:             0;
             outline:            0;
             border-radius:      0px 0px 6px 0px;
             padding:            3px 6px 2px 6px;
+
+            #trashIcon {
+                position:           initial !important;
+            }
+
         }
 
-        button:hover {
+        #removeDateButton:hover {
             background-color:   #bfbfbf;
         }
 

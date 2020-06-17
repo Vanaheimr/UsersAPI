@@ -38,6 +38,7 @@ class DatePicker
         const leftDiv = topDiv.appendChild(document.createElement('div')) as HTMLDivElement;
         leftDiv.className = "left";
         const leftButton = leftDiv.appendChild(document.createElement('button')) as HTMLButtonElement;
+        leftButton.id = "calendarPickerLeftButton";
         leftButton.innerHTML = "<i class=\"fas fa-angle-left\"></i>";
         leftButton.onclick = () => {
             this.currentMonth = this.currentMonth.subtract(1, 'months');
@@ -50,7 +51,8 @@ class DatePicker
         const rightDiv = topDiv.appendChild(document.createElement('div')) as HTMLDivElement;
         rightDiv.className = "right";
         const rightButton = rightDiv.appendChild(document.createElement('button')) as HTMLButtonElement;
-        rightButton.innerHTML = "<i class=\"fas fa-angle-right\"></i>";
+        rightButton.id = "calendarPickerRightButton";
+        rightButton.innerHTML = "<i id=\"rightArrow\" class=\"fas fa-angle-right\"></i>";
         rightButton.onclick = () => {
             this.currentMonth = this.currentMonth.add(1, 'months');
             this.paint();
@@ -63,7 +65,8 @@ class DatePicker
         removeDateDiv.className = "removeDate";
 
         const removeDateButton = removeDateDiv.appendChild(document.createElement('button')) as HTMLButtonElement;
-        removeDateButton.innerHTML = "<i class=\"fas fa-trash-alt\"></i> remove date";
+        removeDateButton.id = "removeDateButton";
+        removeDateButton.innerHTML = "<i id=\"trashIcon\" class=\"fas fa-trash-alt\"></i> remove date";
         removeDateButton.onclick = () => {
             this.selectedDate = null;
             document.removeEventListener('click', this.hide, true);
