@@ -325,11 +325,11 @@ function StartSearch2<TSearch>(requestURL:        string,
             if (filterInput.value[0] == '#')
             {
 
-                var pattern          = filterInput.value.substring(1);
-                var AllLogLines      = (<HTMLDivElement[]> <any> document.getElementById('searchResults').getElementsByClassName('searchResult'));
-                var numberOfMatches  = 0;
+                let pattern          = filterInput.value.substring(1);
+                let AllLogLines      = (<HTMLDivElement[]> <any> document.getElementById('searchResults').getElementsByClassName('searchResult'));
+                let numberOfMatches  = 0;
 
-                for (var i = 0; i < AllLogLines.length; i++)
+                for (let i = 0; i < AllLogLines.length; i++)
                 {
 
                     if (AllLogLines[i].innerHTML.indexOf(pattern) > -1)
