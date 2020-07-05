@@ -1155,6 +1155,7 @@ namespace social.OpenData.UsersAPI
                 #region Parse Homepage         [optional]
 
                 if (JSONObject.ParseOptional("homepage",
+                                             "homepage",
                                              out String Homepage,
                                              out ErrorResponse))
                 {
@@ -1184,7 +1185,7 @@ namespace social.OpenData.UsersAPI
 
                 #region Parse Address          [optional]
 
-                if (JSONObject.ParseOptional("address",
+                if (JSONObject.ParseOptionalJSON("address",
                                              "address",
                                              org.GraphDefined.Vanaheimr.Illias.Address.TryParse,
                                              out Address Address,

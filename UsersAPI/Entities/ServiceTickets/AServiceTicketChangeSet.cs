@@ -585,11 +585,11 @@ namespace social.OpenData.UsersAPI
 
                 #region Parse Problem descriptions      [optional]
 
-                if (!JSONObject.ParseOptionalI18NHashSet("problemDescriptions",
-                                                         "problem descriptions",
-                                                         ProblemDescriptionI18N.TryParse,
-                                                         out HashSet<ProblemDescriptionI18N> ProblemDescriptions,
-                                                         out ErrorResponse))
+                if (!JSONObject.ParseOptionalI18N("problemDescriptions",
+                                                  "problem descriptions",
+                                                  ProblemDescriptionI18N.TryParse,
+                                                  out IEnumerable<ProblemDescriptionI18N> ProblemDescriptions,
+                                                  out ErrorResponse))
                 {
 
                     if (ErrorResponse != null)

@@ -129,6 +129,7 @@ namespace social.OpenData.UsersAPI
                 #region Parse Context           [mandatory]
 
                 if (JSONObject.ParseOptional("@context",
+                                             "JSON-LD context information",
                                              out String Context,
                                              out ErrorResponse))
                 {
