@@ -4223,12 +4223,12 @@ namespace social.OpenData.UsersAPI
 
                                               #region Parse Context          [mandatory]
 
-                                              if (!JSONObj.ParseMandatory("@context",
-                                                                          "JSON-LinkedData context information",
-                                                                          HTTPServer.DefaultServerName,
-                                                                          out String Context,
-                                                                          Request,
-                                                                          out ErrorResponse))
+                                              if (!JSONObj.ParseMandatoryText("@context",
+                                                                              "JSON-LinkedData context information",
+                                                                              HTTPServer.DefaultServerName,
+                                                                              out String Context,
+                                                                              Request,
+                                                                              out ErrorResponse))
                                               {
                                                   return ErrorResponse;
                                               }
@@ -4316,10 +4316,10 @@ namespace social.OpenData.UsersAPI
 
                                               #region Parse Username         [mandatory]
 
-                                              if (!JSONObj.ParseMandatory("username",
-                                                                          "user name",
-                                                                          out String Username,
-                                                                          out String errorResponse))
+                                              if (!JSONObj.ParseMandatoryText("username",
+                                                                              "user name",
+                                                                              out String Username,
+                                                                              out String errorResponse))
                                               {
 
                                                   return new HTTPResponse.Builder(Request) {
@@ -4364,7 +4364,7 @@ namespace social.OpenData.UsersAPI
                                               if (!JSONObj.ParseMandatory("email",
                                                                           "E-Mail",
                                                                           HTTPServer.DefaultServerName,
-                                                                          SimpleEMailAddress.Parse,
+                                                                          SimpleEMailAddress.TryParse,
                                                                           out SimpleEMailAddress EMail,
                                                                           Request,
                                                                           out ErrorResponse))
@@ -4911,12 +4911,12 @@ namespace social.OpenData.UsersAPI
 
                                               #region Parse Context          [mandatory]
 
-                                              if (!JSONObj.ParseMandatory("@context",
-                                                                          "JSON-LinkedData context information",
-                                                                          HTTPServer.DefaultServerName,
-                                                                          out String Context,
-                                                                          Request,
-                                                                          out ErrorResponse))
+                                              if (!JSONObj.ParseMandatoryText("@context",
+                                                                              "JSON-LinkedData context information",
+                                                                              HTTPServer.DefaultServerName,
+                                                                              out String Context,
+                                                                              Request,
+                                                                              out ErrorResponse))
                                               {
                                                   return ErrorResponse;
                                               }
@@ -4943,12 +4943,12 @@ namespace social.OpenData.UsersAPI
 
                                               #region Parse Name             [mandatory]
 
-                                              if (!JSONObj.ParseMandatory("name",
-                                                                          "Username",
-                                                                          HTTPServer.DefaultServerName,
-                                                                          out String Name,
-                                                                          Request,
-                                                                          out ErrorResponse))
+                                              if (!JSONObj.ParseMandatoryText("name",
+                                                                              "Username",
+                                                                              HTTPServer.DefaultServerName,
+                                                                              out String Name,
+                                                                              Request,
+                                                                              out ErrorResponse))
                                               {
                                                   return ErrorResponse;
                                               }
@@ -4978,7 +4978,7 @@ namespace social.OpenData.UsersAPI
                                               if (!JSONObj.ParseMandatory("email",
                                                                           "E-Mail",
                                                                           HTTPServer.DefaultServerName,
-                                                                          SimpleEMailAddress.Parse,
+                                                                          SimpleEMailAddress.TryParse,
                                                                           out SimpleEMailAddress UserEMail,
                                                                           Request,
                                                                           out ErrorResponse))
@@ -5043,12 +5043,12 @@ namespace social.OpenData.UsersAPI
 
                                               #region Parse AccessLevel      [mandatory]
 
-                                              if (!JSONObj.ParseMandatory("accessLevel",
-                                                                          "access level",
-                                                                          HTTPServer.DefaultServerName,
-                                                                          out String AccessLevel,
-                                                                          Request,
-                                                                          out ErrorResponse))
+                                              if (!JSONObj.ParseMandatoryText("accessLevel",
+                                                                              "access level",
+                                                                              HTTPServer.DefaultServerName,
+                                                                              out String AccessLevel,
+                                                                              Request,
+                                                                              out ErrorResponse))
                                               {
                                                   return ErrorResponse;
                                               }

@@ -1016,10 +1016,10 @@ namespace social.OpenData.UsersAPI
 
                 #region Parse Context          [mandatory]
 
-                if (!JSONObject.ParseMandatory("@context",
-                                               "JSON-LinkedData context information",
-                                               out String Context,
-                                               out ErrorResponse))
+                if (!JSONObject.ParseMandatoryText("@context",
+                                                   "JSON-LinkedData context information",
+                                                   out String Context,
+                                                   out ErrorResponse))
                 {
                     ErrorResponse = @"The JSON-LD ""@context"" information is missing!";
                     return false;
@@ -1035,10 +1035,10 @@ namespace social.OpenData.UsersAPI
 
                 #region Parse Name             [mandatory]
 
-                if (!JSONObject.ParseMandatory("name",
-                                               "Username",
-                                               out String Name,
-                                               out ErrorResponse))
+                if (!JSONObject.ParseMandatoryText("name",
+                                                   "Username",
+                                                   out String Name,
+                                                   out ErrorResponse))
                 {
                     return false;
                 }
@@ -1064,7 +1064,7 @@ namespace social.OpenData.UsersAPI
 
                 if (!JSONObject.ParseMandatory("email",
                                                "E-Mail",
-                                               SimpleEMailAddress.Parse,
+                                               SimpleEMailAddress.TryParse,
                                                out SimpleEMailAddress EMail,
                                                out ErrorResponse))
                 {

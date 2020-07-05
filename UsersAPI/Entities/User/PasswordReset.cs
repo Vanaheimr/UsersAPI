@@ -167,10 +167,10 @@ namespace social.OpenData.UsersAPI
                 if (!IgnoreContextMismatches)
                 {
 
-                    if (!JSONObject.ParseMandatory("@context",
-                                                   "JSON-LD context",
-                                                   out String Context,
-                                                   out ErrorResponse))
+                    if (!JSONObject.ParseMandatoryText("@context",
+                                                       "JSON-LD context",
+                                                       out String Context,
+                                                       out ErrorResponse))
                     {
                         ErrorResponse = @"The JSON-LD ""@context"" information is missing!";
                         return false;

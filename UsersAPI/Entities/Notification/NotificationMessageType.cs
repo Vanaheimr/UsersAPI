@@ -118,8 +118,8 @@ namespace social.OpenData.UsersAPI.Notifications
 
             #endregion
 
-            if (TryParse(Text, out NotificationMessageType _NotificationId))
-                return _NotificationId;
+            if (TryParse(Text, out NotificationMessageType notificationId))
+                return notificationId;
 
             return new NotificationMessageType?();
 
@@ -154,7 +154,7 @@ namespace social.OpenData.UsersAPI.Notifications
             }
             catch (Exception)
             {
-                NotificationId = default(NotificationMessageType);
+                NotificationId = default;
                 return false;
             }
 

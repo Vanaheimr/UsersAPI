@@ -219,10 +219,10 @@ namespace social.OpenData.UsersAPI
 
                 #region Parse Context          [mandatory]
 
-                if (!JSONObject.ParseMandatory("@context",
-                                               "JSON-LinkedData context information",
-                                               out String Context,
-                                               out ErrorResponse))
+                if (!JSONObject.ParseMandatoryText("@context",
+                                                   "JSON-LinkedData context information",
+                                                   out String Context,
+                                                   out ErrorResponse))
                 {
                     ErrorResponse = @"The JSON-LD ""@context"" information is missing!";
                     return false;
@@ -274,11 +274,11 @@ namespace social.OpenData.UsersAPI
 
                 #region Parse AccessRights     [mandatory]
 
-                if (!JSONObject.ParseMandatory("accessRights",
-                                               "Access Rights",
-                                               s => s.ParseMandatory_APIKeyRights(),
-                                               out APIKeyRights AccessRights,
-                                               out ErrorResponse))
+                if (!JSONObject.ParseMandatoryEnum("accessRights",
+                                                   "Access Rights",
+                                                  // s => s.ParseMandatory_APIKeyRights(),
+                                                   out APIKeyRights AccessRights,
+                                                   out ErrorResponse))
                 {
                     return false;
                 }

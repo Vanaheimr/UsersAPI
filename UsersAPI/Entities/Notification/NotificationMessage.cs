@@ -243,10 +243,10 @@ namespace social.OpenData.UsersAPI.Notifications
 
                 #region Parse Context                 [mandatory]
 
-                if (!JSONObject.ParseMandatory("@context",
-                                               "JSON-LinkedData context information",
-                                               out String Context,
-                                               out ErrorResponse))
+                if (!JSONObject.ParseMandatoryText("@context",
+                                                   "JSON-LinkedData context information",
+                                                   out String Context,
+                                                   out ErrorResponse))
                 {
                     ErrorResponse = @"The JSON-LD ""@context"" information is missing!";
                     return false;
@@ -276,7 +276,7 @@ namespace social.OpenData.UsersAPI.Notifications
 
                 if (!JSONObject.ParseMandatory("type",
                                                "notification message type",
-                                               NotificationMessageType.Parse,
+                                               NotificationMessageType.TryParse,
                                                out NotificationMessageType Type,
                                                out ErrorResponse))
                 {
