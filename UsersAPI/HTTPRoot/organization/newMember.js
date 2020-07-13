@@ -36,7 +36,8 @@ function StartNewMember() {
     var mobilephoneError = mobilephone.parentElement.querySelector('.validationError');
     var homepageError = homepage.parentElement.querySelector('.validationError');
     var responseDiv = document.getElementById("response");
-    var saveButton = document.getElementById("saveButton");
+    var lowerButtonsDiv = newMemberDiv.querySelector('#lowerButtons');
+    var saveButton = lowerButtonsDiv.querySelector("#saveButton");
     login.oninput = function () { VerifyLogin(); };
     Username.oninput = function () { VerifyName(); };
     email.oninput = function () { VerifyEMail(); };

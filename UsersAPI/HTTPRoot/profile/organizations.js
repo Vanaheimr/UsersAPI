@@ -476,20 +476,20 @@ function ShowOrganizations() {
     }
     checkSignedIn(true);
     var organizationsDiv = document.getElementById('organizations');
-    HTTPGet("/users/" + SignInUser + "/organizations", function (HTTPStatus, ResponseText) {
+    HTTPGet("/users/" + SignInUser + "/organizations", function (status, response) {
         //let user          = SignInUser;
-        var organizations = JSON.parse(ResponseText);
+        var organizations = JSON.parse(response);
         organizationsDiv.innerHTML = "";
         for (var _i = 0, organizations_1 = organizations; _i < organizations_1.length; _i++) {
             var organization = organizations_1[_i];
             PrintOrganization(organization, organizationsDiv);
         }
         // If there is only a single organization: Open it!
-        if (myOrgs.length == 1) {
+        if (myOrgs.length === 1) {
             myOrgs[0].querySelector('.properties').style.display = 'table';
             myOrgs[0].children[0].children[myOrgs[0].children[0].childElementCount - 1].style.display = 'block';
         }
-    }, function (HTTPStatus, StatusText, ResponseText) {
+    }, function (statusCode, status, response) {
         organizationsDiv.innerHTML = "<div class=\"HTTP Error\">Could not fetch your organizations data!</div>";
     });
 }

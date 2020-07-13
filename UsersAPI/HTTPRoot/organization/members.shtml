@@ -17,8 +17,8 @@
         </div>
     </div>
 
-    <div id="buttons">
-        <button id="addNewMemberButton" disabled><i class="fas fa-plus"></i><i class="fas fa-user"></i> New member</button>
+    <div id="upperButtons">
+        <button id="addNewMemberButton" class="button" disabled><i class="fas fa-plus"></i><i class="fas fa-user"></i> New member</button>
     </div>
 
     <div id="data">

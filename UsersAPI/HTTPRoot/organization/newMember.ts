@@ -24,29 +24,31 @@ function StartNewMember() {
 
     }
 
-    const newMemberDiv      = document.getElementById("newMember")                         as HTMLDivElement;
-    const headlineDiv       = newMemberDiv.querySelector("#headline")                      as HTMLDivElement;
-    const dataDiv           = newMemberDiv.querySelector('#data')                          as HTMLDivElement;
+    const newMemberDiv      = document.getElementById("newMember")                          as HTMLDivElement;
+    const headlineDiv       = newMemberDiv.querySelector("#headline")                       as HTMLDivElement;
 
-    const accessRights      = dataDiv.querySelector('#accessRights')                       as HTMLSelectElement;
-    const login             = dataDiv.querySelector('#login')                              as HTMLTextAreaElement;
-    const Username          = dataDiv.querySelector('#username')                           as HTMLTextAreaElement;
-    const email             = dataDiv.querySelector('#email')                              as HTMLInputElement;
-    const language          = dataDiv.querySelector('#language')                           as HTMLSelectElement;
-    const telephone         = dataDiv.querySelector('#telephone')                          as HTMLInputElement;
-    const mobilephone       = dataDiv.querySelector('#mobilephone')                        as HTMLInputElement;
-    const homepage          = dataDiv.querySelector('#homepage')                           as HTMLInputElement;
-    const description       = dataDiv.querySelector('#description')                        as HTMLTextAreaElement;
+    const dataDiv           = newMemberDiv.querySelector('#data')                           as HTMLDivElement;
+    const accessRights      = dataDiv.querySelector('#accessRights')                        as HTMLSelectElement;
+    const login             = dataDiv.querySelector('#login')                               as HTMLTextAreaElement;
+    const Username          = dataDiv.querySelector('#username')                            as HTMLTextAreaElement;
+    const email             = dataDiv.querySelector('#email')                               as HTMLInputElement;
+    const language          = dataDiv.querySelector('#language')                            as HTMLSelectElement;
+    const telephone         = dataDiv.querySelector('#telephone')                           as HTMLInputElement;
+    const mobilephone       = dataDiv.querySelector('#mobilephone')                         as HTMLInputElement;
+    const homepage          = dataDiv.querySelector('#homepage')                            as HTMLInputElement;
+    const description       = dataDiv.querySelector('#description')                         as HTMLTextAreaElement;
 
-    const loginError        = login.      parentElement.querySelector('.validationError')  as HTMLDivElement;
-    const UsernameError     = Username.   parentElement.querySelector('.validationError')  as HTMLDivElement;
-    const emailError        = email.      parentElement.querySelector('.validationError')  as HTMLDivElement;
-    const telephoneError    = telephone.  parentElement.querySelector('.validationError')  as HTMLDivElement;
-    const mobilephoneError  = mobilephone.parentElement.querySelector('.validationError')  as HTMLDivElement;
-    const homepageError     = homepage.   parentElement.querySelector('.validationError')  as HTMLDivElement;
+    const loginError        = login.      parentElement.querySelector('.validationError')   as HTMLDivElement;
+    const UsernameError     = Username.   parentElement.querySelector('.validationError')   as HTMLDivElement;
+    const emailError        = email.      parentElement.querySelector('.validationError')   as HTMLDivElement;
+    const telephoneError    = telephone.  parentElement.querySelector('.validationError')   as HTMLDivElement;
+    const mobilephoneError  = mobilephone.parentElement.querySelector('.validationError')   as HTMLDivElement;
+    const homepageError     = homepage.   parentElement.querySelector('.validationError')   as HTMLDivElement;
 
-    const responseDiv       = document.getElementById("response")                          as HTMLDivElement;
-    const saveButton        = document.getElementById("saveButton")                        as HTMLButtonElement;
+    const responseDiv       = document.getElementById("response")                           as HTMLDivElement;
+
+    const lowerButtonsDiv   = newMemberDiv.querySelector   ('#lowerButtons')                as HTMLDivElement;
+    const saveButton        = lowerButtonsDiv.querySelector("#saveButton")                  as HTMLButtonElement;
 
     login.oninput           = () => { VerifyLogin();       }
     Username.oninput        = () => { VerifyName();        }

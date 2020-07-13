@@ -275,51 +275,26 @@ function StartOrganizationGeoLocation() {
     const longitude        = dataDiv.        querySelector ('#longitude')     as HTMLInputElement;
 
     const responseDiv      = document.       getElementById("response")       as HTMLDivElement;
-    const saveButton       = document.       getElementById("saveButton")     as HTMLButtonElement;
 
-    street.oninput = () => {
-        ToogleSaveButton();
-    }
+    const lowerButtonsDiv  = organizationDiv.querySelector ('#lowerButtons')  as HTMLDivElement;
+    const saveButton       = lowerButtonsDiv.querySelector ("#saveButton")    as HTMLButtonElement;
 
-    houseNumber.oninput = () => {
-        ToogleSaveButton();
-    }
+    street.oninput         = () => { ToogleSaveButton(); }
+    houseNumber.oninput    = () => { ToogleSaveButton(); }
+    floorLevel.oninput     = () => { ToogleSaveButton(); }
+    postalCode.oninput     = () => { ToogleSaveButton(); }
+    city.oninput           = () => { ToogleSaveButton(); }
+    country.oninput        = () => { ToogleSaveButton(); }
 
-    floorLevel.oninput = () => {
-        ToogleSaveButton();
-    }
+    latitude.oninput       = () => { DrawGeoPosition(); ToogleSaveButton(); }
+    longitude.oninput      = () => { DrawGeoPosition(); ToogleSaveButton(); }
 
-    postalCode.oninput = () => {
-        ToogleSaveButton();
-    }
-
-    city.oninput = () => {
-        ToogleSaveButton();
-    }
-
-    country.oninput = () => {
-        ToogleSaveButton();
-    }
-
-    latitude.oninput = () => {
-        DrawGeoPosition();
-        ToogleSaveButton();
-    }
-
-    longitude.oninput = () => {
-        DrawGeoPosition();
-        ToogleSaveButton();
-    }
-
-
-    saveButton.onclick = () => {
-        SaveData();
-    }
+    saveButton.onclick     = () => { SaveData(); }
 
 
     map.on('click', function (e) {
 
-        let coordinate   = e.latlng.wrap();
+        const coordinate   = e.latlng.wrap();
         latitude. value  = coordinate.lat;
         longitude.value  = coordinate.lng;
 
@@ -370,7 +345,7 @@ function StartOrganizationGeoLocation() {
 
             },
 
-            (HTTPStatus, status, response) => {
+            (statusCode, status, response) => {
                 responseDiv.innerHTML = "<div class=\"HTTP Error\">Could not fetch organization data from server!</div>";
             });
 

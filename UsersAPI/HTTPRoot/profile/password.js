@@ -56,50 +56,22 @@ function StartChangePassword() {
             responseDiv.innerHTML = "<div class=\"HTTP Error\">Updating your password failed!" + (responseJSON.description != null ? responseJSON.description : "") + "</div>";
         });
     }
+    var changePasswordInfos = document.getElementById('changePasswordInfos');
     var changePassword = document.getElementById('changePassword');
     var currentPassword = changePassword.querySelector('#currentPassword');
     var newPassword1 = changePassword.querySelector('#newPassword1');
     var newPassword2 = changePassword.querySelector('#newPassword2');
     var responseDiv = document.getElementById("response");
-    var saveButton = document.getElementById("saveButton");
-    currentPassword.onchange = function (ev) {
-        Verify();
-    };
-    currentPassword.onkeyup = function (ev) {
-        Verify();
-    };
-    currentPassword.onchange = function (ev) {
-        Verify();
-    };
-    currentPassword.onkeyup = function (ev) {
-        Verify();
-    };
-    newPassword1.onchange = function (ev) {
-        Verify();
-    };
-    newPassword1.onkeyup = function (ev) {
-        Verify();
-    };
-    newPassword1.onchange = function (ev) {
-        Verify();
-    };
-    newPassword1.onkeyup = function (ev) {
-        Verify();
-    };
-    newPassword2.onchange = function (ev) {
-        Verify();
-    };
-    newPassword2.onkeyup = function (ev) {
-        Verify();
-    };
-    newPassword2.onchange = function (ev) {
-        Verify();
-    };
-    newPassword2.onkeyup = function (ev) {
-        Verify();
-    };
-    saveButton.onclick = function (ev) {
-        SaveNewPassword();
-    };
+    var lowerButtonsDiv = changePasswordInfos.querySelector('#lowerButtons');
+    var saveButton = lowerButtonsDiv.querySelector("#saveButton");
+    currentPassword.onchange = function () { Verify(); };
+    currentPassword.onkeyup = function () { Verify(); };
+    currentPassword.onchange = function () { Verify(); };
+    currentPassword.onkeyup = function () { Verify(); };
+    newPassword1.onchange = function () { Verify(); };
+    newPassword1.onkeyup = function () { Verify(); };
+    newPassword2.onchange = function () { Verify(); };
+    newPassword2.onkeyup = function () { Verify(); };
+    saveButton.onclick = function () { SaveNewPassword(); };
 }
 //# sourceMappingURL=password.js.map

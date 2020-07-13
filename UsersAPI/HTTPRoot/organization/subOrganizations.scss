@@ -32,10 +32,10 @@
 
     }
 
-    #buttons
+    #upperButtons
     {
 
-        text-align:     right;
+/*        text-align:     right;
 
         button {
             border:         0;
@@ -45,7 +45,7 @@
             margin:         10px 0 15px 0;
             border-radius:  5px;
             font-size:      70%;
-        }
+        }*/
 
         button i:first-child {
             margin-right: 2px;
@@ -126,7 +126,7 @@
                     {
 
                         margin-top:         5px;
-                        font-size:          90%;
+                        font-size:          65%;
 
                         .I18NLanguage {
                             display:            inline-block;

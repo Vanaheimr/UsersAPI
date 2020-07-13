@@ -21,9 +21,6 @@
         </div>
     </div>
 
-    <div id="buttons">
-    </div>
-
     <div id="data">
 
         <div class="row">
@@ -75,7 +72,7 @@
 
     <div id="response"></div>
 
-    <div class="buttons">
+    <div id="lowerButtons">
         <button id="saveButton" class="button" disabled>Save changes</button>
     </div>
 

@@ -181,23 +181,48 @@ body {
                 body #page #right #text .entity #headline #title #description #I18NText {
                   display: inline-block;
                   font-size: 170%; }
-          body #page #right #text .entity #buttons {
-            /*text-align:     right;*/
+          body #page #right #text .entity #upperButtons {
             display: flex;
-            flex-direction: row-reverse; }
-            body #page #right #text .entity #buttons button {
-              border: 0;
+            flex-direction: row-reverse;
+            margin: 1vh 1vw;
+            /* Also used for 'a'-tags which should behave like a button! */
+            /*                        button i:first-child {
+                            margin-right:       2px;
+                            font-size:          75%;
+                        }*/ }
+            body #page #right #text .entity #upperButtons .button {
+              background: #d6d6d6;
+              background-image: linear-gradient(to bottom, #ddd, #c8c8c8);
+              color: #696969;
+              padding: 6px 10px 4px 10px;
+              margin-left: 5px;
+              border-radius: 3px;
+              border: 0px;
+              box-shadow: 2px 2px 3px #bebebe;
+              font-size: 60%;
               white-space: nowrap;
-              color: #6b6b6b;
-              padding: 8px 14px;
-              margin: 10px 0 15px 0;
-              border-radius: 5px;
-              font-size: 70%; }
-            body #page #right #text .entity #buttons button:hover {
-              background-color: #fdcca4; }
-            body #page #right #text .entity #buttons button i:first-child {
-              margin-right: 2px;
-              font-size: 75%; }
+              text-decoration: none; }
+              body #page #right #text .entity #upperButtons .button .text {
+                display: inline-block; }
+                body #page #right #text .entity #upperButtons .button .text .text2 {
+                  display: inline-block;
+                  padding-left: 8px;
+                  vertical-align: top;
+                  padding-top: 7px; }
+            body #page #right #text .entity #upperButtons .button:hover {
+              background-color: rgbgb(224, 224, 224);
+              background-image: linear-gradient(to bottom, #eee, #d4d4d4);
+              color: #777; }
+            body #page #right #text .entity #upperButtons .button:active {
+              box-shadow: 0 1px 2px #999;
+              transform: translateY(4px); }
+            body #page #right #text .entity #upperButtons .button:focus {
+              outline: 0px; }
+            body #page #right #text .entity #upperButtons .button:disabled {
+              background-color: rgba(0, 0, 0, 0.1);
+              background-image: none;
+              color: #bbb;
+              box-shadow: none; }
           body #page #right #text .entity #data {
             margin-left: 15px;
             width: calc(100% - 15px);
@@ -302,6 +327,61 @@ body {
               margin-top: 10px; }
             body #page #right #text .entity #data #pairedWith {
               border-top: 15px solid transparent; }
+          body #page #right #text .entity #lowerButtons {
+            display: flex;
+            flex-direction: row;
+            margin: 1vh 1vw;
+            /*                     button {
+                            border:             0;
+                            white-space:        nowrap;
+                            color:              #6b6b6b;
+                            padding:            8px 14px;
+                            margin:             10px 0 15px 0;
+                            border-radius:      5px;
+                            font-size:          70%;
+                            text-decoration:    none;
+                        }*/
+            /* Also used for 'a'-tags which should behave like a button! */
+            /*   button:hover {
+                            background-color:   #fdcca4;
+                        }*/
+            /*                        button i:first-child {
+                            margin-right:       2px;
+                            font-size:          75%;
+                        }*/ }
+            body #page #right #text .entity #lowerButtons .button {
+              background: #ffba83;
+              background-image: linear-gradient(to bottom, #ffc99e, #ffba83);
+              color: #b36630;
+              padding: 10px 20px;
+              margin-left: 5px;
+              border-radius: 4px;
+              border: 0px;
+              box-shadow: 2px 2px 6px #999;
+              font-size: 70%;
+              white-space: nowrap;
+              text-decoration: none; }
+              body #page #right #text .entity #lowerButtons .button .text {
+                display: inline-block; }
+                body #page #right #text .entity #lowerButtons .button .text .text2 {
+                  display: inline-block;
+                  padding-left: 8px;
+                  vertical-align: top;
+                  padding-top: 7px; }
+            body #page #right #text .entity #lowerButtons .button:hover {
+              background-color: #fbd1af;
+              background-image: linear-gradient(to bottom, #ffe5d1, #fbd1af);
+              color: #cb8f64; }
+            body #page #right #text .entity #lowerButtons .button:active {
+              box-shadow: 0 1px 2px #999;
+              transform: translateY(4px); }
+            body #page #right #text .entity #lowerButtons .button:focus {
+              outline: 0px; }
+            body #page #right #text .entity #lowerButtons .button:disabled {
+              background-color: #eee2d7;
+              background-image: none;
+              color: #ceb9aa;
+              box-shadow: none; }
           body #page #right #text .entity #saveButton {
             margin-top: 40px; }
 
@@ -325,45 +405,6 @@ body {
     color: #a21e1e;
     border: 1px solid #bd7070;
     background-color: #f59f9f; }
-
-.buttons {
-  display: flex;
-  margin-top: 30px; }
-
-.button {
-  background: #ffba83;
-  background-image: linear-gradient(to bottom, #ffc99e, #ffba83);
-  color: #b36630;
-  padding: 10px 20px;
-  margin-left: 5px;
-  border-radius: 4px;
-  border: 0px;
-  box-shadow: 2px 2px 6px #999; }
-  .button .text {
-    display: inline-block; }
-    .button .text .text2 {
-      display: inline-block;
-      padding-left: 8px;
-      vertical-align: top;
-      padding-top: 7px; }
-
-.button:hover {
-  background-color: #fbd1af;
-  background-image: linear-gradient(to bottom, #ffe5d1, #fbd1af);
-  color: #cb8f64; }
-
-.button:active {
-  box-shadow: 0 1px 2px #999;
-  transform: translateY(4px); }
-
-.button:focus {
-  outline: 0px; }
-
-.button:disabled {
-  background-color: #eee2d7;
-  background-image: none;
-  color: #ceb9aa;
-  box-shadow: none; }
 
 #APIKeyInfos {
   position: relative;

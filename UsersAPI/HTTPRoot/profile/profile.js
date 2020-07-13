@@ -110,69 +110,40 @@ function StartProfile() {
             responseDiv.innerHTML = "<div class=\"HTTP Error\">Storing user profile data failed!" + (responseJSON.description != null ? responseJSON.description : "") + "</div>";
         });
     }
-    var profileinfos = document.getElementById('profileinfos');
-    var login = profileinfos.querySelector('#login');
-    var username = profileinfos.querySelector('#username');
-    var eMailAddress = profileinfos.querySelector('#eMailAddress');
-    var telephone = profileinfos.querySelector('#telephone');
-    var mobilePhone = profileinfos.querySelector('#mobilePhone');
-    var homepage = profileinfos.querySelector('#homepage');
-    var description = profileinfos.querySelector('#userDescription');
-    var descriptionText = profileinfos.querySelector('#description');
+    var profileInfos = document.getElementById('profileInfos');
+    var login = profileInfos.querySelector('#login');
+    var username = profileInfos.querySelector('#username');
+    var eMailAddress = profileInfos.querySelector('#eMailAddress');
+    var telephone = profileInfos.querySelector('#telephone');
+    var mobilePhone = profileInfos.querySelector('#mobilePhone');
+    var homepage = profileInfos.querySelector('#homepage');
+    var description = profileInfos.querySelector('#userDescription');
+    var descriptionText = profileInfos.querySelector('#description');
     //const publicKeyRing      = profileinfos.querySelector ('#publicKeyRing')    as HTMLTextAreaElement;
     var responseDiv = document.getElementById("response");
-    var saveButton = document.getElementById("saveButton");
+    var lowerButtonsDiv = profileInfos.querySelector('#lowerButtons');
+    var saveButton = lowerButtonsDiv.querySelector("#saveButton");
     checkSignedIn(false);
     login.value = SignInUser;
     username.value = Username;
     eMailAddress.value = UserEMail;
-    username.onchange = function () {
-        ToogleSaveButton();
-    };
-    username.onkeyup = function () {
-        ToogleSaveButton();
-    };
-    eMailAddress.onchange = function () {
-        ToogleSaveButton();
-    };
-    eMailAddress.onkeyup = function () {
-        ToogleSaveButton();
-    };
-    telephone.onchange = function () {
-        ToogleSaveButton();
-    };
-    telephone.onkeyup = function () {
-        ToogleSaveButton();
-    };
-    mobilePhone.onchange = function () {
-        ToogleSaveButton();
-    };
-    mobilePhone.onkeyup = function () {
-        ToogleSaveButton();
-    };
-    homepage.onchange = function () {
-        ToogleSaveButton();
-    };
-    homepage.onkeyup = function () {
-        ToogleSaveButton();
-    };
-    descriptionText.onchange = function () {
-        ToogleSaveButton();
-    };
-    descriptionText.onkeyup = function () {
-        ToogleSaveButton();
-    };
-    //publicKeyRing.onchange   = () => {
-    //    ToogleSaveButton();
-    //}
-    //publicKeyRing.onkeyup    = () => {
-    //    ToogleSaveButton();
-    //}
-    saveButton.onclick = function () {
-        SaveData();
-    };
-    HTTPGet("/users/" + SignInUser, function (HTTPStatus, ResponseText) {
-        UserProfileJSON = ParseJSON_LD(ResponseText);
+    username.onchange = function () { ToogleSaveButton(); };
+    username.onkeyup = function () { ToogleSaveButton(); };
+    eMailAddress.onchange = function () { ToogleSaveButton(); };
+    eMailAddress.onkeyup = function () { ToogleSaveButton(); };
+    telephone.onchange = function () { ToogleSaveButton(); };
+    telephone.onkeyup = function () { ToogleSaveButton(); };
+    mobilePhone.onchange = function () { ToogleSaveButton(); };
+    mobilePhone.onkeyup = function () { ToogleSaveButton(); };
+    homepage.onchange = function () { ToogleSaveButton(); };
+    homepage.onkeyup = function () { ToogleSaveButton(); };
+    descriptionText.onchange = function () { ToogleSaveButton(); };
+    descriptionText.onkeyup = function () { ToogleSaveButton(); };
+    //publicKeyRing.onchange   = () => { ToogleSaveButton(); }
+    //publicKeyRing.onkeyup    = () => { ToogleSaveButton(); }
+    saveButton.onclick = function () { SaveData(); };
+    HTTPGet("/users/" + SignInUser, function (status, response) {
+        UserProfileJSON = ParseJSON_LD(response);
         username.value = UserProfileJSON.name;
         eMailAddress.value = UserProfileJSON.email;
         telephone.value = UserProfileJSON.telephone != null ? UserProfileJSON.telephone : "";
@@ -183,7 +154,7 @@ function StartProfile() {
         //    publicKeyRing.value  = UserProfileJSON.publicKeyRing;
         //if (UserProfileJSON.publicKeyRing == null)
         //    UserProfileJSON.publicKeyRing = "";
-    }, function (HTTPStatus, StatusText, ResponseText) {
+    }, function (statusCode, status, response) {
     });
 }
 //# sourceMappingURL=profile.js.map

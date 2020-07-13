@@ -690,22 +690,22 @@ function ShowOrganizations() {
 
 
     checkSignedIn(true);
-    let organizationsDiv = document.getElementById('organizations') as HTMLDivElement;
+    const organizationsDiv = document.getElementById('organizations') as HTMLDivElement;
 
 
     HTTPGet("/users/" + SignInUser + "/organizations",
 
-            (HTTPStatus, ResponseText) => {
+            (status, response) => {
 
                 //let user          = SignInUser;
-                let organizations = JSON.parse(ResponseText);
+                const organizations = JSON.parse(response);
                 organizationsDiv.innerHTML = "";
 
-                for (var organization of organizations)
+                for (const organization of organizations)
                     PrintOrganization(organization, organizationsDiv);
 
                 // If there is only a single organization: Open it!
-                if (myOrgs.length == 1) {
+                if (myOrgs.length === 1) {
 
                     (myOrgs[0].querySelector('.properties') as HTMLDivElement).style.display = 'table';
 
@@ -715,7 +715,7 @@ function ShowOrganizations() {
 
             },
 
-            (HTTPStatus, StatusText, ResponseText) => {
+            (statusCode, status, response) => {
                 organizationsDiv.innerHTML = "<div class=\"HTTP Error\">Could not fetch your organizations data!</div>";
             });
 

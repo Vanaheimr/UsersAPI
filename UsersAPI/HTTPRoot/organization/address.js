@@ -166,36 +166,17 @@ function StartOrganizationGeoLocation() {
     var latitude = dataDiv.querySelector('#latitude');
     var longitude = dataDiv.querySelector('#longitude');
     var responseDiv = document.getElementById("response");
-    var saveButton = document.getElementById("saveButton");
-    street.oninput = function () {
-        ToogleSaveButton();
-    };
-    houseNumber.oninput = function () {
-        ToogleSaveButton();
-    };
-    floorLevel.oninput = function () {
-        ToogleSaveButton();
-    };
-    postalCode.oninput = function () {
-        ToogleSaveButton();
-    };
-    city.oninput = function () {
-        ToogleSaveButton();
-    };
-    country.oninput = function () {
-        ToogleSaveButton();
-    };
-    latitude.oninput = function () {
-        DrawGeoPosition();
-        ToogleSaveButton();
-    };
-    longitude.oninput = function () {
-        DrawGeoPosition();
-        ToogleSaveButton();
-    };
-    saveButton.onclick = function () {
-        SaveData();
-    };
+    var lowerButtonsDiv = organizationDiv.querySelector('#lowerButtons');
+    var saveButton = lowerButtonsDiv.querySelector("#saveButton");
+    street.oninput = function () { ToogleSaveButton(); };
+    houseNumber.oninput = function () { ToogleSaveButton(); };
+    floorLevel.oninput = function () { ToogleSaveButton(); };
+    postalCode.oninput = function () { ToogleSaveButton(); };
+    city.oninput = function () { ToogleSaveButton(); };
+    country.oninput = function () { ToogleSaveButton(); };
+    latitude.oninput = function () { DrawGeoPosition(); ToogleSaveButton(); };
+    longitude.oninput = function () { DrawGeoPosition(); ToogleSaveButton(); };
+    saveButton.onclick = function () { SaveData(); };
     map.on('click', function (e) {
         var coordinate = e.latlng.wrap();
         latitude.value = coordinate.lat;
@@ -230,7 +211,7 @@ function StartOrganizationGeoLocation() {
         catch (exception) {
             responseDiv.innerHTML = "<div class=\"HTTP Error\">Could not fetch organization data from server!</div>";
         }
-    }, function (HTTPStatus, status, response) {
+    }, function (statusCode, status, response) {
         responseDiv.innerHTML = "<div class=\"HTTP Error\">Could not fetch organization data from server!</div>";
     });
 }

@@ -629,6 +629,7 @@ function HTTPAddIfNotExists(RessourceURI: string,
 
 function HTTPDelete(RessourceURI: string,
                     OnSuccess,
+                    OnDenied,
                     OnError) {
 
     // #region Make HTTP call
@@ -657,6 +658,20 @@ function HTTPDelete(RessourceURI: string,
                     OnSuccess(this.status, ajax.responseText);
 
             }
+
+            // Denied
+            if (this.status == 424) {
+
+                //alert(ajax.getAllResponseHeaders());
+                //alert(ajax.getResponseHeader("Date"));
+                //alert(ajax.getResponseHeader("Cache-control"));
+                //alert(ajax.getResponseHeader("ETag"));
+
+                if (OnDenied && typeof OnDenied === 'function')
+                    OnDenied(this.status, ajax.responseText);
+
+            }
+
 
             else
                 if (OnError && typeof OnError === 'function')

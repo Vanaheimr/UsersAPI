@@ -70,6 +70,42 @@ using org.GraphDefined.Vanaheimr.BouncyCastle;
 namespace social.OpenData.UsersAPI
 {
 
+    public class DeleteOrganizationResult
+    {
+
+        public Boolean     IsSuccess           { get; }
+
+        public I18NString  ErrorDescription    { get;  }
+
+
+        private DeleteOrganizationResult(Boolean     IsSuccess,
+                                         I18NString  ErrorDescription  = null)
+        {
+            this.IsSuccess         = IsSuccess;
+            this.ErrorDescription  = ErrorDescription;
+        }
+
+
+        public static DeleteOrganizationResult Success
+
+            => new DeleteOrganizationResult(true);
+
+        public static DeleteOrganizationResult Failed(I18NString Reason)
+
+            => new DeleteOrganizationResult(false,
+                                            Reason);
+
+        public override String ToString()
+
+            => IsSuccess
+                   ? "Success"
+                   : "Failed" + (ErrorDescription.IsNullOrEmpty()
+                                     ? ": " + ErrorDescription.FirstText()
+                                     : "!");
+
+    }
+
+
     /// <summary>
     /// A password quality check delegate.
     /// </summary>
@@ -1617,9 +1653,9 @@ namespace social.OpenData.UsersAPI
         /// <param name="Request">A HTTP request.</param>
         /// <param name="Response">A HTTP response.</param>
         protected internal Task DeleteOrganizationResponse(DateTime      Timestamp,
-                                                        HTTPAPI       API,
-                                                        HTTPRequest   Request,
-                                                        HTTPResponse  Response)
+                                                           HTTPAPI       API,
+                                                           HTTPRequest   Request,
+                                                           HTTPResponse  Response)
 
             => OnDeleteOrganizationResponse?.WhenAll(Timestamp,
                                                   API ?? this,
@@ -7984,8 +8020,34 @@ namespace social.OpenData.UsersAPI
                                              try
                                              {
 
-                                                 var _NewChildOrganization = await RemoveOrganization(OrganizationIdURI.Value,
-                                                                                          CurrentUserId:  HTTPUser.Id);
+                                                 var result = await RemoveOrganization(OrganizationIdURI.Value,
+                                                                                       CurrentUserId:  HTTPUser.Id);
+
+                                                 if (result.IsSuccess)
+                                                     return new HTTPResponse.Builder(Request) {
+                                                         HTTPStatusCode              = HTTPStatusCode.OK,
+                                                         Server                      = HTTPServer.DefaultServerName,
+                                                         Date                        = DateTime.UtcNow,
+                                                         AccessControlAllowOrigin    = "*",
+                                                         AccessControlAllowMethods   = "GET, SET",
+                                                         AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
+                                                         Connection                  = "close"
+                                                     }.AsImmutable;
+
+                                                 else
+                                                     return new HTTPResponse.Builder(Request) {
+                                                         HTTPStatusCode              = HTTPStatusCode.FailedDependency,
+                                                         Server                      = HTTPServer.DefaultServerName,
+                                                         Date                        = DateTime.UtcNow,
+                                                         AccessControlAllowOrigin    = "*",
+                                                         AccessControlAllowMethods   = "GET, SET",
+                                                         AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
+                                                         ContentType                 = HTTPContentType.JSON_UTF8,
+                                                         Content                     = JSONObject.Create(
+                                                                                           new JProperty("errorDescription",  result.ErrorDescription.ToJSON())
+                                                                                       ).ToUTF8Bytes(),
+                                                         Connection                  = "close"
+                                                     }.AsImmutable;
 
                                              }
                                              catch (Exception e)
@@ -8005,16 +8067,6 @@ namespace social.OpenData.UsersAPI
                                                      }.AsImmutable;
 
                                              }
-
-                                             return new HTTPResponse.Builder(Request) {
-                                                     HTTPStatusCode              = HTTPStatusCode.OK,
-                                                     Server                      = HTTPServer.DefaultServerName,
-                                                     Date                        = DateTime.UtcNow,
-                                                     AccessControlAllowOrigin    = "*",
-                                                     AccessControlAllowMethods   = "GET, SET",
-                                                     AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
-                                                     Connection                  = "close"
-                                                 }.AsImmutable;
 
                                      });
 
@@ -13886,6 +13938,23 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
+        #region (protected virtual) CanDeleteOrganization(Organization)
+
+        protected virtual I18NString CanDeleteOrganization(Organization Organization)
+        {
+
+            if (Organization.Users.Any())
+                return new I18NString(Languages.eng, "The organization still has members!");
+
+            if (Organization.SubOrganizations.Any())
+                return new I18NString(Languages.eng, "The organization still has sub organizations!");
+
+            return null;
+
+        }
+
+        #endregion
+
         #region RemoveOrganization        (OrganizationId,                            CurrentUserId = null)
 
         /// <summary>
@@ -13893,8 +13962,8 @@ namespace social.OpenData.UsersAPI
         /// </summary>
         /// <param name="OrganizationId">The unique identification of the organization.</param>
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
-        public async Task<Organization> RemoveOrganization(Organization_Id  OrganizationId,
-                                                           User_Id?         CurrentUserId  = null)
+        public async Task<DeleteOrganizationResult> RemoveOrganization(Organization_Id  OrganizationId,
+                                                                       User_Id?         CurrentUserId  = null)
         {
 
             try
@@ -13902,31 +13971,41 @@ namespace social.OpenData.UsersAPI
 
                 await OrganizationsSemaphore.WaitAsync();
 
-                if (_Organizations.TryGetValue(OrganizationId, out Organization Organization))
+                if (_Organizations.TryGetValue(OrganizationId, out Organization organization))
                 {
 
-                    // this --edge--> other_organization
-                    foreach (var edge in Organization.Organization2OrganizationOutEdges)
-                        edge.Target.RemoveInEdge(edge);
+                    var result = CanDeleteOrganization(organization);
 
-                    // this <--edge-- other_organization
-                    foreach (var edge in Organization.Organization2OrganizationInEdges)
-                        edge.Source.RemoveOutEdge(edge);
+                    if (result == null)
+                    {
 
-                    // this <--edge-- user
-                    foreach (var edge in Organization.User2OrganizationEdges)
-                        edge.Source.RemoveOutEdge(edge);
+                        // this --edge--> other_organization
+                        foreach (var edge in organization.Organization2OrganizationOutEdges)
+                            edge.Target.RemoveInEdge(edge);
+
+                        // this <--edge-- other_organization
+                        foreach (var edge in organization.Organization2OrganizationInEdges)
+                            edge.Source.RemoveOutEdge(edge);
+
+                        // this <--edge-- user
+                        foreach (var edge in organization.User2OrganizationEdges)
+                            edge.Source.RemoveOutEdge(edge);
 
 
-                    await WriteToLogfile(NotificationMessageType.Parse("removeOrganization"),
-                                         Organization.ToJSON(),
-                                         CurrentUserId);
+                        await WriteToLogfile(NotificationMessageType.Parse("removeOrganization"),
+                                             organization.ToJSON(),
+                                             CurrentUserId);
 
-                    _Organizations.Remove(OrganizationId);
+                        _Organizations.Remove(OrganizationId);
 
-                    //Organization.API = null;
+                        //Organization.API = null;
 
-                    return Organization;
+                        return DeleteOrganizationResult.Success;
+
+                    }
+
+                    else
+                        return DeleteOrganizationResult.Failed(result);
 
                 }
 

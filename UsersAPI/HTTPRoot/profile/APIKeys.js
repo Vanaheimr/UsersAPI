@@ -59,8 +59,8 @@ function ShowAPIKey(parentDiv, JSON) {
 }
 function StartAPIKeys() {
     checkSignedIn(true);
-    HTTPGet("/users/" + SignInUser + "/APIKeys", function (HTTPStatus, ResponseText) {
-        var multiplexer = JSON.parse(ResponseText);
+    HTTPGet("/users/" + SignInUser + "/APIKeys", function (status, response) {
+        var multiplexer = JSON.parse(response);
         var user = SignInUser;
         // [
         //     {
@@ -80,7 +80,7 @@ function StartAPIKeys() {
             APIKeyInfoDiv.className = "APIKeyInfo";
             ShowAPIKey(APIKeyInfoDiv, multiplexer[i]);
         }
-    }, function (HTTPStatus, StatusText, ResponseText) {
+    }, function (statusCode, status, response) {
     });
 }
 //# sourceMappingURL=APIKeys.js.map

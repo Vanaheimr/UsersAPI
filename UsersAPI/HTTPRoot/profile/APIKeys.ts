@@ -98,9 +98,9 @@ function StartAPIKeys() {
 
     HTTPGet("/users/" + SignInUser + "/APIKeys",
 
-            (HTTPStatus, ResponseText) => {
+            (status, response) => {
 
-                const multiplexer  = JSON.parse(ResponseText);
+                const multiplexer  = JSON.parse(response);
                 const user         = SignInUser;
 
                 // [
@@ -129,7 +129,7 @@ function StartAPIKeys() {
 
             },
 
-            (HTTPStatus, StatusText, ResponseText) => {
+            (statusCode, status, response) => {
 
             });
 

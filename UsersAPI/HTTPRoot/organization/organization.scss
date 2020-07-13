@@ -1,24 +1,17 @@
 ﻿@import "../defaults/_defaults.scss";
 
-#organizationinfos {
+#organization {
 
     position:               relative;
     padding:                30px 30px 20px 25px;
     font-size:              140%;
 
-    .headline {
-        font-size:          180%;
-        padding-bottom:     25px;
-        color:              #999;
-    }
-
-    #organization {
+    #data {
 
         display:                table;
-        padding:                0px 0px 60px 20px;
-        font-size:              90%;
-        border-collapse:        separate;
-        border-spacing:         5px;
+        border-collapse:        collapse;
+        width:                  100%;
+        margin-left:            15px;
 
         .row {
 
@@ -27,9 +20,10 @@
 
             .key {
                 display:                table-cell;
-                padding:                0px 42px 0px 0px;
+                padding:                8px 42px 8px 0px;
                 white-space:            nowrap;
                 color:                  #666;
+                vertical-align:         top;
             }
 
             .keyTop {
@@ -40,7 +34,8 @@
             .value {
 
                 display:                table-cell;
-                width:                  inherit;
+                vertical-align:         middle;
+                width:                  100%;
 
                 input, textarea, select {
                     background-color:   rgba(255, 255, 255, 0.7);
@@ -63,12 +58,17 @@
                 }
 
                 input:focus, textarea:focus {
-
                     outline-color:      $NavigationBackground;
                     border-color:       $NavigationBackground;
                     box-shadow:         0 0 6px $NavigationBackground;
                     background:         rgb(245, 238, 227);
+                }
 
+                input::placeholder {
+                    font-size:          90%;
+                    font-style:         italic;
+                    color:              rgb(172, 172, 172);
+                    opacity:            1;      /* Firefox fix */
                 }
 
                 textarea {
@@ -78,12 +78,41 @@
                 }
 
                 select {
-                    display: block;
-                    width: 100%;
+                    display:            block;
+                    width:              100%;
+                }
+
+                #name {
+                    min-height:         10px;
+                }
+
+                #address {
+                    margin-top:         2px;
+                    border-radius:      4px;
                 }
 
                 #language {
                     margin-bottom:      1px;
+                }
+
+            }
+
+            .organizationsList {
+
+                display:                flex;
+                flex-wrap:              wrap;
+                padding-top:            7px;
+
+                .organization {
+                    background-color:   rgba(248, 248, 248, 1);
+                    padding:            4px 8px;
+                    margin:             2px;
+                    border:             0;
+                    border-radius:      3px;
+                }
+
+                .organization:hover {
+                    background-color:   rgba(255, 115, 0, 0.2);
                 }
 
             }
@@ -103,4 +132,70 @@
     .value {
         padding-bottom: 10px !important;
     }
+
+}
+
+
+#confirmToDeleteOrganization {
+
+    display:            none;   // block
+    position:           fixed;
+    top:                0;
+    left:               0;
+    width:              100vw;
+    height:             100vh;
+    z-index:            10000;
+    text-align:         center;
+    background-color:   rgba(0, 0, 0, 0.6);
+
+    #box {
+
+        position:           relative;
+        display:            inline-table;
+        top:                20vh;
+        background-color:   #CCCCCC;
+        border-radius:      6px;
+        box-shadow:         2px 0 16px 0 rgba(0, 0, 0, 0.3);
+
+        #headline {
+            background-color:   #ff7300;
+            border-radius:      6px 6px 0px 0px;
+            padding:            10px 20px;
+            text-align:         center;
+            font-weight:        bold;
+        }
+
+        #body {
+
+            background-color:       #DDDDDD;
+            border-radius:          0px 0px 6px 6px;
+            padding:                10px 20px;
+
+            #confirmation {
+                padding:                10px 10px 15px 10px;
+            }
+
+            #buttons {
+
+                display:                flex;
+                justify-content:        flex-end;
+
+                button {
+                    border:                 0;
+                    border-radius:          4px;
+                    background-color:       orangered;
+                    margin-left:            5px;
+                    padding:                6px 16px 4px 16px;
+                }
+
+                button:hover {
+                    background-color:       #ffab67;
+                }
+
+            }
+
+        }
+
+    }
+
 }

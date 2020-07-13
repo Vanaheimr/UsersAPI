@@ -17,7 +17,11 @@ function StartNewSubOrganization() {
     var email = dataDiv.querySelector('#email');
     var telephone = dataDiv.querySelector('#telephone');
     var responseDiv = document.getElementById("response");
-    var saveButton = document.getElementById("saveButton");
+    var lowerButtonsDiv = newSubOrganizationDiv.querySelector('#lowerButtons');
+    var saveButton = lowerButtonsDiv.querySelector("#saveButton");
+    name.onchange = function () { ToogleSaveButton(); };
+    name.onkeyup = function () { ToogleSaveButton(); };
+    saveButton.onclick = function () { SaveData(); };
     function ToogleSaveButton() {
         var isValid = false;
         if (name.value.trim() !== "" && name.value.trim().length > 4)
@@ -75,15 +79,6 @@ function StartNewSubOrganization() {
             }
         });
     }
-    name.onchange = function () {
-        ToogleSaveButton();
-    };
-    name.onkeyup = function () {
-        ToogleSaveButton();
-    };
-    saveButton.onclick = function () {
-        SaveData();
-    };
     HTTPGet("/organizations/" + organizationId + "?showMgt&expand=subOrganizations", function (status, response) {
         try {
             organizationJSON = ParseJSON_LD(response);

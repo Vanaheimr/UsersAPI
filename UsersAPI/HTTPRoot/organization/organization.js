@@ -124,6 +124,11 @@ function StartOrganization() {
     }
     var organizationDiv = document.getElementById("organization");
     var headlineDiv = organizationDiv.querySelector("#headline");
+    var upperButtonsDiv = organizationDiv.querySelector('#upperButtons');
+    var deleteOrganizationButton = upperButtonsDiv.querySelector('#deleteOrganizationButton');
+    var confirmToDelete = document.getElementById("confirmToDeleteOrganization");
+    var yes = confirmToDelete.querySelector('#yes');
+    var no = confirmToDelete.querySelector('#no');
     var dataDiv = organizationDiv.querySelector('#data');
     var name = dataDiv.querySelector('#name');
     var description = dataDiv.querySelector('#description');
@@ -133,36 +138,18 @@ function StartOrganization() {
     var parentsDiv = dataDiv.querySelector('#parentsDiv');
     var subOrganizationsDiv = dataDiv.querySelector('#subOrganizationsDiv');
     var responseDiv = document.getElementById("response");
-    var buttonsDiv = organizationDiv.querySelector('#buttons');
-    var deleteOrganizationButton = buttonsDiv.querySelector('#delete');
-    var confirmToDelete = document.getElementById("confirmToDeleteOrganization");
-    var yes = confirmToDelete.querySelector('#yes');
-    var no = confirmToDelete.querySelector('#no');
-    var saveButton = document.getElementById("saveButton");
-    name.oninput = function () {
-        ToogleSaveButton();
-    };
-    description.oninput = function () {
-        ToogleSaveButton();
-    };
-    description.onkeyup = function () {
-        ToogleSaveButton();
-    };
-    website.oninput = function () {
-        ToogleSaveButton();
-    };
-    email.oninput = function () {
-        ToogleSaveButton();
-    };
-    telephone.oninput = function () {
-        ToogleSaveButton();
-    };
-    saveButton.onclick = function () {
-        SaveData();
-    };
-    HTTPGet("/organizations/" + organizationId + "?showMgt&expand=parents,subOrganizations", function (HTTPStatus, ResponseText) {
+    var lowerButtonsDiv = organizationDiv.querySelector('#lowerButtons');
+    var saveButton = lowerButtonsDiv.querySelector("#saveButton");
+    name.oninput = function () { ToogleSaveButton(); };
+    description.oninput = function () { ToogleSaveButton(); };
+    description.onkeyup = function () { ToogleSaveButton(); };
+    website.oninput = function () { ToogleSaveButton(); };
+    email.oninput = function () { ToogleSaveButton(); };
+    telephone.oninput = function () { ToogleSaveButton(); };
+    saveButton.onclick = function () { SaveData(); };
+    HTTPGet("/organizations/" + organizationId + "?showMgt&expand=parents,subOrganizations", function (status, response) {
         try {
-            organizationJSON = ParseJSON_LD(ResponseText);
+            organizationJSON = ParseJSON_LD(response);
             headlineDiv.querySelector("#name #language").innerText = firstKey(organizationJSON.name);
             headlineDiv.querySelector("#name #I18NText").innerText = firstValue(organizationJSON.name);
             if (organizationJSON.description) {
@@ -223,9 +210,9 @@ function StartOrganization() {
             if (organizationJSON.youCanCreateChildOrganizations) {
                 deleteOrganizationButton.disabled = false;
                 deleteOrganizationButton.onclick = function () {
-                    confirmToDelete.style.display = "flex";
+                    confirmToDelete.style.display = "block";
                     yes.onclick = function () {
-                        HTTPDelete("/organizations/" + organizationId, function (HTTPStatus, ResponseText) {
+                        HTTPDelete("/organizations/" + organizationId, function (status, response) {
                             confirmToDelete.style.display = "none";
                             responseDiv.innerHTML = "<div class=\"HTTP OK\">Successfully deleted this organization.</div>";
                             // Redirect after 2 seconds!
@@ -234,9 +221,13 @@ function StartOrganization() {
                                     ? organizationJSON.parents[0]
                                     : organizationJSON.parents[0]["@id"];
                             }, 2000);
-                        }, function (HTTPStatus, StatusText, ResponseText) {
+                        }, function (status, response) {
+                            var responseJSON = response !== "" ? JSON.parse(response) : {};
                             confirmToDelete.style.display = "none";
-                            var responseJSON = ResponseText != "" ? JSON.parse(ResponseText) : {};
+                            responseDiv.innerHTML = "<div class=\"HTTP Error\">Can not delete this organization! " + responseJSON.errorDescription.eng + "</div>";
+                        }, function (statusCode, status, response) {
+                            confirmToDelete.style.display = "none";
+                            var responseJSON = response !== "" ? JSON.parse(response) : {};
                             var info = responseJSON.description != null ? "<br />" + responseJSON.description : "";
                             responseDiv.innerHTML = "<div class=\"HTTP Error\">Deleting this organization failed!" + info + "</div>";
                         });
@@ -249,7 +240,7 @@ function StartOrganization() {
         }
         catch (exception) {
         }
-    }, function (HTTPStatus, StatusText, ResponseText) {
+    }, function (statusCode, status, response) {
     });
 }
 //# sourceMappingURL=organization.js.map

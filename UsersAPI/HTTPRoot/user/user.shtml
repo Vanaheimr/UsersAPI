@@ -6,8 +6,8 @@
 
     <div id="profile_headline" class="headline">User profile</div>
 
-    <div id="buttons">
-        <button id="impersonateButton" disabled><i class="fas fa-theater-masks"></i> Impersonate</button>
+    <div id="upperButtons">
+        <button id="impersonateButton" class="button" disabled><i class="fas fa-theater-masks"></i> Impersonate</button>
     </div>
 
     <div id="profile">
@@ -61,7 +61,7 @@
 
     <div id="response"></div>
 
-    <div class="buttons">
+    <div id="lowerButtons">
         <button id="saveButton" class="button" disabled>Save changes</button>
     </div>
 

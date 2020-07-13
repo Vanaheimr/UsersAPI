@@ -324,7 +324,7 @@ function HTTPAddIfNotExists(RessourceURI, Data, OnSuccess, OnError) {
 }
 // #endregion
 // #region HTTPDelete(RessourceURI, OnSuccess, OnError)
-function HTTPDelete(RessourceURI, OnSuccess, OnError) {
+function HTTPDelete(RessourceURI, OnSuccess, OnDenied, OnError) {
     // #region Make HTTP call
     var ajax = new XMLHttpRequest();
     ajax.open("DELETE", RessourceURI, true); // , user, password);
@@ -342,6 +342,15 @@ function HTTPDelete(RessourceURI, OnSuccess, OnError) {
                 //alert(ajax.getResponseHeader("ETag"));
                 if (OnSuccess && typeof OnSuccess === 'function')
                     OnSuccess(this.status, ajax.responseText);
+            }
+            // Denied
+            if (this.status == 424) {
+                //alert(ajax.getAllResponseHeaders());
+                //alert(ajax.getResponseHeader("Date"));
+                //alert(ajax.getResponseHeader("Cache-control"));
+                //alert(ajax.getResponseHeader("ETag"));
+                if (OnDenied && typeof OnDenied === 'function')
+                    OnDenied(this.status, ajax.responseText);
             }
             else if (OnError && typeof OnError === 'function')
                 OnError(this.status, this.statusText, ajax.responseText);

@@ -174,97 +174,56 @@ function StartProfile() {
 
     }
 
-    const profileinfos       = document.    getElementById('profileinfos')      as HTMLDivElement;
-    const login              = profileinfos.querySelector ('#login')            as HTMLInputElement;
-    const username           = profileinfos.querySelector ('#username')         as HTMLInputElement;
-    const eMailAddress       = profileinfos.querySelector ('#eMailAddress')     as HTMLInputElement;
-    const telephone          = profileinfos.querySelector ('#telephone')        as HTMLInputElement;
-    const mobilePhone        = profileinfos.querySelector ('#mobilePhone')      as HTMLInputElement;
-    const homepage           = profileinfos.querySelector ('#homepage')         as HTMLInputElement;
-    const description        = profileinfos.querySelector ('#userDescription')  as HTMLDivElement;
-    const descriptionText    = profileinfos.querySelector ('#description')      as HTMLTextAreaElement;
+    const profileInfos       = document.    getElementById('profileInfos')      as HTMLDivElement;
+    const login              = profileInfos.querySelector ('#login')            as HTMLInputElement;
+    const username           = profileInfos.querySelector ('#username')         as HTMLInputElement;
+    const eMailAddress       = profileInfos.querySelector ('#eMailAddress')     as HTMLInputElement;
+    const telephone          = profileInfos.querySelector ('#telephone')        as HTMLInputElement;
+    const mobilePhone        = profileInfos.querySelector ('#mobilePhone')      as HTMLInputElement;
+    const homepage           = profileInfos.querySelector ('#homepage')         as HTMLInputElement;
+    const description        = profileInfos.querySelector ('#userDescription')  as HTMLDivElement;
+    const descriptionText    = profileInfos.querySelector ('#description')      as HTMLTextAreaElement;
     //const publicKeyRing      = profileinfos.querySelector ('#publicKeyRing')    as HTMLTextAreaElement;
 
     const responseDiv        = document.    getElementById("response")          as HTMLDivElement;
-    const saveButton         = document.    getElementById("saveButton")        as HTMLButtonElement;
+
+    const lowerButtonsDiv    = profileInfos.querySelector   ('#lowerButtons')   as HTMLDivElement;
+    const saveButton         = lowerButtonsDiv.querySelector("#saveButton")     as HTMLButtonElement;
 
     checkSignedIn(false);
     login.value              = SignInUser;
     username.value           = Username;
     eMailAddress.value       = UserEMail;
 
-    username.onchange        = () => {
-        ToogleSaveButton();
-    }
+    username.onchange        = () => { ToogleSaveButton(); }
+    username.onkeyup         = () => { ToogleSaveButton(); }
 
-    username.onkeyup         = () => {
-        ToogleSaveButton();
-    }
+    eMailAddress.onchange    = () => { ToogleSaveButton(); }
+    eMailAddress.onkeyup     = () => { ToogleSaveButton(); }
 
+    telephone.onchange       = () => { ToogleSaveButton(); }
+    telephone.onkeyup        = () => { ToogleSaveButton(); }
 
-    eMailAddress.onchange    = () => {
-        ToogleSaveButton();
-    }
+    mobilePhone.onchange     = () => { ToogleSaveButton(); }
+    mobilePhone.onkeyup      = () => { ToogleSaveButton(); }
 
-    eMailAddress.onkeyup     = () => {
-        ToogleSaveButton();
-    }
+    homepage.onchange        = () => { ToogleSaveButton(); }
+    homepage.onkeyup         = () => { ToogleSaveButton(); }
 
+    descriptionText.onchange = () => { ToogleSaveButton(); }
+    descriptionText.onkeyup  = () => { ToogleSaveButton(); }
 
-    telephone.onchange       = () => {
-        ToogleSaveButton();
-    }
+    //publicKeyRing.onchange   = () => { ToogleSaveButton(); }
+    //publicKeyRing.onkeyup    = () => { ToogleSaveButton(); }
 
-    telephone.onkeyup        = () => {
-        ToogleSaveButton();
-    }
+    saveButton.onclick       = () => { SaveData(); }
 
-
-    mobilePhone.onchange     = () => {
-        ToogleSaveButton();
-    }
-
-    mobilePhone.onkeyup      = () => {
-        ToogleSaveButton();
-    }
-
-
-    homepage.onchange        = () => {
-        ToogleSaveButton();
-    }
-
-    homepage.onkeyup         = () => {
-        ToogleSaveButton();
-    }
-
-
-    descriptionText.onchange = () => {
-        ToogleSaveButton();
-    }
-
-    descriptionText.onkeyup  = () => {
-        ToogleSaveButton();
-    }
-
-
-    //publicKeyRing.onchange   = () => {
-    //    ToogleSaveButton();
-    //}
-
-    //publicKeyRing.onkeyup    = () => {
-    //    ToogleSaveButton();
-    //}
-
-
-    saveButton.onclick       = () => {
-        SaveData();
-    }
 
     HTTPGet("/users/" + SignInUser,
 
-            (HTTPStatus, ResponseText) => {
+            (status, response) => {
 
-                UserProfileJSON     = ParseJSON_LD<IUserProfile>(ResponseText);
+                UserProfileJSON     = ParseJSON_LD<IUserProfile>(response);
 
                 username.value      = UserProfileJSON.name;
                 eMailAddress.value  = UserProfileJSON.email;
@@ -281,7 +240,7 @@ function StartProfile() {
 
             },
 
-            (HTTPStatus, StatusText, ResponseText) => {
+            (statusCode, status, response) => {
 
             });
 

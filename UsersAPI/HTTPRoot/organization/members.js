@@ -160,12 +160,8 @@ function StartOrganizationMembers() {
     var adminsDiv = organizationDiv.querySelector('#adminsDiv');
     var membersDiv = organizationDiv.querySelector('#membersDiv');
     var responseDiv = document.getElementById("response");
-    name.onchange = function () {
-        ToogleSaveButton();
-    };
-    name.onkeyup = function () {
-        ToogleSaveButton();
-    };
+    name.onchange = function () { ToogleSaveButton(); };
+    name.onkeyup = function () { ToogleSaveButton(); };
     var aa = SignInUser;
     HTTPGet("/organizations/" + organizationId + "?showMgt&expand=members", function (status, response) {
         var _a, _b;

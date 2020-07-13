@@ -181,23 +181,48 @@ body {
                 body #page #right #text .entity #headline #title #description #I18NText {
                   display: inline-block;
                   font-size: 170%; }
-          body #page #right #text .entity #buttons {
-            /*text-align:     right;*/
+          body #page #right #text .entity #upperButtons {
             display: flex;
-            flex-direction: row-reverse; }
-            body #page #right #text .entity #buttons button {
-              border: 0;
+            flex-direction: row-reverse;
+            margin: 1vh 1vw;
+            /* Also used for 'a'-tags which should behave like a button! */
+            /*                        button i:first-child {
+                            margin-right:       2px;
+                            font-size:          75%;
+                        }*/ }
+            body #page #right #text .entity #upperButtons .button {
+              background: #d6d6d6;
+              background-image: linear-gradient(to bottom, #ddd, #c8c8c8);
+              color: #696969;
+              padding: 6px 10px 4px 10px;
+              margin-left: 5px;
+              border-radius: 3px;
+              border: 0px;
+              box-shadow: 2px 2px 3px #bebebe;
+              font-size: 60%;
               white-space: nowrap;
-              color: #6b6b6b;
-              padding: 8px 14px;
-              margin: 10px 0 15px 0;
-              border-radius: 5px;
-              font-size: 70%; }
-            body #page #right #text .entity #buttons button:hover {
-              background-color: #fdcca4; }
-            body #page #right #text .entity #buttons button i:first-child {
-              margin-right: 2px;
-              font-size: 75%; }
+              text-decoration: none; }
+              body #page #right #text .entity #upperButtons .button .text {
+                display: inline-block; }
+                body #page #right #text .entity #upperButtons .button .text .text2 {
+                  display: inline-block;
+                  padding-left: 8px;
+                  vertical-align: top;
+                  padding-top: 7px; }
+            body #page #right #text .entity #upperButtons .button:hover {
+              background-color: rgbgb(224, 224, 224);
+              background-image: linear-gradient(to bottom, #eee, #d4d4d4);
+              color: #777; }
+            body #page #right #text .entity #upperButtons .button:active {
+              box-shadow: 0 1px 2px #999;
+              transform: translateY(4px); }
+            body #page #right #text .entity #upperButtons .button:focus {
+              outline: 0px; }
+            body #page #right #text .entity #upperButtons .button:disabled {
+              background-color: rgba(0, 0, 0, 0.1);
+              background-image: none;
+              color: #bbb;
+              box-shadow: none; }
           body #page #right #text .entity #data {
             margin-left: 15px;
             width: calc(100% - 15px);
@@ -302,6 +327,61 @@ body {
               margin-top: 10px; }
             body #page #right #text .entity #data #pairedWith {
               border-top: 15px solid transparent; }
+          body #page #right #text .entity #lowerButtons {
+            display: flex;
+            flex-direction: row;
+            margin: 1vh 1vw;
+            /*                     button {
+                            border:             0;
+                            white-space:        nowrap;
+                            color:              #6b6b6b;
+                            padding:            8px 14px;
+                            margin:             10px 0 15px 0;
+                            border-radius:      5px;
+                            font-size:          70%;
+                            text-decoration:    none;
+                        }*/
+            /* Also used for 'a'-tags which should behave like a button! */
+            /*   button:hover {
+                            background-color:   #fdcca4;
+                        }*/
+            /*                        button i:first-child {
+                            margin-right:       2px;
+                            font-size:          75%;
+                        }*/ }
+            body #page #right #text .entity #lowerButtons .button {
+              background: #ffba83;
+              background-image: linear-gradient(to bottom, #ffc99e, #ffba83);
+              color: #b36630;
+              padding: 10px 20px;
+              margin-left: 5px;
+              border-radius: 4px;
+              border: 0px;
+              box-shadow: 2px 2px 6px #999;
+              font-size: 70%;
+              white-space: nowrap;
+              text-decoration: none; }
+              body #page #right #text .entity #lowerButtons .button .text {
+                display: inline-block; }
+                body #page #right #text .entity #lowerButtons .button .text .text2 {
+                  display: inline-block;
+                  padding-left: 8px;
+                  vertical-align: top;
+                  padding-top: 7px; }
+            body #page #right #text .entity #lowerButtons .button:hover {
+              background-color: #fbd1af;
+              background-image: linear-gradient(to bottom, #ffe5d1, #fbd1af);
+              color: #cb8f64; }
+            body #page #right #text .entity #lowerButtons .button:active {
+              box-shadow: 0 1px 2px #999;
+              transform: translateY(4px); }
+            body #page #right #text .entity #lowerButtons .button:focus {
+              outline: 0px; }
+            body #page #right #text .entity #lowerButtons .button:disabled {
+              background-color: #eee2d7;
+              background-image: none;
+              color: #ceb9aa;
+              box-shadow: none; }
           body #page #right #text .entity #saveButton {
             margin-top: 40px; }
 
@@ -326,74 +406,32 @@ body {
     border: 1px solid #bd7070;
     background-color: #f59f9f; }
 
-.buttons {
-  display: flex;
-  margin-top: 30px; }
-
-.button {
-  background: #ffba83;
-  background-image: linear-gradient(to bottom, #ffc99e, #ffba83);
-  color: #b36630;
-  padding: 10px 20px;
-  margin-left: 5px;
-  border-radius: 4px;
-  border: 0px;
-  box-shadow: 2px 2px 6px #999; }
-  .button .text {
-    display: inline-block; }
-    .button .text .text2 {
-      display: inline-block;
-      padding-left: 8px;
-      vertical-align: top;
-      padding-top: 7px; }
-
-.button:hover {
-  background-color: #fbd1af;
-  background-image: linear-gradient(to bottom, #ffe5d1, #fbd1af);
-  color: #cb8f64; }
-
-.button:active {
-  box-shadow: 0 1px 2px #999;
-  transform: translateY(4px); }
-
-.button:focus {
-  outline: 0px; }
-
-.button:disabled {
-  background-color: #eee2d7;
-  background-image: none;
-  color: #ceb9aa;
-  box-shadow: none; }
-
-#organizationinfos {
+#organization {
   position: relative;
   padding: 30px 30px 20px 25px;
   font-size: 140%; }
-  #organizationinfos .headline {
-    font-size: 180%;
-    padding-bottom: 25px;
-    color: #999; }
-  #organizationinfos #organization {
+  #organization #data {
     display: table;
-    padding: 0px 0px 60px 20px;
-    font-size: 90%;
-    border-collapse: separate;
-    border-spacing: 5px; }
-    #organizationinfos #organization .row {
+    border-collapse: collapse;
+    width: 100%;
+    margin-left: 15px; }
+    #organization #data .row {
       display: table-row;
       width: 100%; }
-      #organizationinfos #organization .row .key {
+      #organization #data .row .key {
         display: table-cell;
-        padding: 0px 42px 0px 0px;
+        padding: 8px 42px 8px 0px;
         white-space: nowrap;
-        color: #666; }
-      #organizationinfos #organization .row .keyTop {
+        color: #666;
+        vertical-align: top; }
+      #organization #data .row .keyTop {
         vertical-align: top;
         padding-top: 5px; }
-      #organizationinfos #organization .row .value {
+      #organization #data .row .value {
         display: table-cell;
-        width: inherit; }
-        #organizationinfos #organization .row .value input, #organizationinfos #organization .row .value textarea, #organizationinfos #organization .row .value select {
+        vertical-align: middle;
+        width: 100%; }
+        #organization #data .row .value input, #organization #data .row .value textarea, #organization #data .row .value select {
           background-color: rgba(255, 255, 255, 0.7);
           width: calc(100% - 16px);
           padding: 6px 10px;
@@ -401,29 +439,93 @@ body {
           border-radius: 4px;
           color: #777;
           font-size: 100%; }
-        #organizationinfos #organization .row .value input[type=checkbox] {
+        #organization #data .row .value input[type=checkbox] {
           width: 30px;
           height: 18px;
           margin-top: 8px; }
-        #organizationinfos #organization .row .value input[type=checkbox]:checked {
+        #organization #data .row .value input[type=checkbox]:checked {
           color: #cc2d7b; }
-        #organizationinfos #organization .row .value input:focus, #organizationinfos #organization .row .value textarea:focus {
+        #organization #data .row .value input:focus, #organization #data .row .value textarea:focus {
           outline-color: #cc2d7b;
           border-color: #cc2d7b;
           box-shadow: 0 0 6px #cc2d7b;
           background: #f5eee3; }
-        #organizationinfos #organization .row .value textarea {
+        #organization #data .row .value input::placeholder {
+          font-size: 90%;
+          font-style: italic;
+          color: #acacac;
+          opacity: 1;
+          /* Firefox fix */ }
+        #organization #data .row .value textarea {
           resize: vertical;
           min-height: 100px;
           display: block; }
-        #organizationinfos #organization .row .value select {
+        #organization #data .row .value select {
           display: block;
           width: 100%; }
-        #organizationinfos #organization .row .value #language {
+        #organization #data .row .value #name {
+          min-height: 10px; }
+        #organization #data .row .value #address {
+          margin-top: 2px;
+          border-radius: 4px; }
+        #organization #data .row .value #language {
           margin-bottom: 1px; }
+      #organization #data .row .organizationsList {
+        display: flex;
+        flex-wrap: wrap;
+        padding-top: 7px; }
+        #organization #data .row .organizationsList .organization {
+          background-color: #f8f8f8;
+          padding: 4px 8px;
+          margin: 2px;
+          border: 0;
+          border-radius: 3px; }
+        #organization #data .row .organizationsList .organization:hover {
+          background-color: rgba(255, 115, 0, 0.2); }
 
 #organizationlogo .key {
   padding-top: 20px !important; }
 
 #organizationlogo .value {
   padding-bottom: 10px !important; }
+
+#confirmToDeleteOrganization {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 10000;
+  text-align: center;
+  background-color: rgba(0, 0, 0, 0.6); }
+  #confirmToDeleteOrganization #box {
+    position: relative;
+    display: inline-table;
+    top: 20vh;
+    background-color: #CCCCCC;
+    border-radius: 6px;
+    box-shadow: 2px 0 16px 0 rgba(0, 0, 0, 0.3); }
+    #confirmToDeleteOrganization #box #headline {
+      background-color: #ff7300;
+      border-radius: 6px 6px 0px 0px;
+      padding: 10px 20px;
+      text-align: center;
+      font-weight: bold; }
+    #confirmToDeleteOrganization #box #body {
+      background-color: #DDDDDD;
+      border-radius: 0px 0px 6px 6px;
+      padding: 10px 20px; }
+      #confirmToDeleteOrganization #box #body #confirmation {
+        padding: 10px 10px 15px 10px; }
+      #confirmToDeleteOrganization #box #body #buttons {
+        display: flex;
+        justify-content: flex-end; }
+        #confirmToDeleteOrganization #box #body #buttons button {
+          border: 0;
+          border-radius: 4px;
+          background-color: orangered;
+          margin-left: 5px;
+          padding: 6px 16px 4px 16px; }
+        #confirmToDeleteOrganization #box #body #buttons button:hover {
+          background-color: #ffab67; }

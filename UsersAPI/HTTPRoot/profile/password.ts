@@ -95,68 +95,28 @@ function StartChangePassword() {
 
     }
 
+    const changePasswordInfos  = document.       getElementById('changePasswordInfos')   as HTMLDivElement;
 
-    let changePassword   = document.       getElementById('changePassword')    as HTMLDivElement;
-    let currentPassword  = changePassword. querySelector ('#currentPassword')  as HTMLInputElement;
-    let newPassword1     = changePassword. querySelector ('#newPassword1')     as HTMLInputElement;
-    let newPassword2     = changePassword. querySelector ('#newPassword2')     as HTMLInputElement;
+    const changePassword       = document.       getElementById('changePassword')        as HTMLDivElement;
+    const currentPassword      = changePassword. querySelector ('#currentPassword')      as HTMLInputElement;
+    const newPassword1         = changePassword. querySelector ('#newPassword1')         as HTMLInputElement;
+    const newPassword2         = changePassword. querySelector ('#newPassword2')         as HTMLInputElement;
 
-    let responseDiv      = document.       getElementById("response")          as HTMLDivElement;
-    let saveButton       = document.       getElementById("saveButton")        as HTMLButtonElement;
+    const responseDiv          = document.       getElementById("response")              as HTMLDivElement;
 
-    currentPassword.onchange = function (this: HTMLElement, ev: Event) {
-        Verify();
-    }
+    const lowerButtonsDiv      = changePasswordInfos.querySelector ('#lowerButtons')     as HTMLDivElement;
+    const saveButton           = lowerButtonsDiv.querySelector ("#saveButton")           as HTMLButtonElement;
 
-    currentPassword.onkeyup  = function (this: HTMLElement, ev: Event) {
-        Verify();
-    }
+    currentPassword.onchange = () => { Verify(); }
+    currentPassword.onkeyup  = () => { Verify(); }
+    currentPassword.onchange = () => { Verify(); }
+    currentPassword.onkeyup  = () => { Verify(); }
 
-    currentPassword.onchange = function (this: HTMLElement, ev: Event) {
-        Verify();
-    }
+    newPassword1.onchange    = () => { Verify(); }
+    newPassword1.onkeyup     = () => { Verify(); }
+    newPassword2.onchange    = () => { Verify(); }
+    newPassword2.onkeyup     = () => { Verify(); }
 
-    currentPassword.onkeyup  = function (this: HTMLElement, ev: Event) {
-        Verify();
-    }
-
-
-    newPassword1.onchange    = function (this: HTMLElement, ev: Event) {
-        Verify();
-    }
-
-    newPassword1.onkeyup     = function (this: HTMLElement, ev: Event) {
-        Verify();
-    }
-
-    newPassword1.onchange    = function (this: HTMLElement, ev: Event) {
-        Verify();
-    }
-
-    newPassword1.onkeyup     = function (this: HTMLElement, ev: Event) {
-        Verify();
-    }
-
-
-    newPassword2.onchange    = function (this: HTMLElement, ev: Event) {
-        Verify();
-    }
-
-    newPassword2.onkeyup     = function (this: HTMLElement, ev: Event) {
-        Verify();
-    }
-
-    newPassword2.onchange    = function (this: HTMLElement, ev: Event) {
-        Verify();
-    }
-
-    newPassword2.onkeyup     = function (this: HTMLElement, ev: Event) {
-        Verify();
-    }
-
-
-    saveButton.onclick       = function (this: HTMLElement, ev: Event) {
-        SaveNewPassword();
-    }
+    saveButton.onclick       = () => { SaveNewPassword(); }
 
 }

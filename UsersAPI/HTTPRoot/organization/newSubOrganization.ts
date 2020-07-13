@@ -1,11 +1,11 @@
 ﻿
 function StartNewSubOrganization() {
 
-    const pathElements         = window.location.pathname.split("/");
-    const organizationId       = pathElements[pathElements.length - 2];
+    const pathElements           = window.location.pathname.split("/");
+    const organizationId         = pathElements[pathElements.length - 2];
 
-    const organizationMenuDiv  = document.getElementById("organizationMenu")  as HTMLDivElement;
-    const links                = organizationMenuDiv.querySelectorAll("a");
+    const organizationMenuDiv    = document.getElementById("organizationMenu")            as HTMLDivElement;
+    const links                  = organizationMenuDiv.querySelectorAll("a");
     for (let i = 0; i < links.length; i++) {
 
         if (links[i].href.indexOf("00000000") > 0) {
@@ -14,19 +14,24 @@ function StartNewSubOrganization() {
 
     }
 
-    const newSubOrganizationDiv  = document.getElementById("newSubOrganization")      as HTMLDivElement;
-    const headlineDiv            = newSubOrganizationDiv.querySelector("#headline")   as HTMLDivElement;
-    const dataDiv                = newSubOrganizationDiv.querySelector('#data')       as HTMLDivElement;
+    const newSubOrganizationDiv  = document.getElementById("newSubOrganization")          as HTMLDivElement;
+    const headlineDiv            = newSubOrganizationDiv.querySelector("#headline")       as HTMLDivElement;
+    const dataDiv                = newSubOrganizationDiv.querySelector('#data')           as HTMLDivElement;
 
-    const name                   = dataDiv.querySelector('#name')                     as HTMLTextAreaElement;
-    const description            = dataDiv.querySelector('#description')              as HTMLTextAreaElement;
-    const website                = dataDiv.querySelector('#website')                  as HTMLInputElement;
-    const email                  = dataDiv.querySelector('#email')                    as HTMLInputElement;
-    const telephone              = dataDiv.querySelector('#telephone')                as HTMLInputElement;
+    const name                   = dataDiv.querySelector('#name')                         as HTMLTextAreaElement;
+    const description            = dataDiv.querySelector('#description')                  as HTMLTextAreaElement;
+    const website                = dataDiv.querySelector('#website')                      as HTMLInputElement;
+    const email                  = dataDiv.querySelector('#email')                        as HTMLInputElement;
+    const telephone              = dataDiv.querySelector('#telephone')                    as HTMLInputElement;
 
-    const responseDiv            = document.getElementById("response")                as HTMLDivElement;
-    const saveButton             = document.getElementById("saveButton")              as HTMLButtonElement;
+    const responseDiv            = document.getElementById("response")                    as HTMLDivElement;
 
+    const lowerButtonsDiv        = newSubOrganizationDiv.querySelector('#lowerButtons')   as HTMLDivElement;
+    const saveButton             = lowerButtonsDiv.querySelector      ("#saveButton")     as HTMLButtonElement;
+
+    name.onchange                = () => { ToogleSaveButton(); }
+    name.onkeyup                 = () => { ToogleSaveButton(); }
+    saveButton.onclick           = () => { SaveData(); }
 
 
     function ToogleSaveButton(): boolean {
@@ -119,19 +124,6 @@ function StartNewSubOrganization() {
 
                 });
 
-    }
-
-
-    name.onchange       = () => {
-        ToogleSaveButton();
-    }
-
-    name.onkeyup        = () => {
-        ToogleSaveButton();
-    }
-
-    saveButton.onclick  = () => {
-        SaveData();
     }
 
 

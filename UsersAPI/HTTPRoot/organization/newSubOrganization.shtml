@@ -25,12 +25,12 @@
 
         <div class="row">
             <div class="key">Name</div>
-            <div class="value I18N" id="nameDiv"><select id="nameLanguage" name="nameLanguage" size="1"></select><textarea id="name"></textarea></div>
+            <div class="value I18N" id="nameDiv"><select id="nameLanguage" name="nameLanguage" size="1"><option value="eng">english</option></select><textarea id="name"></textarea></div>
         </div>
 
         <div class="row">
             <div class="key keyTop">Description</div>
-            <div class="value I18N" id="descriptionDiv"><select id="descriptionLanguage" name="descriptionLanguage" size="1"></select><textarea id="description"></textarea></div>
+            <div class="value I18N" id="descriptionDiv"><select id="descriptionLanguage" name="descriptionLanguage" size="1"><option value="eng">english</option></select><textarea id="description"></textarea></div>
         </div>
 
         <div class="row">
@@ -52,7 +52,7 @@
 
     <div id="response"></div>
 
-    <div class="buttons">
+    <div id="lowerButtons">
         <button id="saveButton" class="button" disabled>Save new organization</button>
     </div>
 
@@ -61,4 +61,3 @@
 <script type="text/javascript">
     StartNewSubOrganization();
 </script>
-

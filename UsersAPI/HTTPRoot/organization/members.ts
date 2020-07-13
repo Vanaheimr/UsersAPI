@@ -251,14 +251,8 @@ function StartOrganizationMembers() {
 
     const responseDiv          = document.    getElementById("response")                as HTMLDivElement;
 
-    name.onchange        = () => {
-        ToogleSaveButton();
-    }
-
-    name.onkeyup         = () => {
-        ToogleSaveButton();
-    }
-
+    name.onchange              = () => { ToogleSaveButton(); }
+    name.onkeyup               = () => { ToogleSaveButton(); }
 
 
     var aa = SignInUser;

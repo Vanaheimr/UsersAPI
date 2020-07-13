@@ -311,30 +311,69 @@ body {
 
                     }
 
-                    #buttons
+                    #upperButtons
                     {
 
-                        /*text-align:     right;*/
                         display:            flex;
                         flex-direction:     row-reverse;
+                        margin:             1vh 1vw;
 
-                        button {
-                            border:             0;
-                            white-space:        nowrap;
-                            color:              #6b6b6b;
-                            padding:            8px 14px;
-                            margin:             10px 0 15px 0;
-                            border-radius:      5px;
-                            font-size:          70%;
+                        /* Also used for 'a'-tags which should behave like a button! */
+
+                        .button {
+
+                            background:                 rgb(214, 214, 214);
+                            background-image:           linear-gradient(to bottom, #ddd, #c8c8c8);
+                            color:                      #696969;
+                            padding:                    6px 10px 4px 10px;
+                            margin-left:                5px;
+                            border-radius:              3px;
+                            border:                     0px;
+                            box-shadow:                 2px 2px 3px #bebebe;
+                            font-size:                  60%;
+                            white-space:                nowrap;
+                            text-decoration:            none;
+
+                            .text {
+
+                                display:            inline-block;
+
+                                .text2 {
+                                    display:            inline-block;
+                                    padding-left:       8px;
+                                    vertical-align:     top;
+                                    padding-top:        7px;
+                                }
+
+                            }
+
                         }
 
-                        button:hover {
-                            background-color:   #fdcca4;
+                        .button:hover {
+                            background-color:           rgbgb(224, 224, 224);
+                            background-image:           linear-gradient(to bottom, #eee, #d4d4d4);
+                            color:                      #777;
                         }
 
-                        button i:first-child {
+/*                        button i:first-child {
                             margin-right:       2px;
                             font-size:          75%;
+                        }*/
+
+                        .button:active {
+                            box-shadow:                 0 1px 2px #999;
+                            transform:                  translateY(4px);
+                        }
+
+                        .button:focus {
+                            outline:                    0px;
+                        }
+
+                        .button:disabled {
+                            background-color:           rgba(0, 0, 0, 0.1);
+                            background-image:           none;
+                            color:                      #bbb;
+                            box-shadow:                 none;
                         }
 
                     }
@@ -504,6 +543,91 @@ body {
 
                     }
 
+                    #lowerButtons
+                    {
+
+                        display:            flex;
+                        flex-direction:     row;
+                        margin:             1vh 1vw;
+
+   /*                     button {
+                            border:             0;
+                            white-space:        nowrap;
+                            color:              #6b6b6b;
+                            padding:            8px 14px;
+                            margin:             10px 0 15px 0;
+                            border-radius:      5px;
+                            font-size:          70%;
+                            text-decoration:    none;
+                        }*/
+
+                        /* Also used for 'a'-tags which should behave like a button! */
+
+                        .button {
+
+                            background:                 #ffba83;
+                            background-image:           linear-gradient(to bottom, #ffc99e, #ffba83);
+                            color:                      #b36630;
+                            padding:                    10px 20px;
+                            margin-left:                5px;
+                            border-radius:              4px;
+                            border:                     0px;
+                            box-shadow:                 2px 2px 6px #999;
+                            font-size:                  70%;
+                            white-space:                nowrap;
+                            text-decoration:            none;
+
+                            .text {
+
+                                display:            inline-block;
+
+                                .text2 {
+                                    display:            inline-block;
+                                    padding-left:       8px;
+                                    vertical-align:     top;
+                                    padding-top:        7px;
+                                }
+
+                            }
+
+                        }
+
+                     /*   button:hover {
+                            background-color:   #fdcca4;
+                        }*/
+
+                        .button:hover {
+                            background-color:           #fbd1af;
+                            background-image:           linear-gradient(to bottom, #ffe5d1, #fbd1af);
+                            color:                      #cb8f64;
+                        }
+
+/*                        button i:first-child {
+                            margin-right:       2px;
+                            font-size:          75%;
+                        }*/
+
+
+
+                        .button:active {
+                            box-shadow:                 0 1px 2px #999;
+                            transform:                  translateY(4px);
+                        }
+
+                        .button:focus {
+                            outline:                    0px;
+                        }
+
+                        .button:disabled {
+                            background-color:           rgb(238, 226, 215);
+                            background-image:           none;
+                            color:                      #ceb9aa;
+                            box-shadow:                 none;
+                        }
+
+                    }
+
+
                     #saveButton {
                         margin-top:                 40px;
                     }
@@ -550,97 +674,4 @@ body {
         background-color:   #f59f9f;
     }
 
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-.buttons {
-    display:                    flex;
-    margin-top:                 30px;
-}
-
-.button {
-    background:                 #ffba83;
-    background-image:           linear-gradient(to bottom, #ffc99e, #ffba83);
-    color:                      #b36630;
-    padding:                    10px 20px;
-    margin-left:                5px;
-    border-radius:              4px;
-    border:                     0px;
-    box-shadow:                 2px 2px 6px #999;
-
-    .text {
-
-        display:            inline-block;
-
-        .text2 {
-            display:            inline-block;
-            padding-left:       8px;
-            vertical-align:     top;
-            padding-top:        7px;
-        }
-
-    }
-
-}
-
-.button:hover {
-    background-color:           #fbd1af;
-    background-image:           linear-gradient(to bottom, #ffe5d1, #fbd1af);
-    color:                      #cb8f64;
-}
-
-.button:active {
-    box-shadow:                 0 1px 2px #999;
-    transform:                  translateY(4px);
-}
-
-.button:focus {
-    outline:                    0px;
-}
-
-.button:disabled {
-    background-color:           rgb(238, 226, 215);
-    background-image:           none;
-    color:                      #ceb9aa;
-    box-shadow:                 none;
 }
