@@ -143,14 +143,17 @@ body {
         padding: 0;
         background-color: #eee; }
         body #page #right #text .entity {
-          /*padding:                        30px 30px 20px 25px;*/
-          /*font-size:                      140%;*/
-          /*height:                         100%;*/
           display: flex;
           flex-direction: column; }
           body #page #right #text .entity #headline {
+            display: flex;
+            align-items: center;
             padding-bottom: 30px;
             color: #999; }
+            body #page #right #text .entity #headline #logo {
+              margin-right: 1vw; }
+              body #page #right #text .entity #headline #logo img {
+                width: 100px; }
             body #page #right #text .entity #headline #title {
               font-size: 160%; }
               body #page #right #text .entity #headline #title #id {
@@ -181,6 +184,10 @@ body {
                 body #page #right #text .entity #headline #title #description #I18NText {
                   display: inline-block;
                   font-size: 170%; }
+          body #page #right #text .entity #about {
+            padding: 2vh 1vw 3vh 1vw;
+            font-size: 95%;
+            color: #777; }
           body #page #right #text .entity #upperButtons {
             display: flex;
             flex-direction: row-reverse;
@@ -257,7 +264,8 @@ body {
                   padding: 6px 8px;
                   border-radius: 4px;
                   font-size: 90%;
-                  border: 0px; }
+                  border: 0px;
+                  width: 100%; }
                 body #page #right #text .entity #data .row .value input, body #page #right #text .entity #data .row .value textarea {
                   width: calc(100% - 16px); }
                 body #page #right #text .entity #data .row .value textarea {
@@ -270,7 +278,10 @@ body {
                                     font-size:          100%;*/
                   vertical-align: top;
                   resize: vertical;
-                  min-height: 100px; }
+                  min-height: 100px;
+                  /* display:            block;*/ }
+                body #page #right #text .entity #data .row .value select {
+                  margin-bottom: 1px; }
                 body #page #right #text .entity #data .row .value input[type=checkbox] {
                   /*width:              30px;
                                     height:             18px;
@@ -285,6 +296,12 @@ body {
                   border-color: #cc2d7b;
                   box-shadow: 0 0 6px #cc2d7b;
                   background: #f5eee3; }
+                body #page #right #text .entity #data .row .value input::placeholder {
+                  font-size: 90%;
+                  font-style: italic;
+                  color: #acacac;
+                  opacity: 1;
+                  /* Firefox fix */ }
                 body #page #right #text .entity #data .row .value input.error {
                   display: inline-block;
                   background-color: rgba(200, 0, 0, 0.23) !important;
@@ -310,12 +327,12 @@ body {
                 body #page #right #text .entity #data .row .value a:hover {
                   background-color: rgba(228, 141, 70, 0.25);
                   color: #f59f5a; }
-              body #page #right #text .entity #data .row .ErrorMessage {
+              body #page #right #text .entity #data .row .validationError {
                 position: absolute;
-                align-items: center;
-                top: 2px;
                 right: 12px;
+                top: 2px;
                 height: 100%;
+                align-items: center;
                 font-size: 70%;
                 color: #c80000; }
             body #page #right #text .entity #data .group {
@@ -326,7 +343,7 @@ body {
             body #page #right #text .entity #data .spacer {
               margin-top: 10px; }
             body #page #right #text .entity #data #pairedWith {
-              border-top: 15px solid transparent; }
+              /*   border-top:             15px solid transparent;*/ }
           body #page #right #text .entity #lowerButtons {
             display: flex;
             flex-direction: row;
@@ -458,61 +475,49 @@ body {
   position: relative;
   padding: 30px 30px 20px 25px;
   font-size: 140%; }
-  #userProfile .headline {
-    font-size: 180%;
-    padding-bottom: 25px;
-    color: #999; }
-  #userProfile #data {
-    display: table;
-    padding: 0px 0px 60px 20px;
-    font-size: 90%;
-    border-collapse: separate;
-    border-spacing: 5px; }
-    #userProfile #data .row {
-      display: table-row;
-      width: 100%; }
-      #userProfile #data .row .key {
-        display: table-cell;
-        padding: 0px 42px 0px 0px;
-        white-space: nowrap;
-        color: #666; }
-      #userProfile #data .row .keyTop {
-        vertical-align: top;
-        padding-top: 5px; }
-      #userProfile #data .row .value {
-        display: table-cell;
-        width: inherit; }
-        #userProfile #data .row .value input, #userProfile #data .row .value textarea, #userProfile #data .row .value select {
-          background-color: rgba(255, 255, 255, 0.7);
-          width: calc(100% - 16px);
-          padding: 6px 10px;
-          border: 0px;
-          border-radius: 4px;
-          color: #777;
-          font-size: 100%; }
-        #userProfile #data .row .value input[type=checkbox] {
-          width: 30px;
-          height: 18px;
-          margin-top: 8px; }
-        #userProfile #data .row .value input[type=checkbox]:checked {
-          color: #cc2d7b; }
-        #userProfile #data .row .value input:focus, #userProfile #data .row .value textarea:focus {
-          outline-color: #cc2d7b;
-          border-color: #cc2d7b;
-          box-shadow: 0 0 6px #cc2d7b;
-          background: #f5eee3; }
-        #userProfile #data .row .value textarea {
-          resize: vertical;
-          min-height: 100px;
-          display: block; }
-        #userProfile #data .row .value select {
-          display: block;
-          width: 100%; }
-        #userProfile #data .row .value #language {
-          margin-bottom: 1px; }
-
-#avatar .key {
-  padding-top: 20px !important; }
-
-#avatar .value {
-  padding-bottom: 10px !important; }
+  #userProfile #avatar {
+    margin: 1vh 3vw 0vh 3vw; }
+    #userProfile #avatar img {
+      width: 150px; }
+  #userProfile #da2323ta .row {
+    display: table-row;
+    width: 100%; }
+    #userProfile #da2323ta .row .key {
+      display: table-cell;
+      padding: 0px 42px 0px 0px;
+      white-space: nowrap;
+      color: #666; }
+    #userProfile #da2323ta .row .keyTop {
+      vertical-align: top;
+      padding-top: 5px; }
+    #userProfile #da2323ta .row .value {
+      display: table-cell;
+      width: inherit; }
+      #userProfile #da2323ta .row .value input, #userProfile #da2323ta .row .value textarea, #userProfile #da2323ta .row .value select {
+        background-color: rgba(255, 255, 255, 0.7);
+        width: calc(100% - 16px);
+        padding: 6px 10px;
+        border: 0px;
+        border-radius: 4px;
+        color: #777;
+        font-size: 100%; }
+      #userProfile #da2323ta .row .value input[type=checkbox] {
+        width: 30px;
+        height: 18px;
+        margin-top: 8px; }
+      #userProfile #da2323ta .row .value input[type=checkbox]:checked {
+        color: #cc2d7b; }
+      #userProfile #da2323ta .row .value input:focus, #userProfile #da2323ta .row .value textarea:focus {
+        outline-color: #cc2d7b;
+        border-color: #cc2d7b;
+        box-shadow: 0 0 6px #cc2d7b;
+        background: #f5eee3; }
+      #userProfile #da2323ta .row .value textarea {
+        resize: vertical;
+        min-height: 100px;
+        display: block; }
+      #userProfile #da2323ta .row .value select {
+        display: block;
+        width: 100%; }
+      #userProfile #da2323ta .row .value #language {
+        margin-bottom: 1px; }

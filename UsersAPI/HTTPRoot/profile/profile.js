@@ -168,19 +168,30 @@ function StartProfile() {
     //publicKeyRing.onkeyup    = () => { ToogleSaveButton(); }
     saveButton.onclick = function () { SaveData(); };
     HTTPGet("/users/" + SignInUser, function (status, response) {
-        UserProfileJSON = ParseJSON_LD(response);
-        username.value = UserProfileJSON.name;
-        eMailAddress.value = UserProfileJSON.email;
-        telephone.value = UserProfileJSON.telephone != null ? UserProfileJSON.telephone : "";
-        mobilePhone.value = UserProfileJSON.mobilePhone != null ? UserProfileJSON.mobilePhone : "";
-        telegram.value = UserProfileJSON.telegram != null ? UserProfileJSON.telegram : "";
-        homepage.value = UserProfileJSON.homepage != null ? UserProfileJSON.homepage : "";
-        UpdateI18N(description, UserProfileJSON.description);
-        //if (UserProfileJSON.publicKeyRing != null)
-        //    publicKeyRing.value  = UserProfileJSON.publicKeyRing;
-        //if (UserProfileJSON.publicKeyRing == null)
-        //    UserProfileJSON.publicKeyRing = "";
+        try {
+            UserProfileJSON = ParseJSON_LD(response);
+            username.value = UserProfileJSON.name;
+            eMailAddress.value = UserProfileJSON.email;
+            telephone.value = UserProfileJSON.telephone != null ? UserProfileJSON.telephone : "";
+            mobilePhone.value = UserProfileJSON.mobilePhone != null ? UserProfileJSON.mobilePhone : "";
+            telegram.value = UserProfileJSON.telegram != null ? UserProfileJSON.telegram : "";
+            homepage.value = UserProfileJSON.homepage != null ? UserProfileJSON.homepage : "";
+            UpdateI18N(description, UserProfileJSON.description);
+            //if (UserProfileJSON.publicKeyRing != null)
+            //    publicKeyRing.value  = UserProfileJSON.publicKeyRing;
+            //if (UserProfileJSON.publicKeyRing == null)
+            //    UserProfileJSON.publicKeyRing = "";
+        }
+        catch (exception) {
+            responseDiv.innerHTML = "<div class=\"HTTP Error\">Could not fetch user data from server:<br />" + exception + "</div>";
+        }
     }, function (statusCode, status, response) {
+        try {
+            responseDiv.innerHTML = "<div class=\"HTTP Error\">Could not fetch user data from server!</div>";
+        }
+        catch (exception) {
+            responseDiv.innerHTML = "<div class=\"HTTP Error\">Could not fetch user data from server:<br />" + exception + "</div>";
+        }
     });
 }
 //# sourceMappingURL=profile.js.map

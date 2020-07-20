@@ -4,14 +4,11 @@
 
 <div id="userProfile" class="entity">
 
-    <div id="profile_headline" class="headline">Your profile</div>
+    <div id="avatar">
+        <img src="/shared/UsersAPI/images/dummy-user-gray-150x150.png" />
+    </div>
 
     <div id="data">
-
-        <div id="avatar" class="row">
-            <div class="key keyTop">Public Avatar</div>
-            <div class="value"><img src="/shared/UsersAPI/images/dummy-user-gray-150x150.png" /></div>
-        </div>
 
         <div class="row">
             <div class="key">Login</div>
@@ -76,4 +73,3 @@
 <script type="text/javascript">
     StartProfile();
 </script>
-

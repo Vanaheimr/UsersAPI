@@ -9,7 +9,7 @@ body {
 
                 #organization {
 
-                    width:              calc(50% - 55px);
+                    width:              calc(60% - 55px);
                     padding:            30px 30px 20px 25px;
                     font-size:          140%;
 
@@ -174,7 +174,7 @@ body {
                 }
 
                 #map {
-                    width:              50%;
+                    width:              40%;
                     display:            inline-block;
                     top:                0px;
                     bottom:             0px;
@@ -186,31 +186,4 @@ body {
             }
         }
     }
-}
-
-.I18N {
-
-    select {
-        width:              100%;
-        padding:            6px 8px;
-        margin-bottom:      1px;
-        border:             0;
-        border-radius:      4px 4px 0px 0px;
-        background-color:   rgba(255,255,255,.7);
-        font-size:          80%;
-    }
-
-    textarea {
-        width:              calc(100% - 16px);
-        padding:            6px 8px;
-        margin-bottom:      5px;
-        border:             0;
-        border-radius:      0px 0px 4px 4px;
-        vertical-align:     top;
-        min-height:         100px;
-        background-color:   rgba(255,255,255,.7);
-        font-size:          90%;
-        resize:             vertical;
-    }
-
 }

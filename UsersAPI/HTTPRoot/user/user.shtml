@@ -2,20 +2,17 @@
 
 <script type="text/javascript" src="../user/user.js"></script>
 
-<div id="profileinfos" class="entity">
+<div id="userProfile" class="entity">
 
-    <div id="profile_headline" class="headline">User profile</div>
+    <div id="avatar">
+        <img src="/shared/UsersAPI/images/dummy-user-gray-150x150.png" />
+    </div>
 
     <div id="upperButtons">
         <button id="impersonateButton" class="button" disabled><i class="fas fa-theater-masks"></i> Impersonate</button>
     </div>
 
-    <div id="profile">
-
-        <div id="avatar" class="row">
-            <div class="key keyTop">Public Avatar</div>
-            <div class="value"><img src="/shared/UsersAPI/images/dummy-user-gray-150x150.png" /></div>
-        </div>
+    <div id="data">
 
         <div class="row">
             <div class="key">Login</div>
@@ -40,6 +37,11 @@
         <div class="row">
             <div class="key">Mobil phone</div>
             <div class="value"><input id="mobilePhone"   readonly type="text" value="" /></div>
+        </div>
+
+        <div class="row">
+            <div class="key">Telegram</div>
+            <div class="value"><input id="telegram"      readonly type="text" value="" /></div>
         </div>
 
         <div class="row">
@@ -70,4 +72,3 @@
 <script type="text/javascript">
     StartUser();
 </script>
-

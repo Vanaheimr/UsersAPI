@@ -1,27 +1,19 @@
 ﻿@import "../defaults/_defaults.scss";
 
+#userProfile {
 
-#profileinfos {
+    position:               relative;
+    padding:                30px 30px 20px 25px;
+    font-size:              140%;
 
-    #profile {
+    #avatar {
 
-        padding:        0px 0px 0px 20px;
+        margin:             1vh 3vw 0vh 3vw;
 
-        .row {
-
-            .value {
-
-                input[type=checkbox]:checked {
-                    color:              $NavigationBackground;
-                }
-
-                input:focus, textarea:focus {
-                    outline-color:      $NavigationBackground;
-                    border-color:       $NavigationBackground;
-                    box-shadow:         0 0 6px $NavigationBackground;
-                }
-            }
+        img {
+            width:              150px;
         }
+
     }
 
     #impersonateButton {

@@ -260,25 +260,42 @@ function StartProfile() {
 
             (status, response) => {
 
-                UserProfileJSON     = ParseJSON_LD<IUserProfile>(response);
+                try
+                {
 
-                username.value      = UserProfileJSON.name;
-                eMailAddress.value  = UserProfileJSON.email;
-                telephone.value     = UserProfileJSON.telephone   != null ? UserProfileJSON.telephone   : "";
-                mobilePhone.value   = UserProfileJSON.mobilePhone != null ? UserProfileJSON.mobilePhone : "";
-                telegram.value      = UserProfileJSON.telegram    != null ? UserProfileJSON.telegram    : "";
-                homepage.value      = UserProfileJSON.homepage    != null ? UserProfileJSON.homepage    : "";
-                UpdateI18N(description, UserProfileJSON.description);
+                    UserProfileJSON     = ParseJSON_LD<IUserProfile>(response);
 
-                //if (UserProfileJSON.publicKeyRing != null)
-                //    publicKeyRing.value  = UserProfileJSON.publicKeyRing;
+                    username.value      = UserProfileJSON.name;
+                    eMailAddress.value  = UserProfileJSON.email;
+                    telephone.value     = UserProfileJSON.telephone   != null ? UserProfileJSON.telephone   : "";
+                    mobilePhone.value   = UserProfileJSON.mobilePhone != null ? UserProfileJSON.mobilePhone : "";
+                    telegram.value      = UserProfileJSON.telegram    != null ? UserProfileJSON.telegram    : "";
+                    homepage.value      = UserProfileJSON.homepage    != null ? UserProfileJSON.homepage    : "";
+                    UpdateI18N(description, UserProfileJSON.description);
 
-                //if (UserProfileJSON.publicKeyRing == null)
-                //    UserProfileJSON.publicKeyRing = "";
+                    //if (UserProfileJSON.publicKeyRing != null)
+                    //    publicKeyRing.value  = UserProfileJSON.publicKeyRing;
+
+                    //if (UserProfileJSON.publicKeyRing == null)
+                    //    UserProfileJSON.publicKeyRing = "";
+
+                }
+                catch (exception)
+                {
+                    responseDiv.innerHTML = "<div class=\"HTTP Error\">Could not fetch user data from server:<br />" + exception + "</div>";
+                }
 
             },
 
             (statusCode, status, response) => {
+
+                try
+                {
+                    responseDiv.innerHTML = "<div class=\"HTTP Error\">Could not fetch user data from server!</div>";
+                }
+                catch (exception) {
+                    responseDiv.innerHTML = "<div class=\"HTTP Error\">Could not fetch user data from server:<br />" + exception + "</div>";
+                }
 
             });
 

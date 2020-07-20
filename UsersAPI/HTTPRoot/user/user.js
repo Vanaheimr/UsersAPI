@@ -103,89 +103,82 @@ function StartUser() {
         });
     }
     function ImpersonateUser(newUserId) {
-        HTTPImpersonate("/users/" + newUserId, function (HTTPStatus, ResponseText) {
+        HTTPImpersonate("/users/" + newUserId, function (status, response) {
             window.location.reload(true);
-        }, function (HTTPStatus, StatusText, ResponseText) {
+        }, function (statusCode, status, response) {
             alert("Not allowed!");
         });
     }
     var pathElements = window.location.pathname.split("/");
     var userId = pathElements[pathElements.length - 1];
-    var profileinfos = document.getElementById('profileinfos');
-    var login = profileinfos.querySelector('#login');
-    var username = profileinfos.querySelector('#username');
-    var eMailAddress = profileinfos.querySelector('#eMailAddress');
-    var telephone = profileinfos.querySelector('#telephone');
-    var mobilePhone = profileinfos.querySelector('#mobilePhone');
-    var homepage = profileinfos.querySelector('#homepage');
-    var description = profileinfos.querySelector('#userDescription');
-    var descriptionText = profileinfos.querySelector('#description');
-    var responseDiv = document.getElementById("response");
+    var userProfile = document.getElementById('userProfile');
     var impersonateButton = document.getElementById("impersonateButton");
+    var data = userProfile.querySelector('#data');
+    var login = data.querySelector('#login');
+    var username = data.querySelector('#username');
+    var eMailAddress = data.querySelector('#eMailAddress');
+    var telephone = data.querySelector('#telephone');
+    var mobilePhone = data.querySelector('#mobilePhone');
+    var telegram = data.querySelector('#telegram');
+    var homepage = data.querySelector('#homepage');
+    var description = data.querySelector('#userDescription');
+    var descriptionText = data.querySelector('#description');
+    var responseDiv = document.getElementById("response");
     var saveButton = document.getElementById("saveButton");
     login.value = userId;
-    HTTPGet("/users/" + userId, function (HTTPStatus, ResponseText) {
-        UserProfileJSON = ParseJSON_LD(ResponseText);
-        username.value = UserProfileJSON.name;
-        eMailAddress.value = UserProfileJSON.email;
-        telephone.value = UserProfileJSON.telephone != null ? UserProfileJSON.telephone : "";
-        mobilePhone.value = UserProfileJSON.mobilePhone != null ? UserProfileJSON.mobilePhone : "";
-        homepage.value = UserProfileJSON.homepage != null ? UserProfileJSON.homepage : "";
-        UpdateI18N(description, UserProfileJSON.description);
-        if (UserProfileJSON["youCanEdit"]) {
-            username.readOnly = false;
-            username.onchange = function () {
-                ToogleSaveButton();
-            };
-            username.onkeyup = function () {
-                ToogleSaveButton();
-            };
-            eMailAddress.readOnly = false;
-            eMailAddress.onchange = function () {
-                ToogleSaveButton();
-            };
-            eMailAddress.onkeyup = function () {
-                ToogleSaveButton();
-            };
-            telephone.readOnly = false;
-            telephone.onchange = function () {
-                ToogleSaveButton();
-            };
-            telephone.onkeyup = function () {
-                ToogleSaveButton();
-            };
-            mobilePhone.readOnly = false;
-            mobilePhone.onchange = function () {
-                ToogleSaveButton();
-            };
-            mobilePhone.onkeyup = function () {
-                ToogleSaveButton();
-            };
-            homepage.readOnly = false;
-            homepage.onchange = function () {
-                ToogleSaveButton();
-            };
-            homepage.onkeyup = function () {
-                ToogleSaveButton();
-            };
-            descriptionText.readOnly = false;
-            descriptionText.onchange = function () {
-                ToogleSaveButton();
-            };
-            descriptionText.onkeyup = function () {
-                ToogleSaveButton();
-            };
-            saveButton.style.display = "block";
-            saveButton.onclick = function () {
-                SaveData();
-            };
-            impersonateButton.disabled = false;
-            impersonateButton.style.display = "block";
-            impersonateButton.onclick = function (ev) {
-                ImpersonateUser(userId);
-            };
+    HTTPGet("/users/" + userId, function (status, response) {
+        try {
+            UserProfileJSON = ParseJSON_LD(response);
+            username.value = UserProfileJSON.name;
+            eMailAddress.value = UserProfileJSON.email;
+            telephone.value = UserProfileJSON.telephone != null ? UserProfileJSON.telephone : "";
+            mobilePhone.value = UserProfileJSON.mobilePhone != null ? UserProfileJSON.mobilePhone : "";
+            telegram.value = UserProfileJSON.telegram != null ? UserProfileJSON.telegram : "";
+            homepage.value = UserProfileJSON.homepage != null ? UserProfileJSON.homepage : "";
+            UpdateI18N(description, UserProfileJSON.description);
+            if (UserProfileJSON["youCanEdit"]) {
+                username.readOnly = false;
+                username.onchange = function () { ToogleSaveButton(); };
+                username.onkeyup = function () { ToogleSaveButton(); };
+                eMailAddress.readOnly = false;
+                eMailAddress.onchange = function () { ToogleSaveButton(); };
+                eMailAddress.onkeyup = function () { ToogleSaveButton(); };
+                telephone.readOnly = false;
+                telephone.onchange = function () { ToogleSaveButton(); };
+                telephone.onkeyup = function () { ToogleSaveButton(); };
+                mobilePhone.readOnly = false;
+                mobilePhone.onchange = function () { ToogleSaveButton(); };
+                mobilePhone.onkeyup = function () { ToogleSaveButton(); };
+                telegram.readOnly = false;
+                telegram.onchange = function () { ToogleSaveButton(); };
+                telegram.onkeyup = function () { ToogleSaveButton(); };
+                homepage.readOnly = false;
+                homepage.onchange = function () { ToogleSaveButton(); };
+                homepage.onkeyup = function () { ToogleSaveButton(); };
+                descriptionText.readOnly = false;
+                descriptionText.onchange = function () { ToogleSaveButton(); };
+                descriptionText.onkeyup = function () { ToogleSaveButton(); };
+                saveButton.style.display = "block";
+                saveButton.onclick = function () {
+                    SaveData();
+                };
+                impersonateButton.disabled = false;
+                impersonateButton.style.display = "block";
+                impersonateButton.onclick = function () {
+                    ImpersonateUser(userId);
+                };
+            }
         }
-    }, function (HTTPStatus, StatusText, ResponseText) {
+        catch (exception) {
+            responseDiv.innerHTML = "<div class=\"HTTP Error\">Could not fetch user data from server:<br />" + exception + "</div>";
+        }
+    }, function (statusCode, status, response) {
+        try {
+            responseDiv.innerHTML = "<div class=\"HTTP Error\">Could not fetch user data from server!</div>";
+        }
+        catch (exception) {
+            responseDiv.innerHTML = "<div class=\"HTTP Error\">Could not fetch user data from server:<br />" + exception + "</div>";
+        }
     });
 }
 //# sourceMappingURL=user.js.map

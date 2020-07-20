@@ -143,14 +143,17 @@ body {
         padding: 0;
         background-color: #eee; }
         body #page #right #text .entity {
-          /*padding:                        30px 30px 20px 25px;*/
-          /*font-size:                      140%;*/
-          /*height:                         100%;*/
           display: flex;
           flex-direction: column; }
           body #page #right #text .entity #headline {
+            display: flex;
+            align-items: center;
             padding-bottom: 30px;
             color: #999; }
+            body #page #right #text .entity #headline #logo {
+              margin-right: 1vw; }
+              body #page #right #text .entity #headline #logo img {
+                width: 100px; }
             body #page #right #text .entity #headline #title {
               font-size: 160%; }
               body #page #right #text .entity #headline #title #id {
@@ -181,6 +184,10 @@ body {
                 body #page #right #text .entity #headline #title #description #I18NText {
                   display: inline-block;
                   font-size: 170%; }
+          body #page #right #text .entity #about {
+            padding: 2vh 1vw 3vh 1vw;
+            font-size: 95%;
+            color: #777; }
           body #page #right #text .entity #upperButtons {
             display: flex;
             flex-direction: row-reverse;
@@ -257,7 +264,8 @@ body {
                   padding: 6px 8px;
                   border-radius: 4px;
                   font-size: 90%;
-                  border: 0px; }
+                  border: 0px;
+                  width: 100%; }
                 body #page #right #text .entity #data .row .value input, body #page #right #text .entity #data .row .value textarea {
                   width: calc(100% - 16px); }
                 body #page #right #text .entity #data .row .value textarea {
@@ -270,7 +278,10 @@ body {
                                     font-size:          100%;*/
                   vertical-align: top;
                   resize: vertical;
-                  min-height: 100px; }
+                  min-height: 100px;
+                  /* display:            block;*/ }
+                body #page #right #text .entity #data .row .value select {
+                  margin-bottom: 1px; }
                 body #page #right #text .entity #data .row .value input[type=checkbox] {
                   /*width:              30px;
                                     height:             18px;
@@ -285,6 +296,12 @@ body {
                   border-color: #cc2d7b;
                   box-shadow: 0 0 6px #cc2d7b;
                   background: #f5eee3; }
+                body #page #right #text .entity #data .row .value input::placeholder {
+                  font-size: 90%;
+                  font-style: italic;
+                  color: #acacac;
+                  opacity: 1;
+                  /* Firefox fix */ }
                 body #page #right #text .entity #data .row .value input.error {
                   display: inline-block;
                   background-color: rgba(200, 0, 0, 0.23) !important;
@@ -310,12 +327,12 @@ body {
                 body #page #right #text .entity #data .row .value a:hover {
                   background-color: rgba(228, 141, 70, 0.25);
                   color: #f59f5a; }
-              body #page #right #text .entity #data .row .ErrorMessage {
+              body #page #right #text .entity #data .row .validationError {
                 position: absolute;
-                align-items: center;
-                top: 2px;
                 right: 12px;
+                top: 2px;
                 height: 100%;
+                align-items: center;
                 font-size: 70%;
                 color: #c80000; }
             body #page #right #text .entity #data .group {
@@ -326,7 +343,7 @@ body {
             body #page #right #text .entity #data .spacer {
               margin-top: 10px; }
             body #page #right #text .entity #data #pairedWith {
-              border-top: 15px solid transparent; }
+              /*   border-top:             15px solid transparent;*/ }
           body #page #right #text .entity #lowerButtons {
             display: flex;
             flex-direction: row;
@@ -457,12 +474,9 @@ body {
 #newMember {
   padding: 30px 30px 20px 25px;
   font-size: 140%; }
-  #newMember #about {
-    color: #777;
-    margin: 1vh 1vw 3vh 1vw; }
-  #newMember #buttons {
+  #newMember #bu23ttons {
     text-align: right; }
-    #newMember #buttons button {
+    #newMember #bu23ttons button {
       border: 0;
       white-space: nowrap;
       color: #6b6b6b;
@@ -470,51 +484,51 @@ body {
       margin: 10px 0 15px 0;
       border-radius: 5px;
       font-size: 70%; }
-    #newMember #buttons button i:first-child {
+    #newMember #bu23ttons button i:first-child {
       margin-right: 2px;
       font-size: 75%; }
-  #newMember #data {
+  #newMember #da23ta {
     margin-left: 15px;
     width: 100%; }
-    #newMember #data .row {
+    #newMember #da23ta .row {
       width: 100%; }
-      #newMember #data .row .key {
+      #newMember #da23ta .row .key {
         padding: 8px 42px 8px 0;
         white-space: nowrap;
         color: #666;
         vertical-align: top; }
-      #newMember #data .row .value {
+      #newMember #da23ta .row .value {
         width: 100%; }
-      #newMember #data .row .memberGroup .member {
+      #newMember #da23ta .row .memberGroup .member {
         padding: 10px 10px;
         background-color: #e1e1e1;
         border-bottom: solid 1px #eeeeee;
         cursor: pointer; }
-        #newMember #data .row .memberGroup .member .frame {
+        #newMember #da23ta .row .memberGroup .member .frame {
           display: flex; }
-          #newMember #data .row .memberGroup .member .frame .avatar {
+          #newMember #da23ta .row .memberGroup .member .frame .avatar {
             padding-right: 1vw; }
-            #newMember #data .row .memberGroup .member .frame .avatar img {
+            #newMember #da23ta .row .memberGroup .member .frame .avatar img {
               width: 4vw; }
-          #newMember #data .row .memberGroup .member .frame .info {
+          #newMember #da23ta .row .memberGroup .member .frame .info {
             width: 100%;
             padding-right: 1vw; }
-            #newMember #data .row .memberGroup .member .frame .info .name {
+            #newMember #da23ta .row .memberGroup .member .frame .info .name {
               margin: 10px 0px; }
-            #newMember #data .row .memberGroup .member .frame .info .email {
+            #newMember #da23ta .row .memberGroup .member .frame .info .email {
               font-size: 70%;
               color: #777;
               margin-top: 5px;
               white-space: nowrap; }
-              #newMember #data .row .memberGroup .member .frame .info .email i {
+              #newMember #da23ta .row .memberGroup .member .frame .info .email i {
                 font-size: 95%; }
-              #newMember #data .row .memberGroup .member .frame .info .email a {
+              #newMember #da23ta .row .memberGroup .member .frame .info .email a {
                 text-decoration: none;
                 color: #777; }
-            #newMember #data .row .memberGroup .member .frame .info .description {
+            #newMember #da23ta .row .memberGroup .member .frame .info .description {
               margin-top: 5px;
               font-size: 90%; }
-              #newMember #data .row .memberGroup .member .frame .info .description .I18NLanguage {
+              #newMember #da23ta .row .memberGroup .member .frame .info .description .I18NLanguage {
                 display: inline-block;
                 font-size: 50%;
                 background-color: #CCCCCC;
@@ -522,38 +536,38 @@ body {
                 border-radius: 3px;
                 margin: 2px 8px 0px 0px;
                 vertical-align: top; }
-              #newMember #data .row .memberGroup .member .frame .info .description .I18NValue {
+              #newMember #da23ta .row .memberGroup .member .frame .info .description .I18NValue {
                 display: inline-block; }
-            #newMember #data .row .memberGroup .member .frame .info .properties {
+            #newMember #da23ta .row .memberGroup .member .frame .info .properties {
               display: table;
               margin-top: 8px;
               font-size: 75%; }
-              #newMember #data .row .memberGroup .member .frame .info .properties .property {
+              #newMember #da23ta .row .memberGroup .member .frame .info .properties .property {
                 display: table-row; }
-                #newMember #data .row .memberGroup .member .frame .info .properties .property .key {
+                #newMember #da23ta .row .memberGroup .member .frame .info .properties .property .key {
                   display: table-cell;
                   padding: 0px 15px 3px 0px; }
-                #newMember #data .row .memberGroup .member .frame .info .properties .property .value {
+                #newMember #da23ta .row .memberGroup .member .frame .info .properties .property .value {
                   display: table-cell;
                   padding: 0px 0px 3px 0px; }
-          #newMember #data .row .memberGroup .member .frame .tools {
+          #newMember #da23ta .row .memberGroup .member .frame .tools {
             text-align: right;
             margin-right: 0.5vw;
             display: flex;
             align-items: center; }
-            #newMember #data .row .memberGroup .member .frame .tools button {
+            #newMember #da23ta .row .memberGroup .member .frame .tools button {
               border: 0;
               background: #fd933b;
               font-size: 80%;
               white-space: nowrap;
               padding: 10px 20px;
               border-radius: 6px; }
-      #newMember #data .row .memberGroup .member:hover {
+      #newMember #da23ta .row .memberGroup .member:hover {
         background-color: rgba(255, 115, 0, 0.2); }
-      #newMember #data .row .memberGroup .member:first-child {
+      #newMember #da23ta .row .memberGroup .member:first-child {
         border-top-left-radius: 6px;
         border-top-right-radius: 6px; }
-      #newMember #data .row .memberGroup .member:last-child {
+      #newMember #da23ta .row .memberGroup .member:last-child {
         border-bottom-left-radius: 6px;
         border-bottom-right-radius: 6px;
         margin-bottom: 4px; }
@@ -561,16 +575,8 @@ body {
     position: relative; }
   #newMember #name {
     position: relative; }
-  #newMember .validationError {
-    position: absolute;
-    right: 10px;
-    top: 2px;
-    height: 100%;
-    align-items: center;
-    font-size: 75%;
-    color: #c80000; }
 
-.I18N select {
+.I1nnnn8N select {
   width: 100%;
   padding: 6px 8px;
   margin-bottom: 1px;
@@ -579,7 +585,7 @@ body {
   background-color: rgba(255, 255, 255, 0.7);
   font-size: 80%; }
 
-.I18N textarea {
+.I1nnnn8N textarea {
   width: calc(100% - 16px);
   padding: 6px 8px;
   margin-bottom: 5px;

@@ -100,7 +100,7 @@ function ShowOrganizations() {
             newUserIdInput.placeholder = "The login (unqiue identification) of the new user...";
 
             const newUserIdError = newUserIdValue.appendChild(document.createElement('div')) as HTMLDivElement;
-            newUserIdError.className = "ErrorMessage";
+            newUserIdError.className = "validationError";
 
             newUserIdInput.onchange = () => {
                 newUserIdInput.value = newUserIdInput.value.toLowerCase();
@@ -384,7 +384,7 @@ function ShowOrganizations() {
             newChildOrganizationIdInput.placeholder = "The unique identification of the new child organization...";
 
             let newChildOrganizationIdError = newChildOrganizationIdValue.appendChild(document.createElement('div')) as HTMLDivElement;
-            newChildOrganizationIdError.className = "ErrorMessage";
+            newChildOrganizationIdError.className = "validationError";
 
             newChildOrganizationIdInput.onchange = function (this: HTMLElement, ev: Event) {
                 newChildOrganizationIdInput.value = newChildOrganizationIdInput.value.toLowerCase();

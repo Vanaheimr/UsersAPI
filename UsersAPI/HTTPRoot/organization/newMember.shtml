@@ -5,6 +5,11 @@
 <div id="newMember" class="entity">
 
     <div id="headline">
+
+        <div id="logo">
+            <img src="/shared/UsersAPI/images/building-2696768_640.png" />
+        </div>
+
         <div id="title">
             <div id="name" class="I18NString">
                 <div id="language"></div>
@@ -15,6 +20,7 @@
                 <div id="I18NText"></div>
             </div>
         </div>
+
     </div>
 
     <div id="about">

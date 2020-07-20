@@ -6,20 +6,17 @@
     padding:                30px 30px 20px 25px;
     font-size:              140%;
 
-    .headline {
-        font-size:          180%;
-        padding-bottom:     25px;
-        color:              #999;
+    #avatar {
+
+        margin:             1vh 3vw 0vh 3vw;
+
+        img {
+            width:              150px;
+        }
+
     }
 
-    #data {
-
-        display:                table;
-        padding:                0px 0px 60px 20px;
-        font-size:              90%;
-        border-collapse:        separate;
-        border-spacing:         5px;
-
+    #da2323ta {
         .row {
 
             display:                table-row;
@@ -89,19 +86,6 @@
             }
 
         }
-
-    }
-
-}
-
-#avatar {
-
-    .key {
-        padding-top: 20px !important;
-    }
-
-    .value {
-        padding-bottom: 10px !important;
     }
 
 }

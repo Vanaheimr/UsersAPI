@@ -66,7 +66,7 @@ function ShowOrganizations() {
             newUserIdInput.className = "value";
             newUserIdInput.placeholder = "The login (unqiue identification) of the new user...";
             var newUserIdError = newUserIdValue.appendChild(document.createElement('div'));
-            newUserIdError.className = "ErrorMessage";
+            newUserIdError.className = "validationError";
             newUserIdInput.onchange = function () {
                 newUserIdInput.value = newUserIdInput.value.toLowerCase();
                 VerifyNewUserId();
@@ -261,7 +261,7 @@ function ShowOrganizations() {
             newChildOrganizationIdInput.className = "value";
             newChildOrganizationIdInput.placeholder = "The unique identification of the new child organization...";
             var newChildOrganizationIdError = newChildOrganizationIdValue.appendChild(document.createElement('div'));
-            newChildOrganizationIdError.className = "ErrorMessage";
+            newChildOrganizationIdError.className = "validationError";
             newChildOrganizationIdInput.onchange = function (ev) {
                 newChildOrganizationIdInput.value = newChildOrganizationIdInput.value.toLowerCase();
                 VerifyNewOrganizationId();

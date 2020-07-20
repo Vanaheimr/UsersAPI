@@ -246,16 +246,25 @@ body {
 
                 .entity {
 
-                    /*padding:                        30px 30px 20px 25px;*/
-                    /*font-size:                      140%;*/
-                    /*height:                         100%;*/
-                    display:                        flex;
-                    flex-direction:                 column;
+                    display:                flex;
+                    flex-direction:         column;
 
                     #headline {
 
+                        display:                flex;
+                        align-items:            center;
                         padding-bottom:         30px;
                         color:                  #999;
+
+                        #logo {
+
+                            margin-right:       1vw;
+
+                            img {
+                                width:              100px;
+                            }
+
+                        }
 
                         #title {
 
@@ -309,6 +318,12 @@ body {
 
                         }
 
+                    }
+
+                    #about {
+                        padding:            2vh 1vw 3vh 1vw;
+                        font-size:          95%;
+                        color:              #777;
                     }
 
                     #upperButtons
@@ -424,6 +439,7 @@ body {
                                     border-radius:      4px;
                                     font-size:          90%;
                                     border:             0px;
+                                    width:              100%;
                                 }
 
                                 input, textarea {
@@ -441,6 +457,11 @@ body {
                                     vertical-align:     top;
                                     resize:             vertical;
                                     min-height:         100px;
+                                   /* display:            block;*/
+                                }
+
+                                select {
+                                    margin-bottom:      1px;
                                 }
 
                                 input[type=checkbox] {
@@ -457,12 +478,17 @@ body {
                                 }
 
                                 input:focus, textarea:focus {
-
                                     outline-color:      $NavigationBackground;
                                     border-color:       $NavigationBackground;
                                     box-shadow:         0 0 6px $NavigationBackground;
                                     background:         rgb(245, 238, 227);
+                                }
 
+                                input::placeholder {
+                                    font-size:          90%;
+                                    font-style:         italic;
+                                    color:              rgb(172, 172, 172);
+                                    opacity:            1;      /* Firefox fix */
                                 }
 
                                 input.error {
@@ -513,14 +539,14 @@ body {
 
                             }
 
-                            .ErrorMessage {
-                                position:           absolute;
-                                align-items:        center;
-                                top:                2px;
-                                right:              12px;
-                                height:             100%;
-                                font-size:          70%;
-                                color:              rgb(200, 0, 0);
+                            .validationError {
+                                position:       absolute;
+                                right:          12px;
+                                top:            2px;
+                                height:         100%;
+                                align-items:    center;
+                                font-size:      70%;
+                                color:          #c80000;
                             }
 
                         }
@@ -538,7 +564,7 @@ body {
 
                         #pairedWith {
                             // Workaround as padding-top does not work!
-                            border-top:             15px solid transparent;
+                         /*   border-top:             15px solid transparent;*/
                         }
 
                     }

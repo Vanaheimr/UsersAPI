@@ -19,6 +19,9 @@
     "HTTPRoot/profile/password.ts",
     "HTTPRoot/profile/organizations.ts",
 
+    "HTTPRoot/user/user.ts",
+    "HTTPRoot/user/users.ts",
+
     "HTTPRoot/organization/organization.ts",
     "HTTPRoot/organization/organization.ts",
     "HTTPRoot/organization/organizations.ts",
