@@ -384,6 +384,54 @@ body {
               box-shadow: none; }
           body #page #right #text .entity #saveButton {
             margin-top: 40px; }
+        body #page #right #text .fullScreenDialog {
+          display: none;
+          position: fixed;
+          top: 0;
+          left: 0;
+          width: 100vw;
+          height: 100vh;
+          z-index: 10000;
+          text-align: center;
+          background-color: rgba(0, 0, 0, 0.6); }
+          body #page #right #text .fullScreenDialog .box {
+            position: relative;
+            display: inline-table;
+            top: 20vh;
+            background-color: #CCCCCC;
+            border-radius: 6px;
+            box-shadow: 2px 0 16px 0 rgba(0, 0, 0, 0.3); }
+            body #page #right #text .fullScreenDialog .box #headline {
+              background-color: #ff7300;
+              border-radius: 6px 6px 0px 0px;
+              padding: 10px 20px;
+              text-align: center;
+              font-weight: bold; }
+            body #page #right #text .fullScreenDialog .box #body {
+              background-color: #DDDDDD;
+              border-radius: 0px 0px 6px 6px;
+              padding: 10px 20px; }
+              body #page #right #text .fullScreenDialog .box #body #confirmation {
+                padding: 10px 10px 15px 10px; }
+              body #page #right #text .fullScreenDialog .box #body #description {
+                padding: 10px 10px 15px 10px; }
+              body #page #right #text .fullScreenDialog .box #body #buttons {
+                display: flex;
+                justify-content: flex-end; }
+                body #page #right #text .fullScreenDialog .box #body #buttons button {
+                  border: 0;
+                  border-radius: 4px;
+                  background-color: orangered;
+                  margin-left: 5px;
+                  padding: 6px 16px 4px 16px; }
+                body #page #right #text .fullScreenDialog .box #body #buttons button:hover {
+                  background-color: #ffab67; }
+          body #page #right #text .fullScreenDialog .withErrors #headline {
+            background-color: #f92222 !important; }
+          body #page #right #text .fullScreenDialog .withErrors #body #buttons button {
+            background-color: #f92222 !important; }
+          body #page #right #text .fullScreenDialog .withErrors #body #buttons button:hover {
+            background-color: #f76a6a !important; }
 
 #response {
   margin-top: 30px; }
@@ -406,35 +454,35 @@ body {
     border: 1px solid #bd7070;
     background-color: #f59f9f; }
 
-#profileinfos {
+#userProfile {
   position: relative;
   padding: 30px 30px 20px 25px;
   font-size: 140%; }
-  #profileinfos .headline {
+  #userProfile .headline {
     font-size: 180%;
     padding-bottom: 25px;
     color: #999; }
-  #profileinfos #profile {
+  #userProfile #data {
     display: table;
     padding: 0px 0px 60px 20px;
     font-size: 90%;
     border-collapse: separate;
     border-spacing: 5px; }
-    #profileinfos #profile .row {
+    #userProfile #data .row {
       display: table-row;
       width: 100%; }
-      #profileinfos #profile .row .key {
+      #userProfile #data .row .key {
         display: table-cell;
         padding: 0px 42px 0px 0px;
         white-space: nowrap;
         color: #666; }
-      #profileinfos #profile .row .keyTop {
+      #userProfile #data .row .keyTop {
         vertical-align: top;
         padding-top: 5px; }
-      #profileinfos #profile .row .value {
+      #userProfile #data .row .value {
         display: table-cell;
         width: inherit; }
-        #profileinfos #profile .row .value input, #profileinfos #profile .row .value textarea, #profileinfos #profile .row .value select {
+        #userProfile #data .row .value input, #userProfile #data .row .value textarea, #userProfile #data .row .value select {
           background-color: rgba(255, 255, 255, 0.7);
           width: calc(100% - 16px);
           padding: 6px 10px;
@@ -442,25 +490,25 @@ body {
           border-radius: 4px;
           color: #777;
           font-size: 100%; }
-        #profileinfos #profile .row .value input[type=checkbox] {
+        #userProfile #data .row .value input[type=checkbox] {
           width: 30px;
           height: 18px;
           margin-top: 8px; }
-        #profileinfos #profile .row .value input[type=checkbox]:checked {
+        #userProfile #data .row .value input[type=checkbox]:checked {
           color: #cc2d7b; }
-        #profileinfos #profile .row .value input:focus, #profileinfos #profile .row .value textarea:focus {
+        #userProfile #data .row .value input:focus, #userProfile #data .row .value textarea:focus {
           outline-color: #cc2d7b;
           border-color: #cc2d7b;
           box-shadow: 0 0 6px #cc2d7b;
           background: #f5eee3; }
-        #profileinfos #profile .row .value textarea {
+        #userProfile #data .row .value textarea {
           resize: vertical;
           min-height: 100px;
           display: block; }
-        #profileinfos #profile .row .value select {
+        #userProfile #data .row .value select {
           display: block;
           width: 100%; }
-        #profileinfos #profile .row .value #language {
+        #userProfile #data .row .value #language {
           margin-bottom: 1px; }
 
 #avatar .key {

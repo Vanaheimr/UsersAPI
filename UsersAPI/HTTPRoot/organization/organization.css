@@ -384,6 +384,54 @@ body {
               box-shadow: none; }
           body #page #right #text .entity #saveButton {
             margin-top: 40px; }
+        body #page #right #text .fullScreenDialog {
+          display: none;
+          position: fixed;
+          top: 0;
+          left: 0;
+          width: 100vw;
+          height: 100vh;
+          z-index: 10000;
+          text-align: center;
+          background-color: rgba(0, 0, 0, 0.6); }
+          body #page #right #text .fullScreenDialog .box {
+            position: relative;
+            display: inline-table;
+            top: 20vh;
+            background-color: #CCCCCC;
+            border-radius: 6px;
+            box-shadow: 2px 0 16px 0 rgba(0, 0, 0, 0.3); }
+            body #page #right #text .fullScreenDialog .box #headline {
+              background-color: #ff7300;
+              border-radius: 6px 6px 0px 0px;
+              padding: 10px 20px;
+              text-align: center;
+              font-weight: bold; }
+            body #page #right #text .fullScreenDialog .box #body {
+              background-color: #DDDDDD;
+              border-radius: 0px 0px 6px 6px;
+              padding: 10px 20px; }
+              body #page #right #text .fullScreenDialog .box #body #confirmation {
+                padding: 10px 10px 15px 10px; }
+              body #page #right #text .fullScreenDialog .box #body #description {
+                padding: 10px 10px 15px 10px; }
+              body #page #right #text .fullScreenDialog .box #body #buttons {
+                display: flex;
+                justify-content: flex-end; }
+                body #page #right #text .fullScreenDialog .box #body #buttons button {
+                  border: 0;
+                  border-radius: 4px;
+                  background-color: orangered;
+                  margin-left: 5px;
+                  padding: 6px 16px 4px 16px; }
+                body #page #right #text .fullScreenDialog .box #body #buttons button:hover {
+                  background-color: #ffab67; }
+          body #page #right #text .fullScreenDialog .withErrors #headline {
+            background-color: #f92222 !important; }
+          body #page #right #text .fullScreenDialog .withErrors #body #buttons button {
+            background-color: #f92222 !important; }
+          body #page #right #text .fullScreenDialog .withErrors #body #buttons button:hover {
+            background-color: #f76a6a !important; }
 
 #response {
   margin-top: 30px; }
@@ -488,44 +536,3 @@ body {
 
 #organizationlogo .value {
   padding-bottom: 10px !important; }
-
-#confirmToDeleteOrganization {
-  display: none;
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  z-index: 10000;
-  text-align: center;
-  background-color: rgba(0, 0, 0, 0.6); }
-  #confirmToDeleteOrganization #box {
-    position: relative;
-    display: inline-table;
-    top: 20vh;
-    background-color: #CCCCCC;
-    border-radius: 6px;
-    box-shadow: 2px 0 16px 0 rgba(0, 0, 0, 0.3); }
-    #confirmToDeleteOrganization #box #headline {
-      background-color: #ff7300;
-      border-radius: 6px 6px 0px 0px;
-      padding: 10px 20px;
-      text-align: center;
-      font-weight: bold; }
-    #confirmToDeleteOrganization #box #body {
-      background-color: #DDDDDD;
-      border-radius: 0px 0px 6px 6px;
-      padding: 10px 20px; }
-      #confirmToDeleteOrganization #box #body #confirmation {
-        padding: 10px 10px 15px 10px; }
-      #confirmToDeleteOrganization #box #body #buttons {
-        display: flex;
-        justify-content: flex-end; }
-        #confirmToDeleteOrganization #box #body #buttons button {
-          border: 0;
-          border-radius: 4px;
-          background-color: orangered;
-          margin-left: 5px;
-          padding: 6px 16px 4px 16px; }
-        #confirmToDeleteOrganization #box #body #buttons button:hover {
-          background-color: #ffab67; }

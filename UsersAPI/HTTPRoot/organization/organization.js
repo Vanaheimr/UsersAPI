@@ -126,9 +126,12 @@ function StartOrganization() {
     var headlineDiv = organizationDiv.querySelector("#headline");
     var upperButtonsDiv = organizationDiv.querySelector('#upperButtons');
     var deleteOrganizationButton = upperButtonsDiv.querySelector('#deleteOrganizationButton');
-    var confirmToDelete = document.getElementById("confirmToDeleteOrganization");
-    var yes = confirmToDelete.querySelector('#yes');
-    var no = confirmToDelete.querySelector('#no');
+    var confirmToDeleteDiv = document.getElementById("confirmToDeleteOrganization");
+    var yes = confirmToDeleteDiv.querySelector('#yes');
+    var no = confirmToDeleteDiv.querySelector('#no');
+    var deletionFailedDiv = document.getElementById("deletionFailed");
+    var deletionFailedDescription = deletionFailedDiv.querySelector('#description');
+    var ok = deletionFailedDiv.querySelector('#ok');
     var dataDiv = organizationDiv.querySelector('#data');
     var name = dataDiv.querySelector('#name');
     var description = dataDiv.querySelector('#description');
@@ -140,6 +143,7 @@ function StartOrganization() {
     var responseDiv = document.getElementById("response");
     var lowerButtonsDiv = organizationDiv.querySelector('#lowerButtons');
     var saveButton = lowerButtonsDiv.querySelector("#saveButton");
+    ok.onclick = function () { deletionFailedDiv.style.display = "none"; };
     name.oninput = function () { ToogleSaveButton(); };
     description.oninput = function () { ToogleSaveButton(); };
     description.onkeyup = function () { ToogleSaveButton(); };
@@ -210,30 +214,52 @@ function StartOrganization() {
             if (organizationJSON.youCanCreateChildOrganizations) {
                 deleteOrganizationButton.disabled = false;
                 deleteOrganizationButton.onclick = function () {
-                    confirmToDelete.style.display = "block";
+                    confirmToDeleteDiv.style.display = "block";
                     yes.onclick = function () {
-                        HTTPDelete("/organizations/" + organizationId, function (status, response) {
-                            confirmToDelete.style.display = "none";
-                            responseDiv.innerHTML = "<div class=\"HTTP OK\">Successfully deleted this organization.</div>";
-                            // Redirect after 2 seconds!
-                            setTimeout(function () {
-                                window.location.href = typeof organizationJSON.parents[0] === 'string'
-                                    ? organizationJSON.parents[0]
-                                    : organizationJSON.parents[0]["@id"];
-                            }, 2000);
-                        }, function (status, response) {
-                            var responseJSON = response !== "" ? JSON.parse(response) : {};
-                            confirmToDelete.style.display = "none";
-                            responseDiv.innerHTML = "<div class=\"HTTP Error\">Can not delete this organization! " + responseJSON.errorDescription.eng + "</div>";
-                        }, function (statusCode, status, response) {
-                            confirmToDelete.style.display = "none";
-                            var responseJSON = response !== "" ? JSON.parse(response) : {};
-                            var info = responseJSON.description != null ? "<br />" + responseJSON.description : "";
-                            responseDiv.innerHTML = "<div class=\"HTTP Error\">Deleting this organization failed!" + info + "</div>";
+                        HTTPDelete("/organizations/" + organizationId, 
+                        // Ok!
+                        function (status, response) {
+                            try {
+                                confirmToDeleteDiv.style.display = "none";
+                                responseDiv.innerHTML = "<div class=\"HTTP OK\">Successfully deleted this organization.</div>";
+                                // Redirect after 2 seconds!
+                                setTimeout(function () {
+                                    window.location.href = typeof organizationJSON.parents[0] === 'string'
+                                        ? organizationJSON.parents[0]
+                                        : organizationJSON.parents[0]["@id"];
+                                }, 2000);
+                            }
+                            catch (exception) {
+                                responseDiv.innerHTML = "<div class=\"HTTP Error\">Deleting this organization failed!</div>";
+                            }
+                        }, 
+                        // Failed dependencies, e.g. organization still has members!
+                        function (status, response) {
+                            try {
+                                var responseJSON = response !== "" ? JSON.parse(response) : {};
+                                confirmToDeleteDiv.style.display = "none";
+                                deletionFailedDiv.style.display = "block";
+                                deletionFailedDescription.innerHTML = responseJSON.errorDescription.eng;
+                            }
+                            catch (exception) {
+                                responseDiv.innerHTML = "<div class=\"HTTP Error\">Deleting this organization failed!</div>";
+                            }
+                        }, 
+                        // Some error occured!
+                        function (statusCode, status, response) {
+                            try {
+                                confirmToDeleteDiv.style.display = "none";
+                                var responseJSON = response !== "" ? JSON.parse(response) : {};
+                                var info = responseJSON.description != null ? "<br />" + responseJSON.description : "";
+                                responseDiv.innerHTML = "<div class=\"HTTP Error\">Deleting this organization failed!" + info + "</div>";
+                            }
+                            catch (exception) {
+                                responseDiv.innerHTML = "<div class=\"HTTP Error\">Deleting this organization failed!</div>";
+                            }
                         });
                     };
                     no.onclick = function () {
-                        confirmToDelete.style.display = "none";
+                        confirmToDeleteDiv.style.display = "none";
                     };
                 };
             }

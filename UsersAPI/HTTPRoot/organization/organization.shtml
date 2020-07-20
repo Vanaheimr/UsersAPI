@@ -69,8 +69,8 @@
 
 </div>
 
-<div id="confirmToDeleteOrganization">
-    <div id="box">
+<div id="confirmToDeleteOrganization" class="fullScreenDialog">
+    <div class="box">
         <div id="headline">
             Please confirm!
         </div>
@@ -81,6 +81,20 @@
             <div id="buttons">
                 <button id="yes">Yes</button>
                 <button id="no">No</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="deletionFailed" class="fullScreenDialog">
+    <div class="box withErrors">
+        <div id="headline">
+            Can not delete this organization!
+        </div>
+        <div id="body">
+            <div id="description"></div>
+            <div id="buttons">
+                <button id="ok">Ok</button>
             </div>
         </div>
     </div>

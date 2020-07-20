@@ -213,38 +213,44 @@ function StartOrganization() {
 
     }
 
-    const organizationDiv           = document.       getElementById("organization")                   as HTMLDivElement;
-    const headlineDiv               = organizationDiv.querySelector ("#headline")                      as HTMLDivElement;
+    const organizationDiv            = document.          getElementById("organization")                   as HTMLDivElement;
+    const headlineDiv                = organizationDiv.   querySelector ("#headline")                      as HTMLDivElement;
 
-    const upperButtonsDiv           = organizationDiv.querySelector ('#upperButtons')                  as HTMLDivElement;
-    const deleteOrganizationButton  = upperButtonsDiv.querySelector ('#deleteOrganizationButton')      as HTMLButtonElement;
+    const upperButtonsDiv            = organizationDiv.   querySelector ('#upperButtons')                  as HTMLDivElement;
+    const deleteOrganizationButton   = upperButtonsDiv.   querySelector ('#deleteOrganizationButton')      as HTMLButtonElement;
 
-    const confirmToDelete           = document.       getElementById("confirmToDeleteOrganization")    as HTMLDivElement;
-    const yes                       = confirmToDelete.querySelector ('#yes')                           as HTMLButtonElement;
-    const no                        = confirmToDelete.querySelector ('#no')                            as HTMLButtonElement;
+    const confirmToDeleteDiv         = document.          getElementById("confirmToDeleteOrganization")    as HTMLDivElement;
+    const yes                        = confirmToDeleteDiv.querySelector ('#yes')                           as HTMLButtonElement;
+    const no                         = confirmToDeleteDiv.querySelector ('#no')                            as HTMLButtonElement;
 
-    const dataDiv                   = organizationDiv.querySelector ('#data')                          as HTMLDivElement;
-    const name                      = dataDiv.        querySelector ('#name')                          as HTMLInputElement;
-    const description               = dataDiv.        querySelector ('#description')                   as HTMLTextAreaElement;
-    const website                   = dataDiv.        querySelector ('#website')                       as HTMLInputElement;
-    const email                     = dataDiv.        querySelector ('#email')                         as HTMLInputElement;
-    const telephone                 = dataDiv.        querySelector ('#telephone')                     as HTMLInputElement;
-    const parentsDiv                = dataDiv.        querySelector ('#parentsDiv')                    as HTMLDivElement;
-    const subOrganizationsDiv       = dataDiv.        querySelector ('#subOrganizationsDiv')           as HTMLDivElement;
+    const deletionFailedDiv          = document.          getElementById("deletionFailed")                 as HTMLDivElement;
+    const deletionFailedDescription  = deletionFailedDiv. querySelector ('#description')                   as HTMLDivElement;
+    const ok                         = deletionFailedDiv. querySelector ('#ok')                            as HTMLButtonElement;
 
-    const responseDiv               = document.       getElementById("response")                       as HTMLDivElement;
+    const dataDiv                    = organizationDiv.   querySelector ('#data')                          as HTMLDivElement;
+    const name                       = dataDiv.           querySelector ('#name')                          as HTMLInputElement;
+    const description                = dataDiv.           querySelector ('#description')                   as HTMLTextAreaElement;
+    const website                    = dataDiv.           querySelector ('#website')                       as HTMLInputElement;
+    const email                      = dataDiv.           querySelector ('#email')                         as HTMLInputElement;
+    const telephone                  = dataDiv.           querySelector ('#telephone')                     as HTMLInputElement;
+    const parentsDiv                 = dataDiv.           querySelector ('#parentsDiv')                    as HTMLDivElement;
+    const subOrganizationsDiv        = dataDiv.           querySelector ('#subOrganizationsDiv')           as HTMLDivElement;
 
-    const lowerButtonsDiv           = organizationDiv.querySelector ('#lowerButtons')                  as HTMLDivElement;
-    const saveButton                = lowerButtonsDiv.querySelector ("#saveButton")                    as HTMLButtonElement;
+    const responseDiv                = document.          getElementById("response")                       as HTMLDivElement;
 
-    name.oninput                    = () => { ToogleSaveButton(); }
-    description.oninput             = () => { ToogleSaveButton(); }
-    description.onkeyup             = () => { ToogleSaveButton(); }
-    website.oninput                 = () => { ToogleSaveButton(); }
-    email.oninput                   = () => { ToogleSaveButton(); }
-    telephone.oninput               = () => { ToogleSaveButton(); }
+    const lowerButtonsDiv            = organizationDiv.   querySelector ('#lowerButtons')                  as HTMLDivElement;
+    const saveButton                 = lowerButtonsDiv.   querySelector ("#saveButton")                    as HTMLButtonElement;
 
-    saveButton.onclick              = () => { SaveData(); }
+    ok.onclick                       = () => { deletionFailedDiv.style.display  = "none"; }
+
+    name.oninput                     = () => { ToogleSaveButton(); }
+    description.oninput              = () => { ToogleSaveButton(); }
+    description.onkeyup              = () => { ToogleSaveButton(); }
+    website.oninput                  = () => { ToogleSaveButton(); }
+    email.oninput                    = () => { ToogleSaveButton(); }
+    telephone.oninput                = () => { ToogleSaveButton(); }
+
+    saveButton.onclick               = () => { SaveData(); }
 
 
     HTTPGet("/organizations/" + organizationId + "?showMgt&expand=parents,subOrganizations",
@@ -328,47 +334,70 @@ function StartOrganization() {
                         deleteOrganizationButton.disabled = false;
                         deleteOrganizationButton.onclick = () => {
 
-                            confirmToDelete.style.display = "block";
+                            confirmToDeleteDiv.style.display = "block";
 
                             yes.onclick = () => {
 
                                 HTTPDelete("/organizations/" + organizationId,
 
+                                           // Ok!
                                            (status, response) => {
+                                               try
+                                               {
 
-                                               confirmToDelete.style.display = "none";
-                                               responseDiv.innerHTML = "<div class=\"HTTP OK\">Successfully deleted this organization.</div>";
+                                                   confirmToDeleteDiv.style.display = "none";
+                                                   responseDiv.innerHTML = "<div class=\"HTTP OK\">Successfully deleted this organization.</div>";
 
-                                               // Redirect after 2 seconds!
-                                               setTimeout(function () {
-                                                   window.location.href = typeof organizationJSON.parents[0] === 'string'
-                                                                               ? organizationJSON.parents[0]
-                                                                               : organizationJSON.parents[0]["@id"];
-                                               }, 2000);
+                                                   // Redirect after 2 seconds!
+                                                   setTimeout(function () {
+                                                       window.location.href = typeof organizationJSON.parents[0] === 'string'
+                                                                                   ? organizationJSON.parents[0]
+                                                                                   : organizationJSON.parents[0]["@id"];
+                                                   }, 2000);
 
+                                               }
+                                               catch (exception) {
+                                                   responseDiv.innerHTML = "<div class=\"HTTP Error\">Deleting this organization failed!</div>";
+                                               }
                                            },
 
+                                           // Failed dependencies, e.g. organization still has members!
                                            (status, response) => {
-                                               const responseJSON = response !== "" ? JSON.parse(response) : {};
-                                               confirmToDelete.style.display = "none";
-                                               responseDiv.innerHTML = "<div class=\"HTTP Error\">Can not delete this organization! " + responseJSON.errorDescription.eng + "</div>";
+                                               try
+                                               {
+                                                   const responseJSON = response !== "" ? JSON.parse(response) : {};
+                                                   confirmToDeleteDiv.style.display = "none";
+                                                   deletionFailedDiv.style.display  = "block";
+                                                   deletionFailedDescription.innerHTML = responseJSON.errorDescription.eng;
+                                               }
+                                               catch (exception)
+                                               {
+                                                   responseDiv.innerHTML = "<div class=\"HTTP Error\">Deleting this organization failed!</div>";
+                                               }
                                            },
 
+                                           // Some error occured!
                                            (statusCode, status, response) => {
+                                               try
+                                               {
 
-                                               confirmToDelete.style.display = "none";
+                                                   confirmToDeleteDiv.style.display = "none";
 
-                                               const responseJSON = response !== "" ? JSON.parse(response) : {};
-                                               const info         = responseJSON.description != null ? "<br />" + responseJSON.description : "";
-                                               responseDiv.innerHTML = "<div class=\"HTTP Error\">Deleting this organization failed!" + info + "</div>";
+                                                   const responseJSON = response !== "" ? JSON.parse(response) : {};
+                                                   const info         = responseJSON.description != null ? "<br />" + responseJSON.description : "";
+                                                   responseDiv.innerHTML = "<div class=\"HTTP Error\">Deleting this organization failed!" + info + "</div>";
 
+                                               }
+                                               catch (exception) {
+                                                   responseDiv.innerHTML = "<div class=\"HTTP Error\">Deleting this organization failed!</div>";
+                                               }
                                            });
 
                             };
 
                             no.onclick = () => {
 
-                                confirmToDelete.style.display = "none";
+                                confirmToDeleteDiv.style.display = "none";
 
                             };
 

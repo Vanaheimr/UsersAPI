@@ -4,45 +4,46 @@
     .entity {
         #resultsBox {
             .searchResults {
+
                 .searchResult {
 
                     .id {
 
-                    font-size:          85%;
-                    padding-bottom:     10px;
+                        font-size:          85%;
+                        padding-bottom:     10px;
 
-                    .I18NValue {
-                        position:           relative;
-                        top:                1px;
+                        .I18NValue {
+                            position:           relative;
+                            top:                1px;
+                        }
+
                     }
-
-                }
 
                     .name {
 
-                    margin-bottom:              2px;
+                        margin-bottom:              2px;
 
-                    .I18NLanguage {
-                        p {
-                            position:               relative;
-                            top:                    3px;
+                        .I18NLanguage {
+                            p {
+                                position:               relative;
+                                top:                    3px;
+                            }
                         }
-                    }
 
-                    .I18NValue {
-                        font-size:                  150%;
-                        margin:                     5px;
-                    }
+                        .I18NValue {
+                            font-size:                  150%;
+                            margin:                     5px;
+                        }
 
-                }
+                    }
 
                     .description {
 
-                    .I18NValue {
-                        margin:             5px;
-                    }
+                        .I18NValue {
+                            margin:             5px;
+                        }
 
-                }
+                    }
 
                 }
             }

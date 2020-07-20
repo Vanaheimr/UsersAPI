@@ -32,6 +32,15 @@ function StartProfile() {
             }
             return true;
         }
+        // telegram
+        if (UserProfileJSON.telegram != telegram.value) {
+            //ToDo: Parse as number!
+            if (telegram.value != "" && telegram.value.length < 4) {
+                responseDiv.innerHTML = "<div class=\"HTTP Error\">Users must have a valid telegram chat identification!</div>";
+                return false;
+            }
+            return true;
+        }
         // homepage
         if (UserProfileJSON.homepage != homepage.value) {
             if (homepage.value != "" && homepage.value.length < 4) {
@@ -70,6 +79,9 @@ function StartProfile() {
         // mobilePhone
         if (UserProfileJSON.mobilePhone != mobilePhone.value)
             UserProfileJSON.mobilePhone = mobilePhone.value;
+        // mobilePhone
+        if (UserProfileJSON.telegram != telegram.value)
+            UserProfileJSON.telegram = telegram.value;
         // homepage
         if (UserProfileJSON.homepage != homepage.value)
             UserProfileJSON.homepage = homepage.value;
@@ -93,12 +105,19 @@ function StartProfile() {
             delete (UserProfileJSON.telephone);
         if (UserProfileJSON.mobilePhone == "")
             delete (UserProfileJSON.mobilePhone);
+        if (UserProfileJSON.telegram == "")
+            delete (UserProfileJSON.telegram);
         if (UserProfileJSON.homepage == "")
             delete (UserProfileJSON.homepage);
         HTTPSet("/users/" + UserProfileJSON["@id"], UserProfileJSON, function (HTTPStatus, ResponseText) {
-            var responseJSON = JSON.parse(ResponseText);
-            responseDiv.innerHTML = "<div class=\"HTTP OK\">Successfully stored updated user profile data.</div>";
-            saveButton.disabled = !AnyChangesMade();
+            try {
+                var responseJSON = JSON.parse(ResponseText);
+                responseDiv.innerHTML = "<div class=\"HTTP OK\">Successfully stored updated user profile data.</div>";
+                saveButton.disabled = !AnyChangesMade();
+            }
+            catch (exception) {
+                responseDiv.innerHTML = "<div class=\"HTTP Error\">Storing user profile data failed:<br />" + exception + "</div>";
+            }
         }, function (HTTPStatus, StatusText, ResponseText) {
             var responseJSON = { "description": "HTTP Error " + HTTPStatus + " - " + StatusText + "!" };
             if (ResponseText != null && ResponseText != "") {
@@ -107,21 +126,25 @@ function StartProfile() {
                 }
                 catch (_a) { }
             }
-            responseDiv.innerHTML = "<div class=\"HTTP Error\">Storing user profile data failed!" + (responseJSON.description != null ? responseJSON.description : "") + "</div>";
+            responseDiv.innerHTML = "<div class=\"HTTP Error\">Storing user profile data failed!" +
+                (responseJSON.description != null ? "<br />" + responseJSON.description : "") +
+                "</div>";
         });
     }
-    var profileInfos = document.getElementById('profileInfos');
-    var login = profileInfos.querySelector('#login');
-    var username = profileInfos.querySelector('#username');
-    var eMailAddress = profileInfos.querySelector('#eMailAddress');
-    var telephone = profileInfos.querySelector('#telephone');
-    var mobilePhone = profileInfos.querySelector('#mobilePhone');
-    var homepage = profileInfos.querySelector('#homepage');
-    var description = profileInfos.querySelector('#userDescription');
-    var descriptionText = profileInfos.querySelector('#description');
-    //const publicKeyRing      = profileinfos.querySelector ('#publicKeyRing')    as HTMLTextAreaElement;
+    var userProfile = document.getElementById('userProfile');
+    var data = userProfile.querySelector('#data');
+    var login = data.querySelector('#login');
+    var username = data.querySelector('#username');
+    var eMailAddress = data.querySelector('#eMailAddress');
+    var telephone = data.querySelector('#telephone');
+    var mobilePhone = data.querySelector('#mobilePhone');
+    var telegram = data.querySelector('#telegram');
+    var homepage = data.querySelector('#homepage');
+    var description = data.querySelector('#userDescription');
+    var descriptionText = data.querySelector('#description');
+    //const publicKeyRing      = data.       querySelector ('#publicKeyRing')    as HTMLTextAreaElement;
     var responseDiv = document.getElementById("response");
-    var lowerButtonsDiv = profileInfos.querySelector('#lowerButtons');
+    var lowerButtonsDiv = userProfile.querySelector('#lowerButtons');
     var saveButton = lowerButtonsDiv.querySelector("#saveButton");
     checkSignedIn(false);
     login.value = SignInUser;
@@ -135,6 +158,8 @@ function StartProfile() {
     telephone.onkeyup = function () { ToogleSaveButton(); };
     mobilePhone.onchange = function () { ToogleSaveButton(); };
     mobilePhone.onkeyup = function () { ToogleSaveButton(); };
+    telegram.onchange = function () { ToogleSaveButton(); };
+    telegram.onkeyup = function () { ToogleSaveButton(); };
     homepage.onchange = function () { ToogleSaveButton(); };
     homepage.onkeyup = function () { ToogleSaveButton(); };
     descriptionText.onchange = function () { ToogleSaveButton(); };
@@ -148,6 +173,7 @@ function StartProfile() {
         eMailAddress.value = UserProfileJSON.email;
         telephone.value = UserProfileJSON.telephone != null ? UserProfileJSON.telephone : "";
         mobilePhone.value = UserProfileJSON.mobilePhone != null ? UserProfileJSON.mobilePhone : "";
+        telegram.value = UserProfileJSON.telegram != null ? UserProfileJSON.telegram : "";
         homepage.value = UserProfileJSON.homepage != null ? UserProfileJSON.homepage : "";
         UpdateI18N(description, UserProfileJSON.description);
         //if (UserProfileJSON.publicKeyRing != null)

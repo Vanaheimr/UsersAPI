@@ -18,6 +18,7 @@ interface IUserProfile {
     email:            string;
     telephone:        string;
     mobilePhone:      string;
+    telegram:         string;
     homepage:         string;
     description:      Object;
     publicKeyRing:    string;

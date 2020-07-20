@@ -2,11 +2,11 @@
 
 <script type="text/javascript" src="../profile/profile.js"></script>
 
-<div id="profileInfos" class="entity">
+<div id="userProfile" class="entity">
 
     <div id="profile_headline" class="headline">Your profile</div>
 
-    <div id="profile">
+    <div id="data">
 
         <div id="avatar" class="row">
             <div class="key keyTop">Public Avatar</div>
@@ -36,6 +36,11 @@
         <div class="row">
             <div class="key">Mobil phone</div>
             <div class="value"><input id="mobilePhone"    type="text" value="" /></div>
+        </div>
+
+        <div class="row">
+            <div class="key">Telegram</div>
+            <div class="value"><input id="telegram"       type="text" value="" /></div>
         </div>
 
         <div class="row">

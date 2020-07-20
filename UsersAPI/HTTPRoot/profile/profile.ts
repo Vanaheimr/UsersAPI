@@ -51,6 +51,19 @@ function StartProfile() {
 
         }
 
+        // telegram
+        if (UserProfileJSON.telegram != telegram.value) {
+
+            //ToDo: Parse as number!
+            if (telegram.value != "" && telegram.value.length < 4) {
+                responseDiv.innerHTML = "<div class=\"HTTP Error\">Users must have a valid telegram chat identification!</div>";
+                return false;
+            }
+
+            return true;
+
+        }
+
         // homepage
         if (UserProfileJSON.homepage != homepage.value) {
 
@@ -110,6 +123,10 @@ function StartProfile() {
         if (UserProfileJSON.mobilePhone != mobilePhone.value)
             UserProfileJSON.mobilePhone  = mobilePhone.value;
 
+        // mobilePhone
+        if (UserProfileJSON.telegram    != telegram.value)
+            UserProfileJSON.telegram     = telegram.value;
+
         // homepage
         if (UserProfileJSON.homepage    != homepage.value)
             UserProfileJSON.homepage     = homepage.value;
@@ -144,6 +161,9 @@ function StartProfile() {
         if (UserProfileJSON.mobilePhone == "")
             delete (UserProfileJSON.mobilePhone);
 
+        if (UserProfileJSON.telegram == "")
+            delete (UserProfileJSON.telegram);
+
         if (UserProfileJSON.homepage == "")
             delete (UserProfileJSON.homepage);
 
@@ -152,9 +172,16 @@ function StartProfile() {
                 UserProfileJSON,
 
                 (HTTPStatus, ResponseText) => {
-                    var responseJSON = JSON.parse(ResponseText);
-                    responseDiv.innerHTML = "<div class=\"HTTP OK\">Successfully stored updated user profile data.</div>";
-                    saveButton.disabled = !AnyChangesMade();
+                    try
+                    {
+                        var responseJSON = JSON.parse(ResponseText);
+                        responseDiv.innerHTML = "<div class=\"HTTP OK\">Successfully stored updated user profile data.</div>";
+                        saveButton.disabled = !AnyChangesMade();
+                    }
+                    catch (exception)
+                    {
+                        responseDiv.innerHTML = "<div class=\"HTTP Error\">Storing user profile data failed:<br />" + exception + "</div>";
+                    }
                 },
 
                 (HTTPStatus, StatusText, ResponseText) => {
@@ -162,32 +189,39 @@ function StartProfile() {
                     var responseJSON = { "description": "HTTP Error " + HTTPStatus + " - " + StatusText + "!" };
 
                     if (ResponseText != null && ResponseText != "") {
-                        try {
+                        try
+                        {
                             responseJSON = JSON.parse(ResponseText);
                         }
                         catch { }
                     }
 
-                    responseDiv.innerHTML = "<div class=\"HTTP Error\">Storing user profile data failed!" + (responseJSON.description != null ? responseJSON.description : "") + "</div>";
+                    responseDiv.innerHTML = "<div class=\"HTTP Error\">Storing user profile data failed!" +
+                                                (responseJSON.description != null ? "<br />" + responseJSON.description : "") +
+                                            "</div>";
 
                 });
 
     }
 
-    const profileInfos       = document.    getElementById('profileInfos')      as HTMLDivElement;
-    const login              = profileInfos.querySelector ('#login')            as HTMLInputElement;
-    const username           = profileInfos.querySelector ('#username')         as HTMLInputElement;
-    const eMailAddress       = profileInfos.querySelector ('#eMailAddress')     as HTMLInputElement;
-    const telephone          = profileInfos.querySelector ('#telephone')        as HTMLInputElement;
-    const mobilePhone        = profileInfos.querySelector ('#mobilePhone')      as HTMLInputElement;
-    const homepage           = profileInfos.querySelector ('#homepage')         as HTMLInputElement;
-    const description        = profileInfos.querySelector ('#userDescription')  as HTMLDivElement;
-    const descriptionText    = profileInfos.querySelector ('#description')      as HTMLTextAreaElement;
-    //const publicKeyRing      = profileinfos.querySelector ('#publicKeyRing')    as HTMLTextAreaElement;
+    const userProfile        = document.   getElementById('userProfile')       as HTMLDivElement;
+
+    const data               = userProfile.querySelector ('#data')             as HTMLInputElement;
+
+    const login              = data.       querySelector ('#login')            as HTMLInputElement;
+    const username           = data.       querySelector ('#username')         as HTMLInputElement;
+    const eMailAddress       = data.       querySelector ('#eMailAddress')     as HTMLInputElement;
+    const telephone          = data.       querySelector ('#telephone')        as HTMLInputElement;
+    const mobilePhone        = data.       querySelector ('#mobilePhone')      as HTMLInputElement;
+    const telegram           = data.       querySelector ('#telegram')         as HTMLInputElement;
+    const homepage           = data.       querySelector ('#homepage')         as HTMLInputElement;
+    const description        = data.       querySelector ('#userDescription')  as HTMLDivElement;
+    const descriptionText    = data.       querySelector ('#description')      as HTMLTextAreaElement;
+    //const publicKeyRing      = data.       querySelector ('#publicKeyRing')    as HTMLTextAreaElement;
 
     const responseDiv        = document.    getElementById("response")          as HTMLDivElement;
 
-    const lowerButtonsDiv    = profileInfos.querySelector   ('#lowerButtons')   as HTMLDivElement;
+    const lowerButtonsDiv    = userProfile.querySelector   ('#lowerButtons')   as HTMLDivElement;
     const saveButton         = lowerButtonsDiv.querySelector("#saveButton")     as HTMLButtonElement;
 
     checkSignedIn(false);
@@ -206,6 +240,9 @@ function StartProfile() {
 
     mobilePhone.onchange     = () => { ToogleSaveButton(); }
     mobilePhone.onkeyup      = () => { ToogleSaveButton(); }
+
+    telegram.onchange        = () => { ToogleSaveButton(); }
+    telegram.onkeyup         = () => { ToogleSaveButton(); }
 
     homepage.onchange        = () => { ToogleSaveButton(); }
     homepage.onkeyup         = () => { ToogleSaveButton(); }
@@ -229,6 +266,7 @@ function StartProfile() {
                 eMailAddress.value  = UserProfileJSON.email;
                 telephone.value     = UserProfileJSON.telephone   != null ? UserProfileJSON.telephone   : "";
                 mobilePhone.value   = UserProfileJSON.mobilePhone != null ? UserProfileJSON.mobilePhone : "";
+                telegram.value      = UserProfileJSON.telegram    != null ? UserProfileJSON.telegram    : "";
                 homepage.value      = UserProfileJSON.homepage    != null ? UserProfileJSON.homepage    : "";
                 UpdateI18N(description, UserProfileJSON.description);
 
