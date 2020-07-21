@@ -109,7 +109,10 @@ namespace social.OpenData.UsersAPI
 
             #endregion
 
-            return new SecurityToken_Id(Text);
+            if (TryParse(Text, out SecurityToken_Id securityTokenId))
+                return securityTokenId;
+
+            throw new ArgumentException("The given text representation of a security token identification is invalid!", nameof(Text));
 
         }
 
@@ -124,18 +127,8 @@ namespace social.OpenData.UsersAPI
         public static SecurityToken_Id? TryParse(String Text)
         {
 
-            #region Initial checks
-
-            if (Text != null)
-                Text = Text.Trim();
-
-            if (Text.IsNullOrEmpty())
-                throw new ArgumentNullException(nameof(Text), "The given text representation of a security token identification must not be null or empty!");
-
-            #endregion
-
-            if (TryParse(Text, out SecurityToken_Id _SecurityTokenId))
-                return _SecurityTokenId;
+            if (TryParse(Text, out SecurityToken_Id securityTokenId))
+                return securityTokenId;
 
             return new SecurityToken_Id?();
 
@@ -159,7 +152,10 @@ namespace social.OpenData.UsersAPI
                 Text = Text.Trim();
 
             if (Text.IsNullOrEmpty())
-                throw new ArgumentNullException(nameof(Text), "The given text representation of a security token identification must not be null or empty!");
+            {
+                SecurityTokenId = default;
+                return false;
+            }
 
             #endregion
 
@@ -170,7 +166,7 @@ namespace social.OpenData.UsersAPI
             }
             catch (Exception)
             {
-                SecurityTokenId = default(SecurityToken_Id);
+                SecurityTokenId = default;
                 return false;
             }
 
@@ -315,11 +311,11 @@ namespace social.OpenData.UsersAPI
             if (Object == null)
                 throw new ArgumentNullException(nameof(Object), "The given object must not be null!");
 
-            if (!(Object is SecurityToken_Id))
+            if (!(Object is SecurityToken_Id SecurityTokenId))
                 throw new ArgumentException("The given object is not a security token identification!",
                                             nameof(Object));
 
-            return CompareTo((SecurityToken_Id) Object);
+            return CompareTo(SecurityTokenId);
 
         }
 
@@ -360,10 +356,10 @@ namespace social.OpenData.UsersAPI
             if (Object == null)
                 return false;
 
-            if (!(Object is SecurityToken_Id))
+            if (!(Object is SecurityToken_Id SecurityTokenId))
                 return false;
 
-            return Equals((SecurityToken_Id) Object);
+            return Equals(SecurityTokenId);
 
         }
 

@@ -1,14 +1,15 @@
 ﻿
 var HTTPCookieId: string = "UsersAPI";
 var APIKey:       string = null;
-var CurrentlyHighlightedMenuItem     = "";
-var CurrentlyHighlightedSubmenuItem  = "";
+var UILanguage:   string = "eng";
+let CurrentlyHighlightedMenuItem     = "";
+let CurrentlyHighlightedSubmenuItem  = "";
 
  // @ts-ignore
 var map:     any = {};
  // @ts-ignore
 var leaflet: any = {};
-var markers      = [];
+let markers      = [];
 
 let UserProfileJSON: IUserProfile;
 
@@ -20,8 +21,8 @@ interface IUserProfile {
     mobilePhone:      string;
     telegram:         string;
     homepage:         string;
-    description:      Object;
-    publicKeyRing:    string;
+    language:         string;
+    description:      Record<string, string>;
     privacyLevel:     string;
     isAuthenticated:  boolean;
     isDisabled:       boolean;
@@ -33,8 +34,8 @@ let organizationJSON: IOrganization;
 
 interface IOrganization {
     id:                              string;
-    name:                            Object;
-    description:                     Object;
+    name:                            Record<string, string>;
+    description:                     Record<string, string>;
     website:                         string;
     email:                           string;
     telephone:                       string;
@@ -44,7 +45,7 @@ interface IOrganization {
     members:                         Array<string> | Array<IUserProfile>;
     parents:                         Array<string> | Array<object>;
     subOrganizations:                Array<string> | Array<object>;
-    youAreMember:                    boolean
+    youAreMember:                    boolean;
     youCanAddMembers:                boolean;
     youCanCreateChildOrganizations:  boolean;
 
@@ -54,13 +55,13 @@ interface IOrganization {
 }
 
 interface IAddress {
-    city:                            any;
+    city:                            Record<string, string>;
     street:                          string;
     houseNumber:                     string;
     floorLevel:                      string;
     postalCode:                      string;
     country:                         string;
-    comment:                         any;
+    comment:                         Record<string, string>;
 }
 
 interface IGeoLocation {
@@ -232,23 +233,75 @@ function firstValue(obj) {
     for (const a in obj) return obj[a];
 }
 
-function UpdateI18N(Div:  HTMLDivElement,
-                    JSON: Object) {
+function languageKey2Text(LanguageKey: string, UILanguage: string): string
+{
 
-    if (Div              != null &&
-        JSON             != null &&
-        firstValue(JSON) != null)
+    switch (LanguageKey)
     {
 
-        const opt = document.createElement('option') as HTMLOptionElement;
-        opt.value     = firstKey(JSON);
-        opt.innerHTML = firstKey(JSON);
-        opt.selected  = true;
+        case "eng":
+            switch (UILanguage) {
+                case "eng":
+                    return "english";
+                case "deu":
+                    return "englisch";
+            }
+            break;
 
-        (Div.querySelector("select")   as HTMLSelectElement).appendChild(opt);
-        (Div.querySelector("textarea") as HTMLTextAreaElement).value = firstValue(JSON);
+        case "deu":
+            switch (UILanguage) {
+                case "eng":
+                    return "german";
+                case "deu":
+                    return "deutsch";
+            }
+            break;
 
     }
+
+    return "";
+
+}
+
+
+function UpdateI18N(parentDiv:   HTMLDivElement,
+                    I18NString:  Record<string, string>) {
+
+    if (parentDiv              !== null &&
+        I18NString             !== null &&
+        firstValue(I18NString) !== null)
+    {
+
+        const select    = parentDiv.querySelector("select")    as HTMLSelectElement;
+        const textarea  = parentDiv.querySelector("textarea")  as HTMLTextAreaElement;
+
+        if (select !== null && textarea !== null)
+        {
+
+            select.appendChild(new Option(languageKey2Text(firstKey(I18NString), UILanguage),
+                                          firstKey(I18NString),
+                                          true,
+                                          true));
+
+            textarea.value = firstValue(I18NString);
+
+        }
+
+    }
+
+}
+
+function ImpersonateUser(newUserId: string): void {
+
+    HTTPImpersonate("/users/" + newUserId,
+
+        (status, response) => {
+            window.location.reload(true);
+        },
+
+        (statusCode, status, response) => {
+            alert("Not allowed!");
+        });
 
 }
 
@@ -805,10 +858,10 @@ function HTTPAuth(RessourceURI: string,
     ajax.setRequestHeader("Accept",       "application/json; charset=UTF-8");
     ajax.setRequestHeader("Content-Type", "application/json; charset=UTF-8");
 
-    if (APIKey != null)
+    if (APIKey !== null)
         ajax.setRequestHeader("APIKey", APIKey);
 
-    if (Data != null)
+    if (Data   !== null)
         ajax.send(JSON.stringify(Data));
     else
         ajax.send();

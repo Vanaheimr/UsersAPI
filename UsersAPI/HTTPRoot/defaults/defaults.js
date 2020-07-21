@@ -1,5 +1,6 @@
 var HTTPCookieId = "UsersAPI";
 var APIKey = null;
+var UILanguage = "eng";
 var CurrentlyHighlightedMenuItem = "";
 var CurrentlyHighlightedSubmenuItem = "";
 // @ts-ignore
@@ -92,17 +93,45 @@ function firstValue(obj) {
     for (var a in obj)
         return obj[a];
 }
-function UpdateI18N(Div, JSON) {
-    if (Div != null &&
-        JSON != null &&
-        firstValue(JSON) != null) {
-        var opt = document.createElement('option');
-        opt.value = firstKey(JSON);
-        opt.innerHTML = firstKey(JSON);
-        opt.selected = true;
-        Div.querySelector("select").appendChild(opt);
-        Div.querySelector("textarea").value = firstValue(JSON);
+function languageKey2Text(LanguageKey, UILanguage) {
+    switch (LanguageKey) {
+        case "eng":
+            switch (UILanguage) {
+                case "eng":
+                    return "english";
+                case "deu":
+                    return "englisch";
+            }
+            break;
+        case "deu":
+            switch (UILanguage) {
+                case "eng":
+                    return "german";
+                case "deu":
+                    return "deutsch";
+            }
+            break;
     }
+    return "";
+}
+function UpdateI18N(parentDiv, I18NString) {
+    if (parentDiv !== null &&
+        I18NString !== null &&
+        firstValue(I18NString) !== null) {
+        var select = parentDiv.querySelector("select");
+        var textarea = parentDiv.querySelector("textarea");
+        if (select !== null && textarea !== null) {
+            select.appendChild(new Option(languageKey2Text(firstKey(I18NString), UILanguage), firstKey(I18NString), true, true));
+            textarea.value = firstValue(I18NString);
+        }
+    }
+}
+function ImpersonateUser(newUserId) {
+    HTTPImpersonate("/users/" + newUserId, function (status, response) {
+        window.location.reload(true);
+    }, function (statusCode, status, response) {
+        alert("Not allowed!");
+    });
 }
 // #region HTTPSet(Method, RessourceURI, APIKey, Data, OnSuccess, OnError)
 function HTTP(Method, RessourceURI, Data, OnSuccess, OnError) {
@@ -428,9 +457,9 @@ function HTTPAuth(RessourceURI, Data) {
     ajax.open("AUTH", RessourceURI, false); // NOT ASYNC!
     ajax.setRequestHeader("Accept", "application/json; charset=UTF-8");
     ajax.setRequestHeader("Content-Type", "application/json; charset=UTF-8");
-    if (APIKey != null)
+    if (APIKey !== null)
         ajax.setRequestHeader("APIKey", APIKey);
-    if (Data != null)
+    if (Data !== null)
         ajax.send(JSON.stringify(Data));
     else
         ajax.send();

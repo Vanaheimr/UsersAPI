@@ -3249,6 +3249,39 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
+        #region (private) CreateCookieUserData(ValidUser, Astronaut = null)
+
+        private String CreateCookieUserData(User  ValidUser,
+                                            User  Astronaut  = null)
+
+            => String.Concat("=login=",    ValidUser.Id.           ToString().ToBase64(),
+                             Astronaut != null
+                                 ? ":astronaut=" + Astronaut.Id.   ToString().ToBase64()
+                                 : "",
+                             ":username=", ValidUser.Name.                    ToBase64(),
+                             ":email=",    ValidUser.EMail.Address.ToString().ToBase64(),
+                             ":language=", ValidUser.UserLanguage. AsText().  ToBase64(),
+                             IsAdmin(ValidUser) == Access_Levels.ReadOnly  ? ":isAdminRO" : "",
+                             IsAdmin(ValidUser) == Access_Levels.ReadWrite ? ":isAdminRW" : "");
+
+
+        #endregion
+
+        #region (private) CreateCookieData(Expires)
+
+        private String CreateCookieData(DateTime Expires)
+
+            => String.Concat("; Expires=",         Expires.ToRfc1123(),
+                             HTTPCookieDomain.IsNotNullOrEmpty()
+                                 ? "; Domain=" + HTTPCookieDomain
+                                 : "",
+                             "; Path=",            URLPathPrefix.ToString(),
+                             "; SameSite=strict",  UseSecureCookies
+                                                       ? "; secure"
+                                                       : "");
+
+        #endregion
+
         #region (private) RegisterURITemplates()
 
         private void RegisterURITemplates()
@@ -3680,7 +3713,7 @@ namespace social.OpenData.UsersAPI
                                                                   new SecurityToken(validUser.Id,
                                                                                     Expires));
 
-                                                  File.AppendAllText(this.UsersAPIPath + DefaultHTTPCookiesFile,
+                                                  File.AppendAllText(UsersAPIPath + DefaultHTTPCookiesFile,
                                                                      SecurityTokenId + ";" + validUser.Id + ";" + Expires.ToIso8601() + Environment.NewLine);
 
                                               }
@@ -3701,22 +3734,13 @@ namespace social.OpenData.UsersAPI
                                                                         ).ToUTF8Bytes(),
                                                       CacheControl    = "private",
                                                       SetCookies      = new String[] {
-                                                                            CookieName + "=login=" + validUser.Id.ToString().ToBase64() +
-                                                                                  ":username=" + validUser.Name.ToBase64() +
-                                                                                  ":email="    + validUser.EMail.Address.ToString().ToBase64() +
-                                                                                (IsAdmin(validUser) == Access_Levels.ReadOnly  ? ":isAdminRO" : "") +
-                                                                                (IsAdmin(validUser) == Access_Levels.ReadWrite ? ":isAdminRW" : "") +
-                                                                                  "; Expires=" + Expires.ToRfc1123() +
-                                                                                   (HTTPCookieDomain.IsNotNullOrEmpty()
-                                                                                       ? "; Domain=" + HTTPCookieDomain
-                                                                                       : "") +
-                                                                                     "; Path=" + URLPathPrefix.ToString() + "; SameSite=strict" + (UseSecureCookies ? "; secure" : ""),
-                                                                            SessionCookieName + "=" + SecurityTokenId +
-                                                                                  "; Expires=" + Expires.ToRfc1123() +
-                                                                                   (HTTPCookieDomain.IsNotNullOrEmpty()
-                                                                                       ? "; Domain=" + HTTPCookieDomain
-                                                                                       : "") +
-                                                                                     "; Path=" + URLPathPrefix.ToString() + "; SameSite=strict; HttpOnly" + (UseSecureCookies ? "; secure" : "") },
+                                                                            String.Concat(CookieName,
+                                                                                          CreateCookieUserData(validUser),
+                                                                                          CreateCookieData(Expires)),
+                                                                            String.Concat(SessionCookieName, "=", SecurityTokenId.ToString(),
+                                                                                          CreateCookieData(Expires),
+                                                                                          "; HttpOnly")
+                                                                        },
                                                       Connection      = "close",
                                                       X_FrameOptions  = "DENY"
                                                   }.AsImmutable);
@@ -5616,7 +5640,7 @@ namespace social.OpenData.UsersAPI
             //      -H "Content-Type: application/json; charset=utf-8" \
             //      -d "{ \
             //              \"@id\" :             \"214080158\", \
-            //              \"@context\" :        \"https://opendata.social/contexts/UsersAPI+json/user\", \
+            //              \"@context\" :        \"https://opendata.social/contexts/usersAPI/user+json\", \
             //              \"description\" :     { \"deu\" : \"Test AED in Erlangen Raum Yavin 4\" },\
             //              \"dataLicenseIds\" :  [ \"ODbL\" ],\
             //              \"ownerId\" :         \"CardiLink\", \
@@ -5989,8 +6013,31 @@ namespace social.OpenData.UsersAPI
                                               #endregion
 
 
+                                              #region Register security token
+
                                               var SHA256Hash       = new SHA256Managed();
-                                              var SecurityTokenId  = SHA256Hash.ComputeHash((Guid.NewGuid().ToString() + validUser.Id).ToUTF8Bytes()).ToHexString();
+                                              var SecurityTokenId  = SecurityToken_Id.Parse(SHA256Hash.ComputeHash(
+                                                                                                String.Concat(Guid.NewGuid().ToString(),
+                                                                                                              validUser.Id).
+                                                                                                ToUTF8Bytes()
+                                                                                            ).ToHexString());
+
+                                              var Expires          = DateTime.UtcNow.Add(SignInSessionLifetime);
+
+                                              lock (HTTPCookies)
+                                              {
+
+                                                  HTTPCookies.Add(SecurityTokenId,
+                                                                  new SecurityToken(validUser.Id,
+                                                                                    Expires));
+
+                                                  File.AppendAllText(UsersAPIPath + DefaultHTTPCookiesFile,
+                                                                     SecurityTokenId + ";" + validUser.Id + ";" + Expires.ToIso8601() + Environment.NewLine);
+
+                                              }
+
+                                              #endregion
+
 
                                               return new HTTPResponse.Builder(Request) {
                                                          HTTPStatusCode  = HTTPStatusCode.Created,
@@ -6003,23 +6050,14 @@ namespace social.OpenData.UsersAPI
                                                                            ).ToUTF8Bytes(),
                                                          CacheControl    = "private",
                                                          SetCookies      = new String[] {
-                                                                               CookieName + "=login="    + validUser.Id.ToString().ToBase64() +
-                                                                                     ":username=" + validUser.Name.ToBase64() +
-                                                                                   (IsAdmin(validUser) == Access_Levels.ReadOnly  ? ":isAdminRO" : "") +
-                                                                                   (IsAdmin(validUser) == Access_Levels.ReadWrite ? ":isAdminRW" : "") +
-                                                                                     "; Expires=" + DateTime.UtcNow.Add(SignInSessionLifetime).ToRfc1123() +
-                                                                                      (HTTPCookieDomain.IsNotNullOrEmpty()
-                                                                                          ? "; Domain=" + HTTPCookieDomain
-                                                                                          : "") +
-                                                                                        "; Path=" + URLPathPrefix.ToString() + "; SameSite=strict" + (UseSecureCookies ? "; secure" : ""),
-                                                                               SessionCookieName + "=" + SecurityTokenId +
-                                                                                     "; Expires=" + DateTime.UtcNow.Add(SignInSessionLifetime).ToRfc1123() +
-                                                                                      (HTTPCookieDomain.IsNotNullOrEmpty()
-                                                                                          ? "; Domain=" + HTTPCookieDomain
-                                                                                          : "") +
-                                                                                        "; Path=" + URLPathPrefix.ToString() + "; SameSite=strict; HttpOnly" + (UseSecureCookies ? "; secure" : "") },
-
-                                                         Connection = "close"
+                                                                               String.Concat(CookieName,
+                                                                                             CreateCookieUserData(validUser),
+                                                                                             CreateCookieData(Expires)),
+                                                                               String.Concat(SessionCookieName, "=", SecurityTokenId.ToString(),
+                                                                                             CreateCookieData(Expires),
+                                                                                             "; HttpOnly")
+                                                                           },
+                                                         Connection      = "close"
                                                      }.AsImmutable;
 
                                           });
@@ -6139,7 +6177,7 @@ namespace social.OpenData.UsersAPI
                                                                                       Expires,
                                                                                       Astronaut.Id));
 
-                                                 File.AppendAllText(this.UsersAPIPath + DefaultHTTPCookiesFile,
+                                                 File.AppendAllText(UsersAPIPath + DefaultHTTPCookiesFile,
                                                                     SecurityTokenId + ";" + UserURI.Id + ";" + Expires.ToIso8601() + ";" + Astronaut.Id + Environment.NewLine);
 
                                              }
@@ -6158,23 +6196,14 @@ namespace social.OpenData.UsersAPI
                                                                           ).ToUTF8Bytes(),
                                                         CacheControl    = "private",
                                                         SetCookies      = new String[] {
-                                                                              CookieName + "=login="    + UserURI.Id.ToString().ToBase64() +
-                                                                                    ":astronaut=" + Astronaut.Id.ToString().ToBase64() +
-                                                                                    ":username=" + UserURI.Name.ToBase64() +
-                                                                                  (IsAdmin(UserURI) == Access_Levels.ReadOnly  ? ":isAdminRO" : "") +
-                                                                                  (IsAdmin(UserURI) == Access_Levels.ReadWrite ? ":isAdminRW" : "") +
-                                                                                    "; Expires=" + DateTime.UtcNow.Add(SignInSessionLifetime).ToRfc1123() +
-                                                                                     (HTTPCookieDomain.IsNotNullOrEmpty()
-                                                                                         ? "; Domain=" + HTTPCookieDomain
-                                                                                         : "") +
-                                                                                       "; Path=" + URLPathPrefix.ToString() + "; SameSite=strict" + (UseSecureCookies ? "; secure" : ""),
-                                                                              SessionCookieName + "=" + SecurityTokenId +
-                                                                                    "; Expires=" + DateTime.UtcNow.Add(SignInSessionLifetime).ToRfc1123() +
-                                                                                     (HTTPCookieDomain.IsNotNullOrEmpty()
-                                                                                         ? "; Domain=" + HTTPCookieDomain
-                                                                                         : "") +
-                                                                                       "; Path=" + URLPathPrefix.ToString() + "; SameSite=strict; HttpOnly" + (UseSecureCookies ? "; secure" : "") },
-                                                        Connection = "close"
+                                                                              String.Concat(CookieName,
+                                                                                            CreateCookieUserData(UserURI, Astronaut),
+                                                                                            CreateCookieData(Expires)),
+                                                                              String.Concat(SessionCookieName, "=", SecurityTokenId.ToString(),
+                                                                                            CreateCookieData(Expires),
+                                                                                            "; HttpOnly")
+                                                                          },
+                                                        Connection      = "close"
                                                     }.AsImmutable;
 
                                          });
@@ -6195,7 +6224,7 @@ namespace social.OpenData.UsersAPI
                                              if (!TryGetAstronaut(Request,
                                                                   out User                       Astronaut,
                                                                   out IEnumerable<Organization>  AstronautOrganizations,
-                                                                  out HTTPResponse           Response,
+                                                                  out HTTPResponse               Response,
                                                                   Recursive: true))
                                              {
                                                  return Task.FromResult(Response);
@@ -6270,7 +6299,7 @@ namespace social.OpenData.UsersAPI
                                                                  new SecurityToken(Astronaut.Id,
                                                                                    Expires));
 
-                                                 File.AppendAllText(this.UsersAPIPath + DefaultHTTPCookiesFile,
+                                                 File.AppendAllText(UsersAPIPath + DefaultHTTPCookiesFile,
                                                                     SecurityTokenId + ";" + Astronaut.Id + ";" + Expires.ToIso8601() + Environment.NewLine);
 
                                              }
@@ -6290,22 +6319,14 @@ namespace social.OpenData.UsersAPI
                                                                        ).ToUTF8Bytes(),
                                                      CacheControl    = "private",
                                                      SetCookies      = new String[] {
-                                                                           CookieName + "=login="    + Astronaut.Id.ToString().ToBase64() +
-                                                                                 ":username=" + Astronaut.Name.ToBase64() +
-                                                                               (IsAdmin(Astronaut) == Access_Levels.ReadOnly  ? ":isAdminRO" : "") +
-                                                                               (IsAdmin(Astronaut) == Access_Levels.ReadWrite ? ":isAdminRW" : "") +
-                                                                                 "; Expires=" + DateTime.UtcNow.Add(SignInSessionLifetime).ToRfc1123() +
-                                                                                  (HTTPCookieDomain.IsNotNullOrEmpty()
-                                                                                      ? "; Domain=" + HTTPCookieDomain
-                                                                                      : "") +
-                                                                                    "; Path=" + URLPathPrefix.ToString() + "; SameSite=strict" + (UseSecureCookies ? "; secure" : ""),
-                                                                           SessionCookieName + "=" + SecurityTokenId +
-                                                                                 "; Expires=" + DateTime.UtcNow.Add(SignInSessionLifetime).ToRfc1123() +
-                                                                                  (HTTPCookieDomain.IsNotNullOrEmpty()
-                                                                                      ? "; Domain=" + HTTPCookieDomain
-                                                                                      : "") +
-                                                                                    "; Path=" + URLPathPrefix.ToString() + "; SameSite=strict; HttpOnly" + (UseSecureCookies ? "; secure" : "") },
-                                                     Connection = "close"
+                                                                           String.Concat(CookieName,
+                                                                                         CreateCookieUserData(Astronaut),
+                                                                                         CreateCookieData(Expires)),
+                                                                           String.Concat(SessionCookieName, "=", SecurityTokenId.ToString(),
+                                                                                         CreateCookieData(Expires),
+                                                                                         "; HttpOnly")
+                                                                       },
+                                                     Connection      = "close"
                                                  }.AsImmutable);
 
                                          });
@@ -7252,7 +7273,7 @@ namespace social.OpenData.UsersAPI
             //      -H "Accept:       application/json; charset=utf-8" \
             //      -H "Content-Type: application/json; charset=utf-8" \
             //      -d "{ \
-            //              \"@context\" :             \"https://opendata.social/contexts/UsersAPI+json/user\", \
+            //              \"@context\" :             \"https://opendata.social/contexts/usersAPI/user+json\", \
             //              \"name\" :                 { \"deu\" : \"ACME Inc.\" },\
             //              \"description\" :          { \"deu\" : \"Testing123!\" },\
             //              \"parentOrganization\" :   \"GraphDefined\", \
@@ -7614,7 +7635,7 @@ namespace social.OpenData.UsersAPI
             //      -H "Content-Type: application/json; charset=utf-8" \
             //      -d "{ \
             //              \"@id\" :             \"214080158\", \
-            //              \"@context\" :        \"https://opendata.social/contexts/UsersAPI+json/user\", \
+            //              \"@context\" :        \"https://opendata.social/contexts/usersAPI/user+json\", \
             //              \"description\" :     { \"deu\" : \"Test AED in Erlangen Raum Yavin 4\" },\
             //              \"dataLicenseIds\" :  [ \"ODbL\" ],\
             //              \"ownerId\" :         \"CardiLink\", \
@@ -7683,7 +7704,7 @@ namespace social.OpenData.UsersAPI
                                                  //     "name":                            { "eng": newChildOrganizationName != "" ? newChildOrganizationName : newChildOrganizationId },
                                                  //     "admins": [{
                                                  //         "@id":       SignInUser,
-                                                 //         "@context":  "https://opendata.social/contexts/UsersAPI+json/user",
+                                                 //         "@context":  "https://opendata.social/contexts/usersAPI/user+json",
                                                  //         "name":      Username,
                                                  //         "email":     UserEMail
                                                  //     }],
@@ -10713,9 +10734,9 @@ namespace social.OpenData.UsersAPI
             if (Request.Cookies == null)
                 return null;
 
-            if (Request. Cookies.TryGet  (SessionCookieName, out HTTPCookie        Cookie) &&
+            if (Request. Cookies.TryGet  (SessionCookieName,            out HTTPCookie        Cookie) &&
                          Cookie. TryGet  (SessionCookieName.ToString(), out String            Value)  &&
-                SecurityToken_Id.TryParse(Value,             out SecurityToken_Id  SecurityTokenId))
+                SecurityToken_Id.TryParse(Value,                        out SecurityToken_Id  SecurityTokenId))
             {
                 return SecurityTokenId;
             }
@@ -10732,9 +10753,9 @@ namespace social.OpenData.UsersAPI
         {
 
             if (Request.Cookies  != null &&
-                Request.Cookies. TryGet  (SessionCookieName, out HTTPCookie  Cookie) &&
+                Request.Cookies. TryGet  (SessionCookieName,            out HTTPCookie  Cookie) &&
                         Cookie.  TryGet  (SessionCookieName.ToString(), out String      Value)  &&
-                SecurityToken_Id.TryParse(Value,             out             SecurityTokenId))
+                SecurityToken_Id.TryParse(Value,                        out             SecurityTokenId))
             {
                 return true;
             }
@@ -10753,12 +10774,12 @@ namespace social.OpenData.UsersAPI
 
             #region Get user from cookie...
 
-            if (Request.Cookies != null                                                                    &&
-                Request. Cookies.TryGet     (SessionCookieName, out HTTPCookie        Cookie)              &&
+            if (Request.Cookies != null                                                                               &&
+                Request. Cookies.TryGet     (SessionCookieName,            out HTTPCookie        Cookie)              &&
                          Cookie. TryGet     (SessionCookieName.ToString(), out String            Value)               &&
-                SecurityToken_Id.TryParse   (Value,             out SecurityToken_Id  SecurityTokenId)     &&
-                HTTPCookies.     TryGetValue(SecurityTokenId,   out SecurityToken     SecurityInformation) &&
-                DateTime.UtcNow < SecurityInformation.Expires                                              &&
+                SecurityToken_Id.TryParse   (Value,                        out SecurityToken_Id  SecurityTokenId)     &&
+                HTTPCookies.     TryGetValue(SecurityTokenId,              out SecurityToken     SecurityInformation) &&
+                DateTime.UtcNow < SecurityInformation.Expires                                                         &&
                 TryGetUser(SecurityInformation.UserId, out User))
             {
                 return true;
@@ -10852,12 +10873,12 @@ namespace social.OpenData.UsersAPI
 
             #region Get user from cookie...
 
-            if (Request.Cookies != null                                                                    &&
-                Request. Cookies.TryGet     (SessionCookieName, out HTTPCookie        Cookie)              &&
+            if (Request.Cookies != null                                                                               &&
+                Request. Cookies.TryGet     (SessionCookieName,            out HTTPCookie        Cookie)              &&
                          Cookie. TryGet     (SessionCookieName.ToString(), out String            Value)               &&
-                SecurityToken_Id.TryParse   (Value,             out SecurityToken_Id  SecurityTokenId)     &&
-                HTTPCookies.     TryGetValue(SecurityTokenId,   out SecurityToken     SecurityInformation) &&
-                DateTime.UtcNow < SecurityInformation.Expires                                              &&
+                SecurityToken_Id.TryParse   (Value,                        out SecurityToken_Id  SecurityTokenId)     &&
+                HTTPCookies.     TryGetValue(SecurityTokenId,              out SecurityToken     SecurityInformation) &&
+                DateTime.UtcNow < SecurityInformation.Expires                                                         &&
                 TryGetUser(SecurityInformation.Astronaut ?? SecurityInformation.UserId, out User))
             {
                 return true;
@@ -11896,6 +11917,7 @@ namespace social.OpenData.UsersAPI
                                            Languages           UserLanguage      = Languages.eng,
                                            PhoneNumber?        Telephone         = null,
                                            PhoneNumber?        MobilePhone       = null,
+                                           String              Telegram          = null,
                                            String              Homepage          = null,
                                            GeoCoordinate?      GeoLocation       = null,
                                            Address             Address           = null,
@@ -11915,6 +11937,7 @@ namespace social.OpenData.UsersAPI
                                       UserLanguage,
                                       Telephone,
                                       MobilePhone,
+                                      Telegram,
                                       Homepage,
                                       GeoLocation,
                                       Address,
@@ -11975,6 +11998,7 @@ namespace social.OpenData.UsersAPI
                                                       Languages           UserLanguage      = Languages.eng,
                                                       PhoneNumber?        Telephone         = null,
                                                       PhoneNumber?        MobilePhone       = null,
+                                                      String              Telegram          = null,
                                                       String              Homepage          = null,
                                                       GeoCoordinate?      GeoLocation       = null,
                                                       Address             Address           = null,
@@ -11995,6 +12019,7 @@ namespace social.OpenData.UsersAPI
                                                  UserLanguage,
                                                  Telephone,
                                                  MobilePhone,
+                                                 Telegram,
                                                  Homepage,
                                                  GeoLocation,
                                                  Address,

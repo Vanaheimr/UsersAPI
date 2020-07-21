@@ -4,7 +4,7 @@ function StartProfile() {
     function AnyChangesMade(): boolean {
 
         // name
-        if (UserProfileJSON.name != username.value) {
+        if ((UserProfileJSON.name !== undefined ? UserProfileJSON.name : "") !== username.value) {
 
             if (username.value == "") {
                 responseDiv.innerHTML = "<div class=\"HTTP Error\">Users must have a username!</div>";
@@ -16,7 +16,7 @@ function StartProfile() {
         }
 
         // email
-        if (UserProfileJSON.email != eMailAddress.value) {
+        if ((UserProfileJSON.email !== undefined ? UserProfileJSON.email : "") !== eMailAddress.value) {
 
             if (eMailAddress.value == "" || eMailAddress.value.length < 6 || eMailAddress.value.indexOf("@") < 1 || eMailAddress.value.indexOf(".") < 4) {
                 responseDiv.innerHTML = "<div class=\"HTTP Error\">Users must have a valid e-mail address!</div>";
@@ -28,7 +28,7 @@ function StartProfile() {
         }
 
         // telephone
-        if (UserProfileJSON.telephone != telephone.value) {
+        if ((UserProfileJSON.telephone !== undefined ? UserProfileJSON.telephone : "") !== telephone.value) {
 
             if (telephone.value != "" && telephone.value.length < 6) {
                 responseDiv.innerHTML = "<div class=\"HTTP Error\">Users must have a valid telephone number!</div>";
@@ -40,7 +40,7 @@ function StartProfile() {
         }
 
         // mobilePhone
-        if (UserProfileJSON.mobilePhone != mobilePhone.value) {
+        if ((UserProfileJSON.mobilePhone !== undefined ? UserProfileJSON.mobilePhone : "") !== mobilePhone.value) {
 
             if (mobilePhone.value != "" && mobilePhone.value.length < 6) {
                 responseDiv.innerHTML = "<div class=\"HTTP Error\">Users must have a valid mobile phone number!</div>";
@@ -52,11 +52,10 @@ function StartProfile() {
         }
 
         // telegram
-        if (UserProfileJSON.telegram != telegram.value) {
+        if ((UserProfileJSON.telegram !== undefined ? UserProfileJSON.telegram : "") !== telegram.value) {
 
-            //ToDo: Parse as number!
             if (telegram.value != "" && telegram.value.length < 4) {
-                responseDiv.innerHTML = "<div class=\"HTTP Error\">Users must have a valid telegram chat identification!</div>";
+                responseDiv.innerHTML = "<div class=\"HTTP Error\">Users must have a valid telegram user name!</div>";
                 return false;
             }
 
@@ -65,10 +64,22 @@ function StartProfile() {
         }
 
         // homepage
-        if (UserProfileJSON.homepage != homepage.value) {
+        if ((UserProfileJSON.homepage !== undefined ? UserProfileJSON.homepage : "") !== homepage.value) {
 
             if (homepage.value != "" && homepage.value.length < 4) {
-                responseDiv.innerHTML = "<div class=\"HTTP Error\">Users must have a valid homepage/Internet URL!</div>";
+                responseDiv.innerHTML = "<div class=\"HTTP Error\">Users must have a valid homepage!</div>";
+                return false;
+            }
+
+            return true;
+
+        }
+
+        // userLanguage
+        if ((UserProfileJSON.language !== undefined ? UserProfileJSON.language : "") !== userLanguage.value) {
+
+            if (userLanguage.value == "") {
+                responseDiv.innerHTML = "<div class=\"HTTP Error\">Users must have a valid language setting!</div>";
                 return false;
             }
 
@@ -77,16 +88,16 @@ function StartProfile() {
         }
 
         // description
-        let latestDescription  = UserProfileJSON.description != null ? firstValue(UserProfileJSON.description) : "";
-        let newDescription     = descriptionText.value;
+        if ((UserProfileJSON.description !== undefined ? firstValue(UserProfileJSON.description) : "") !== descriptionText.value) {
 
-        if (latestDescription != newDescription)
+            if (descriptionText.value != "" && descriptionText.value.length < 4) {
+                responseDiv.innerHTML = "<div class=\"HTTP Error\">Users must have a valid description!</div>";
+                return false;
+            }
+
             return true;
 
-        //// publicKeyRing
-        //if ((UserProfileJSON.publicKeyRing != null ? UserProfileJSON.publicKeyRing : "") != publicKeyRing.value)
-        //    return true;
-
+        }
 
         return false;
 
@@ -108,73 +119,65 @@ function StartProfile() {
     function SaveData() {
 
         // name
-        if (UserProfileJSON.name        != username.value)
-            UserProfileJSON.name         = username.value;
+        if ((UserProfileJSON.name         !== undefined ? UserProfileJSON.name                    : "") !== username.value)
+             UserProfileJSON.name           = username.value;
 
         // email
-        if (UserProfileJSON.email       != eMailAddress.value)
-            UserProfileJSON.email        = eMailAddress.value;
+        if ((UserProfileJSON.email        !== undefined ? UserProfileJSON.email                   : "") !== eMailAddress.value)
+            UserProfileJSON.email           = eMailAddress.value;
+
 
         // telephone
-        if (UserProfileJSON.telephone   != telephone.value)
-            UserProfileJSON.telephone    = telephone.value;
+        if ((UserProfileJSON.telephone    !== undefined ? UserProfileJSON.telephone               : "") !== telephone.value)
+            UserProfileJSON.telephone       = telephone.value;
 
         // mobilePhone
-        if (UserProfileJSON.mobilePhone != mobilePhone.value)
-            UserProfileJSON.mobilePhone  = mobilePhone.value;
+        if ((UserProfileJSON.mobilePhone  !== undefined ? UserProfileJSON.mobilePhone             : "") !== mobilePhone.value)
+            UserProfileJSON.mobilePhone     = mobilePhone.value;
 
-        // mobilePhone
-        if (UserProfileJSON.telegram    != telegram.value)
-            UserProfileJSON.telegram     = telegram.value;
+        // telegram
+        if ((UserProfileJSON.telegram     !== undefined ? UserProfileJSON.telegram                : "") !== telegram.value)
+            UserProfileJSON.telegram        = telegram.value;
 
         // homepage
-        if (UserProfileJSON.homepage    != homepage.value)
-            UserProfileJSON.homepage     = homepage.value;
+        if ((UserProfileJSON.homepage     !== undefined ? UserProfileJSON.homepage                : "") !== homepage.value)
+            UserProfileJSON.homepage        = homepage.value;
+
+        // user language
+        if ((UserProfileJSON.language     !== undefined ? UserProfileJSON.language                : "") !== userLanguage.selectedOptions[0].value)
+            UserProfileJSON.language        = userLanguage.selectedOptions[0].value;
 
         // description
-        let latestDescription            = UserProfileJSON.description != null ? firstValue(UserProfileJSON.description) : "";
-        let newDescription               = descriptionText.value;
+        if ((UserProfileJSON.description  !== undefined ? firstValue(UserProfileJSON.description) : "") !== descriptionText.value)
+            UserProfileJSON.description     = { "eng": firstValue(UserProfileJSON.description) };
 
-        if (latestDescription != newDescription) {
 
-            if (newDescription != "") {
-
-                if (UserProfileJSON.description == null)
-                    UserProfileJSON.description = new Object();
-
-                UserProfileJSON.description["eng"] = newDescription;
-            }
-
-            else {
-                delete UserProfileJSON.description;
-            }
-
-        }
-
-        //// publicKeyRing
-        //if ((UserProfileJSON.publicKeyRing != null ? UserProfileJSON.publicKeyRing : "") != publicKeyRing.value)
-        //    UserProfileJSON.publicKeyRing = publicKeyRing.value;
-
-        if (UserProfileJSON.telephone   == "")
+        if (UserProfileJSON.telephone    === "")
             delete (UserProfileJSON.telephone);
 
-        if (UserProfileJSON.mobilePhone == "")
+        if (UserProfileJSON.mobilePhone  === "")
             delete (UserProfileJSON.mobilePhone);
 
-        if (UserProfileJSON.telegram == "")
+        if (UserProfileJSON.telegram     === "")
             delete (UserProfileJSON.telegram);
 
-        if (UserProfileJSON.homepage == "")
+        if (UserProfileJSON.homepage     === "")
             delete (UserProfileJSON.homepage);
+
+        if (UserProfileJSON.language     === "")
+            delete (UserProfileJSON.language);
+
+        if (descriptionText.value        === "")
+            delete (UserProfileJSON.description);
 
 
         HTTPSet("/users/" + UserProfileJSON["@id"],
                 UserProfileJSON,
 
-                (HTTPStatus, ResponseText) => {
+                (status, response) => {
                     try
                     {
-                        var responseJSON = JSON.parse(ResponseText);
+                        const responseJSON = JSON.parse(response);
                         responseDiv.innerHTML = "<div class=\"HTTP OK\">Successfully stored updated user profile data.</div>";
                         saveButton.disabled = !AnyChangesMade();
                     }
@@ -184,14 +187,14 @@ function StartProfile() {
                     }
                 },
 
-                (HTTPStatus, StatusText, ResponseText) => {
+                (statusCode, status, response) => {
 
-                    var responseJSON = { "description": "HTTP Error " + HTTPStatus + " - " + StatusText + "!" };
+                    let responseJSON = { "description": "HTTP Error " + statusCode + " - " + status + "!" };
 
-                    if (ResponseText != null && ResponseText != "") {
+                    if (response != null && response != "") {
                         try
                         {
-                            responseJSON = JSON.parse(ResponseText);
+                            responseJSON = JSON.parse(response);
                         }
                         catch { }
                     }
@@ -204,27 +207,28 @@ function StartProfile() {
 
     }
 
-    const userProfile        = document.   getElementById('userProfile')       as HTMLDivElement;
-
-    const data               = userProfile.querySelector ('#data')             as HTMLInputElement;
-
-    const login              = data.       querySelector ('#login')            as HTMLInputElement;
-    const username           = data.       querySelector ('#username')         as HTMLInputElement;
-    const eMailAddress       = data.       querySelector ('#eMailAddress')     as HTMLInputElement;
-    const telephone          = data.       querySelector ('#telephone')        as HTMLInputElement;
-    const mobilePhone        = data.       querySelector ('#mobilePhone')      as HTMLInputElement;
-    const telegram           = data.       querySelector ('#telegram')         as HTMLInputElement;
-    const homepage           = data.       querySelector ('#homepage')         as HTMLInputElement;
-    const description        = data.       querySelector ('#userDescription')  as HTMLDivElement;
-    const descriptionText    = data.       querySelector ('#description')      as HTMLTextAreaElement;
-    //const publicKeyRing      = data.       querySelector ('#publicKeyRing')    as HTMLTextAreaElement;
-
-    const responseDiv        = document.    getElementById("response")          as HTMLDivElement;
-
-    const lowerButtonsDiv    = userProfile.querySelector   ('#lowerButtons')   as HTMLDivElement;
-    const saveButton         = lowerButtonsDiv.querySelector("#saveButton")     as HTMLButtonElement;
 
     checkSignedIn(false);
+
+    const userProfile        = document.       getElementById('userProfile')         as HTMLDivElement;
+
+    const data               = userProfile.    querySelector ('#data')               as HTMLInputElement;
+    const login              = data.           querySelector ('#login')              as HTMLInputElement;
+    const username           = data.           querySelector ('#username')           as HTMLInputElement;
+    const eMailAddress       = data.           querySelector ('#eMailAddress')       as HTMLInputElement;
+    const telephone          = data.           querySelector ('#telephone')          as HTMLInputElement;
+    const mobilePhone        = data.           querySelector ('#mobilePhone')        as HTMLInputElement;
+    const telegram           = data.           querySelector ('#telegram')           as HTMLInputElement;
+    const homepage           = data.           querySelector ('#homepage')           as HTMLInputElement;
+    const userLanguage       = data.           querySelector ('#userLanguage')       as HTMLSelectElement;
+    const description        = data.           querySelector ('#userDescription')    as HTMLDivElement;
+    const descriptionText    = data.           querySelector ('#description')        as HTMLTextAreaElement;
+
+    const responseDiv        = document.       getElementById("response")            as HTMLDivElement;
+
+    const lowerButtonsDiv    = userProfile.    querySelector ('#lowerButtons')       as HTMLDivElement;
+    const saveButton         = lowerButtonsDiv.querySelector ("#saveButton")         as HTMLButtonElement;
+
     login.value              = SignInUser;
     username.value           = Username;
     eMailAddress.value       = UserEMail;
@@ -247,11 +251,10 @@ function StartProfile() {
     homepage.onchange        = () => { ToogleSaveButton(); }
     homepage.onkeyup         = () => { ToogleSaveButton(); }
 
+    userLanguage.onchange    = () => { ToogleSaveButton(); }
+
     descriptionText.onchange = () => { ToogleSaveButton(); }
     descriptionText.onkeyup  = () => { ToogleSaveButton(); }
-
-    //publicKeyRing.onchange   = () => { ToogleSaveButton(); }
-    //publicKeyRing.onkeyup    = () => { ToogleSaveButton(); }
 
     saveButton.onclick       = () => { SaveData(); }
 
@@ -267,17 +270,18 @@ function StartProfile() {
 
                     username.value      = UserProfileJSON.name;
                     eMailAddress.value  = UserProfileJSON.email;
-                    telephone.value     = UserProfileJSON.telephone   != null ? UserProfileJSON.telephone   : "";
-                    mobilePhone.value   = UserProfileJSON.mobilePhone != null ? UserProfileJSON.mobilePhone : "";
-                    telegram.value      = UserProfileJSON.telegram    != null ? UserProfileJSON.telegram    : "";
-                    homepage.value      = UserProfileJSON.homepage    != null ? UserProfileJSON.homepage    : "";
+                    telephone.value     = UserProfileJSON.telephone   ?? "";
+                    mobilePhone.value   = UserProfileJSON.mobilePhone ?? "";
+                    telegram.value      = UserProfileJSON.telegram    ?? "";
+                    homepage.value      = UserProfileJSON.homepage    ?? "";
+
+                    if (UserProfileJSON.language !== undefined)
+                        userLanguage.add(new Option(languageKey2Text(UserProfileJSON.language, UILanguage),
+                                                    UserProfileJSON.language,
+                                                    true,
+                                                    true));
+
                     UpdateI18N(description, UserProfileJSON.description);
-
-                    //if (UserProfileJSON.publicKeyRing != null)
-                    //    publicKeyRing.value  = UserProfileJSON.publicKeyRing;
-
-                    //if (UserProfileJSON.publicKeyRing == null)
-                    //    UserProfileJSON.publicKeyRing = "";
 
                 }
                 catch (exception)

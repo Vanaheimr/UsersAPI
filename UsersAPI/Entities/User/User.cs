@@ -113,7 +113,7 @@ namespace social.OpenData.UsersAPI
         /// <summary>
         /// The JSON-LD context of this object.
         /// </summary>
-        public const String JSONLDContext  = "https://opendata.social/contexts/UsersAPI+json/user";
+        public const String JSONLDContext  = "https://opendata.social/contexts/usersAPI/user+json";
 
         #endregion
 
@@ -192,6 +192,12 @@ namespace social.OpenData.UsersAPI
         /// </summary>
         [Optional]
         public PhoneNumber?        MobilePhone          { get; }
+
+        /// <summary>
+        /// The telegram user name.
+        /// </summary>
+        [Optional]
+        public String              Telegram             { get; }
 
         /// <summary>
         /// The homepage of the user.
@@ -638,6 +644,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="UserLanguage">The language setting of the user.</param>
         /// <param name="Telephone">An optional telephone number of the user.</param>
         /// <param name="MobilePhone">An optional mobile telephone number of the user.</param>
+        /// <param name="Telegram">The telegram user name.</param>
         /// <param name="Homepage">The homepage of the user.</param>
         /// <param name="GeoLocation">An optional geographical location of the user.</param>
         /// <param name="Address">An optional address of the user.</param>
@@ -655,6 +662,7 @@ namespace social.OpenData.UsersAPI
                       Languages                           UserLanguage             = Languages.eng,
                       PhoneNumber?                        Telephone                = null,
                       PhoneNumber?                        MobilePhone              = null,
+                      String                              Telegram                 = null,
                       String                              Homepage                 = null,
                       GeoCoordinate?                      GeoLocation              = null,
                       Address                             Address                  = null,
@@ -691,8 +699,10 @@ namespace social.OpenData.UsersAPI
             this.Name                         = Name;
             this.PublicKeyRing                = PublicKeyRing;
             this.SecretKeyRing                = SecretKeyRing;
+            this.UserLanguage                 = UserLanguage;
             this.Telephone                    = Telephone;
             this.MobilePhone                  = MobilePhone;
+            this.Telegram                     = Telegram;
             this.Homepage                     = Homepage;
             this.Description                  = Description  ?? new I18NString();
             this.GeoLocation                  = GeoLocation;
@@ -702,7 +712,7 @@ namespace social.OpenData.UsersAPI
             this.IsAuthenticated              = IsAuthenticated;
             this.IsDisabled                   = IsDisabled;
 
-            this._NotificationStore               = new NotificationStore();
+            this._NotificationStore           = new NotificationStore();
 
             if (Notifications.SafeAny())
                 _NotificationStore.Add(Notifications);
@@ -933,7 +943,7 @@ namespace social.OpenData.UsersAPI
                        ? new JProperty("secretKeyRing",  SecretKeyRing.GetEncoded().ToHexString())
                        : null,
 
-                   new JProperty("language",             UserLanguage.ToString()),
+                   new JProperty("language",             UserLanguage.AsText()),
 
                    Telephone.HasValue
                        ? new JProperty("telephone",      Telephone.ToString())
@@ -941,6 +951,10 @@ namespace social.OpenData.UsersAPI
 
                    MobilePhone.HasValue
                        ? new JProperty("mobilePhone",    MobilePhone.ToString())
+                       : null,
+
+                   Telegram.IsNotNullOrEmpty()
+                       ? new JProperty("telegram",       Telegram)
                        : null,
 
                    Homepage.IsNotNullOrEmpty()
@@ -1107,10 +1121,11 @@ namespace social.OpenData.UsersAPI
 
                 #region Parse Language         [optional]
 
-                if (!JSONObject.ParseOptionalEnum("language",
-                                                  "user language",
-                                                  out Languages? UserLanguage,
-                                                  out ErrorResponse))
+                if (!JSONObject.ParseOptional("language",
+                                              "user language",
+                                              LanguagesExtentions.Parse,
+                                              out Languages? UserLanguage,
+                                              out ErrorResponse))
                 {
 
                     if (ErrorResponse != null)
@@ -1142,6 +1157,21 @@ namespace social.OpenData.UsersAPI
                                              "mobile phone number",
                                              PhoneNumber.TryParse,
                                              out PhoneNumber? MobilePhone,
+                                             out ErrorResponse))
+                {
+
+                    if (ErrorResponse != null)
+                        return false;
+
+                }
+
+                #endregion
+
+                #region Parse Telegram         [optional]
+
+                if (JSONObject.ParseOptional("telegram",
+                                             "telegram user name",
+                                             out String Telegram,
                                              out ErrorResponse))
                 {
 
@@ -1255,6 +1285,7 @@ namespace social.OpenData.UsersAPI
                                 UserLanguage ?? Languages.eng,
                                 Telephone,
                                 MobilePhone,
+                                Telegram,
                                 Homepage,
                                 GeoLocation,
                                 Address,
@@ -1559,6 +1590,7 @@ namespace social.OpenData.UsersAPI
                            UserLanguage,
                            Telephone,
                            MobilePhone,
+                           Telegram,
                            Homepage,
                            GeoLocation,
                            Address,
@@ -1638,6 +1670,12 @@ namespace social.OpenData.UsersAPI
             /// </summary>
             [Optional]
             public PhoneNumber?        MobilePhone          { get; set; }
+
+            /// <summary>
+            /// The telegram user name.
+            /// </summary>
+            [Optional]
+            public String              Telegram             { get; set; }
 
             /// <summary>
             /// An optional homepage of the user.
@@ -1802,6 +1840,7 @@ namespace social.OpenData.UsersAPI
                            Languages                           UserLanguage             = Languages.eng,
                            PhoneNumber?                        Telephone                = null,
                            PhoneNumber?                        MobilePhone              = null,
+                           String                              Telegram                 = null,
                            String                              Homepage                 = null,
                            GeoCoordinate?                      GeoLocation              = null,
                            Address                             Address                  = null,
@@ -1829,8 +1868,10 @@ namespace social.OpenData.UsersAPI
                 this.Description                  = Description ?? new I18NString();
                 this.PublicKeyRing                = PublicKeyRing;
                 this.SecretKeyRing                = SecretKeyRing;
+                this.UserLanguage                 = UserLanguage;
                 this.Telephone                    = Telephone;
                 this.MobilePhone                  = MobilePhone;
+                this.Telegram                     = Telegram;
                 this.Homepage                     = Homepage;
                 this.GeoLocation                  = GeoLocation;
                 this.Address                      = Address;
@@ -2021,6 +2062,7 @@ namespace social.OpenData.UsersAPI
                             UserLanguage,
                             Telephone,
                             MobilePhone,
+                            Telegram,
                             Homepage,
                             GeoLocation,
                             Address,

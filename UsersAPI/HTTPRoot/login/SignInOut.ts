@@ -163,7 +163,7 @@ function VerifyLogin() {
                                           "acceptsEULA":  acceptsEULA
                                       });
 
-        if (ResponseText == "") {
+        if (ResponseText === "") {
             responseDiv.style.display = 'block';
             responseDiv.innerHTML = "<i class='fas fa-exclamation-triangle  fa-2x menuicons'></i> Could not login!";
             return false;
@@ -205,6 +205,8 @@ function VerifyLogin() {
 
             }
 
+            return true;
+
         }
         catch (e)
         {
@@ -212,8 +214,6 @@ function VerifyLogin() {
             responseDiv.innerHTML = "<i class='fas fa-exclamation-triangle  fa-2x menuicons'></i> Could not login!";
             return false;
         }
-
-        return true;
 
     }
 
@@ -550,14 +550,14 @@ function SignIn() {
                  "rememberme": RememberMe
              },
 
-             function (HTTPStatus, ResponseText) {
+             function (status, response) {
                  //(<HTMLFormElement> document.querySelector('#loginform')).submit();
                  location.href = "/";
              },
 
-             function (HTTPStatus, StatusText, ResponseText) {
+             function (HTTPStatus, status, response) {
                  SignInErrors.style.display = "block";
-                 SignInErrors.innerText = JSON.parse(ResponseText).description;
+                 SignInErrors.innerText = JSON.parse(response).description;
              });
 
 }
@@ -575,16 +575,16 @@ function checkSignedIn(RedirectUnkownUsers: boolean) {
                    cookie.split(":").forEach(crumb => {
 
                        if (crumb.indexOf("login")     >= 0)
-                           SignInUser = atob(crumb.split("=")[1]);
+                           SignInUser  = atob(crumb.split("=")[1]);
 
                        if (crumb.indexOf("username")  >= 0)
-                           Username  = atob(crumb.split("=")[1]);
+                           Username    = atob(crumb.split("=")[1]);
 
                        if (crumb.indexOf("email")     >= 0)
-                           UserEMail = atob(crumb.split("=")[1]);
+                           UserEMail   = atob(crumb.split("=")[1]);
 
                        if (crumb.indexOf("astronaut") >= 0)
-                           Astronaut = atob(crumb.split("=")[1]);
+                           Astronaut   = atob(crumb.split("=")[1]);
 
                        if (crumb.indexOf("isAdminRO")   >= 0) {
                            isAdmin = "readOnly";
@@ -596,6 +596,10 @@ function checkSignedIn(RedirectUnkownUsers: boolean) {
                            isAdmin = "readWrite";
                            ShowElement('#admin');
                            ShowElement('.admin');
+                       }
+
+                       if (crumb.indexOf("language") >= 0) {
+                           UILanguage  = atob(crumb.split("=")[1]);
                        }
 
                    });

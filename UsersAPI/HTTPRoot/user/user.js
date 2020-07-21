@@ -32,6 +32,14 @@ function StartUser() {
             }
             return true;
         }
+        // telegram
+        if ((UserProfileJSON.telegram !== undefined ? UserProfileJSON.telegram : "") !== telegram.value) {
+            if (telegram.value != "" && telegram.value.length < 4) {
+                responseDiv.innerHTML = "<div class=\"HTTP Error\">Users must have a valid telegram user name!</div>";
+                return false;
+            }
+            return true;
+        }
         // homepage
         if ((UserProfileJSON.homepage !== undefined ? UserProfileJSON.homepage : "") !== homepage.value) {
             if (homepage.value != "" && homepage.value.length < 4) {
@@ -40,10 +48,22 @@ function StartUser() {
             }
             return true;
         }
-        // description
-        if ((UserProfileJSON.description != null ? firstValue(UserProfileJSON.description) : "") !== descriptionText.value)
+        // userLanguage
+        if ((UserProfileJSON.language !== undefined ? UserProfileJSON.language : "") !== userLanguage.value) {
+            if (userLanguage.value == "") {
+                responseDiv.innerHTML = "<div class=\"HTTP Error\">Users must have a valid language setting!</div>";
+                return false;
+            }
             return true;
-        responseDiv.innerHTML = "";
+        }
+        // description
+        if ((UserProfileJSON.description !== undefined ? firstValue(UserProfileJSON.description) : "") !== descriptionText.value) {
+            if (descriptionText.value != "" && descriptionText.value.length < 4) {
+                responseDiv.innerHTML = "<div class=\"HTTP Error\">Users must have a valid description!</div>";
+                return false;
+            }
+            return true;
+        }
         return false;
     }
     function ToogleSaveButton() {
@@ -55,64 +75,67 @@ function StartUser() {
     }
     function SaveData() {
         // name
-        if (UserProfileJSON.name != username.value)
+        if ((UserProfileJSON.name !== undefined ? UserProfileJSON.name : "") !== username.value)
             UserProfileJSON.name = username.value;
         // email
-        if (UserProfileJSON.email != eMailAddress.value)
+        if ((UserProfileJSON.email !== undefined ? UserProfileJSON.email : "") !== eMailAddress.value)
             UserProfileJSON.email = eMailAddress.value;
         // telephone
-        if (UserProfileJSON.telephone != telephone.value)
+        if ((UserProfileJSON.telephone !== undefined ? UserProfileJSON.telephone : "") !== telephone.value)
             UserProfileJSON.telephone = telephone.value;
-        if (UserProfileJSON.telephone == "")
-            delete (UserProfileJSON.telephone);
         // mobilePhone
-        if (UserProfileJSON.mobilePhone != mobilePhone.value)
+        if ((UserProfileJSON.mobilePhone !== undefined ? UserProfileJSON.mobilePhone : "") !== mobilePhone.value)
             UserProfileJSON.mobilePhone = mobilePhone.value;
-        if (UserProfileJSON.mobilePhone == "")
-            delete (UserProfileJSON.mobilePhone);
+        // telegram
+        if ((UserProfileJSON.telegram !== undefined ? UserProfileJSON.telegram : "") !== telegram.value)
+            UserProfileJSON.telegram = telegram.value;
         // homepage
-        if (UserProfileJSON.homepage != homepage.value)
+        if ((UserProfileJSON.homepage !== undefined ? UserProfileJSON.homepage : "") !== homepage.value)
             UserProfileJSON.homepage = homepage.value;
-        if (UserProfileJSON.homepage == "")
-            delete (UserProfileJSON.homepage);
+        // user language
+        if ((UserProfileJSON.language !== undefined ? UserProfileJSON.language : "") !== userLanguage.selectedOptions[0].value)
+            UserProfileJSON.language = userLanguage.selectedOptions[0].value;
         // description
-        var latestDescription = UserProfileJSON.description != null ? firstValue(UserProfileJSON.description) : "";
-        var newDescription = descriptionText.value;
-        if (latestDescription != newDescription) {
-            if (newDescription != "") {
-                if (UserProfileJSON.description == null)
-                    UserProfileJSON.description = new Object();
-                UserProfileJSON.description["eng"] = newDescription;
+        if ((UserProfileJSON.description !== undefined ? firstValue(UserProfileJSON.description) : "") !== descriptionText.value)
+            UserProfileJSON.description = { "eng": firstValue(UserProfileJSON.description) };
+        if (UserProfileJSON.telephone === "")
+            delete (UserProfileJSON.telephone);
+        if (UserProfileJSON.mobilePhone === "")
+            delete (UserProfileJSON.mobilePhone);
+        if (UserProfileJSON.telegram === "")
+            delete (UserProfileJSON.telegram);
+        if (UserProfileJSON.homepage === "")
+            delete (UserProfileJSON.homepage);
+        if (UserProfileJSON.language === "")
+            delete (UserProfileJSON.language);
+        if (descriptionText.value === "")
+            delete (UserProfileJSON.description);
+        HTTPSet("/users/" + UserProfileJSON["@id"], UserProfileJSON, function (status, response) {
+            try {
+                var responseJSON = JSON.parse(response);
+                responseDiv.innerHTML = "<div class=\"HTTP OK\">Successfully stored updated user profile data.</div>";
+                saveButton.disabled = !AnyChangesMade();
             }
-            else
-                delete UserProfileJSON.description;
-        }
-        HTTPSet("/users/" + UserProfileJSON["@id"], UserProfileJSON, function (HTTPStatus, ResponseText) {
-            var responseJSON = JSON.parse(ResponseText);
-            responseDiv.innerHTML = "<div class=\"HTTP OK\">Successfully stored updated user profile data.</div>";
-            //saveButton.disabled = !AnyChangesMade();
-        }, function (HTTPStatus, StatusText, ResponseText) {
-            var responseJSON = { "description": "HTTP Error " + HTTPStatus + " - " + StatusText + "!" };
-            if (ResponseText != null && ResponseText != "") {
+            catch (exception) {
+                responseDiv.innerHTML = "<div class=\"HTTP Error\">Storing user profile data failed:<br />" + exception + "</div>";
+            }
+        }, function (statusCode, status, response) {
+            var responseJSON = { "description": "HTTP Error " + statusCode + " - " + status + "!" };
+            if (response != null && response != "") {
                 try {
-                    responseJSON = JSON.parse(ResponseText);
+                    responseJSON = JSON.parse(response);
                 }
                 catch (_a) { }
             }
-            responseDiv.innerHTML = "<div class=\"HTTP Error\">Storing user profile data failed!" + (responseJSON.description != null ? responseJSON.description : "") + "</div>";
-        });
-    }
-    function ImpersonateUser(newUserId) {
-        HTTPImpersonate("/users/" + newUserId, function (status, response) {
-            window.location.reload(true);
-        }, function (statusCode, status, response) {
-            alert("Not allowed!");
+            responseDiv.innerHTML = "<div class=\"HTTP Error\">Storing user profile data failed!" +
+                (responseJSON.description != null ? "<br />" + responseJSON.description : "") +
+                "</div>";
         });
     }
     var pathElements = window.location.pathname.split("/");
     var userId = pathElements[pathElements.length - 1];
     var userProfile = document.getElementById('userProfile');
-    var impersonateButton = document.getElementById("impersonateButton");
+    var impersonateButton = userProfile.querySelector("#impersonateButton");
     var data = userProfile.querySelector('#data');
     var login = data.querySelector('#login');
     var username = data.querySelector('#username');
@@ -121,22 +144,32 @@ function StartUser() {
     var mobilePhone = data.querySelector('#mobilePhone');
     var telegram = data.querySelector('#telegram');
     var homepage = data.querySelector('#homepage');
+    var userLanguage = data.querySelector('#userLanguage');
     var description = data.querySelector('#userDescription');
     var descriptionText = data.querySelector('#description');
     var responseDiv = document.getElementById("response");
-    var saveButton = document.getElementById("saveButton");
+    var lowerButtonsDiv = userProfile.querySelector('#lowerButtons');
+    var saveButton = lowerButtonsDiv.querySelector("#saveButton");
     login.value = userId;
     HTTPGet("/users/" + userId, function (status, response) {
+        var _a, _b, _c, _d;
         try {
             UserProfileJSON = ParseJSON_LD(response);
             username.value = UserProfileJSON.name;
             eMailAddress.value = UserProfileJSON.email;
-            telephone.value = UserProfileJSON.telephone != null ? UserProfileJSON.telephone : "";
-            mobilePhone.value = UserProfileJSON.mobilePhone != null ? UserProfileJSON.mobilePhone : "";
-            telegram.value = UserProfileJSON.telegram != null ? UserProfileJSON.telegram : "";
-            homepage.value = UserProfileJSON.homepage != null ? UserProfileJSON.homepage : "";
+            telephone.value = (_a = UserProfileJSON.telephone) !== null && _a !== void 0 ? _a : "";
+            mobilePhone.value = (_b = UserProfileJSON.mobilePhone) !== null && _b !== void 0 ? _b : "";
+            telegram.value = (_c = UserProfileJSON.telegram) !== null && _c !== void 0 ? _c : "";
+            homepage.value = (_d = UserProfileJSON.homepage) !== null && _d !== void 0 ? _d : "";
+            if (UserProfileJSON.language !== undefined)
+                userLanguage.add(new Option(languageKey2Text(UserProfileJSON.language, UILanguage), UserProfileJSON.language, true, true));
             UpdateI18N(description, UserProfileJSON.description);
             if (UserProfileJSON["youCanEdit"]) {
+                impersonateButton.disabled = false;
+                impersonateButton.style.display = "block";
+                impersonateButton.onclick = function () {
+                    ImpersonateUser(userId);
+                };
                 username.readOnly = false;
                 username.onchange = function () { ToogleSaveButton(); };
                 username.onkeyup = function () { ToogleSaveButton(); };
@@ -155,17 +188,14 @@ function StartUser() {
                 homepage.readOnly = false;
                 homepage.onchange = function () { ToogleSaveButton(); };
                 homepage.onkeyup = function () { ToogleSaveButton(); };
+                //userLanguage.readOnly            = false;
+                userLanguage.onchange = function () { ToogleSaveButton(); };
                 descriptionText.readOnly = false;
                 descriptionText.onchange = function () { ToogleSaveButton(); };
                 descriptionText.onkeyup = function () { ToogleSaveButton(); };
                 saveButton.style.display = "block";
                 saveButton.onclick = function () {
                     SaveData();
-                };
-                impersonateButton.disabled = false;
-                impersonateButton.style.display = "block";
-                impersonateButton.onclick = function () {
-                    ImpersonateUser(userId);
                 };
             }
         }

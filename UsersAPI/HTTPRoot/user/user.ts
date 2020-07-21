@@ -55,6 +55,19 @@ function StartUser() {
         }
 
 
+        // telegram
+        if ((UserProfileJSON.telegram !== undefined ? UserProfileJSON.telegram : "") !== telegram.value) {
+
+            if (telegram.value != "" && telegram.value.length < 4) {
+                responseDiv.innerHTML = "<div class=\"HTTP Error\">Users must have a valid telegram user name!</div>";
+                return false;
+            }
+
+            return true;
+
+        }
+
+
         // homepage
         if ((UserProfileJSON.homepage !== undefined ? UserProfileJSON.homepage : "") !== homepage.value) {
 
@@ -68,12 +81,31 @@ function StartUser() {
         }
 
 
-        // description
-        if ((UserProfileJSON.description != null ? firstValue(UserProfileJSON.description) : "") !== descriptionText.value)
+        // userLanguage
+        if ((UserProfileJSON.language !== undefined ? UserProfileJSON.language : "") !== userLanguage.value) {
+
+            if (userLanguage.value == "") {
+                responseDiv.innerHTML = "<div class=\"HTTP Error\">Users must have a valid language setting!</div>";
+                return false;
+            }
+
             return true;
 
+        }
 
-        responseDiv.innerHTML = "";
+
+        // description
+        if ((UserProfileJSON.description !== undefined ? firstValue(UserProfileJSON.description) : "") !== descriptionText.value) {
+
+            if (descriptionText.value != "" && descriptionText.value.length < 4) {
+                responseDiv.innerHTML = "<div class=\"HTTP Error\">Users must have a valid description!</div>";
+                return false;
+            }
+
+            return true;
+
+        }
+
         return false;
 
     }
@@ -94,96 +126,91 @@ function StartUser() {
     function SaveData() {
 
         // name
-        if (UserProfileJSON.name        != username.value)
-            UserProfileJSON.name         = username.value;
-
+        if ((UserProfileJSON.name         !== undefined ? UserProfileJSON.name                    : "") !== username.value)
+             UserProfileJSON.name           = username.value;
 
         // email
-        if (UserProfileJSON.email       != eMailAddress.value)
-            UserProfileJSON.email        = eMailAddress.value;
+        if ((UserProfileJSON.email        !== undefined ? UserProfileJSON.email                   : "") !== eMailAddress.value)
+            UserProfileJSON.email           = eMailAddress.value;
 
 
         // telephone
-        if (UserProfileJSON.telephone   != telephone.value)
-            UserProfileJSON.telephone    = telephone.value;
-
-        if (UserProfileJSON.telephone == "")
-            delete (UserProfileJSON.telephone);
-
+        if ((UserProfileJSON.telephone    !== undefined ? UserProfileJSON.telephone               : "") !== telephone.value)
+            UserProfileJSON.telephone       = telephone.value;
 
         // mobilePhone
-        if (UserProfileJSON.mobilePhone != mobilePhone.value)
-            UserProfileJSON.mobilePhone  = mobilePhone.value;
+        if ((UserProfileJSON.mobilePhone  !== undefined ? UserProfileJSON.mobilePhone             : "") !== mobilePhone.value)
+            UserProfileJSON.mobilePhone     = mobilePhone.value;
 
-        if (UserProfileJSON.mobilePhone == "")
-            delete (UserProfileJSON.mobilePhone);
-
+        // telegram
+        if ((UserProfileJSON.telegram     !== undefined ? UserProfileJSON.telegram                : "") !== telegram.value)
+            UserProfileJSON.telegram        = telegram.value;
 
         // homepage
-        if (UserProfileJSON.homepage    != homepage.value)
-            UserProfileJSON.homepage     = homepage.value;
+        if ((UserProfileJSON.homepage     !== undefined ? UserProfileJSON.homepage                : "") !== homepage.value)
+            UserProfileJSON.homepage        = homepage.value;
 
-        if (UserProfileJSON.homepage == "")
-            delete (UserProfileJSON.homepage);
-
+        // user language
+        if ((UserProfileJSON.language     !== undefined ? UserProfileJSON.language                : "") !== userLanguage.selectedOptions[0].value)
+            UserProfileJSON.language        = userLanguage.selectedOptions[0].value;
 
         // description
-        let latestDescription            = UserProfileJSON.description != null ? firstValue(UserProfileJSON.description) : "";
-        let newDescription               = descriptionText.value;
+        if ((UserProfileJSON.description  !== undefined ? firstValue(UserProfileJSON.description) : "") !== descriptionText.value)
+            UserProfileJSON.description     = { "eng": firstValue(UserProfileJSON.description) };
 
-        if (latestDescription != newDescription) {
 
-            if (newDescription != "") {
+        if (UserProfileJSON.telephone    === "")
+            delete (UserProfileJSON.telephone);
 
-                if (UserProfileJSON.description == null)
-                    UserProfileJSON.description = new Object();
+        if (UserProfileJSON.mobilePhone  === "")
+            delete (UserProfileJSON.mobilePhone);
 
-                UserProfileJSON.description["eng"] = newDescription;
-            }
+        if (UserProfileJSON.telegram     === "")
+            delete (UserProfileJSON.telegram);
 
-            else
-                delete UserProfileJSON.description;
+        if (UserProfileJSON.homepage     === "")
+            delete (UserProfileJSON.homepage);
 
-        }
+        if (UserProfileJSON.language     === "")
+            delete (UserProfileJSON.language);
+
+        if (descriptionText.value        === "")
+            delete (UserProfileJSON.description);
 
 
         HTTPSet("/users/" + UserProfileJSON["@id"],
                 UserProfileJSON,
 
-                (HTTPStatus, ResponseText) => {
-                    var responseJSON = JSON.parse(ResponseText);
-                    responseDiv.innerHTML = "<div class=\"HTTP OK\">Successfully stored updated user profile data.</div>";
-                    //saveButton.disabled = !AnyChangesMade();
+                (status, response) => {
+                    try
+                    {
+                        const responseJSON = JSON.parse(response);
+                        responseDiv.innerHTML = "<div class=\"HTTP OK\">Successfully stored updated user profile data.</div>";
+                        saveButton.disabled = !AnyChangesMade();
+                    }
+                    catch (exception)
+                    {
+                        responseDiv.innerHTML = "<div class=\"HTTP Error\">Storing user profile data failed:<br />" + exception + "</div>";
+                    }
                 },
 
-                (HTTPStatus, StatusText, ResponseText) => {
+                (statusCode, status, response) => {
 
-                    var responseJSON = { "description": "HTTP Error " + HTTPStatus + " - " + StatusText + "!" };
+                    let responseJSON = { "description": "HTTP Error " + statusCode + " - " + status + "!" };
 
-                    if (ResponseText != null && ResponseText != "") {
-                        try {
-                            responseJSON = JSON.parse(ResponseText);
+                    if (response != null && response != "") {
+                        try
+                        {
+                            responseJSON = JSON.parse(response);
                         }
                         catch { }
                     }
 
-                    responseDiv.innerHTML = "<div class=\"HTTP Error\">Storing user profile data failed!" + (responseJSON.description != null ? responseJSON.description : "") + "</div>";
+                    responseDiv.innerHTML = "<div class=\"HTTP Error\">Storing user profile data failed!" +
+                                                (responseJSON.description != null ? "<br />" + responseJSON.description : "") +
+                                            "</div>";
 
                 });
-
-    }
-
-    function ImpersonateUser(newUserId) {
-
-        HTTPImpersonate("/users/" + newUserId,
-
-            (status, response) => {
-                window.location.reload(true);
-            },
-
-            (statusCode, status, response) => {
-                alert("Not allowed!");
-            });
 
     }
 
@@ -191,24 +218,26 @@ function StartUser() {
     const pathElements       = window.location.pathname.split("/");
     const userId             = pathElements[pathElements.length - 1];
 
-    const userProfile        = document.   getElementById('userProfile')         as HTMLDivElement;
+    const userProfile        = document.       getElementById('userProfile')          as HTMLDivElement;
 
-    const impersonateButton  = document.   getElementById("impersonateButton")   as HTMLButtonElement;
+    const impersonateButton  = userProfile.    querySelector ("#impersonateButton")   as HTMLButtonElement;
 
-    const data               = userProfile.querySelector ('#data')               as HTMLInputElement;
-    const login              = data.       querySelector ('#login')              as HTMLInputElement;
-    const username           = data.       querySelector ('#username')           as HTMLInputElement;
-    const eMailAddress       = data.       querySelector ('#eMailAddress')       as HTMLInputElement;
-    const telephone          = data.       querySelector ('#telephone')          as HTMLInputElement;
-    const mobilePhone        = data.       querySelector ('#mobilePhone')        as HTMLInputElement;
-    const telegram           = data.       querySelector ('#telegram')           as HTMLInputElement;
-    const homepage           = data.       querySelector ('#homepage')           as HTMLInputElement;
-    const description        = data.       querySelector ('#userDescription')    as HTMLDivElement;
-    const descriptionText    = data.       querySelector ('#description')        as HTMLTextAreaElement;
+    const data               = userProfile.    querySelector ('#data')                as HTMLInputElement;
+    const login              = data.           querySelector ('#login')               as HTMLInputElement;
+    const username           = data.           querySelector ('#username')            as HTMLInputElement;
+    const eMailAddress       = data.           querySelector ('#eMailAddress')        as HTMLInputElement;
+    const telephone          = data.           querySelector ('#telephone')           as HTMLInputElement;
+    const mobilePhone        = data.           querySelector ('#mobilePhone')         as HTMLInputElement;
+    const telegram           = data.           querySelector ('#telegram')            as HTMLInputElement;
+    const homepage           = data.           querySelector ('#homepage')            as HTMLInputElement;
+    const userLanguage       = data.           querySelector ('#userLanguage')        as HTMLSelectElement;
+    const description        = data.           querySelector ('#userDescription')     as HTMLDivElement;
+    const descriptionText    = data.           querySelector ('#description')         as HTMLTextAreaElement;
 
-    const responseDiv        = document.   getElementById("response")            as HTMLDivElement;
+    const responseDiv        = document.       getElementById("response")             as HTMLDivElement;
 
-    const saveButton         = document.   getElementById("saveButton")          as HTMLButtonElement;
+    const lowerButtonsDiv    = userProfile.    querySelector ('#lowerButtons')        as HTMLDivElement;
+    const saveButton         = lowerButtonsDiv.querySelector ("#saveButton")          as HTMLButtonElement;
 
     login.value              = userId;
 
@@ -224,53 +253,63 @@ function StartUser() {
 
                     username.value      = UserProfileJSON.name;
                     eMailAddress.value  = UserProfileJSON.email;
-                    telephone.value     = UserProfileJSON.telephone   != null ? UserProfileJSON.telephone   : "";
-                    mobilePhone.value   = UserProfileJSON.mobilePhone != null ? UserProfileJSON.mobilePhone : "";
-                    telegram.value      = UserProfileJSON.telegram    != null ? UserProfileJSON.telegram    : "";
-                    homepage.value      = UserProfileJSON.homepage    != null ? UserProfileJSON.homepage    : "";
+                    telephone.value     = UserProfileJSON.telephone   ?? "";
+                    mobilePhone.value   = UserProfileJSON.mobilePhone ?? "";
+                    telegram.value      = UserProfileJSON.telegram    ?? "";
+                    homepage.value      = UserProfileJSON.homepage    ?? "";
+
+                    if (UserProfileJSON.language !== undefined)
+                        userLanguage.add(new Option(languageKey2Text(UserProfileJSON.language, UILanguage),
+                                                    UserProfileJSON.language,
+                                                    true,
+                                                    true));
+
                     UpdateI18N(description, UserProfileJSON.description);
 
                     if (UserProfileJSON["youCanEdit"])
                     {
 
-                        username.readOnly         = false;
-                        username.onchange         = () => { ToogleSaveButton(); }
-                        username.onkeyup          = () => { ToogleSaveButton(); }
-
-                        eMailAddress.readOnly     = false;
-                        eMailAddress.onchange     = () => { ToogleSaveButton(); }
-                        eMailAddress.onkeyup      = () => { ToogleSaveButton(); }
-
-                        telephone.readOnly        = false;
-                        telephone.onchange        = () => { ToogleSaveButton(); }
-                        telephone.onkeyup         = () => { ToogleSaveButton(); }
-
-                        mobilePhone.readOnly      = false;
-                        mobilePhone.onchange      = () => { ToogleSaveButton(); }
-                        mobilePhone.onkeyup       = () => { ToogleSaveButton(); }
-
-                        telegram.readOnly         = false;
-                        telegram.onchange         = () => { ToogleSaveButton(); }
-                        telegram.onkeyup          = () => { ToogleSaveButton(); }
-
-                        homepage.readOnly         = false;
-                        homepage.onchange         = () => { ToogleSaveButton(); }
-                        homepage.onkeyup          = () => { ToogleSaveButton(); }
-
-                        descriptionText.readOnly  = false;
-                        descriptionText.onchange  = () => { ToogleSaveButton(); }
-                        descriptionText.onkeyup   = () => { ToogleSaveButton(); }
-
-
-                        saveButton.style.display  = "block";
-                        saveButton.onclick        = () => {
-                            SaveData();
-                        }
-
                         impersonateButton.disabled       = false;
                         impersonateButton.style.display  = "block";
                         impersonateButton.onclick        = () => {
                             ImpersonateUser(userId);
+                        }
+
+                        username.readOnly                = false;
+                        username.onchange                = () => { ToogleSaveButton(); }
+                        username.onkeyup                 = () => { ToogleSaveButton(); }
+
+                        eMailAddress.readOnly            = false;
+                        eMailAddress.onchange            = () => { ToogleSaveButton(); }
+                        eMailAddress.onkeyup             = () => { ToogleSaveButton(); }
+
+                        telephone.readOnly               = false;
+                        telephone.onchange               = () => { ToogleSaveButton(); }
+                        telephone.onkeyup                = () => { ToogleSaveButton(); }
+
+                        mobilePhone.readOnly             = false;
+                        mobilePhone.onchange             = () => { ToogleSaveButton(); }
+                        mobilePhone.onkeyup              = () => { ToogleSaveButton(); }
+
+                        telegram.readOnly                = false;
+                        telegram.onchange                = () => { ToogleSaveButton(); }
+                        telegram.onkeyup                 = () => { ToogleSaveButton(); }
+
+                        homepage.readOnly                = false;
+                        homepage.onchange                = () => { ToogleSaveButton(); }
+                        homepage.onkeyup                 = () => { ToogleSaveButton(); }
+
+                        //userLanguage.readOnly            = false;
+                        userLanguage.onchange            = () => { ToogleSaveButton(); }
+
+                        descriptionText.readOnly         = false;
+                        descriptionText.onchange         = () => { ToogleSaveButton(); }
+                        descriptionText.onkeyup          = () => { ToogleSaveButton(); }
+
+
+                        saveButton.style.display         = "block";
+                        saveButton.onclick               = () => {
+                            SaveData();
                         }
 
                     }

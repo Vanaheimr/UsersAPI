@@ -97,9 +97,7 @@ function StartOrganization() {
             if (name.value != "") {
 
                 if (organizationJSON.name == null)
-                    organizationJSON.name = new Object();
-
-                organizationJSON.name["eng"] = name.value;
+                    organizationJSON.name = { "eng": name.value };
 
             }
 
@@ -115,9 +113,7 @@ function StartOrganization() {
             if (description.value != "") {
 
                 if (organizationJSON.description == null)
-                    organizationJSON.description = new Object();
-
-                organizationJSON.description["eng"] = description.value;
+                    organizationJSON.description = { "eng": description.value };
 
             }
 

@@ -44,7 +44,7 @@ function ShowOrganizations() {
         function CreateNewUser(organization, membersDiv, CreateNewUserButton) {
             var userJSON = {
                 "@id": "",
-                "@context": "https://opendata.social/contexts/UsersAPI+json/user",
+                "@context": "https://opendata.social/contexts/usersAPI/user+json",
                 "name": "",
                 "email": ""
             };
@@ -157,7 +157,7 @@ function ShowOrganizations() {
                 var newUserAccessLevel = newUserAccessLevelSelect.selectedOptions[0].value.trim();
                 var newUserJSON = {
                     "@id": newUserId,
-                    "@context": "https://opendata.social/contexts/UsersAPI+json/user",
+                    "@context": "https://opendata.social/contexts/usersAPI/user+json",
                     "name": newUserName,
                     "email": newUserEMail,
                     "organization": organization["@id"],
@@ -312,7 +312,7 @@ function ShowOrganizations() {
                     "name": { "eng": newChildOrganizationName != "" ? newChildOrganizationName : newChildOrganizationId },
                     "admins": [{
                             "@id": SignInUser,
-                            "@context": "https://opendata.social/contexts/UsersAPI+json/user",
+                            "@context": "https://opendata.social/contexts/usersAPI/user+json",
                             "name": Username,
                             "email": UserEMail
                         }],

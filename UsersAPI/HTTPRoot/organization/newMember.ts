@@ -3,7 +3,7 @@ function StartNewMember() {
 
     let newUserJSON = {
         "@id":          "",
-        "@context":     "https://opendata.social/contexts/UsersAPI+json/user",
+        "@context":     "https://opendata.social/contexts/usersAPI/user+json",
         "username":      null,
         "email":        "",
         "telephone":    "",

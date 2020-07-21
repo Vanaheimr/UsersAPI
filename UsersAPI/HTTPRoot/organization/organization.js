@@ -57,8 +57,7 @@ function StartOrganization() {
         if ((organizationJSON.name !== undefined ? firstValue(organizationJSON.name) : "") !== name.value) {
             if (name.value != "") {
                 if (organizationJSON.name == null)
-                    organizationJSON.name = new Object();
-                organizationJSON.name["eng"] = name.value;
+                    organizationJSON.name = { "eng": name.value };
             }
             else
                 delete organizationJSON.name;
@@ -67,8 +66,7 @@ function StartOrganization() {
         if ((organizationJSON.description !== undefined ? firstValue(organizationJSON.description) : "") !== description.value) {
             if (description.value != "") {
                 if (organizationJSON.description == null)
-                    organizationJSON.description = new Object();
-                organizationJSON.description["eng"] = description.value;
+                    organizationJSON.description = { "eng": description.value };
             }
             else
                 delete organizationJSON.description;

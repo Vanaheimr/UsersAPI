@@ -17,43 +17,43 @@
 
         <div class="row">
             <div class="key">Name</div>
-            <div class="value"><input id="username"       type="text" value="" /></div>
+            <div class="value"><input id="username"       type="text" value="" placeholder="Your name." /></div>
         </div>
 
         <div class="row">
             <div class="key">E-Mail Address</div>
-            <div class="value"><input id="eMailAddress"   type="text" value="" /></div>
+            <div class="value"><input id="eMailAddress"   type="text" value="" placeholder="Your e-mail address." /></div>
         </div>
 
         <div class="row">
             <div class="key">Telephone</div>
-            <div class="value"><input id="telephone"      type="text" value="" /></div>
+            <div class="value"><input id="telephone"      type="text" value="" placeholder="Your landline phone number." /></div>
         </div>
 
         <div class="row">
             <div class="key">Mobil phone</div>
-            <div class="value"><input id="mobilePhone"    type="text" value="" /></div>
+            <div class="value"><input id="mobilePhone"    type="text" value="" placeholder="Your mobile phone number, e.g. for receiving SMS notifications." /></div>
         </div>
 
         <div class="row">
             <div class="key">Telegram</div>
-            <div class="value"><input id="telegram"       type="text" value="" /></div>
+            <div class="value"><input id="telegram"       type="text" value="" placeholder="Your Telegram user name" /></div>
         </div>
 
         <div class="row">
             <div class="key">Homepage</div>
-            <div class="value"><input id="homepage"       type="text" value="" /></div>
+            <div class="value"><input id="homepage"       type="text" value="" placeholder="Your homepage" /></div>
+        </div>
+
+        <div class="row">
+            <div class="key keyTop">Language</div>
+            <div class="value"><select id="userLanguage" name="userLanguage" size="1"></select></div>
         </div>
 
         <div class="row">
             <div class="key keyTop">Description</div>
             <div class="value" id="userDescription"><select id="language" name="language" size="1"></select><textarea id="description"></textarea></div>
         </div>
-
-        <!--<div class="row">
-            <div class="key keyTop">Public Key Ring</div>
-            <div class="value"><textarea id="publicKeyRing"></textarea></div>
-        </div>-->
 
         <!--<div class="row">
             <div class="key keyTop">2-Factor-Auth</div>

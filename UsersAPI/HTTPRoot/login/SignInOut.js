@@ -102,7 +102,7 @@ function VerifyLogin() {
             "password": _password.value,
             "acceptsEULA": acceptsEULA
         });
-        if (ResponseText == "") {
+        if (ResponseText === "") {
             responseDiv.style.display = 'block';
             responseDiv.innerHTML = "<i class='fas fa-exclamation-triangle  fa-2x menuicons'></i> Could not login!";
             return false;
@@ -132,13 +132,13 @@ function VerifyLogin() {
                 }
                 return false;
             }
+            return true;
         }
         catch (e) {
             responseDiv.style.display = 'block';
             responseDiv.innerHTML = "<i class='fas fa-exclamation-triangle  fa-2x menuicons'></i> Could not login!";
             return false;
         }
-        return true;
     }
     //checkNotSignedIn();
 }
@@ -360,12 +360,12 @@ function SignIn() {
         "realm": Realm,
         "password": Password,
         "rememberme": RememberMe
-    }, function (HTTPStatus, ResponseText) {
+    }, function (status, response) {
         //(<HTMLFormElement> document.querySelector('#loginform')).submit();
         location.href = "/";
-    }, function (HTTPStatus, StatusText, ResponseText) {
+    }, function (HTTPStatus, status, response) {
         SignInErrors.style.display = "block";
-        SignInErrors.innerText = JSON.parse(ResponseText).description;
+        SignInErrors.innerText = JSON.parse(response).description;
     });
 }
 function checkSignedIn(RedirectUnkownUsers) {
@@ -391,6 +391,9 @@ function checkSignedIn(RedirectUnkownUsers) {
                 isAdmin = "readWrite";
                 ShowElement('#admin');
                 ShowElement('.admin');
+            }
+            if (crumb.indexOf("language") >= 0) {
+                UILanguage = atob(crumb.split("=")[1]);
             }
         });
         document.querySelector('#username').innerText = Username;

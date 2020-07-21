@@ -41,7 +41,7 @@ namespace social.OpenData.UsersAPI
         public static JObject ToJSON(this IEnumerable<User> Users)
 
             => JSONObject.Create(
-                   new JProperty("@context", "https://opendata.social/contexts/UsersAPI+json/users"),
+                   new JProperty("@context", "https://opendata.social/contexts/usersAPI/user+jsons"),
                    new JProperty("users", new JArray(Users.SafeSelect(user => user.ToJSON())))
                );
 
