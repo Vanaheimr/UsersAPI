@@ -79,6 +79,12 @@ interface IOwner {
 }
 
 
+interface INotificationMessage {
+    id:                              string;
+    type:                            string;
+    data:                            any;
+}
+
 
 
 
@@ -217,11 +223,12 @@ function SendJSON(HTTPVerb, URI, Data, OnSuccess, OnError) {
 function ParseJSON_LD<T>(Text:    string,
                          Context: string = null): T {
 
-    const JObject = JSON.parse(Text);
+    const data = JSON.parse(Text);
 
-    JObject["id"] = JObject["@id"];
+    if (!Array.isArray(data))
+        data["id"] = data["@id"];
 
-    return JObject as T;
+    return data as T;
 
 }
 

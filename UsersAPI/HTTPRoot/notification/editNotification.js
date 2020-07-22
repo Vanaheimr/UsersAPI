@@ -111,7 +111,7 @@ function StartEditUserNotifications() {
                     setTimeout(function () {
                         //let redirectURL = document.location.href.substring(0, document.location.href.lastIndexOf("/"));
                         //redirectURL     = redirectURL.substring(0, redirectURL.lastIndexOf("/"));
-                        document.location.href = "/notifications";
+                        document.location.href = "/notificationSettings";
                     }, 2000);
                 }
                 catch (e) {
@@ -130,6 +130,7 @@ function StartEditUserNotifications() {
         }
         var AddOrEditNotificationDiv = document.getElementById('AddOrEditNotification');
         AddOrEditNotificationDiv.querySelector("#headline #title").innerHTML = (existingNotification == null || existingNotification["@context"] === newNotification_Context) ? "Create a new notification" : "Edit notification";
+        var RemoveButton = AddOrEditNotificationDiv.querySelector("#removeNotificationButton");
         var AddNotificationsView = new View(AddOrEditNotificationDiv.querySelector("#notification"));
         var NotificationValue = (existingNotification == null || existingNotification["@context"] === newNotification_Context)
             ? AddNotificationsView.CreateRow("NotificationType", "Notification type")
@@ -155,14 +156,13 @@ function StartEditUserNotifications() {
         var EMailValue = AddNotificationsView.CreateRow("EMail", "E-Mail address", function (_) { return _.innerHTML = "<input placeholder=\"Your e-mail address...\" value=\"" + notification.user.email + "\" />"; });
         var SignedMailsValue = AddNotificationsView.CreateRow("SignMails", "Sign E-Mails", function (_) { return _.innerHTML = "<select><option>yes</option><option>no</option></select>"; });
         var PublicKeyValue = AddNotificationsView.CreateRow2("EncryptMails", "Encrypt E-Mails", true, function (_) { return _.innerHTML = "<textarea placeholder=\"You can provide an optional GPG/PGP public key to receive encrypted e-mails...\" />"; });
-        var SaveButton = AddOrEditNotificationDiv.querySelector("#SaveButton");
-        var RemoveButton = AddOrEditNotificationDiv.querySelector("#RemoveButton");
+        var SaveButton = AddOrEditNotificationDiv.querySelector("#saveNotificationButton");
         SaveButton.style.display = "block";
         SaveButton.disabled = false;
         SaveButton.onclick = function () {
             SaveOrDeleteNotification(false);
         };
-        if (existingNotification != null && existingNotification["@context"] != newNotification_Context) {
+        if (existingNotification != null && existingNotification["@context"] !== newNotification_Context) {
             RemoveButton.style.display = "block";
             RemoveButton.disabled = false;
             RemoveButton.onclick = function () {
@@ -175,9 +175,9 @@ function StartEditUserNotifications() {
         var _loop_1 = function (notificationGroup) {
             var MessageTypeGroupDiv = MessageTypesDiv.appendChild(document.createElement('div'));
             MessageTypeGroupDiv.className = "messageTypeGroup";
-            MessageTypeGroupDiv.onclick = function (ev) {
+            MessageTypeGroupDiv.onclick = function () {
                 var subDiv = MessageTypeGroupDiv.lastChild;
-                subDiv.style.display = subDiv.style.display == "none"
+                subDiv.style.display = subDiv.style.display === "none"
                     ? "block"
                     : "none";
             };

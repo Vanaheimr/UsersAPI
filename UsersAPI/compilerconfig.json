@@ -40,8 +40,12 @@
     "inputFile": "HTTPRoot/notification/editNotification.scss"
   },
   {
-    "outputFile": "HTTPRoot/notification/notifications.css",
-    "inputFile": "HTTPRoot/notification/notifications.scss"
+    "outputFile": "HTTPRoot/notification/messages.css",
+    "inputFile": "HTTPRoot/notification/messages.scss"
+  },
+  {
+    "outputFile": "HTTPRoot/notification/settings.css",
+    "inputFile": "HTTPRoot/notification/settings.scss"
   },
   {
     "outputFile": "HTTPRoot/organization/address.css",

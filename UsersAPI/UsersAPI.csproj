@@ -130,6 +130,18 @@
     <EmbeddedResource Include="HTTPRoot\css\AppPanels.css" />
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="HTTPRoot\notification\messages.js">
+      <DependentUpon>messages.ts</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="HTTPRoot\notification\messages.js.map">
+      <DependentUpon>messages.ts</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="HTTPRoot\notification\settings.js">
+      <DependentUpon>settings.ts</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="HTTPRoot\notification\settings.js.map">
+      <DependentUpon>settings.ts</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="HTTPRoot\robots.txt" />
   </ItemGroup>
   <ItemGroup>
@@ -227,6 +239,7 @@
     <EmbeddedResource Include="HTTPRoot\defaults\search.js.map">
       <DependentUpon>search.ts</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="HTTPRoot\defaults\_search2.scss" />
     <None Include="HTTPRoot\libs\EventSource.js.map">
       <DependentUpon>EventSource.ts</DependentUpon>
     </None>
@@ -242,10 +255,7 @@
     <EmbeddedResource Include="HTTPRoot\notification\editNotification.js.map">
       <DependentUpon>editNotification.ts</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="HTTPRoot\notification\notifications.scss" />
-    <EmbeddedResource Include="HTTPRoot\notification\notifications.js.map">
-      <DependentUpon>notifications.ts</DependentUpon>
-    </EmbeddedResource>
+    <EmbeddedResource Include="HTTPRoot\notification\messages.scss" />
     <EmbeddedResource Include="HTTPRoot\organization\address.scss" />
     <EmbeddedResource Include="HTTPRoot\organization\members.scss" />
     <EmbeddedResource Include="HTTPRoot\organization\newMember.scss" />
@@ -295,6 +305,7 @@
     <EmbeddedResource Include="HTTPRoot\user\user.scss" />
     <EmbeddedResource Include="HTTPRoot\user\users.scss" />
     <EmbeddedResource Include="HTTPRoot\profile\organizations.scss" />
+    <EmbeddedResource Include="HTTPRoot\notification\settings.scss" />
     <None Include="README.md" />
     <None Include="tsconfig.json" />
   </ItemGroup>
@@ -429,6 +440,19 @@
     <EmbeddedResource Include="HTTPRoot\defaults\search.js">
       <DependentUpon>search.ts</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="HTTPRoot\notification\settings.shtml" />
+    <EmbeddedResource Include="HTTPRoot\notification\messages.css">
+      <DependentUpon>messages.scss</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="HTTPRoot\notification\messages.min.css">
+      <DependentUpon>messages.css</DependentUpon>
+    </EmbeddedResource>
+    <Content Include="HTTPRoot\notification\settings.css">
+      <DependentUpon>settings.scss</DependentUpon>
+    </Content>
+    <Content Include="HTTPRoot\notification\settings.min.css">
+      <DependentUpon>settings.css</DependentUpon>
+    </Content>
     <Content Include="HTTPRoot\organization\newSubOrganization.css">
       <DependentUpon>newSubOrganization.scss</DependentUpon>
     </Content>
@@ -456,16 +480,7 @@
     <EmbeddedResource Include="HTTPRoot\organization\subOrganizations.min.css">
       <DependentUpon>subOrganizations.css</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="HTTPRoot\notification\notifications.js">
-      <DependentUpon>notifications.ts</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="HTTPRoot\notification\notifications.shtml" />
-    <EmbeddedResource Include="HTTPRoot\notification\notifications.min.css">
-      <DependentUpon>notifications.css</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="HTTPRoot\notification\notifications.css">
-      <DependentUpon>notifications.scss</DependentUpon>
-    </EmbeddedResource>
+    <EmbeddedResource Include="HTTPRoot\notification\messages.shtml" />
     <EmbeddedResource Include="HTTPRoot\notification\editNotification.js">
       <DependentUpon>editNotification.ts</DependentUpon>
     </EmbeddedResource>
@@ -533,7 +548,7 @@
     <TypeScriptCompile Include="HTTPRoot\libs\sse.d.ts" />
     <EmbeddedResource Include="HTTPRoot\login\SignInOut.ts" />
     <EmbeddedResource Include="HTTPRoot\notification\editNotification.ts" />
-    <EmbeddedResource Include="HTTPRoot\notification\notifications.ts" />
+    <EmbeddedResource Include="HTTPRoot\notification\messages.ts" />
     <EmbeddedResource Include="HTTPRoot\organization\address.ts" />
     <EmbeddedResource Include="HTTPRoot\organization\organization.ts" />
     <EmbeddedResource Include="HTTPRoot\organization\members.ts" />
@@ -547,6 +562,7 @@
     <EmbeddedResource Include="HTTPRoot\profile\profile.ts" />
     <EmbeddedResource Include="HTTPRoot\user\user.ts" />
     <EmbeddedResource Include="HTTPRoot\user\users.ts" />
+    <EmbeddedResource Include="HTTPRoot\notification\settings.ts" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\BouncyCastle\crypto\crypto.csproj">

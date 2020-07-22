@@ -155,7 +155,7 @@ body {
               body #page #right #text .entity #headline #logo img {
                 width: 100px; }
             body #page #right #text .entity #headline #title {
-              font-size: 160%; }
+              font-size: 150%; }
               body #page #right #text .entity #headline #title #id {
                 display: inline-block; }
               body #page #right #text .entity #headline #title #name {
@@ -471,17 +471,17 @@ body {
     border: 1px solid #bd7070;
     background-color: #f59f9f; }
 
-body #page #right #text #notifications {
+body #page #right #text #notificationSettings {
   padding: 30px 30px 20px 25px;
-  font-size: 120%; }
-  body #page #right #text #notifications #showNotifications {
+  font-size: 140%; }
+  body #page #right #text #notificationSettings #showNotifications {
     display: flex;
     padding: 15px 0px 5px 20px;
     /*font-size:              90%;*/
     border-collapse: separate;
     border-spacing: 4px;
     flex-direction: column; }
-    body #page #right #text #notifications #showNotifications a.notification {
+    body #page #right #text #notificationSettings #showNotifications a.notification {
       display: block;
       text-decoration: none;
       background-color: #fafafa;
@@ -490,46 +490,46 @@ body #page #right #text #notifications {
       border-radius: 5px;
       color: #777;
       margin-bottom: 15px; }
-      body #page #right #text #notifications #showNotifications a.notification .type {
+      body #page #right #text #notificationSettings #showNotifications a.notification .type {
         font-size: 60%;
         color: rgba(168, 88, 52, 0.5);
         padding-left: 2px;
         padding-bottom: 2px; }
-      body #page #right #text #notifications #showNotifications a.notification .infos {
+      body #page #right #text #notificationSettings #showNotifications a.notification .infos {
         padding: 4px 0px 2px 8px; }
-        body #page #right #text #notifications #showNotifications a.notification .infos .info {
+        body #page #right #text #notificationSettings #showNotifications a.notification .infos .info {
           color: #AAA;
           font-size: 85%;
           display: block; }
-      body #page #right #text #notifications #showNotifications a.notification .parameter {
+      body #page #right #text #notificationSettings #showNotifications a.notification .parameter {
         color: #aaa;
         font-size: 80%;
         display: block;
         padding-left: 8px; }
-      body #page #right #text #notifications #showNotifications a.notification .description {
+      body #page #right #text #notificationSettings #showNotifications a.notification .description {
         color: #aaa;
         font-size: 80%;
         display: block;
         padding-left: 8px;
         font-style: italic; }
-      body #page #right #text #notifications #showNotifications a.notification .messageTypes {
+      body #page #right #text #notificationSettings #showNotifications a.notification .messageTypes {
         display: block;
         margin-top: 5px;
         font-size: 60%; }
-        body #page #right #text #notifications #showNotifications a.notification .messageTypes .messageType {
+        body #page #right #text #notificationSettings #showNotifications a.notification .messageTypes .messageType {
           display: inline-block;
           margin: 1px;
           background-color: rgba(247, 126, 42, 0.2);
           color: #8c5934;
           padding: 4px 7px;
           border-radius: 4px; }
-      body #page #right #text #notifications #showNotifications a.notification .messageTypes .messageType:first-child {
+      body #page #right #text #notificationSettings #showNotifications a.notification .messageTypes .messageType:first-child {
         border-top-left-radius: 4px;
         border-top-right-radius: 4px; }
-      body #page #right #text #notifications #showNotifications a.notification .messageTypes .messageType:last-child {
+      body #page #right #text #notificationSettings #showNotifications a.notification .messageTypes .messageType:last-child {
         border-bottom-left-radius: 4px;
         border-bottom-right-radius: 4px; }
-      body #page #right #text #notifications #showNotifications a.notification input, body #page #right #text #notifications #showNotifications a.notification textarea, body #page #right #text #notifications #showNotifications a.notification select {
+      body #page #right #text #notificationSettings #showNotifications a.notification input, body #page #right #text #notificationSettings #showNotifications a.notification textarea, body #page #right #text #notificationSettings #showNotifications a.notification select {
         background-color: rgba(255, 255, 255, 0.7);
         width: calc(100% - 16px);
         padding: 6px 8px;
@@ -537,57 +537,57 @@ body #page #right #text #notifications {
         border-radius: 4px;
         color: #777;
         font-size: 100%; }
-      body #page #right #text #notifications #showNotifications a.notification textarea {
+      body #page #right #text #notificationSettings #showNotifications a.notification textarea {
         resize: vertical;
         min-height: 100px;
         display: block; }
-      body #page #right #text #notifications #showNotifications a.notification input[type=checkbox] {
+      body #page #right #text #notificationSettings #showNotifications a.notification input[type=checkbox] {
         width: 30px;
         height: 18px;
         margin-top: 8px; }
-      body #page #right #text #notifications #showNotifications a.notification input[type=checkbox]:checked {
+      body #page #right #text #notificationSettings #showNotifications a.notification input[type=checkbox]:checked {
         color: #cc2d7b; }
-      body #page #right #text #notifications #showNotifications a.notification input:focus, body #page #right #text #notifications #showNotifications a.notification textarea:focus {
+      body #page #right #text #notificationSettings #showNotifications a.notification input:focus, body #page #right #text #notificationSettings #showNotifications a.notification textarea:focus {
         outline-color: #cc2d7b;
         border-color: #cc2d7b;
         box-shadow: 0 0 6px #cc2d7b;
         background: #f5eee3; }
-    body #page #right #text #notifications #showNotifications .notification:hover {
+    body #page #right #text #notificationSettings #showNotifications .notification:hover {
       background-color: #ffffff;
       border: 1px solid #c1c1c1; }
-  body #page #right #text #notifications #messages {
+  body #page #right #text #notificationSettings #messages {
     padding-left: 20px;
     padding-bottom: 40px;
     font-size: 90%; }
-    body #page #right #text #notifications #messages .message {
+    body #page #right #text #notificationSettings #messages .message {
       margin-top: 23px; }
-      body #page #right #text #notifications #messages .message .messageType {
+      body #page #right #text #notificationSettings #messages .message .messageType {
         padding: 2px 42px 2px 0px;
         white-space: nowrap;
         color: #d27c40; }
-      body #page #right #text #notifications #messages .message .notifications {
+      body #page #right #text #notificationSettings #messages .message .notifications {
         display: table;
         padding-left: 15px;
         padding-top: 5px;
         border-collapse: separate;
         border-spacing: 3px; }
-        body #page #right #text #notifications #messages .message .notifications .row {
+        body #page #right #text #notificationSettings #messages .message .notifications .row {
           display: table-row;
           width: 100%; }
-          body #page #right #text #notifications #messages .message .notifications .row .key {
+          body #page #right #text #notificationSettings #messages .message .notifications .row .key {
             display: table-cell;
             min-width: 10vw;
             padding: 2px 10px 2px 0px;
             white-space: nowrap;
             color: #666; }
-          body #page #right #text #notifications #messages .message .notifications .row .value {
+          body #page #right #text #notificationSettings #messages .message .notifications .row .value {
             display: table-cell;
             width: inherit;
             background-color: #fafafa;
             padding: 6px 10px;
             border-radius: 5px;
             color: #777; }
-            body #page #right #text #notifications #messages .message .notifications .row .value .info {
+            body #page #right #text #notificationSettings #messages .message .notifications .row .value .info {
               color: #AAA;
               font-size: 85%;
               display: block; }

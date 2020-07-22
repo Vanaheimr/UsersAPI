@@ -55,37 +55,37 @@ namespace social.OpenData.UsersAPI.Notifications
         /// The timestamp of the notification message.
         /// </summary>
         [Mandatory]
-        public DateTime                   Timestamp       { get; }
+        public DateTime                      Timestamp       { get; }
 
         /// <summary>
         /// The message type of the notification message.
         /// </summary>
         [Mandatory]
-        public NotificationMessageType    Type            { get; }
+        public NotificationMessageType       Type            { get; }
 
         /// <summary>
         /// The data of the notification message.
         /// </summary>
         [Mandatory]
-        public JObject                    Data            { get; }
+        public JObject                       Data            { get; }
 
         /// <summary>
         /// The owners of the notification message.
         /// </summary>
         [Mandatory]
-        public IEnumerable<Organization>  Owners          { get; }
+        public IEnumerable<Organization_Id>  Owners          { get; }
 
         /// <summary>
         /// The privacy level of the notification message.
         /// </summary>
         [Mandatory]
-        public PrivacyLevel               PrivacyLevel    { get; }
+        public PrivacyLevel                  PrivacyLevel    { get; }
 
         /// <summary>
         /// Optional cryptographic signatures of the notification message.
         /// </summary>
         [Mandatory]
-        public IEnumerable<String>        Signatures      { get; }
+        public IEnumerable<String>           Signatures      { get; }
 
         #endregion
 
@@ -101,12 +101,12 @@ namespace social.OpenData.UsersAPI.Notifications
         /// <param name="Owners">The owners of the notification message.</param>
         /// <param name="PrivacyLevel">The privacy level of the notification message.</param>
         /// <param name="Signatures">Optional cryptographic signatures of the notification message.</param>
-        public NotificationMessage(DateTime                   Timestamp,
-                                   NotificationMessageType    Type,
-                                   JObject                    Data,
-                                   IEnumerable<Organization>  Owners,
-                                   PrivacyLevel?              PrivacyLevel  = null,
-                                   IEnumerable<String>        Signatures    = null)
+        public NotificationMessage(DateTime                      Timestamp,
+                                   NotificationMessageType       Type,
+                                   JObject                       Data,
+                                   IEnumerable<Organization_Id>  Owners,
+                                   PrivacyLevel?                 PrivacyLevel  = null,
+                                   IEnumerable<String>           Signatures    = null)
 
             : this(NotificationMessage_Id.Random(),
                    Timestamp,
@@ -129,13 +129,13 @@ namespace social.OpenData.UsersAPI.Notifications
         /// <param name="Owners">The owners of the notification message.</param>
         /// <param name="PrivacyLevel">The privacy level of the notification message.</param>
         /// <param name="Signatures">Optional cryptographic signatures of the notification message.</param>
-        public NotificationMessage(NotificationMessage_Id     Id,
-                                   DateTime                   Timestamp,
-                                   NotificationMessageType    Type,
-                                   JObject                    Data,
-                                   IEnumerable<Organization>  Owners,
-                                   PrivacyLevel?              PrivacyLevel  = null,
-                                   IEnumerable<String>        Signatures    = null)
+        public NotificationMessage(NotificationMessage_Id        Id,
+                                   DateTime                      Timestamp,
+                                   NotificationMessageType       Type,
+                                   JObject                       Data,
+                                   IEnumerable<Organization_Id>  Owners,
+                                   PrivacyLevel?                 PrivacyLevel  = null,
+                                   IEnumerable<String>           Signatures    = null)
 
             : base(Id,
                    "")
@@ -145,7 +145,7 @@ namespace social.OpenData.UsersAPI.Notifications
             this.Timestamp     = Timestamp;
             this.Type          = Type;
             this.Data          = Data;
-            this.Owners        = Owners == null ? new Organization[0] : Owners.Where(owner => owner != null);
+            this.Owners        = Owners == null ? new Organization_Id[0] : Owners;
             this.PrivacyLevel  = PrivacyLevel ?? social.OpenData.UsersAPI.PrivacyLevel.Private;
             this.Signatures    = Signatures   ?? new String[0];
 
@@ -176,7 +176,7 @@ namespace social.OpenData.UsersAPI.Notifications
                    new JProperty("timestamp",  Timestamp.ToIso8601()),
                    new JProperty("type",       Type.ToString()),
                    new JProperty("data",       Data),
-                   new JProperty("ownerIds",   new JArray(Owners.Select(owner => owner.Id.ToString()))),
+                   new JProperty("ownerIds",   new JArray(Owners.Select(orgId => orgId.ToString()))),
 
                    Signatures.SafeAny()
                        ? new JProperty("signatures",  new JArray(Signatures))
@@ -319,7 +319,7 @@ namespace social.OpenData.UsersAPI.Notifications
                     return false;
                 }
 
-                var Owners = new List<Organization>();
+                var OwnerIds = new List<Organization_Id>();
 
                 foreach (var ownerJSON in OwnersJSON)
                 {
@@ -330,18 +330,11 @@ namespace social.OpenData.UsersAPI.Notifications
                         return false;
                     }
 
-                    var Owner = OrganizationProvider(OwnerId);
-                    if (Owner == null)
-                    {
-                        ErrorResponse = "Unknown owner '" + OwnerId + "'!";
-                        return false;
-                    }
-
-                    Owners.Add(Owner);
+                    OwnerIds.Add(OwnerId);
 
                 }
 
-                if (Owners.Count == 0)
+                if (OwnerIds.Count == 0)
                 {
                     ErrorResponse = "Invalid owner identifications!";
                     return false;
@@ -375,7 +368,7 @@ namespace social.OpenData.UsersAPI.Notifications
                                                               Timestamp,
                                                               Type,
                                                               Data,
-                                                              Owners,
+                                                              OwnerIds,
                                                               PrivacyLevel,
                                                               Signatures.Select(jtoken => jtoken.Value<String>()));
 

@@ -1,6 +1,6 @@
 ﻿///<reference path="../../../../UsersAPI/UsersAPI/HTTPRoot/libs/date.format.ts" />
 
-function StartUserNotifications() {
+function StartUserNotificationSettings() {
 
     let   notificationGroups                 = [];
     let   userInfos                          = {}
@@ -240,11 +240,11 @@ function StartUserNotifications() {
 
 
 
-    let responseDiv            = document.getElementById("response")               as HTMLDivElement;
-    let newNotificationButton  = document.getElementById("newNotificationButton")  as HTMLButtonElement;
+    const responseDiv            = document.getElementById("response")               as HTMLDivElement;
+    const newNotificationButton  = document.getElementById("newNotificationButton")  as HTMLButtonElement;
 
-    newNotificationButton.onclick = function (this: HTMLElement, ev: Event) {
-        let redirectURL = document.location.href.substring(0, document.location.href.lastIndexOf("/"));
+    newNotificationButton.onclick = () => {
+        const redirectURL = document.location.href.substring(0, document.location.href.lastIndexOf("/"));
         document.location.href = redirectURL + "/newNotification";
     }
 

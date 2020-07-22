@@ -1,11 +1,11 @@
-﻿<link href="notification/notifications.min.css" type="text/css" rel="stylesheet" />
+﻿<link href="notification/settings.min.css" type="text/css" rel="stylesheet" />
 
 <script type="text/javascript" src="/shared/UsersAPI/js/date.format.js"></script>
 <script type="text/javascript" src="/defaults/defaults.js"></script>
-<script type="text/javascript" src="notification/notifications.js"></script>
+<script type="text/javascript" src="notification/settings.js"></script>
 <script type="text/javascript" src="/shared/UsersAPI/defaults/views.js"></script>
 
-<div id="notifications" class="entity">
+<div id="notificationSettings" class="entity">
 
     <div id="headline">
         <div id="title">
@@ -13,8 +13,8 @@
         </div>
     </div>
 
-    <div id="buttons">
-        <button id="newNotificationButton"><i class="fa fa-plus"></i> New notification</button>
+    <div id="upperButtons">
+        <button id="newNotificationButton" class="button"><i class="fa fa-plus"></i> New notification</button>
     </div>
 
     <div id="showNotifications"></div>
@@ -25,5 +25,5 @@
 </div>
 
 <script type="text/javascript">
-    StartUserNotifications();
+    StartUserNotificationSettings();
 </script>

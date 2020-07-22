@@ -81,9 +81,10 @@ function SendJSON(HTTPVerb, URI, Data, OnSuccess, OnError) {
 // #endregion
 function ParseJSON_LD(Text, Context) {
     if (Context === void 0) { Context = null; }
-    var JObject = JSON.parse(Text);
-    JObject["id"] = JObject["@id"];
-    return JObject;
+    var data = JSON.parse(Text);
+    if (!Array.isArray(data))
+        data["id"] = data["@id"];
+    return data;
 }
 function firstKey(obj) {
     for (var a in obj)

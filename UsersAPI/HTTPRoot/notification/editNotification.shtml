@@ -13,15 +13,18 @@
         </div>
     </div>
 
-    <div id="buttons">
-        <button id="RemoveButton" disabled><i class="fas fa-trash-alt"></i> Remove</button>
-        <button id="SaveButton"   disabled><i class="fas fa-save"></i> Save</button>
+    <div id="upperButtons">
+        <button id="removeNotificationButton" class="button" disabled><i class="fas fa-trash-alt"></i> Remove</button>
     </div>
-
-    <div id="response"></div>
 
     <div id="notification"></div>
     <div id="messages"></div>
+
+    <div id="response"></div>
+
+    <div id="lowerButtons">
+        <button id="saveNotificationButton" class="button" disabled><i class="fas fa-save"></i> Save</button>
+    </div>
 
 </div>
 

@@ -27,7 +27,7 @@ namespace social.OpenData.UsersAPI.Notifications
 {
 
     /// <summary>
-    /// The unique identification of a notification.
+    /// The unique identification of a notification message type.
     /// </summary>
     public struct NotificationMessageType : IId,
                                             IEquatable<NotificationMessageType>,
@@ -63,7 +63,7 @@ namespace social.OpenData.UsersAPI.Notifications
         #region Constructor(s)
 
         /// <summary>
-        /// Create a new notification identification based on the given string.
+        /// Create a new notification message type based on the given string.
         /// </summary>
         /// <param name="String">The string representation of the notification identification.</param>
         private NotificationMessageType(String  String)

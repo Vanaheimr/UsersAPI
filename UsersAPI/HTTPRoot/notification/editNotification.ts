@@ -168,7 +168,7 @@ function StartEditUserNotifications() {
                                 //let redirectURL = document.location.href.substring(0, document.location.href.lastIndexOf("/"));
                                 //redirectURL     = redirectURL.substring(0, redirectURL.lastIndexOf("/"));
 
-                                document.location.href = "/notifications";
+                                document.location.href = "/notificationSettings";
 
                             }, 2000);
 
@@ -202,6 +202,9 @@ function StartEditUserNotifications() {
         const AddOrEditNotificationDiv = document.getElementById('AddOrEditNotification')  as HTMLDivElement;
 
         AddOrEditNotificationDiv.querySelector("#headline #title").innerHTML = (existingNotification == null || existingNotification["@context"] === newNotification_Context) ? "Create a new notification" : "Edit notification";
+
+        const RemoveButton            = AddOrEditNotificationDiv.querySelector("#removeNotificationButton") as HTMLButtonElement;
+
 
         const AddNotificationsView    = new View(AddOrEditNotificationDiv.querySelector("#notification"));
 
@@ -239,8 +242,7 @@ function StartEditUserNotifications() {
         const SignedMailsValue        = AddNotificationsView.CreateRow   ("SignMails",         "Sign E-Mails",          _ => _.innerHTML = "<select><option>yes</option><option>no</option></select>");
         const PublicKeyValue          = AddNotificationsView.CreateRow2  ("EncryptMails",      "Encrypt E-Mails", true, _ => _.innerHTML = "<textarea placeholder=\"You can provide an optional GPG/PGP public key to receive encrypted e-mails...\" />");
 
-        const SaveButton              = AddOrEditNotificationDiv.querySelector("#SaveButton")   as HTMLButtonElement;
-        const RemoveButton            = AddOrEditNotificationDiv.querySelector("#RemoveButton") as HTMLButtonElement;
+        const SaveButton              = AddOrEditNotificationDiv.querySelector("#saveNotificationButton")   as HTMLButtonElement;
 
         SaveButton.style.display = "block";
         SaveButton.disabled = false;
@@ -249,7 +251,7 @@ function StartEditUserNotifications() {
             SaveOrDeleteNotification(false);
         };
 
-        if (existingNotification != null && existingNotification["@context"] != newNotification_Context) {
+        if (existingNotification != null && existingNotification["@context"] !== newNotification_Context) {
 
             RemoveButton.style.display = "block";
             RemoveButton.disabled = false;
@@ -269,10 +271,10 @@ function StartEditUserNotifications() {
 
             const MessageTypeGroupDiv = MessageTypesDiv.appendChild(document.createElement('div')) as HTMLDivElement;
             MessageTypeGroupDiv.className = "messageTypeGroup";
-            MessageTypeGroupDiv.onclick = (ev: MouseEvent) => {
+            MessageTypeGroupDiv.onclick = () => {
 
                 const subDiv = MessageTypeGroupDiv.lastChild as HTMLDivElement;
-                subDiv.style.display = subDiv.style.display == "none"
+                subDiv.style.display = subDiv.style.display === "none"
                                            ? "block"
                                            : "none";
 

@@ -2490,7 +2490,7 @@ namespace social.OpenData.UsersAPI
             #endregion
 
 
-            RegisterNotifications();
+            RegisterNotifications().Wait();
 
             if (!SkipURLTemplates)
                 RegisterURITemplates();
@@ -2955,68 +2955,6 @@ namespace social.OpenData.UsersAPI
         #endregion
 
 
-        #region Notifications
-
-        private readonly List<NotificationMessageGroup> _NotificationMessageGroups = new List<NotificationMessageGroup>();
-
-        public NotificationMessageGroup Add(NotificationMessageGroup NotificationMessageGroup)
-            => _NotificationMessageGroups.AddAndReturnElement(NotificationMessageGroup);
-
-        public NotificationMessageGroup Add23(NotificationMessageGroup NotificationMessageGroup)
-            => _NotificationMessageGroups.AddAndReturnElement(NotificationMessageGroup);
-
-
-
-        private JObject GetNotifications(User User)
-        {
-
-            if (User == null)
-                throw new ArgumentNullException(nameof(User), "The given user must not be null!");
-
-            var notificationsJSON = User.GetNotificationInfos();
-
-            notificationsJSON.AddFirst(new JProperty("notificationGroups", new JArray(
-                                           _NotificationMessageGroups.Select(notificationMessageGroup => notificationMessageGroup.ToJSON())
-                                      )));
-
-            return notificationsJSON;
-
-        }
-
-        private JObject GetNotification(User User, UInt32 NotificationId)
-        {
-
-            if (User == null)
-                throw new ArgumentNullException(nameof(User), "The given user must not be null!");
-
-            var notificationJSON = User.GetNotificationInfo(NotificationId);
-
-            notificationJSON.AddFirst(new JProperty("notificationGroups", new JArray(
-                                          _NotificationMessageGroups.Select(notificationMessageGroup => notificationMessageGroup.ToJSON())
-                                     )));
-
-            return notificationJSON;
-
-        }
-
-        private JObject GetNotifications(Organization Organization)
-        {
-
-            if (Organization == null)
-                throw new ArgumentNullException(nameof(Organization), "The given organization must not be null!");
-
-            var notificationsJSON = Organization.GetNotificationInfos();
-
-            notificationsJSON.AddFirst(new JProperty("notificationGroups", new JArray(
-                                           _NotificationMessageGroups.Select(notificationMessageGroup => notificationMessageGroup.ToJSON())
-                                      )));
-
-            return notificationsJSON;
-
-        }
-
-        #endregion
-
         #region (protected) SendHTTPSNotifications(AllNotificationURLs, JSONNotification)
 
         protected async Task SendHTTPSNotifications(IEnumerable<HTTPSNotification>  AllNotificationURLs,
@@ -3231,20 +3169,23 @@ namespace social.OpenData.UsersAPI
 
 
         #region (private) RegisterNotifications()
-        private void RegisterNotifications()
+
+        private async Task RegisterNotifications()
         {
-            Add23(new NotificationMessageGroup(
-                  I18NString.Create(Languages.eng, "Service Tickets"),
-                  I18NString.Create(Languages.eng, "Service Ticket notifications"),
-                  NotificationVisibility.Customers,
-                  new NotificationMessageDescription[] {
-                      new NotificationMessageDescription(I18NString.Create(Languages.eng, "(New) service ticket added"),                  I18NString.Create(Languages.eng, ""), NotificationVisibility.Customers,  addServiceTicket_MessageType),
-                      new NotificationMessageDescription(I18NString.Create(Languages.eng, "(New) service ticket added (did not exist)"),  I18NString.Create(Languages.eng, ""), NotificationVisibility.System,     addIfNotExistsServiceTicket_MessageType),
-                      new NotificationMessageDescription(I18NString.Create(Languages.eng, "(New) service ticket added or updated"),       I18NString.Create(Languages.eng, ""), NotificationVisibility.System,     addOrUpdateServiceTicket_MessageType),
-                      new NotificationMessageDescription(I18NString.Create(Languages.eng, "ServiceTicket updated"),                       I18NString.Create(Languages.eng, ""), NotificationVisibility.Customers,  updateServiceTicket_MessageType),
-                      new NotificationMessageDescription(I18NString.Create(Languages.eng, "ServiceTicket removed"),                       I18NString.Create(Languages.eng, ""), NotificationVisibility.Customers,  removeServiceTicket_MessageType),
-                      new NotificationMessageDescription(I18NString.Create(Languages.eng, "ServiceTicket status changed"),                I18NString.Create(Languages.eng, ""), NotificationVisibility.Customers,  changeServiceTicketStatus_MessageType)
-                  }));
+
+            await AddNotificationMessageGroup(new NotificationMessageGroup(
+                                                  I18NString.Create(Languages.eng, "Service Tickets"),
+                                                  I18NString.Create(Languages.eng, "Service Ticket notifications"),
+                                                  NotificationVisibility.Customers,
+                                                  new NotificationMessageDescription[] {
+                                                      new NotificationMessageDescription(I18NString.Create(Languages.eng, "(New) service ticket added"),                  I18NString.Create(Languages.eng, ""), NotificationVisibility.Customers,  addServiceTicket_MessageType),
+                                                      new NotificationMessageDescription(I18NString.Create(Languages.eng, "(New) service ticket added (did not exist)"),  I18NString.Create(Languages.eng, ""), NotificationVisibility.System,     addIfNotExistsServiceTicket_MessageType),
+                                                      new NotificationMessageDescription(I18NString.Create(Languages.eng, "(New) service ticket added or updated"),       I18NString.Create(Languages.eng, ""), NotificationVisibility.System,     addOrUpdateServiceTicket_MessageType),
+                                                      new NotificationMessageDescription(I18NString.Create(Languages.eng, "ServiceTicket updated"),                       I18NString.Create(Languages.eng, ""), NotificationVisibility.Customers,  updateServiceTicket_MessageType),
+                                                      new NotificationMessageDescription(I18NString.Create(Languages.eng, "ServiceTicket removed"),                       I18NString.Create(Languages.eng, ""), NotificationVisibility.Customers,  removeServiceTicket_MessageType),
+                                                      new NotificationMessageDescription(I18NString.Create(Languages.eng, "ServiceTicket status changed"),                I18NString.Create(Languages.eng, ""), NotificationVisibility.Customers,  changeServiceTicketStatus_MessageType)
+                                                  }));
+
         }
 
         #endregion
@@ -8977,6 +8918,55 @@ namespace social.OpenData.UsersAPI
 
             #region GET         ~/notifications
 
+            #region JSON
+
+            // ---------------------------------------------------------------------------
+            // curl -v -H "Accept: application/json" http://127.0.0.1:2100/notifications
+            // ---------------------------------------------------------------------------
+            HTTPServer.AddMethodCallback(Hostname,
+                                         HTTPMethod.GET,
+                                         URLPathPrefix + "notifications",
+                                         HTTPContentType.JSON_UTF8,
+                                         HTTPDelegate: Request => {
+
+                                             #region Get HTTP user and its organizations
+
+                                             // Will return HTTP 401 Unauthorized, when the HTTP user is unknown!
+                                             if (!TryGetHTTPUser(Request,
+                                                                 out User                   HTTPUser,
+                                                                 out HashSet<Organization>  HTTPOrganizations,
+                                                                 out HTTPResponse           Response,
+                                                                 Recursive: true))
+                                             {
+                                                 return Task.FromResult(Response);
+                                             }
+
+                                             #endregion
+
+
+                                             return Task.FromResult(
+                                                        new HTTPResponse.Builder(Request) {
+                                                            HTTPStatusCode             = HTTPStatusCode.OK,
+                                                            Server                     = HTTPServer.DefaultServerName,
+                                                            Date                       = DateTime.UtcNow,
+                                                            AccessControlAllowOrigin   = "*",
+                                                            AccessControlAllowMethods  = "GET, SET",
+                                                            AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
+                                                            ETag                       = "1",
+                                                            ContentType                = HTTPContentType.JSON_UTF8,
+                                                            Content                    = JSONArray.Create(
+                                                                                             GetNotificationMessages(HTTPUser).Select(notificationMessage => notificationMessage.ToJSON())
+                                                                                         ).ToUTF8Bytes(),
+                                                            Connection                 = "close",
+                                                            Vary                       = "Accept"
+                                                        }.AsImmutable);
+
+            });
+
+            #endregion
+
+            #region HTML
+
             // ----------------------------------------------------------------------------
             // curl -v -H "Accept: text/html" http://127.0.0.1:3001/notifications
             // ----------------------------------------------------------------------------
@@ -9010,12 +9000,14 @@ namespace social.OpenData.UsersAPI
                                                      AccessControlAllowMethods   = "GET",
                                                      AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
                                                      ContentType                 = HTTPContentType.HTML_UTF8,
-                                                     Content                     = MixWithHTMLTemplate("notification.notifications.shtml").ToUTF8Bytes(),
+                                                     Content                     = MixWithHTMLTemplate("notification.messages.shtml").ToUTF8Bytes(),
                                                      Connection                  = "close",
                                                      Vary                        = "Accept"
                                                  }.AsImmutable);
 
                                          });
+
+            #endregion
 
             #endregion
 
@@ -9073,6 +9065,50 @@ namespace social.OpenData.UsersAPI
                                                      AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
                                                      ContentType                 = HTTPContentType.HTML_UTF8,
                                                      Content                     = MixWithHTMLTemplate("notification.editNotification.shtml").ToUTF8Bytes(),
+                                                     Connection                  = "close",
+                                                     Vary                        = "Accept"
+                                                 }.AsImmutable);
+
+                                         });
+
+            #endregion
+
+            #region GET         ~/notificationSettings
+
+            // ---------------------------------------------------------------------------
+            // curl -v -H "Accept: text/html" http://127.0.0.1:3001/notificationSettings
+            // ---------------------------------------------------------------------------
+            HTTPServer.AddMethodCallback(Hostname,
+                                         HTTPMethod.GET,
+                                         URLPathPrefix + "notificationSettings",
+                                         HTTPContentType.HTML_UTF8,
+                                         HTTPDelegate: Request => {
+
+                                             #region Get HTTP user and its organizations
+
+                                             // Will return HTTP 401 Unauthorized, when the HTTP user is unknown!
+                                             if (!TryGetHTTPUser(Request,
+                                                                 out User                   HTTPUser,
+                                                                 out HashSet<Organization>  HTTPOrganizations,
+                                                                 out HTTPResponse           Response,
+                                                                 Recursive:                 true))
+                                             {
+                                                 return Task.FromResult(Response);
+                                             }
+
+                                             #endregion
+
+
+                                             return Task.FromResult(
+                                                 new HTTPResponse.Builder(Request) {
+                                                     HTTPStatusCode              = HTTPStatusCode.OK,
+                                                     Server                      = HTTPServer.DefaultServerName,
+                                                     Date                        = DateTime.UtcNow,
+                                                     AccessControlAllowOrigin    = "*",
+                                                     AccessControlAllowMethods   = "GET",
+                                                     AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
+                                                     ContentType                 = HTTPContentType.HTML_UTF8,
+                                                     Content                     = MixWithHTMLTemplate("notification.settings.shtml").ToUTF8Bytes(),
                                                      Connection                  = "close",
                                                      Vary                        = "Accept"
                                                  }.AsImmutable);
@@ -12608,6 +12644,155 @@ namespace social.OpenData.UsersAPI
         #endregion
 
         #region Notifications
+
+        #region Data
+
+        private readonly List<NotificationMessage>      _NotificationMessages       = new List<NotificationMessage>();
+
+        private readonly List<NotificationMessageGroup> _NotificationMessageGroups  = new List<NotificationMessageGroup>();
+
+        #endregion
+
+
+
+        public async Task<NotificationMessage> AddNotificationMessage(NotificationMessage NotificationMessage)
+        {
+
+            try
+            {
+
+                await UsersSemaphore.WaitAsync();
+
+                _NotificationMessages.Add(NotificationMessage);
+
+
+                return NotificationMessage;
+
+            }
+            finally
+            {
+                UsersSemaphore.Release();
+            }
+
+        }
+
+        public IEnumerable<NotificationMessage> GetNotificationMessages(User User)
+        {
+
+            try
+            {
+
+                UsersSemaphore.Wait();
+
+                var UserOrganizations = User.Organizations(Access_Levels.ReadOnly, Recursive: true).SafeSelect(org => org.Id).ToArray();
+
+                return _NotificationMessages.Where(message => message.Owners.Intersect(UserOrganizations).Any()).ToArray();
+
+            }
+            finally
+            {
+                UsersSemaphore.Release();
+            }
+
+        }
+
+
+
+
+        public async Task<NotificationMessageGroup> Add(NotificationMessageGroup NotificationMessageGroup)
+        {
+
+            try
+            {
+
+                await UsersSemaphore.WaitAsync();
+
+                _NotificationMessageGroups.Add(NotificationMessageGroup);
+
+
+                return NotificationMessageGroup;
+
+            }
+            finally
+            {
+                UsersSemaphore.Release();
+            }
+
+        }
+
+        public async Task<NotificationMessageGroup> AddNotificationMessageGroup(NotificationMessageGroup NotificationMessageGroup)
+        {
+
+            try
+            {
+
+                await UsersSemaphore.WaitAsync();
+
+                _NotificationMessageGroups.Add(NotificationMessageGroup);
+
+
+                return NotificationMessageGroup;
+
+            }
+            finally
+            {
+                UsersSemaphore.Release();
+            }
+
+        }
+
+
+
+        private JObject GetNotifications(User User)
+        {
+
+            if (User == null)
+                throw new ArgumentNullException(nameof(User), "The given user must not be null!");
+
+            var notificationsJSON = User.GetNotificationInfos();
+
+            notificationsJSON.AddFirst(new JProperty("notificationGroups", new JArray(
+                                           _NotificationMessageGroups.Select(notificationMessageGroup => notificationMessageGroup.ToJSON())
+                                      )));
+
+            return notificationsJSON;
+
+        }
+
+        private JObject GetNotification(User User, UInt32 NotificationId)
+        {
+
+            if (User == null)
+                throw new ArgumentNullException(nameof(User), "The given user must not be null!");
+
+            var notificationJSON = User.GetNotificationInfo(NotificationId);
+
+            notificationJSON.AddFirst(new JProperty("notificationGroups", new JArray(
+                                          _NotificationMessageGroups.Select(notificationMessageGroup => notificationMessageGroup.ToJSON())
+                                     )));
+
+            return notificationJSON;
+
+        }
+
+        private JObject GetNotifications(Organization Organization)
+        {
+
+            if (Organization == null)
+                throw new ArgumentNullException(nameof(Organization), "The given organization must not be null!");
+
+            var notificationsJSON = Organization.GetNotificationInfos();
+
+            notificationsJSON.AddFirst(new JProperty("notificationGroups", new JArray(
+                                           _NotificationMessageGroups.Select(notificationMessageGroup => notificationMessageGroup.ToJSON())
+                                      )));
+
+            return notificationsJSON;
+
+        }
+
+
+
 
         // ToDo: Add locks
         // ToDo: Add logging!

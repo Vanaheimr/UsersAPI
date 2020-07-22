@@ -1,5 +1,5 @@
 ///<reference path="../../../../UsersAPI/UsersAPI/HTTPRoot/libs/date.format.ts" />
-function StartUserNotifications() {
+function StartUserNotificationSettings() {
     var notificationGroups = [];
     var userInfos = {};
     var DashboardNotification_Context = "https://opendata.social/contexts/UsersAPI+json/DashboardNotification";
@@ -168,9 +168,9 @@ function StartUserNotifications() {
     });
     var responseDiv = document.getElementById("response");
     var newNotificationButton = document.getElementById("newNotificationButton");
-    newNotificationButton.onclick = function (ev) {
+    newNotificationButton.onclick = function () {
         var redirectURL = document.location.href.substring(0, document.location.href.lastIndexOf("/"));
         document.location.href = redirectURL + "/newNotification";
     };
 }
-//# sourceMappingURL=notifications.js.map
+//# sourceMappingURL=settings.js.map
