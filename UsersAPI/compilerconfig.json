@@ -4,8 +4,8 @@
     "inputFile": "HTTPRoot/login/login.scss"
   },
   {
-    "outputFile": "HTTPRoot/styles.css",
-    "inputFile": "HTTPRoot/styles.scss"
+    "outputFile": "HTTPRoot/template.css",
+    "inputFile": "HTTPRoot/template.scss"
   },
   {
     "outputFile": "HTTPRoot/user/user.css",

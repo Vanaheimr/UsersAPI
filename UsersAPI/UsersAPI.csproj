@@ -207,7 +207,7 @@
       <DependentUpon>compilerconfig.json</DependentUpon>
     </None>
     <EmbeddedResource Include="HTTPRoot\defaults\_defaults.scss" />
-    <EmbeddedResource Include="HTTPRoot\styles.scss" />
+    <EmbeddedResource Include="HTTPRoot\template.scss" />
     <EmbeddedResource Include="HTTPRoot\profile\profile.scss" />
     <EmbeddedResource Include="HTTPRoot\admin\admin.scss" />
     <EmbeddedResource Include="HTTPRoot\libs\date.format.js.map">
@@ -231,7 +231,7 @@
     <EmbeddedResource Include="HTTPRoot\defaults\views.js.map">
       <DependentUpon>views.ts</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="HTTPRoot\defaults\_search.scss" />
+    <EmbeddedResource Include="HTTPRoot\defaults\_search_old.scss" />
     <EmbeddedResource Include="HTTPRoot\defaults\datePicker.scss" />
     <EmbeddedResource Include="HTTPRoot\defaults\datePicker.js.map">
       <DependentUpon>datePicker.ts</DependentUpon>
@@ -239,7 +239,7 @@
     <EmbeddedResource Include="HTTPRoot\defaults\search.js.map">
       <DependentUpon>search.ts</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="HTTPRoot\defaults\_search2.scss" />
+    <EmbeddedResource Include="HTTPRoot\defaults\_search.scss" />
     <None Include="HTTPRoot\libs\EventSource.js.map">
       <DependentUpon>EventSource.ts</DependentUpon>
     </None>
@@ -318,14 +318,6 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="HTTPRoot\styles.css">
-      <DependentUpon>styles.scss</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="HTTPRoot\styles.min.css">
-      <DependentUpon>styles.css</DependentUpon>
-    </EmbeddedResource>
-  </ItemGroup>
-  <ItemGroup>
     <EmbeddedResource Include="HTTPRoot\profile\profile.css">
       <DependentUpon>profile.scss</DependentUpon>
     </EmbeddedResource>
@@ -337,6 +329,12 @@
     <Content Include="HTTPRoot\admin\admin.css">
       <DependentUpon>admin.scss</DependentUpon>
     </Content>
+    <EmbeddedResource Include="HTTPRoot\template.css">
+      <DependentUpon>template.scss</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="HTTPRoot\template.min.css">
+      <DependentUpon>template.css</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="HTTPRoot\profile\organizations.css">
       <DependentUpon>organizations.scss</DependentUpon>
     </EmbeddedResource>

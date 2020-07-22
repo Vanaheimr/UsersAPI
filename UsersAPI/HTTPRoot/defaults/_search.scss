@@ -1,19 +1,19 @@
-﻿@import "_defaults.scss";
+﻿@import "../defaults/_defaults.scss";
+@import "../defaults/datePicker.scss";
 
-$searchbarcolor: #e8e8e8;
+//$searchbarColor:                    #e8e8e8;
+$searchbarColor:                    #f38124;
+$searchbarBackgroundColor:          #e8e8e8;
+$searchbarBackgroundColorFocus:     #ffd5b3;
+
 
 body {
-
     #page {
-
         #right {
-
             #text {
 
                 display:            flex;
                 flex-direction:     column;
-                /*height:             calc(100vh - 13vw*.35);
-                overflow-y:         hidden;*/
 
                 .entity {
 
@@ -22,217 +22,223 @@ body {
 
                     #headline {
 
-                        font-size:          125%;
                         color:              #8c8c8c;
                         background-color:   #f3f3f3;
+                        padding:            30px 30px 20px 25px;
                         display:            block;
-                        padding:            20px 15px 12px 23px;
 
                         #title {
+
+                            margin:             0;
+                            padding-bottom:     10px;
+                            font-size:          229%;
 
                             .fa {
                                 height:             20px;
                             }
 
-                            margin:             0;
-                            padding-bottom:     10px;
-
                         }
 
-                        #controls {
+                    }
 
-                            display:            flex;
-                            flex-direction:     column;
+                    #controls {
 
-                            /*#new {
+                        display:            flex;
+                        flex-direction:     column;
+                        background-color:   #f3f3f3;
 
-                                display: flex;
+                        #search {
 
-                                button {
-                                    border-radius:          4px;
-                                    margin:                 6px 0px 6px 0px;
-                                    padding:                0px 10px;
-                                }
+                            margin-bottom:      5px;
 
-                            }*/
+                            .patternFilter {
 
-                            #search {
+                                display:            inline-block;
+                                padding:            2px 3px 2px 17px;
+                                font-size:          9pt;
 
-                                margin-bottom:      5px;
+                                .group {
 
-                                .StreamFilterDiv {
+                                    margin-right:       0;
+                                    position:           relative;
 
-                                    display:            inline-block;
-                                    padding:            2px 3px 2px 17px;
-                                    font-size:          9pt;
+                                    #patternFilterInput {
+                                        padding:                4px 6px 4px 23px;
+                                        width:                  40vw;
+                                        background-color:       $searchbarBackgroundColor;
+                                        border:                 0;
+                                        border-radius:          4px;
+                                        outline:                none;
+                                    }
 
-                                    .group {
+                                    #patternFilterInput:focus {
+                                        color:                  $searchbarColor;
+                                        background-color:       $searchbarBackgroundColorFocus;
+                                    }
 
-                                        margin-right:       0;
-                                        position:           relative;
-
-                                        #search {
-                                            background-color:   $searchbarcolor;
-                                            padding:            4px 6px 4px 23px;
-                                            width:              40vw;
-                                            border:             0;
-                                            border-radius:      4px;
-                                        }
-
-                                        #sign1 {
-                                            position:           absolute;
-                                            top:                4px;
-                                            right:              calc(100% - 18px);
-                                            font-size:          10pt;
-                                            color:              #AAAAAA;
-                                        }
-
-                                        #filter {
-                                            background-color:   $searchbarcolor;
-                                            padding:            4px 6px 4px 23px;
-                                            width:              40vw;
-                                            border:             0;
-                                            border-radius:      4px;
-                                        }
-
-                                        #sign {
-                                            position:           absolute;
-                                            top:                4px;
-                                            right:              calc(100% - 18px);
-                                            font-size:          10pt;
-                                            color:              #AAAAAA;
-                                        }
-
+                                    #sign {
+                                        position:               absolute;
+                                        top:                    4px;
+                                        right:                  calc(100% - 18px);
+                                        font-size:              10pt;
+                                        color:                  #AAAAAA;
                                     }
 
                                 }
 
-                                #take {
+                            }
 
-                                    display:            inline-block;
+                            .filter {
 
-                                    select {
+                                display:                inline-block;
 
-                                        border:             0;
-                                        padding:            4px 6px;
-                                        outline:            0;
-                                        background-color:   #e8e8e8;
+                                select {
 
-                                        option {
-                                            padding:            2px 3px;
-                                        }
+                                    border:                 0;
+                                    padding:                4px 6px;
+                                    background-color:       $searchbarBackgroundColor;
+                                    outline:                none;
 
+                                    option {
+                                        padding:                2px 3px;
                                     }
 
                                 }
 
-
-                                button {
-                                    border:             0;
-                                    background-color:   #e4e4e4;
-                                    border-radius:      50%;
-                                    outline:            none;
-                                    width:              28px;
-                                    height:             28px;
-                                    font-size:          80%;
-                                    color:              black;
-                                    margin:             0px 2px;
+                                select:focus {
+                                    background-color:       $searchbarBackgroundColorFocus;
                                 }
 
-                                button[disabled] {
-                                    background:         none;
-                                    cursor:             not-allowed;
-                                }
+                            }
 
-                                button[disabled]:hover {
-                                    background:         none;
-                                    cursor:             not-allowed;
-                                }
+                            #take {
 
-                                button[disabled].busy {
-                                    background-color:   #e4e4e4;
-                                    color:              black;
-                                }
+                                display:                inline-block;
 
-                                button[disabled].busyActive {
-                                    background-color:   #ffab66;
-                                }
+                                select {
 
-                                button.busy {
-                                    background-color:   #e4e4e4;
-                                    color:              black;
-                                }
+                                    border:                 0;
+                                    padding:                4px 6px;
+                                    outline:                0;
+                                    background-color:       $searchbarBackgroundColor;
 
-                                button:hover {
-                                    background-color:   #ffd5b2;
-                                }
-
-                                button:active {
-                                    background-color:   #ffab66;
-                                }
-
-
-                                #searchButton {
-                                    display:            inline-block;
-                                }
-
-                                #leftButton {
-                                    display:            inline-block;
-                                }
-
-                                #rightButton {
-                                    display:            inline-block;
-                                }
-
-
-                                #dateFilters {
-
-                                    margin:             5px 0px 0px 30px;
-
-                                    #dateFrom {
-                                        display:            inline-block;
-                                    }
-
-                                    #dateTo {
-                                        display:            inline-block;
-                                        margin-left:        20px;
-                                    }
-
-                                    label {
-                                        font-size:          80%;
-                                    }
-
-                                    .datepicker {
-
-                                        display:            inline-block;
-                                        position:           relative;
-
-                                        input {
-                                            background-color:   #e8e8e8;
-                                            padding:            4px 23px 4px 6px;
-                                            border:             0;
-                                            border-radius:      4px;
-                                        }
-
-                                        i {
-                                            font-size:          83%;
-                                            position:           absolute;
-                                            right:              5px;
-                                            top:                5px;
-                                        }
-
+                                    option {
+                                        padding:                2px 3px;
                                     }
 
                                 }
+
+                                select:focus {
+                                    background-color:       $searchbarBackgroundColorFocus;
+                                }
+
                             }
 
                             #searchButtons {
 
-                                margin-top:     12px;
+                                display:                inline-block;
 
                                 button {
-                                    padding:        2px 6px;
-                                    /*border-radius:  3px;*/
+                                    border:                 0;
+                                    background-color:       #e4e4e4;
+                                    border-radius:          50%;
+                                    outline:                none;
+                                    width:                  28px;
+                                    height:                 28px;
+                                    font-size:              80%;
+                                    color:                  black;
+                                    margin:                 0px 2px;
+                                }
+
+                                button[disabled] {
+                                    background:             none;
+                                    cursor:                 not-allowed;
+                                }
+
+                                button[disabled]:hover {
+                                    background:             none;
+                                    cursor:                 not-allowed;
+                                }
+
+                                button[disabled].busy {
+                                    background-color:       #e4e4e4;
+                                    color:                  black;
+                                }
+
+                                button[disabled].busyActive {
+                                    background-color:       #ffab66;
+                                }
+
+                                button.busy {
+                                    background-color:       #e4e4e4;
+                                    color:                  black;
+                                }
+
+                                button:hover {
+                                    background-color:       #ffd5b2;
+                                }
+
+                                button:focus {
+                                    background-color:       $searchbarBackgroundColorFocus;
+                                }
+
+
+                                #searchButton {
+                                    display:                inline-block;
+                                }
+
+                                #leftButton {
+                                    display:                inline-block;
+                                }
+
+                                #rightButton {
+                                    display:                inline-block;
+                                }
+
+                            }
+
+                            #dateFilters {
+
+                                margin:                 5px 0px 0px 30px;
+
+                                #dateFrom {
+                                    display:                inline-block;
+                                }
+
+                                #dateTo {
+                                    display:                inline-block;
+                                    margin-left:            20px;
+                                }
+
+                                label {
+                                    font-size:              80%;
+                                }
+
+                                .datepicker {
+
+                                    display:                inline-block;
+                                    position:               relative;
+
+                                    input {
+                                        background-color:       #e8e8e8;
+                                        padding:                4px 23px 4px 6px;
+                                        border:                 0;
+                                        border-radius:          4px;
+                                        outline:                none;
+                                    }
+
+                                    input:focus {
+                                        color:                  $searchbarColor;
+                                        background-color:       $searchbarBackgroundColorFocus;
+                                    }
+
+                                    i {
+                                        font-size:              83%;
+                                        position:               absolute;
+                                        right:                  5px;
+                                        top:                    5px;
+                                    }
+
                                 }
 
                             }
@@ -256,13 +262,14 @@ body {
                             display:            flex;
                             flex-direction:     column;
                             cursor:             pointer;
+                            padding:            1vh 1.5vw 4vh 1.5vw;
 
                             .searchResult {
 
                                 position:           relative;
                                 display:            block;
                                 padding:            10px 11px 8px 16px;
-                                margin-bottom:      2px;
+                                margin-bottom:      1px;
                                 color:              black;
                                 background-color:   rgba(136, 136, 136, 0.1);
                                 text-decoration:    none;
@@ -326,14 +333,21 @@ body {
 
                         }
 
+                        .searchResults .searchResult:first-child {
+                            border-top-left-radius:         6px;
+                            border-top-right-radius:        6px;
+                        }
+
+                        .searchResults .searchResult:last-child {
+                            border-bottom-left-radius:      6px;
+                            border-bottom-right-radius:     6px;
+                        }
+
                     }
 
                 }
 
             }
-
         }
-
     }
-
 }
