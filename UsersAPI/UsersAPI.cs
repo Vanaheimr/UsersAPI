@@ -4149,18 +4149,19 @@ namespace social.OpenData.UsersAPI
                                              #endregion
 
 
-                                             var includeFilter           = Request.QueryString.CreateStringFilter<User>("include",
-                                                                                                                        (user, include) => user.Id.  IndexOf(include)                                     >= 0 ||
-                                                                                                                                           user.Name.IndexOf(include, StringComparison.OrdinalIgnoreCase) >= 0 ||
-                                                                                                                                           user.Description.Matches(include, IgnoreCase: true));
+                                             var withMetadata        = Request.QueryString.GetBoolean("withMetadata", false);
+                                             var includeFilter       = Request.QueryString.CreateStringFilter<User>("include",
+                                                                                                                    (user, include) => user.Id.  IndexOf(include)                                     >= 0 ||
+                                                                                                                                       user.Name.IndexOf(include, StringComparison.OrdinalIgnoreCase) >= 0 ||
+                                                                                                                                       user.Description.Matches(include, IgnoreCase: true));
 
-                                             var skip                    = Request.QueryString.GetUInt64 ("skip");
-                                             var take                    = Request.QueryString.GetUInt64 ("take");
+                                             var skip                = Request.QueryString.GetUInt64 ("skip");
+                                             var take                = Request.QueryString.GetUInt64 ("take");
 
-                                             var includeCryptoHash       = Request.QueryString.GetBoolean("includeCryptoHash", true);
+                                             var includeCryptoHash   = Request.QueryString.GetBoolean("includeCryptoHash", true);
 
-                                             var expand                  = Request.QueryString.GetStrings("expand", true);
-                                             //var expandTags              = expand.Contains("tags")              ? InfoStatus.Expand : InfoStatus.ShowIdOnly;
+                                             var expand              = Request.QueryString.GetStrings("expand", true);
+                                             //var expandTags          = expand.Contains("tags")              ? InfoStatus.Expand : InfoStatus.ShowIdOnly;
 
 
                                              //ToDo: Getting the expected total count might be very expensive!
@@ -7065,6 +7066,8 @@ namespace social.OpenData.UsersAPI
 
                                              #endregion
 
+
+                                             var withMetadata            = Request.QueryString.GetBoolean("withMetadata", false);
                                              var includeFilter           = Request.QueryString.CreateStringFilter<Organization>("include",
                                                                                                                                 (organization, include) => organization.Id.         IndexOf(include)               > 0 ||
                                                                                                                                                            organization.Name.       Matches(include, IgnoreCase: true) ||

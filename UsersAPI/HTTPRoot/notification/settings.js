@@ -1,14 +1,14 @@
 ///<reference path="../../../../UsersAPI/UsersAPI/HTTPRoot/libs/date.format.ts" />
 function StartUserNotificationSettings() {
-    var notificationGroups = [];
-    var userInfos = {};
-    var DashboardNotification_Context = "https://opendata.social/contexts/UsersAPI+json/DashboardNotification";
-    var TelegramNotification_Context = "https://opendata.social/contexts/UsersAPI+json/TelegramNotification";
-    var TelegramGroupNotification_Context = "https://opendata.social/contexts/UsersAPI+json/TelegramGroupNotification";
-    var SMSNotification_Context = "https://opendata.social/contexts/UsersAPI+json/SMSNotification";
-    var HTTPSNotification_Context = "https://opendata.social/contexts/UsersAPI+json/HTTPSNotification";
-    var EMailNotification_Context = "https://opendata.social/contexts/UsersAPI+json/EMailNotification";
-    var notificationsCounter = 1;
+    let notificationGroups = [];
+    let userInfos = {};
+    const DashboardNotification_Context = "https://opendata.social/contexts/UsersAPI+json/DashboardNotification";
+    const TelegramNotification_Context = "https://opendata.social/contexts/UsersAPI+json/TelegramNotification";
+    const TelegramGroupNotification_Context = "https://opendata.social/contexts/UsersAPI+json/TelegramGroupNotification";
+    const SMSNotification_Context = "https://opendata.social/contexts/UsersAPI+json/SMSNotification";
+    const HTTPSNotification_Context = "https://opendata.social/contexts/UsersAPI+json/HTTPSNotification";
+    const EMailNotification_Context = "https://opendata.social/contexts/UsersAPI+json/EMailNotification";
+    let notificationsCounter = 1;
     function ShowNotification(parentDiv, JSON) {
         function ShowDashboardNotification(parentDiv, JSON) {
             var typeDiv = parentDiv.appendChild(document.createElement('div'));
@@ -135,8 +135,7 @@ function StartUserNotificationSettings() {
         if (JSON.messageTypes != null && valueDiv != null) {
             var messageTypesDiv = valueDiv.appendChild(document.createElement('div'));
             messageTypesDiv.className = "messageTypes";
-            for (var _i = 0, _a = JSON.messageTypes; _i < _a.length; _i++) {
-                var messageType = _a[_i];
+            for (var messageType of JSON.messageTypes) {
                 var messageTypeDiv = messageTypesDiv.appendChild(document.createElement('div'));
                 messageTypeDiv.className = "messageType";
                 messageTypeDiv.innerHTML = messageType;
@@ -144,18 +143,18 @@ function StartUserNotificationSettings() {
         }
     }
     checkSignedIn(true);
-    HTTPGet("/users/" + SignInUser + "/notifications", function (status, response) {
+    HTTPGet("/users/" + SignInUser + "/notifications", (status, response) => {
         try {
-            var responseJSON = JSON.parse(response);
+            const responseJSON = JSON.parse(response);
             notificationGroups = responseJSON.notificationGroups;
             userInfos = responseJSON.user;
             if (notificationGroups == null || userInfos == null || responseJSON.notifications == null)
                 responseDiv.innerHTML = "<div class=\"HTTP Error\">Could not fetch notification data from server!</div>";
             else {
-                var showNotificationsDiv = document.getElementById('showNotifications');
+                const showNotificationsDiv = document.getElementById('showNotifications');
                 showNotificationsDiv.innerText = "";
                 if (showNotificationsDiv != null && responseJSON.notifications.length > 0) {
-                    for (var i = 0, len = responseJSON.notifications.length; i < len; i++)
+                    for (let i = 0, len = responseJSON.notifications.length; i < len; i++)
                         ShowNotification(showNotificationsDiv, responseJSON.notifications[i]);
                 }
             }
@@ -163,13 +162,13 @@ function StartUserNotificationSettings() {
         catch (e) {
             responseDiv.innerHTML = "<div class=\"HTTP Error\">Could not fetch notification data from server!</div>";
         }
-    }, function (HTTPStatus, status, response) {
+    }, (HTTPStatus, status, response) => {
         responseDiv.innerHTML = "<div class=\"HTTP Error\">Could not fetch notification data from server!</div>";
     });
-    var responseDiv = document.getElementById("response");
-    var newNotificationButton = document.getElementById("newNotificationButton");
-    newNotificationButton.onclick = function () {
-        var redirectURL = document.location.href.substring(0, document.location.href.lastIndexOf("/"));
+    const responseDiv = document.getElementById("response");
+    const newNotificationButton = document.getElementById("newNotificationButton");
+    newNotificationButton.onclick = () => {
+        const redirectURL = document.location.href.substring(0, document.location.href.lastIndexOf("/"));
         document.location.href = redirectURL + "/newNotification";
     };
 }

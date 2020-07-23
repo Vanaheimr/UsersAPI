@@ -86,10 +86,10 @@ function StartOrganization() {
             organizationJSON.telephone = telephone.value;
         if (organizationJSON.telephone === "")
             delete organizationJSON.telephone;
-        HTTPSet("/organizations/" + organizationJSON["@id"], organizationJSON, function (HTTPStatus, ResponseText) {
+        HTTPSet("/organizations/" + organizationJSON["@id"], organizationJSON, (HTTPStatus, ResponseText) => {
             try {
-                var responseJSON = ResponseText != "" ? JSON.parse(ResponseText) : {};
-                var info = responseJSON.description != null ? "<br />" + responseJSON.description : "";
+                const responseJSON = ResponseText != "" ? JSON.parse(ResponseText) : {};
+                const info = responseJSON.description != null ? "<br />" + responseJSON.description : "";
                 //saveButton.disabled   = !AnyChangesMade();
                 responseDiv.innerHTML = "<div class=\"HTTP OK\">Successfully stored updated organization data." + info + "</div>";
                 // Redirect after 2 seconds!
@@ -101,55 +101,55 @@ function StartOrganization() {
                 saveButton.disabled = !AnyChangesMade();
                 responseDiv.innerHTML = "<div class=\"HTTP Error\">Storing organization data failed!" + exception + "</div>";
             }
-        }, function (HTTPStatus, StatusText, ResponseText) {
+        }, (HTTPStatus, StatusText, ResponseText) => {
             try {
-                var responseJSON = ResponseText != "" ? JSON.parse(ResponseText) : {};
-                var info = responseJSON.description != null ? "<br />" + responseJSON.description : "";
+                const responseJSON = ResponseText != "" ? JSON.parse(ResponseText) : {};
+                const info = responseJSON.description != null ? "<br />" + responseJSON.description : "";
                 responseDiv.innerHTML = "<div class=\"HTTP Error\">Storing organization data failed!" + info + "</div>";
             }
             catch (exception) {
             }
         });
     }
-    var pathElements = window.location.pathname.split("/");
-    var organizationId = pathElements[pathElements.length - 1];
-    var organizationMenuDiv = document.getElementById("organizationMenu");
-    var links = organizationMenuDiv.querySelectorAll("a");
-    for (var i = 0; i < links.length; i++) {
+    const pathElements = window.location.pathname.split("/");
+    const organizationId = pathElements[pathElements.length - 1];
+    const organizationMenuDiv = document.getElementById("organizationMenu");
+    const links = organizationMenuDiv.querySelectorAll("a");
+    for (let i = 0; i < links.length; i++) {
         if (links[i].href.indexOf("00000000") > 0) {
             links[i].href = links[i].href.replace("00000000", organizationId);
         }
     }
-    var organizationDiv = document.getElementById("organization");
-    var headlineDiv = organizationDiv.querySelector("#headline");
-    var upperButtonsDiv = organizationDiv.querySelector('#upperButtons');
-    var deleteOrganizationButton = upperButtonsDiv.querySelector('#deleteOrganizationButton');
-    var confirmToDeleteDiv = document.getElementById("confirmToDeleteOrganization");
-    var yes = confirmToDeleteDiv.querySelector('#yes');
-    var no = confirmToDeleteDiv.querySelector('#no');
-    var deletionFailedDiv = document.getElementById("deletionFailed");
-    var deletionFailedDescription = deletionFailedDiv.querySelector('#description');
-    var ok = deletionFailedDiv.querySelector('#ok');
-    var dataDiv = organizationDiv.querySelector('#data');
-    var name = dataDiv.querySelector('#name');
-    var description = dataDiv.querySelector('#description');
-    var website = dataDiv.querySelector('#website');
-    var email = dataDiv.querySelector('#email');
-    var telephone = dataDiv.querySelector('#telephone');
-    var parentsDiv = dataDiv.querySelector('#parentsDiv');
-    var subOrganizationsDiv = dataDiv.querySelector('#subOrganizationsDiv');
-    var responseDiv = document.getElementById("response");
-    var lowerButtonsDiv = organizationDiv.querySelector('#lowerButtons');
-    var saveButton = lowerButtonsDiv.querySelector("#saveButton");
-    ok.onclick = function () { deletionFailedDiv.style.display = "none"; };
-    name.oninput = function () { ToogleSaveButton(); };
-    description.oninput = function () { ToogleSaveButton(); };
-    description.onkeyup = function () { ToogleSaveButton(); };
-    website.oninput = function () { ToogleSaveButton(); };
-    email.oninput = function () { ToogleSaveButton(); };
-    telephone.oninput = function () { ToogleSaveButton(); };
-    saveButton.onclick = function () { SaveData(); };
-    HTTPGet("/organizations/" + organizationId + "?showMgt&expand=parents,subOrganizations", function (status, response) {
+    const organizationDiv = document.getElementById("organization");
+    const headlineDiv = organizationDiv.querySelector("#headline");
+    const upperButtonsDiv = organizationDiv.querySelector('#upperButtons');
+    const deleteOrganizationButton = upperButtonsDiv.querySelector('#deleteOrganizationButton');
+    const confirmToDeleteDiv = document.getElementById("confirmToDeleteOrganization");
+    const yes = confirmToDeleteDiv.querySelector('#yes');
+    const no = confirmToDeleteDiv.querySelector('#no');
+    const deletionFailedDiv = document.getElementById("deletionFailed");
+    const deletionFailedDescription = deletionFailedDiv.querySelector('#description');
+    const ok = deletionFailedDiv.querySelector('#ok');
+    const dataDiv = organizationDiv.querySelector('#data');
+    const name = dataDiv.querySelector('#name');
+    const description = dataDiv.querySelector('#description');
+    const website = dataDiv.querySelector('#website');
+    const email = dataDiv.querySelector('#email');
+    const telephone = dataDiv.querySelector('#telephone');
+    const parentsDiv = dataDiv.querySelector('#parentsDiv');
+    const subOrganizationsDiv = dataDiv.querySelector('#subOrganizationsDiv');
+    const responseDiv = document.getElementById("response");
+    const lowerButtonsDiv = organizationDiv.querySelector('#lowerButtons');
+    const saveButton = lowerButtonsDiv.querySelector("#saveButton");
+    ok.onclick = () => { deletionFailedDiv.style.display = "none"; };
+    name.oninput = () => { ToogleSaveButton(); };
+    description.oninput = () => { ToogleSaveButton(); };
+    description.onkeyup = () => { ToogleSaveButton(); };
+    website.oninput = () => { ToogleSaveButton(); };
+    email.oninput = () => { ToogleSaveButton(); };
+    telephone.oninput = () => { ToogleSaveButton(); };
+    saveButton.onclick = () => { SaveData(); };
+    HTTPGet("/organizations/" + organizationId + "?showMgt&expand=parents,subOrganizations", (status, response) => {
         try {
             organizationJSON = ParseJSON_LD(response);
             headlineDiv.querySelector("#name #language").innerText = firstKey(organizationJSON.name);
@@ -171,52 +171,44 @@ function StartOrganization() {
                     parentsDiv.parentElement.style.display = "none";
                 }
                 else {
-                    var _loop_1 = function (parent_1) {
-                        var subOrganizationDiv = parentsDiv.appendChild(document.createElement('button'));
+                    for (const parent of organizationJSON.parents) {
+                        const subOrganizationDiv = parentsDiv.appendChild(document.createElement('button'));
                         subOrganizationDiv.className = "organization";
-                        subOrganizationDiv.innerHTML = typeof parent_1 == 'object'
-                            ? firstValue(parent_1["name"])
-                            : parent_1;
-                        subOrganizationDiv.onclick = function () { return typeof parent_1 == 'object'
-                            ? window.location.href = parent_1["@id"]
-                            : window.location.href = parent_1; };
-                    };
-                    for (var _i = 0, _a = organizationJSON.parents; _i < _a.length; _i++) {
-                        var parent_1 = _a[_i];
-                        _loop_1(parent_1);
+                        subOrganizationDiv.innerHTML = typeof parent == 'object'
+                            ? firstValue(parent["name"])
+                            : parent;
+                        subOrganizationDiv.onclick = () => typeof parent == 'object'
+                            ? window.location.href = parent["@id"]
+                            : window.location.href = parent;
                     }
                 }
             }
             if (organizationJSON.subOrganizations) {
-                var _loop_2 = function (subOrganization) {
-                    var subOrganizationDiv = subOrganizationsDiv.appendChild(document.createElement('button'));
+                for (const subOrganization of organizationJSON.subOrganizations) {
+                    const subOrganizationDiv = subOrganizationsDiv.appendChild(document.createElement('button'));
                     subOrganizationDiv.className = "organization";
                     subOrganizationDiv.innerHTML = typeof subOrganization == 'object'
                         ? firstValue(subOrganization["name"])
                         : subOrganization;
-                    subOrganizationDiv.onclick = function () { return typeof subOrganization == 'object'
+                    subOrganizationDiv.onclick = () => typeof subOrganization == 'object'
                         ? window.location.href = subOrganization["@id"]
-                        : window.location.href = subOrganization; };
-                };
-                for (var _b = 0, _c = organizationJSON.subOrganizations; _b < _c.length; _b++) {
-                    var subOrganization = _c[_b];
-                    _loop_2(subOrganization);
+                        : window.location.href = subOrganization;
                 }
             }
             if (organizationJSON.youCanCreateChildOrganizations) {
-                var subOrganizationDiv = subOrganizationsDiv.appendChild(document.createElement('button'));
+                const subOrganizationDiv = subOrganizationsDiv.appendChild(document.createElement('button'));
                 subOrganizationDiv.className = "organization";
                 subOrganizationDiv.innerHTML = "<i class=\"fas fa-plus\"></i>";
-                subOrganizationDiv.onclick = function () { return window.location.href = organizationId + "/newSubOrganization"; };
+                subOrganizationDiv.onclick = () => window.location.href = organizationId + "/newSubOrganization";
             }
             if (organizationJSON.youCanCreateChildOrganizations) {
                 deleteOrganizationButton.disabled = false;
-                deleteOrganizationButton.onclick = function () {
+                deleteOrganizationButton.onclick = () => {
                     confirmToDeleteDiv.style.display = "block";
-                    yes.onclick = function () {
+                    yes.onclick = () => {
                         HTTPDelete("/organizations/" + organizationId, 
                         // Ok!
-                        function (status, response) {
+                        (status, response) => {
                             try {
                                 confirmToDeleteDiv.style.display = "none";
                                 responseDiv.innerHTML = "<div class=\"HTTP OK\">Successfully deleted this organization.</div>";
@@ -232,9 +224,9 @@ function StartOrganization() {
                             }
                         }, 
                         // Failed dependencies, e.g. organization still has members!
-                        function (status, response) {
+                        (status, response) => {
                             try {
-                                var responseJSON = response !== "" ? JSON.parse(response) : {};
+                                const responseJSON = response !== "" ? JSON.parse(response) : {};
                                 confirmToDeleteDiv.style.display = "none";
                                 deletionFailedDiv.style.display = "block";
                                 deletionFailedDescription.innerHTML = responseJSON.errorDescription.eng;
@@ -244,11 +236,11 @@ function StartOrganization() {
                             }
                         }, 
                         // Some error occured!
-                        function (statusCode, status, response) {
+                        (statusCode, status, response) => {
                             try {
                                 confirmToDeleteDiv.style.display = "none";
-                                var responseJSON = response !== "" ? JSON.parse(response) : {};
-                                var info = responseJSON.description != null ? "<br />" + responseJSON.description : "";
+                                const responseJSON = response !== "" ? JSON.parse(response) : {};
+                                const info = responseJSON.description != null ? "<br />" + responseJSON.description : "";
                                 responseDiv.innerHTML = "<div class=\"HTTP Error\">Deleting this organization failed!" + info + "</div>";
                             }
                             catch (exception) {
@@ -256,7 +248,7 @@ function StartOrganization() {
                             }
                         });
                     };
-                    no.onclick = function () {
+                    no.onclick = () => {
                         confirmToDeleteDiv.style.display = "none";
                     };
                 };
@@ -264,7 +256,7 @@ function StartOrganization() {
         }
         catch (exception) {
         }
-    }, function (statusCode, status, response) {
+    }, (statusCode, status, response) => {
     });
 }
 //# sourceMappingURL=organization.js.map

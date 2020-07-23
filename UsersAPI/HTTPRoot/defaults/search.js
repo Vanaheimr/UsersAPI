@@ -1,153 +1,88 @@
 ///<reference path="../../../../UsersAPI/UsersAPI/HTTPRoot/libs/date.format.ts" />
-function StartSearch(RessourceURI, RessourcePrefix, ViewDelegate, NoURIupdate, EditDesigner) {
-    function ToggleViewsDiv23(ev) {
-        // Return control to <a href=...</a>
-        if (ev.target.tagName.toLowerCase() == "i")
-            return true;
-        var views = this.getElementsByClassName("views");
-        if (views != null && views.length > 0) {
-            var viewsDiv = views[0];
-            if (viewsDiv.style.display == "block" && ev.target.id != this.id)
-                return true;
-        }
-        var div = this;
-        if (div != null)
-            ToggleViewsDiv3(div);
-        return false;
-    }
-    //function ToggleViewsDiv2(element: string)
-    //{
-    //    var elementDiv = document.getElementById(element) as HTMLDivElement;
-    //    if (elementDiv != null)
-    //        ToggleViewsDiv3(elementDiv);
-    //}
-    function ToggleViewsDiv3(element) {
-        var views = element.getElementsByClassName("views");
-        //var buttons = element.getElementsByClassName("buttons");
-        if (views != null && views.length > 0) { // && buttons != null && buttons.length > 0) {
-            var viewsDiv = views[0];
-            //var buttonsDiv  = buttons[0] as HTMLDivElement;
-            //var expand      = buttonsDiv.querySelector("#expand")   as HTMLElement;
-            //var collapse    = buttonsDiv.querySelector("#collapse") as HTMLElement;
-            if (viewsDiv.style.display == "block") {
-                viewsDiv.style.display = "none";
-                //expand.  style.display = "inline-block";
-                //collapse.style.display = "none";
-            }
-            else {
-                viewsDiv.style.display = "block";
-                //expand.  style.display = "none";
-                //collapse.style.display = "inline-block";
-            }
-        }
-    }
-    var list = {};
-    var ConnectionColors = {};
-    var StreamFilterPattern = document.getElementById('filter');
-    StreamFilterPattern.onchange = function () {
-        var AllLogLines = document.getElementById('DataDiv').getElementsByClassName('Item');
-        for (var i = 0; i < AllLogLines.length; i++) {
-            if (AllLogLines[i].innerHTML.indexOf(StreamFilterPattern.value) > -1)
-                AllLogLines[i].style.display = 'block';
-            else
-                AllLogLines[i].style.display = 'none';
-        }
-    };
-    HTTPGet(RessourceURI, function (HTTPStatus, ResponseText) {
-        var DataDiv = document.getElementById('DataDiv');
-        var lists = JSON.parse(ResponseText);
-        for (var i = 0, len = lists.length; i < len; i++) {
-            var element = lists[i];
-            var id = element["@id"];
-            list[RessourcePrefix + "_" + id] = element;
-            var elementDiv = DataDiv.appendChild(document.createElement('div'));
-            elementDiv.id = RessourcePrefix + "_" + id;
-            elementDiv.className = "Item";
-            elementDiv.onclick = ToggleViewsDiv23;
-            var IdDiv = elementDiv.appendChild(document.createElement('div'));
-            IdDiv.className = "Id";
-            IdDiv.innerHTML = ViewDelegate(element); // Id or info text!
-            //let editDiv = elementDiv.appendChild(document.createElement('div'));
-            //editDiv.className = "buttons";
-            //editDiv.innerHTML = "<a href=\"javascript:ToggleViewsDiv2('" + RessourcePrefix + "_" + id + "')\" id=\"expand\"   title=\"expand\"  ><i class=\"fas fa-expand\"      ></i></a>" +
-            //                    "<a href=\"javascript:ToggleViewsDiv2('" + RessourcePrefix + "_" + id + "')\" id=\"collapse\" title=\"collapse\"><i class=\"fas fa-compress\"    ></i></a>";
-            // Show description... or the name...
-            elementDiv.appendChild(CreateI18NDiv(element.description != undefined
-                ? element.description
-                : element.name, "Description"));
-            var viewsDiv = elementDiv.appendChild(document.createElement('div'));
-            viewsDiv.className = "views";
-            viewsDiv.appendChild(PrintProperties("rawView", element, 0, "rawView"));
-            //if (EditDesigner != null)
-            //    EditDesigner(viewsDiv, element);
-        }
-    }, function (HTTPStatus, StatusText, ResponseText) {
-    });
-}
 function AddProperty(parentDiv, className, key, content) {
-    var propertyDiv = parentDiv.appendChild(document.createElement('div'));
+    let propertyDiv = parentDiv.appendChild(document.createElement('div'));
     propertyDiv.className = "property " + className;
-    var keyDiv = propertyDiv.appendChild(document.createElement('div'));
+    let keyDiv = propertyDiv.appendChild(document.createElement('div'));
     keyDiv.className = "key";
     keyDiv.innerHTML = key;
-    var valueDiv = propertyDiv.appendChild(document.createElement('div'));
+    let valueDiv = propertyDiv.appendChild(document.createElement('div'));
     valueDiv.className = "value";
     valueDiv.innerHTML = content;
     return propertyDiv;
 }
-function StartSearch2(requestURL, item, items, doListView, doTableView, noListViewLinks, startView, NoURIupdate, context) {
-    var viewMode = startView != null ? startView : "listView";
-    var context__ = { Search: Search };
+var searchResultsMode;
+(function (searchResultsMode) {
+    searchResultsMode[searchResultsMode["listView"] = 0] = "listView";
+    searchResultsMode[searchResultsMode["tableView"] = 1] = "tableView";
+})(searchResultsMode || (searchResultsMode = {}));
+function StartSearch(requestURL, nameOfItem, nameOfItems, doListView, doTableView, noListViewLinks, startView, context) {
+    let skip = 0;
+    let take = 10;
+    let viewMode = startView !== null ? startView : searchResultsMode.listView;
+    const context__ = { Search: Search };
+    const controlsDiv = document.getElementById("controls");
+    const patternFilter = controlsDiv.querySelector("#patternFilterInput");
+    const takeSelect = controlsDiv.querySelector("#takeSelect");
+    const searchButton = controlsDiv.querySelector("#searchButton");
+    const leftButton = controlsDiv.querySelector("#leftButton");
+    const rightButton = controlsDiv.querySelector("#rightButton");
+    const listViewButton = controlsDiv.querySelector("#listView");
+    const tableViewButton = controlsDiv.querySelector("#tableView");
+    const messageDiv = document.getElementById('message');
+    const localSearchMessageDiv = document.getElementById('localSearchMessage');
+    const searchResultsDiv = document.getElementById('searchResults');
     function Search(deletePreviousResults, whenDone) {
-        // ignore local searches
-        if (filterInput.value[0] == '#') {
-            if (whenDone != null)
+        // handle local searches
+        if (patternFilter.value[0] === '#') {
+            if (whenDone !== null)
                 whenDone();
             return;
         }
+        // To avoid multiple clicks while waiting for the results from a slow server
         leftButton.disabled = true;
         rightButton.disabled = true;
-        var filterPattern = filterInput.value != "" ? "include=" + encodeURI(filterInput.value) + "&" : "";
-        take = parseInt(takeSelect.options[takeSelect.selectedIndex].value);
-        HTTPGet(requestURL + "?" + filterPattern + "take=" + take + "&skip=" + skip + (context__["statusFilter"] != null ? context__["statusFilter"] : ""), // + "&expand=members",
-        function (HTTPStatus, ResponseText) {
+        const filterPattern = patternFilter.value !== "" ? "include=" + encodeURI(patternFilter.value) + "&" : "";
+        HTTPGet(requestURL + "?withMetadata&" + filterPattern + "take=" + take + "&skip=" + skip +
+            (context__["statusFilter"] !== undefined ? context__["statusFilter"] : ""), // + "&expand=members",
+        (status, response) => {
             try {
-                var searchResults = JSON.parse(ResponseText);
-                numberOfResults = searchResults.length;
+                const JSONresponse = JSON.parse(response);
+                const searchResults = JSONresponse[nameOfItems];
+                const numberOfResults = searchResults.length;
+                const totalNumberOfResults = JSONresponse.totalCount;
                 // delete previous search results...
-                if (deletePreviousResults || searchResults.length > 0)
+                if (deletePreviousResults || numberOfResults > 0)
                     searchResultsDiv.innerHTML = "";
                 switch (viewMode) {
-                    case "tableView":
+                    case searchResultsMode.tableView:
                         try {
                             doTableView(searchResults, searchResultsDiv);
                         }
                         catch (exception) { }
                         break;
                     default:
-                        for (var i = 0, len = searchResults.length; i < len; i++) {
-                            var searchResult = searchResults[i];
-                            var searchResultId = searchResult["@id"];
-                            var searchResultDiv = searchResultsDiv.appendChild(document.createElement('a'));
-                            searchResultDiv.id = item + "_" + searchResultId;
+                        for (const searchResult of searchResults) {
+                            const searchResultDiv = searchResultsDiv.appendChild(document.createElement('a'));
+                            searchResultDiv.id = nameOfItem + "_" + searchResult["@id"];
                             searchResultDiv.className = "searchResult";
-                            if (noListViewLinks == false)
-                                searchResultDiv.href = "/" + items + "/" + searchResult["@id"];
+                            if (noListViewLinks === false)
+                                searchResultDiv.href = "/" + nameOfItems + "/" + searchResult["@id"];
                             try {
                                 doListView(searchResult, searchResultDiv);
                             }
                             catch (exception) { }
                         }
                 }
-                if (skip <= 0)
-                    skip = 0;
                 messageDiv.innerHTML = searchResults.length > 0
-                    ? "showing results " + (skip + 1) + " - " + (skip + Math.min(searchResults.length, take))
-                    : "no matching " + items + " found";
+                    ? "showing results " + (skip + 1) + " - " + (skip + Math.min(searchResults.length, take)) +
+                        " of " + totalNumberOfResults
+                    : "no matching " + nameOfItems + " found";
                 if (skip > 0)
                     leftButton.disabled = false;
+                if (skip + take < totalNumberOfResults)
+                    rightButton.disabled = false;
                 // a little edge case, whenever 'total number of results' % take == 0
-                if (searchResults.length == take)
+                if (searchResults.length === take)
                     rightButton.disabled = false;
             }
             catch (exception) {
@@ -155,88 +90,95 @@ function StartSearch2(requestURL, item, items, doListView, doTableView, noListVi
             }
             if (whenDone != null)
                 whenDone();
-        }, function (HTTPStatus, StatusText, ResponseText) {
-            messageDiv.innerHTML = "Server error: " + HTTPStatus + " " + StatusText + "<br />" + ResponseText;
-            if (whenDone != null)
+        }, (HTTPStatus, status, response) => {
+            messageDiv.innerHTML = "Server error: " + HTTPStatus + " " + status + "<br />" + response;
+            if (whenDone !== null)
                 whenDone();
         });
     }
-    var skip = 0;
-    var take = 10;
-    var numberOfResults = 0;
-    var controlsDiv = document.getElementById("controls");
-    var filterInput = controlsDiv.querySelector("#filter");
-    var takeSelect = controlsDiv.querySelector("#takeSelect");
-    var searchButton = controlsDiv.querySelector("#searchButton");
-    var leftButton = controlsDiv.querySelector("#leftButton");
-    var rightButton = controlsDiv.querySelector("#rightButton");
-    var listViewButton = document.getElementById("listView");
-    var tableViewButton = document.getElementById("tableView");
-    var messageDiv = document.getElementById('message');
-    var searchResultsDiv = document.getElementById('searchResults');
-    filterInput.onchange = function (ev) {
-        if (filterInput.value[0] != '#')
-            skip = 0;
-    };
-    filterInput.onkeyup = function (ev) {
-        if (filterInput.value[0] != '#') {
-            if (ev.keyCode === 13)
-                Search(true);
-        }
-        else {
+    if (patternFilter !== null) {
+        patternFilter.onchange = () => {
+            if (patternFilter.value[0] !== '#') {
+                skip = 0;
+            }
+        };
+        patternFilter.onkeyup = (ev) => {
+            if (patternFilter.value[0] !== '#') {
+                if (ev.keyCode === 13)
+                    Search(true);
+            }
             // Client-side searches...
-            if (filterInput.value[0] == '#') {
-                var pattern = filterInput.value.substring(1);
-                var AllLogLines = document.getElementById('searchResults').getElementsByClassName('searchResult');
-                var numberOfMatches = 0;
-                for (var i = 0; i < AllLogLines.length; i++) {
-                    if (AllLogLines[i].innerHTML.indexOf(pattern) > -1) {
-                        AllLogLines[i].style.display = 'block';
+            else {
+                const pattern = patternFilter.value.substring(1);
+                const logLines = Array.from(document.getElementById('searchResults').getElementsByClassName('searchResult'));
+                let numberOfMatches = 0;
+                for (const logLine of logLines) {
+                    if (logLine.innerHTML.indexOf(pattern) > -1) {
+                        logLine.style.display = 'block';
                         numberOfMatches++;
                     }
                     else
-                        AllLogLines[i].style.display = 'none';
+                        logLine.style.display = 'none';
                 }
-                messageDiv.innerHTML = numberOfResults > 0
-                    ? "showing results " + (skip + 1) + " - " + (skip + Math.min(numberOfResults, take)) + " (" + numberOfMatches + " local matches)"
-                    : "no matching " + items + " found";
+                if (localSearchMessageDiv !== null) {
+                    localSearchMessageDiv.innerHTML = numberOfMatches > 0
+                        ? numberOfMatches + " local matches"
+                        : "no matching " + nameOfItems + " found";
+                }
             }
-        }
-    };
-    takeSelect.onchange = function (ev) {
+        };
+    }
+    take = parseInt(takeSelect.options[takeSelect.selectedIndex].value);
+    takeSelect.onchange = () => {
+        take = parseInt(takeSelect.options[takeSelect.selectedIndex].value);
         Search(true);
     };
-    searchButton.onclick = function (ev) {
+    searchButton.onclick = () => {
         Search(true);
     };
     leftButton.disabled = true;
-    leftButton.onclick = function (ev) {
+    leftButton.onclick = () => {
         leftButton.classList.add("busy", "busyActive");
         rightButton.classList.add("busy");
-        skip -= parseInt(takeSelect.options[takeSelect.selectedIndex].value);
-        Search(true, function () {
+        skip -= take;
+        if (skip < 0)
+            skip = 0;
+        Search(true, () => {
             leftButton.classList.remove("busy", "busyActive");
             rightButton.classList.remove("busy");
         });
     };
-    rightButton.onclick = function (ev) {
+    rightButton.disabled = true;
+    rightButton.onclick = () => {
         leftButton.classList.add("busy");
         rightButton.classList.add("busy", "busyActive");
-        skip += parseInt(takeSelect.options[takeSelect.selectedIndex].value);
-        Search(false, function () {
+        skip += take;
+        Search(false, () => {
             leftButton.classList.remove("busy");
             rightButton.classList.remove("busy", "busyActive");
         });
     };
-    if (listViewButton != null) {
-        listViewButton.onclick = function (ev) {
-            viewMode = "listView";
+    document.onkeydown = (ev) => {
+        // left arrow
+        if (ev.keyCode === 37) {
+            if (leftButton.disabled === false)
+                leftButton.click();
+        }
+        // right arrow
+        else if (ev.keyCode === 39) {
+            if (rightButton.disabled === false)
+                rightButton.click();
+        }
+    };
+    if (listViewButton !== null) {
+        listViewButton.onclick = () => {
+            viewMode = searchResultsMode.listView;
             Search(true);
         };
     }
-    if (tableViewButton != null) {
-        tableViewButton.onclick = function (ev) {
-            viewMode = "tableView";
+    if (tableViewButton !== null) {
+        tableViewButton.onclick = () => {
+            viewMode = searchResultsMode.tableView;
             Search(true);
         };
     }

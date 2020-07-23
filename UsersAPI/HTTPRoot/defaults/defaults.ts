@@ -76,6 +76,7 @@ interface IGeoFence {
 
 interface IOwner {
     Id:                              string;
+    name:                            Record<string, string>;
 }
 
 
@@ -1293,5 +1294,45 @@ function parseUTCTimestamp(UTCString: string): string {
     moment.locale(window.navigator.language);
 
     return moment.utc(UTCString).local().format('LLLL');
+
+}
+
+function CreateLine(parent: HTMLDivElement, Key, Value) {
+
+    const row       = parent.appendChild(document.createElement('div'));
+    row.className   = "row";
+
+    const key       = row.appendChild(document.createElement('div'));
+    key.className   = "key";
+    key.innerHTML   = Key;
+
+    const value     = row.appendChild(document.createElement('div'));
+    value.className = "value";
+    value.innerHTML = Value;
+
+    return row;
+
+}
+
+
+function FixMenuLinks(parentDivId: string,
+                      linkId:      string)
+{
+
+    if (parentDivId === null || parentDivId === "" ||
+        linkId      === null || linkId      === "")
+    {
+        return;
+    }
+
+    const defibrillatorMenuDiv = document.getElementById(parentDivId) as HTMLDivElement;
+
+    if (defibrillatorMenuDiv !== null) {
+        for (const link of Array.from(defibrillatorMenuDiv.querySelectorAll("a")) as HTMLAnchorElement[]) {
+            if (link.href.indexOf("00000000") > 0) {
+                link.href = link.href.replace("00000000", linkId);
+            }
+        }
+    }
 
 }

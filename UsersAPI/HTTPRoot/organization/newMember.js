@@ -1,5 +1,5 @@
 function StartNewMember() {
-    var newUserJSON = {
+    let newUserJSON = {
         "@id": "",
         "@context": "https://opendata.social/contexts/usersAPI/user+json",
         "username": null,
@@ -8,45 +8,45 @@ function StartNewMember() {
         "mobilephone": "",
         "homepage": ""
     };
-    var pathElements = window.location.pathname.split("/");
-    var organizationId = pathElements[pathElements.length - 2];
-    var organizationMenuDiv = document.getElementById("organizationMenu");
-    var links = organizationMenuDiv.querySelectorAll("a");
-    for (var i = 0; i < links.length; i++) {
+    const pathElements = window.location.pathname.split("/");
+    const organizationId = pathElements[pathElements.length - 2];
+    const organizationMenuDiv = document.getElementById("organizationMenu");
+    const links = organizationMenuDiv.querySelectorAll("a");
+    for (let i = 0; i < links.length; i++) {
         if (links[i].href.indexOf("00000000") > 0) {
             links[i].href = links[i].href.replace("00000000", organizationId);
         }
     }
-    var newMemberDiv = document.getElementById("newMember");
-    var headlineDiv = newMemberDiv.querySelector("#headline");
-    var dataDiv = newMemberDiv.querySelector('#data');
-    var accessRights = dataDiv.querySelector('#accessRights');
-    var login = dataDiv.querySelector('#login');
-    var Username = dataDiv.querySelector('#username');
-    var email = dataDiv.querySelector('#email');
-    var language = dataDiv.querySelector('#language');
-    var telephone = dataDiv.querySelector('#telephone');
-    var mobilephone = dataDiv.querySelector('#mobilephone');
-    var homepage = dataDiv.querySelector('#homepage');
-    var description = dataDiv.querySelector('#description');
-    var loginError = login.parentElement.querySelector('.validationError');
-    var UsernameError = Username.parentElement.querySelector('.validationError');
-    var emailError = email.parentElement.querySelector('.validationError');
-    var telephoneError = telephone.parentElement.querySelector('.validationError');
-    var mobilephoneError = mobilephone.parentElement.querySelector('.validationError');
-    var homepageError = homepage.parentElement.querySelector('.validationError');
-    var responseDiv = document.getElementById("response");
-    var lowerButtonsDiv = newMemberDiv.querySelector('#lowerButtons');
-    var saveButton = lowerButtonsDiv.querySelector("#saveButton");
-    login.oninput = function () { VerifyLogin(); };
-    Username.oninput = function () { VerifyName(); };
-    email.oninput = function () { VerifyEMail(); };
-    telephone.oninput = function () { VerifyTelephone(); };
-    mobilephone.oninput = function () { VerifyMobilephone(); };
-    homepage.oninput = function () { VerifyHomepage(); };
-    saveButton.onclick = function () { SaveData(); };
+    const newMemberDiv = document.getElementById("newMember");
+    const headlineDiv = newMemberDiv.querySelector("#headline");
+    const dataDiv = newMemberDiv.querySelector('#data');
+    const accessRights = dataDiv.querySelector('#accessRights');
+    const login = dataDiv.querySelector('#login');
+    const Username = dataDiv.querySelector('#username');
+    const email = dataDiv.querySelector('#email');
+    const language = dataDiv.querySelector('#language');
+    const telephone = dataDiv.querySelector('#telephone');
+    const mobilephone = dataDiv.querySelector('#mobilephone');
+    const homepage = dataDiv.querySelector('#homepage');
+    const description = dataDiv.querySelector('#description');
+    const loginError = login.parentElement.querySelector('.validationError');
+    const UsernameError = Username.parentElement.querySelector('.validationError');
+    const emailError = email.parentElement.querySelector('.validationError');
+    const telephoneError = telephone.parentElement.querySelector('.validationError');
+    const mobilephoneError = mobilephone.parentElement.querySelector('.validationError');
+    const homepageError = homepage.parentElement.querySelector('.validationError');
+    const responseDiv = document.getElementById("response");
+    const lowerButtonsDiv = newMemberDiv.querySelector('#lowerButtons');
+    const saveButton = lowerButtonsDiv.querySelector("#saveButton");
+    login.oninput = () => { VerifyLogin(); };
+    Username.oninput = () => { VerifyName(); };
+    email.oninput = () => { VerifyEMail(); };
+    telephone.oninput = () => { VerifyTelephone(); };
+    mobilephone.oninput = () => { VerifyMobilephone(); };
+    homepage.oninput = () => { VerifyHomepage(); };
+    saveButton.onclick = () => { SaveData(); };
     function VerifyLogin() {
-        var UserId = login.value.toLowerCase().trim();
+        const UserId = login.value.toLowerCase().trim();
         login.value = UserId;
         if (UserId == "") {
             newUserJSON["@id"] = "";
@@ -65,7 +65,7 @@ function StartNewMember() {
             responseDiv.innerHTML = "";
             HTTPGet("/users/" + UserId, 
             // HTTP OK    => bad!
-            function (status, response) {
+            (status, response) => {
                 newUserJSON["@id"] = null;
                 login.classList.add("error");
                 loginError.innerText = "This user identification already exists!";
@@ -73,7 +73,7 @@ function StartNewMember() {
                 saveButton.disabled = true;
             }, 
             // HTTP Error => Maybe good!
-            function (HTTPStatus, status, response) {
+            (HTTPStatus, status, response) => {
                 // HTTP Not Found => good!
                 if (HTTPStatus == 404) {
                     newUserJSON["@id"] = UserId;
@@ -91,7 +91,7 @@ function StartNewMember() {
         }
     }
     function VerifyName() {
-        var name = Username.value;
+        const name = Username.value;
         if (name == "") {
             saveButton.disabled = true;
             newUserJSON.username = "";
@@ -111,7 +111,7 @@ function StartNewMember() {
         }
     }
     function VerifyEMail() {
-        var EMail = email.value.trim();
+        const EMail = email.value.trim();
         email.value = EMail;
         if (EMail == "") {
             saveButton.disabled = true;
@@ -132,7 +132,7 @@ function StartNewMember() {
         }
     }
     function VerifyTelephone() {
-        var Telephone = telephone.value.trim();
+        const Telephone = telephone.value.trim();
         telephone.value = Telephone;
         if (Telephone == "") {
             telephone.classList.remove("error");
@@ -154,7 +154,7 @@ function StartNewMember() {
         }
     }
     function VerifyMobilephone() {
-        var Mobilephone = mobilephone.value.trim();
+        const Mobilephone = mobilephone.value.trim();
         mobilephone.value = Mobilephone;
         if (Mobilephone == "") {
             mobilephone.classList.remove("error");
@@ -176,7 +176,7 @@ function StartNewMember() {
         }
     }
     function VerifyHomepage() {
-        var Homepage = homepage.value.trim();
+        const Homepage = homepage.value.trim();
         homepage.value = Homepage;
         if (Homepage == "") {
             newUserJSON.homepage = "";
@@ -222,26 +222,26 @@ function StartNewMember() {
                 "organizationId": organizationId,
                 "accessRight": accessRights.selectedOptions[0].value.toLowerCase()
             }],
-            HTTPAdd("/users", newUserJSON, function (statusCode, status, response) {
+            HTTPAdd("/users", newUserJSON, (statusCode, status, response) => {
                 responseDiv.style.display = "block";
                 responseDiv.innerHTML = "<div class=\"HTTP OK\">Successfully created this new member.</div>";
                 try {
-                    var responseJSON = JSON.parse(response);
-                    var userId_1 = responseJSON["@id"];
+                    const responseJSON = JSON.parse(response);
+                    const userId = responseJSON["@id"];
                     // Redirect to updated organization members view after 2 sec!
-                    if (userId_1 != null && userId_1 != "") {
+                    if (userId != null && userId != "") {
                         setTimeout(function () {
-                            window.location.href = "../../users/" + userId_1;
+                            window.location.href = "../../users/" + userId;
                         }, 2000);
                     }
                 }
                 catch (exception) {
                     console.debug("Could not parse 'new member'-JSON result: " + exception);
                 }
-            }, function (statusCode, status, response) {
+            }, (statusCode, status, response) => {
                 responseDiv.style.display = "block";
                 try {
-                    var responseJSON = JSON.parse(response);
+                    const responseJSON = JSON.parse(response);
                     responseDiv.innerHTML = "<div class=\"HTTP Error\">Storing the new member failed!<br />" +
                         (responseJSON.description != null
                             ? responseJSON.description
@@ -255,7 +255,7 @@ function StartNewMember() {
                 }
             });
     }
-    HTTPGet("/organizations/" + organizationId, function (status, response) {
+    HTTPGet("/organizations/" + organizationId, (status, response) => {
         try {
             organizationJSON = ParseJSON_LD(response);
             headlineDiv.querySelector("#name #language").innerText = firstKey(organizationJSON.name);
@@ -271,9 +271,9 @@ function StartNewMember() {
                 "Exception: " + exception +
                 "</div>";
         }
-    }, function (statusCode, status, response) {
+    }, (statusCode, status, response) => {
         try {
-            var responseJSON = JSON.parse(response);
+            const responseJSON = JSON.parse(response);
             responseDiv.innerHTML = "<div class=\"HTTP Error\">Could not fetch organization data from server!<br />" +
                 (responseJSON.description != null
                     ? responseJSON.description

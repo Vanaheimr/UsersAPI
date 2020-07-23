@@ -1,29 +1,29 @@
 var HTTPCookieId = "UsersAPI";
 var APIKey = null;
 var UILanguage = "eng";
-var CurrentlyHighlightedMenuItem = "";
-var CurrentlyHighlightedSubmenuItem = "";
+let CurrentlyHighlightedMenuItem = "";
+let CurrentlyHighlightedSubmenuItem = "";
 // @ts-ignore
 var map = {};
 // @ts-ignore
 var leaflet = {};
-var markers = [];
-var UserProfileJSON;
-var organizationJSON;
+let markers = [];
+let UserProfileJSON;
+let organizationJSON;
 // #region MenuHighlight(name, NoURIupdate?)
 function MenuHighlight(name, NoURIupdate) {
     if (CurrentlyHighlightedMenuItem != "") {
-        var OldItem = document.getElementById('Item' + CurrentlyHighlightedMenuItem);
+        const OldItem = document.getElementById('Item' + CurrentlyHighlightedMenuItem);
         if (OldItem != null)
             OldItem.classList.remove('active');
-        var OldMenu = document.getElementById('Menu' + CurrentlyHighlightedMenuItem);
+        const OldMenu = document.getElementById('Menu' + CurrentlyHighlightedMenuItem);
         if (OldMenu != null)
             OldMenu.style.display = "none";
     }
-    var NewItem = document.getElementById('Item' + name);
+    const NewItem = document.getElementById('Item' + name);
     if (NewItem != null)
         NewItem.classList.add('active');
-    var NewMenu = document.getElementById('Menu' + name);
+    const NewMenu = document.getElementById('Menu' + name);
     if (NewMenu != null)
         NewMenu.style.display = "block";
     CurrentlyHighlightedMenuItem = name;
@@ -36,11 +36,11 @@ function MenuHighlight(name, NoURIupdate) {
 function SubmenuHighlight(name, subname, NoURIupdate) {
     MenuHighlight(name, true);
     if (CurrentlyHighlightedSubmenuItem != "") {
-        var OldItem = document.getElementById('Item' + CurrentlyHighlightedSubmenuItem);
+        const OldItem = document.getElementById('Item' + CurrentlyHighlightedSubmenuItem);
         if (OldItem != null)
             OldItem.classList.remove('active');
     }
-    var NewItem = document.getElementById('Item' + name + "/" + subname);
+    const NewItem = document.getElementById('Item' + name + "/" + subname);
     if (NewItem != null)
         NewItem.classList.add('active');
     CurrentlyHighlightedSubmenuItem = name + "/" + subname;
@@ -51,7 +51,7 @@ function SubmenuHighlight(name, subname, NoURIupdate) {
 // #endregion
 // #region SendJSON(HTTPVerb, URI, APIKey, Data, OnSuccess, OnError)
 function SendJSON(HTTPVerb, URI, Data, OnSuccess, OnError) {
-    var ajax = new XMLHttpRequest();
+    const ajax = new XMLHttpRequest();
     ajax.open(HTTPVerb, URI, true); // , user, password);
     ajax.setRequestHeader("Accept", "application/json; charset=UTF-8");
     ajax.setRequestHeader("Content-Type", "application/json; charset=UTF-8");
@@ -79,19 +79,18 @@ function SendJSON(HTTPVerb, URI, Data, OnSuccess, OnError) {
         ajax.send();
 }
 // #endregion
-function ParseJSON_LD(Text, Context) {
-    if (Context === void 0) { Context = null; }
-    var data = JSON.parse(Text);
+function ParseJSON_LD(Text, Context = null) {
+    const data = JSON.parse(Text);
     if (!Array.isArray(data))
         data["id"] = data["@id"];
     return data;
 }
 function firstKey(obj) {
-    for (var a in obj)
+    for (const a in obj)
         return a;
 }
 function firstValue(obj) {
-    for (var a in obj)
+    for (const a in obj)
         return obj[a];
 }
 function languageKey2Text(LanguageKey, UILanguage) {
@@ -119,8 +118,8 @@ function UpdateI18N(parentDiv, I18NString) {
     if (parentDiv !== null &&
         I18NString !== null &&
         firstValue(I18NString) !== null) {
-        var select = parentDiv.querySelector("select");
-        var textarea = parentDiv.querySelector("textarea");
+        const select = parentDiv.querySelector("select");
+        const textarea = parentDiv.querySelector("textarea");
         if (select !== null && textarea !== null) {
             select.appendChild(new Option(languageKey2Text(firstKey(I18NString), UILanguage), firstKey(I18NString), true, true));
             textarea.value = firstValue(I18NString);
@@ -128,16 +127,16 @@ function UpdateI18N(parentDiv, I18NString) {
     }
 }
 function ImpersonateUser(newUserId) {
-    HTTPImpersonate("/users/" + newUserId, function (status, response) {
+    HTTPImpersonate("/users/" + newUserId, (status, response) => {
         window.location.reload(true);
-    }, function (statusCode, status, response) {
+    }, (statusCode, status, response) => {
         alert("Not allowed!");
     });
 }
 // #region HTTPSet(Method, RessourceURI, APIKey, Data, OnSuccess, OnError)
 function HTTP(Method, RessourceURI, Data, OnSuccess, OnError) {
     // #region Make HTTP call
-    var ajax = new XMLHttpRequest();
+    const ajax = new XMLHttpRequest();
     ajax.open(Method, RessourceURI, true);
     ajax.setRequestHeader("Accept", "application/json; charset=UTF-8");
     ajax.setRequestHeader("Content-Type", "application/json; charset=UTF-8");
@@ -169,7 +168,7 @@ function HTTP(Method, RessourceURI, Data, OnSuccess, OnError) {
 // #region HTTPGet(RessourceURI, OnSuccess, OnError)
 function HTTPGet(RessourceURI, OnSuccess, OnError) {
     // #region Make HTTP call
-    var ajax = new XMLHttpRequest();
+    const ajax = new XMLHttpRequest();
     ajax.open("GET", RessourceURI, true);
     ajax.setRequestHeader("Accept", "application/json; charset=UTF-8");
     ajax.setRequestHeader("X-Portal", "true");
@@ -199,7 +198,7 @@ function HTTPGet(RessourceURI, OnSuccess, OnError) {
 // #region HTTPCount(RessourceURI, Data, OnSuccess, OnError)
 function HTTPCount(RessourceURI, Data, OnSuccess, OnError) {
     // #region Make HTTP call
-    var ajax = new XMLHttpRequest();
+    const ajax = new XMLHttpRequest();
     ajax.open("COUNT", RessourceURI, true); // , user, password);
     ajax.setRequestHeader("Accept", "application/json; charset=UTF-8");
     //ajax.setRequestHeader("Content-Type", "application/json; charset=UTF-8");
@@ -231,7 +230,7 @@ function HTTPCount(RessourceURI, Data, OnSuccess, OnError) {
 // #region Exists (RessourceURI, OnSuccess, OnError)
 function Exists(RessourceURI, OnSuccess, OnError) {
     // #region Make HTTP call
-    var ajax = new XMLHttpRequest();
+    const ajax = new XMLHttpRequest();
     ajax.open("GET", RessourceURI, true); // , user, password);
     ajax.setRequestHeader("Accept", "application/json; charset=UTF-8");
     //ajax.setRequestHeader("Content-Type", "application/json; charset=UTF-8");
@@ -260,7 +259,7 @@ function Exists(RessourceURI, OnSuccess, OnError) {
 // #region HTTPSet(RessourceURI, Data, OnSuccess, OnError)
 function HTTPSet(RessourceURI, Data, OnSuccess, OnError) {
     // #region Make HTTP call
-    var ajax = new XMLHttpRequest();
+    const ajax = new XMLHttpRequest();
     ajax.open("SET", RessourceURI, true);
     ajax.setRequestHeader("Accept", "application/json; charset=UTF-8");
     ajax.setRequestHeader("Content-Type", "application/json; charset=UTF-8");
@@ -292,7 +291,7 @@ function HTTPSet(RessourceURI, Data, OnSuccess, OnError) {
 // #region HTTPAdd(RessourceURI, Data, OnSuccess, OnError)
 function HTTPAdd(RessourceURI, Data, OnSuccess, OnError) {
     // #region Make HTTP call
-    var ajax = new XMLHttpRequest();
+    const ajax = new XMLHttpRequest();
     ajax.open("ADD", RessourceURI, true); // , user, password);
     ajax.setRequestHeader("Accept", "application/json; charset=UTF-8");
     ajax.setRequestHeader("Content-Type", "application/json; charset=UTF-8");
@@ -324,7 +323,7 @@ function HTTPAdd(RessourceURI, Data, OnSuccess, OnError) {
 // #region HTTPAddIfNotExists(RessourceURI, Data, OnSuccess, OnError)
 function HTTPAddIfNotExists(RessourceURI, Data, OnSuccess, OnError) {
     // #region Make HTTP call
-    var ajax = new XMLHttpRequest();
+    const ajax = new XMLHttpRequest();
     ajax.open("ADDIFNOTEXISTS", RessourceURI, true); // , user, password);
     ajax.setRequestHeader("Accept", "application/json; charset=UTF-8");
     ajax.setRequestHeader("Content-Type", "application/json; charset=UTF-8");
@@ -356,7 +355,7 @@ function HTTPAddIfNotExists(RessourceURI, Data, OnSuccess, OnError) {
 // #region HTTPDelete(RessourceURI, OnSuccess, OnError)
 function HTTPDelete(RessourceURI, OnSuccess, OnDenied, OnError) {
     // #region Make HTTP call
-    var ajax = new XMLHttpRequest();
+    const ajax = new XMLHttpRequest();
     ajax.open("DELETE", RessourceURI, true); // , user, password);
     ajax.setRequestHeader("Accept", "application/json; charset=UTF-8");
     if (APIKey != null)
@@ -393,7 +392,7 @@ function HTTPDelete(RessourceURI, OnSuccess, OnDenied, OnError) {
 // #region HTTPChown(RessourceURI, Data, OnSuccess, OnError)
 function HTTPChown(RessourceURI, Data, OnSuccess, OnError) {
     // #region Make HTTP call
-    var ajax = new XMLHttpRequest();
+    const ajax = new XMLHttpRequest();
     ajax.open("CHOWN", RessourceURI, true); // , user, password);
     ajax.setRequestHeader("Accept", "application/json; charset=UTF-8");
     ajax.setRequestHeader("Content-Type", "application/json; charset=UTF-8");
@@ -424,7 +423,7 @@ function HTTPChown(RessourceURI, Data, OnSuccess, OnError) {
 // #endregion
 // #region HTTPCheck(RessourceURI, Data, OnSuccess, OnError)
 function HTTPCheck(RessourceURI, Data, OnSuccess, OnError) {
-    var ajax = new XMLHttpRequest();
+    const ajax = new XMLHttpRequest();
     ajax.open("CHECK", RessourceURI, true); // , user, password);
     ajax.setRequestHeader("Accept", "application/json; charset=UTF-8");
     ajax.setRequestHeader("Content-Type", "application/json; charset=UTF-8");
@@ -454,7 +453,7 @@ function HTTPCheck(RessourceURI, Data, OnSuccess, OnError) {
 // #endregion
 // #region HTTPAuth(RessourceURI, Data)
 function HTTPAuth(RessourceURI, Data) {
-    var ajax = new XMLHttpRequest();
+    const ajax = new XMLHttpRequest();
     ajax.open("AUTH", RessourceURI, false); // NOT ASYNC!
     ajax.setRequestHeader("Accept", "application/json; charset=UTF-8");
     ajax.setRequestHeader("Content-Type", "application/json; charset=UTF-8");
@@ -469,7 +468,7 @@ function HTTPAuth(RessourceURI, Data) {
 // #endregion
 // #region HTTPImpersonate(RessourceURI, OnSuccess, OnError)
 function HTTPImpersonate(RessourceURI, OnSuccess, OnError) {
-    var ajax = new XMLHttpRequest();
+    const ajax = new XMLHttpRequest();
     ajax.open("IMPERSONATE", RessourceURI, true); // NOT ASYNC!
     ajax.onreadystatechange = function () {
         // 0 UNSENT | 1 OPENED | 2 HEADERS_RECEIVED | 3 LOADING | 4 DONE
@@ -492,7 +491,7 @@ function HTTPImpersonate(RessourceURI, OnSuccess, OnError) {
 // #endregion
 // #region HTTPDepersonate(RessourceURI, OnSuccess, OnError)
 function HTTPDepersonate(RessourceURI, OnSuccess, OnError) {
-    var ajax = new XMLHttpRequest();
+    const ajax = new XMLHttpRequest();
     ajax.open("DEPERSONATE", RessourceURI, true); // NOT ASYNC!
     ajax.onreadystatechange = function () {
         // 0 UNSENT | 1 OPENED | 2 HEADERS_RECEIVED | 3 LOADING | 4 DONE
@@ -515,7 +514,7 @@ function HTTPDepersonate(RessourceURI, OnSuccess, OnError) {
 // #endregion
 // #region HTTPSet__SYNCED(RessourceURI, Data)
 function HTTPSet__SYNCED(RessourceURI, Data) {
-    var ajax = new XMLHttpRequest();
+    const ajax = new XMLHttpRequest();
     ajax.open("SET", RessourceURI, false); // NOT ASYNC!
     ajax.setRequestHeader("Accept", "application/json; charset=UTF-8");
     ajax.setRequestHeader("Content-Type", "application/json; charset=UTF-8");
@@ -530,12 +529,12 @@ function HTTPSet__SYNCED(RessourceURI, Data) {
 // #endregion
 // #region PrintArray(aArray, recursionLevel, CSSClassNames?)
 function PrintArray(array, recursionLevel, CSSClassNames) {
-    var listDiv = document.createElement('div');
+    const listDiv = document.createElement('div');
     listDiv.className = "List" + (CSSClassNames ? " " + CSSClassNames : "");
-    for (var number in array) {
-        var item = array[number];
+    for (const number in array) {
+        const item = array[number];
         if (typeof item === "string" || typeof item === "number") {
-            var propertyValueDiv = listDiv.appendChild(document.createElement('div'));
+            const propertyValueDiv = listDiv.appendChild(document.createElement('div'));
             if (typeof item === "string")
                 propertyValueDiv.innerHTML = '<p>' + item + '</p>';
             else
@@ -551,28 +550,28 @@ function PrintArray(array, recursionLevel, CSSClassNames) {
 // #endregion
 // #region PrintProperties(id, properties, recursionLevel, CSSClassNames?)
 function PrintProperties(id, properties, recursionLevel, CSSClassNames) {
-    var propertiesDiv = document.createElement('div');
+    const propertiesDiv = document.createElement('div');
     if (id != undefined)
         propertiesDiv.id = id;
     propertiesDiv.className = "Properties" + (CSSClassNames ? " " + CSSClassNames : "");
-    for (var propertyKey in properties) {
+    for (const propertyKey in properties) {
         // #region Omit @id and @context at the top-level...
         if ((propertyKey == "@id" && recursionLevel == 0) ||
             propertyKey == "@context") {
             continue;
         }
         // #endregion
-        var propertyValue = properties[propertyKey];
-        var propertyDiv = propertiesDiv.appendChild(document.createElement('div'));
+        const propertyValue = properties[propertyKey];
+        const propertyDiv = propertiesDiv.appendChild(document.createElement('div'));
         propertyDiv.className = "Property";
-        var propertyKeyDiv = propertyDiv.appendChild(document.createElement('div'));
+        const propertyKeyDiv = propertyDiv.appendChild(document.createElement('div'));
         propertyKeyDiv.className = "PropertyKey";
         propertyKeyDiv.innerText = propertyKey;
         if (typeof propertyValue === "string" ||
             typeof propertyValue === "number" ||
             typeof propertyValue === "boolean" ||
             propertyValue instanceof HTMLDivElement) {
-            var propertyValueDiv = propertyDiv.appendChild(document.createElement('div'));
+            const propertyValueDiv = propertyDiv.appendChild(document.createElement('div'));
             propertyValueDiv.className = "PropertyValue";
             if (typeof propertyValue === "string")
                 propertyValueDiv.innerHTML = '<p>' + propertyValue + '</p>';
@@ -591,12 +590,12 @@ function PrintProperties(id, properties, recursionLevel, CSSClassNames) {
 // #endregion
 // #region ShowI18N(I18NString)
 function ShowI18N(I18NString) {
-    var I18NDiv = document.createElement('div');
-    for (var I18NKey in I18NString) {
-        var propertyKeyDiv = I18NDiv.appendChild(document.createElement('div'));
+    const I18NDiv = document.createElement('div');
+    for (const I18NKey in I18NString) {
+        const propertyKeyDiv = I18NDiv.appendChild(document.createElement('div'));
         propertyKeyDiv.className = "I18NLanguage";
         propertyKeyDiv.innerText = I18NKey;
-        var propertyValueDiv = I18NDiv.appendChild(document.createElement('div'));
+        const propertyValueDiv = I18NDiv.appendChild(document.createElement('div'));
         propertyValueDiv.className = "I18NValue";
         propertyValueDiv.innerText = I18NString[I18NKey];
     }
@@ -605,13 +604,13 @@ function ShowI18N(I18NString) {
 // #endregion
 // #region CreateI18NPrefixDiv(Prefix, I18NString, CSSClassNames?)
 function CreateI18NPrefixDiv(Prefix, I18NString, CSSClassNames) {
-    var I18NDiv = document.createElement('div');
+    const I18NDiv = document.createElement('div');
     I18NDiv.className = "I18N" + (CSSClassNames ? " " + CSSClassNames : "");
-    for (var I18NKey in I18NString) {
-        var propertyKeyDiv = I18NDiv.appendChild(document.createElement('div'));
+    for (const I18NKey in I18NString) {
+        const propertyKeyDiv = I18NDiv.appendChild(document.createElement('div'));
         propertyKeyDiv.className = "I18NLanguage";
         propertyKeyDiv.innerHTML = "<p>" + I18NKey + "</p>";
-        var propertyValueDiv = I18NDiv.appendChild(document.createElement('div'));
+        const propertyValueDiv = I18NDiv.appendChild(document.createElement('div'));
         propertyValueDiv.className = "I18NValue";
         propertyValueDiv.innerHTML = Prefix + I18NString[I18NKey];
     }
@@ -620,13 +619,13 @@ function CreateI18NPrefixDiv(Prefix, I18NString, CSSClassNames) {
 // #endregion
 // #region CreateI18NDiv(I18NString, CSSClassNames?)
 function CreateI18NDiv(I18NString, CSSClassNames) {
-    var I18NDiv = document.createElement('div');
+    const I18NDiv = document.createElement('div');
     I18NDiv.className = "I18N" + (CSSClassNames ? " " + CSSClassNames : "");
-    for (var I18NKey in I18NString) {
-        var propertyKeyDiv = I18NDiv.appendChild(document.createElement('div'));
+    for (const I18NKey in I18NString) {
+        const propertyKeyDiv = I18NDiv.appendChild(document.createElement('div'));
         propertyKeyDiv.className = "I18NLanguage";
         propertyKeyDiv.innerHTML = "<p>" + I18NKey + "</p>";
-        var propertyValueDiv = I18NDiv.appendChild(document.createElement('div'));
+        const propertyValueDiv = I18NDiv.appendChild(document.createElement('div'));
         propertyValueDiv.className = "I18NValue";
         propertyValueDiv.innerHTML = I18NString[I18NKey];
     }
@@ -641,7 +640,7 @@ function CreateI18NDiv(I18NString, CSSClassNames) {
 //    return newDiv;
 //}
 function CreateDiv(parent, className, innerHTML) {
-    var newDiv = parent.appendChild(document.createElement('div'));
+    const newDiv = parent.appendChild(document.createElement('div'));
     if (className != null)
         newDiv.className = className;
     if (innerHTML != null) {
@@ -653,7 +652,7 @@ function CreateDiv(parent, className, innerHTML) {
     return newDiv;
 }
 // #endregion
-var months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 function parseLocalDate(DateString) {
     console.log("initial locale: " + moment.locale());
     console.log("initial date format:= " + moment.localeData().longDateFormat('L'));
@@ -699,5 +698,30 @@ function parseUTCTimestamp(UTCString) {
         return "";
     moment.locale(window.navigator.language);
     return moment.utc(UTCString).local().format('LLLL');
+}
+function CreateLine(parent, Key, Value) {
+    const row = parent.appendChild(document.createElement('div'));
+    row.className = "row";
+    const key = row.appendChild(document.createElement('div'));
+    key.className = "key";
+    key.innerHTML = Key;
+    const value = row.appendChild(document.createElement('div'));
+    value.className = "value";
+    value.innerHTML = Value;
+    return row;
+}
+function FixMenuLinks(parentDivId, linkId) {
+    if (parentDivId === null || parentDivId === "" ||
+        linkId === null || linkId === "") {
+        return;
+    }
+    const defibrillatorMenuDiv = document.getElementById(parentDivId);
+    if (defibrillatorMenuDiv !== null) {
+        for (const link of Array.from(defibrillatorMenuDiv.querySelectorAll("a"))) {
+            if (link.href.indexOf("00000000") > 0) {
+                link.href = link.href.replace("00000000", linkId);
+            }
+        }
+    }
 }
 //# sourceMappingURL=defaults.js.map

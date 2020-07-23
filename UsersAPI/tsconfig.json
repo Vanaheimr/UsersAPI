@@ -3,7 +3,8 @@
     "module": "system",
     "noImplicitAny": false,
     "sourceMap": true,
-    "allowJs": false
+    "allowJs": false,
+    "target": "ES2018"
   },
   "files": [
     "HTTPRoot/defaults/defaults.ts",

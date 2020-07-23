@@ -1,5 +1,5 @@
 function StartChangePassword() {
-    var minPasswordLength = 5;
+    let minPasswordLength = 5;
     //function createSalt() {
     //    const size  = 16;
     //    const allc  = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"; // !@#$%^&*()_+~`|}{[]\:;?><,./-=
@@ -41,10 +41,10 @@ function StartChangePassword() {
         HTTPSet("/users/" + SignInUser + "/password", {
             "currentPassword": currentPassword.value,
             "newPassword": newPassword1.value
-        }, function (HTTPStatus, ResponseText) {
+        }, (HTTPStatus, ResponseText) => {
             responseDiv.style.display = 'block';
             responseDiv.innerHTML = "<div class=\"HTTP OK\">Successfully updated your password.</div>";
-        }, function (HTTPStatus, StatusText, ResponseText) {
+        }, (HTTPStatus, StatusText, ResponseText) => {
             var responseJSON = { "description": "HTTP Error " + HTTPStatus + " - " + StatusText + "!" };
             if (ResponseText != null && ResponseText != "") {
                 try {
@@ -56,22 +56,22 @@ function StartChangePassword() {
             responseDiv.innerHTML = "<div class=\"HTTP Error\">Updating your password failed!" + (responseJSON.description != null ? responseJSON.description : "") + "</div>";
         });
     }
-    var changePasswordInfos = document.getElementById('changePasswordInfos');
-    var changePassword = document.getElementById('changePassword');
-    var currentPassword = changePassword.querySelector('#currentPassword');
-    var newPassword1 = changePassword.querySelector('#newPassword1');
-    var newPassword2 = changePassword.querySelector('#newPassword2');
-    var responseDiv = document.getElementById("response");
-    var lowerButtonsDiv = changePasswordInfos.querySelector('#lowerButtons');
-    var saveButton = lowerButtonsDiv.querySelector("#saveButton");
-    currentPassword.onchange = function () { Verify(); };
-    currentPassword.onkeyup = function () { Verify(); };
-    currentPassword.onchange = function () { Verify(); };
-    currentPassword.onkeyup = function () { Verify(); };
-    newPassword1.onchange = function () { Verify(); };
-    newPassword1.onkeyup = function () { Verify(); };
-    newPassword2.onchange = function () { Verify(); };
-    newPassword2.onkeyup = function () { Verify(); };
-    saveButton.onclick = function () { SaveNewPassword(); };
+    const changePasswordInfos = document.getElementById('changePasswordInfos');
+    const changePassword = document.getElementById('changePassword');
+    const currentPassword = changePassword.querySelector('#currentPassword');
+    const newPassword1 = changePassword.querySelector('#newPassword1');
+    const newPassword2 = changePassword.querySelector('#newPassword2');
+    const responseDiv = document.getElementById("response");
+    const lowerButtonsDiv = changePasswordInfos.querySelector('#lowerButtons');
+    const saveButton = lowerButtonsDiv.querySelector("#saveButton");
+    currentPassword.onchange = () => { Verify(); };
+    currentPassword.onkeyup = () => { Verify(); };
+    currentPassword.onchange = () => { Verify(); };
+    currentPassword.onkeyup = () => { Verify(); };
+    newPassword1.onchange = () => { Verify(); };
+    newPassword1.onkeyup = () => { Verify(); };
+    newPassword2.onchange = () => { Verify(); };
+    newPassword2.onkeyup = () => { Verify(); };
+    saveButton.onclick = () => { SaveNewPassword(); };
 }
 //# sourceMappingURL=password.js.map

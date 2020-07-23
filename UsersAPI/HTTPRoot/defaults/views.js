@@ -1,5 +1,5 @@
-var View = /** @class */ (function () {
-    function View(Parent) {
+class View {
+    constructor(Parent) {
         //this.myself    = Parent.appendChild(document.createElement('div')) as HTMLDivElement;
         //this.myself.id = Prefix + "View";
         //this.HeadlineDiv = Parent.appendChild(document.createElement('div')) as HTMLDivElement;
@@ -11,8 +11,7 @@ var View = /** @class */ (function () {
         //this.ButtonDiv.id          = "buttons";
         this.CurrentGroupDiv = this.ContentDiv;
     }
-    View.prototype.CreateGroup = function (Prefix, Visible) {
-        if (Visible === void 0) { Visible = true; }
+    CreateGroup(Prefix, Visible = true) {
         var GroupDiv = this.ContentDiv.appendChild(document.createElement('div'));
         GroupDiv.id = Prefix + "Group";
         GroupDiv.className = "rowGroup";
@@ -20,19 +19,16 @@ var View = /** @class */ (function () {
             GroupDiv.style.display = "none";
         this.CurrentGroupDiv = GroupDiv;
         return GroupDiv;
-    };
-    View.prototype.ResetGroup = function () {
+    }
+    ResetGroup() {
         this.CurrentGroupDiv = this.ContentDiv;
-    };
+    }
     ;
-    View.prototype.CreateRow = function (Prefix, KeyText, greeter) {
-        if (greeter === void 0) { greeter = null; }
+    CreateRow(Prefix, KeyText, greeter = null) {
         return this.CreateRow2(Prefix, KeyText, false, greeter);
-    };
+    }
     ;
-    View.prototype.CreateRow2 = function (Prefix, KeyText, keyTop, greeter) {
-        if (keyTop === void 0) { keyTop = false; }
-        if (greeter === void 0) { greeter = null; }
+    CreateRow2(Prefix, KeyText, keyTop = false, greeter = null) {
         var DivRow = this.CurrentGroupDiv.appendChild(document.createElement('div'));
         DivRow.id = Prefix + "Row";
         DivRow.className = "row";
@@ -46,7 +42,6 @@ var View = /** @class */ (function () {
         if (greeter != null)
             greeter(DivValue);
         return DivValue;
-    };
-    return View;
-}());
+    }
+}
 //# sourceMappingURL=views.js.map

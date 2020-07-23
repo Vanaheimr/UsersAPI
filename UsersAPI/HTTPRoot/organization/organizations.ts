@@ -2,10 +2,10 @@
 
 function StartOrganizationSearch(NoURIupdate?: boolean) {
 
-    StartSearch2<IOrganization>("/organizations",
-                                "organization",
-                                "organizations",
-                                (organization, organizationDiv) => {
+    StartSearch<IOrganization>("/organizations",
+                               "organization",
+                               "organizations",
+                               (organization, organizationDiv) => {
 
                                     // show id
                                     CreateDiv(organizationDiv, "id", organization["@id"]);
@@ -46,9 +46,8 @@ function StartOrganizationSearch(NoURIupdate?: boolean) {
                                     //}
 
                                 },
-                                null,
-                                false,
-                                null,
-                                NoURIupdate);
+                               null,
+                               false,
+                               null);
 
 }

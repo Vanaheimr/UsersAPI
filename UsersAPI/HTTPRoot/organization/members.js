@@ -96,74 +96,74 @@ function StartOrganizationMembers() {
         //        });
     }
     function ImpersonateUser(newUserId) {
-        HTTPImpersonate("/users/" + newUserId, function (HTTPStatus, ResponseText) {
+        HTTPImpersonate("/users/" + newUserId, (HTTPStatus, ResponseText) => {
             window.location.reload(true);
-        }, function (HTTPStatus, StatusText, ResponseText) {
+        }, (HTTPStatus, StatusText, ResponseText) => {
             alert("Not allowed!");
         });
     }
     function ShowUser(userDiv, member) {
-        var memberDiv = userDiv.appendChild(document.createElement('div'));
+        const memberDiv = userDiv.appendChild(document.createElement('div'));
         memberDiv.className = "member";
         if (typeof member == 'string') {
-            memberDiv.onclick = function () { return window.location.href = "../../users/" + member; };
+            memberDiv.onclick = () => window.location.href = "../../users/" + member;
             memberDiv.innerHTML = member;
         }
         else {
-            memberDiv.onclick = function () { return window.location.href = "../../users/" + member["@id"]; };
-            var frameDiv = memberDiv.appendChild(document.createElement('div'));
+            memberDiv.onclick = () => window.location.href = "../../users/" + member["@id"];
+            const frameDiv = memberDiv.appendChild(document.createElement('div'));
             frameDiv.className = "frame";
-            var imageDiv = frameDiv.appendChild(document.createElement('div'));
+            const imageDiv = frameDiv.appendChild(document.createElement('div'));
             imageDiv.className = "avatar";
             imageDiv.innerHTML = "<img src=\"/shared/UsersAPI/images/dummy-user-gray-150x150.png\" >";
-            var infoDiv = frameDiv.appendChild(document.createElement('div'));
+            const infoDiv = frameDiv.appendChild(document.createElement('div'));
             infoDiv.className = "info";
-            var nameDiv_1 = infoDiv.appendChild(document.createElement('div'));
-            nameDiv_1.className = "name";
-            nameDiv_1.innerHTML = member.name;
+            const nameDiv = infoDiv.appendChild(document.createElement('div'));
+            nameDiv.className = "name";
+            nameDiv.innerHTML = member.name;
             if (member.description) {
-                var descriptionDiv = infoDiv.appendChild(document.createElement('div'));
+                const descriptionDiv = infoDiv.appendChild(document.createElement('div'));
                 descriptionDiv.className = "description";
                 descriptionDiv.innerHTML = ShowI18N(member.description);
             }
-            var emailDiv = infoDiv.appendChild(document.createElement('div'));
+            const emailDiv = infoDiv.appendChild(document.createElement('div'));
             emailDiv.className = "email";
             emailDiv.innerHTML = "<i class=\"fas fa-envelope\"></i> <a href=\"mailto:" + member.email + "\">" + member.email + "</a>";
             // Authenticated
             // Accpeted EULA
-            var toolsDiv = frameDiv.appendChild(document.createElement('div'));
+            const toolsDiv = frameDiv.appendChild(document.createElement('div'));
             toolsDiv.className = "tools";
             //            toolsDiv.innerHTML = "tools";
-            var impersonateUserButton = toolsDiv.appendChild(document.createElement('button'));
+            const impersonateUserButton = toolsDiv.appendChild(document.createElement('button'));
             impersonateUserButton.className = "impersonateUser";
             impersonateUserButton.title = "Impersonate this user!";
             impersonateUserButton.innerHTML = '<i class="fas fa-theater-masks"></i> Impersonate</i>';
-            impersonateUserButton.onclick = function () {
+            impersonateUserButton.onclick = () => {
                 ImpersonateUser(member["@id"]);
             };
         }
     }
-    var pathElements = window.location.pathname.split("/");
-    var organizationId = pathElements[pathElements.length - 2];
-    var organizationMenuDiv = document.getElementById("organizationMenu");
-    var links = organizationMenuDiv.querySelectorAll("a");
-    for (var i = 0; i < links.length; i++) {
+    const pathElements = window.location.pathname.split("/");
+    const organizationId = pathElements[pathElements.length - 2];
+    const organizationMenuDiv = document.getElementById("organizationMenu");
+    const links = organizationMenuDiv.querySelectorAll("a");
+    for (let i = 0; i < links.length; i++) {
         if (links[i].href.indexOf("00000000") > 0) {
             links[i].href = links[i].href.replace("00000000", organizationId);
         }
     }
-    var organizationDiv = document.getElementById("organization");
-    var headlineDiv = organizationDiv.querySelector("#headline");
-    var addNewMemberButton = organizationDiv.querySelector('#addNewMemberButton');
-    var nameDiv = organizationDiv.querySelector('#nameDiv');
-    var name = organizationDiv.querySelector('#name');
-    var adminsDiv = organizationDiv.querySelector('#adminsDiv');
-    var membersDiv = organizationDiv.querySelector('#membersDiv');
-    var responseDiv = document.getElementById("response");
-    name.onchange = function () { ToogleSaveButton(); };
-    name.onkeyup = function () { ToogleSaveButton(); };
+    const organizationDiv = document.getElementById("organization");
+    const headlineDiv = organizationDiv.querySelector("#headline");
+    const addNewMemberButton = organizationDiv.querySelector('#addNewMemberButton');
+    const nameDiv = organizationDiv.querySelector('#nameDiv');
+    const name = organizationDiv.querySelector('#name');
+    const adminsDiv = organizationDiv.querySelector('#adminsDiv');
+    const membersDiv = organizationDiv.querySelector('#membersDiv');
+    const responseDiv = document.getElementById("response");
+    name.onchange = () => { ToogleSaveButton(); };
+    name.onkeyup = () => { ToogleSaveButton(); };
     var aa = SignInUser;
-    HTTPGet("/organizations/" + organizationId + "?showMgt&expand=members", function (status, response) {
+    HTTPGet("/organizations/" + organizationId + "?showMgt&expand=members", (status, response) => {
         var _a, _b;
         try {
             organizationJSON = ParseJSON_LD(response);
@@ -175,18 +175,14 @@ function StartOrganizationMembers() {
                 headlineDiv.querySelector("#description #I18NText").innerText = firstValue(organizationJSON.description);
             }
             if (((_a = organizationJSON.admins) === null || _a === void 0 ? void 0 : _a.length) > 0)
-                for (var _i = 0, _c = organizationJSON.admins; _i < _c.length; _i++) {
-                    var member = _c[_i];
+                for (const member of organizationJSON.admins)
                     ShowUser(adminsDiv, member);
-                }
             if (((_b = organizationJSON.members) === null || _b === void 0 ? void 0 : _b.length) > 0)
-                for (var _d = 0, _e = organizationJSON.members; _d < _e.length; _d++) {
-                    var member = _e[_d];
+                for (const member of organizationJSON.members)
                     ShowUser(membersDiv, member);
-                }
             if (organizationJSON.youCanAddMembers) {
                 addNewMemberButton.disabled = false;
-                addNewMemberButton.onclick = function () { return window.location.href = "newMember"; };
+                addNewMemberButton.onclick = () => window.location.href = "newMember";
             }
         }
         catch (exception) {
@@ -194,9 +190,9 @@ function StartOrganizationMembers() {
                 "Exception: " + exception +
                 "</div>";
         }
-    }, function (statusCode, status, response) {
+    }, (statusCode, status, response) => {
         try {
-            var responseJSON = JSON.parse(response);
+            const responseJSON = JSON.parse(response);
             responseDiv.innerHTML = "<div class=\"HTTP Error\">Could not fetch organization members data from server!<br />" +
                 (responseJSON.description != null
                     ? responseJSON.description

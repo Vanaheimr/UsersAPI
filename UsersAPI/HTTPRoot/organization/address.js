@@ -1,5 +1,5 @@
 function StartOrganizationGeoLocation() {
-    var geoPosition;
+    let geoPosition;
     function DrawGeoPosition() {
         if (geoPosition != null) {
             map.removeLayer(geoPosition);
@@ -123,7 +123,7 @@ function StartOrganizationGeoLocation() {
         //    OrganizationJSON.geoLocation.lat = Number.parseFloat(latitude.value);
         //if (OrganizationJSON.geoLocation.lat === "")
         //    delete OrganizationJSON.geoLocation;
-        HTTPSet("/organizations/" + organizationJSON["@id"], organizationJSON, function (HTTPStatus, ResponseText) {
+        HTTPSet("/organizations/" + organizationJSON["@id"], organizationJSON, (HTTPStatus, ResponseText) => {
             try {
                 var responseJSON = ResponseText != "" ? JSON.parse(ResponseText) : {};
                 var info = responseJSON.description != null ? "<br />" + responseJSON.description : "";
@@ -134,7 +134,7 @@ function StartOrganizationGeoLocation() {
                 saveButton.disabled = !AnyChangesMade();
                 responseDiv.innerHTML = "<div class=\"HTTP OK\">Successfully stored updated organization data.</div>";
             }
-        }, function (HTTPStatus, StatusText, ResponseText) {
+        }, (HTTPStatus, StatusText, ResponseText) => {
             try {
                 var responseJSON = ResponseText != "" ? JSON.parse(ResponseText) : {};
                 var info = responseJSON.description != null ? "<br />" + responseJSON.description : "";
@@ -144,47 +144,47 @@ function StartOrganizationGeoLocation() {
             }
         });
     }
-    var pathElements = window.location.pathname.split("/");
-    var organizationId = pathElements[pathElements.length - 2];
-    var organizationMenuDiv = document.getElementById("organizationMenu");
-    var links = organizationMenuDiv.querySelectorAll("a");
+    let pathElements = window.location.pathname.split("/");
+    let organizationId = pathElements[pathElements.length - 2];
+    let organizationMenuDiv = document.getElementById("organizationMenu");
+    let links = organizationMenuDiv.querySelectorAll("a");
     for (var i = 0; i < links.length; i++) {
         if (links[i].href.indexOf("00000000") > 0) {
             links[i].href = links[i].href.replace("00000000", organizationId);
         }
     }
-    var organizationDiv = document.getElementById("organization");
-    var headlineDiv = organizationDiv.querySelector("#headline");
-    var dataDiv = organizationDiv.querySelector('#data');
-    var street = dataDiv.querySelector('#street');
-    var houseNumber = dataDiv.querySelector('#houseNumber');
-    var floorLevel = dataDiv.querySelector('#floorLevel');
-    var postalCode = dataDiv.querySelector('#postalCode');
-    var city = dataDiv.querySelector('#city');
-    var country = dataDiv.querySelector('#country');
-    var comment = dataDiv.querySelector("#comment");
-    var latitude = dataDiv.querySelector('#latitude');
-    var longitude = dataDiv.querySelector('#longitude');
-    var responseDiv = document.getElementById("response");
-    var lowerButtonsDiv = organizationDiv.querySelector('#lowerButtons');
-    var saveButton = lowerButtonsDiv.querySelector("#saveButton");
-    street.oninput = function () { ToogleSaveButton(); };
-    houseNumber.oninput = function () { ToogleSaveButton(); };
-    floorLevel.oninput = function () { ToogleSaveButton(); };
-    postalCode.oninput = function () { ToogleSaveButton(); };
-    city.oninput = function () { ToogleSaveButton(); };
-    country.oninput = function () { ToogleSaveButton(); };
-    latitude.oninput = function () { DrawGeoPosition(); ToogleSaveButton(); };
-    longitude.oninput = function () { DrawGeoPosition(); ToogleSaveButton(); };
-    saveButton.onclick = function () { SaveData(); };
+    const organizationDiv = document.getElementById("organization");
+    const headlineDiv = organizationDiv.querySelector("#headline");
+    const dataDiv = organizationDiv.querySelector('#data');
+    const street = dataDiv.querySelector('#street');
+    const houseNumber = dataDiv.querySelector('#houseNumber');
+    const floorLevel = dataDiv.querySelector('#floorLevel');
+    const postalCode = dataDiv.querySelector('#postalCode');
+    const city = dataDiv.querySelector('#city');
+    const country = dataDiv.querySelector('#country');
+    const comment = dataDiv.querySelector("#comment");
+    const latitude = dataDiv.querySelector('#latitude');
+    const longitude = dataDiv.querySelector('#longitude');
+    const responseDiv = document.getElementById("response");
+    const lowerButtonsDiv = organizationDiv.querySelector('#lowerButtons');
+    const saveButton = lowerButtonsDiv.querySelector("#saveButton");
+    street.oninput = () => { ToogleSaveButton(); };
+    houseNumber.oninput = () => { ToogleSaveButton(); };
+    floorLevel.oninput = () => { ToogleSaveButton(); };
+    postalCode.oninput = () => { ToogleSaveButton(); };
+    city.oninput = () => { ToogleSaveButton(); };
+    country.oninput = () => { ToogleSaveButton(); };
+    latitude.oninput = () => { DrawGeoPosition(); ToogleSaveButton(); };
+    longitude.oninput = () => { DrawGeoPosition(); ToogleSaveButton(); };
+    saveButton.onclick = () => { SaveData(); };
     map.on('click', function (e) {
-        var coordinate = e.latlng.wrap();
+        const coordinate = e.latlng.wrap();
         latitude.value = coordinate.lat;
         longitude.value = coordinate.lng;
         DrawGeoPosition();
         ToogleSaveButton();
     });
-    HTTPGet("/organizations/" + organizationId + "?showMgt&expand=parents,subOrganizations", function (status, response) {
+    HTTPGet("/organizations/" + organizationId + "?showMgt&expand=parents,subOrganizations", (status, response) => {
         try {
             organizationJSON = ParseJSON_LD(response);
             headlineDiv.querySelector("#name #language").innerText = firstKey(organizationJSON.name);
@@ -211,7 +211,7 @@ function StartOrganizationGeoLocation() {
         catch (exception) {
             responseDiv.innerHTML = "<div class=\"HTTP Error\">Could not fetch organization data from server!</div>";
         }
-    }, function (statusCode, status, response) {
+    }, (statusCode, status, response) => {
         responseDiv.innerHTML = "<div class=\"HTTP Error\">Could not fetch organization data from server!</div>";
     });
 }

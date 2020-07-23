@@ -88,7 +88,7 @@ body #page #right #text {
     body #page #right #text .entity #headline {
       color: #8c8c8c;
       background-color: #f3f3f3;
-      padding: 30px 30px 20px 25px;
+      padding: 30px 30px 15px 25px;
       display: block; }
       body #page #right #text .entity #headline #title {
         margin: 0;
@@ -99,9 +99,10 @@ body #page #right #text {
     body #page #right #text .entity #controls {
       display: flex;
       flex-direction: column;
-      background-color: #f3f3f3; }
+      background-color: #f3f3f3;
+      padding-bottom: 7px; }
       body #page #right #text .entity #controls #search {
-        margin-bottom: 5px; }
+        margin-bottom: 2vh; }
         body #page #right #text .entity #controls #search .patternFilter {
           display: inline-block;
           padding: 2px 3px 2px 17px;
@@ -210,6 +211,11 @@ body #page #right #text {
               right: 5px;
               top: 5px; }
     body #page #right #text .entity #message {
+      padding: 5px 30px;
+      font-size: 80%;
+      color: #707070; }
+    body #page #right #text .entity #localSearchMessage {
+      display: none;
       padding: 5px 30px;
       font-size: 80%;
       color: #707070; }

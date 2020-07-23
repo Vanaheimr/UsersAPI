@@ -1,6 +1,6 @@
 ///<reference path="../../../../UsersAPI/UsersAPI/HTTPRoot/libs/date.format.ts" />
 function StartOrganizationSearch(NoURIupdate) {
-    StartSearch2("/organizations", "organization", "organizations", function (organization, organizationDiv) {
+    StartSearch("/organizations", "organization", "organizations", (organization, organizationDiv) => {
         // show id
         CreateDiv(organizationDiv, "id", organization["@id"]);
         // show name
@@ -27,6 +27,6 @@ function StartOrganizationSearch(NoURIupdate) {
         //                                      ? "MONTHLY " + firstKey(organization.monthlySelfTests)
         //                                      : "DAILY "   + firstKey(organization.dailySelfTests));
         //}
-    }, null, false, null, NoURIupdate);
+    }, null, false, null);
 }
 //# sourceMappingURL=organizations.js.map

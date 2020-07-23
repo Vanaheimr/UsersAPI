@@ -1,7 +1,7 @@
 ///<reference path="../../../../UsersAPI/UsersAPI/HTTPRoot/libs/date.format.ts" />
 ///<reference path="../../../../UsersAPI/UsersAPI/HTTPRoot/defaults/search.ts" />
 function StartUserSearch(NoURIupdate) {
-    StartSearch2("/users", "user", "users", function (user, userDiv) {
+    StartSearch("/users", "user", "users", (user, userDiv) => {
         CreateDiv(userDiv, "id", user["@id"]);
         CreateDiv(userDiv, "name", user.name);
         CreateDiv(userDiv, null, CreateI18NDiv(user.description, "description"));
@@ -21,6 +21,6 @@ function StartUserSearch(NoURIupdate) {
         //                                      ? "MONTHLY " + firstKey(User.monthlySelfTests)
         //                                      : "DAILY "   + firstKey(User.dailySelfTests));
         //}
-    }, null, false, null, NoURIupdate);
+    }, null, false, null);
 }
 //# sourceMappingURL=users.js.map
