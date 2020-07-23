@@ -4149,48 +4149,58 @@ namespace social.OpenData.UsersAPI
                                              #endregion
 
 
-                                             var withMetadata        = Request.QueryString.GetBoolean("withMetadata", false);
-                                             var includeFilter       = Request.QueryString.CreateStringFilter<User>("include",
-                                                                                                                    (user, include) => user.Id.  IndexOf(include)                                     >= 0 ||
-                                                                                                                                       user.Name.IndexOf(include, StringComparison.OrdinalIgnoreCase) >= 0 ||
-                                                                                                                                       user.Description.Matches(include, IgnoreCase: true));
+                                             var withMetadata           = Request.QueryString.GetBoolean("withMetadata", false);
+                                             var includeFilter          = Request.QueryString.CreateStringFilter<User>("include",
+                                                                                                                       (user, include) => user.Id.  IndexOf(include)                                     >= 0 ||
+                                                                                                                                          user.Name.IndexOf(include, StringComparison.OrdinalIgnoreCase) >= 0 ||
+                                                                                                                                          user.Description.Matches(include, IgnoreCase: true));
 
-                                             var skip                = Request.QueryString.GetUInt64 ("skip");
-                                             var take                = Request.QueryString.GetUInt64 ("take");
+                                             var skip                   = Request.QueryString.GetUInt64 ("skip");
+                                             var take                   = Request.QueryString.GetUInt64 ("take");
 
-                                             var includeCryptoHash   = Request.QueryString.GetBoolean("includeCryptoHash", true);
+                                             var includeCryptoHash      = Request.QueryString.GetBoolean("includeCryptoHash", true);
 
-                                             var expand              = Request.QueryString.GetStrings("expand", true);
-                                             //var expandTags          = expand.Contains("tags")              ? InfoStatus.Expand : InfoStatus.ShowIdOnly;
+                                             var expand                 = Request.QueryString.GetStrings("expand", true);
+                                             //var expandTags             = expand.Contains("tags")              ? InfoStatus.Expand : InfoStatus.ShowIdOnly;
 
+                                             var filteredUsers          = HTTPOrganizations.
+                                                                              SafeSelectMany(organization => organization.Users).
+                                                                              Distinct      ().
+                                                                              Where         (includeFilter).
+                                                                              OrderBy       (user => user.Name).
+                                                                              ToArray();
 
-                                             //ToDo: Getting the expected total count might be very expensive!
-                                             var _ExpectedCount = Organizations.ULongCount();
+                                             var filteredCount          = filteredUsers.ULongCount();
+                                             var totalCount             = HTTPOrganizations.ULongCount();
+
+                                             var JSONResults            = filteredUsers.
+                                                                              ToJSON(skip,
+                                                                                     take,
+                                                                                     false, //Embedded
+                                                                                     GetUserSerializator(Request, HTTPUser),
+                                                                                     includeCryptoHash);
+
 
                                              return Task.FromResult(
                                                  new HTTPResponse.Builder(Request) {
-                                                     HTTPStatusCode                 = HTTPStatusCode.OK,
-                                                     Server                         = HTTPServer.DefaultServerName,
-                                                     Date                           = DateTime.UtcNow,
-                                                     AccessControlAllowOrigin       = "*",
-                                                     AccessControlAllowMethods      = "GET, COUNT, OPTIONS",
-                                                     AccessControlAllowHeaders      = "Content-Type, Accept, Authorization",
-                                                     ETag                           = "1",
-                                                     ContentType                    = HTTPContentType.JSON_UTF8,
-                                                     Content                        = HTTPOrganizations.
-                                                                                          SafeSelectMany(organization => organization.Users).
-                                                                                          Distinct      ().
-                                                                                          Where         (includeFilter).
-                                                                                          OrderBy       (user => user.Name).
-                                                                                          ToJSON        (skip,
-                                                                                                         take,
-                                                                                                         false, //Embedded
-                                                                                                         GetUserSerializator(Request, HTTPUser),
-                                                                                                         includeCryptoHash).
-                                                                                          ToUTF8Bytes(),
-                                                     X_ExpectedTotalNumberOfItems   = _ExpectedCount,
-                                                     Connection                     = "close",
-                                                     Vary                           = "Accept"
+                                                     HTTPStatusCode                = HTTPStatusCode.OK,
+                                                     Server                        = HTTPServer.DefaultServerName,
+                                                     Date                          = DateTime.UtcNow,
+                                                     AccessControlAllowOrigin      = "*",
+                                                     AccessControlAllowMethods     = "GET, COUNT, OPTIONS",
+                                                     AccessControlAllowHeaders     = "Content-Type, Accept, Authorization",
+                                                     ETag                          = "1",
+                                                     ContentType                   = HTTPContentType.JSON_UTF8,
+                                                     Content                       = withMetadata
+                                                                                         ? JSONObject.Create(
+                                                                                               new JProperty("totalCount",     totalCount),
+                                                                                               new JProperty("filteredCount",  filteredCount),
+                                                                                               new JProperty("users",          JSONResults)
+                                                                                           ).ToUTF8Bytes()
+                                                                                         : JSONResults.ToUTF8Bytes(),
+                                                     X_ExpectedTotalNumberOfItems  = filteredCount,
+                                                     Connection                    = "close",
+                                                     Vary                          = "Accept"
                                                  }.AsImmutable);
 
                                          });
@@ -7084,9 +7094,25 @@ namespace social.OpenData.UsersAPI
                                              var expandSubOrganizations  = expand.Contains("subOrganizations")  ? InfoStatus.Expand : InfoStatus.ShowIdOnly;
                                              var expandTags              = expand.Contains("tags")              ? InfoStatus.Expand : InfoStatus.ShowIdOnly;
 
+                                             var filteredOrganizations   = HTTPOrganizations.
+                                                                               OrderBy(organization => organization.Name.FirstText()).
+                                                                               Where(includeFilter).
+                                                                               ToArray();
 
-                                             //ToDo: Getting the expected total count might be very expensive!
-                                             var _ExpectedCount = Organizations.ULongCount();
+                                             var filteredCount           = filteredOrganizations.ULongCount();
+                                             var totalCount              = HTTPOrganizations.ULongCount();
+
+                                             var JSONResults             = filteredOrganizations.
+                                                                               ToJSON(skip,
+                                                                                      take,
+                                                                                      false, //Embedded
+                                                                                      expandMembers,
+                                                                                      expandParents,
+                                                                                      expandSubOrganizations,
+                                                                                      expandTags,
+                                                                                      GetOrganizationSerializator(Request, HTTPUser),
+                                                                                      includeCryptoHash);
+
 
                                              return Task.FromResult(
                                                  new HTTPResponse.Builder(Request) {
@@ -7098,20 +7124,14 @@ namespace social.OpenData.UsersAPI
                                                      AccessControlAllowHeaders      = "Content-Type, Accept, Authorization",
                                                      ETag                           = "1",
                                                      ContentType                    = HTTPContentType.JSON_UTF8,
-                                                     Content                        = HTTPOrganizations.
-                                                                                          OrderBy(organization => organization.Name.FirstText()).
-                                                                                          Where  (includeFilter).
-                                                                                          ToJSON (skip,
-                                                                                                  take,
-                                                                                                  false, //Embedded
-                                                                                                  expandMembers,
-                                                                                                  expandParents,
-                                                                                                  expandSubOrganizations,
-                                                                                                  expandTags,
-                                                                                                  GetOrganizationSerializator(Request, HTTPUser),
-                                                                                                  includeCryptoHash).
-                                                                                          ToUTF8Bytes(),
-                                                     X_ExpectedTotalNumberOfItems   = _ExpectedCount,
+                                                     Content                        = withMetadata
+                                                                                          ? JSONObject.Create(
+                                                                                                new JProperty("totalCount",     totalCount),
+                                                                                                new JProperty("filteredCount",  filteredCount),
+                                                                                                new JProperty("organizations",  JSONResults)
+                                                                                            ).ToUTF8Bytes()
+                                                                                          : JSONResults.ToUTF8Bytes(),
+                                                     X_ExpectedTotalNumberOfItems   = filteredCount,
                                                      Connection                     = "close",
                                                      Vary                           = "Accept"
                                                  }.AsImmutable);
