@@ -16,6 +16,11 @@ var searchResultsMode;
     searchResultsMode[searchResultsMode["tableView"] = 1] = "tableView";
 })(searchResultsMode || (searchResultsMode = {}));
 function StartSearch(requestURL, nameOfItem, nameOfItems, doListView, doTableView, noListViewLinks, startView, context) {
+    requestURL = requestURL.indexOf('?') === -1
+        ? requestURL + '?'
+        : requestURL.endsWith('&')
+            ? requestURL
+            : requestURL + '&';
     let skip = 0;
     let take = 10;
     let viewMode = startView !== null ? startView : searchResultsMode.listView;
@@ -42,15 +47,14 @@ function StartSearch(requestURL, nameOfItem, nameOfItems, doListView, doTableVie
         leftButton.disabled = true;
         rightButton.disabled = true;
         const filterPattern = patternFilter.value !== "" ? "include=" + encodeURI(patternFilter.value) + "&" : "";
-        HTTPGet(requestURL + "?withMetadata&" + filterPattern + "take=" + take + "&skip=" + skip +
+        HTTPGet(requestURL + "withMetadata&" + filterPattern + "take=" + take + "&skip=" + skip +
             (context__["statusFilter"] !== undefined ? context__["statusFilter"] : ""), // + "&expand=members",
         (status, response) => {
             try {
                 const JSONresponse = JSON.parse(response);
                 const searchResults = JSONresponse[nameOfItems];
                 const numberOfResults = searchResults.length;
-                const totalNumberOfResults = JSONresponse.totalCount;
-                // delete previous search results...
+                const totalNumberOfResults = JSONresponse.filteredCount;
                 if (deletePreviousResults || numberOfResults > 0)
                     searchResultsDiv.innerHTML = "";
                 switch (viewMode) {
@@ -81,14 +85,11 @@ function StartSearch(requestURL, nameOfItem, nameOfItems, doListView, doTableVie
                     leftButton.disabled = false;
                 if (skip + take < totalNumberOfResults)
                     rightButton.disabled = false;
-                // a little edge case, whenever 'total number of results' % take == 0
-                if (searchResults.length === take)
-                    rightButton.disabled = false;
             }
             catch (exception) {
                 messageDiv.innerHTML = exception;
             }
-            if (whenDone != null)
+            if (whenDone !== null)
                 whenDone();
         }, (HTTPStatus, status, response) => {
             messageDiv.innerHTML = "Server error: " + HTTPStatus + " " + status + "<br />" + response;

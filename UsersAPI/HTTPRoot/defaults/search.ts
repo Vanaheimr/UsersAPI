@@ -36,6 +36,12 @@ function StartSearch<TSearch>(requestURL:        string,
                               startView?:        searchResultsMode,
                               context?:          SearchContext) {
 
+    requestURL = requestURL.indexOf('?') === -1
+                    ? requestURL + '?'
+                    : requestURL.endsWith('&')
+                          ? requestURL
+                          : requestURL + '&';
+
     let   skip                   = 0;
     let   take                   = 10;
     let   viewMode               = startView !== null ? startView : searchResultsMode.listView;
@@ -77,8 +83,8 @@ function StartSearch<TSearch>(requestURL:        string,
 
         const filterPattern   = patternFilter.value !== "" ? "include=" + encodeURI(patternFilter.value) + "&" : "";
 
-        HTTPGet(requestURL + "?withMetadata&" + filterPattern + "take=" + take + "&skip=" + skip +
-                                   (context__["statusFilter"] !== undefined ? context__["statusFilter"] : ""),// + "&expand=members",
+        HTTPGet(requestURL + "withMetadata&" + filterPattern + "take=" + take + "&skip=" + skip +
+                                  (context__["statusFilter"] !== undefined ? context__["statusFilter"] : ""),// + "&expand=members",
 
                 (status, response) => {
 
@@ -88,9 +94,8 @@ function StartSearch<TSearch>(requestURL:        string,
                         const JSONresponse          = JSON.parse(response);
                         const searchResults         = JSONresponse[nameOfItems] as Array<TSearch>;
                         const numberOfResults       = searchResults.length;
-                        const totalNumberOfResults  = JSONresponse.totalCount as number;
+                        const totalNumberOfResults  = JSONresponse.filteredCount as number;
 
-                        // delete previous search results...
                         if (deletePreviousResults || numberOfResults > 0)
                             searchResultsDiv.innerHTML = "";
 
@@ -133,13 +138,9 @@ function StartSearch<TSearch>(requestURL:        string,
                                                    : "no matching " + nameOfItems + " found";
 
                         if (skip > 0)
-                            leftButton.disabled = false;
+                            leftButton.disabled  = false;
 
                         if (skip + take < totalNumberOfResults)
-                            rightButton.disabled = false;
-
-                        // a little edge case, whenever 'total number of results' % take == 0
-                        if (searchResults.length === take)
                             rightButton.disabled = false;
 
                     }
@@ -148,7 +149,7 @@ function StartSearch<TSearch>(requestURL:        string,
                         messageDiv.innerHTML = exception;
                     }
 
-                    if (whenDone != null)
+                    if (whenDone !== null)
                         whenDone();
 
                 },
