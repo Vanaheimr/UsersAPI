@@ -1939,6 +1939,7 @@ namespace social.OpenData.UsersAPI
 
             : this(new HTTPServer(TCPPort:                           LocalPort      ?? IPPort.Parse(2305),
                                   DefaultServerName:                 HTTPServerName ?? "GraphDefined Users API",
+                                  ServiceName:                       ServiceName,
 
                                   ServerCertificateSelector:         ServerCertificateSelector,
                                   ClientCertificateValidator:        ClientCertificateValidator,
