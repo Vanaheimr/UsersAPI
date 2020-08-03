@@ -2113,7 +2113,7 @@ namespace social.OpenData.UsersAPI
 
             #region Init data
 
-            this.APIVersionHash               = APIVersionHashes[nameof(UsersAPI)]?.Value<String>()?.Trim();
+            this.APIVersionHash               = APIVersionHashes?[nameof(UsersAPI)]?.Value<String>()?.Trim();
 
             this.LoggingPath                  = LoggingPath ?? Directory.GetCurrentDirectory();
 
