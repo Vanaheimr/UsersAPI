@@ -583,6 +583,11 @@ namespace social.OpenData.UsersAPI
         #region Properties
 
         /// <summary>
+        /// The API version hash (git commit hash value).
+        /// </summary>
+        public String                    APIVersionHash                     { get; }
+
+        /// <summary>
         /// The maintenance interval.
         /// </summary>
         public TimeSpan                  MaintenanceEvery                   { get; }
@@ -1831,6 +1836,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="BaseURL">The base url of the service.</param>
         /// <param name="URLPathPrefix">A common prefix for all URLs.</param>
         /// <param name="HTMLTemplate">An optional HTML template.</param>
+        /// <param name="APIVersionHashes">The API version hashes (git commit hash values).</param>
         /// 
         /// <param name="ServerCertificateSelector">An optional delegate to select a SSL/TLS server certificate.</param>
         /// <param name="ClientCertificateValidator">An optional delegate to verify the SSL/TLS client certificate used for authentication.</param>
@@ -1885,6 +1891,7 @@ namespace social.OpenData.UsersAPI
                         String                               BaseURL                            = "",
                         HTTPPath?                            URLPathPrefix                      = null,
                         String                               HTMLTemplate                       = null,
+                        JObject                              APIVersionHashes                   = null,
 
                         ServerCertificateSelectorDelegate    ServerCertificateSelector          = null,
                         RemoteCertificateValidationCallback  ClientCertificateValidator         = null,
@@ -1964,6 +1971,7 @@ namespace social.OpenData.UsersAPI
                    BaseURL,
                    URLPathPrefix,
                    HTMLTemplate,
+                   APIVersionHashes,
 
                    APIEMailAddress,
                    APIPassphrase,
@@ -2021,6 +2029,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="BaseURL">The base URL of the service.</param>
         /// <param name="URLPathPrefix">A common prefix for all URLs.</param>
         /// <param name="HTMLTemplate">An optional HTML template.</param>
+        /// <param name="APIVersionHashes">The API version hashes (git commit hash values).</param>
         /// 
         /// <param name="APIEMailAddress">An e-mail address for this API.</param>
         /// <param name="APIPassphrase">A GPG passphrase for this API.</param>
@@ -2057,6 +2066,7 @@ namespace social.OpenData.UsersAPI
                            String                               BaseURL                       = "",
                            HTTPPath?                            URLPathPrefix                 = null,
                            String                               HTMLTemplate                  = null,
+                           JObject                              APIVersionHashes              = null,
 
                            EMailAddress                         APIEMailAddress               = null,
                            String                               APIPassphrase                 = null,
@@ -2102,6 +2112,8 @@ namespace social.OpenData.UsersAPI
         {
 
             #region Init data
+
+            this.APIVersionHash               = APIVersionHashes[nameof(UsersAPI)]?.Value<String>()?.Trim();
 
             this.LoggingPath                  = LoggingPath ?? Directory.GetCurrentDirectory();
 
@@ -2516,6 +2528,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="BaseURL">The base URL of the service.</param>
         /// <param name="URLPathPrefix">A common prefix for all URLs.</param>
         /// <param name="HTMLTemplate">An optional HTML template.</param>
+        /// <param name="APIVersionHashes">The API version hashes (git commit hash values).</param>
         /// 
         /// <param name="APIEMailAddress">An e-mail address for this API.</param>
         /// <param name="APIPassphrase">A GPG passphrase for this API.</param>
@@ -2548,6 +2561,7 @@ namespace social.OpenData.UsersAPI
                                                String                               BaseURL                       = "",
                                                HTTPPath?                            URLPathPrefix                 = null,
                                                String                               HTMLTemplate                  = null,
+                                               JObject                              APIVersionHashes              = null,
 
                                                EMailAddress                         APIEMailAddress               = null,
                                                String                               APIPassphrase                 = null,
@@ -2589,6 +2603,7 @@ namespace social.OpenData.UsersAPI
                             BaseURL,
                             URLPathPrefix,
                             HTMLTemplate,
+                            APIVersionHashes,
 
                             APIEMailAddress,
                             APIPassphrase,
