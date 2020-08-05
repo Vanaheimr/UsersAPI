@@ -3206,36 +3206,37 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
-        #region (private) CreateCookieUserData(ValidUser, Astronaut = null)
+        #region (private) GenerateCookieUserData(ValidUser, Astronaut = null)
 
-        private String CreateCookieUserData(User  ValidUser,
-                                            User  Astronaut  = null)
+        private String GenerateCookieUserData(User  User,
+                                              User  Astronaut  = null)
 
-            => String.Concat("=login=",    ValidUser.Id.           ToString().ToBase64(),
+            => String.Concat("=login=",            User.     Id.      ToString().ToBase64(),
                              Astronaut != null
-                                 ? ":astronaut=" + Astronaut.Id.   ToString().ToBase64()
+                                 ? ":astronaut=" + Astronaut.Id.      ToString().ToBase64()
                                  : "",
-                             ":username=", ValidUser.Name.                    ToBase64(),
-                             ":email=",    ValidUser.EMail.Address.ToString().ToBase64(),
-                             ":language=", ValidUser.UserLanguage. AsText().  ToBase64(),
-                             IsAdmin(ValidUser) == Access_Levels.ReadOnly  ? ":isAdminRO" : "",
-                             IsAdmin(ValidUser) == Access_Levels.ReadWrite ? ":isAdminRW" : "");
+                             ":username=",         User.Name.                    ToBase64(),
+                             ":email=",            User.EMail.Address.ToString().ToBase64(),
+                             ":language=",         User.UserLanguage. AsText().  ToBase64(),
+                             IsAdmin(User) == Access_Levels.ReadOnly  ? ":isAdminRO" : "",
+                             IsAdmin(User) == Access_Levels.ReadWrite ? ":isAdminRW" : "");
 
 
         #endregion
 
-        #region (private) CreateCookieData(Expires)
+        #region (private) GenerateCookieSettings(Expires)
 
-        private String CreateCookieData(DateTime Expires)
+        private String GenerateCookieSettings(DateTime Expires)
 
-            => String.Concat("; Expires=",         Expires.ToRfc1123(),
+            => String.Concat("; Expires=",  Expires.ToRfc1123(),
                              HTTPCookieDomain.IsNotNullOrEmpty()
                                  ? "; Domain=" + HTTPCookieDomain
                                  : "",
-                             "; Path=",            URLPathPrefix.ToString(),
-                             "; SameSite=strict",  UseSecureCookies
-                                                       ? "; secure"
-                                                       : "");
+                             "; Path=",     URLPathPrefix.ToString(),
+                             "; SameSite=strict",
+                             UseSecureCookies
+                                 ? "; secure"
+                                 : "");
 
         #endregion
 
@@ -3692,10 +3693,10 @@ namespace social.OpenData.UsersAPI
                                                       CacheControl    = "private",
                                                       SetCookies      = new String[] {
                                                                             String.Concat(CookieName,
-                                                                                          CreateCookieUserData(validUser),
-                                                                                          CreateCookieData(Expires)),
+                                                                                          GenerateCookieUserData(validUser),
+                                                                                          GenerateCookieSettings(Expires)),
                                                                             String.Concat(SessionCookieName, "=", SecurityTokenId.ToString(),
-                                                                                          CreateCookieData(Expires),
+                                                                                          GenerateCookieSettings(Expires),
                                                                                           "; HttpOnly")
                                                                         },
                                                       Connection      = "close",
@@ -6019,10 +6020,10 @@ namespace social.OpenData.UsersAPI
                                                          CacheControl    = "private",
                                                          SetCookies      = new String[] {
                                                                                String.Concat(CookieName,
-                                                                                             CreateCookieUserData(validUser),
-                                                                                             CreateCookieData(Expires)),
+                                                                                             GenerateCookieUserData(validUser),
+                                                                                             GenerateCookieSettings(Expires)),
                                                                                String.Concat(SessionCookieName, "=", SecurityTokenId.ToString(),
-                                                                                             CreateCookieData(Expires),
+                                                                                             GenerateCookieSettings(Expires),
                                                                                              "; HttpOnly")
                                                                            },
                                                          Connection      = "close"
@@ -6165,10 +6166,10 @@ namespace social.OpenData.UsersAPI
                                                         CacheControl    = "private",
                                                         SetCookies      = new String[] {
                                                                               String.Concat(CookieName,
-                                                                                            CreateCookieUserData(UserURI, Astronaut),
-                                                                                            CreateCookieData(Expires)),
+                                                                                            GenerateCookieUserData(UserURI, Astronaut),
+                                                                                            GenerateCookieSettings(Expires)),
                                                                               String.Concat(SessionCookieName, "=", SecurityTokenId.ToString(),
-                                                                                            CreateCookieData(Expires),
+                                                                                            GenerateCookieSettings(Expires),
                                                                                             "; HttpOnly")
                                                                           },
                                                         Connection      = "close"
@@ -6288,10 +6289,10 @@ namespace social.OpenData.UsersAPI
                                                      CacheControl    = "private",
                                                      SetCookies      = new String[] {
                                                                            String.Concat(CookieName,
-                                                                                         CreateCookieUserData(Astronaut),
-                                                                                         CreateCookieData(Expires)),
+                                                                                         GenerateCookieUserData(Astronaut),
+                                                                                         GenerateCookieSettings(Expires)),
                                                                            String.Concat(SessionCookieName, "=", SecurityTokenId.ToString(),
-                                                                                         CreateCookieData(Expires),
+                                                                                         GenerateCookieSettings(Expires),
                                                                                          "; HttpOnly")
                                                                        },
                                                      Connection      = "close"
