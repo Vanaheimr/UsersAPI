@@ -113,7 +113,7 @@ namespace social.OpenData.UsersAPI
         /// <summary>
         /// The JSON-LD context of this object.
         /// </summary>
-        public const String JSONLDContext  = "https://opendata.social/contexts/usersAPI/user+json";
+        public const String JSONLDContext  = "https://opendata.social/contexts/UsersAPI/user";
 
         #endregion
 

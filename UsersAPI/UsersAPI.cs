@@ -4177,8 +4177,8 @@ namespace social.OpenData.UsersAPI
 
                                              var includeCryptoHash      = Request.QueryString.GetBoolean("includeCryptoHash", true);
 
-                                             var expand                 = Request.QueryString.GetStrings("expand", true);
-                                             //var expandTags             = expand.Contains("tags")              ? InfoStatus.Expand : InfoStatus.ShowIdOnly;
+                                             var expand                 = Request.QueryString.GetStrings("expand");
+                                             //var expandTags             = expand.ContainsIgnoreCase("tags")              ? InfoStatus.Expand : InfoStatus.ShowIdOnly;
 
                                              var filteredUsers          = HTTPOrganizations.
                                                                               SafeSelectMany(organization => organization.Users).
@@ -7105,11 +7105,11 @@ namespace social.OpenData.UsersAPI
 
                                              var includeCryptoHash       = Request.QueryString.GetBoolean("includeCryptoHash", true);
 
-                                             var expand                  = Request.QueryString.GetStrings("expand", true);
-                                             var expandMembers           = expand.Contains("members")           ? InfoStatus.Expand : InfoStatus.ShowIdOnly;
-                                             var expandParents           = expand.Contains("parents")           ? InfoStatus.Expand : InfoStatus.ShowIdOnly;
-                                             var expandSubOrganizations  = expand.Contains("subOrganizations")  ? InfoStatus.Expand : InfoStatus.ShowIdOnly;
-                                             var expandTags              = expand.Contains("tags")              ? InfoStatus.Expand : InfoStatus.ShowIdOnly;
+                                             var expand                  = Request.QueryString.GetStrings("expand");
+                                             var expandMembers           = expand.ContainsIgnoreCase("members")           ? InfoStatus.Expand : InfoStatus.ShowIdOnly;
+                                             var expandParents           = expand.ContainsIgnoreCase("parents")           ? InfoStatus.Expand : InfoStatus.ShowIdOnly;
+                                             var expandSubOrganizations  = expand.ContainsIgnoreCase("subOrganizations")  ? InfoStatus.Expand : InfoStatus.ShowIdOnly;
+                                             var expandTags              = expand.ContainsIgnoreCase("tags")              ? InfoStatus.Expand : InfoStatus.ShowIdOnly;
 
                                              var filteredOrganizations   = HTTPOrganizations.
                                                                                OrderBy(organization => organization.Name.FirstText()).
@@ -7434,11 +7434,11 @@ namespace social.OpenData.UsersAPI
 
                                              var showMgt                 = Request.QueryString.GetBoolean("showMgt", false);
 
-                                             var expand                  = Request.QueryString.GetStrings("expand",  false);
-                                             var expandMembers           = expand.Contains("members")           ? InfoStatus.Expand : InfoStatus.ShowIdOnly;
-                                             var expandParents           = expand.Contains("parents")           ? InfoStatus.Expand : InfoStatus.ShowIdOnly;
-                                             var expandSubOrganizations  = expand.Contains("subOrganizations")  ? InfoStatus.Expand : InfoStatus.ShowIdOnly;
-                                             var expandTags              = expand.Contains("tags")              ? InfoStatus.Expand : InfoStatus.ShowIdOnly;
+                                             var expand                  = Request.QueryString.GetStrings("expand");
+                                             var expandMembers           = expand.ContainsIgnoreCase("members")           ? InfoStatus.Expand : InfoStatus.ShowIdOnly;
+                                             var expandParents           = expand.ContainsIgnoreCase("parents")           ? InfoStatus.Expand : InfoStatus.ShowIdOnly;
+                                             var expandSubOrganizations  = expand.ContainsIgnoreCase("subOrganizations")  ? InfoStatus.Expand : InfoStatus.ShowIdOnly;
+                                             var expandTags              = expand.ContainsIgnoreCase("tags")              ? InfoStatus.Expand : InfoStatus.ShowIdOnly;
 
                                              var includeCryptoHash       = Request.QueryString.GetBoolean("includeCryptoHash", true);
 
@@ -9351,8 +9351,8 @@ namespace social.OpenData.UsersAPI
 
                                              var includeCryptoHash       = Request.QueryString.GetBoolean ("includeCryptoHash", true);
 
-                                             var expand                  = Request.QueryString.GetStrings ("expand", true);
-                                             var expandTags              = expand.Contains("tags")         ? InfoStatus.Expand : InfoStatus.ShowIdOnly;
+                                             var expand                  = Request.QueryString.GetStrings ("expand");
+                                             var expandTags              = expand.ContainsIgnoreCase("tags")         ? InfoStatus.Expand : InfoStatus.ShowIdOnly;
 
 
                                              return new HTTPResponse.Builder(Request) {
@@ -9949,7 +9949,6 @@ namespace social.OpenData.UsersAPI
                 #region CreateUser
 
                 case "createUser":
-                case "CreateUser":
 
                     if (User.TryParseJSON(JSONObject,
                                           out user,
@@ -9986,7 +9985,6 @@ namespace social.OpenData.UsersAPI
                 #region addIfNotExistsUser
 
                 case "addIfNotExistsUser":
-                case "AddIfNotExistsUser":
 
                     if (User.TryParseJSON(JSONObject,
                                           out user,
@@ -10011,7 +10009,6 @@ namespace social.OpenData.UsersAPI
                 #region addOrUpdateUser
 
                 case "addOrUpdateUser":
-                case "AddOrUpdateUser":
 
                     if (User.TryParseJSON(JSONObject,
                                           out user,
@@ -10038,7 +10035,6 @@ namespace social.OpenData.UsersAPI
                 #region updateUser
 
                 case "updateUser":
-                case "UpdateUser":
 
                     if (User.TryParseJSON(JSONObject,
                                           out user,
@@ -10129,7 +10125,6 @@ namespace social.OpenData.UsersAPI
                 #region CreateOrganization
 
                 case "createOrganization":
-                case "CreateOrganization":
 
                     if (Organization.TryParseJSON(JSONObject,
                                                   out organization,
