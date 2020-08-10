@@ -87,26 +87,32 @@ interface INotificationMessage {
 }
 
 
-
-
-interface SearchListView<TSearch> {
-    (searchResult:    TSearch,
-     searchResultDiv: HTMLAnchorElement): void;
+interface TMetadataDefaults {
+    totalCount:    number;
+    filteredCount: number;
 }
 
-interface SearchTableView<TSearch> {
-    (searchResult:    Array<TSearch>,
-     searchResultDiv: HTMLDivElement):    void;
+interface IMaintenanceCheckListMetadata extends TMetadataDefaults {
+
 }
 
-interface SearchContext {
-    (context:         any):               void;
+interface ISelfTestMetadata extends TMetadataDefaults {
+
 }
 
-
-
-
-
+interface ISelfTest {
+    timestamp:              string;
+    eventTrackingId:        string;
+    selfTestType:           string;
+    Message:                string;
+    transmissions:          number;
+    success:                boolean;
+    AEDVisibileOnBluetooth: boolean;
+    batteryLevel:           number;
+    isBatteryError:         boolean;
+    isUncriticalError:      boolean;
+    isRedError:             boolean;
+}
 
 
 

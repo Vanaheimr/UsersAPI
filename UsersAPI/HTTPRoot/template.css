@@ -244,7 +244,8 @@ body {
               body #page #right #text .entity #headline #title #id {
                 display: inline-block; }
               body #page #right #text .entity #headline #title #name {
-                font-size: 62%; }
+                font-size: 62%;
+                display: inline-block; }
                 body #page #right #text .entity #headline #title #name #language {
                   display: inline-block;
                   margin-top: 2px;

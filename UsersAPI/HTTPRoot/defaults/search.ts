@@ -1,9 +1,9 @@
 ﻿///<reference path="../../../../UsersAPI/UsersAPI/HTTPRoot/libs/date.format.ts" />
 
 function AddProperty(parentDiv:  HTMLDivElement,
-                        className:  string,
-                        key:        string,
-                        content:    string): HTMLDivElement
+                     className:  string,
+                     key:        string,
+                     content:    string): HTMLDivElement
 {
 
     let propertyDiv  = parentDiv.appendChild(document.createElement('div'));
@@ -21,20 +21,73 @@ function AddProperty(parentDiv:  HTMLDivElement,
 
 }
 
+
+
+interface SearchFilter {
+    (): string;
+}
+
+interface SearchStartUp<TMetadata> {
+    (json: TMetadata): void;
+}
+
+interface SearchListView<TSearchResult> {
+    (searchResult:    TSearchResult,
+        searchResultDiv: HTMLAnchorElement): void;
+}
+
+interface SearchTableView<TSearchResult> {
+    (searchResult: Array<TSearchResult>,
+        searchResultDiv: HTMLDivElement): void;
+}
+
+interface SearchResult2Link<TSearchResult> {
+    (searchResult: TSearchResult): string;
+}
+
+interface SearchContext {
+    (context: any): void;
+}
+
 enum searchResultsMode
 {
     listView,
     tableView
 }
 
-function StartSearch<TSearch>(requestURL:        string,
-                              nameOfItem:        string,
-                              nameOfItems:       string,
-                              doListView:        SearchListView<TSearch>,
-                              doTableView:       SearchTableView<TSearch>,
-                              noListViewLinks?:  boolean,
-                              startView?:        searchResultsMode,
-                              context?:          SearchContext) {
+
+function StartSearch<TSearchResult>(requestURL:           string,
+                                    nameOfItem:           string,
+                                    nameOfItems:          string,
+                                    doListView:           SearchListView<TSearchResult>,
+                                    doTableView:          SearchTableView<TSearchResult>,
+                                    ListViewLinkPrefix?:  SearchResult2Link<TSearchResult>,
+                                    startView?:           searchResultsMode,
+                                    context?:             SearchContext) {
+
+    return StartSearch2<any, TSearchResult>(requestURL,
+                                            () => "",
+                                            () => { },
+                                            nameOfItem,
+                                            nameOfItems,
+                                            doListView,
+                                            doTableView,
+                                            ListViewLinkPrefix,
+                                            startView,
+                                            context);
+
+}
+
+function StartSearch2<TMetadata extends TMetadataDefaults, TSearchResult>(requestURL:           string,
+                                                                          searchFilters:        SearchFilter,
+                                                                          doStartUp:            SearchStartUp<TMetadata>,
+                                                                          nameOfItem:           string,
+                                                                          nameOfItems:          string,
+                                                                          doListView:           SearchListView<TSearchResult>,
+                                                                          doTableView:          SearchTableView<TSearchResult>,
+                                                                          ListViewLinkPrefix?:  SearchResult2Link<TSearchResult>,
+                                                                          startView?:           searchResultsMode,
+                                                                          context?:             SearchContext) {
 
     requestURL = requestURL.indexOf('?') === -1
                     ? requestURL + '?'
@@ -42,29 +95,42 @@ function StartSearch<TSearch>(requestURL:        string,
                           ? requestURL
                           : requestURL + '&';
 
-    let   skip                   = 0;
-    let   take                   = 10;
-    let   viewMode               = startView !== null ? startView : searchResultsMode.listView;
-    const context__              = { Search: Search };
+    let   firstSearch             = true;
+    let   skip                    = 0;
+    let   take                    = 10;
+    let   currentDateFrom:string  = null;
+    let   currentDateTo:string    = null;
+    let   viewMode                = startView !== null ? startView : searchResultsMode.listView;
+    const context__               = { Search: Search };
+    const datepicker              = new DatePicker();
 
-    const controlsDiv            = document.   getElementById("controls")              as HTMLDivElement;
-    const patternFilter          = controlsDiv.querySelector ("#patternFilterInput")   as HTMLInputElement;
-    const takeSelect             = controlsDiv.querySelector ("#takeSelect")           as HTMLSelectElement;
-    const searchButton           = controlsDiv.querySelector ("#searchButton")         as HTMLButtonElement;
-    const leftButton             = controlsDiv.querySelector ("#leftButton")           as HTMLButtonElement;
-    const rightButton            = controlsDiv.querySelector ("#rightButton")          as HTMLButtonElement;
+    const controlsDiv             = document.    getElementById("controls")              as HTMLDivElement;
+    const patternFilter           = controlsDiv. querySelector ("#patternFilterInput")   as HTMLInputElement;
+    const takeSelect              = controlsDiv. querySelector ("#takeSelect")           as HTMLSelectElement;
+    const searchButton            = controlsDiv. querySelector ("#searchButton")         as HTMLButtonElement;
+    const leftButton              = controlsDiv. querySelector ("#leftButton")           as HTMLButtonElement;
+    const rightButton             = controlsDiv. querySelector ("#rightButton")          as HTMLButtonElement;
 
-    const listViewButton         = controlsDiv.querySelector ("#listView")             as HTMLButtonElement;
-    const tableViewButton        = controlsDiv.querySelector ("#tableView")            as HTMLButtonElement;
+    const dateFilters             = controlsDiv. querySelector ("#dateFilters")          as HTMLDivElement;
+    const dateFrom                = dateFilters?.querySelector ("#dateFromText")         as HTMLInputElement;
+    const dateTo                  = dateFilters?.querySelector ("#dateToText")           as HTMLInputElement;
 
-    const messageDiv             = document.   getElementById('message')               as HTMLDivElement;
-    const localSearchMessageDiv  = document.   getElementById('localSearchMessage')    as HTMLDivElement;
-    const searchResultsDiv       = document.   getElementById('searchResults')         as HTMLDivElement;
+    const listViewButton          = controlsDiv. querySelector ("#listView")             as HTMLButtonElement;
+    const tableViewButton         = controlsDiv. querySelector ("#tableView")            as HTMLButtonElement;
+
+    const messageDiv              = document.    getElementById('message')               as HTMLDivElement;
+    const localSearchMessageDiv   = document.    getElementById('localSearchMessage')    as HTMLDivElement;
+    const searchResultsDiv        = document.    getElementById('searchResults')         as HTMLDivElement;
+    const downLoadButton          = document.    getElementById("downLoadButton")        as HTMLAnchorElement;
 
 
     function Search(deletePreviousResults:  boolean,
+                    resetSkip?:             boolean,
                     whenDone?:              any)
     {
+
+        if (resetSkip)
+            skip = 0;
 
         // handle local searches
         if (patternFilter.value[0] === '#')
@@ -81,9 +147,15 @@ function StartSearch<TSearch>(requestURL:        string,
         leftButton.disabled   = true;
         rightButton.disabled  = true;
 
-        const filterPattern   = patternFilter.value !== "" ? "include=" + encodeURI(patternFilter.value) + "&" : "";
+        const filters         = (patternFilter.value !== ""                             ? "&match="   + encodeURI(patternFilter.value) : "") +
+                                (typeof searchFilters !== 'undefined' && searchFilters  ? searchFilters() : "") +
+                                (currentDateFrom     !=  null && currentDateFrom !== "" ? "&from="    + currentDateFrom                : "") +
+                                (currentDateTo       !=  null && currentDateTo   !== "" ? "&to="      + currentDateTo                  : "");
 
-        HTTPGet(requestURL + "withMetadata&" + filterPattern + "take=" + take + "&skip=" + skip +
+        if (downLoadButton != null)
+            downLoadButton.href = requestURL.replace("?", ".csv?") + "withMetadata&download&" + filters;
+
+        HTTPGet(requestURL + "withMetadata" + filters + "&skip=" + skip + "&take=" + take +
                                   (context__["statusFilter"] !== undefined ? context__["statusFilter"] : ""),// + "&expand=members",
 
                 (status, response) => {
@@ -91,13 +163,18 @@ function StartSearch<TSearch>(requestURL:        string,
                     try
                     {
 
-                        const JSONresponse          = JSON.parse(response);
-                        const searchResults         = JSONresponse[nameOfItems] as Array<TSearch>;
+                        const JSONresponse          = ParseJSON_LD<TMetadata>(response);
+                        const searchResults         = JSONresponse[nameOfItems] as Array<TSearchResult>;
                         const numberOfResults       = searchResults.length;
                         const totalNumberOfResults  = JSONresponse.filteredCount as number;
 
                         if (deletePreviousResults || numberOfResults > 0)
                             searchResultsDiv.innerHTML = "";
+
+                        if (firstSearch && typeof doStartUp !== 'undefined' && doStartUp) {
+                            doStartUp(JSONresponse);
+                            firstSearch = false;
+                        }
 
                         switch (viewMode)
                         {
@@ -118,8 +195,8 @@ function StartSearch<TSearch>(requestURL:        string,
                                     searchResultDiv.id         = nameOfItem + "_" + searchResult["@id"];
                                     searchResultDiv.className  = "searchResult";
 
-                                    if (noListViewLinks === false)
-                                        searchResultDiv.href   = "/" + nameOfItems + "/" + searchResult["@id"];
+                                    if (typeof ListViewLinkPrefix !== 'undefined' && ListViewLinkPrefix)
+                                        searchResultDiv.href   = ListViewLinkPrefix(searchResult) + nameOfItems + "/" + searchResult["@id"];
 
                                     try
                                     {
@@ -149,7 +226,7 @@ function StartSearch<TSearch>(requestURL:        string,
                         messageDiv.innerHTML = exception;
                     }
 
-                    if (whenDone !== null)
+                    if (typeof whenDone !== 'undefined' && whenDone)
                         whenDone();
 
                 },
@@ -158,7 +235,7 @@ function StartSearch<TSearch>(requestURL:        string,
 
                     messageDiv.innerHTML = "Server error: " + HTTPStatus + " " + status + "<br />" + response;
 
-                    if (whenDone !== null)
+                    if (typeof whenDone !== 'undefined' && whenDone)
                         whenDone();
 
                 });
@@ -238,7 +315,7 @@ function StartSearch<TSearch>(requestURL:        string,
         if (skip < 0)
             skip = 0;
 
-        Search(true, () => {
+        Search(true, false, () => {
             leftButton.classList.remove("busy", "busyActive");
             rightButton.classList.remove("busy");
         });
@@ -253,7 +330,7 @@ function StartSearch<TSearch>(requestURL:        string,
 
         skip += take;
 
-        Search(false, () => {
+        Search(false, false, () => {
             leftButton.classList.remove("busy");
             rightButton.classList.remove("busy", "busyActive");
         });
@@ -274,6 +351,26 @@ function StartSearch<TSearch>(requestURL:        string,
                 rightButton.click();
         }
 
+    }
+
+    dateFrom.onclick = () => {
+        datepicker.show(dateFrom,
+            currentDateFrom,
+            function (newDate) {
+                dateFrom.value = parseUTCDate(newDate);
+                currentDateFrom = newDate;
+                Search(true, true);
+            });
+    }
+
+    dateTo.onclick = () => {
+        datepicker.show(dateTo,
+            currentDateTo,
+            function (newDate) {
+                dateTo.value = parseUTCDate(newDate);
+                currentDateTo = newDate;
+                Search(true, true);
+            });
     }
 
     if (listViewButton !== null) {

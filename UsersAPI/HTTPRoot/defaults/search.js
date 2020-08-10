@@ -15,28 +15,41 @@ var searchResultsMode;
     searchResultsMode[searchResultsMode["listView"] = 0] = "listView";
     searchResultsMode[searchResultsMode["tableView"] = 1] = "tableView";
 })(searchResultsMode || (searchResultsMode = {}));
-function StartSearch(requestURL, nameOfItem, nameOfItems, doListView, doTableView, noListViewLinks, startView, context) {
+function StartSearch(requestURL, nameOfItem, nameOfItems, doListView, doTableView, ListViewLinkPrefix, startView, context) {
+    return StartSearch2(requestURL, () => "", () => { }, nameOfItem, nameOfItems, doListView, doTableView, ListViewLinkPrefix, startView, context);
+}
+function StartSearch2(requestURL, searchFilters, doStartUp, nameOfItem, nameOfItems, doListView, doTableView, ListViewLinkPrefix, startView, context) {
     requestURL = requestURL.indexOf('?') === -1
         ? requestURL + '?'
         : requestURL.endsWith('&')
             ? requestURL
             : requestURL + '&';
+    let firstSearch = true;
     let skip = 0;
     let take = 10;
+    let currentDateFrom = null;
+    let currentDateTo = null;
     let viewMode = startView !== null ? startView : searchResultsMode.listView;
     const context__ = { Search: Search };
+    const datepicker = new DatePicker();
     const controlsDiv = document.getElementById("controls");
     const patternFilter = controlsDiv.querySelector("#patternFilterInput");
     const takeSelect = controlsDiv.querySelector("#takeSelect");
     const searchButton = controlsDiv.querySelector("#searchButton");
     const leftButton = controlsDiv.querySelector("#leftButton");
     const rightButton = controlsDiv.querySelector("#rightButton");
+    const dateFilters = controlsDiv.querySelector("#dateFilters");
+    const dateFrom = dateFilters === null || dateFilters === void 0 ? void 0 : dateFilters.querySelector("#dateFromText");
+    const dateTo = dateFilters === null || dateFilters === void 0 ? void 0 : dateFilters.querySelector("#dateToText");
     const listViewButton = controlsDiv.querySelector("#listView");
     const tableViewButton = controlsDiv.querySelector("#tableView");
     const messageDiv = document.getElementById('message');
     const localSearchMessageDiv = document.getElementById('localSearchMessage');
     const searchResultsDiv = document.getElementById('searchResults');
-    function Search(deletePreviousResults, whenDone) {
+    const downLoadButton = document.getElementById("downLoadButton");
+    function Search(deletePreviousResults, resetSkip, whenDone) {
+        if (resetSkip)
+            skip = 0;
         // handle local searches
         if (patternFilter.value[0] === '#') {
             if (whenDone !== null)
@@ -46,17 +59,26 @@ function StartSearch(requestURL, nameOfItem, nameOfItems, doListView, doTableVie
         // To avoid multiple clicks while waiting for the results from a slow server
         leftButton.disabled = true;
         rightButton.disabled = true;
-        const filterPattern = patternFilter.value !== "" ? "include=" + encodeURI(patternFilter.value) + "&" : "";
-        HTTPGet(requestURL + "withMetadata&" + filterPattern + "take=" + take + "&skip=" + skip +
+        const filters = (patternFilter.value !== "" ? "&match=" + encodeURI(patternFilter.value) : "") +
+            (typeof searchFilters !== 'undefined' && searchFilters ? searchFilters() : "") +
+            (currentDateFrom != null && currentDateFrom !== "" ? "&from=" + currentDateFrom : "") +
+            (currentDateTo != null && currentDateTo !== "" ? "&to=" + currentDateTo : "");
+        if (downLoadButton != null)
+            downLoadButton.href = requestURL.replace("?", ".csv?") + "withMetadata&download&" + filters;
+        HTTPGet(requestURL + "withMetadata" + filters + "&skip=" + skip + "&take=" + take +
             (context__["statusFilter"] !== undefined ? context__["statusFilter"] : ""), // + "&expand=members",
         (status, response) => {
             try {
-                const JSONresponse = JSON.parse(response);
+                const JSONresponse = ParseJSON_LD(response);
                 const searchResults = JSONresponse[nameOfItems];
                 const numberOfResults = searchResults.length;
                 const totalNumberOfResults = JSONresponse.filteredCount;
                 if (deletePreviousResults || numberOfResults > 0)
                     searchResultsDiv.innerHTML = "";
+                if (firstSearch && typeof doStartUp !== 'undefined' && doStartUp) {
+                    doStartUp(JSONresponse);
+                    firstSearch = false;
+                }
                 switch (viewMode) {
                     case searchResultsMode.tableView:
                         try {
@@ -69,8 +91,8 @@ function StartSearch(requestURL, nameOfItem, nameOfItems, doListView, doTableVie
                             const searchResultDiv = searchResultsDiv.appendChild(document.createElement('a'));
                             searchResultDiv.id = nameOfItem + "_" + searchResult["@id"];
                             searchResultDiv.className = "searchResult";
-                            if (noListViewLinks === false)
-                                searchResultDiv.href = "/" + nameOfItems + "/" + searchResult["@id"];
+                            if (typeof ListViewLinkPrefix !== 'undefined' && ListViewLinkPrefix)
+                                searchResultDiv.href = ListViewLinkPrefix(searchResult) + nameOfItems + "/" + searchResult["@id"];
                             try {
                                 doListView(searchResult, searchResultDiv);
                             }
@@ -89,11 +111,11 @@ function StartSearch(requestURL, nameOfItem, nameOfItems, doListView, doTableVie
             catch (exception) {
                 messageDiv.innerHTML = exception;
             }
-            if (whenDone !== null)
+            if (typeof whenDone !== 'undefined' && whenDone)
                 whenDone();
         }, (HTTPStatus, status, response) => {
             messageDiv.innerHTML = "Server error: " + HTTPStatus + " " + status + "<br />" + response;
-            if (whenDone !== null)
+            if (typeof whenDone !== 'undefined' && whenDone)
                 whenDone();
         });
     }
@@ -144,7 +166,7 @@ function StartSearch(requestURL, nameOfItem, nameOfItems, doListView, doTableVie
         skip -= take;
         if (skip < 0)
             skip = 0;
-        Search(true, () => {
+        Search(true, false, () => {
             leftButton.classList.remove("busy", "busyActive");
             rightButton.classList.remove("busy");
         });
@@ -154,7 +176,7 @@ function StartSearch(requestURL, nameOfItem, nameOfItems, doListView, doTableVie
         leftButton.classList.add("busy");
         rightButton.classList.add("busy", "busyActive");
         skip += take;
-        Search(false, () => {
+        Search(false, false, () => {
             leftButton.classList.remove("busy");
             rightButton.classList.remove("busy", "busyActive");
         });
@@ -170,6 +192,20 @@ function StartSearch(requestURL, nameOfItem, nameOfItems, doListView, doTableVie
             if (rightButton.disabled === false)
                 rightButton.click();
         }
+    };
+    dateFrom.onclick = () => {
+        datepicker.show(dateFrom, currentDateFrom, function (newDate) {
+            dateFrom.value = parseUTCDate(newDate);
+            currentDateFrom = newDate;
+            Search(true, true);
+        });
+    };
+    dateTo.onclick = () => {
+        datepicker.show(dateTo, currentDateTo, function (newDate) {
+            dateTo.value = parseUTCDate(newDate);
+            currentDateTo = newDate;
+            Search(true, true);
+        });
     };
     if (listViewButton !== null) {
         listViewButton.onclick = () => {
