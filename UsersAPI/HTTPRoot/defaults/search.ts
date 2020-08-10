@@ -153,7 +153,7 @@ function StartSearch2<TMetadata extends TMetadataDefaults, TSearchResult>(reques
                                 (currentDateTo       !=  null && currentDateTo   !== "" ? "&to="      + currentDateTo                  : "");
 
         if (downLoadButton != null)
-            downLoadButton.href = requestURL.replace("?", ".csv?") + "withMetadata&download&" + filters;
+            downLoadButton.href = requestURL.replace("?", ".csv?") + "withMetadata&download" + filters;
 
         HTTPGet(requestURL + "withMetadata" + filters + "&skip=" + skip + "&take=" + take +
                                   (context__["statusFilter"] !== undefined ? context__["statusFilter"] : ""),// + "&expand=members",
