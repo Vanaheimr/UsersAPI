@@ -13,6 +13,7 @@
     "HTTPRoot/defaults/search.ts",
 
     "HTTPRoot/defaults/defaults.ts",
+    "HTTPRoot/defaults/search.ts",
     "HTTPRoot/defaults/views.ts",
     "HTTPRoot/defaults/datePicker.ts",
 

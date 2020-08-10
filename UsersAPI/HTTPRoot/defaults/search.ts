@@ -1,4 +1,5 @@
-﻿///<reference path="../../../../UsersAPI/UsersAPI/HTTPRoot/libs/date.format.ts" />
+﻿/////<reference path="../../../../UsersAPI/UsersAPI/HTTPRoot/libs/date.format.ts" />
+/////<reference path="../../../../UsersAPI/UsersAPI/HTTPRoot/defaults/defaults.ts" />
 
 function AddProperty(parentDiv:  HTMLDivElement,
                      className:  string,
@@ -56,14 +57,14 @@ enum searchResultsMode
 }
 
 
-function StartSearch<TSearchResult>(requestURL:           string,
-                                    nameOfItem:           string,
-                                    nameOfItems:          string,
-                                    doListView:           SearchListView<TSearchResult>,
-                                    doTableView:          SearchTableView<TSearchResult>,
-                                    ListViewLinkPrefix?:  SearchResult2Link<TSearchResult>,
-                                    startView?:           searchResultsMode,
-                                    context?:             SearchContext) {
+function StartSearch<TSearchResult>(requestURL:   string,
+                                    nameOfItem:   string,
+                                    nameOfItems:  string,
+                                    doListView:   SearchListView<TSearchResult>,
+                                    doTableView:  SearchTableView<TSearchResult>,
+                                    linkPrefix?:  SearchResult2Link<TSearchResult>,
+                                    startView?:   searchResultsMode,
+                                    context?:     SearchContext) {
 
     return StartSearch2<any, TSearchResult>(requestURL,
                                             () => "",
@@ -72,22 +73,22 @@ function StartSearch<TSearchResult>(requestURL:           string,
                                             nameOfItems,
                                             doListView,
                                             doTableView,
-                                            ListViewLinkPrefix,
+                                            linkPrefix,
                                             startView,
                                             context);
 
 }
 
-function StartSearch2<TMetadata extends TMetadataDefaults, TSearchResult>(requestURL:           string,
-                                                                          searchFilters:        SearchFilter,
-                                                                          doStartUp:            SearchStartUp<TMetadata>,
-                                                                          nameOfItem:           string,
-                                                                          nameOfItems:          string,
-                                                                          doListView:           SearchListView<TSearchResult>,
-                                                                          doTableView:          SearchTableView<TSearchResult>,
-                                                                          ListViewLinkPrefix?:  SearchResult2Link<TSearchResult>,
-                                                                          startView?:           searchResultsMode,
-                                                                          context?:             SearchContext) {
+function StartSearch2<TMetadata extends TMetadataDefaults, TSearchResult>(requestURL:     string,
+                                                                          searchFilters:  SearchFilter,
+                                                                          doStartUp:      SearchStartUp<TMetadata>,
+                                                                          nameOfItem:     string,
+                                                                          nameOfItems:    string,
+                                                                          doListView:     SearchListView<TSearchResult>,
+                                                                          doTableView:    SearchTableView<TSearchResult>,
+                                                                          linkPrefix?:    SearchResult2Link<TSearchResult>,
+                                                                          startView?:     searchResultsMode,
+                                                                          context?:       SearchContext) {
 
     requestURL = requestURL.indexOf('?') === -1
                     ? requestURL + '?'
@@ -185,9 +186,12 @@ function StartSearch2<TMetadata extends TMetadataDefaults, TSearchResult>(reques
                                     doTableView(searchResults, searchResultsDiv);
                                 }
                                 catch (exception)
-                                { }
+                                {
+                                    console.debug("Exception in search table view: " + exception);
+                                }
                                 break;
 
+                            // List view
                             default:
                                 for (const searchResult of searchResults) {
 
@@ -195,15 +199,17 @@ function StartSearch2<TMetadata extends TMetadataDefaults, TSearchResult>(reques
                                     searchResultDiv.id         = nameOfItem + "_" + searchResult["@id"];
                                     searchResultDiv.className  = "searchResult";
 
-                                    if (typeof ListViewLinkPrefix !== 'undefined' && ListViewLinkPrefix)
-                                        searchResultDiv.href   = ListViewLinkPrefix(searchResult) + nameOfItems + "/" + searchResult["@id"];
+                                    if (typeof linkPrefix !== 'undefined' && linkPrefix)
+                                        searchResultDiv.href   = linkPrefix(searchResult) + nameOfItems + "/" + searchResult["@id"];
 
                                     try
                                     {
                                         doListView(searchResult, searchResultDiv);
                                     }
                                     catch (exception)
-                                    { }
+                                    {
+                                        console.debug("Exception in search list view: " + exception);
+                                    }
 
                                 }
 

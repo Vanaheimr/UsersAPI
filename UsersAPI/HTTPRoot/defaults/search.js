@@ -1,4 +1,5 @@
-///<reference path="../../../../UsersAPI/UsersAPI/HTTPRoot/libs/date.format.ts" />
+/////<reference path="../../../../UsersAPI/UsersAPI/HTTPRoot/libs/date.format.ts" />
+/////<reference path="../../../../UsersAPI/UsersAPI/HTTPRoot/defaults/defaults.ts" />
 function AddProperty(parentDiv, className, key, content) {
     let propertyDiv = parentDiv.appendChild(document.createElement('div'));
     propertyDiv.className = "property " + className;
@@ -15,10 +16,10 @@ var searchResultsMode;
     searchResultsMode[searchResultsMode["listView"] = 0] = "listView";
     searchResultsMode[searchResultsMode["tableView"] = 1] = "tableView";
 })(searchResultsMode || (searchResultsMode = {}));
-function StartSearch(requestURL, nameOfItem, nameOfItems, doListView, doTableView, ListViewLinkPrefix, startView, context) {
-    return StartSearch2(requestURL, () => "", () => { }, nameOfItem, nameOfItems, doListView, doTableView, ListViewLinkPrefix, startView, context);
+function StartSearch(requestURL, nameOfItem, nameOfItems, doListView, doTableView, linkPrefix, startView, context) {
+    return StartSearch2(requestURL, () => "", () => { }, nameOfItem, nameOfItems, doListView, doTableView, linkPrefix, startView, context);
 }
-function StartSearch2(requestURL, searchFilters, doStartUp, nameOfItem, nameOfItems, doListView, doTableView, ListViewLinkPrefix, startView, context) {
+function StartSearch2(requestURL, searchFilters, doStartUp, nameOfItem, nameOfItems, doListView, doTableView, linkPrefix, startView, context) {
     requestURL = requestURL.indexOf('?') === -1
         ? requestURL + '?'
         : requestURL.endsWith('&')
@@ -84,19 +85,24 @@ function StartSearch2(requestURL, searchFilters, doStartUp, nameOfItem, nameOfIt
                         try {
                             doTableView(searchResults, searchResultsDiv);
                         }
-                        catch (exception) { }
+                        catch (exception) {
+                            console.debug("Exception in search table view: " + exception);
+                        }
                         break;
+                    // List view
                     default:
                         for (const searchResult of searchResults) {
                             const searchResultDiv = searchResultsDiv.appendChild(document.createElement('a'));
                             searchResultDiv.id = nameOfItem + "_" + searchResult["@id"];
                             searchResultDiv.className = "searchResult";
-                            if (typeof ListViewLinkPrefix !== 'undefined' && ListViewLinkPrefix)
-                                searchResultDiv.href = ListViewLinkPrefix(searchResult) + nameOfItems + "/" + searchResult["@id"];
+                            if (typeof linkPrefix !== 'undefined' && linkPrefix)
+                                searchResultDiv.href = linkPrefix(searchResult) + nameOfItems + "/" + searchResult["@id"];
                             try {
                                 doListView(searchResult, searchResultDiv);
                             }
-                            catch (exception) { }
+                            catch (exception) {
+                                console.debug("Exception in search list view: " + exception);
+                            }
                         }
                 }
                 messageDiv.innerHTML = searchResults.length > 0
