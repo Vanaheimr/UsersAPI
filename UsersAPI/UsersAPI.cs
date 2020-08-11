@@ -9949,7 +9949,6 @@ namespace social.OpenData.UsersAPI
                 #region CreateUser
 
                 case "createUser":
-                case "CreateUser":
 
                     if (User.TryParseJSON(JSONObject,
                                           out user,
@@ -9986,7 +9985,6 @@ namespace social.OpenData.UsersAPI
                 #region addIfNotExistsUser
 
                 case "addIfNotExistsUser":
-                case "AddIfNotExistsUser":
 
                     if (User.TryParseJSON(JSONObject,
                                           out user,
@@ -10011,7 +10009,6 @@ namespace social.OpenData.UsersAPI
                 #region addOrUpdateUser
 
                 case "addOrUpdateUser":
-                case "AddOrUpdateUser":
 
                     if (User.TryParseJSON(JSONObject,
                                           out user,
@@ -10038,7 +10035,6 @@ namespace social.OpenData.UsersAPI
                 #region updateUser
 
                 case "updateUser":
-                case "UpdateUser":
 
                     if (User.TryParseJSON(JSONObject,
                                           out user,
@@ -10129,7 +10125,6 @@ namespace social.OpenData.UsersAPI
                 #region CreateOrganization
 
                 case "createOrganization":
-                case "CreateOrganization":
 
                     if (Organization.TryParseJSON(JSONObject,
                                                   out organization,
