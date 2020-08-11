@@ -46,7 +46,7 @@ function StartSearch2(requestURL, searchFilters, doStartUp, nameOfItem, nameOfIt
     const tableViewButton = controlsDiv.querySelector("#tableView");
     const messageDiv = document.getElementById('message');
     const localSearchMessageDiv = document.getElementById('localSearchMessage');
-    const searchResultsDiv = document.getElementById('searchResults');
+    const searchResultsDiv = document.getElementById(nameOfItems);
     const downLoadButton = document.getElementById("downLoadButton");
     function Search(deletePreviousResults, resetSkip, whenDone) {
         if (resetSkip)
@@ -94,7 +94,7 @@ function StartSearch2(requestURL, searchFilters, doStartUp, nameOfItem, nameOfIt
                         for (const searchResult of searchResults) {
                             const searchResultDiv = searchResultsDiv.appendChild(document.createElement('a'));
                             searchResultDiv.id = nameOfItem + "_" + searchResult["@id"];
-                            searchResultDiv.className = "searchResult";
+                            searchResultDiv.className = "searchResult " + nameOfItem;
                             if (typeof linkPrefix !== 'undefined' && linkPrefix)
                                 searchResultDiv.href = linkPrefix(searchResult) + nameOfItems + "/" + searchResult["@id"];
                             try {

@@ -121,7 +121,7 @@ function StartSearch2<TMetadata extends TMetadataDefaults, TSearchResult>(reques
 
     const messageDiv              = document.    getElementById('message')               as HTMLDivElement;
     const localSearchMessageDiv   = document.    getElementById('localSearchMessage')    as HTMLDivElement;
-    const searchResultsDiv        = document.    getElementById('searchResults')         as HTMLDivElement;
+    const searchResultsDiv        = document.    getElementById(nameOfItems)             as HTMLDivElement;
     const downLoadButton          = document.    getElementById("downLoadButton")        as HTMLAnchorElement;
 
 
@@ -197,7 +197,7 @@ function StartSearch2<TMetadata extends TMetadataDefaults, TSearchResult>(reques
 
                                     const searchResultDiv      = searchResultsDiv.appendChild(document.createElement('a')) as HTMLAnchorElement;
                                     searchResultDiv.id         = nameOfItem + "_" + searchResult["@id"];
-                                    searchResultDiv.className  = "searchResult";
+                                    searchResultDiv.className  = "searchResult " + nameOfItem;
 
                                     if (typeof linkPrefix !== 'undefined' && linkPrefix)
                                         searchResultDiv.href   = linkPrefix(searchResult) + nameOfItems + "/" + searchResult["@id"];

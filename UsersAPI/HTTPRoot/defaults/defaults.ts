@@ -92,27 +92,7 @@ interface TMetadataDefaults {
     filteredCount: number;
 }
 
-interface IMaintenanceCheckListMetadata extends TMetadataDefaults {
 
-}
-
-interface ISelfTestMetadata extends TMetadataDefaults {
-
-}
-
-interface ISelfTest {
-    timestamp:              string;
-    eventTrackingId:        string;
-    selfTestType:           string;
-    Message:                string;
-    transmissions:          number;
-    success:                boolean;
-    AEDVisibileOnBluetooth: boolean;
-    batteryLevel:           number;
-    isBatteryError:         boolean;
-    isUncriticalError:      boolean;
-    isRedError:             boolean;
-}
 
 
 
@@ -1315,6 +1295,15 @@ function CreateLine(parent: HTMLDivElement, Key, Value) {
     const value     = row.appendChild(document.createElement('div'));
     value.className = "value";
     value.innerHTML = Value;
+
+    return row;
+
+}
+
+function CreateSeparator(parent: HTMLDivElement) {
+
+    const row       = parent.appendChild(document.createElement('div'));
+    row.className   = "separator";
 
     return row;
 

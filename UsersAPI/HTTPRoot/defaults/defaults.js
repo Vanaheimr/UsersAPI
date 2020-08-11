@@ -710,6 +710,11 @@ function CreateLine(parent, Key, Value) {
     value.innerHTML = Value;
     return row;
 }
+function CreateSeparator(parent) {
+    const row = parent.appendChild(document.createElement('div'));
+    row.className = "separator";
+    return row;
+}
 function FixMenuLinks(parentDivId, linkId) {
     if (parentDivId === null || parentDivId === "" ||
         linkId === null || linkId === "") {
