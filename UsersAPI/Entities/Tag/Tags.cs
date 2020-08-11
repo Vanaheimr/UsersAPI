@@ -93,10 +93,10 @@ namespace social.OpenData.UsersAPI
 
             => ExpandTags.Switch(this,
 
-                   info => new JObject(new JProperty("tag1",   info.Tag1. ToJSON(true, ExpandDescription: InfoStatus.Expand)), 
+                   info => new JObject(new JProperty("tag1",   info.Tag1. ToJSON(true, ExpandDescription: InfoStatus.Expanded)), 
                                        new JProperty("label",  info.Label.ToString()),
                                        new JProperty("value",  info.Value),
-                                       new JProperty("tag2",   info.Tag2. ToJSON(true, ExpandDescription: InfoStatus.Expand))),
+                                       new JProperty("tag2",   info.Tag2. ToJSON(true, ExpandDescription: InfoStatus.Expanded))),
 
                    info => new JArray(info.Tag1.Id.ToString(),
                                       info.Label.  ToString(),
@@ -247,7 +247,7 @@ namespace social.OpenData.UsersAPI
 
             => ExpandTags.Switch(this,
 
-                   info => new JObject(new JProperty("tag",       info.Tag.ToJSON(true, ExpandDescription: InfoStatus.Expand)),
+                   info => new JObject(new JProperty("tag",       info.Tag.ToJSON(true, ExpandDescription: InfoStatus.Expanded)),
                                        new JProperty("relevance", info.Value)),
 
                    info => new JArray(info.Tag.Id.ToString(),
@@ -277,7 +277,7 @@ namespace social.OpenData.UsersAPI
             => ExpandTags.Switch(this,
 
                    info => new JObject(new JProperty("edge",  info.Label.  ToString()),
-                                       new JProperty("tag",   info.Tag.ToJSON(true, ExpandDescription: InfoStatus.Expand)),
+                                       new JProperty("tag",   info.Tag.ToJSON(true, ExpandDescription: InfoStatus.Expanded)),
                                        new JProperty("value", info.Value)),
 
                    info => new JArray(info.Label.  ToString(),

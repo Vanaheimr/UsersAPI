@@ -7108,10 +7108,10 @@ namespace social.OpenData.UsersAPI
                                              var includeCryptoHash       = Request.QueryString.GetBoolean("includeCryptoHash", true);
 
                                              var expand                  = Request.QueryString.GetStrings("expand");
-                                             var expandMembers           = expand.ContainsIgnoreCase("members")           ? InfoStatus.Expand : InfoStatus.ShowIdOnly;
-                                             var expandParents           = expand.ContainsIgnoreCase("parents")           ? InfoStatus.Expand : InfoStatus.ShowIdOnly;
-                                             var expandSubOrganizations  = expand.ContainsIgnoreCase("subOrganizations")  ? InfoStatus.Expand : InfoStatus.ShowIdOnly;
-                                             var expandTags              = expand.ContainsIgnoreCase("tags")              ? InfoStatus.Expand : InfoStatus.ShowIdOnly;
+                                             var expandMembers           = expand.ContainsIgnoreCase("members")           ? InfoStatus.Expanded : InfoStatus.ShowIdOnly;
+                                             var expandParents           = expand.ContainsIgnoreCase("parents")           ? InfoStatus.Expanded : InfoStatus.ShowIdOnly;
+                                             var expandSubOrganizations  = expand.ContainsIgnoreCase("subOrganizations")  ? InfoStatus.Expanded : InfoStatus.ShowIdOnly;
+                                             var expandTags              = expand.ContainsIgnoreCase("tags")              ? InfoStatus.Expanded : InfoStatus.ShowIdOnly;
 
                                              var filteredOrganizations   = HTTPOrganizations.
                                                                                OrderBy(organization => organization.Name.FirstText()).
@@ -7437,10 +7437,10 @@ namespace social.OpenData.UsersAPI
                                              var showMgt                 = Request.QueryString.GetBoolean("showMgt", false);
 
                                              var expand                  = Request.QueryString.GetStrings("expand");
-                                             var expandMembers           = expand.ContainsIgnoreCase("members")           ? InfoStatus.Expand : InfoStatus.ShowIdOnly;
-                                             var expandParents           = expand.ContainsIgnoreCase("parents")           ? InfoStatus.Expand : InfoStatus.ShowIdOnly;
-                                             var expandSubOrganizations  = expand.ContainsIgnoreCase("subOrganizations")  ? InfoStatus.Expand : InfoStatus.ShowIdOnly;
-                                             var expandTags              = expand.ContainsIgnoreCase("tags")              ? InfoStatus.Expand : InfoStatus.ShowIdOnly;
+                                             var expandMembers           = expand.ContainsIgnoreCase("members")           ? InfoStatus.Expanded : InfoStatus.ShowIdOnly;
+                                             var expandParents           = expand.ContainsIgnoreCase("parents")           ? InfoStatus.Expanded : InfoStatus.ShowIdOnly;
+                                             var expandSubOrganizations  = expand.ContainsIgnoreCase("subOrganizations")  ? InfoStatus.Expanded : InfoStatus.ShowIdOnly;
+                                             var expandTags              = expand.ContainsIgnoreCase("tags")              ? InfoStatus.Expanded : InfoStatus.ShowIdOnly;
 
                                              var includeCryptoHash       = Request.QueryString.GetBoolean("includeCryptoHash", true);
 
@@ -9354,7 +9354,7 @@ namespace social.OpenData.UsersAPI
                                              var includeCryptoHash       = Request.QueryString.GetBoolean ("includeCryptoHash", true);
 
                                              var expand                  = Request.QueryString.GetStrings ("expand");
-                                             var expandTags              = expand.ContainsIgnoreCase("tags")         ? InfoStatus.Expand : InfoStatus.ShowIdOnly;
+                                             var expandTags              = expand.ContainsIgnoreCase("tags")         ? InfoStatus.Expanded : InfoStatus.ShowIdOnly;
 
 
                                              return new HTTPResponse.Builder(Request) {
