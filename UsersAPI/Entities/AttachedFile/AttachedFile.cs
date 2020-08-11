@@ -127,7 +127,7 @@ namespace social.OpenData.UsersAPI
         /// Return a JSON representation of this object.
         /// </summary>
         /// <param name="Embedded">Whether this data is embedded into another data structure, e.g. into a AttachedFile.</param>
-        /// <param name="IncludeCryptoHash">Include the cryptograhical hash value of this object.</param>
+        /// <param name="IncludeCryptoHash">Whether to include the cryptograhical hash value of this object.</param>
         public JObject ToJSON(Boolean     Embedded            = false,
                               InfoStatus  IncludeSignatures   = InfoStatus.Hidden,
                               Boolean     IncludeCryptoHash   = true)

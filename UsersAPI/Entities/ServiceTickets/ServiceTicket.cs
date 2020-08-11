@@ -162,7 +162,7 @@ namespace social.OpenData.UsersAPI
         /// Return a JSON representation of this object.
         /// </summary>
         /// <param name="Embedded">Whether this data is embedded into another data structure, e.g. into a service ticket.</param>
-        /// <param name="IncludeCryptoHash">Include the cryptograhical hash value of this object.</param>
+        /// <param name="IncludeCryptoHash">Whether to include the cryptograhical hash value of this object.</param>
         public JObject ToJSON(Boolean                                            Embedded                = false,
                               UInt16?                                            MaxStatus               = null,
                               Func<DateTime, ServiceTicketStatusTypes, Boolean>  IncludeStatus           = null,
@@ -745,7 +745,7 @@ namespace social.OpenData.UsersAPI
                 return true;
 
             // If one is null, but not both, return false.
-            if (((Object) ServiceTicket1 == null) || ((Object) ServiceTicket2 == null))
+            if ((ServiceTicket1 is null) || (ServiceTicket2 is null))
                 return false;
 
             return ServiceTicket1.Equals(ServiceTicket2);
@@ -778,7 +778,7 @@ namespace social.OpenData.UsersAPI
         public static Boolean operator < (ServiceTicket ServiceTicket1, ServiceTicket ServiceTicket2)
         {
 
-            if ((Object) ServiceTicket1 == null)
+            if (ServiceTicket1 is null)
                 throw new ArgumentNullException(nameof(ServiceTicket1), "The given ServiceTicket1 must not be null!");
 
             return ServiceTicket1.CompareTo(ServiceTicket2) < 0;
@@ -811,7 +811,7 @@ namespace social.OpenData.UsersAPI
         public static Boolean operator > (ServiceTicket ServiceTicket1, ServiceTicket ServiceTicket2)
         {
 
-            if ((Object) ServiceTicket1 == null)
+            if (ServiceTicket1 is null)
                 throw new ArgumentNullException(nameof(ServiceTicket1), "The given ServiceTicket1 must not be null!");
 
             return ServiceTicket1.CompareTo(ServiceTicket2) > 0;
@@ -846,7 +846,7 @@ namespace social.OpenData.UsersAPI
         public Int32 CompareTo(Object Object)
         {
 
-            if (Object == null)
+            if (Object is null)
                 throw new ArgumentNullException(nameof(Object), "The given object must not be null!");
 
             if (!(Object is ServiceTicket ServiceTicket))
@@ -867,7 +867,7 @@ namespace social.OpenData.UsersAPI
         public Int32 CompareTo(ServiceTicket ServiceTicket)
         {
 
-            if ((Object) ServiceTicket == null)
+            if (ServiceTicket is null)
                 throw new ArgumentNullException(nameof(ServiceTicket), "The given service ticket must not be null!");
 
             return Id.CompareTo(ServiceTicket.Id);
@@ -890,11 +890,10 @@ namespace social.OpenData.UsersAPI
         public override Boolean Equals(Object Object)
         {
 
-            if (Object == null)
+            if (Object is null)
                 return false;
 
-            var ServiceTicket = Object as ServiceTicket;
-            if ((Object) ServiceTicket == null)
+            if (!(Object is ServiceTicket ServiceTicket))
                 return false;
 
             return Equals(ServiceTicket);
@@ -913,7 +912,7 @@ namespace social.OpenData.UsersAPI
         public Boolean Equals(ServiceTicket ServiceTicket)
         {
 
-            if ((Object) ServiceTicket == null)
+            if (ServiceTicket is null)
                 return false;
 
             return Id.Equals(ServiceTicket.Id);

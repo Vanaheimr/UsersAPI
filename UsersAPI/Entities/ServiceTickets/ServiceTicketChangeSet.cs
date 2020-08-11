@@ -213,7 +213,7 @@ namespace social.OpenData.UsersAPI
         /// <summary>
         /// Return a JSON representation of this object.
         /// </summary>
-        /// <param name="IncludeCryptoHash">Include the cryptograhical hash value of this object.</param>
+        /// <param name="IncludeCryptoHash">Whether to include the cryptograhical hash value of this object.</param>
         public JObject ToJSON(InfoStatus  ExpandAuthorId      = InfoStatus.ShowIdOnly,
                               InfoStatus  ExpandReactions     = InfoStatus.ShowIdOnly,
                               InfoStatus  ExpandDataLicenses  = InfoStatus.ShowIdOnly,

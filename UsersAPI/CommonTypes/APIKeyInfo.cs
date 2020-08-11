@@ -45,7 +45,7 @@ namespace social.OpenData.UsersAPI
         /// <summary>
         /// The JSON-LD context of this object.
         /// </summary>
-        public const String JSONLDContext  = "https://opendata.social/contexts/UsersAPI+json/APIKeyInfo";
+        public const String JSONLDContext  = "https://opendata.social/contexts/UsersAPI/APIKeyInfo";
 
         #endregion
 
@@ -148,7 +148,7 @@ namespace social.OpenData.UsersAPI
         /// <summary>
         /// Return a JSON representation of this object.
         /// </summary>
-        /// <param name="IncludeCryptoHash">Include the cryptograhical hash value of this object.</param>
+        /// <param name="IncludeCryptoHash">Whether to include the cryptograhical hash value of this object.</param>
         public JObject ToJSON(Boolean IncludeCryptoHash)
 
             => JSONObject.Create(

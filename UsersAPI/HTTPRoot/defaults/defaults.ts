@@ -87,24 +87,10 @@ interface INotificationMessage {
 }
 
 
-
-
-interface SearchListView<TSearch> {
-    (searchResult:    TSearch,
-     searchResultDiv: HTMLAnchorElement): void;
+interface TMetadataDefaults {
+    totalCount:    number;
+    filteredCount: number;
 }
-
-interface SearchTableView<TSearch> {
-    (searchResult:    Array<TSearch>,
-     searchResultDiv: HTMLDivElement):    void;
-}
-
-interface SearchContext {
-    (context:         any):               void;
-}
-
-
-
 
 
 
@@ -1309,6 +1295,15 @@ function CreateLine(parent: HTMLDivElement, Key, Value) {
     const value     = row.appendChild(document.createElement('div'));
     value.className = "value";
     value.innerHTML = Value;
+
+    return row;
+
+}
+
+function CreateSeparator(parent: HTMLDivElement) {
+
+    const row       = parent.appendChild(document.createElement('div'));
+    row.className   = "separator";
 
     return row;
 

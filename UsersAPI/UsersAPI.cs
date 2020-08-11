@@ -468,11 +468,6 @@ namespace social.OpenData.UsersAPI
         #region Data
 
         /// <summary>
-        /// The name of the service tickets chain log file.
-        /// </summary>
-        public const                String                     ServiceTicketsDBFile             = "ServiceTickets.db";
-
-        /// <summary>
         /// The default maintenance interval.
         /// </summary>
         public readonly             TimeSpan                   DefaultMaintenanceEvery          = TimeSpan.FromMinutes(1);
@@ -520,13 +515,11 @@ namespace social.OpenData.UsersAPI
         /// </summary>
         public  static readonly   HTTPCookieName                                DefaultCookieName               = HTTPCookieName.Parse("UsersAPI");
 
-        public  const             String                                        DefaultUsersAPIFile             = "users.db";
+        public  const             String                                        DefaultUsersAPIDatabaseFile     = "UsersAPI.db";
+        public  const             String                                        DefaultUsersAPILogFile          = "UsersAPI.log";
         public  const             String                                        DefaultPasswordFile             = "passwords.db";
-        //public  const             String                                        SecurityTokenCookieKey          = "securitytoken";
         public  const             String                                        DefaultHTTPCookiesFile          = "HTTPCookies.db";
         public  const             String                                        DefaultPasswordResetsFile       = "passwordResets.db";
-        //public  const             String                                        DefaultGroupDBFile              = "groups.db";
-        //public  const             String                                        DefaultUser2GroupDBFile         = "user2Group.db";
         public  const             String                                        AdminGroupName                  = "Admins";
 
 
@@ -583,6 +576,12 @@ namespace social.OpenData.UsersAPI
         #region Properties
 
         /// <summary>
+        /// The API database file.
+        /// </summary>
+        public String                    APIDatabaseFile                    { get; }
+
+
+        /// <summary>
         /// The API version hash (git commit hash value).
         /// </summary>
         public String                    APIVersionHash                     { get; }
@@ -610,7 +609,7 @@ namespace social.OpenData.UsersAPI
         public String                    SMTPLoggingPath                    { get; }
         public String                    TelegramLoggingPath                { get; }
         public String                    SMSAPILoggingPath                  { get; }
-        public String                    ServiceTicketsPath                 { get; }
+
 
         /// <summary>
         /// The current async local user identification to simplify API usage.
@@ -1939,8 +1938,9 @@ namespace social.OpenData.UsersAPI
                         Boolean                              SkipURLTemplates                   = false,
                         Boolean                              DisableNotifications               = false,
                         Boolean                              DisableLogfile                     = false,
+                        String                               DatabaseFile                       = DefaultUsersAPIDatabaseFile,
                         String                               LoggingPath                        = null,
-                        String                               LogfileName                        = "UsersAPI.log",
+                        String                               LogfileName                        = DefaultUsersAPILogFile,
                         DNSClient                            DNSClient                          = null,
                         Boolean                              Autostart                          = false)
 
@@ -2004,6 +2004,7 @@ namespace social.OpenData.UsersAPI
                    SkipURLTemplates,
                    DisableNotifications,
                    DisableLogfile,
+                   DatabaseFile,
                    LoggingPath,
                    LogfileName)
 
@@ -2099,8 +2100,9 @@ namespace social.OpenData.UsersAPI
                            Boolean                              SkipURLTemplates              = false,
                            Boolean                              DisableNotifications          = false,
                            Boolean                              DisableLogfile                = false,
+                           String                               APIDatabaseFile               = DefaultUsersAPIDatabaseFile,
                            String                               LoggingPath                   = null,
-                           String                               LogfileName                   = DefaultLogfileName)
+                           String                               LogfileName                   = DefaultUsersAPILogFile)
 
             : base(HTTPServer,
                    HTTPHostname,
@@ -2117,8 +2119,10 @@ namespace social.OpenData.UsersAPI
 
             this.LoggingPath                  = LoggingPath ?? Directory.GetCurrentDirectory();
 
-            if (!this.LoggingPath.EndsWith(Path.DirectorySeparatorChar.ToString()))
+            if (this.LoggingPath[this.LoggingPath.Length - 1] != Path.DirectorySeparatorChar)
                 this.LoggingPath += Path.DirectorySeparatorChar;
+
+            this.APIDatabaseFile              = this.LoggingPath + (APIDatabaseFile ?? DefaultUsersAPIDatabaseFile);
 
             this.DevMachines                  = new HashSet<String>();
             this.UsersAPIPath                 = this.LoggingPath + "UsersAPI"       + Path.DirectorySeparatorChar;
@@ -2130,7 +2134,6 @@ namespace social.OpenData.UsersAPI
             this.TelegramLoggingPath          = this.LoggingPath + "Telegram"       + Path.DirectorySeparatorChar;
             this.SMTPLoggingPath              = this.LoggingPath + "SMTPClient"     + Path.DirectorySeparatorChar;
             this.SMSAPILoggingPath            = this.LoggingPath + "SMSAPIClient"   + Path.DirectorySeparatorChar;
-            this.ServiceTicketsPath           = this.LoggingPath + "ServiceTickets" + Path.DirectorySeparatorChar;
 
             if (!DisableLogfile)
             {
@@ -2144,7 +2147,6 @@ namespace social.OpenData.UsersAPI
                 Directory.CreateDirectory(this.TelegramLoggingPath);
                 Directory.CreateDirectory(this.SMTPLoggingPath);
                 Directory.CreateDirectory(this.SMSAPILoggingPath);
-                Directory.CreateDirectory(this.ServiceTicketsPath);
             }
 
             this.Robot                        = new User(Id:               User_Id.Parse("robot"),
@@ -2227,7 +2229,7 @@ namespace social.OpenData.UsersAPI
 
             #endregion
 
-            ReadDatabaseFiles().Wait();
+            ReadUsersAPIDatabaseFiles().Wait();
 
             NoOwner = CreateOrganizationIfNotExists(Organization_Id.Parse("NoOwner"), CurrentUserId: Robot.Id).Result;
 
@@ -4071,7 +4073,7 @@ namespace social.OpenData.UsersAPI
                                              foreach (var userId in _PasswordReset.UserIds)
                                              {
 
-                                                 await WriteToLogfile(NotificationMessageType.Parse("resetPassword"),
+                                                 await WriteToDatabaseFile(NotificationMessageType.Parse("resetPassword"),
                                                                       JSONObject.Create(
 
                                                                           new JProperty("login",                 userId.ToString()),
@@ -4177,8 +4179,8 @@ namespace social.OpenData.UsersAPI
 
                                              var includeCryptoHash      = Request.QueryString.GetBoolean("includeCryptoHash", true);
 
-                                             var expand                 = Request.QueryString.GetStrings("expand", true);
-                                             //var expandTags             = expand.Contains("tags")              ? InfoStatus.Expand : InfoStatus.ShowIdOnly;
+                                             var expand                 = Request.QueryString.GetStrings("expand");
+                                             //var expandTags             = expand.ContainsIgnoreCase("tags")              ? InfoStatus.Expand : InfoStatus.ShowIdOnly;
 
                                              var filteredUsers          = HTTPOrganizations.
                                                                               SafeSelectMany(organization => organization.Users).
@@ -7105,11 +7107,11 @@ namespace social.OpenData.UsersAPI
 
                                              var includeCryptoHash       = Request.QueryString.GetBoolean("includeCryptoHash", true);
 
-                                             var expand                  = Request.QueryString.GetStrings("expand", true);
-                                             var expandMembers           = expand.Contains("members")           ? InfoStatus.Expand : InfoStatus.ShowIdOnly;
-                                             var expandParents           = expand.Contains("parents")           ? InfoStatus.Expand : InfoStatus.ShowIdOnly;
-                                             var expandSubOrganizations  = expand.Contains("subOrganizations")  ? InfoStatus.Expand : InfoStatus.ShowIdOnly;
-                                             var expandTags              = expand.Contains("tags")              ? InfoStatus.Expand : InfoStatus.ShowIdOnly;
+                                             var expand                  = Request.QueryString.GetStrings("expand");
+                                             var expandMembers           = expand.ContainsIgnoreCase("members")           ? InfoStatus.Expand : InfoStatus.ShowIdOnly;
+                                             var expandParents           = expand.ContainsIgnoreCase("parents")           ? InfoStatus.Expand : InfoStatus.ShowIdOnly;
+                                             var expandSubOrganizations  = expand.ContainsIgnoreCase("subOrganizations")  ? InfoStatus.Expand : InfoStatus.ShowIdOnly;
+                                             var expandTags              = expand.ContainsIgnoreCase("tags")              ? InfoStatus.Expand : InfoStatus.ShowIdOnly;
 
                                              var filteredOrganizations   = HTTPOrganizations.
                                                                                OrderBy(organization => organization.Name.FirstText()).
@@ -7434,11 +7436,11 @@ namespace social.OpenData.UsersAPI
 
                                              var showMgt                 = Request.QueryString.GetBoolean("showMgt", false);
 
-                                             var expand                  = Request.QueryString.GetStrings("expand",  false);
-                                             var expandMembers           = expand.Contains("members")           ? InfoStatus.Expand : InfoStatus.ShowIdOnly;
-                                             var expandParents           = expand.Contains("parents")           ? InfoStatus.Expand : InfoStatus.ShowIdOnly;
-                                             var expandSubOrganizations  = expand.Contains("subOrganizations")  ? InfoStatus.Expand : InfoStatus.ShowIdOnly;
-                                             var expandTags              = expand.Contains("tags")              ? InfoStatus.Expand : InfoStatus.ShowIdOnly;
+                                             var expand                  = Request.QueryString.GetStrings("expand");
+                                             var expandMembers           = expand.ContainsIgnoreCase("members")           ? InfoStatus.Expand : InfoStatus.ShowIdOnly;
+                                             var expandParents           = expand.ContainsIgnoreCase("parents")           ? InfoStatus.Expand : InfoStatus.ShowIdOnly;
+                                             var expandSubOrganizations  = expand.ContainsIgnoreCase("subOrganizations")  ? InfoStatus.Expand : InfoStatus.ShowIdOnly;
+                                             var expandTags              = expand.ContainsIgnoreCase("tags")              ? InfoStatus.Expand : InfoStatus.ShowIdOnly;
 
                                              var includeCryptoHash       = Request.QueryString.GetBoolean("includeCryptoHash", true);
 
@@ -9351,8 +9353,8 @@ namespace social.OpenData.UsersAPI
 
                                              var includeCryptoHash       = Request.QueryString.GetBoolean ("includeCryptoHash", true);
 
-                                             var expand                  = Request.QueryString.GetStrings ("expand", true);
-                                             var expandTags              = expand.Contains("tags")         ? InfoStatus.Expand : InfoStatus.ShowIdOnly;
+                                             var expand                  = Request.QueryString.GetStrings ("expand");
+                                             var expandTags              = expand.ContainsIgnoreCase("tags")         ? InfoStatus.Expand : InfoStatus.ShowIdOnly;
 
 
                                              return new HTTPResponse.Builder(Request) {
@@ -9573,14 +9575,19 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
-        #region (private) ReadDatabaseFiles()
 
-        private async Task ReadDatabaseFiles()
+        #region (protected) ReadDatabaseFile(ProcessCommandDelegate, DBFile = null)
+
+        protected async Task ReadDatabaseFile(Func<String, JObject, Task>  ProcessCommandDelegate,
+                                              String                       DatabaseFile = null)
         {
 
-            DebugX.Log("Reading all UsersAPI database files...");
+            if (DisableLogfile)
+                return;
 
-            #region Read DefaultUsersAPIFile
+            var DBFile = DatabaseFile ?? this.APIDatabaseFile;
+
+            DebugX.Log("Reading database file '" + DBFile + "'...");
 
             try
             {
@@ -9589,11 +9596,10 @@ namespace social.OpenData.UsersAPI
                 String  JSONCommand;
                 JObject JSONObject;
 
-                // Info: File.Exists(...) is harmful!
-                File.ReadLines(UsersAPIPath + DefaultUsersAPIFile).ForEachCounted(async (line, linenumber) => {
+                File.ReadLines(DBFile).ForEachCounted(async (line, linenumber) => {
 
                     if (line.IsNeitherNullNorEmpty() &&
-                       !line.StartsWith("#")         &&
+                       !line.StartsWith("#") &&
                        !line.StartsWith("//"))
                     {
 
@@ -9603,15 +9609,15 @@ namespace social.OpenData.UsersAPI
                             JSONLine                  = JObject.Parse(line);
                             JSONCommand               = (JSONLine.First as JProperty)?.Name;
                             JSONObject                = (JSONLine.First as JProperty)?.Value as JObject;
-                            CurrentDatabaseHashValue  =  JSONLine["sha256hash"]?["hashValue"]?.Value<String>();
+                            CurrentDatabaseHashValue  = JSONLine["sha256hash"]?["hashValue"]?.Value<String>();
 
                             if (JSONCommand.IsNotNullOrEmpty() && JSONObject != null)
-                                await ProcessCommand(JSONCommand, JSONObject);
+                                await ProcessCommandDelegate(JSONCommand, JSONObject);
 
                         }
                         catch (Exception e)
                         {
-                            DebugX.Log("Could not read database file '" + UsersAPIPath + DefaultUsersAPIFile + "' line " + linenumber + ": " + e.Message);
+                            DebugX.Log(@"Could not read database file ''" + DBFile + "' line " + linenumber + ": " + e.Message);
                         }
 
                     }
@@ -9619,12 +9625,73 @@ namespace social.OpenData.UsersAPI
                 });
 
             }
-            catch (FileNotFoundException fe)
+#pragma warning disable CS0168 // Variable is declared but never used
+            catch (FileNotFoundException ignore)
+#pragma warning restore CS0168 // Variable is declared but never used
             { }
             catch (Exception e)
             {
-                DebugX.LogT("Could not read database file '" + UsersAPIPath + DefaultUsersAPIFile + "': " + e.Message);
+                DebugX.LogT(@"Could not read database file '" + DBFile + "': " + e.Message);
             }
+
+            DebugX.Log("Read database file '" + DBFile + "'...");
+
+        }
+
+        #endregion
+
+        #region (protected) ReadUsersAPIDatabaseFiles()
+
+        protected async Task ReadUsersAPIDatabaseFiles()
+        {
+
+            DebugX.Log("Reading all database files...");
+
+            #region Read DefaultUsersAPIFile
+
+            //try
+            //{
+
+            //    JObject JSONLine;
+            //    String  JSONCommand;
+            //    JObject JSONObject;
+
+            //    // Info: File.Exists(...) is harmful!
+            //    File.ReadLines(APIDatabaseFile).ForEachCounted(async (line, linenumber) => {
+
+            //        if (line.IsNeitherNullNorEmpty() &&
+            //           !line.StartsWith("#")         &&
+            //           !line.StartsWith("//"))
+            //        {
+
+            //            try
+            //            {
+
+            //                JSONLine                  = JObject.Parse(line);
+            //                JSONCommand               = (JSONLine.First as JProperty)?.Name;
+            //                JSONObject                = (JSONLine.First as JProperty)?.Value as JObject;
+            //                CurrentDatabaseHashValue  =  JSONLine["sha256hash"]?["hashValue"]?.Value<String>();
+
+            //                if (JSONCommand.IsNotNullOrEmpty() && JSONObject != null)
+            //                    await ProcessCommand(JSONCommand, JSONObject);
+
+            //            }
+            //            catch (Exception e)
+            //            {
+            //                DebugX.Log("Could not read database file '" + APIDatabaseFile + "' line " + linenumber + ": " + e.Message);
+            //            }
+
+            //        }
+
+            //    });
+
+            //}
+            //catch (FileNotFoundException fe)
+            //{ }
+            //catch (Exception e)
+            //{
+            //    DebugX.LogT("Could not read database file '" + APIDatabaseFile + "': " + e.Message);
+            //}
 
             #endregion
 
@@ -10745,6 +10812,7 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
+
         #region (protected) GetUsersAPIRessource(Ressource)
 
         /// <summary>
@@ -11091,7 +11159,7 @@ namespace social.OpenData.UsersAPI
         #endregion
 
 
-        #region WriteToLogfile(MessageType, JSONData,                                    CurrentUserId = null)
+        #region WriteToDatabaseFile(MessageType, JSONData,                                 CurrentUserId = null)
 
         /// <summary>
         /// Write data to a log file.
@@ -11099,30 +11167,30 @@ namespace social.OpenData.UsersAPI
         /// <param name="MessageType">The type of the message.</param>
         /// <param name="JSONData">The JSON data of the message.</param>
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
-        public Task WriteToLogfile(NotificationMessageType  MessageType,
-                                   JObject                  JSONData,
-                                   User_Id?                 CurrentUserId  = null)
+        public Task WriteToDatabaseFile(NotificationMessageType  MessageType,
+                                        JObject                  JSONData,
+                                        User_Id?                 CurrentUserId  = null)
 
-            => WriteToLogfile(MessageType,
-                              JSONData,
-                              this.UsersAPIPath + DefaultUsersAPIFile,
-                              CurrentUserId);
+            => WriteToDatabaseFile(MessageType,
+                                   JSONData,
+                                   APIDatabaseFile,
+                                   CurrentUserId);
 
         #endregion
 
-        #region WriteToLogfile(MessageType, JSONData, Logfilename = DefaultUsersAPIFile, CurrentUserId = null)
+        #region WriteToDatabaseFile(MessageType, JSONData, DatabaseFile = APIDatabaseFile, CurrentUserId = null)
 
         /// <summary>
-        /// Write data to a log file.
+        /// Write data to a database file.
         /// </summary>
         /// <param name="MessageType">The type of the message.</param>
         /// <param name="JSONData">The JSON data of the message.</param>
-        /// <param name="Logfilename">An optional log file name.</param>
+        /// <param name="DatabaseFile">An optional database file.</param>
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
-        public async Task WriteToLogfile(NotificationMessageType  MessageType,
-                                         JObject                  JSONData,
-                                         String                   Logfilename    = DefaultUsersAPIFile,
-                                         User_Id?                 CurrentUserId  = null)
+        public async Task WriteToDatabaseFile(NotificationMessageType  MessageType,
+                                              JObject                  JSONData,
+                                              String                   DatabaseFile    = null,
+                                              User_Id?                 CurrentUserId   = null)
         {
 
             if (!DisableLogfile || !DisableNotifications)
@@ -11152,7 +11220,7 @@ namespace social.OpenData.UsersAPI
                     (JSONMessage["sha256hash"] as JObject)?.Add(new JProperty("hashValue",  CurrentDatabaseHashValue));
 
 
-                    #region Write to logfile
+                    #region Write to database file
 
                     if (!DisableLogfile)
                     {
@@ -11171,7 +11239,7 @@ namespace social.OpenData.UsersAPI
                                 try
                                 {
 
-                                    File.AppendAllText(Logfilename,
+                                    File.AppendAllText(DatabaseFile ?? APIDatabaseFile,
                                                        JSONMessage.ToString(Newtonsoft.Json.Formatting.None) + Environment.NewLine);
 
                                     retry = maxRetries;
@@ -11179,13 +11247,13 @@ namespace social.OpenData.UsersAPI
                                 }
                                 catch (IOException ioEx)
                                 {
-                                    DebugX.Log("Retry " + retry + ": Could not write message '" + MessageType + "' to logfile '" + Logfilename + "': " + ioEx.Message);
+                                    DebugX.Log("Retry " + retry + ": Could not write message '" + MessageType + "' to logfile '" + DatabaseFile + "': " + ioEx.Message);
                                     await Task.Delay(10);
                                     retry++;
                                 }
                                 catch (Exception e)
                                 {
-                                    DebugX.Log("Retry " + retry + ": Could not write message '" + MessageType + "' to logfile '" + Logfilename + "': " + e.Message);
+                                    DebugX.Log("Retry " + retry + ": Could not write message '" + MessageType + "' to logfile '" + DatabaseFile + "': " + e.Message);
                                     await Task.Delay(10);
                                     retry++;
                                 }
@@ -11218,17 +11286,17 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
-        #region WriteCommentToLogfile(Comment = null, Logfilename = DefaultUsersAPIFile, CurrentUserId = null)
+        #region WriteCommentToDatabaseFile(Comment = null, DatabaseFile = APIDatabaseFile, CurrentUserId = null)
 
         /// <summary>
-        /// Write a comment or just an empty comment to a log file.
+        /// Write a comment or just an empty comment to a database file.
         /// </summary>
         /// <param name="Comment">An optional comment.</param>
-        /// <param name="Logfilename">An optional log file name.</param>
+        /// <param name="DatabaseFile">An optional database file.</param>
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
-        public async Task WriteCommentToLogfile(String    Comment        = null,
-                                                String    Logfilename    = DefaultUsersAPIFile,
-                                                User_Id?  CurrentUserId  = null)
+        public async Task WriteCommentToDatabaseFile(String    Comment         = null,
+                                                     String    DatabaseFile    = null,
+                                                     User_Id?  CurrentUserId   = null)
         {
 
             if (!DisableLogfile || !DisableNotifications)
@@ -11256,18 +11324,18 @@ namespace social.OpenData.UsersAPI
 
                                 try
                                 {
-                                    File.AppendAllText(Logfilename, text3);
+                                    File.AppendAllText(DatabaseFile ?? APIDatabaseFile, text3);
                                     retry = maxRetries;
                                 }
                                 catch (IOException ioEx)
                                 {
-                                    DebugX.Log("Retry " + retry + ": Could not write comment '" + Comment + "' to logfile '" + Logfilename + "': " + ioEx.Message);
+                                    DebugX.Log("Retry " + retry + ": Could not write comment '" + Comment + "' to logfile '" + DatabaseFile + "': " + ioEx.Message);
                                     await Task.Delay(10);
                                     retry++;
                                 }
                                 catch (Exception e)
                                 {
-                                    DebugX.Log("Retry " + retry + ": Could not write comment '" + Comment + "' to logfile '" + Logfilename + "': " + e.Message);
+                                    DebugX.Log("Retry " + retry + ": Could not write comment '" + Comment + "' to logfile '" + DatabaseFile + "': " + e.Message);
                                     await Task.Delay(10);
                                     retry++;
                                 }
@@ -11295,23 +11363,6 @@ namespace social.OpenData.UsersAPI
             }
 
         }
-
-        #endregion
-
-
-        #region WriteCommentToUsersAPILogfile(Comment = null, CurrentUserId = null)
-
-        /// <summary>
-        /// Write a comment or just a separator line to the UsersAPI log file.
-        /// </summary>
-        /// <param name="Comment">An optional comment.</param>
-        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
-        public Task WriteCommentToUsersAPILogfile(String    Comment        = null,
-                                                  User_Id?  CurrentUserId  = null)
-
-            => WriteCommentToLogfile(Comment,
-                                     UsersAPIPath + DefaultUsersAPIFile,
-                                     CurrentUserId);
 
         #endregion
 
@@ -11731,9 +11782,9 @@ namespace social.OpenData.UsersAPI
 
                 User.API = this;
 
-                await WriteToLogfile(NotificationMessageType.Parse("addUser"),
-                                     User.ToJSON(),
-                                     CurrentUserId);
+                await WriteToDatabaseFile(NotificationMessageType.Parse("addUser"),
+                                          User.ToJSON(),
+                                          CurrentUserId);
 
                 _Users.Add(User.Id, User);
 
@@ -11780,9 +11831,9 @@ namespace social.OpenData.UsersAPI
 
                 User.API = this;
 
-                await WriteToLogfile(NotificationMessageType.Parse("addIfNotExistsUser"),
-                                     User.ToJSON(),
-                                     CurrentUserId);
+                await WriteToDatabaseFile(NotificationMessageType.Parse("addIfNotExistsUser"),
+                                          User.ToJSON(),
+                                          CurrentUserId);
 
                 _Users.Add(User.Id, User);
 
@@ -11826,7 +11877,7 @@ namespace social.OpenData.UsersAPI
                 if (User.Id.Length < MinLoginLenght)
                     throw new Exception("User '" + User.Id + "' is too short!");
 
-                await WriteToLogfile(NotificationMessageType.Parse("addOrUpdateUser"),
+                await WriteToDatabaseFile(NotificationMessageType.Parse("addOrUpdateUser"),
                                      User.ToJSON(),
                                      CurrentUserId);
 
@@ -11883,7 +11934,7 @@ namespace social.OpenData.UsersAPI
                     throw new Exception("User '" + User.Id + "' is too short!");
 
 
-                await WriteToLogfile(NotificationMessageType.Parse("updateUser"),
+                await WriteToDatabaseFile(NotificationMessageType.Parse("updateUser"),
                                      User.ToJSON(),
                                      CurrentUserId);
 
@@ -11932,7 +11983,7 @@ namespace social.OpenData.UsersAPI
                 UpdateDelegate(Builder);
                 var NewUser = Builder.ToImmutable;
 
-                await WriteToLogfile(NotificationMessageType.Parse("updateUser"),
+                await WriteToDatabaseFile(NotificationMessageType.Parse("updateUser"),
                                      NewUser.ToJSON(),
                                      CurrentUserId);
 
@@ -12338,7 +12389,7 @@ namespace social.OpenData.UsersAPI
             if (!_LoginPasswords.TryGetValue(UserId, out LoginPassword _LoginPassword))
             {
 
-                await WriteToLogfile(NotificationMessageType.Parse("addPassword"),
+                await WriteToDatabaseFile(NotificationMessageType.Parse("addPassword"),
                                      new JObject(
                                          new JProperty("login",         UserId.ToString()),
                                          new JProperty("newPassword", new JObject(
@@ -12362,7 +12413,7 @@ namespace social.OpenData.UsersAPI
             else if (CurrentPassword.IsNotNullOrEmpty() && _LoginPassword.VerifyPassword(CurrentPassword))
             {
 
-                await WriteToLogfile(NotificationMessageType.Parse("changePassword"),
+                await WriteToDatabaseFile(NotificationMessageType.Parse("changePassword"),
                                      new JObject(
                                          new JProperty("login",         UserId.ToString()),
                                          new JProperty("currentPassword", new JObject(
@@ -12477,7 +12528,7 @@ namespace social.OpenData.UsersAPI
 
                 await UsersSemaphore.WaitAsync();
 
-                await WriteToLogfile(NotificationMessageType.Parse("add"),
+                await WriteToDatabaseFile(NotificationMessageType.Parse("add"),
                                      passwordReset.ToJSON(),
                                      this.UsersAPIPath + DefaultPasswordResetsFile);
 
@@ -12505,7 +12556,7 @@ namespace social.OpenData.UsersAPI
 
                 await UsersSemaphore.WaitAsync();
 
-                await WriteToLogfile(NotificationMessageType.Parse("remove"),
+                await WriteToDatabaseFile(NotificationMessageType.Parse("remove"),
                                      passwordReset.ToJSON(),
                                      this.UsersAPIPath + DefaultPasswordResetsFile);
 
@@ -12622,7 +12673,7 @@ namespace social.OpenData.UsersAPI
                 if (_APIKeys.ContainsKey(APIKey.APIKey))
                     return _APIKeys[APIKey.APIKey];
 
-                await WriteToLogfile(NotificationMessageType.Parse("addAPIKey"),
+                await WriteToDatabaseFile(NotificationMessageType.Parse("addAPIKey"),
                                      APIKey.ToJSON(true),
                                      UserId);
 
@@ -12848,7 +12899,7 @@ namespace social.OpenData.UsersAPI
                 await UsersSemaphore.WaitAsync();
 
                 User.AddNotification(NotificationType,
-                                     async update => await WriteToLogfile(NotificationMessageType.Parse("addNotification"),
+                                     async update => await WriteToDatabaseFile(NotificationMessageType.Parse("addNotification"),
                                                                           update.ToJSON(false).AddFirstAndReturn(new JProperty("userId", User.Id.ToString())),
                                                                           CurrentUserId));
 
@@ -12881,7 +12932,7 @@ namespace social.OpenData.UsersAPI
                 {
 
                     User.AddNotification(NotificationType,
-                                         async update => await WriteToLogfile(NotificationMessageType.Parse("addNotification"),
+                                         async update => await WriteToDatabaseFile(NotificationMessageType.Parse("addNotification"),
                                                                               update.ToJSON(false).AddFirstAndReturn(new JProperty("userId", User.Id.ToString())),
                                                                               CurrentUserId));
 
@@ -12915,7 +12966,7 @@ namespace social.OpenData.UsersAPI
 
                 User.AddNotification(NotificationType,
                                      NotificationMessageType,
-                                     async update => await WriteToLogfile(NotificationMessageType.Parse("addNotification"),
+                                     async update => await WriteToDatabaseFile(NotificationMessageType.Parse("addNotification"),
                                                                           update.ToJSON(false).AddFirstAndReturn(new JProperty("userId", User.Id.ToString())),
                                                                           CurrentUserId));
 
@@ -12950,7 +13001,7 @@ namespace social.OpenData.UsersAPI
 
                     User.AddNotification(NotificationType,
                                          NotificationMessageType,
-                                         async update => await WriteToLogfile(NotificationMessageType.Parse("addNotification"),
+                                         async update => await WriteToDatabaseFile(NotificationMessageType.Parse("addNotification"),
                                                                               update.ToJSON(false).AddFirstAndReturn(new JProperty("userId", User.Id.ToString())),
                                                                               CurrentUserId));
 
@@ -12987,7 +13038,7 @@ namespace social.OpenData.UsersAPI
 
                 User.AddNotification(NotificationType,
                                      NotificationMessageTypes,
-                                     async update => await WriteToLogfile(NotificationMessageType.Parse("addNotification"),
+                                     async update => await WriteToDatabaseFile(NotificationMessageType.Parse("addNotification"),
                                                                           update.ToJSON(false).AddFirstAndReturn(new JProperty("userId", User.Id.ToString())),
                                                                           CurrentUserId));
 
@@ -13022,7 +13073,7 @@ namespace social.OpenData.UsersAPI
 
                     User.AddNotification(NotificationType,
                                          NotificationMessageTypes,
-                                         async update => await WriteToLogfile(NotificationMessageType.Parse("addNotification"),
+                                         async update => await WriteToDatabaseFile(NotificationMessageType.Parse("addNotification"),
                                                                               update.ToJSON(false).AddFirstAndReturn(new JProperty("userId", User.Id.ToString())),
                                                                               CurrentUserId));
 
@@ -13058,7 +13109,7 @@ namespace social.OpenData.UsersAPI
                 await UsersSemaphore.WaitAsync();
 
                 Organization.AddNotification(NotificationType,
-                                             async update => await WriteToLogfile(NotificationMessageType.Parse("addNotification"),
+                                             async update => await WriteToDatabaseFile(NotificationMessageType.Parse("addNotification"),
                                                                                   update.ToJSON(false).AddFirstAndReturn(new JProperty("organizationId", Organization.Id.ToString())),
                                                                                   CurrentUserId));
 
@@ -13091,7 +13142,7 @@ namespace social.OpenData.UsersAPI
                 {
 
                     Organization.AddNotification(NotificationType,
-                                                 async update => await WriteToLogfile(NotificationMessageType.Parse("addNotification"),
+                                                 async update => await WriteToDatabaseFile(NotificationMessageType.Parse("addNotification"),
                                                                                       update.ToJSON(false).AddFirstAndReturn(new JProperty("organizationId", Organization.Id.ToString())),
                                                                                       CurrentUserId));
 
@@ -13125,7 +13176,7 @@ namespace social.OpenData.UsersAPI
 
                 Organization.AddNotification(NotificationType,
                                              NotificationMessageType,
-                                             async update => await WriteToLogfile(NotificationMessageType.Parse("addNotification"),
+                                             async update => await WriteToDatabaseFile(NotificationMessageType.Parse("addNotification"),
                                                                                   update.ToJSON(false).AddFirstAndReturn(new JProperty("organizationId", Organization.Id.ToString())),
                                                                                   CurrentUserId));
 
@@ -13160,7 +13211,7 @@ namespace social.OpenData.UsersAPI
 
                     Organization.AddNotification(NotificationType,
                                                  NotificationMessageType,
-                                                 async update => await WriteToLogfile(NotificationMessageType.Parse("addNotification"),
+                                                 async update => await WriteToDatabaseFile(NotificationMessageType.Parse("addNotification"),
                                                                                       update.ToJSON(false).AddFirstAndReturn(new JProperty("organizationId", Organization.Id.ToString())),
                                                                                       CurrentUserId));
 
@@ -13197,7 +13248,7 @@ namespace social.OpenData.UsersAPI
 
                 Organization.AddNotification(NotificationType,
                                              NotificationMessageTypes,
-                                             async update => await WriteToLogfile(NotificationMessageType.Parse("addNotification"),
+                                             async update => await WriteToDatabaseFile(NotificationMessageType.Parse("addNotification"),
                                                                                   update.ToJSON(false).AddFirstAndReturn(new JProperty("organizationId", Organization.Id.ToString())),
                                                                                   CurrentUserId));
 
@@ -13232,7 +13283,7 @@ namespace social.OpenData.UsersAPI
 
                     Organization.AddNotification(NotificationType,
                                                  NotificationMessageTypes,
-                                                 async update => await WriteToLogfile(NotificationMessageType.Parse("addNotification"),
+                                                 async update => await WriteToDatabaseFile(NotificationMessageType.Parse("addNotification"),
                                                                                       update.ToJSON(false).AddFirstAndReturn(new JProperty("organizationId", Organization.Id.ToString())),
                                                                                       CurrentUserId));
 
@@ -13387,7 +13438,7 @@ namespace social.OpenData.UsersAPI
                 await UsersSemaphore.WaitAsync();
 
                 User.RemoveNotification(NotificationType,
-                                        async update => await WriteToLogfile(NotificationMessageType.Parse("removeNotification"),
+                                        async update => await WriteToDatabaseFile(NotificationMessageType.Parse("removeNotification"),
                                                                              update.ToJSON(false).AddFirstAndReturn(new JProperty("userId", User.Id.ToString())),
                                                                              CurrentUserId));
 
@@ -13420,7 +13471,7 @@ namespace social.OpenData.UsersAPI
                 {
 
                     User.RemoveNotification(NotificationType,
-                                            async update => await WriteToLogfile(NotificationMessageType.Parse("removeNotification"),
+                                            async update => await WriteToDatabaseFile(NotificationMessageType.Parse("removeNotification"),
                                                                                  update.ToJSON(false).AddFirstAndReturn(new JProperty("userId", User.Id.ToString())),
                                                                                  CurrentUserId));
 
@@ -13453,7 +13504,7 @@ namespace social.OpenData.UsersAPI
                 await UsersSemaphore.WaitAsync();
 
                 Organization.RemoveNotification(NotificationType,
-                                                async update => await WriteToLogfile(NotificationMessageType.Parse("removeNotification"),
+                                                async update => await WriteToDatabaseFile(NotificationMessageType.Parse("removeNotification"),
                                                                                      update.ToJSON(false).AddFirstAndReturn(new JProperty("organizationId", Organization.Id.ToString())),
                                                                                      CurrentUserId));
 
@@ -13486,7 +13537,7 @@ namespace social.OpenData.UsersAPI
                 {
 
                     Organization.RemoveNotification(NotificationType,
-                                                    async update => await WriteToLogfile(NotificationMessageType.Parse("removeNotification"),
+                                                    async update => await WriteToDatabaseFile(NotificationMessageType.Parse("removeNotification"),
                                                                                          update.ToJSON(false).AddFirstAndReturn(new JProperty("organizationId", Organization.Id.ToString())),
                                                                                          CurrentUserId));
 
@@ -13555,7 +13606,7 @@ namespace social.OpenData.UsersAPI
                                       Description);
 
                 if (Group.Id.ToString() != AdminGroupName)
-                    await WriteToLogfile(NotificationMessageType.Parse("createGroup"),
+                    await WriteToDatabaseFile(NotificationMessageType.Parse("createGroup"),
                                          Group.ToJSON(),
                                          CurrentUserId);
 
@@ -13592,7 +13643,7 @@ namespace social.OpenData.UsersAPI
                                       Description);
 
                 if (Group.Id.ToString() != AdminGroupName)
-                    await WriteToLogfile(NotificationMessageType.Parse("createGroup"),
+                    await WriteToDatabaseFile(NotificationMessageType.Parse("createGroup"),
                                          Group.ToJSON(),
                                          CurrentUserId);
 
@@ -13843,7 +13894,7 @@ namespace social.OpenData.UsersAPI
                     if (!Group.Edges(Group).Any(edge => edge == Edge))
                         Group.AddIncomingEdge(User, Edge,  PrivacyLevel);
 
-                    await WriteToLogfile(NotificationMessageType.Parse("addUserToGroup"),
+                    await WriteToDatabaseFile(NotificationMessageType.Parse("addUserToGroup"),
                                          new JObject(
                                              new JProperty("user",   User.Id.ToString()),
                                              new JProperty("edge",   Edge.   ToString()),
@@ -13992,7 +14043,7 @@ namespace social.OpenData.UsersAPI
                 }
 
 
-                await WriteToLogfile(NotificationMessageType.Parse("addOrganization"),
+                await WriteToDatabaseFile(NotificationMessageType.Parse("addOrganization"),
                                      Organization.ToJSON(),
                                      CurrentUserId);
 
@@ -14048,7 +14099,7 @@ namespace social.OpenData.UsersAPI
 
                 Organization.API = this;
 
-                await WriteToLogfile(NotificationMessageType.Parse("addIfNotExistsOrganization"),
+                await WriteToDatabaseFile(NotificationMessageType.Parse("addIfNotExistsOrganization"),
                                      Organization.ToJSON(),
                                      CurrentUserId);
 
@@ -14103,7 +14154,7 @@ namespace social.OpenData.UsersAPI
 
                 Organization.API = this;
 
-                await WriteToLogfile(NotificationMessageType.Parse("addOrUpdateOrganization"),
+                await WriteToDatabaseFile(NotificationMessageType.Parse("addOrUpdateOrganization"),
                                      Organization.ToJSON(),
                                      CurrentUserId);
 
@@ -14160,7 +14211,7 @@ namespace social.OpenData.UsersAPI
 
                 Organization.API = this;
 
-                await WriteToLogfile(NotificationMessageType.Parse("updateOrganization"),
+                await WriteToDatabaseFile(NotificationMessageType.Parse("updateOrganization"),
                                      Organization.ToJSON(),
                                      CurrentUserId);
 
@@ -14206,7 +14257,7 @@ namespace social.OpenData.UsersAPI
                 UpdateDelegate(Builder);
                 var NewOrganization = Builder.ToImmutable;
 
-                await WriteToLogfile(NotificationMessageType.Parse("updateOrganization"),
+                await WriteToDatabaseFile(NotificationMessageType.Parse("updateOrganization"),
                                      NewOrganization.ToJSON(),
                                      CurrentUserId);
 
@@ -14281,7 +14332,7 @@ namespace social.OpenData.UsersAPI
                             edge.Source.RemoveOutEdge(edge);
 
 
-                        await WriteToLogfile(NotificationMessageType.Parse("removeOrganization"),
+                        await WriteToDatabaseFile(NotificationMessageType.Parse("removeOrganization"),
                                              organization.ToJSON(),
                                              CurrentUserId);
 
@@ -14651,7 +14702,7 @@ namespace social.OpenData.UsersAPI
                 if (!Organization.User2OrganizationInEdgeLabels(User).Any(edgelabel => edgelabel == Edge))
                     Organization.LinkUser(edge);// User, Edge, PrivacyLevel);
 
-                await WriteToLogfile(NotificationMessageType.Parse("addUserToOrganization"),
+                await WriteToDatabaseFile(NotificationMessageType.Parse("addUserToOrganization"),
                                      new JObject(
                                          new JProperty("user",          User.        Id.ToString()),
                                          new JProperty("edge",          Edge.           ToString()),
@@ -14723,7 +14774,7 @@ namespace social.OpenData.UsersAPI
                         OrganizationIn.AddInEdge(EdgeLabel, OrganizationOut, Privacy);
                     }
 
-                    await WriteToLogfile(NotificationMessageType.Parse("linkOrganizations"),
+                    await WriteToDatabaseFile(NotificationMessageType.Parse("linkOrganizations"),
                                          new JObject(
                                              new JProperty("organizationOut", OrganizationOut.Id.ToString()),
                                              new JProperty("edge",            EdgeLabel.         ToString()),
@@ -14792,7 +14843,7 @@ namespace social.OpenData.UsersAPI
                     OrganizationIn.RemoveInEdges(EdgeLabel, OrganizationOut);
                 }
 
-                await WriteToLogfile(NotificationMessageType.Parse("unlinkOrganizations"),
+                await WriteToDatabaseFile(NotificationMessageType.Parse("unlinkOrganizations"),
                                      new JObject(
                                          new JProperty("organizationOut", OrganizationOut.Id.ToString()),
                                          new JProperty("edge",            EdgeLabel.         ToString()),
@@ -14890,7 +14941,7 @@ namespace social.OpenData.UsersAPI
                 Dashboard.API = this;
 
 
-                await WriteToLogfile(NotificationMessageType.Parse("addDashboard"),
+                await WriteToDatabaseFile(NotificationMessageType.Parse("addDashboard"),
                                      Dashboard.ToJSON(),
                                      CurrentUserId);
 
@@ -14932,7 +14983,7 @@ namespace social.OpenData.UsersAPI
 
                 Dashboard.API = this;
 
-                await WriteToLogfile(NotificationMessageType.Parse("addIfNotExistsDashboard"),
+                await WriteToDatabaseFile(NotificationMessageType.Parse("addIfNotExistsDashboard"),
                                      Dashboard.ToJSON(),
                                      CurrentUserId);
 
@@ -14976,7 +15027,7 @@ namespace social.OpenData.UsersAPI
 
                 Dashboard.API = this;
 
-                await WriteToLogfile(NotificationMessageType.Parse("addOrUpdateDashboard"),
+                await WriteToDatabaseFile(NotificationMessageType.Parse("addOrUpdateDashboard"),
                                      Dashboard.ToJSON(),
                                      CurrentUserId);
 
@@ -15027,7 +15078,7 @@ namespace social.OpenData.UsersAPI
 
                 Dashboard.API = this;
 
-                await WriteToLogfile(NotificationMessageType.Parse("updateDashboard"),
+                await WriteToDatabaseFile(NotificationMessageType.Parse("updateDashboard"),
                                      Dashboard.ToJSON(),
                                      CurrentUserId);
 
@@ -15073,7 +15124,7 @@ namespace social.OpenData.UsersAPI
                 UpdateDelegate(Builder);
                 var NewDashboard = Builder.ToImmutable;
 
-                await WriteToLogfile(NotificationMessageType.Parse("updateDashboard"),
+                await WriteToDatabaseFile(NotificationMessageType.Parse("updateDashboard"),
                                      NewDashboard.ToJSON(),
                                      CurrentUserId);
 
@@ -15240,7 +15291,7 @@ namespace social.OpenData.UsersAPI
                 if (_Dashboards.TryGetValue(DashboardId, out Dashboard Dashboard))
                 {
 
-                    await WriteToLogfile(NotificationMessageType.Parse("removeDashboard"),
+                    await WriteToDatabaseFile(NotificationMessageType.Parse("removeDashboard"),
                                          Dashboard.ToJSON(),
                                          CurrentUserId);
 
@@ -15307,9 +15358,9 @@ namespace social.OpenData.UsersAPI
             if (ServiceTicket == null)
                 return;
 
-            await WriteToLogfile(MessageType,
+            await WriteToDatabaseFile(MessageType,
                                  ServiceTicket.ToJSON(),
-                                 ServiceTicketsPath + ServiceTicketsDBFile,
+                                 APIDatabaseFile,
                                  CurrentUserId);
 
 
@@ -16115,7 +16166,7 @@ namespace social.OpenData.UsersAPI
                                                   Description,
                                                   URIs);
 
-                WriteToLogfile(NotificationMessageType.Parse("createDataLicense"),
+                WriteToDatabaseFile(NotificationMessageType.Parse("createDataLicense"),
                                DataLicense.ToJSON(),
                                Robot.Id);
 
