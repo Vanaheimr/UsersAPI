@@ -1320,10 +1320,10 @@ function FixMenuLinks(parentDivId: string,
         return;
     }
 
-    const defibrillatorMenuDiv = document.getElementById(parentDivId) as HTMLDivElement;
+    const menuDiv = document.getElementById(parentDivId) as HTMLDivElement;
 
-    if (defibrillatorMenuDiv !== null) {
-        for (const link of Array.from(defibrillatorMenuDiv.querySelectorAll("a")) as HTMLAnchorElement[]) {
+    if (menuDiv !== null) {
+        for (const link of Array.from(menuDiv.querySelectorAll("a")) as HTMLAnchorElement[]) {
             if (link.href.indexOf("00000000") > 0) {
                 link.href = link.href.replace("00000000", linkId);
             }

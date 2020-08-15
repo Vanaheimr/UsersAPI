@@ -720,9 +720,9 @@ function FixMenuLinks(parentDivId, linkId) {
         linkId === null || linkId === "") {
         return;
     }
-    const defibrillatorMenuDiv = document.getElementById(parentDivId);
-    if (defibrillatorMenuDiv !== null) {
-        for (const link of Array.from(defibrillatorMenuDiv.querySelectorAll("a"))) {
+    const menuDiv = document.getElementById(parentDivId);
+    if (menuDiv !== null) {
+        for (const link of Array.from(menuDiv.querySelectorAll("a"))) {
             if (link.href.indexOf("00000000") > 0) {
                 link.href = link.href.replace("00000000", linkId);
             }
