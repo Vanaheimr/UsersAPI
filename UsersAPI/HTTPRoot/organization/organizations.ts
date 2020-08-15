@@ -1,6 +1,6 @@
 ﻿///<reference path="../../../../UsersAPI/UsersAPI/HTTPRoot/libs/date.format.ts" />
 
-function StartOrganizationSearch(NoURIupdate?: boolean) {
+function StartOrganizationSearch() {
 
     StartSearch<IOrganization>("/organizations",
                                "organization",

@@ -1,7 +1,7 @@
 ﻿/////<reference path="../../../../UsersAPI/UsersAPI/HTTPRoot/libs/date.format.ts" />
 /////<reference path="../../../../UsersAPI/UsersAPI/HTTPRoot/defaults/search.ts" />
 
-function StartUserSearch(NoURIupdate?: boolean) {
+function StartUserSearch() {
 
     StartSearch<IUserProfile>("/users",
                               "user",

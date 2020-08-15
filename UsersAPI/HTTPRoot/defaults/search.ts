@@ -96,33 +96,39 @@ function StartSearch2<TMetadata extends TMetadataDefaults, TSearchResult>(reques
                           ? requestURL
                           : requestURL + '&';
 
-    let   firstSearch             = true;
-    let   skip                    = 0;
-    let   take                    = 10;
-    let   currentDateFrom:string  = null;
-    let   currentDateTo:string    = null;
-    let   viewMode                = startView !== null ? startView : searchResultsMode.listView;
-    const context__               = { Search: Search };
-    const datepicker              = new DatePicker();
+    let   firstSearch              = true;
+    let   skip                     = 0;
+    let   take                     = 10;
+    let   currentDateFrom:string   = null;
+    let   currentDateTo:string     = null;
+    let   viewMode                 = startView !== null ? startView : searchResultsMode.listView;
+    const context__                = { Search: Search };
+    let   numberOfResults          = 0;
+    let   filteredNumberOfResults  = 0;
+    let   totalNumberOfResults     = 0;
 
-    const controlsDiv             = document.    getElementById("controls")              as HTMLDivElement;
-    const patternFilter           = controlsDiv. querySelector ("#patternFilterInput")   as HTMLInputElement;
-    const takeSelect              = controlsDiv. querySelector ("#takeSelect")           as HTMLSelectElement;
-    const searchButton            = controlsDiv. querySelector ("#searchButton")         as HTMLButtonElement;
-    const leftButton              = controlsDiv. querySelector ("#leftButton")           as HTMLButtonElement;
-    const rightButton             = controlsDiv. querySelector ("#rightButton")          as HTMLButtonElement;
+    const controlsDiv              = document.    getElementById("controls")              as HTMLDivElement;
+    const patternFilter            = controlsDiv. querySelector ("#patternFilterInput")   as HTMLInputElement;
+    const takeSelect               = controlsDiv. querySelector ("#takeSelect")           as HTMLSelectElement;
+    const searchButton             = controlsDiv. querySelector ("#searchButton")         as HTMLButtonElement;
+    const leftButton               = controlsDiv. querySelector ("#leftButton")           as HTMLButtonElement;
+    const rightButton              = controlsDiv. querySelector ("#rightButton")          as HTMLButtonElement;
 
-    const dateFilters             = controlsDiv. querySelector ("#dateFilters")          as HTMLDivElement;
-    const dateFrom                = dateFilters?.querySelector ("#dateFromText")         as HTMLInputElement;
-    const dateTo                  = dateFilters?.querySelector ("#dateToText")           as HTMLInputElement;
+    const dateFilters              = controlsDiv. querySelector ("#dateFilters")          as HTMLDivElement;
+    const dateFrom                 = dateFilters?.querySelector ("#dateFromText")         as HTMLInputElement;
+    const dateTo                   = dateFilters?.querySelector ("#dateToText")           as HTMLInputElement;
+    const datepicker               = dateFilters != null ? new DatePicker() : null;
 
-    const listViewButton          = controlsDiv. querySelector ("#listView")             as HTMLButtonElement;
-    const tableViewButton         = controlsDiv. querySelector ("#tableView")            as HTMLButtonElement;
+    const listViewButton           = controlsDiv. querySelector ("#listView")             as HTMLButtonElement;
+    const tableViewButton          = controlsDiv. querySelector ("#tableView")            as HTMLButtonElement;
 
-    const messageDiv              = document.    getElementById('message')               as HTMLDivElement;
-    const localSearchMessageDiv   = document.    getElementById('localSearchMessage')    as HTMLDivElement;
-    const searchResultsDiv        = document.    getElementById(nameOfItems)             as HTMLDivElement;
-    const downLoadButton          = document.    getElementById("downLoadButton")        as HTMLAnchorElement;
+    const messageDiv               = document.    getElementById('message')               as HTMLDivElement;
+    const localSearchMessageDiv    = document.    getElementById('localSearchMessage')    as HTMLDivElement;
+
+    const resultsBox               = document.    getElementById('resultsBox')            as HTMLDivElement;
+    const searchResultsDiv         = resultsBox.  querySelector ("#" + nameOfItems)       as HTMLDivElement;
+
+    const downLoadButton           = document.    getElementById("downLoadButton")        as HTMLAnchorElement;
 
 
     function Search(deletePreviousResults:  boolean,
@@ -164,10 +170,11 @@ function StartSearch2<TMetadata extends TMetadataDefaults, TSearchResult>(reques
                     try
                     {
 
-                        const JSONresponse          = ParseJSON_LD<TMetadata>(response);
-                        const searchResults         = JSONresponse[nameOfItems] as Array<TSearchResult>;
-                        const numberOfResults       = searchResults.length;
-                        const totalNumberOfResults  = JSONresponse.filteredCount as number;
+                        const JSONresponse             = ParseJSON_LD<TMetadata>(response);
+                        const searchResults            = JSONresponse[nameOfItems] as Array<TSearchResult>;
+                              numberOfResults          = searchResults.length;
+                              filteredNumberOfResults  = JSONresponse.filteredCount as number;
+                              totalNumberOfResults     = JSONresponse.totalCount    as number;
 
                         if (deletePreviousResults || numberOfResults > 0)
                             searchResultsDiv.innerHTML = "";
@@ -217,13 +224,13 @@ function StartSearch2<TMetadata extends TMetadataDefaults, TSearchResult>(reques
 
                         messageDiv.innerHTML = searchResults.length > 0
                                                    ? "showing results " + (skip + 1) + " - " + (skip + Math.min(searchResults.length, take)) +
-                                                         " of " + totalNumberOfResults
+                                                         " of " + filteredNumberOfResults
                                                    : "no matching " + nameOfItems + " found";
 
                         if (skip > 0)
                             leftButton.disabled  = false;
 
-                        if (skip + take < totalNumberOfResults)
+                        if (skip + take < filteredNumberOfResults)
                             rightButton.disabled = false;
 
                     }
@@ -255,7 +262,6 @@ function StartSearch2<TMetadata extends TMetadataDefaults, TSearchResult>(reques
         patternFilter.onchange = () => {
             if (patternFilter.value[0] !== '#') {
                 skip = 0;
-
             }
         }
 
@@ -346,37 +352,53 @@ function StartSearch2<TMetadata extends TMetadataDefaults, TSearchResult>(reques
     document.onkeydown = (ev: KeyboardEvent) => {
 
         // left arrow
-        if (ev.keyCode === 37) {
+        if (ev.keyCode === 37 || ev.keyCode === 38) {
             if (leftButton.disabled === false)
                 leftButton.click();
         }
 
         // right arrow
-        else if (ev.keyCode === 39) {
+        else if (ev.keyCode === 39 || ev.keyCode === 40) {
             if (rightButton.disabled === false)
                 rightButton.click();
         }
 
+        // pos1
+        else if (ev.keyCode === 36) {
+            // Will set skip = 0!
+            Search(true, true);
+        }
+
+        // end
+        else if (ev.keyCode === 35) {
+            skip = Math.trunc(filteredNumberOfResults / take) * take;
+            Search(true, false);
+        }
+
     }
 
-    dateFrom.onclick = () => {
-        datepicker.show(dateFrom,
-            currentDateFrom,
-            function (newDate) {
-                dateFrom.value = parseUTCDate(newDate);
-                currentDateFrom = newDate;
-                Search(true, true);
-            });
+    if (dateFrom != null) {
+        dateFrom.onclick = () => {
+            datepicker.show(dateFrom,
+                currentDateFrom,
+                function (newDate) {
+                    dateFrom.value = parseUTCDate(newDate);
+                    currentDateFrom = newDate;
+                    Search(true, true);
+                });
+        }
     }
 
-    dateTo.onclick = () => {
-        datepicker.show(dateTo,
-            currentDateTo,
-            function (newDate) {
-                dateTo.value = parseUTCDate(newDate);
-                currentDateTo = newDate;
-                Search(true, true);
-            });
+    if (dateTo != null) {
+        dateTo.onclick = () => {
+            datepicker.show(dateTo,
+                currentDateTo,
+                function (newDate) {
+                    dateTo.value = parseUTCDate(newDate);
+                    currentDateTo = newDate;
+                    Search(true, true);
+                });
+        }
     }
 
     if (listViewButton !== null) {

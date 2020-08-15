@@ -52,11 +52,11 @@
     <div id="message">&nbsp;</div>
 
     <div id="resultsBox">
-        <div id="searchResults" class="searchResults"></div>
+        <div id="organizations" class="searchResults"></div>
     </div>
 
 </div>
 
 <script type="text/javascript">
-    StartOrganizationSearch(true);
+    StartOrganizationSearch();
 </script>

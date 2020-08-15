@@ -32,7 +32,9 @@ function StartSearch2(requestURL, searchFilters, doStartUp, nameOfItem, nameOfIt
     let currentDateTo = null;
     let viewMode = startView !== null ? startView : searchResultsMode.listView;
     const context__ = { Search: Search };
-    const datepicker = new DatePicker();
+    let numberOfResults = 0;
+    let filteredNumberOfResults = 0;
+    let totalNumberOfResults = 0;
     const controlsDiv = document.getElementById("controls");
     const patternFilter = controlsDiv.querySelector("#patternFilterInput");
     const takeSelect = controlsDiv.querySelector("#takeSelect");
@@ -42,11 +44,13 @@ function StartSearch2(requestURL, searchFilters, doStartUp, nameOfItem, nameOfIt
     const dateFilters = controlsDiv.querySelector("#dateFilters");
     const dateFrom = dateFilters === null || dateFilters === void 0 ? void 0 : dateFilters.querySelector("#dateFromText");
     const dateTo = dateFilters === null || dateFilters === void 0 ? void 0 : dateFilters.querySelector("#dateToText");
+    const datepicker = dateFilters != null ? new DatePicker() : null;
     const listViewButton = controlsDiv.querySelector("#listView");
     const tableViewButton = controlsDiv.querySelector("#tableView");
     const messageDiv = document.getElementById('message');
     const localSearchMessageDiv = document.getElementById('localSearchMessage');
-    const searchResultsDiv = document.getElementById(nameOfItems);
+    const resultsBox = document.getElementById('resultsBox');
+    const searchResultsDiv = resultsBox.querySelector("#" + nameOfItems);
     const downLoadButton = document.getElementById("downLoadButton");
     function Search(deletePreviousResults, resetSkip, whenDone) {
         if (resetSkip)
@@ -72,8 +76,9 @@ function StartSearch2(requestURL, searchFilters, doStartUp, nameOfItem, nameOfIt
             try {
                 const JSONresponse = ParseJSON_LD(response);
                 const searchResults = JSONresponse[nameOfItems];
-                const numberOfResults = searchResults.length;
-                const totalNumberOfResults = JSONresponse.filteredCount;
+                numberOfResults = searchResults.length;
+                filteredNumberOfResults = JSONresponse.filteredCount;
+                totalNumberOfResults = JSONresponse.totalCount;
                 if (deletePreviousResults || numberOfResults > 0)
                     searchResultsDiv.innerHTML = "";
                 if (firstSearch && typeof doStartUp !== 'undefined' && doStartUp) {
@@ -107,11 +112,11 @@ function StartSearch2(requestURL, searchFilters, doStartUp, nameOfItem, nameOfIt
                 }
                 messageDiv.innerHTML = searchResults.length > 0
                     ? "showing results " + (skip + 1) + " - " + (skip + Math.min(searchResults.length, take)) +
-                        " of " + totalNumberOfResults
+                        " of " + filteredNumberOfResults
                     : "no matching " + nameOfItems + " found";
                 if (skip > 0)
                     leftButton.disabled = false;
-                if (skip + take < totalNumberOfResults)
+                if (skip + take < filteredNumberOfResults)
                     rightButton.disabled = false;
             }
             catch (exception) {
@@ -189,30 +194,44 @@ function StartSearch2(requestURL, searchFilters, doStartUp, nameOfItem, nameOfIt
     };
     document.onkeydown = (ev) => {
         // left arrow
-        if (ev.keyCode === 37) {
+        if (ev.keyCode === 37 || ev.keyCode === 38) {
             if (leftButton.disabled === false)
                 leftButton.click();
         }
         // right arrow
-        else if (ev.keyCode === 39) {
+        else if (ev.keyCode === 39 || ev.keyCode === 40) {
             if (rightButton.disabled === false)
                 rightButton.click();
         }
-    };
-    dateFrom.onclick = () => {
-        datepicker.show(dateFrom, currentDateFrom, function (newDate) {
-            dateFrom.value = parseUTCDate(newDate);
-            currentDateFrom = newDate;
+        // pos1
+        else if (ev.keyCode === 36) {
+            // Will set skip = 0!
             Search(true, true);
-        });
+        }
+        // end
+        else if (ev.keyCode === 35) {
+            skip = Math.trunc(filteredNumberOfResults / take) * take;
+            Search(true, false);
+        }
     };
-    dateTo.onclick = () => {
-        datepicker.show(dateTo, currentDateTo, function (newDate) {
-            dateTo.value = parseUTCDate(newDate);
-            currentDateTo = newDate;
-            Search(true, true);
-        });
-    };
+    if (dateFrom != null) {
+        dateFrom.onclick = () => {
+            datepicker.show(dateFrom, currentDateFrom, function (newDate) {
+                dateFrom.value = parseUTCDate(newDate);
+                currentDateFrom = newDate;
+                Search(true, true);
+            });
+        };
+    }
+    if (dateTo != null) {
+        dateTo.onclick = () => {
+            datepicker.show(dateTo, currentDateTo, function (newDate) {
+                dateTo.value = parseUTCDate(newDate);
+                currentDateTo = newDate;
+                Search(true, true);
+            });
+        };
+    }
     if (listViewButton !== null) {
         listViewButton.onclick = () => {
             viewMode = searchResultsMode.listView;

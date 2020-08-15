@@ -1,5 +1,5 @@
 ///<reference path="../../../../UsersAPI/UsersAPI/HTTPRoot/libs/date.format.ts" />
-function StartOrganizationSearch(NoURIupdate) {
+function StartOrganizationSearch() {
     StartSearch("/organizations", "organization", "organizations", (organization, organizationDiv) => {
         CreateDiv(organizationDiv, "id", organization["@id"]);
         organizationDiv.appendChild(CreateI18NDiv(organization.name, "name"));

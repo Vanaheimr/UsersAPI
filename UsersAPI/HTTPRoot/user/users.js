@@ -1,6 +1,6 @@
 /////<reference path="../../../../UsersAPI/UsersAPI/HTTPRoot/libs/date.format.ts" />
 /////<reference path="../../../../UsersAPI/UsersAPI/HTTPRoot/defaults/search.ts" />
-function StartUserSearch(NoURIupdate) {
+function StartUserSearch() {
     StartSearch("/users", "user", "users", (user, userDiv) => {
         CreateDiv(userDiv, "id", user["@id"]);
         CreateDiv(userDiv, "name", user.name);
