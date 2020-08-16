@@ -20,6 +20,7 @@ function StartSearch(requestURL, nameOfItem, nameOfItems, doListView, doTableVie
     return StartSearch2(requestURL, () => "", () => { }, nameOfItem, nameOfItems, doListView, doTableView, linkPrefix, startView, context);
 }
 function StartSearch2(requestURL, searchFilters, doStartUp, nameOfItem, nameOfItems, doListView, doTableView, linkPrefix, startView, context) {
+    var _a;
     requestURL = requestURL.indexOf('?') === -1
         ? requestURL + '?'
         : requestURL.endsWith('&')
@@ -50,7 +51,7 @@ function StartSearch2(requestURL, searchFilters, doStartUp, nameOfItem, nameOfIt
     const messageDiv = document.getElementById('message');
     const localSearchMessageDiv = document.getElementById('localSearchMessage');
     const resultsBox = document.getElementById('resultsBox');
-    const searchResultsDiv = resultsBox.querySelector("#" + nameOfItems);
+    const searchResultsDiv = ((_a = resultsBox.querySelector("#" + nameOfItems)) !== null && _a !== void 0 ? _a : resultsBox.querySelector(".searchResults"));
     const downLoadButton = document.getElementById("downLoadButton");
     function Search(deletePreviousResults, resetSkip, whenDone) {
         if (resetSkip)

@@ -126,14 +126,15 @@ function StartSearch2<TMetadata extends TMetadataDefaults, TSearchResult>(reques
     const localSearchMessageDiv    = document.    getElementById('localSearchMessage')    as HTMLDivElement;
 
     const resultsBox               = document.    getElementById('resultsBox')            as HTMLDivElement;
-    const searchResultsDiv         = resultsBox.  querySelector ("#" + nameOfItems)       as HTMLDivElement;
+    const searchResultsDiv         = (resultsBox. querySelector ("#" + nameOfItems) ??
+                                      resultsBox. querySelector(".searchResults"))        as HTMLDivElement;
 
     const downLoadButton           = document.    getElementById("downLoadButton")        as HTMLAnchorElement;
 
 
-    function Search(deletePreviousResults:  boolean,
-                    resetSkip?:             boolean,
-                    whenDone?:              any)
+    function Search(deletePreviousResults: boolean,
+                    resetSkip?:            boolean,
+                    whenDone?:             any)
     {
 
         if (resetSkip)
