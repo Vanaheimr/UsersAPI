@@ -4180,7 +4180,7 @@ namespace social.OpenData.UsersAPI
                                              var includeCryptoHash      = Request.QueryString.GetBoolean("includeCryptoHash", true);
 
                                              var expand                 = Request.QueryString.GetStrings("expand");
-                                             //var expandTags             = expand.ContainsIgnoreCase("tags")              ? InfoStatus.Expand : InfoStatus.ShowIdOnly;
+                                             //var expandTags             = expand.ContainsIgnoreCase("tags")              ? InfoStatus.Expanded : InfoStatus.ShowIdOnly;
 
                                              var filteredUsers          = HTTPOrganizations.
                                                                               SafeSelectMany(organization => organization.Users).
