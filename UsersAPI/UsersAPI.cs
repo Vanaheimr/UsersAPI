@@ -9587,7 +9587,7 @@ namespace social.OpenData.UsersAPI
 
             var DBFile = DatabaseFile ?? this.APIDatabaseFile;
 
-            DebugX.Log("Reading database file '" + DBFile + "'...");
+            DebugX.Log("Reloading database file '" + DBFile + "'...");
 
             try
             {
@@ -9617,7 +9617,7 @@ namespace social.OpenData.UsersAPI
                         }
                         catch (Exception e)
                         {
-                            DebugX.Log(@"Could not read database file ''" + DBFile + "' line " + linenumber + ": " + e.Message);
+                            DebugX.Log(@"Could not (re-)load database file ''" + DBFile + "' line " + linenumber + ": " + e.Message);
                         }
 
                     }
@@ -9631,10 +9631,10 @@ namespace social.OpenData.UsersAPI
             { }
             catch (Exception e)
             {
-                DebugX.LogT(@"Could not read database file '" + DBFile + "': " + e.Message);
+                DebugX.LogT(@"Could not (re-)load database file '" + DBFile + "': " + e.Message);
             }
 
-            DebugX.Log("Read database file '" + DBFile + "'...");
+            DebugX.Log("Reloading of database file '" + DBFile + "' finished!");
 
         }
 
@@ -9645,7 +9645,7 @@ namespace social.OpenData.UsersAPI
         protected async Task ReadUsersAPIDatabaseFiles()
         {
 
-            DebugX.Log("Reading all database files...");
+            DebugX.Log("Reloading all UsersAPI database helper files...");
 
             #region Read DefaultUsersAPIFile
 
@@ -9991,7 +9991,7 @@ namespace social.OpenData.UsersAPI
 
             #endregion
 
-            DebugX.Log("Read all UsersAPI database files...");
+            DebugX.Log("Reloading of all UsersAPI database helper files finished...");
 
         }
 
