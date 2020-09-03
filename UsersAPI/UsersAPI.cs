@@ -467,6 +467,13 @@ namespace social.OpenData.UsersAPI
 
         #region Data
 
+        public  const             String                                        DefaultUsersAPI_LoggingPath     = "default";
+        public  const             String                                        DefaultUsersAPI_DatabaseFileName    = "UsersAPI.db";
+        public  const             String                                        DefaultUsersAPI_LogfileName         = "UsersAPI.log";
+        public  const             String                                        DefaultPasswordFile             = "passwords.db";
+        public  const             String                                        DefaultHTTPCookiesFile          = "HTTPCookies.db";
+        public  const             String                                        DefaultPasswordResetsFile       = "passwordResets.db";
+
         /// <summary>
         /// The default maintenance interval.
         /// </summary>
@@ -515,11 +522,6 @@ namespace social.OpenData.UsersAPI
         /// </summary>
         public  static readonly   HTTPCookieName                                DefaultCookieName               = HTTPCookieName.Parse("UsersAPI");
 
-        public  const             String                                        DefaultUsersAPIDatabaseFile     = "UsersAPI.db";
-        public  const             String                                        DefaultUsersAPILogFile          = "UsersAPI.log";
-        public  const             String                                        DefaultPasswordFile             = "passwords.db";
-        public  const             String                                        DefaultHTTPCookiesFile          = "HTTPCookies.db";
-        public  const             String                                        DefaultPasswordResetsFile       = "passwordResets.db";
         public  const             String                                        AdminGroupName                  = "Admins";
 
 
@@ -578,7 +580,7 @@ namespace social.OpenData.UsersAPI
         /// <summary>
         /// The API database file.
         /// </summary>
-        public String                    APIDatabaseFile                    { get; }
+        public String                    DatabaseFileName                    { get; }
 
 
         /// <summary>
@@ -1880,6 +1882,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="DisableNotifications">Disable external notifications.</param>
         /// <param name="DisableLogfile">Disable the log file.</param>
         /// <param name="LoggingPath">The path for all logfiles.</param>
+        /// <param name="DatabaseFile">The name of the database file for this API.</param>
         /// <param name="LogfileName">The name of the logfile for this API.</param>
         /// <param name="DNSClient">The DNS client of the API.</param>
         /// <param name="Autostart">Whether to start the API automatically.</param>
@@ -1938,9 +1941,9 @@ namespace social.OpenData.UsersAPI
                         Boolean                              SkipURLTemplates                   = false,
                         Boolean                              DisableNotifications               = false,
                         Boolean                              DisableLogfile                     = false,
-                        String                               DatabaseFile                       = DefaultUsersAPIDatabaseFile,
-                        String                               LoggingPath                        = null,
-                        String                               LogfileName                        = DefaultUsersAPILogFile,
+                        String                               LoggingPath                        = DefaultUsersAPI_LoggingPath,
+                        String                               DatabaseFile                       = DefaultUsersAPI_DatabaseFileName,
+                        String                               LogfileName                        = DefaultUsersAPI_LogfileName,
                         DNSClient                            DNSClient                          = null,
                         Boolean                              Autostart                          = false)
 
@@ -2004,9 +2007,9 @@ namespace social.OpenData.UsersAPI
                    SkipURLTemplates,
                    DisableNotifications,
                    DisableLogfile,
-                   DatabaseFile,
-                   LoggingPath,
-                   LogfileName)
+                   LoggingPath  ?? DefaultUsersAPI_LoggingPath,
+                   DatabaseFile ?? DefaultUsersAPI_DatabaseFileName,
+                   LogfileName  ?? DefaultUsersAPI_LogfileName)
 
         {
 
@@ -2060,6 +2063,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="DisableNotifications">Disable external notifications.</param>
         /// <param name="DisableLogfile">Disable the log file.</param>
         /// <param name="LoggingPath">The path for all logfiles.</param>
+        /// <param name="DatabaseFileName">The name of the database file for this API.</param>
         /// <param name="LogfileName">The name of the logfile for this API.</param>
         protected UsersAPI(HTTPServer                           HTTPServer,
                            HTTPHostname?                        HTTPHostname                  = null,
@@ -2100,9 +2104,9 @@ namespace social.OpenData.UsersAPI
                            Boolean                              SkipURLTemplates              = false,
                            Boolean                              DisableNotifications          = false,
                            Boolean                              DisableLogfile                = false,
-                           String                               APIDatabaseFile               = DefaultUsersAPIDatabaseFile,
-                           String                               LoggingPath                   = null,
-                           String                               LogfileName                   = DefaultUsersAPILogFile)
+                           String                               LoggingPath                   = DefaultUsersAPI_LoggingPath,
+                           String                               DatabaseFileName              = DefaultUsersAPI_DatabaseFileName,
+                           String                               LogfileName                   = DefaultUsersAPI_LogfileName)
 
             : base(HTTPServer,
                    HTTPHostname,
@@ -2122,7 +2126,7 @@ namespace social.OpenData.UsersAPI
             if (this.LoggingPath[this.LoggingPath.Length - 1] != Path.DirectorySeparatorChar)
                 this.LoggingPath += Path.DirectorySeparatorChar;
 
-            this.APIDatabaseFile              = this.LoggingPath + (APIDatabaseFile ?? DefaultUsersAPIDatabaseFile);
+            this.DatabaseFileName             = this.LoggingPath + (DatabaseFileName ?? DefaultUsersAPI_DatabaseFileName);
 
             this.DevMachines                  = new HashSet<String>();
             this.UsersAPIPath                 = this.LoggingPath + "UsersAPI"       + Path.DirectorySeparatorChar;
@@ -2196,7 +2200,7 @@ namespace social.OpenData.UsersAPI
 
             this.DisableNotifications         = DisableNotifications;
             this.DisableLogfile               = DisableLogfile;
-            this.LogfileName                  = this.UsersAPIPath + (LogfileName ?? DefaultLogfileName);
+            this.LogfileName                  = this.UsersAPIPath + (LogfileName ?? DefaultUsersAPI_LogfileName);
 
             this._APIKeys                     = new Dictionary<APIKey, APIKeyInfo>();
 
@@ -9585,7 +9589,7 @@ namespace social.OpenData.UsersAPI
             if (DisableLogfile)
                 return;
 
-            var DBFile = DatabaseFile ?? this.APIDatabaseFile;
+            var DBFile = DatabaseFile ?? this.DatabaseFileName;
 
             DebugX.Log("Reloading database file '" + DBFile + "'...");
 
@@ -11173,7 +11177,7 @@ namespace social.OpenData.UsersAPI
 
             => WriteToDatabaseFile(MessageType,
                                    JSONData,
-                                   APIDatabaseFile,
+                                   DatabaseFileName,
                                    CurrentUserId);
 
         #endregion
@@ -11239,7 +11243,7 @@ namespace social.OpenData.UsersAPI
                                 try
                                 {
 
-                                    File.AppendAllText(DatabaseFile ?? APIDatabaseFile,
+                                    File.AppendAllText(DatabaseFile ?? DatabaseFileName,
                                                        JSONMessage.ToString(Newtonsoft.Json.Formatting.None) + Environment.NewLine);
 
                                     retry = maxRetries;
@@ -11324,7 +11328,7 @@ namespace social.OpenData.UsersAPI
 
                                 try
                                 {
-                                    File.AppendAllText(DatabaseFile ?? APIDatabaseFile, text3);
+                                    File.AppendAllText(DatabaseFile ?? DatabaseFileName, text3);
                                     retry = maxRetries;
                                 }
                                 catch (IOException ioEx)
@@ -15360,7 +15364,7 @@ namespace social.OpenData.UsersAPI
 
             await WriteToDatabaseFile(MessageType,
                                  ServiceTicket.ToJSON(),
-                                 APIDatabaseFile,
+                                 DatabaseFileName,
                                  CurrentUserId);
 
 
