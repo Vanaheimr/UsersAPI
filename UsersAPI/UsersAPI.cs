@@ -467,12 +467,12 @@ namespace social.OpenData.UsersAPI
 
         #region Data
 
-        public  const             String                                        DefaultUsersAPI_LoggingPath     = "default";
-        public  const             String                                        DefaultUsersAPI_DatabaseFileName    = "UsersAPI.db";
-        public  const             String                                        DefaultUsersAPI_LogfileName         = "UsersAPI.log";
-        public  const             String                                        DefaultPasswordFile             = "passwords.db";
-        public  const             String                                        DefaultHTTPCookiesFile          = "HTTPCookies.db";
-        public  const             String                                        DefaultPasswordResetsFile       = "passwordResets.db";
+        public  const             String                                        DefaultUsersAPI_LoggingPath        = "default";
+        public  const             String                                        DefaultUsersAPI_DatabaseFileName   = "UsersAPI.db";
+        public  const             String                                        DefaultUsersAPI_LogfileName        = "UsersAPI.log";
+        public  const             String                                        DefaultPasswordFile                = "passwords.db";
+        public  const             String                                        DefaultHTTPCookiesFile             = "HTTPCookies.db";
+        public  const             String                                        DefaultPasswordResetsFile          = "passwordResets.db";
 
         /// <summary>
         /// The default maintenance interval.
@@ -2169,7 +2169,7 @@ namespace social.OpenData.UsersAPI
             this.APISMTPClient                = APISMTPClient;
 
             this.CookieName                   = CookieName                  ?? DefaultCookieName;
-            this.SessionCookieName            = HTTPCookieName.Parse(this.CookieName.ToString() + "Session");
+            this.SessionCookieName            = this.CookieName + "Session";
             this.UseSecureCookies             = UseSecureCookies;
             this.Language                     = Language                    ?? DefaultLanguage;
             this._LogoImage                   = LogoImage;
@@ -2235,13 +2235,15 @@ namespace social.OpenData.UsersAPI
 
             ReadUsersAPIDatabaseFiles().Wait();
 
-            NoOwner = CreateOrganizationIfNotExists(Organization_Id.Parse("NoOwner"), CurrentUserId: Robot.Id).Result;
+            NoOwner                           = new Organization(Organization_Id.Parse("NoOwner"),
+                                                                 I18NString.Create(Languages.eng, "No owner"));
+            _Organizations.Add(NoOwner.Id, NoOwner);
 
             if (SMSAPICredentials != null)
             {
-                this._SMSAPI            = new SMSAPI(Credentials: SMSAPICredentials);
-                this.SMSSenderName      = SMSSenderName;
-                this.APIAdminSMS        = APIAdminSMS;
+                this._SMSAPI                  = new SMSAPI(Credentials: SMSAPICredentials);
+                this.SMSSenderName            = SMSSenderName;
+                this.APIAdminSMS              = APIAdminSMS;
             }
 
             #region Setup SMSAPI logging
@@ -4133,11 +4135,11 @@ namespace social.OpenData.UsersAPI
                                                         Content                    = JSONObject.Create(
                                                                                          new JProperty("numberOfAccountsFound", Users.Count())
                                                                                      ).ToUTF8Bytes(),
-                                                        SetCookie                  = CookieName + "=; Expires=" + DateTime.UtcNow.ToRfc1123() +
-                                                                                         (HTTPCookieDomain.IsNotNullOrEmpty()
-                                                                                             ? "; Domain=" + HTTPCookieDomain
-                                                                                             : "") +
-                                                                                         "; Path=/",
+                                                        SetCookie                  = String.Concat(CookieName, "=; Expires=", DateTime.UtcNow.ToRfc1123(),
+                                                                                                   HTTPCookieDomain.IsNotNullOrEmpty()
+                                                                                                       ? "; Domain=" + HTTPCookieDomain
+                                                                                                       : "",
+                                                                                                   "; Path=", URLPathPrefix),
                                                         Connection                 = "close"
                                                     }.AsImmutable;
 
@@ -4814,16 +4816,20 @@ namespace social.OpenData.UsersAPI
                                                       HTTPStatusCode  = HTTPStatusCode.OK,
                                                       CacheControl    = "private",
                                                       SetCookies      = new String[] {
-                                                                            CookieName + "=; Expires=" + DateTime.UtcNow.ToRfc1123() +
-                                                                            (HTTPCookieDomain.IsNotNullOrEmpty()
-                                                                                ? "; Domain=" + HTTPCookieDomain
-                                                                                : "") +
-                                                                            "; Path=" + URLPathPrefix.ToString(),
-                                                                            SessionCookieName + "=; Expires=" + DateTime.UtcNow.ToRfc1123() +
-                                                                            (HTTPCookieDomain.IsNotNullOrEmpty()
-                                                                                ? "; Domain=" + HTTPCookieDomain
-                                                                                : "") +
-                                                                            "; Path=" + URLPathPrefix.ToString() },
+
+                                                                            String.Concat(CookieName, "=; Expires=", DateTime.UtcNow.ToRfc1123(),
+                                                                                          HTTPCookieDomain.IsNotNullOrEmpty()
+                                                                                              ? "; Domain=" + HTTPCookieDomain
+                                                                                              : "",
+                                                                                          "; Path=", URLPathPrefix),
+
+                                                                            String.Concat(SessionCookieName, "=; Expires=", DateTime.UtcNow.ToRfc1123(),
+                                                                                          HTTPCookieDomain.IsNotNullOrEmpty()
+                                                                                              ? "; Domain=" + HTTPCookieDomain
+                                                                                              : "",
+                                                                                          "; Path=", URLPathPrefix)
+
+                                                                        },
                                                       Connection      = "close"
                                                   }.AsImmutable));
 
@@ -6052,16 +6058,19 @@ namespace social.OpenData.UsersAPI
                                                       HTTPStatusCode  = HTTPStatusCode.OK,
                                                       CacheControl    = "private",
                                                       SetCookies      = new String[] {
-                                                                            CookieName + "=; Expires=" + DateTime.UtcNow.ToRfc1123() +
-                                                                            (HTTPCookieDomain.IsNotNullOrEmpty()
-                                                                                ? "; Domain=" + HTTPCookieDomain
-                                                                                : "") +
-                                                                            "; Path=" + URLPathPrefix.ToString(),
-                                                                            SessionCookieName + "=; Expires=" + DateTime.UtcNow.ToRfc1123() +
-                                                                            (HTTPCookieDomain.IsNotNullOrEmpty()
-                                                                                ? "; Domain=" + HTTPCookieDomain
-                                                                                : "") +
-                                                                            "; Path=" + URLPathPrefix.ToString() },
+
+                                                                            String.Concat(CookieName, "=; Expires=", DateTime.UtcNow.ToRfc1123(),
+                                                                                          HTTPCookieDomain.IsNotNullOrEmpty()
+                                                                                              ? "; Domain=" + HTTPCookieDomain
+                                                                                              : "",
+                                                                                          "; Path=", URLPathPrefix),
+
+                                                                            String.Concat(SessionCookieName, "=; Expires=", DateTime.UtcNow.ToRfc1123(),
+                                                                                          HTTPCookieDomain.IsNotNullOrEmpty()
+                                                                                              ? "; Domain=" + HTTPCookieDomain
+                                                                                              : "",
+                                                                                          "; Path=", URLPathPrefix)
+                                                                        },
                                                       Connection      = "close"
                                                   }.AsImmutable));
 
