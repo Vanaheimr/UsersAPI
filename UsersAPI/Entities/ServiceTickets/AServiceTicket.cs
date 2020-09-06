@@ -753,22 +753,22 @@ namespace social.OpenData.UsersAPI
 
         #region CompareTo(Object)
 
-        /// <summary>
-        /// Compares two instances of this object.
-        /// </summary>
-        /// <param name="Object">An object to compare with.</param>
-        public new Int32 CompareTo(Object Object)
-        {
+        ///// <summary>
+        ///// Compares two instances of this object.
+        ///// </summary>
+        ///// <param name="Object">An object to compare with.</param>
+        //public new Int32 CompareTo(Object Object)
+        //{
 
-            if (Object == null)
-                throw new ArgumentNullException(nameof(Object), "The given object must not be null!");
+        //    if (Object == null)
+        //        throw new ArgumentNullException(nameof(Object), "The given object must not be null!");
 
-            if (!(Object is AServiceTicket ServiceTicket))
-                throw new ArgumentException("The given object is not a service ticket!");
+        //    if (!(Object is AServiceTicket ServiceTicket))
+        //        throw new ArgumentException("The given object is not a service ticket!");
 
-            return CompareTo(ServiceTicket);
+        //    return CompareTo(ServiceTicket);
 
-        }
+        //}
 
         #endregion
 

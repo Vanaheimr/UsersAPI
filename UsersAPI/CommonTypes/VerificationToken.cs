@@ -35,7 +35,7 @@ namespace social.OpenData.UsersAPI
 {
 
     /// <summary>
-    /// An Open Data user group.
+    /// A verification token.
     /// </summary>
     public class VerificationToken : IEquatable<VerificationToken>,
                                      IComparable<VerificationToken>,
@@ -44,36 +44,29 @@ namespace social.OpenData.UsersAPI
 
         #region Data
 
-        private String _Id;
+        private readonly String InternalId;
 
         #endregion
 
         #region Properties
 
-        #region Login
-
-        private readonly User_Id _Login;
-
-        public User_Id Login
-        {
-            get
-            {
-                return _Login;
-            }
-        }
-
-        #endregion
+        public User_Id  Login    { get; }
 
         #endregion
 
         #region Constructor(s)
 
+        /// <summary>
+        /// Create a new verification token.
+        /// </summary>
+        /// <param name="Seed">The cryptographic seed.</param>
+        /// <param name="UserId">The user identification.</param>
         public VerificationToken(String   Seed,
                                  User_Id  UserId)
         {
 
-            this._Id      = new SHA256Managed().ComputeHash((Guid.NewGuid().ToString() + Seed).ToUTF8Bytes()).ToHexString();
-            this._Login  = UserId;
+            this.InternalId  = new SHA256Managed().ComputeHash((Guid.NewGuid().ToString() + Seed).ToUTF8Bytes()).ToHexString();
+            this.Login       = UserId;
 
         }
 
@@ -117,7 +110,7 @@ namespace social.OpenData.UsersAPI
             if ((Object) VerificationToken == null)
                 throw new ArgumentNullException("The given verification token must not be null!");
 
-            return _Id.CompareTo(VerificationToken._Id);
+            return InternalId.CompareTo(VerificationToken.InternalId);
 
         }
 
@@ -164,7 +157,7 @@ namespace social.OpenData.UsersAPI
             if ((Object) Operator == null)
                 return false;
 
-            return _Id.Equals(Operator._Id);
+            return InternalId.Equals(Operator.InternalId);
 
         }
 
@@ -179,7 +172,7 @@ namespace social.OpenData.UsersAPI
         /// </summary>
         public override Int32 GetHashCode()
         {
-            return _Id.GetHashCode();
+            return InternalId.GetHashCode();
         }
 
         #endregion
@@ -191,7 +184,7 @@ namespace social.OpenData.UsersAPI
         /// </summary>
         public override String ToString()
         {
-            return _Id.ToString();
+            return InternalId.ToString();
         }
 
         #endregion

@@ -945,22 +945,22 @@ namespace social.OpenData.UsersAPI
 
         #region CompareTo(Object)
 
-        /// <summary>
-        /// Compares two instances of this object.
-        /// </summary>
-        /// <param name="Object">An object to compare with.</param>
-        public Int32 CompareTo(Object Object)
-        {
+        ///// <summary>
+        ///// Compares two instances of this object.
+        ///// </summary>
+        ///// <param name="Object">An object to compare with.</param>
+        //public override Int32 CompareTo(Object Object)
+        //{
 
-            if (Object == null)
-                throw new ArgumentNullException(nameof(Object), "The given object must not be null!");
+        //    if (Object == null)
+        //        throw new ArgumentNullException(nameof(Object), "The given object must not be null!");
 
-            if (!(Object is ServiceTicketChangeSet ServiceTicketChangeSet))
-                throw new ArgumentException("The given object is not an service ticket change set!");
+        //    if (!(Object is ServiceTicketChangeSet ServiceTicketChangeSet))
+        //        throw new ArgumentException("The given object is not an service ticket change set!");
 
-            return CompareTo(ServiceTicketChangeSet);
+        //    return CompareTo(ServiceTicketChangeSet);
 
-        }
+        //}
 
         #endregion
 
