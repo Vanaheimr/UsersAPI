@@ -700,6 +700,12 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
+        public override String ToCSV(Boolean IncludeMessageContext   = false,
+                                     Char    UnitSeparator           = US)
+        {
+            return "";
+        }
+
 
         #region (private)  UpdateMyself     (NewServiceTicket)
 

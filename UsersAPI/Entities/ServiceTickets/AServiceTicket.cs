@@ -121,6 +121,21 @@ namespace social.OpenData.UsersAPI
         #region Data
 
         /// <summary>
+        /// ASCII unit/cell separator
+        /// </summary>
+        public const Char US = (Char) 0x1F;
+
+        /// <summary>
+        /// ASCII record/row separator
+        /// </summary>
+        public const Char RS = (Char) 0x1E;
+
+        /// <summary>
+        /// ASCII group separator
+        /// </summary>
+        public const Char GS = (Char) 0x1D;
+
+        /// <summary>
         /// The JSON-LD context of this object.
         /// </summary>
         private const String _JSONLDContext = "https://opendata.social/contexts/UsersAPI+json/serviceTicket";
@@ -639,6 +654,10 @@ namespace social.OpenData.UsersAPI
         }
 
         #endregion
+
+
+        public abstract String  ToCSV(Boolean  IncludeMessageContext   = false,
+                                      Char     UnitSeparator           = US);
 
 
         #region Operator overloading
