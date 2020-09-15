@@ -74,5 +74,9 @@
   {
     "outputFile": "HTTPRoot/organization/subOrganizations.css",
     "inputFile": "HTTPRoot/organization/subOrganizations.scss"
+  },
+  {
+    "outputFile": "HTTPRoot/organization/tiles.css",
+    "inputFile": "HTTPRoot/organization/tiles.scss"
   }
 ]

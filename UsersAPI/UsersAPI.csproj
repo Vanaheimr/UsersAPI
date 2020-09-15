@@ -307,6 +307,7 @@
     <EmbeddedResource Include="HTTPRoot\user\users.scss" />
     <EmbeddedResource Include="HTTPRoot\profile\organizations.scss" />
     <EmbeddedResource Include="HTTPRoot\notification\settings.scss" />
+    <EmbeddedResource Include="HTTPRoot\organization\tiles.scss" />
     <None Include="README.md" />
     <None Include="tsconfig.json" />
   </ItemGroup>
@@ -330,6 +331,12 @@
     <Content Include="HTTPRoot\admin\admin.css">
       <DependentUpon>admin.scss</DependentUpon>
     </Content>
+    <EmbeddedResource Include="HTTPRoot\organization\tiles.min.css">
+      <DependentUpon>tiles.css</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="HTTPRoot\organization\tiles.css">
+      <DependentUpon>tiles.scss</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="HTTPRoot\template.css">
       <DependentUpon>template.scss</DependentUpon>
     </EmbeddedResource>

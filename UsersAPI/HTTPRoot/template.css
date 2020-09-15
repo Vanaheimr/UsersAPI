@@ -39,8 +39,10 @@ body {
         padding-bottom: 3vh; }
       body #page #navigation a.menulink {
         display: block;
+        position: relative;
         color: #845a2d;
-        padding: 0 1.5em 0 0.25em;
+        padding: 0 3.5em 0 0;
+        border-left: 0.25em solid transparent;
         font-weight: normal;
         font-size: 15px;
         line-height: 40px;
@@ -53,9 +55,23 @@ body {
           text-align: center;
           display: inline-block;
           font-style: normal; }
+        body #page #navigation a.menulink span.beta {
+          font-size: 60%;
+          position: relative;
+          top: -10px;
+          left: 5px; }
       body #page #navigation a.menulink:hover {
         color: #f7e3b9;
         background-color: #f7ba3d; }
+      body #page #navigation .arrow {
+        display: none;
+        border-top: 20px solid transparent;
+        border-bottom: 20px solid transparent;
+        border-left: 20px solid #ff88267d;
+        position: absolute;
+        height: 0px;
+        top: 0;
+        right: -20px; }
       @media only screen and (max-width: 512px) {
         body #page #navigation {
           padding-right: 0px; } }
@@ -155,7 +171,7 @@ body {
               body #page #right #text .entity #headline #logo img {
                 width: 100px; }
             body #page #right #text .entity #headline #title {
-              font-size: 150%; }
+              font-size: 180%; }
               body #page #right #text .entity #headline #title #id {
                 display: inline-block; }
               body #page #right #text .entity #headline #title #name {
@@ -402,6 +418,60 @@ body {
               box-shadow: none; }
           body #page #right #text .entity #saveButton {
             margin-top: 40px; }
+        body #page #right #text .overview {
+          padding: 30px 30px 15px 25px;
+          height: calc(100% - 45px); }
+          body #page #right #text .overview #tiles {
+            display: flex;
+            justify-content: space-evenly; }
+            body #page #right #text .overview #tiles .tile {
+              background-color: #e2e2e2;
+              margin: 2vh .5vw;
+              border-radius: 6px;
+              width: 50%;
+              flex-grow: 1;
+              text-align: center;
+              min-height: 30vh;
+              display: flex;
+              justify-content: center;
+              align-items: center;
+              text-decoration: none; }
+              body #page #right #text .overview #tiles .tile .content .icon {
+                display: inline-block;
+                font-size: 400%;
+                padding: 10px;
+                text-decoration: none;
+                color: #555;
+                border-radius: 8px; }
+              body #page #right #text .overview #tiles .tile .content .links {
+                display: inline-block;
+                text-align: left;
+                /*
+                                    .group:hover {
+                                        background-color:   #ffe0caa3;
+                                    }*/ }
+                body #page #right #text .overview #tiles .tile .content .links .main {
+                  display: block;
+                  font-size: 200%;
+                  text-decoration: none;
+                  color: #555;
+                  padding: 4px 8px;
+                  border-radius: 6px; }
+                body #page #right #text .overview #tiles .tile .content .links .group {
+                  display: block;
+                  padding: 4px 6px 4px 10px;
+                  border-radius: 4px; }
+                  body #page #right #text .overview #tiles .tile .content .links .group a {
+                    color: #555;
+                    text-decoration: none; }
+                  body #page #right #text .overview #tiles .tile .content .links .group a:hover {
+                    color: #ff7300; }
+            body #page #right #text .overview #tiles .tile:hover {
+              background-color: #dadada; }
+              body #page #right #text .overview #tiles .tile:hover .content .icon {
+                color: #ff7300; }
+              body #page #right #text .overview #tiles .tile:hover .content .links .main {
+                color: #ff7300; }
         body #page #right #text .fullScreenDialog {
           display: none;
           position: fixed;

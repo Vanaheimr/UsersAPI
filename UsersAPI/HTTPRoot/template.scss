@@ -51,8 +51,10 @@ body {
             a.menulink {
 
                 display:            block;
+                position:           relative;
                 color:              $NavigationTextColor;
-                padding:            0 1.5em 0 0.25em;
+                padding:            0 3.5em 0 0;
+                border-left:        0.25em solid transparent;
                 font-weight:        normal;
                 font-size:          15px;
                 line-height:        40px;
@@ -68,11 +70,29 @@ body {
                     font-style:     normal;
                 }
 
+                span.beta {
+                    font-size:      60%;
+                    position:       relative;
+                    top:            -10px;
+                    left:           5px;
+                }
+
             }
 
             a.menulink:hover {
                 color:              $NavigationTextHover;
                 background-color:   $NavigationBackHover;
+            }
+
+            .arrow {
+                display:            none;
+                border-top:         20px solid transparent;
+                border-bottom:      20px solid transparent;
+                border-left:        20px solid #ff88267d;
+                position:           absolute;
+                height:             0px;
+                top:                0;
+                right:              -20px;
             }
 
             @media only screen and (max-width: 512px) {
@@ -240,7 +260,7 @@ body {
 
                         #title {
 
-                            font-size:              150%;
+                            font-size:              180%;
 
                             #id {
                                 display:                inline-block;
@@ -631,6 +651,105 @@ body {
                         margin-top:                 40px;
                     }
 
+                }
+
+                .overview {
+
+                    padding:    30px 30px 15px 25px;
+                    height:     calc(100% - 45px);
+
+                    #tiles {
+
+                        display:            flex;
+                        justify-content:    space-evenly;
+
+                        .tile {
+
+                            background-color:   #e2e2e2;
+                            margin:             2vh .5vw;
+                            border-radius:      6px;
+                            width:              50%;
+                            flex-grow:          1;
+                            text-align:         center;
+                            min-height:         30vh;
+                            display:            flex;
+                            justify-content:    center;
+                            align-items:        center;
+                            text-decoration:    none;
+
+                            .content {
+
+                                .icon {
+                                    display:            inline-block;
+                                    font-size:          400%;
+                                    padding:            10px;
+                                    text-decoration:    none;
+                                    color:              #555;
+                                    border-radius:      8px;
+                                }
+
+                                .links {
+
+                                    display:            inline-block;
+                                    text-align:         left;
+
+                                    .main {
+                                        display:            block;
+                                        font-size:          200%;
+                                        text-decoration:    none;
+                                        color:              #555;
+                                        padding:            4px 8px;
+                                        border-radius:      6px;
+                                    }
+
+                                    .group {
+
+                                        display:            block;
+                                        padding:            4px 6px 4px 10px;
+                                        border-radius:      4px;
+
+                                        a {
+                                            color:              #555;
+                                            text-decoration:    none;
+                                        }
+
+                                        a:hover {
+                                            color:              #ff7300;
+                                        }
+
+                                    }
+/*
+                                    .group:hover {
+                                        background-color:   #ffe0caa3;
+                                    }*/
+
+                                }
+
+                            }
+
+                        }
+
+                        .tile:hover {
+
+                            background-color:   #dadada;
+
+                            .content {
+
+                                .icon {
+                                    color:              #ff7300;
+                                }
+
+                                .links {
+                                    .main {
+                                        color:              #ff7300;
+                                    }
+                                }
+
+                            }
+
+                        }
+
+                    }
                 }
 
                 .fullScreenDialog {
