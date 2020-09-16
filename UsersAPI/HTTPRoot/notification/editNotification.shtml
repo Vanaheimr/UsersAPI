@@ -5,7 +5,7 @@
 <script type="text/javascript" src="/notification/editNotification.js"></script>
 <script type="text/javascript" src="/shared/UsersAPI/defaults/views.js"></script>
 
-<div id="AddOrEditNotification" class="entity">
+<div id="AddOrEditNotification" class="entity headline">
 
     <div id="headline">
         <div id="title">

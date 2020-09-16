@@ -4,7 +4,7 @@
 <script type="text/javascript" src="/defaults/defaults.js"></script>
 <script type="text/javascript" src="notification/messages.js"></script>
 
-<div id="notificationMessages" class="entity">
+<div id="notificationMessages" class="entity headline">
 
     <div id="headline">
         <div id="title">

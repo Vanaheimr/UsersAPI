@@ -4,7 +4,7 @@
 <script type="text/javascript" src="/defaults/search.js"></script>
 <script type="text/javascript" src="/user/users.js"></script>
 
-<div class="entity">
+<div id="users" class="entity headline">
 
     <div id="headline">
         <div id="title">

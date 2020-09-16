@@ -2,7 +2,7 @@
 
 <script type="text/javascript" src="../../organization/newSubOrganization.js"></script>
 
-<div id="newSubOrganization" class="entity">
+<div id="newSubOrganization" class="entity headline">
 
     <div id="headline">
 

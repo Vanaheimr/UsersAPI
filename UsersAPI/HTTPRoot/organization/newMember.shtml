@@ -2,7 +2,7 @@
 
 <script type="text/javascript" src="../../organization/newMember.js"></script>
 
-<div id="newMember" class="entity">
+<div id="newMember" class="entity headline">
 
     <div id="headline">
 

@@ -5,7 +5,7 @@
 <script type="text/javascript" src="notification/settings.js"></script>
 <script type="text/javascript" src="/shared/UsersAPI/defaults/views.js"></script>
 
-<div id="notificationSettings" class="entity">
+<div id="notificationSettings" class="entity headline">
 
     <div id="headline">
         <div id="title">

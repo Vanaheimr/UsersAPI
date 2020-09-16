@@ -6,7 +6,7 @@
 <script src="/libs/leaflet/leaflet.js"></script>
 <script src="/libs/leaflet/L.Control.Locate.min.js"></script>
 
-<div id="organization" class="entity">
+<div id="organization" class="entity headline">
 
     <div id="headline">
 

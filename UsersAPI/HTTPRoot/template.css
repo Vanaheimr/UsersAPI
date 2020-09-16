@@ -20,7 +20,7 @@ body {
       body #page #navigation #logo {
         background-image: url("/images/CardiLink_Logo01.png");
         width: 100%;
-        height: 60px;
+        height: 50px;
         display: block;
         background-size: cover;
         background-repeat: no-repeat; }
@@ -84,7 +84,7 @@ body {
         display: flex;
         flex-direction: row;
         width: 100%;
-        height: 60px;
+        height: 50px;
         z-index: 100;
         background-color: #cc2d7b;
         justify-content: flex-end;
@@ -150,7 +150,7 @@ body {
           padding-right: 20px; }
       body #page #right #text {
         overflow-y: auto;
-        height: calc(100vh - 60px);
+        height: calc(100vh - 50px);
         /*@media only screen and (max-width: 512px) {
                     padding-right:      10px;
                 }*/
@@ -158,49 +158,49 @@ body {
         margin: 0px;
         padding: 0;
         background-color: #eee; }
+        body #page #right #text .headline #headline {
+          display: flex;
+          align-items: center;
+          padding-bottom: 30px;
+          color: #999; }
+          body #page #right #text .headline #headline #logo {
+            margin-right: 1vw; }
+            body #page #right #text .headline #headline #logo img {
+              width: 100px; }
+          body #page #right #text .headline #headline #title {
+            font-size: 180%; }
+            body #page #right #text .headline #headline #title #id {
+              display: inline-block; }
+            body #page #right #text .headline #headline #title #name {
+              font-size: 50%;
+              display: inline-block; }
+              body #page #right #text .headline #headline #title #name #language {
+                display: inline-block;
+                margin-top: 2px;
+                font-size: 60%;
+                vertical-align: top;
+                background-color: #ddd;
+                padding: 2px 4px;
+                border-radius: 4px; }
+              body #page #right #text .headline #headline #title #name #I18NText {
+                display: inline-block;
+                font-size: 170%; }
+            body #page #right #text .headline #headline #title #description {
+              font-size: 30%; }
+              body #page #right #text .headline #headline #title #description #language {
+                display: inline-block;
+                margin-top: 2px;
+                font-size: 60%;
+                vertical-align: top;
+                background-color: #ddd;
+                padding: 2px 4px;
+                border-radius: 4px; }
+              body #page #right #text .headline #headline #title #description #I18NText {
+                display: inline-block;
+                font-size: 170%; }
         body #page #right #text .entity {
           display: flex;
           flex-direction: column; }
-          body #page #right #text .entity #headline {
-            display: flex;
-            align-items: center;
-            padding-bottom: 30px;
-            color: #999; }
-            body #page #right #text .entity #headline #logo {
-              margin-right: 1vw; }
-              body #page #right #text .entity #headline #logo img {
-                width: 100px; }
-            body #page #right #text .entity #headline #title {
-              font-size: 180%; }
-              body #page #right #text .entity #headline #title #id {
-                display: inline-block; }
-              body #page #right #text .entity #headline #title #name {
-                font-size: 62%;
-                display: inline-block; }
-                body #page #right #text .entity #headline #title #name #language {
-                  display: inline-block;
-                  margin-top: 2px;
-                  font-size: 60%;
-                  vertical-align: top;
-                  background-color: #ddd;
-                  padding: 2px 4px;
-                  border-radius: 4px; }
-                body #page #right #text .entity #headline #title #name #I18NText {
-                  display: inline-block;
-                  font-size: 170%; }
-              body #page #right #text .entity #headline #title #description {
-                font-size: 37%; }
-                body #page #right #text .entity #headline #title #description #language {
-                  display: inline-block;
-                  margin-top: 2px;
-                  font-size: 60%;
-                  vertical-align: top;
-                  background-color: #ddd;
-                  padding: 2px 4px;
-                  border-radius: 4px; }
-                body #page #right #text .entity #headline #title #description #I18NText {
-                  display: inline-block;
-                  font-size: 170%; }
           body #page #right #text .entity #about {
             padding: 2vh 1vw 3vh 1vw;
             font-size: 95%;
@@ -418,13 +418,13 @@ body {
               box-shadow: none; }
           body #page #right #text .entity #saveButton {
             margin-top: 40px; }
-        body #page #right #text .overview {
+        body #page #right #text .tiles {
           padding: 30px 30px 15px 25px;
           height: calc(100% - 45px); }
-          body #page #right #text .overview #tiles {
+          body #page #right #text .tiles #tiles {
             display: flex;
             justify-content: space-evenly; }
-            body #page #right #text .overview #tiles .tile {
+            body #page #right #text .tiles #tiles .tile {
               background-color: #e2e2e2;
               margin: 2vh .5vw;
               border-radius: 6px;
@@ -436,41 +436,41 @@ body {
               justify-content: center;
               align-items: center;
               text-decoration: none; }
-              body #page #right #text .overview #tiles .tile .content .icon {
+              body #page #right #text .tiles #tiles .tile .content .icon {
                 display: inline-block;
                 font-size: 400%;
                 padding: 10px;
                 text-decoration: none;
                 color: #555;
                 border-radius: 8px; }
-              body #page #right #text .overview #tiles .tile .content .links {
+              body #page #right #text .tiles #tiles .tile .content .links {
                 display: inline-block;
                 text-align: left;
                 /*
                                     .group:hover {
                                         background-color:   #ffe0caa3;
                                     }*/ }
-                body #page #right #text .overview #tiles .tile .content .links .main {
+                body #page #right #text .tiles #tiles .tile .content .links .main {
                   display: block;
                   font-size: 200%;
                   text-decoration: none;
                   color: #555;
                   padding: 4px 8px;
                   border-radius: 6px; }
-                body #page #right #text .overview #tiles .tile .content .links .group {
+                body #page #right #text .tiles #tiles .tile .content .links .group {
                   display: block;
                   padding: 4px 6px 4px 10px;
                   border-radius: 4px; }
-                  body #page #right #text .overview #tiles .tile .content .links .group a {
+                  body #page #right #text .tiles #tiles .tile .content .links .group a {
                     color: #555;
                     text-decoration: none; }
-                  body #page #right #text .overview #tiles .tile .content .links .group a:hover {
+                  body #page #right #text .tiles #tiles .tile .content .links .group a:hover {
                     color: #ff7300; }
-            body #page #right #text .overview #tiles .tile:hover {
+            body #page #right #text .tiles #tiles .tile:hover {
               background-color: #dadada; }
-              body #page #right #text .overview #tiles .tile:hover .content .icon {
+              body #page #right #text .tiles #tiles .tile:hover .content .icon {
                 color: #ff7300; }
-              body #page #right #text .overview #tiles .tile:hover .content .links .main {
+              body #page #right #text .tiles #tiles .tile:hover .content .links .main {
                 color: #ff7300; }
         body #page #right #text .fullScreenDialog {
           display: none;
