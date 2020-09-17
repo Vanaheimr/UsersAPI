@@ -104,7 +104,7 @@ namespace social.OpenData.UsersAPI
         /// <summary>
         /// The default JSON-LD context for service ticket change sets.
         /// </summary>
-        public readonly static JSONLDContext DefaultJSONLDContext = JSONLDContext.Parse("https://opendata.social/contexts/UsersAPI+json/serviceTickets/changeSet");
+        public readonly static JSONLDContext DefaultJSONLDContext = JSONLDContext.Parse("https://opendata.social/contexts/UsersAPI/serviceTickets/changeSet");
 
         #endregion
 

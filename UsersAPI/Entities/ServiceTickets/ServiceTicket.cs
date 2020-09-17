@@ -206,10 +206,10 @@ namespace social.OpenData.UsersAPI
         /// <param name="ChangeSets">An enumeration of service ticket change sets.</param>
         public ServiceTicket(ServiceTicket_Id                     Id,
                              IEnumerable<ServiceTicketChangeSet>  ChangeSets,
-                             JSONLDContext                        JSONLDContext   = default)
+                             JSONLDContext?                       JSONLDContext   = default)
 
             : base(Id,
-                   JSONLDContext)
+                   JSONLDContext ?? DefaultJSONLDContext)
 
         {
 
@@ -334,7 +334,7 @@ namespace social.OpenData.UsersAPI
                    new List<ServiceTicketChangeSet>() {
                        new ServiceTicketChangeSet(
                            ServiceTicketChangeSet_Id.Random(),
-                           JSONLDContext ?? DefaultJSONLDContext,
+                           ServiceTicketChangeSet.DefaultJSONLDContext,
                            Timestamp     ?? DateTime.UtcNow,
                            Author,
                            Status        ?? ServiceTicketStatusTypes.New,
@@ -358,7 +358,8 @@ namespace social.OpenData.UsersAPI
 
                            DataSource
                        )
-                   })
+                   },
+                   JSONLDContext ?? DefaultJSONLDContext)
 
         { }
 
