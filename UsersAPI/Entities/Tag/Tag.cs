@@ -26,7 +26,7 @@ using Newtonsoft.Json.Linq;
 using org.GraphDefined.Vanaheimr.Illias;
 using org.GraphDefined.Vanaheimr.Styx.Arrows;
 using org.GraphDefined.Vanaheimr.Hermod;
-using org.GraphDefined.Vanaheimr.Hermod.Distributed;
+
 using social.OpenData.UsersAPI;
 using org.GraphDefined.Vanaheimr.Aegir;
 using org.GraphDefined.Vanaheimr.Hermod.HTTP;
@@ -125,7 +125,7 @@ namespace social.OpenData.UsersAPI
 
                    Embedded
                        ? null
-                       : new JProperty("@context",  JSONLDContext),
+                       : new JProperty("@context",  JSONLDContext.ToString()),
 
                    Description.IsNeitherNullNorEmpty()
                        ? Description.ToJSON("description")

@@ -27,11 +27,12 @@ using org.GraphDefined.Vanaheimr.Aegir;
 using org.GraphDefined.Vanaheimr.Illias;
 using org.GraphDefined.Vanaheimr.Hermod;
 using org.GraphDefined.Vanaheimr.Styx.Arrows;
-using org.GraphDefined.Vanaheimr.Hermod.Distributed;
 using org.GraphDefined.Vanaheimr.Hermod.HTTP;
 using org.GraphDefined.Vanaheimr.Hermod.Mail;
+
 using social.OpenData.UsersAPI.Notifications;
 using social.OpenData.UsersAPI;
+using org.GraphDefined.Vanaheimr.Hermod.JSON;
 
 #endregion
 
@@ -105,10 +106,10 @@ namespace social.OpenData.UsersAPI
     }
 
     /// <summary>
-    /// An Open Data organization.
+    /// An organization.
     /// </summary>
-    public class Organization : ADistributedEntity<Organization_Id>,
-                                IEntityClass<Organization>
+    public class Organization : AEntity<Organization_Id,
+                                        Organization>
     {
 
         #region Data
@@ -119,9 +120,9 @@ namespace social.OpenData.UsersAPI
         public const UInt16 DefaultOrganizationStatusHistorySize = 50;
 
         /// <summary>
-        /// The JSON-LD context of this object.
+        /// The default JSON-LD context of organizations.
         /// </summary>
-        public const String JSONLDContext = "https://opendata.social/contexts/UsersAPI/organization";
+        public readonly static JSONLDContext DefaultJSONLDContext = JSONLDContext.Parse("https://opendata.social/contexts/UsersAPI/organization");
 
         #endregion
 
@@ -164,60 +165,60 @@ namespace social.OpenData.UsersAPI
         /// The offical (multi-language) name of the organization.
         /// </summary>
         [Mandatory]
-        public I18NString           Name                 { get; }
+        public I18NString                 Name                 { get; }
 
         /// <summary>
         /// The optional (multi-language) description of the organization.
         /// </summary>
         [Optional]
-        public I18NString           Description          { get; }
+        public I18NString                 Description          { get; }
 
         /// <summary>
         /// The website of the organization.
         /// </summary>
         [Optional]
-        public String               Website              { get; }
+        public String                     Website              { get; }
 
         /// <summary>
         /// The primary E-Mail address of the organization.
         /// </summary>
         [Optional]
-        public EMailAddress         EMail                { get; }
+        public EMailAddress               EMail                { get; }
 
         /// <summary>
         /// The telephone number of the organization.
         /// </summary>
         [Optional]
-        public PhoneNumber?         Telephone            { get; }
+        public PhoneNumber?               Telephone            { get; }
 
         /// <summary>
         /// The optional address of the organization.
         /// </summary>
         [Optional]
-        public Address              Address              { get; }
+        public Address                    Address              { get; }
 
         /// <summary>
         /// The geographical location of this organization.
         /// </summary>
-        public GeoCoordinate?       GeoLocation          { get; }
+        public GeoCoordinate?             GeoLocation          { get; }
 
         /// <summary>
         /// An collection of multi-language tags and their relevance.
         /// </summary>
         [Optional]
-        public Tags                 Tags                 { get; }
-
-        /// <summary>
-        /// The privacy of this organization.
-        /// </summary>
-        [Mandatory]
-        public PrivacyLevel         PrivacyLevel         { get; }
+        public Tags                       Tags                 { get; }
 
         /// <summary>
         /// The user will be shown in organization listings.
         /// </summary>
         [Mandatory]
-        public Boolean              IsDisabled           { get; }
+        public Boolean                    IsDisabled           { get; }
+
+        /// <summary>
+        /// An enumeration of attached files.
+        /// </summary>
+        [Optional]
+        public IEnumerable<AttachedFile>  AttachedFiles        { get; }
 
         #endregion
 
@@ -450,9 +451,10 @@ namespace social.OpenData.UsersAPI
         #region Constructor(s)
 
         /// <summary>
-        /// Create a new Open Data organization.
+        /// Create a new organization.
         /// </summary>
         /// <param name="Id">The unique identification of the organization.</param>
+        /// 
         /// <param name="Name">The offical (multi-language) name of the organization.</param>
         /// <param name="Description">An optional (multi-language) description of the organization.</param>
         /// <param name="Website">The website of the organization.</param>
@@ -460,9 +462,13 @@ namespace social.OpenData.UsersAPI
         /// <param name="Telephone">An optional telephone number of the organisation.</param>
         /// <param name="Address">An optional address of the organisation.</param>
         /// <param name="GeoLocation">An optional geographical location of the organisation.</param>
-        /// <param name="PrivacyLevel">Whether the organization will be shown in organization listings, or not.</param>
         /// <param name="IsDisabled">The organization is disabled.</param>
+        /// 
+        /// <param name="CustomData">Custom data to be stored with this organization.</param>
+        /// <param name="AttachedFiles">Optional files attached to this organization.</param>
+        /// <param name="JSONLDContext">The JSON-LD context of this organization.</param>
         /// <param name="DataSource">The source of all this data, e.g. an automatic importer.</param>
+        /// <param name="LastChange">The timestamp of the last changes within this organization. Can e.g. be used as a HTTP ETag.</param>
         public Organization(Organization_Id                             Id,
                             I18NString                                  Name                                = null,
                             I18NString                                  Description                         = null,
@@ -472,18 +478,25 @@ namespace social.OpenData.UsersAPI
                             Address                                     Address                             = null,
                             GeoCoordinate?                              GeoLocation                         = null,
                             Func<Tags.Builder, Tags>                    Tags                                = null,
-                            PrivacyLevel                                PrivacyLevel                        = social.OpenData.UsersAPI.PrivacyLevel.World,
                             Boolean                                     IsDisabled                          = false,
-                            String                                      DataSource                          = "",
 
                             IEnumerable<ANotification>                  Notifications                       = null,
 
                             IEnumerable<User2OrganizationEdge>          User2OrganizationInEdges            = null,
                             IEnumerable<Organization2OrganizationEdge>  Organization2OrganizationInEdges    = null,
-                            IEnumerable<Organization2OrganizationEdge>  Organization2OrganizationOutEdges   = null)
+                            IEnumerable<Organization2OrganizationEdge>  Organization2OrganizationOutEdges   = null,
+
+                            JObject                                     CustomData                          = default,
+                            IEnumerable<AttachedFile>                   AttachedFiles                       = default,
+                            JSONLDContext?                              JSONLDContext                       = default,
+                            String                                      DataSource                          = default,
+                            DateTime?                                   LastChange                          = default)
 
             : base(Id,
-                   DataSource)
+                   JSONLDContext ?? DefaultJSONLDContext,
+                   CustomData,
+                   DataSource,
+                   LastChange)
 
         {
 
@@ -496,8 +509,8 @@ namespace social.OpenData.UsersAPI
             this.GeoLocation                          = GeoLocation;
             var _TagsBuilder                          = new Tags.Builder();
             this.Tags                                 = Tags != null ? Tags(_TagsBuilder) : _TagsBuilder;
-            this.PrivacyLevel                         = PrivacyLevel;
             this.IsDisabled                           = IsDisabled;
+            this.AttachedFiles                        = AttachedFiles ?? new AttachedFile[0];
 
             this._Notifications                       = new NotificationStore();
 
@@ -676,85 +689,88 @@ namespace social.OpenData.UsersAPI
         /// </summary>
         /// <param name="Embedded">Whether this data is embedded into another data structure.</param>
         /// <param name="IncludeCryptoHash">Include the crypto hash value of this object.</param>
-        public JObject ToJSON(Boolean     Embedded                = false,
-                              InfoStatus  ExpandMembers           = InfoStatus.ShowIdOnly,
-                              InfoStatus  ExpandParents           = InfoStatus.ShowIdOnly,
-                              InfoStatus  ExpandSubOrganizations  = InfoStatus.ShowIdOnly,
-                              InfoStatus  ExpandTags              = InfoStatus.ShowIdOnly,
-                              Boolean     IncludeCryptoHash       = true)
+        public JObject ToJSON(Boolean                                        Embedded                       = false,
+                              InfoStatus                                     ExpandMembers                  = InfoStatus.ShowIdOnly,
+                              InfoStatus                                     ExpandParents                  = InfoStatus.ShowIdOnly,
+                              InfoStatus                                     ExpandSubOrganizations         = InfoStatus.ShowIdOnly,
+                              InfoStatus                                     ExpandTags                     = InfoStatus.ShowIdOnly,
+                              Boolean                                        IncludeLastChange              = true,
+                              Boolean                                        IncludeCryptoHash              = true,
+                              CustomJObjectSerializerDelegate<Organization>  CustomOrganizationSerializer   = null)
 
-            => JSONObject.Create(
+        {
 
-                   new JProperty("@id",                     Id.             ToString()),
+            var JSON = base.ToJSON(Embedded,
+                                   IncludeLastChange,
+                                   IncludeCryptoHash,
+                                   null,
+                                   new JProperty[] {
 
-                   !Embedded
-                       ? new JProperty("@context",          JSONLDContext)
-                       : null,
+                                       new JProperty("name",                    Name.           ToJSON()),
 
-                   new JProperty("name",                    Name.           ToJSON()),
+                                       Description.IsNeitherNullNorEmpty()
+                                           ? new JProperty("description",       Description.    ToJSON())
+                                           : null,
 
-                   Description.IsNeitherNullNorEmpty()
-                       ? new JProperty("description",       Description.    ToJSON())
-                       : null,
+                                       Website.IsNeitherNullNorEmpty()
+                                           ? new JProperty("website",           Website)
+                                           : null,
 
-                   Website.IsNeitherNullNorEmpty()
-                       ? new JProperty("website",           Website)
-                       : null,
+                                       EMail != null
+                                           ? new JProperty("email",             EMail.Address.  ToString())
+                                           : null,
 
-                   EMail != null
-                       ? new JProperty("email",             EMail.Address.  ToString())
-                       : null,
+                                       Telephone.HasValue
+                                           ? new JProperty("telephone",         Telephone.Value.ToString())
+                                           : null,
 
-                   Telephone.HasValue
-                       ? new JProperty("telephone",         Telephone.Value.ToString())
-                       : null,
+                                       Address?.    ToJSON("address"),
+                                       GeoLocation?.ToJSON("geoLocation"),
 
-                   Address?.    ToJSON("address"),
-                   GeoLocation?.ToJSON("geoLocation"),
-
-                   Tags.Any()
-                       ? new JProperty("tags",              Tags.ToJSON(ExpandTags))
-                       : null,
-
-                   PrivacyLevel.ToJSON(),
-
-
-                   new JProperty("parents",                 Organization2OrganizationOutEdges.
-                                                                Where     (edge => edge.EdgeLabel == Organization2OrganizationEdgeTypes.IsChildOf).
-                                                                SafeSelect(edge => ExpandParents.Switch(edge,
-                                                                                                        _edge => _edge.Target.Id.ToString(),
-                                                                                                        _edge => _edge.Target.ToJSON()))),
-
-                   Organization2OrganizationInEdges.SafeAny(edge => edge.EdgeLabel == Organization2OrganizationEdgeTypes.IsChildOf)
-                       ? new JProperty("subOrganizations",  Organization2OrganizationInEdges.
-                                                                Where     (edge => edge.EdgeLabel == Organization2OrganizationEdgeTypes.IsChildOf).
-                                                                SafeSelect(edge => ExpandSubOrganizations.Switch(edge,
-                                                                                                       _edge => _edge.Source.Id.ToString(),
-                                                                                                       _edge => _edge.Source.ToJSON())))
-                       : null,
-
-                   Admins.SafeAny()
-                       ? new JProperty("admins",            Admins.
-                                                                SafeSelect(user => ExpandMembers.Switch(user,
-                                                                                                       _user => _user.Id.ToString(),
-                                                                                                       _user => _user.ToJSON())))
-                       : null,
-
-                   Members.SafeAny()
-                       ? new JProperty("members",           Members.
-                                                                SafeSelect(user => ExpandMembers.Switch(user,
-                                                                                                       _user => _user.Id.ToString(),
-                                                                                                       _user => _user.ToJSON())))
-                       : null,
+                                       Tags.Any()
+                                           ? new JProperty("tags",              Tags.ToJSON(ExpandTags))
+                                           : null,
 
 
-                   new JProperty("isDisabled",              IsDisabled),
+                                       new JProperty("parents",                 Organization2OrganizationOutEdges.
+                                                                                    Where     (edge => edge.EdgeLabel == Organization2OrganizationEdgeTypes.IsChildOf).
+                                                                                    SafeSelect(edge => ExpandParents.Switch(edge,
+                                                                                                                            _edge => _edge.Target.Id.ToString(),
+                                                                                                                            _edge => _edge.Target.ToJSON()))),
 
-                   IncludeCryptoHash
-                       ? new JProperty("cryptoHash",        CurrentCryptoHash)
-                       : null
+                                       Organization2OrganizationInEdges.SafeAny(edge => edge.EdgeLabel == Organization2OrganizationEdgeTypes.IsChildOf)
+                                           ? new JProperty("subOrganizations",  Organization2OrganizationInEdges.
+                                                                                    Where     (edge => edge.EdgeLabel == Organization2OrganizationEdgeTypes.IsChildOf).
+                                                                                    SafeSelect(edge => ExpandSubOrganizations.Switch(edge,
+                                                                                                                           _edge => _edge.Source.Id.ToString(),
+                                                                                                                           _edge => _edge.Source.ToJSON())))
+                                           : null,
 
-               );
+                                       Admins.SafeAny()
+                                           ? new JProperty("admins",            Admins.
+                                                                                    SafeSelect(user => ExpandMembers.Switch(user,
+                                                                                                                           _user => _user.Id.ToString(),
+                                                                                                                           _user => _user.ToJSON())))
+                                           : null,
+
+                                       Members.SafeAny()
+                                           ? new JProperty("members",           Members.
+                                                                                    SafeSelect(user => ExpandMembers.Switch(user,
+                                                                                                                           _user => _user.Id.ToString(),
+                                                                                                                           _user => _user.ToJSON())))
+                                           : null,
+
+
+                                       new JProperty("isDisabled",              IsDisabled)
+
+                                    });
+
+
+            return CustomOrganizationSerializer != null
+                       ? CustomOrganizationSerializer(this, JSON)
+                       : JSON;
+
+        }
 
         #endregion
 
@@ -803,16 +819,17 @@ namespace social.OpenData.UsersAPI
 
                 #region Parse Context          [mandatory]
 
-                if (!JSONObject.ParseMandatoryText("@context",
-                                                   "JSON-LinkedData context information",
-                                                   out String Context,
-                                                   out ErrorResponse))
+                if (!JSONObject.ParseMandatory("@context",
+                                               "JSON-LinkedData context information",
+                                               JSONLDContext.TryParse,
+                                               out JSONLDContext Context,
+                                               out ErrorResponse))
                 {
                     ErrorResponse = @"The JSON-LD ""@context"" information is missing!";
                     return false;
                 }
 
-                if (Context != JSONLDContext)
+                if (Context != DefaultJSONLDContext)
                 {
                     ErrorResponse = @"The given JSON-LD ""@context"" information '" + Context + "' is not supported!";
                     return false;
@@ -959,6 +976,7 @@ namespace social.OpenData.UsersAPI
 
 
                 Organization = new Organization(OrganizationIdBody ?? OrganizationIdURI.Value,
+
                                                 Name,
                                                 Description,
                                                 Website,
@@ -967,9 +985,13 @@ namespace social.OpenData.UsersAPI
                                                 Address,
                                                 GeoLocation,
                                                 _ => Tags,
-                                                PrivacyLevel ?? social.OpenData.UsersAPI.PrivacyLevel.World,
-                                                IsDisabled ?? false,
-                                                DataSource);
+                                                IsDisabled ?? false);
+
+                                          //      CustomData,
+                                          //      AttachedFiles,
+                                          //      JSONLDContext,
+                                          //      DataSource,
+                                          //      LastChange);
 
                 ErrorResponse = null;
                 return true;
@@ -989,7 +1011,7 @@ namespace social.OpenData.UsersAPI
 
         #region CopyAllEdgesTo(NewOrganization)
 
-        public void CopyAllEdgesTo(Organization NewOrganization)
+        public override void CopyAllEdgesTo(Organization NewOrganization)
         {
 
             if (_User2Organization_InEdges.Any() && !NewOrganization._User2Organization_InEdges.Any())
@@ -1225,18 +1247,10 @@ namespace social.OpenData.UsersAPI
         /// </summary>
         /// <param name="Object">An object to compare with.</param>
         public override Int32 CompareTo(Object Object)
-        {
 
-            if (Object == null)
-                throw new ArgumentNullException(nameof(Object), "The given object must not be null!");
-
-            var Organization = Object as Organization;
-            if ((Object) Organization == null)
-                throw new ArgumentException("The given object is not an organization!");
-
-            return CompareTo(Organization);
-
-        }
+            => Object is Organization Organization
+                   ? CompareTo(Organization)
+                   : throw new ArgumentException("The given object is not an organization!", nameof(Object));
 
         #endregion
 
@@ -1246,15 +1260,11 @@ namespace social.OpenData.UsersAPI
         /// Compares two instances of this object.
         /// </summary>
         /// <param name="Organization">An organization object to compare with.</param>
-        public Int32 CompareTo(Organization Organization)
-        {
+        public override Int32 CompareTo(Organization Organization)
 
-            if ((Object) Organization == null)
-                throw new ArgumentNullException(nameof(Organization), "The given organization must not be null!");
-
-            return Id.CompareTo(Organization.Id);
-
-        }
+            => Organization is null
+                   ? throw new ArgumentNullException(nameof(Organization), "The given organization must not be null!")
+                   : Id.CompareTo(Organization.Id);
 
         #endregion
 
@@ -1270,18 +1280,9 @@ namespace social.OpenData.UsersAPI
         /// <param name="Object">An object to compare with.</param>
         /// <returns>true|false</returns>
         public override Boolean Equals(Object Object)
-        {
 
-            if (Object == null)
-                return false;
-
-            var Organization = Object as Organization;
-            if ((Object) Organization == null)
-                return false;
-
-            return Equals(Organization);
-
-        }
+            => Object is Organization Organization &&
+                  Equals(Organization);
 
         #endregion
 
@@ -1292,15 +1293,10 @@ namespace social.OpenData.UsersAPI
         /// </summary>
         /// <param name="Organization">An organization to compare with.</param>
         /// <returns>True if both match; False otherwise.</returns>
-        public Boolean Equals(Organization Organization)
-        {
+        public override Boolean Equals(Organization Organization)
 
-            if ((Object) Organization == null)
-                return false;
-
-            return Id.Equals(Organization.Id);
-
-        }
+            => Organization is Organization &&
+                   Id.Equals(Organization.Id);
 
         #endregion
 
@@ -1344,98 +1340,91 @@ namespace social.OpenData.UsersAPI
                            Address,
                            GeoLocation,
                            _ => Tags,
-                           PrivacyLevel,
                            IsDisabled,
-                           DataSource,
 
                            _Notifications,
 
                            _User2Organization_InEdges,
                            _Organization2Organization_InEdges,
-                           _Organization2Organization_OutEdges);
+                           _Organization2Organization_OutEdges,
+
+                           CustomData,
+                           AttachedFiles,
+                           JSONLDContext,
+                           DataSource,
+                           LastChange);
 
         #endregion
 
         #region (class) Builder
 
         /// <summary>
-        /// An Open Data organization builder.
+        /// An organization builder.
         /// </summary>
-        public class Builder
+        public new class Builder : AEntity<Organization_Id,
+                                           Organization>.Builder
         {
 
             #region Properties
 
             /// <summary>
-            /// The unique identification of the organization.
-            /// </summary>
-            public Organization_Id      Id                   { get; set; }
-
-            /// <summary>
             /// The offical (multi-language) name of the organization.
             /// </summary>
             [Mandatory]
-            public I18NString           Name                 { get; set; }
+            public I18NString             Name                 { get; set; }
 
             /// <summary>
             /// The optional (multi-language) description of the organization.
             /// </summary>
             [Optional]
-            public I18NString           Description          { get; set; }
+            public I18NString             Description          { get; set; }
 
             /// <summary>
             /// The website of the organization.
             /// </summary>
             [Optional]
-            public String               Website              { get; set; }
+            public String                 Website              { get; set; }
 
             /// <summary>
             /// The primary E-Mail address of the organization.
             /// </summary>
             [Optional]
-            public EMailAddress         EMail                { get; set; }
+            public EMailAddress           EMail                { get; set; }
 
             /// <summary>
             /// The telephone number of the organization.
             /// </summary>
             [Optional]
-            public PhoneNumber?         Telephone            { get; set; }
+            public PhoneNumber?           Telephone            { get; set; }
 
             /// <summary>
             /// The optional address of the organization.
             /// </summary>
             [Optional]
-            public Address              Address              { get; set; }
+            public Address                Address              { get; set; }
 
             /// <summary>
             /// The geographical location of this organization.
             /// </summary>
-            public GeoCoordinate?       GeoLocation          { get; set; }
+            public GeoCoordinate?         GeoLocation          { get; set; }
 
             /// <summary>
             /// An collection of multi-language tags and their relevance.
             /// </summary>
             [Optional]
-            public Tags                 Tags                 { get; set; }
-
-            /// <summary>
-            /// The privacy of this organization.
-            /// </summary>
-            [Mandatory]
-            public PrivacyLevel         PrivacyLevel         { get; set; }
+            public Tags                   Tags                 { get; set; }
 
             /// <summary>
             /// The user will be shown in organization listings.
             /// </summary>
             [Mandatory]
-            public Boolean              IsDisabled           { get; set; }
-
+            public Boolean                IsDisabled           { get; set; }
 
             /// <summary>
-            /// The source of this information, e.g. an automatic importer.
+            /// An enumeration of attached files.
             /// </summary>
             [Optional]
-            public String               DataSource           { get; set; }
+            public HashSet<AttachedFile>  AttachedFiles        { get; }
 
             #endregion
 
@@ -1479,7 +1468,6 @@ namespace social.OpenData.UsersAPI
             /// <param name="Telephone">An optional telephone number of the organisation.</param>
             /// <param name="GeoLocation">An optional geographical location of the organisation.</param>
             /// <param name="Address">An optional address of the organisation.</param>
-            /// <param name="PrivacyLevel">Whether the organization will be shown in organization listings, or not.</param>
             /// <param name="IsDisabled">The organization is disabled.</param>
             /// <param name="DataSource">The source of all this data, e.g. an automatic importer.</param>
             public Builder(Organization_Id                             Id,
@@ -1491,18 +1479,28 @@ namespace social.OpenData.UsersAPI
                            Address                                     Address                             = null,
                            GeoCoordinate?                              GeoLocation                         = null,
                            Func<Tags.Builder, Tags>                    Tags                                = null,
-                           PrivacyLevel                                PrivacyLevel                        = social.OpenData.UsersAPI.PrivacyLevel.Private,
                            Boolean                                     IsDisabled                          = false,
-                           String                                      DataSource                          = "",
 
                            IEnumerable<ANotification>                  Notifications                       = null,
 
                            IEnumerable<User2OrganizationEdge>          User2OrganizationInEdges            = null,
                            IEnumerable<Organization2OrganizationEdge>  Organization2OrganizationInEdges    = null,
-                           IEnumerable<Organization2OrganizationEdge>  Organization2OrganizationOutEdges   = null)
+                           IEnumerable<Organization2OrganizationEdge>  Organization2OrganizationOutEdges   = null,
+
+                           JObject                                     CustomData                          = default,
+                           IEnumerable<AttachedFile>                   AttachedFiles                       = default,
+                           JSONLDContext?                              JSONLDContext                       = default,
+                           String                                      DataSource                          = default,
+                           DateTime?                                   LastChange                          = default)
+
+                : base(Id,
+                       JSONLDContext ?? DefaultJSONLDContext,
+                       CustomData,
+                       DataSource,
+                       LastChange)
+
             {
 
-                this.Id                                   = Id;
                 this.Name                                 = Name        ?? new I18NString();
                 this.Description                          = Description ?? new I18NString();
                 this.Website                              = Website;
@@ -1512,9 +1510,8 @@ namespace social.OpenData.UsersAPI
                 this.GeoLocation                          = GeoLocation;
                 var _TagsBuilder                          = new Tags.Builder();
                 this.Tags                                 = Tags != null ? Tags(_TagsBuilder) : _TagsBuilder;
-                this.PrivacyLevel                         = PrivacyLevel;
                 this.IsDisabled                           = IsDisabled;
-                this.DataSource                           = DataSource;
+                this.AttachedFiles                        = AttachedFiles.SafeAny() ? new HashSet<AttachedFile>(AttachedFiles) : new HashSet<AttachedFile>();
 
                 this._Notifications                       = new NotificationStore();
 
@@ -1694,15 +1691,255 @@ namespace social.OpenData.UsersAPI
                                     Address,
                                     GeoLocation,
                                     _ => Tags,
-                                    PrivacyLevel,
                                     IsDisabled,
-                                    DataSource,
 
                                     _Notifications,
 
                                     _User2Organization_InEdges,
                                     _Organization2Organization_InEdges,
-                                    _Organization2Organization_OutEdges);
+                                    _Organization2Organization_OutEdges,
+
+                                    CustomData,
+                                    AttachedFiles,
+                                    JSONLDContext,
+                                    DataSource,
+                                    LastChange);
+
+            #endregion
+
+
+            #region CopyAllEdgesTo(NewOrganization)
+
+            public override void CopyAllEdgesTo(Organization NewOrganization)
+            {
+
+                if (_User2Organization_InEdges.Any() && !NewOrganization._User2Organization_InEdges.Any())
+                {
+
+                    NewOrganization.Add(_User2Organization_InEdges);
+
+                    foreach (var edge in NewOrganization._User2Organization_InEdges)
+                        edge.Target = NewOrganization;
+
+                }
+
+                if (_Organization2Organization_InEdges.Any() && !NewOrganization._Organization2Organization_InEdges.Any())
+                {
+
+                    NewOrganization.AddInEdges(_Organization2Organization_InEdges);
+
+                    foreach (var edge in NewOrganization._Organization2Organization_InEdges)
+                        edge.Target = NewOrganization;
+
+                }
+
+                if (_Organization2Organization_OutEdges.Any() && !NewOrganization._Organization2Organization_OutEdges.Any())
+                {
+
+                    NewOrganization.AddOutEdges(_Organization2Organization_OutEdges);
+
+                    foreach (var edge in NewOrganization._Organization2Organization_OutEdges)
+                        edge.Source = NewOrganization;
+
+                }
+
+                if (_Notifications.SafeAny() && !NewOrganization._Notifications.SafeAny())
+                    NewOrganization._Notifications.Add(_Notifications);
+
+            }
+
+            #endregion
+
+
+            #region Operator overloading
+
+            #region Operator == (BuilderId1, BuilderId2)
+
+            /// <summary>
+            /// Compares two instances of this object.
+            /// </summary>
+            /// <param name="BuilderId1">A organization builder.</param>
+            /// <param name="BuilderId2">Another organization builder.</param>
+            /// <returns>true|false</returns>
+            public static Boolean operator == (Builder BuilderId1, Builder BuilderId2)
+            {
+
+                // If both are null, or both are same instance, return true.
+                if (Object.ReferenceEquals(BuilderId1, BuilderId2))
+                    return true;
+
+                // If one is null, but not both, return false.
+                if ((BuilderId1 is null) || (BuilderId2 is null))
+                    return false;
+
+                return BuilderId1.Equals(BuilderId2);
+
+            }
+
+            #endregion
+
+            #region Operator != (BuilderId1, BuilderId2)
+
+            /// <summary>
+            /// Compares two instances of this object.
+            /// </summary>
+            /// <param name="BuilderId1">A organization builder.</param>
+            /// <param name="BuilderId2">Another organization builder.</param>
+            /// <returns>true|false</returns>
+            public static Boolean operator != (Builder BuilderId1, Builder BuilderId2)
+                => !(BuilderId1 == BuilderId2);
+
+            #endregion
+
+            #region Operator <  (BuilderId1, BuilderId2)
+
+            /// <summary>
+            /// Compares two instances of this object.
+            /// </summary>
+            /// <param name="BuilderId1">A organization builder.</param>
+            /// <param name="BuilderId2">Another organization builder.</param>
+            /// <returns>true|false</returns>
+            public static Boolean operator < (Builder BuilderId1, Builder BuilderId2)
+            {
+
+                if (BuilderId1 is null)
+                    throw new ArgumentNullException(nameof(BuilderId1), "The given BuilderId1 must not be null!");
+
+                return BuilderId1.CompareTo(BuilderId2) < 0;
+
+            }
+
+            #endregion
+
+            #region Operator <= (BuilderId1, BuilderId2)
+
+            /// <summary>
+            /// Compares two instances of this object.
+            /// </summary>
+            /// <param name="BuilderId1">A organization builder.</param>
+            /// <param name="BuilderId2">Another organization builder.</param>
+            /// <returns>true|false</returns>
+            public static Boolean operator <= (Builder BuilderId1, Builder BuilderId2)
+                => !(BuilderId1 > BuilderId2);
+
+            #endregion
+
+            #region Operator >  (BuilderId1, BuilderId2)
+
+            /// <summary>
+            /// Compares two instances of this object.
+            /// </summary>
+            /// <param name="BuilderId1">A organization builder.</param>
+            /// <param name="BuilderId2">Another organization builder.</param>
+            /// <returns>true|false</returns>
+            public static Boolean operator > (Builder BuilderId1, Builder BuilderId2)
+            {
+
+                if (BuilderId1 is null)
+                    throw new ArgumentNullException(nameof(BuilderId1), "The given BuilderId1 must not be null!");
+
+                return BuilderId1.CompareTo(BuilderId2) > 0;
+
+            }
+
+            #endregion
+
+            #region Operator >= (BuilderId1, BuilderId2)
+
+            /// <summary>
+            /// Compares two instances of this object.
+            /// </summary>
+            /// <param name="BuilderId1">A organization builder.</param>
+            /// <param name="BuilderId2">Another organization builder.</param>
+            /// <returns>true|false</returns>
+            public static Boolean operator >= (Builder BuilderId1, Builder BuilderId2)
+                => !(BuilderId1 < BuilderId2);
+
+            #endregion
+
+            #endregion
+
+            #region IComparable<Builder> Members
+
+            #region CompareTo(Object)
+
+            /// <summary>
+            /// Compares two instances of this object.
+            /// </summary>
+            /// <param name="Object">An object to compare with.</param>
+            public override Int32 CompareTo(Object Object)
+
+                => Object is Builder Builder
+                       ? CompareTo(Builder)
+                       : throw new ArgumentException("The given object is not an organization!");
+
+            #endregion
+
+            #region CompareTo(Builder)
+
+            /// <summary>
+            /// Compares two instances of this object.
+            /// </summary>
+            /// <param name="Builder">An organization object to compare with.</param>
+            public Int32 CompareTo(Builder Builder)
+
+                => Builder is null
+                       ? throw new ArgumentNullException(nameof(Builder), "The given organization must not be null!")
+                       : Id.CompareTo(Builder.Id);
+
+            #endregion
+
+            #endregion
+
+            #region IEquatable<Builder> Members
+
+            #region Equals(Object)
+
+            /// <summary>
+            /// Compares two instances of this object.
+            /// </summary>
+            /// <param name="Object">An object to compare with.</param>
+            /// <returns>true|false</returns>
+            public override Boolean Equals(Object Object)
+
+                => Object is Builder Builder &&
+                      Equals(Builder);
+
+            #endregion
+
+            #region Equals(Builder)
+
+            /// <summary>
+            /// Compares two organizations for equality.
+            /// </summary>
+            /// <param name="Builder">An organization to compare with.</param>
+            /// <returns>True if both match; False otherwise.</returns>
+            public Boolean Equals(Builder Builder)
+
+                => Builder is Builder &&
+                       Id.Equals(Builder.Id);
+
+            #endregion
+
+            #endregion
+
+            #region GetHashCode()
+
+            /// <summary>
+            /// Get the hashcode of this object.
+            /// </summary>
+            public override Int32 GetHashCode()
+                => Id.GetHashCode();
+
+            #endregion
+
+            #region (override) ToString()
+
+            /// <summary>
+            /// Return a text representation of this object.
+            /// </summary>
+            public override String ToString()
+                => Id.ToString();
 
             #endregion
 

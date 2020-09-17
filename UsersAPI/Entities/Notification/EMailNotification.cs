@@ -353,7 +353,7 @@ namespace social.OpenData.UsersAPI.Notifications
             => JSONObject.Create(
 
                    !Embedded
-                       ? new JProperty("@context",       JSONLDContext)
+                       ? new JProperty("@context",       JSONLDContext.ToString())
                        : null,
 
                    new JProperty("email",                EMailAddress.ToJSON(Embedded: true)),

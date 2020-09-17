@@ -25,7 +25,7 @@
 //using org.GraphDefined.Vanaheimr.Illias;
 //using org.GraphDefined.Vanaheimr.Hermod;
 //using org.GraphDefined.Vanaheimr.Hermod.HTTP;
-//using org.GraphDefined.Vanaheimr.Hermod.Distributed;
+//
 
 //#endregion
 
@@ -35,7 +35,7 @@
 //    /// <summary>
 //    /// A generic abstract service ticket.
 //    /// </summary>
-//    public abstract class AGenericServiceTicket : ADistributedEntity<ServiceTicket_Id>,
+//    public abstract class AGenericServiceTicket : AEntity<ServiceTicket_Id>,
 //                                                  IEntityClass<AGenericServiceTicket>
 //    {
 

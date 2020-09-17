@@ -154,7 +154,7 @@ namespace social.OpenData.UsersAPI
             => JSONObject.Create(
 
                    new JProperty("@id",                 APIKey.ToString()),
-                   new JProperty("@context",            JSONLDContext),
+                   new JProperty("@context",            JSONLDContext.ToString()),
 
                    new JProperty("userId",              User.Id.ToString()),
                    new JProperty("description",         Description.ToJSON()),

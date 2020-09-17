@@ -92,7 +92,7 @@ namespace social.OpenData.UsersAPI
 
                    Embedded
                        ? null
-                       : new JProperty("@context",  JSONLDContext),
+                       : new JProperty("@context",  JSONLDContext.ToString()),
 
                    Description.IsNeitherNullNorEmpty()
                           ? Description.ToJSON("description")

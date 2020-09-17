@@ -491,7 +491,7 @@ namespace social.OpenData.UsersAPI
         private static readonly SemaphoreSlim  UsersSemaphore                  = new SemaphoreSlim(1, 1);
         private static readonly SemaphoreSlim  OrganizationsSemaphore          = new SemaphoreSlim(1, 1);
         private static readonly SemaphoreSlim  DashboardsSemaphore             = new SemaphoreSlim(1, 1);
-        private static readonly SemaphoreSlim  GroupsSemaphore                 = new SemaphoreSlim(1, 1);
+        private static readonly SemaphoreSlim  UserGroupsSemaphore                 = new SemaphoreSlim(1, 1);
 
         /// <summary>
         /// The HTTP root for embedded ressources.
@@ -702,7 +702,7 @@ namespace social.OpenData.UsersAPI
         #endregion
 
 
-        public Group                     Admins                         { get; }
+        public UserGroup                 Admins                         { get; }
 
 
         #region LogoImage
@@ -936,7 +936,7 @@ namespace social.OpenData.UsersAPI
         /// <summary>
         /// A delegate for sending e-mail notifications about received service ticket messages to users.
         /// </summary>
-        public delegate EMail NewServiceTicketMessageReceivedDelegate(AServiceTicket    ParsedMessage,
+        public delegate EMail NewServiceTicketMessageReceivedDelegate(ServiceTicket    ParsedMessage,
                                                                       EMailAddressList  EMailRecipients);
 
         private static readonly Func<String, EMailAddress, String, NewServiceTicketMessageReceivedDelegate>
@@ -974,7 +974,7 @@ namespace social.OpenData.UsersAPI
         /// <summary>
         /// A delegate for sending e-mail notifications about service ticket status changes to users.
         /// </summary>
-        public delegate EMail ServiceTicketStatusChangedEMailDelegate(AServiceTicket                         ServiceTicket,
+        public delegate EMail ServiceTicketStatusChangedEMailDelegate(ServiceTicket                         ServiceTicket,
                                                                       Timestamped<ServiceTicketStatusTypes>  OldStatus,
                                                                       Timestamped<ServiceTicketStatusTypes>  NewStatus,
                                                                       EMailAddressList                       EMailRecipients);
@@ -1022,7 +1022,7 @@ namespace social.OpenData.UsersAPI
         /// <summary>
         /// A delegate for sending e-mail notifications about service ticket changes to users.
         /// </summary>
-        public delegate EMail ServiceTicketChangedEMailDelegate(AServiceTicket             ServiceTicket,
+        public delegate EMail ServiceTicketChangedEMailDelegate(ServiceTicket             ServiceTicket,
                                                                 NotificationMessageType    MessageType,
                                                                 NotificationMessageType[]  AdditionalMessageTypes,
                                                                 EMailAddressList           EMailRecipients);
@@ -2159,7 +2159,6 @@ namespace social.OpenData.UsersAPI
                                                          PublicKeyRing:    APIEMailAddress.PublicKeyRing,
                                                          SecretKeyRing:    APIEMailAddress.SecretKeyRing,
                                                          Description:      I18NString.Create(Languages.eng, "API robot"),
-                                                         PrivacyLevel:     PrivacyLevel.World,
                                                          IsAuthenticated:  true);
 
             CurrentAsyncLocalUserId.Value     = Robot.Id;
@@ -2185,10 +2184,10 @@ namespace social.OpenData.UsersAPI
 
             this._DataLicenses                = new Dictionary<DataLicense_Id,   DataLicense>();
             this._Users                       = new Dictionary<User_Id,          User>();
-            this._Groups                      = new Dictionary<Group_Id,         Group>();
+            this._UserGroups                  = new Dictionary<UserGroup_Id,     UserGroup>();
             this._Organizations               = new Dictionary<Organization_Id,  Organization>();
             this._Messages                    = new Dictionary<Message_Id,       Message>();
-            this._ServiceTickets              = new ConcurrentDictionary<ServiceTicket_Id, AServiceTicket>();
+            this._ServiceTickets              = new ConcurrentDictionary<ServiceTicket_Id, ServiceTicket>();
 
             this._LoginPasswords              = new Dictionary<User_Id,         LoginPassword>();
             this._VerificationTokens          = new List<VerificationToken>();
@@ -2212,10 +2211,10 @@ namespace social.OpenData.UsersAPI
 
             #endregion
 
-            this.Admins  = CreateGroupIfNotExists(Group_Id.Parse(AdminGroupName),
-                                                  Robot.Id,
-                                                  I18NString.Create(Languages.eng, AdminGroupName),
-                                                  I18NString.Create(Languages.eng, "All admins of this API.")).Result;
+            this.Admins  = CreateUserGroupIfNotExists(UserGroup_Id.Parse(AdminGroupName),
+                                                      Robot.Id,
+                                                      I18NString.Create(Languages.eng, AdminGroupName),
+                                                      I18NString.Create(Languages.eng, "All admins of this API.")).Result;
 
             #region Reflect data licenses
 
@@ -4276,17 +4275,18 @@ namespace social.OpenData.UsersAPI
 
                                               #region Parse Context          [mandatory]
 
-                                              if (!JSONObj.ParseMandatoryText("@context",
-                                                                              "JSON-LinkedData context information",
-                                                                              HTTPServer.DefaultServerName,
-                                                                              out String Context,
-                                                                              Request,
-                                                                              out ErrorResponse))
+                                              if (!JSONObj.ParseMandatory("@context",
+                                                                          "JSON-LinkedData context information",
+                                                                          HTTPServer.DefaultServerName,
+                                                                          JSONLDContext.TryParse,
+                                                                          out JSONLDContext Context,
+                                                                          Request,
+                                                                          out ErrorResponse))
                                               {
                                                   return ErrorResponse;
                                               }
 
-                                              if (Context != User.JSONLDContext)
+                                              if (Context != User.DefaultJSONLDContext)
                                               {
 
                                                   return new HTTPResponse.Builder(Request) {
@@ -4975,17 +4975,18 @@ namespace social.OpenData.UsersAPI
 
                                               #region Parse Context          [mandatory]
 
-                                              if (!JSONObj.ParseMandatoryText("@context",
-                                                                              "JSON-LinkedData context information",
-                                                                              HTTPServer.DefaultServerName,
-                                                                              out String Context,
-                                                                              Request,
-                                                                              out ErrorResponse))
+                                              if (!JSONObj.ParseMandatory("@context",
+                                                                          "JSON-LinkedData context information",
+                                                                          HTTPServer.DefaultServerName,
+                                                                          JSONLDContext.TryParse,
+                                                                          out JSONLDContext Context,
+                                                                          Request,
+                                                                          out ErrorResponse))
                                               {
                                                   return ErrorResponse;
                                               }
 
-                                              if (Context != User.JSONLDContext)
+                                              if (Context != User.DefaultJSONLDContext)
                                               {
 
                                                   return new HTTPResponse.Builder(Request) {
@@ -5729,7 +5730,7 @@ namespace social.OpenData.UsersAPI
                                                         AccessControlAllowOrigin    = "*",
                                                         AccessControlAllowMethods   = "GET, SET",
                                                         AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
-                                                        ETag                        = _User.CurrentCryptoHash,
+                                                        ETag                        = _User.HashValue,
                                                         ContentType                 = HTTPContentType.JSON_UTF8,
                                                         Content                     = _User.ToJSON().ToUTF8Bytes(),
                                                         Connection                  = "close"
@@ -7083,6 +7084,90 @@ namespace social.OpenData.UsersAPI
 
             #endregion
 
+            #region ~/userGroups
+
+            #region GET         ~/userGroups
+
+            // ------------------------------------------------------------------------
+            // curl -v -H "Accept: application/json" http://127.0.0.1:2000/userGroups
+            // ------------------------------------------------------------------------
+            HTTPServer.AddMethodCallback(Hostname,
+                                         HTTPMethod.GET,
+                                         URLPathPrefix + "userGroups",
+                                         HTTPContentType.JSON_UTF8,
+                                         HTTPDelegate: Request => {
+
+                                             #region Try to get HTTP user and its organizations
+
+                                             TryGetHTTPUser(Request,
+                                                            out User                   HTTPUser,
+                                                            out HashSet<Organization>  HTTPOrganizations,
+                                                            out HTTPResponse           Response,
+                                                            Recursive: true);
+
+                                             #endregion
+
+
+                                             var withMetadata           = Request.QueryString.GetBoolean("withMetadata", false);
+                                             var includeFilter          = Request.QueryString.CreateStringFilter<User>("include",
+                                                                                                                       (user, include) => user.Id.  IndexOf(include)                                     >= 0 ||
+                                                                                                                                          user.Name.IndexOf(include, StringComparison.OrdinalIgnoreCase) >= 0 ||
+                                                                                                                                          user.Description.Matches(include, IgnoreCase: true));
+
+                                             var skip                   = Request.QueryString.GetUInt64 ("skip");
+                                             var take                   = Request.QueryString.GetUInt64 ("take");
+
+                                             var includeCryptoHash      = Request.QueryString.GetBoolean("includeCryptoHash", true);
+
+                                             var expand                 = Request.QueryString.GetStrings("expand");
+                                             //var expandTags             = expand.ContainsIgnoreCase("tags")              ? InfoStatus.Expanded : InfoStatus.ShowIdOnly;
+
+                                             var filteredUsers          = HTTPOrganizations.
+                                                                              SafeSelectMany(organization => organization.Users).
+                                                                              Distinct      ().
+                                                                              Where         (includeFilter).
+                                                                              OrderBy       (user => user.Name).
+                                                                              ToArray();
+
+                                             var filteredCount          = filteredUsers.ULongCount();
+                                             var totalCount             = HTTPOrganizations.ULongCount();
+
+                                             var JSONResults            = filteredUsers.
+                                                                              ToJSON(skip,
+                                                                                     take,
+                                                                                     false, //Embedded
+                                                                                     GetUserSerializator(Request, HTTPUser),
+                                                                                     includeCryptoHash);
+
+
+                                             return Task.FromResult(
+                                                 new HTTPResponse.Builder(Request) {
+                                                     HTTPStatusCode                = HTTPStatusCode.OK,
+                                                     Server                        = HTTPServer.DefaultServerName,
+                                                     Date                          = DateTime.UtcNow,
+                                                     AccessControlAllowOrigin      = "*",
+                                                     AccessControlAllowMethods     = "GET, COUNT, OPTIONS",
+                                                     AccessControlAllowHeaders     = "Content-Type, Accept, Authorization",
+                                                     ETag                          = "1",
+                                                     ContentType                   = HTTPContentType.JSON_UTF8,
+                                                     Content                       = withMetadata
+                                                                                         ? JSONObject.Create(
+                                                                                               new JProperty("totalCount",     totalCount),
+                                                                                               new JProperty("filteredCount",  filteredCount),
+                                                                                               new JProperty("users",          JSONResults)
+                                                                                           ).ToUTF8Bytes()
+                                                                                         : JSONResults.ToUTF8Bytes(),
+                                                     X_ExpectedTotalNumberOfItems  = filteredCount,
+                                                     Connection                    = "close",
+                                                     Vary                          = "Accept"
+                                                 }.AsImmutable);
+
+                                         });
+
+            #endregion
+
+            #endregion
+
             #region ~/organizations
 
             #region GET         ~/organizations
@@ -7458,7 +7543,7 @@ namespace social.OpenData.UsersAPI
                                              var includeCryptoHash       = Request.QueryString.GetBoolean("includeCryptoHash", true);
 
                                              return Task.FromResult(
-                                                        (Organization.PrivacyLevel == PrivacyLevel.Private &&
+                                                        (//Organization.PrivacyLevel == PrivacyLevel.Private &&
                                                          !HTTPOrganizations.Contains(Organization))
 
                                                             ? new HTTPResponse.Builder(Request) {
@@ -8927,43 +9012,43 @@ namespace social.OpenData.UsersAPI
 
             #region GET         ~/groups
 
-            // ------------------------------------------------------------------
-            // curl -v -H "Accept: application/json" http://127.0.0.1:2100/groups
-            // ------------------------------------------------------------------
-            HTTPServer.ITEMS_GET(UriTemplate: URLPathPrefix + "groups",
-                                 Dictionary: _Groups,
-                                 Filter: group => group.PrivacyLevel == PrivacyLevel.World,
-                                 ToJSONDelegate: JSON_IO.ToJSON);
+            //// ------------------------------------------------------------------
+            //// curl -v -H "Accept: application/json" http://127.0.0.1:2100/groups
+            //// ------------------------------------------------------------------
+            //HTTPServer.ITEMS_GET(UriTemplate: URLPathPrefix + "groups",
+            //                     Dictionary: _Groups,
+            //                     Filter: group => group.PrivacyLevel == PrivacyLevel.World,
+            //                     ToJSONDelegate: JSON_IO.ToJSON);
 
             #endregion
 
 
             #region EXISTS      ~/groups/{GroupId}
 
-            // -------------------------------------------------------------------------------------------
-            // curl -v -X EXITS -H "Accept: application/json" http://127.0.0.1:2100/groups/OK-Lab%20Jena
-            // -------------------------------------------------------------------------------------------
-            HTTPServer.ITEM_EXISTS<Group_Id, Group>(UriTemplate: URLPathPrefix + "groups/{GroupId}",
-                                                    ParseIdDelegate: Group_Id.TryParse,
-                                                    ParseIdError: Text => "Invalid group identification '" + Text + "'!",
-                                                    TryGetItemDelegate: _Groups.TryGetValue,
-                                                    ItemFilterDelegate: group => group.PrivacyLevel == PrivacyLevel.World,
-                                                    TryGetItemError: groupId => "Unknown group '" + groupId + "'!");
+            //// -------------------------------------------------------------------------------------------
+            //// curl -v -X EXITS -H "Accept: application/json" http://127.0.0.1:2100/groups/OK-Lab%20Jena
+            //// -------------------------------------------------------------------------------------------
+            //HTTPServer.ITEM_EXISTS<Group_Id, Group>(UriTemplate: URLPathPrefix + "groups/{GroupId}",
+            //                                        ParseIdDelegate: Group_Id.TryParse,
+            //                                        ParseIdError: Text => "Invalid group identification '" + Text + "'!",
+            //                                        TryGetItemDelegate: _Groups.TryGetValue,
+            //                                        ItemFilterDelegate: group => group.PrivacyLevel == PrivacyLevel.World,
+            //                                        TryGetItemError: groupId => "Unknown group '" + groupId + "'!");
 
             #endregion
 
             #region GET         ~/groups/{GroupId}
 
-            // ----------------------------------------------------------------------------------
-            // curl -v -H "Accept: application/json" http://127.0.0.1:2100/groups/OK-Lab%20Jena
-            // ----------------------------------------------------------------------------------
-            HTTPServer.ITEM_GET<Group_Id, Group>(UriTemplate:         URLPathPrefix + "groups/{GroupId}",
-                                                 ParseIdDelegate:     Group_Id.TryParse,
-                                                 ParseIdError:        Text => "Invalid group identification '" + Text + "'!",
-                                                 TryGetItemDelegate:  _Groups.TryGetValue,
-                                                 ItemFilterDelegate:  group => group.PrivacyLevel == PrivacyLevel.World,
-                                                 TryGetItemError:     groupId => "Unknown group '" + groupId + "'!",
-                                                 ToJSONDelegate:      _ => _.ToJSON());
+            //// ----------------------------------------------------------------------------------
+            //// curl -v -H "Accept: application/json" http://127.0.0.1:2100/groups/OK-Lab%20Jena
+            //// ----------------------------------------------------------------------------------
+            //HTTPServer.ITEM_GET<Group_Id, Group>(UriTemplate:         URLPathPrefix + "groups/{GroupId}",
+            //                                     ParseIdDelegate:     Group_Id.TryParse,
+            //                                     ParseIdError:        Text => "Invalid group identification '" + Text + "'!",
+            //                                     TryGetItemDelegate:  _Groups.TryGetValue,
+            //                                     ItemFilterDelegate:  group => group.PrivacyLevel == PrivacyLevel.World,
+            //                                     TryGetItemError:     groupId => "Unknown group '" + groupId + "'!",
+            //                                     ToJSONDelegate:      _ => _.ToJSON());
 
             #endregion
 
@@ -10498,17 +10583,19 @@ namespace social.OpenData.UsersAPI
                 #endregion
 
 
-                #region CreateGroup
+                #region CreateUserGroup
 
-                case "createGroup":
-                case "CreateGroup":
+                case "createUserGroup":
+                case "CreateUserGroup":
 
-                    if (Group.TryParseJSON(JSONObject,
-                                           out Group  _Group,
-                                           out ErrorResponse) &&
-                        _Group.Id != Admins.Id)
+                    if (UserGroup.TryParseJSON(JSONObject,
+                                               null,
+                                               null,
+                                               out UserGroup userGroup,
+                                               out ErrorResponse) &&
+                        userGroup.Id != Admins.Id)
                     {
-                        _Groups.AddAndReturnValue(_Group.Id, _Group);
+                        _UserGroups.AddAndReturnValue(userGroup.Id, userGroup);
                     }
 
                     else
@@ -10537,13 +10624,13 @@ namespace social.OpenData.UsersAPI
                     }
 
 
-                    if (!Group_Id.TryParse(JSONObject["group"]?.Value<String>(), out Group_Id U2G_GroupId))
+                    if (!UserGroup_Id.TryParse(JSONObject["group"]?.Value<String>(), out UserGroup_Id U2G_GroupId))
                     {
                         DebugX.Log(String.Concat(nameof(UsersAPI), " ", Command, ": ", "Invalid group identification '" + JSONObject["user"]?.Value<String>() + "'!"));
                         break;
                     }
 
-                    if (!TryGet(U2G_GroupId, out Group U2G_Group))
+                    if (!TryGet(U2G_GroupId, out UserGroup U2G_Group))
                     {
                         DebugX.Log(String.Concat(nameof(UsersAPI), " ", Command, ": ", "Unknown group '" + U2G_GroupId + "'!"));
                         break;
@@ -12056,7 +12143,6 @@ namespace social.OpenData.UsersAPI
                                            String              Homepage          = null,
                                            GeoCoordinate?      GeoLocation       = null,
                                            Address             Address           = null,
-                                           PrivacyLevel        PrivacyLevel      = PrivacyLevel.Private,
                                            DateTime?           AcceptedEULA      = null,
                                            Boolean             IsAuthenticated   = false,
                                            Boolean             IsDisabled        = false,
@@ -12076,11 +12162,10 @@ namespace social.OpenData.UsersAPI
                                       Homepage,
                                       GeoLocation,
                                       Address,
-                                      PrivacyLevel,
                                       AcceptedEULA,
                                       IsAuthenticated,
                                       IsDisabled,
-                                      DataSource),
+                                      DataSource: DataSource),
 
                          user => {
 
@@ -12158,11 +12243,10 @@ namespace social.OpenData.UsersAPI
                                                  Homepage,
                                                  GeoLocation,
                                                  Address,
-                                                 PrivacyLevel,
                                                  AcceptedEULA,
                                                  IsAuthenticated,
                                                  IsDisabled,
-                                                 DataSource),
+                                                 DataSource: DataSource),
 
                                     async user => {
 
@@ -12724,9 +12808,7 @@ namespace social.OpenData.UsersAPI
                                                  Message_Id?           Id  = null)
         {
 
-            var Message = new Message(Id.HasValue
-                                          ? Id.Value
-                                          : Message_Id.New,
+            var Message = new Message(Id ?? Message_Id.New,
                                       Sender,
                                       Receivers,
                                       Subject,
@@ -13568,27 +13650,27 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
-        #region Groups
+        #region UserGroups
 
         #region Data
 
-        protected readonly Dictionary<Group_Id, Group> _Groups;
+        protected readonly Dictionary<UserGroup_Id, UserGroup> _UserGroups;
 
         /// <summary>
         /// Return an enumeration of all groups.
         /// </summary>
-        public IEnumerable<Group> Groups
+        public IEnumerable<UserGroup> UserGroups
         {
             get
             {
                 try
                 {
-                    GroupsSemaphore.Wait();
-                    return _Groups.Values.ToArray();
+                    UserGroupsSemaphore.Wait();
+                    return _UserGroups.Values.ToArray();
                 }
                 finally
                 {
-                    GroupsSemaphore.Release();
+                    UserGroupsSemaphore.Release();
                 }
 
             }
@@ -13597,9 +13679,9 @@ namespace social.OpenData.UsersAPI
         #endregion
 
 
-        #region CreateGroup           (Id, Name = null, Description = null)
+        #region CreateUserGroup           (Id, Name = null, Description = null)
 
-        public async Task<Group> CreateGroup(Group_Id   Id,
+        public async Task<UserGroup> CreateUserGroup(UserGroup_Id   Id,
                                              User_Id    CurrentUserId,
                                              I18NString Name         = null,
                                              I18NString Description  = null)
@@ -13608,36 +13690,36 @@ namespace social.OpenData.UsersAPI
             try
             {
 
-                await GroupsSemaphore.WaitAsync();
+                await UserGroupsSemaphore.WaitAsync();
 
-                if (_Groups.ContainsKey(Id))
+                if (_UserGroups.ContainsKey(Id))
                     throw new ArgumentException("The given group identification already exists!", nameof(Id));
 
 
-                var Group = new Group(Id,
+                var UserGroup = new UserGroup(Id,
                                       Name,
                                       Description);
 
-                if (Group.Id.ToString() != AdminGroupName)
-                    await WriteToDatabaseFile(NotificationMessageType.Parse("createGroup"),
-                                         Group.ToJSON(),
+                if (UserGroup.Id.ToString() != AdminGroupName)
+                    await WriteToDatabaseFile(NotificationMessageType.Parse("createUserGroup"),
+                                         UserGroup.ToJSON(),
                                          CurrentUserId);
 
-                return _Groups.AddAndReturnValue(Group.Id, Group);
+                return _UserGroups.AddAndReturnValue(UserGroup.Id, UserGroup);
 
             }
             finally
             {
-                GroupsSemaphore.Release();
+                UserGroupsSemaphore.Release();
             }
 
         }
 
         #endregion
 
-        #region CreateGroupIfNotExists(Id, Name = null, Description = null)
+        #region CreateUserGroupIfNotExists(Id, Name = null, Description = null)
 
-        public async Task<Group> CreateGroupIfNotExists(Group_Id    Id,
+        public async Task<UserGroup> CreateUserGroupIfNotExists(UserGroup_Id    Id,
                                                         User_Id     CurrentUserId,
                                                         I18NString  Name         = null,
                                                         I18NString  Description  = null)
@@ -13646,26 +13728,26 @@ namespace social.OpenData.UsersAPI
             try
             {
 
-                await GroupsSemaphore.WaitAsync();
+                await UserGroupsSemaphore.WaitAsync();
 
-                if (_Groups.ContainsKey(Id))
-                    return _Groups[Id];
+                if (_UserGroups.ContainsKey(Id))
+                    return _UserGroups[Id];
 
-                var Group = new Group(Id,
+                var UserGroup = new UserGroup(Id,
                                       Name,
                                       Description);
 
-                if (Group.Id.ToString() != AdminGroupName)
-                    await WriteToDatabaseFile(NotificationMessageType.Parse("createGroup"),
-                                         Group.ToJSON(),
+                if (UserGroup.Id.ToString() != AdminGroupName)
+                    await WriteToDatabaseFile(NotificationMessageType.Parse("createUserGroup"),
+                                         UserGroup.ToJSON(),
                                          CurrentUserId);
 
-                return _Groups.AddAndReturnValue(Group.Id, Group);
+                return _UserGroups.AddAndReturnValue(UserGroup.Id, UserGroup);
 
             }
             finally
             {
-                GroupsSemaphore.Release();
+                UserGroupsSemaphore.Release();
             }
 
         }
@@ -13673,115 +13755,115 @@ namespace social.OpenData.UsersAPI
         #endregion
 
 
-        #region Contains(GroupId)
+        #region Contains(UserGroupId)
 
         /// <summary>
         /// Whether this API contains a group having the given unique identification.
         /// </summary>
-        /// <param name="GroupId">The unique identification of the group.</param>
-        public Boolean Contains(Group_Id GroupId)
+        /// <param name="UserGroupId">The unique identification of the group.</param>
+        public Boolean Contains(UserGroup_Id UserGroupId)
         {
 
             try
             {
 
-                GroupsSemaphore.Wait();
+                UserGroupsSemaphore.Wait();
 
-                return _Groups.ContainsKey(GroupId);
+                return _UserGroups.ContainsKey(UserGroupId);
 
             }
             finally
             {
-                GroupsSemaphore.Release();
+                UserGroupsSemaphore.Release();
             }
 
         }
 
         #endregion
 
-        #region Get     (GroupId)
+        #region Get     (UserGroupId)
 
         /// <summary>
         /// Get the group having the given unique identification.
         /// </summary>
-        /// <param name="GroupId">The unique identification of the group.</param>
-        public async Task<Group> Get(Group_Id  GroupId)
+        /// <param name="UserGroupId">The unique identification of the group.</param>
+        public async Task<UserGroup> Get(UserGroup_Id  UserGroupId)
         {
 
             try
             {
 
-                await GroupsSemaphore.WaitAsync();
+                await UserGroupsSemaphore.WaitAsync();
 
-                if (_Groups.TryGetValue(GroupId, out Group Group))
-                    return Group;
+                if (_UserGroups.TryGetValue(UserGroupId, out UserGroup UserGroup))
+                    return UserGroup;
 
                 return null;
 
             }
             finally
             {
-                GroupsSemaphore.Release();
+                UserGroupsSemaphore.Release();
             }
 
         }
 
         #endregion
 
-        #region TryGet  (GroupId, out Group)
+        #region TryGet  (UserGroupId, out UserGroup)
 
         /// <summary>
         /// Try to get the group having the given unique identification.
         /// </summary>
-        /// <param name="GroupId">The unique identification of the group.</param>
-        /// <param name="Group">The group.</param>
-        public Boolean TryGet(Group_Id   GroupId,
-                              out Group  Group)
+        /// <param name="UserGroupId">The unique identification of the group.</param>
+        /// <param name="UserGroup">The group.</param>
+        public Boolean TryGet(UserGroup_Id   UserGroupId,
+                              out UserGroup  UserGroup)
         {
 
             try
             {
 
-                GroupsSemaphore.Wait();
+                UserGroupsSemaphore.Wait();
 
-                return _Groups.TryGetValue(GroupId, out Group);
+                return _UserGroups.TryGetValue(UserGroupId, out UserGroup);
 
             }
             finally
             {
-                GroupsSemaphore.Release();
+                UserGroupsSemaphore.Release();
             }
 
         }
 
         #endregion
 
-        #region SearchGroupsByName(GroupName)
+        #region SearchUserGroupsByName(UserGroupName)
 
         /// <summary>
         /// Find all groups having the given name.
         /// </summary>
-        /// <param name="GroupName">The name of an group (might not be unique).</param>
-        public IEnumerable<Group> SearchGroupsByName(String GroupName)
+        /// <param name="UserGroupName">The name of an group (might not be unique).</param>
+        public IEnumerable<UserGroup> SearchUserGroupsByName(String UserGroupName)
         {
 
             try
             {
 
-                GroupsSemaphore.Wait();
+                UserGroupsSemaphore.Wait();
 
-                var FoundGroups = new List<Group>();
+                var FoundUserGroups = new List<UserGroup>();
 
-                foreach (var group in _Groups.Values)
-                    if (group.Name.Any(i18npair => i18npair.Text == GroupName))
-                        FoundGroups.Add(group);
+                foreach (var group in _UserGroups.Values)
+                    if (group.Name.Any(i18npair => i18npair.Text == UserGroupName))
+                        FoundUserGroups.Add(group);
 
-                return FoundGroups;
+                return FoundUserGroups;
 
             }
             finally
             {
-                GroupsSemaphore.Release();
+                UserGroupsSemaphore.Release();
             }
 
         }
@@ -13789,107 +13871,107 @@ namespace social.OpenData.UsersAPI
         /// <summary>
         /// Find all groups having the given name.
         /// </summary>
-        /// <param name="GroupName">The name of an group (might not be unique).</param>
-        public IEnumerable<Group> SearchGroupsByName(I18NString GroupName)
+        /// <param name="UserGroupName">The name of an group (might not be unique).</param>
+        public IEnumerable<UserGroup> SearchUserGroupsByName(I18NString UserGroupName)
         {
 
             try
             {
 
-                GroupsSemaphore.Wait();
+                UserGroupsSemaphore.Wait();
 
-                var FoundGroups = new List<Group>();
+                var FoundUserGroups = new List<UserGroup>();
 
-                foreach (var group in _Groups.Values)
-                    if (group.Name == GroupName)
-                        FoundGroups.Add(group);
+                foreach (var group in _UserGroups.Values)
+                    if (group.Name == UserGroupName)
+                        FoundUserGroups.Add(group);
 
-                return FoundGroups;
-
-            }
-            finally
-            {
-                GroupsSemaphore.Release();
-            }
-
-        }
-
-        #endregion
-
-        #region SearchGroupsByName(GroupName, out Groups)
-
-        /// <summary>
-        /// Find all groups having the given name.
-        /// </summary>
-        /// <param name="GroupName">The name of an group (might not be unique).</param>
-        /// <param name="Groups">An enumeration of matching groups.</param>
-        public Boolean SearchGroupsByName(String GroupName, out IEnumerable<Group> Groups)
-        {
-
-            try
-            {
-
-                GroupsSemaphore.Wait();
-
-                var FoundGroups = new List<Group>();
-
-                foreach (var group in _Groups.Values)
-                    if (group.Name.Any(i18npair => i18npair.Text == GroupName))
-                        FoundGroups.Add(group);
-
-                Groups = FoundGroups;
-
-                return FoundGroups.Count > 0;
+                return FoundUserGroups;
 
             }
             finally
             {
-                GroupsSemaphore.Release();
-            }
-
-        }
-
-        /// <summary>
-        /// Find all groups having the given name.
-        /// </summary>
-        /// <param name="GroupName">The name of an group (might not be unique).</param>
-        /// <param name="Groups">An enumeration of matching groups.</param>
-        public Boolean SearchGroupsByName(I18NString GroupName, out IEnumerable<Group> Groups)
-        {
-
-            try
-            {
-
-                GroupsSemaphore.Wait();
-
-                var FoundGroups = new List<Group>();
-
-                foreach (var group in _Groups.Values)
-                    if (group.Name == GroupName)
-                        FoundGroups.Add(group);
-
-                Groups = FoundGroups;
-
-                return FoundGroups.Count > 0;
-
-            }
-            finally
-            {
-                GroupsSemaphore.Release();
+                UserGroupsSemaphore.Release();
             }
 
         }
 
         #endregion
 
+        #region SearchUserGroupsByName(UserGroupName, out UserGroups)
 
-        #region AddToGroup(User, Edge, Group, PrivacyLevel = Private)
+        /// <summary>
+        /// Find all groups having the given name.
+        /// </summary>
+        /// <param name="UserGroupName">The name of an group (might not be unique).</param>
+        /// <param name="UserGroups">An enumeration of matching groups.</param>
+        public Boolean SearchUserGroupsByName(String UserGroupName, out IEnumerable<UserGroup> UserGroups)
+        {
 
-        public async Task<Boolean> AddToGroup(User             User,
-                                              User2GroupEdgeTypes  Edge,
-                                              Group            Group,
-                                              PrivacyLevel     PrivacyLevel   = PrivacyLevel.Private,
-                                              User_Id?         CurrentUserId  = null)
+            try
+            {
+
+                UserGroupsSemaphore.Wait();
+
+                var FoundUserGroups = new List<UserGroup>();
+
+                foreach (var group in _UserGroups.Values)
+                    if (group.Name.Any(i18npair => i18npair.Text == UserGroupName))
+                        FoundUserGroups.Add(group);
+
+                UserGroups = FoundUserGroups;
+
+                return FoundUserGroups.Count > 0;
+
+            }
+            finally
+            {
+                UserGroupsSemaphore.Release();
+            }
+
+        }
+
+        /// <summary>
+        /// Find all groups having the given name.
+        /// </summary>
+        /// <param name="UserGroupName">The name of an group (might not be unique).</param>
+        /// <param name="UserGroups">An enumeration of matching groups.</param>
+        public Boolean SearchUserGroupsByName(I18NString UserGroupName, out IEnumerable<UserGroup> UserGroups)
+        {
+
+            try
+            {
+
+                UserGroupsSemaphore.Wait();
+
+                var FoundUserGroups = new List<UserGroup>();
+
+                foreach (var group in _UserGroups.Values)
+                    if (group.Name == UserGroupName)
+                        FoundUserGroups.Add(group);
+
+                UserGroups = FoundUserGroups;
+
+                return FoundUserGroups.Count > 0;
+
+            }
+            finally
+            {
+                UserGroupsSemaphore.Release();
+            }
+
+        }
+
+        #endregion
+
+
+        #region AddToUserGroup(User, Edge, UserGroup, PrivacyLevel = Private)
+
+        public async Task<Boolean> AddToUserGroup(User                 User,
+                                                  User2GroupEdgeTypes  Edge,
+                                                  UserGroup            UserGroup,
+                                                  PrivacyLevel         PrivacyLevel   = PrivacyLevel.Private,
+                                                  User_Id?             CurrentUserId  = null)
 
         {
 
@@ -13897,21 +13979,21 @@ namespace social.OpenData.UsersAPI
             {
 
                 await UsersSemaphore.WaitAsync();
-                await GroupsSemaphore.WaitAsync();
+                await UserGroupsSemaphore.WaitAsync();
 
-                if (!User.OutEdges(Group).Any(edge => edge == Edge))
+                if (!User.OutEdges(UserGroup).Any(edge => edge == Edge))
                 {
 
-                    User.AddOutgoingEdge(Edge, Group, PrivacyLevel);
+                    User.AddOutgoingEdge(Edge, UserGroup, PrivacyLevel);
 
-                    if (!Group.Edges(Group).Any(edge => edge == Edge))
-                        Group.AddIncomingEdge(User, Edge,  PrivacyLevel);
+                    if (!UserGroup.Edges(UserGroup).Any(edge => edge == Edge))
+                        UserGroup.AddIncomingEdge(User, Edge,  PrivacyLevel);
 
-                    await WriteToDatabaseFile(NotificationMessageType.Parse("addUserToGroup"),
+                    await WriteToDatabaseFile(NotificationMessageType.Parse("addUserToUserGroup"),
                                          new JObject(
                                              new JProperty("user",   User.Id.ToString()),
                                              new JProperty("edge",   Edge.   ToString()),
-                                             new JProperty("group",  Group.  ToString()),
+                                             new JProperty("group",  UserGroup.  ToString()),
                                              PrivacyLevel.ToJSON()
                                          ),
                                          CurrentUserId);
@@ -13926,7 +14008,7 @@ namespace social.OpenData.UsersAPI
             finally
             {
                 UsersSemaphore.Release();
-                GroupsSemaphore.Release();
+                UserGroupsSemaphore.Release();
             }
 
         }
@@ -14386,7 +14468,6 @@ namespace social.OpenData.UsersAPI
                                                      Address                   Address              = null,
                                                      GeoCoordinate?            GeoLocation          = null,
                                                      Func<Tags.Builder, Tags>  Tags                 = null,
-                                                     PrivacyLevel              PrivacyLevel         = PrivacyLevel.Private,
                                                      Boolean                   IsDisabled           = false,
                                                      String                    DataSource           = "",
                                                      Organization              ParentOrganization   = null,
@@ -14401,9 +14482,8 @@ namespace social.OpenData.UsersAPI
                                                 Address,
                                                 GeoLocation,
                                                 Tags,
-                                                PrivacyLevel,
                                                 IsDisabled,
-                                                DataSource),
+                                                DataSource: DataSource),
                                ParentOrganization,
                                CurrentUserId);
 
@@ -14420,7 +14500,6 @@ namespace social.OpenData.UsersAPI
                                                                 Address                   Address              = null,
                                                                 GeoCoordinate?            GeoLocation          = null,
                                                                 Func<Tags.Builder, Tags>  Tags                 = null,
-                                                                PrivacyLevel              PrivacyLevel         = PrivacyLevel.Private,
                                                                 Boolean                   IsDisabled           = false,
                                                                 String                    DataSource           = "",
                                                                 Organization              ParentOrganization   = null,
@@ -14435,9 +14514,8 @@ namespace social.OpenData.UsersAPI
                                                            Address,
                                                            GeoLocation,
                                                            Tags,
-                                                           PrivacyLevel,
                                                            IsDisabled,
-                                                           DataSource),
+                                                           DataSource: DataSource),
                                           ParentOrganization,
                                           CurrentUserId);
 
@@ -15334,12 +15412,12 @@ namespace social.OpenData.UsersAPI
 
         #region Data
 
-        protected readonly ConcurrentDictionary<ServiceTicket_Id, AServiceTicket> _ServiceTickets;
+        protected readonly ConcurrentDictionary<ServiceTicket_Id, ServiceTicket> _ServiceTickets;
 
         /// <summary>
         /// Return an enumeration of all service tickets.
         /// </summary>
-        public IEnumerable<AServiceTicket> ServiceTickets
+        public IEnumerable<ServiceTicket> ServiceTickets
         {
             get
             {
@@ -15365,7 +15443,9 @@ namespace social.OpenData.UsersAPI
                                                                   NotificationMessageType  MessageType,
                                                                   TServiceTicket           OldServiceTicket  = null,
                                                                   User_Id?                 CurrentUserId     = null)
-            where TServiceTicket : AServiceTicket
+
+            where TServiceTicket : ServiceTicket
+
         {
 
             if (ServiceTicket == null)
@@ -15597,15 +15677,15 @@ namespace social.OpenData.UsersAPI
                                                                            Action<TServiceTicket>  AfterAddition  = null,
                                                                            User_Id?                CurrentUserId  = null)
 
-            where TServiceTicket : AServiceTicket
+            where TServiceTicket : ServiceTicket
 
         {
 
-            if (ServiceTicket == null)
-                throw new ArgumentException(nameof(ServiceTicket), "The given service ticket must not be null!");
+            if (ServiceTicket is null)
+                throw new ArgumentNullException(nameof(ServiceTicket), "The given service ticket must not be null!");
 
             if (ServiceTicket.API != null && ServiceTicket.API != this)
-                throw new ArgumentException(nameof(ServiceTicket), "The given service ticket is already attached to another API!");
+                throw new ArgumentException("The given service ticket is already attached to another API!", nameof(ServiceTicket));
 
             try
             {
@@ -15651,12 +15731,12 @@ namespace social.OpenData.UsersAPI
                                                                                       Action<TServiceTicket>  WhenNotExisted  = null,
                                                                                       User_Id?                CurrentUserId   = null)
 
-            where TServiceTicket : AServiceTicket
+            where TServiceTicket : ServiceTicket
 
         {
 
-            if (ServiceTicket == null)
-                throw new ArgumentException(nameof(ServiceTicket), "The given service ticket must not be null!");
+            if (ServiceTicket is null)
+                throw new ArgumentNullException(nameof(ServiceTicket), "The given service ticket must not be null!");
 
             if (ServiceTicket.API != null && ServiceTicket.API != this)
                 throw new ArgumentException(nameof(ServiceTicket), "The given service ticket is already attached to another API!");
@@ -15666,7 +15746,7 @@ namespace social.OpenData.UsersAPI
 
                 await ServiceTicketsSemaphore.WaitAsync();
 
-                if (_ServiceTickets.TryGetValue(ServiceTicket.Id, out AServiceTicket OldServiceTicket))
+                if (_ServiceTickets.TryGetValue(ServiceTicket.Id, out ServiceTicket OldServiceTicket))
                     return OldServiceTicket as TServiceTicket;
 
                 await WriteToLogfileAndNotify(ServiceTicket,
@@ -15702,24 +15782,24 @@ namespace social.OpenData.UsersAPI
         /// <param name="AfterAddOrUpdate">A delegate to call after the service ticket was added to or updated within the API.</param>
         /// <param name="DoNotAnalyzeTheServiceTicketStatus">Do not analyze the service ticket status.</param>
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
-        public async Task<TServiceTicket> AddOrUpdateServiceTicket<TServiceTicket>(TServiceTicket                   ServiceTicket,
-                                                                                   Action<TServiceTicket, Boolean>  AfterAddOrUpdate                     = null,
-                                                                                   Boolean                          DoNotAnalyzeTheServiceTicketStatus   = false,
-                                                                                   User_Id?                         CurrentUserId                        = null)
+        public async Task<TServiceTicket> AddOrUpdateServiceTicket<TServiceTicket>(TServiceTicket                          ServiceTicket,
+                                                                                   Action<TServiceTicket, TServiceTicket>  AfterAddOrUpdate                     = null,
+                                                                                   Boolean                                 DoNotAnalyzeTheServiceTicketStatus   = false,
+                                                                                   User_Id?                                CurrentUserId                        = null)
 
-            where TServiceTicket : AServiceTicket
+            where TServiceTicket : ServiceTicket
 
         {
 
-            if (ServiceTicket == null)
-                throw new ArgumentException(nameof(ServiceTicket), "The given service ticket must not be null!");
+            if (ServiceTicket is null)
+                throw new ArgumentNullException(nameof(ServiceTicket), "The given service ticket must not be null!");
 
             if (ServiceTicket.API != null && ServiceTicket.API != this)
                 throw new ArgumentException(nameof(ServiceTicket), "The given service ticket is already attached to another API!");
 
-            AServiceTicket  OldServiceTicket                = null;
-            DateTime        Now                             = DateTime.UtcNow;
-            Boolean         FastAnalyzeServiceTicketStatus  = false;
+            ServiceTicket  OldServiceTicket                = null;
+            DateTime       Now                             = DateTime.UtcNow;
+            Boolean        FastAnalyzeServiceTicketStatus  = false;
 
             try
             {
@@ -15728,11 +15808,10 @@ namespace social.OpenData.UsersAPI
 
                 ServiceTicket.API = this;
 
-                if (_ServiceTickets.TryGetValue(ServiceTicket.Id, out OldServiceTicket))
+                if (_ServiceTickets.TryRemove(ServiceTicket.Id, out OldServiceTicket))
                 {
 
-                    _ServiceTickets.TryRemove(OldServiceTicket.Id, out AServiceTicket removedServiceTicket);
-                    (OldServiceTicket as TServiceTicket).CopyAllEdgesTo(ServiceTicket);
+                    (OldServiceTicket as TServiceTicket)?.CopyAllEdgesTo(ServiceTicket);
 
                     //// Only run when the admin status changed!
                     //if (!DoNotAnalyzeTheServiceTicketStatus &&
@@ -15755,8 +15834,8 @@ namespace social.OpenData.UsersAPI
                                             id                     => ServiceTicket,
                                             (id, oldServiceTicket) => ServiceTicket);
 
-                AfterAddOrUpdate?.Invoke(ServiceTicket,
-                                         OldServiceTicket != null);
+                AfterAddOrUpdate?.Invoke(OldServiceTicket as TServiceTicket,
+                                         ServiceTicket);
 
             }
             finally
@@ -15808,17 +15887,17 @@ namespace social.OpenData.UsersAPI
                                                                               Boolean                 DoNotAnalyzeTheServiceTicketStatus   = false,
                                                                               User_Id?                CurrentUserId                        = null)
 
-            where TServiceTicket : AServiceTicket
+            where TServiceTicket : ServiceTicket
 
         {
 
-            if (ServiceTicket == null)
-                throw new ArgumentException(nameof(ServiceTicket), "The given service ticket must not be null!");
+            if (ServiceTicket is null)
+                throw new ArgumentNullException(nameof(ServiceTicket), "The given service ticket must not be null!");
 
             if (ServiceTicket.API != null && ServiceTicket.API != this)
                 throw new ArgumentException(nameof(ServiceTicket), "The given service ticket is already attached to another API!");
 
-            AServiceTicket OldServiceTicket;
+            ServiceTicket OldServiceTicket;
             DateTime       Now = DateTime.UtcNow;
 
             try
@@ -15838,7 +15917,7 @@ namespace social.OpenData.UsersAPI
                 //if (ServiceTicket.API == null)
                     ServiceTicket.API = this;
 
-                _ServiceTickets.TryRemove(OldServiceTicket.Id, out AServiceTicket removedServiceTicket);
+                _ServiceTickets.TryRemove(OldServiceTicket.Id, out ServiceTicket removedServiceTicket);
                 OldServiceTicket.CopyAllEdgesTo(ServiceTicket);
 
                 _ServiceTickets.AddOrUpdate(ServiceTicket.Id,
@@ -15901,7 +15980,7 @@ namespace social.OpenData.UsersAPI
                                                                               Action<TServiceTicket>                AfterUpdate                          = null,
                                                                               Boolean                               DoNotAnalyzeTheServiceTicketStatus   = false,
                                                                               User_Id?                              CurrentUserId                        = null)
-            where TServiceTicket : AServiceTicket
+            where TServiceTicket : ServiceTicket
         {
 
             TServiceTicket  castedOldServiceTicket;
@@ -15916,7 +15995,7 @@ namespace social.OpenData.UsersAPI
 
                 await ServiceTicketsSemaphore.WaitAsync();
 
-                if (!_ServiceTickets.TryGetValue(ServiceTicketId, out AServiceTicket OldServiceTicket))
+                if (!_ServiceTickets.TryGetValue(ServiceTicketId, out ServiceTicket OldServiceTicket))
                     throw new Exception("ServiceTicket '" + ServiceTicketId + "' does not exists in this API!");
 
                 castedOldServiceTicket = OldServiceTicket as TServiceTicket;
@@ -15932,7 +16011,7 @@ namespace social.OpenData.UsersAPI
                                               castedOldServiceTicket,
                                               CurrentUserId);
 
-                _ServiceTickets.TryRemove(OldServiceTicket.Id, out AServiceTicket RemovedServiceTicket);
+                _ServiceTickets.TryRemove(OldServiceTicket.Id, out ServiceTicket RemovedServiceTicket);
                 //OldServiceTicket.CopyAllEdgesTo(ServiceTicket);
                 _ServiceTickets.AddOrUpdate(ServiceTicket.Id,
                                             id                     => ServiceTicket,
@@ -15987,8 +16066,8 @@ namespace social.OpenData.UsersAPI
         /// <param name="ServiceTicketId">The unique identification of the service ticket.</param>
         /// <param name="AfterRemoval">A delegate to call after the service ticket was removed from the API.</param>
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
-        public async Task<AServiceTicket> RemoveServiceTicket(ServiceTicket_Id        ServiceTicketId,
-                                                              Action<AServiceTicket>  AfterRemoval    = null,
+        public async Task<ServiceTicket> RemoveServiceTicket(ServiceTicket_Id        ServiceTicketId,
+                                                              Action<ServiceTicket>  AfterRemoval    = null,
                                                               User_Id?                CurrentUserId   = null)
         {
 
@@ -15997,14 +16076,14 @@ namespace social.OpenData.UsersAPI
 
                 await ServiceTicketsSemaphore.WaitAsync();
 
-                if (_ServiceTickets.TryGetValue(ServiceTicketId, out AServiceTicket ServiceTicket))
+                if (_ServiceTickets.TryGetValue(ServiceTicketId, out ServiceTicket ServiceTicket))
                 {
 
                     await WriteToLogfileAndNotify(ServiceTicket,
                                                   removeServiceTicket_MessageType,
                                                   CurrentUserId: CurrentUserId);
 
-                    _ServiceTickets.TryRemove(ServiceTicketId, out AServiceTicket RemovedServiceTicket);
+                    _ServiceTickets.TryRemove(ServiceTicketId, out ServiceTicket RemovedServiceTicket);
 
                     ServiceTicket.API = null;
 
@@ -16027,7 +16106,7 @@ namespace social.OpenData.UsersAPI
         #endregion
 
 
-        #region ServiceTicketExists      (ServiceTicketId)
+        #region ServiceTicketExists        (ServiceTicketId)
 
         /// <summary>
         /// Whether this API contains a service ticket having the given unique identification.
@@ -16059,10 +16138,7 @@ namespace social.OpenData.UsersAPI
         /// Get the service ticket having the given unique identification.
         /// </summary>
         /// <param name="ServiceTicketId">The unique identification of the service ticket.</param>
-        public async Task<TServiceTicket> GetServiceTicket<TServiceTicket>(ServiceTicket_Id  ServiceTicketId)
-
-            where TServiceTicket : AServiceTicket
-
+        public async Task<ServiceTicket> GetServiceTicket(ServiceTicket_Id  ServiceTicketId)
         {
 
             try
@@ -16070,8 +16146,8 @@ namespace social.OpenData.UsersAPI
 
                 await ServiceTicketsSemaphore.WaitAsync();
 
-                if (_ServiceTickets.TryGetValue(ServiceTicketId, out AServiceTicket serviceTicket))
-                    return serviceTicket as TServiceTicket;
+                if (_ServiceTickets.TryGetValue(ServiceTicketId, out ServiceTicket serviceTicket))
+                    return serviceTicket;
 
                 return null;
 
@@ -16095,7 +16171,7 @@ namespace social.OpenData.UsersAPI
         public Boolean TryGetServiceTicket<TServiceTicket>(ServiceTicket_Id    ServiceTicketId,
                                                            out TServiceTicket  ServiceTicket)
 
-            where TServiceTicket : AServiceTicket
+            where TServiceTicket : ServiceTicket
 
         {
 
@@ -16104,7 +16180,7 @@ namespace social.OpenData.UsersAPI
 
                 ServiceTicketsSemaphore.Wait();
 
-                if (_ServiceTickets.TryGetValue(ServiceTicketId, out AServiceTicket serviceTicket))
+                if (_ServiceTickets.TryGetValue(ServiceTicketId, out ServiceTicket serviceTicket))
                 {
                     ServiceTicket = serviceTicket as TServiceTicket;
                     return ServiceTicket != null;

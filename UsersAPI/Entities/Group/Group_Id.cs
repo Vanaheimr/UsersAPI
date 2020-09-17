@@ -1,403 +1,403 @@
-﻿/*
- * Copyright (c) 2014-2020, Achim 'ahzf' Friedland <achim@graphdefined.org>
- * This file is part of OpenDataAPI <http://www.github.com/GraphDefined/OpenDataAPI>
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+﻿///*
+// * Copyright (c) 2014-2020, Achim 'ahzf' Friedland <achim@graphdefined.org>
+// * This file is part of OpenDataAPI <http://www.github.com/GraphDefined/OpenDataAPI>
+// *
+// * Licensed under the Apache License, Version 2.0 (the "License");
+// * you may not use this file except in compliance with the License.
+// * You may obtain a copy of the License at
+// *
+// *     http://www.apache.org/licenses/LICENSE-2.0
+// *
+// * Unless required by applicable law or agreed to in writing, software
+// * distributed under the License is distributed on an "AS IS" BASIS,
+// * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// * See the License for the specific language governing permissions and
+// * limitations under the License.
+// */
 
-#region Usings
+//#region Usings
 
-using System;
+//using System;
 
-using org.GraphDefined.Vanaheimr.Illias;
+//using org.GraphDefined.Vanaheimr.Illias;
 
-#endregion
+//#endregion
 
-namespace social.OpenData.UsersAPI
-{
+//namespace social.OpenData.UsersAPI
+//{
 
-    /// <summary>
-    /// The unique identification of a group.
-    /// </summary>
-    public struct Group_Id : IId,
-                             IEquatable<Group_Id>,
-                             IComparable<Group_Id>
-    {
+//    /// <summary>
+//    /// The unique identification of a group.
+//    /// </summary>
+//    public struct Group_Id : IId,
+//                             IEquatable<Group_Id>,
+//                             IComparable<Group_Id>
+//    {
 
-        #region Data
+//        #region Data
 
-        /// <summary>
-        /// Private non-cryptographic random number generator.
-        /// </summary>
-        private static readonly Random _random = new Random(DateTime.Now.Millisecond);
+//        /// <summary>
+//        /// Private non-cryptographic random number generator.
+//        /// </summary>
+//        private static readonly Random _random = new Random(DateTime.Now.Millisecond);
 
-        /// <summary>
-        /// The internal identification.
-        /// </summary>
-        private readonly String InternalId;
+//        /// <summary>
+//        /// The internal identification.
+//        /// </summary>
+//        private readonly String InternalId;
 
-        #endregion
+//        #endregion
 
-        #region Properties
+//        #region Properties
 
-        /// <summary>
-        /// Indicates whether this identification is null or empty.
-        /// </summary>
-        public Boolean IsNullOrEmpty
-            => InternalId.IsNullOrEmpty();
+//        /// <summary>
+//        /// Indicates whether this identification is null or empty.
+//        /// </summary>
+//        public Boolean IsNullOrEmpty
+//            => InternalId.IsNullOrEmpty();
 
-        /// <summary>
-        /// The length of the group identification.
-        /// </summary>
-        public UInt64 Length
-            => (UInt64) InternalId?.Length;
+//        /// <summary>
+//        /// The length of the group identification.
+//        /// </summary>
+//        public UInt64 Length
+//            => (UInt64) InternalId?.Length;
 
-        #endregion
+//        #endregion
 
-        #region Constructor(s)
+//        #region Constructor(s)
 
-        /// <summary>
-        /// Create a new group identification based on the given string.
-        /// </summary>
-        /// <param name="String">The string representation of the group identification.</param>
-        private Group_Id(String String)
-        {
-            InternalId = String;
-        }
+//        /// <summary>
+//        /// Create a new group identification based on the given string.
+//        /// </summary>
+//        /// <param name="String">The string representation of the group identification.</param>
+//        private Group_Id(String String)
+//        {
+//            InternalId = String;
+//        }
 
-        #endregion
+//        #endregion
 
 
-        #region (static) Random(Length)
+//        #region (static) Random(Length)
 
-        /// <summary>
-        /// Create a new group identification.
-        /// </summary>
-        /// <param name="Length">The expected length of the group identification.</param>
-        public static Group_Id Random(Byte Length = 15)
+//        /// <summary>
+//        /// Create a new group identification.
+//        /// </summary>
+//        /// <param name="Length">The expected length of the group identification.</param>
+//        public static Group_Id Random(Byte Length = 15)
 
-            => new Group_Id(_random.RandomString(Length).ToUpper());
+//            => new Group_Id(_random.RandomString(Length).ToUpper());
 
-        #endregion
+//        #endregion
 
-        #region (static) Parse(Text)
+//        #region (static) Parse(Text)
 
-        /// <summary>
-        /// Parse the given string as a group identification.
-        /// </summary>
-        /// <param name="Text">A text representation of a group identification.</param>
-        public static Group_Id Parse(String Text)
-        {
+//        /// <summary>
+//        /// Parse the given string as a group identification.
+//        /// </summary>
+//        /// <param name="Text">A text representation of a group identification.</param>
+//        public static Group_Id Parse(String Text)
+//        {
 
-            #region Initial checks
+//            #region Initial checks
 
-            if (Text != null)
-                Text = Text.Trim();
+//            if (Text != null)
+//                Text = Text.Trim();
 
-            if (Text.IsNullOrEmpty())
-                throw new ArgumentNullException(nameof(Text), "The given text representation of a group identification must not be null or empty!");
+//            if (Text.IsNullOrEmpty())
+//                throw new ArgumentNullException(nameof(Text), "The given text representation of a group identification must not be null or empty!");
 
-            #endregion
+//            #endregion
 
-            return new Group_Id(Text);
+//            return new Group_Id(Text);
 
-        }
+//        }
 
-        #endregion
+//        #endregion
 
-        #region (static) TryParse(Text)
+//        #region (static) TryParse(Text)
 
-        /// <summary>
-        /// Try to parse the given string as a group identification.
-        /// </summary>
-        /// <param name="Text">A text representation of a group identification.</param>
-        public static Group_Id? TryParse(String Text)
-        {
+//        /// <summary>
+//        /// Try to parse the given string as a group identification.
+//        /// </summary>
+//        /// <param name="Text">A text representation of a group identification.</param>
+//        public static Group_Id? TryParse(String Text)
+//        {
 
-            if (TryParse(Text, out Group_Id _GroupId))
-                return _GroupId;
+//            if (TryParse(Text, out Group_Id _GroupId))
+//                return _GroupId;
 
-            return new Group_Id?();
+//            return new Group_Id?();
 
-        }
+//        }
 
-        #endregion
+//        #endregion
 
-        #region (static) TryParse(Text, out GroupId)
+//        #region (static) TryParse(Text, out GroupId)
 
-        /// <summary>
-        /// Try to parse the given string as a group identification.
-        /// </summary>
-        /// <param name="Text">A text representation of a group identification.</param>
-        /// <param name="GroupId">The parsed group identification.</param>
-        public static Boolean TryParse(String Text, out Group_Id GroupId)
-        {
+//        /// <summary>
+//        /// Try to parse the given string as a group identification.
+//        /// </summary>
+//        /// <param name="Text">A text representation of a group identification.</param>
+//        /// <param name="GroupId">The parsed group identification.</param>
+//        public static Boolean TryParse(String Text, out Group_Id GroupId)
+//        {
 
-            #region Initial checks
+//            #region Initial checks
 
-            if (Text != null)
-                Text = Text.Trim();
+//            if (Text != null)
+//                Text = Text.Trim();
 
-            if (Text.IsNullOrEmpty())
-                throw new ArgumentNullException(nameof(Text), "The given text representation of a group identification must not be null or empty!");
+//            if (Text.IsNullOrEmpty())
+//                throw new ArgumentNullException(nameof(Text), "The given text representation of a group identification must not be null or empty!");
 
-            #endregion
+//            #endregion
 
-            try
-            {
-                GroupId = new Group_Id(Text);
-                return true;
-            }
-            catch (Exception)
-            {
-                GroupId = default(Group_Id);
-                return false;
-            }
+//            try
+//            {
+//                GroupId = new Group_Id(Text);
+//                return true;
+//            }
+//            catch (Exception)
+//            {
+//                GroupId = default(Group_Id);
+//                return false;
+//            }
 
-        }
+//        }
 
-        #endregion
+//        #endregion
 
-        #region Clone
+//        #region Clone
 
-        /// <summary>
-        /// Clone a group identification.
-        /// </summary>
+//        /// <summary>
+//        /// Clone a group identification.
+//        /// </summary>
 
-        public Group_Id Clone
-            => new Group_Id(new String(InternalId.ToCharArray()));
+//        public Group_Id Clone
+//            => new Group_Id(new String(InternalId.ToCharArray()));
 
-        #endregion
+//        #endregion
 
 
-        #region Operator overloading
+//        #region Operator overloading
 
-        #region Operator == (GroupId1, GroupId2)
+//        #region Operator == (GroupId1, GroupId2)
 
-        /// <summary>
-        /// Compares two instances of this object.
-        /// </summary>
-        /// <param name="GroupId1">A group identification.</param>
-        /// <param name="GroupId2">Another group identification.</param>
-        /// <returns>true|false</returns>
-        public static Boolean operator == (Group_Id GroupId1, Group_Id GroupId2)
-        {
+//        /// <summary>
+//        /// Compares two instances of this object.
+//        /// </summary>
+//        /// <param name="GroupId1">A group identification.</param>
+//        /// <param name="GroupId2">Another group identification.</param>
+//        /// <returns>true|false</returns>
+//        public static Boolean operator == (Group_Id GroupId1, Group_Id GroupId2)
+//        {
 
-            // If both are null, or both are same instance, return true.
-            if (Object.ReferenceEquals(GroupId1, GroupId2))
-                return true;
+//            // If both are null, or both are same instance, return true.
+//            if (Object.ReferenceEquals(GroupId1, GroupId2))
+//                return true;
 
-            // If one is null, but not both, return false.
-            if (((Object) GroupId1 == null) || ((Object) GroupId2 == null))
-                return false;
+//            // If one is null, but not both, return false.
+//            if (((Object) GroupId1 == null) || ((Object) GroupId2 == null))
+//                return false;
 
-            return GroupId1.Equals(GroupId2);
+//            return GroupId1.Equals(GroupId2);
 
-        }
+//        }
 
-        #endregion
+//        #endregion
 
-        #region Operator != (GroupId1, GroupId2)
+//        #region Operator != (GroupId1, GroupId2)
 
-        /// <summary>
-        /// Compares two instances of this object.
-        /// </summary>
-        /// <param name="GroupId1">A group identification.</param>
-        /// <param name="GroupId2">Another group identification.</param>
-        /// <returns>true|false</returns>
-        public static Boolean operator != (Group_Id GroupId1, Group_Id GroupId2)
-            => !(GroupId1 == GroupId2);
+//        /// <summary>
+//        /// Compares two instances of this object.
+//        /// </summary>
+//        /// <param name="GroupId1">A group identification.</param>
+//        /// <param name="GroupId2">Another group identification.</param>
+//        /// <returns>true|false</returns>
+//        public static Boolean operator != (Group_Id GroupId1, Group_Id GroupId2)
+//            => !(GroupId1 == GroupId2);
 
-        #endregion
+//        #endregion
 
-        #region Operator <  (GroupId1, GroupId2)
+//        #region Operator <  (GroupId1, GroupId2)
 
-        /// <summary>
-        /// Compares two instances of this object.
-        /// </summary>
-        /// <param name="GroupId1">A group identification.</param>
-        /// <param name="GroupId2">Another group identification.</param>
-        /// <returns>true|false</returns>
-        public static Boolean operator < (Group_Id GroupId1, Group_Id GroupId2)
-        {
+//        /// <summary>
+//        /// Compares two instances of this object.
+//        /// </summary>
+//        /// <param name="GroupId1">A group identification.</param>
+//        /// <param name="GroupId2">Another group identification.</param>
+//        /// <returns>true|false</returns>
+//        public static Boolean operator < (Group_Id GroupId1, Group_Id GroupId2)
+//        {
 
-            if ((Object) GroupId1 == null)
-                throw new ArgumentNullException(nameof(GroupId1), "The given GroupId1 must not be null!");
+//            if ((Object) GroupId1 == null)
+//                throw new ArgumentNullException(nameof(GroupId1), "The given GroupId1 must not be null!");
 
-            return GroupId1.CompareTo(GroupId2) < 0;
+//            return GroupId1.CompareTo(GroupId2) < 0;
 
-        }
+//        }
 
-        #endregion
+//        #endregion
 
-        #region Operator <= (GroupId1, GroupId2)
+//        #region Operator <= (GroupId1, GroupId2)
 
-        /// <summary>
-        /// Compares two instances of this object.
-        /// </summary>
-        /// <param name="GroupId1">A group identification.</param>
-        /// <param name="GroupId2">Another group identification.</param>
-        /// <returns>true|false</returns>
-        public static Boolean operator <= (Group_Id GroupId1, Group_Id GroupId2)
-            => !(GroupId1 > GroupId2);
+//        /// <summary>
+//        /// Compares two instances of this object.
+//        /// </summary>
+//        /// <param name="GroupId1">A group identification.</param>
+//        /// <param name="GroupId2">Another group identification.</param>
+//        /// <returns>true|false</returns>
+//        public static Boolean operator <= (Group_Id GroupId1, Group_Id GroupId2)
+//            => !(GroupId1 > GroupId2);
 
-        #endregion
+//        #endregion
 
-        #region Operator >  (GroupId1, GroupId2)
+//        #region Operator >  (GroupId1, GroupId2)
 
-        /// <summary>
-        /// Compares two instances of this object.
-        /// </summary>
-        /// <param name="GroupId1">A group identification.</param>
-        /// <param name="GroupId2">Another group identification.</param>
-        /// <returns>true|false</returns>
-        public static Boolean operator > (Group_Id GroupId1, Group_Id GroupId2)
-        {
+//        /// <summary>
+//        /// Compares two instances of this object.
+//        /// </summary>
+//        /// <param name="GroupId1">A group identification.</param>
+//        /// <param name="GroupId2">Another group identification.</param>
+//        /// <returns>true|false</returns>
+//        public static Boolean operator > (Group_Id GroupId1, Group_Id GroupId2)
+//        {
 
-            if ((Object) GroupId1 == null)
-                throw new ArgumentNullException(nameof(GroupId1), "The given GroupId1 must not be null!");
+//            if ((Object) GroupId1 == null)
+//                throw new ArgumentNullException(nameof(GroupId1), "The given GroupId1 must not be null!");
 
-            return GroupId1.CompareTo(GroupId2) > 0;
+//            return GroupId1.CompareTo(GroupId2) > 0;
 
-        }
+//        }
 
-        #endregion
+//        #endregion
 
-        #region Operator >= (GroupId1, GroupId2)
+//        #region Operator >= (GroupId1, GroupId2)
 
-        /// <summary>
-        /// Compares two instances of this object.
-        /// </summary>
-        /// <param name="GroupId1">A group identification.</param>
-        /// <param name="GroupId2">Another group identification.</param>
-        /// <returns>true|false</returns>
-        public static Boolean operator >= (Group_Id GroupId1, Group_Id GroupId2)
-            => !(GroupId1 < GroupId2);
+//        /// <summary>
+//        /// Compares two instances of this object.
+//        /// </summary>
+//        /// <param name="GroupId1">A group identification.</param>
+//        /// <param name="GroupId2">Another group identification.</param>
+//        /// <returns>true|false</returns>
+//        public static Boolean operator >= (Group_Id GroupId1, Group_Id GroupId2)
+//            => !(GroupId1 < GroupId2);
 
-        #endregion
+//        #endregion
 
-        #endregion
+//        #endregion
 
-        #region IComparable<GroupId> Members
+//        #region IComparable<GroupId> Members
 
-        #region CompareTo(Object)
+//        #region CompareTo(Object)
 
-        /// <summary>
-        /// Compares two instances of this object.
-        /// </summary>
-        /// <param name="Object">An object to compare with.</param>
-        public Int32 CompareTo(Object Object)
-        {
+//        /// <summary>
+//        /// Compares two instances of this object.
+//        /// </summary>
+//        /// <param name="Object">An object to compare with.</param>
+//        public Int32 CompareTo(Object Object)
+//        {
 
-            if (Object == null)
-                throw new ArgumentNullException(nameof(Object), "The given object must not be null!");
+//            if (Object == null)
+//                throw new ArgumentNullException(nameof(Object), "The given object must not be null!");
 
-            if (!(Object is Group_Id))
-                throw new ArgumentException("The given object is not a group identification!",
-                                            nameof(Object));
+//            if (!(Object is Group_Id))
+//                throw new ArgumentException("The given object is not a group identification!",
+//                                            nameof(Object));
 
-            return CompareTo((Group_Id) Object);
+//            return CompareTo((Group_Id) Object);
 
-        }
+//        }
 
-        #endregion
+//        #endregion
 
-        #region CompareTo(GroupId)
+//        #region CompareTo(GroupId)
 
-        /// <summary>
-        /// Compares two instances of this object.
-        /// </summary>
-        /// <param name="GroupId">An object to compare with.</param>
-        public Int32 CompareTo(Group_Id GroupId)
-        {
+//        /// <summary>
+//        /// Compares two instances of this object.
+//        /// </summary>
+//        /// <param name="GroupId">An object to compare with.</param>
+//        public Int32 CompareTo(Group_Id GroupId)
+//        {
 
-            if ((Object) GroupId == null)
-                throw new ArgumentNullException(nameof(GroupId),  "The given group identification must not be null!");
+//            if ((Object) GroupId == null)
+//                throw new ArgumentNullException(nameof(GroupId),  "The given group identification must not be null!");
 
-            return String.Compare(InternalId, GroupId.InternalId, StringComparison.Ordinal);
+//            return String.Compare(InternalId, GroupId.InternalId, StringComparison.Ordinal);
 
-        }
+//        }
 
-        #endregion
+//        #endregion
 
-        #endregion
+//        #endregion
 
-        #region IEquatable<GroupId> Members
+//        #region IEquatable<GroupId> Members
 
-        #region Equals(Object)
+//        #region Equals(Object)
 
-        /// <summary>
-        /// Compares two instances of this object.
-        /// </summary>
-        /// <param name="Object">An object to compare with.</param>
-        /// <returns>true|false</returns>
-        public override Boolean Equals(Object Object)
-        {
+//        /// <summary>
+//        /// Compares two instances of this object.
+//        /// </summary>
+//        /// <param name="Object">An object to compare with.</param>
+//        /// <returns>true|false</returns>
+//        public override Boolean Equals(Object Object)
+//        {
 
-            if (Object == null)
-                return false;
+//            if (Object == null)
+//                return false;
 
-            if (!(Object is Group_Id))
-                return false;
+//            if (!(Object is Group_Id))
+//                return false;
 
-            return Equals((Group_Id) Object);
+//            return Equals((Group_Id) Object);
 
-        }
+//        }
 
-        #endregion
+//        #endregion
 
-        #region Equals(GroupId)
+//        #region Equals(GroupId)
 
-        /// <summary>
-        /// Compares two group identifications for equality.
-        /// </summary>
-        /// <param name="GroupId">An group identification to compare with.</param>
-        /// <returns>True if both match; False otherwise.</returns>
-        public Boolean Equals(Group_Id GroupId)
-        {
+//        /// <summary>
+//        /// Compares two group identifications for equality.
+//        /// </summary>
+//        /// <param name="GroupId">An group identification to compare with.</param>
+//        /// <returns>True if both match; False otherwise.</returns>
+//        public Boolean Equals(Group_Id GroupId)
+//        {
 
-            if ((Object) GroupId == null)
-                return false;
+//            if ((Object) GroupId == null)
+//                return false;
 
-            return InternalId.Equals(GroupId.InternalId);
+//            return InternalId.Equals(GroupId.InternalId);
 
-        }
+//        }
 
-        #endregion
+//        #endregion
 
-        #endregion
+//        #endregion
 
-        #region GetHashCode()
+//        #region GetHashCode()
 
-        /// <summary>
-        /// Return the HashCode of this object.
-        /// </summary>
-        /// <returns>The HashCode of this object.</returns>
-        public override Int32 GetHashCode()
-            => InternalId.GetHashCode();
+//        /// <summary>
+//        /// Return the HashCode of this object.
+//        /// </summary>
+//        /// <returns>The HashCode of this object.</returns>
+//        public override Int32 GetHashCode()
+//            => InternalId.GetHashCode();
 
-        #endregion
+//        #endregion
 
-        #region (override) ToString()
+//        #region (override) ToString()
 
-        /// <summary>
-        /// Return a text representation of this object.
-        /// </summary>
-        public override String ToString()
-            => InternalId;
+//        /// <summary>
+//        /// Return a text representation of this object.
+//        /// </summary>
+//        public override String ToString()
+//            => InternalId;
 
-        #endregion
+//        #endregion
 
-    }
+//    }
 
-}
+//}

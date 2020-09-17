@@ -35,7 +35,7 @@ namespace social.OpenData.UsersAPI
         IsVisitor
     }
 
-    public class User2GroupEdge : MiniEdge<User, User2GroupEdgeTypes, Group>
+    public class User2GroupEdge : MiniEdge<User, User2GroupEdgeTypes, UserGroup>
     {
 
         /// <summary>
@@ -48,7 +48,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="Created">The creation timestamp of the miniedge.</param>
         public User2GroupEdge(User                 User,
                               User2GroupEdgeTypes  EdgeLabel,
-                              Group                Group,
+                              UserGroup            Group,
                               PrivacyLevel         PrivacyLevel  = PrivacyLevel.Private,
                               DateTime?            Created       = null)
 

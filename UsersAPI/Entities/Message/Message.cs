@@ -25,7 +25,7 @@ using Newtonsoft.Json.Linq;
 
 using org.GraphDefined.Vanaheimr.Illias;
 using org.GraphDefined.Vanaheimr.Hermod;
-using org.GraphDefined.Vanaheimr.Hermod.Distributed;
+
 
 #endregion
 
@@ -33,19 +33,23 @@ namespace social.OpenData.UsersAPI
 {
 
     /// <summary>
-    /// An Open Data message.
+    /// A message.
     /// </summary>
-    public class Message : ADistributedEntity<Message_Id>,
-                           IEquatable<Message>,
-                           IComparable<Message>
+    public class Message : AEntity<Message_Id,
+                                   Message>
     {
 
         #region Data
 
         /// <summary>
-        /// The default max size of the aggregated user groups status history.
+        /// The default max size of the aggregated messages status history.
         /// </summary>
         public const UInt16 DefaultMessageStatusHistorySize = 50;
+
+        /// <summary>
+        /// The default JSON-LD context of messages.
+        /// </summary>
+        public new readonly static JSONLDContext DefaultJSONLDContext = JSONLDContext.Parse("https://opendata.social/contexts/UsersAPI/message");
 
         #endregion
 
@@ -83,9 +87,9 @@ namespace social.OpenData.UsersAPI
         #region Constructor(s)
 
         /// <summary>
-        /// Create a new user group.
+        /// Create a new message.
         /// </summary>
-        /// <param name="Id">The unique identification of the user group.</param>
+        /// <param name="Id">The unique identification of the message.</param>
         /// <param name="Sender">The sender of the message.</param>
         /// <param name="Receivers">The receivers of the message.</param>
         /// <param name="Subject">The (multi-language) subject of the message.</param>
@@ -101,6 +105,8 @@ namespace social.OpenData.UsersAPI
                        String                DataSource  = "")
 
             : base(Id,
+                   DefaultJSONLDContext,
+                   null,
                    DataSource)
 
         {
@@ -142,13 +148,21 @@ namespace social.OpenData.UsersAPI
                    new JProperty("@id",         Id.     ToString()),
                    new JProperty("sender",      Sender. ToString()),
                    new JProperty("subject",     Subject.ToJSON()),
-                   new JProperty("text",        Text.   ToJSON()),
-
-                   IncludeCryptoHash
-                       ? new JProperty("cryptoHash", CurrentCryptoHash)
-                       : null
+                   new JProperty("text",        Text.   ToJSON())
 
                );
+
+        #endregion
+
+
+        #region CopyAllEdgesTo(NewMessage)
+
+        public override void CopyAllEdgesTo(Message NewMessage)
+        {
+
+
+
+        }
 
         #endregion
 
@@ -183,7 +197,7 @@ namespace social.OpenData.UsersAPI
         /// Compares two instances of this object.
         /// </summary>
         /// <param name="Message">An message object to compare with.</param>
-        public Int32 CompareTo(Message Message)
+        public override Int32 CompareTo(Message Message)
         {
 
             if ((Object) Message == null)
@@ -229,7 +243,7 @@ namespace social.OpenData.UsersAPI
         /// </summary>
         /// <param name="Message">An message to compare with.</param>
         /// <returns>True if both match; False otherwise.</returns>
-        public Boolean Equals(Message Message)
+        public override Boolean Equals(Message Message)
         {
 
             if ((Object) Message == null)

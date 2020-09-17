@@ -23,7 +23,7 @@ using System.Collections.Generic;
 
 using Newtonsoft.Json.Linq;
 
-using org.GraphDefined.Vanaheimr.Hermod.Distributed;
+
 using org.GraphDefined.Vanaheimr.Hermod.HTTP;
 using org.GraphDefined.Vanaheimr.Illias;
 using social.OpenData.UsersAPI;
@@ -36,16 +36,16 @@ namespace social.OpenData.UsersAPI.Notifications
     /// <summary>
     /// A notification message.
     /// </summary>
-    public class NotificationMessage : ADistributedEntity<NotificationMessage_Id>,
-                                       IEntityClass<NotificationMessage>
+    public class NotificationMessage : AEntity<NotificationMessage_Id,
+                                               NotificationMessage>
     {
 
         #region Data
 
         /// <summary>
-        /// The JSON-LD context of this object.
+        /// The default JSON-LD context of organizations.
         /// </summary>
-        public const String JSONLDContext  = "https://opendata.social/contexts/UsersAPI+json/notificationMessage";
+        public readonly static JSONLDContext DefaultJSONLDContext = JSONLDContext.Parse("https://opendata.social/contexts/UsersAPI/notificationMessage");
 
         #endregion
 
@@ -138,6 +138,8 @@ namespace social.OpenData.UsersAPI.Notifications
                                    IEnumerable<String>           Signatures    = null)
 
             : base(Id,
+                   DefaultJSONLDContext,
+                   null,
                    "")
 
         {
@@ -170,7 +172,7 @@ namespace social.OpenData.UsersAPI.Notifications
                    new JProperty("@id",        Id.ToString()),
 
                    !Embedded
-                       ? new JProperty("@context",   JSONLDContext)
+                       ? new JProperty("@context",   JSONLDContext.ToString())
                        : null,
 
                    new JProperty("timestamp",  Timestamp.ToIso8601()),
@@ -180,10 +182,6 @@ namespace social.OpenData.UsersAPI.Notifications
 
                    Signatures.SafeAny()
                        ? new JProperty("signatures",  new JArray(Signatures))
-                       : null,
-
-                   IncludeCryptoHash
-                       ? new JProperty("hash",        CurrentCryptoHash)
                        : null
 
                );
@@ -243,16 +241,17 @@ namespace social.OpenData.UsersAPI.Notifications
 
                 #region Parse Context                 [mandatory]
 
-                if (!JSONObject.ParseMandatoryText("@context",
-                                                   "JSON-LinkedData context information",
-                                                   out String Context,
-                                                   out ErrorResponse))
+                if (!JSONObject.ParseMandatory("@context",
+                                               "JSON-LinkedData context information",
+                                               JSONLDContext.TryParse,
+                                               out JSONLDContext Context,
+                                               out ErrorResponse))
                 {
                     ErrorResponse = @"The JSON-LD ""@context"" information is missing!";
                     return false;
                 }
 
-                if (Context != JSONLDContext)
+                if (Context != DefaultJSONLDContext)
                 {
                     ErrorResponse = @"The given JSON-LD ""@context"" information '" + Context + "' is not supported!";
                     return false;
@@ -390,7 +389,7 @@ namespace social.OpenData.UsersAPI.Notifications
 
         #region CopyAllEdgesTo(NewNotificationMessage)
 
-        public void CopyAllEdgesTo(NotificationMessage NewNotificationMessage)
+        public override void CopyAllEdgesTo(NotificationMessage NewNotificationMessage)
         {
 
             //if (_User2Organization_InEdges.Any() && !NewGroup._User2Organization_InEdges.Any())
@@ -566,7 +565,7 @@ namespace social.OpenData.UsersAPI.Notifications
         /// Compares two instances of this object.
         /// </summary>
         /// <param name="NotificationMessage">An NotificationMessage object to compare with.</param>
-        public Int32 CompareTo(NotificationMessage NotificationMessage)
+        public override Int32 CompareTo(NotificationMessage NotificationMessage)
         {
 
             if ((Object) NotificationMessage == null)
@@ -611,7 +610,7 @@ namespace social.OpenData.UsersAPI.Notifications
         /// </summary>
         /// <param name="NotificationMessage">An NotificationMessage to compare with.</param>
         /// <returns>True if both match; False otherwise.</returns>
-        public Boolean Equals(NotificationMessage NotificationMessage)
+        public override Boolean Equals(NotificationMessage NotificationMessage)
         {
 
             if ((Object) NotificationMessage == null)

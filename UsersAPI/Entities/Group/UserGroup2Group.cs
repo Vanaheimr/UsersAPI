@@ -30,7 +30,7 @@ namespace social.OpenData.UsersAPI
         IsSubgroup
     }
 
-    public class Group2GroupEdge : MiniEdge<Group, Group2GroupEdgeTypes, Group>
+    public class Group2GroupEdge : MiniEdge<UserGroup, Group2GroupEdgeTypes, UserGroup>
     {
 
         /// <summary>
@@ -41,9 +41,9 @@ namespace social.OpenData.UsersAPI
         /// <param name="GroupB">The target of the edge</param>
         /// <param name="PrivacyLevel">The level of privacy of this edge.</param>
         /// <param name="Created">The creation timestamp of the miniedge.</param>
-        public Group2GroupEdge(Group                 GroupA,
+        public Group2GroupEdge(UserGroup             GroupA,
                                Group2GroupEdgeTypes  EdgeLabel,
-                               Group                 GroupB,
+                               UserGroup             GroupB,
                                PrivacyLevel          PrivacyLevel  = PrivacyLevel.Private,
                                DateTime?             Created       = null)
 

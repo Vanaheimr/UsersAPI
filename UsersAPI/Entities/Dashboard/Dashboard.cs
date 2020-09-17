@@ -26,7 +26,7 @@ using Newtonsoft.Json.Linq;
 using org.GraphDefined.Vanaheimr.Aegir;
 using org.GraphDefined.Vanaheimr.Illias;
 using org.GraphDefined.Vanaheimr.Hermod;
-using org.GraphDefined.Vanaheimr.Hermod.Distributed;
+
 using org.GraphDefined.Vanaheimr.Hermod.HTTP;
 using org.GraphDefined.Vanaheimr.Styx.Arrows;
 
@@ -98,16 +98,16 @@ namespace social.OpenData.UsersAPI
     /// <summary>
     /// A dashboard.
     /// </summary>
-    public class Dashboard : ADistributedEntity<Dashboard_Id>,
-                             IEntityClass<Dashboard>
+    public class Dashboard : AEntity<Dashboard_Id,
+                                     Dashboard>
     {
 
         #region Data
 
         /// <summary>
-        /// The JSON-LD context of this object.
+        /// The default JSON-LD context of dashboards.
         /// </summary>
-        public const String JSONLDContext  = "https://opendata.social/contexts/DashboardAPI+json/Dashboard";
+        public new readonly static JSONLDContext DefaultJSONLDContext = JSONLDContext.Parse("https://opendata.social/contexts/UsersAPI/dashboard");
 
         #endregion
 
@@ -226,6 +226,8 @@ namespace social.OpenData.UsersAPI
                          String                     DataSource     = "")
 
             : base(Id,
+                   DefaultJSONLDContext,
+                   null,
                    DataSource)
 
         {
@@ -272,7 +274,7 @@ namespace social.OpenData.UsersAPI
                    new JProperty("@id",                  Id.ToString()),
 
                    !Embedded
-                       ? new JProperty("@context",       JSONLDContext)
+                       ? new JProperty("@context",       JSONLDContext.ToString())
                        : null,
 
                    Name.IsNeitherNullNorEmpty()
@@ -289,12 +291,7 @@ namespace social.OpenData.UsersAPI
                        ? new JProperty("tags",           Tags.SafeSelect(tag => tag.ToJSON(ExpandTags)))
                        : null,
 
-                   new JProperty("isDisabled",           IsDisabled),
-
-
-                   IncludeCryptoHash
-                       ? new JProperty("hash",           CurrentCryptoHash)
-                       : null
+                   new JProperty("isDisabled",           IsDisabled)
 
                );
 
@@ -345,16 +342,17 @@ namespace social.OpenData.UsersAPI
 
                 #region Parse Context          [mandatory]
 
-                if (!JSONObject.ParseMandatoryText("@context",
-                                                   "JSON-LinkedData context information",
-                                                   out String Context,
-                                                   out ErrorResponse))
+                if (!JSONObject.ParseMandatory("@context",
+                                               "JSON-LinkedData context information",
+                                               JSONLDContext.TryParse,
+                                               out JSONLDContext Context,
+                                               out ErrorResponse))
                 {
                     ErrorResponse = @"The JSON-LD ""@context"" information is missing!";
                     return false;
                 }
 
-                if (Context != JSONLDContext)
+                if (Context != DefaultJSONLDContext)
                 {
                     ErrorResponse = @"The given JSON-LD ""@context"" information '" + Context + "' is not supported!";
                     return false;
@@ -441,7 +439,7 @@ namespace social.OpenData.UsersAPI
 
         #region CopyAllEdgesTo(NewDashboard)
 
-        public void CopyAllEdgesTo(Dashboard NewDashboard)
+        public override void CopyAllEdgesTo(Dashboard NewDashboard)
         {
 
 
@@ -589,7 +587,7 @@ namespace social.OpenData.UsersAPI
         /// Compares two instances of this object.
         /// </summary>
         /// <param name="Dashboard">An Dashboard object to compare with.</param>
-        public Int32 CompareTo(Dashboard Dashboard)
+        public override Int32 CompareTo(Dashboard Dashboard)
         {
 
             if ((Object) Dashboard == null)
@@ -635,7 +633,7 @@ namespace social.OpenData.UsersAPI
         /// </summary>
         /// <param name="Dashboard">An Dashboard to compare with.</param>
         /// <returns>True if both match; False otherwise.</returns>
-        public Boolean Equals(Dashboard Dashboard)
+        public override Boolean Equals(Dashboard Dashboard)
         {
 
             if ((Object) Dashboard == null)

@@ -27,7 +27,7 @@ using org.GraphDefined.Vanaheimr.Aegir;
 using org.GraphDefined.Vanaheimr.Illias;
 using org.GraphDefined.Vanaheimr.Hermod;
 using org.GraphDefined.Vanaheimr.Hermod.HTTP;
-using org.GraphDefined.Vanaheimr.Hermod.Distributed;
+
 
 using social.OpenData.UsersAPI;
 
@@ -37,17 +37,17 @@ namespace social.OpenData.UsersAPI
 {
 
     /// <summary>
-    /// A attached file.
+    /// An attached file.
     /// </summary>
-    public class AttachedFile : ADistributedEntity<AttachedFile_Id>
+    public class AttachedFile : IHasId<AttachedFile_Id>
     {
 
         #region Data
 
         /// <summary>
-        /// The JSON-LD context of this object.
+        /// The default JSON-LD context of attached files.
         /// </summary>
-        private const String JSONLDContext = "https://opendata.social/contexts/UsersAPI+json/attachedFile";
+        private readonly static JSONLDContext DefaultJSONLDContext = JSONLDContext.Parse("https://opendata.social/contexts/UsersAPI+json/attachedFile");
 
         #endregion
 
@@ -85,10 +85,6 @@ namespace social.OpenData.UsersAPI
                              DateTime?              Created       = null,
                              DateTime?              LastModifed   = null,
                              String                 DataSource    = null)
-
-            : base(Id,
-                   DataSource)
-
         {
 
             this.Id            = Id;
@@ -114,8 +110,8 @@ namespace social.OpenData.UsersAPI
         /// </summary>
         /// <param name="Embedded">Whether this data is embedded into another data structure.</param>
         /// <param name="IncludeCryptoHash">Include the crypto hash value of this object.</param>
-        public override JObject ToJSON(Boolean Embedded           = false,
-                                       Boolean IncludeCryptoHash  = false)
+        public JObject ToJSON(Boolean Embedded           = false,
+                              Boolean IncludeCryptoHash  = false)
 
             => ToJSON(Embedded:           false,
                       IncludeSignatures:  InfoStatus.Hidden,
@@ -139,7 +135,7 @@ namespace social.OpenData.UsersAPI
 
                 Embedded
                     ? null
-                    : new JProperty("@context",      JSONLDContext),
+                    : new JProperty("@context",      DefaultJSONLDContext.ToString()),
 
                 Description?.ToJSON("description"),
 
@@ -148,11 +144,11 @@ namespace social.OpenData.UsersAPI
                 new JProperty("created",             Created.     ToIso8601()),
                 new JProperty("lastModified",        LastModified.ToString()),
                 new JProperty("size",                Size),
-                new JProperty("locations",           new JArray(Locations.SafeSelect(location => location.ToString()))),
+                new JProperty("locations",           new JArray(Locations.SafeSelect(location => location.ToString())))
 
-                IncludeCryptoHash
-                    ? new JProperty("cryptoHash", CurrentCryptoHash)
-                    : null
+                //IncludeCryptoHash
+                //    ? new JProperty("cryptoHash", CurrentCryptoHash)
+                //    : null
 
 
             );
@@ -171,8 +167,24 @@ namespace social.OpenData.UsersAPI
         /// <param name="ErrorResponse">An error message.</param>
         public static Boolean TryParseJSON(JObject           JSONObject,
                                            out AttachedFile  AttachedFile,
+                                           out String        ErrorResponse)
+
+            => TryParseJSON(JSONObject,
+                            out AttachedFile,
+                            out ErrorResponse,
+                            null);
+
+
+        /// <summary>
+        /// Try to parse the given communicator group JSON.
+        /// </summary>
+        /// <param name="JSONObject">A JSON object.</param>
+        /// <param name="AttachedFile">The parsed attached file.</param>
+        /// <param name="ErrorResponse">An error message.</param>
+        public static Boolean TryParseJSON(JObject           JSONObject,
+                                           out AttachedFile  AttachedFile,
                                            out String        ErrorResponse,
-                                           AttachedFile_Id?  AttachedFileIdURI   = null)
+                                           AttachedFile_Id?  AttachedFileIdURI)
         {
 
             try
@@ -218,16 +230,17 @@ namespace social.OpenData.UsersAPI
 
                 #region Parse Context          [mandatory]
 
-                if (!JSONObject.ParseMandatoryText("@context",
-                                                   "JSON-LD context",
-                                                   out String Context,
-                                                   out ErrorResponse))
+                if (!JSONObject.ParseMandatory("@context",
+                                               "JSON-LD context",
+                                               JSONLDContext.TryParse,
+                                               out JSONLDContext Context,
+                                               out ErrorResponse))
                 {
                     ErrorResponse = @"The JSON-LD ""@context"" information is missing!";
                     return false;
                 }
 
-                if (Context != JSONLDContext)
+                if (Context != DefaultJSONLDContext)
                 {
                     ErrorResponse = @"The given JSON-LD ""@context"" information '" + Context + "' is not supported!";
                     return false;
@@ -419,7 +432,7 @@ namespace social.OpenData.UsersAPI
         /// Compares two instances of this object.
         /// </summary>
         /// <param name="Object">An object to compare with.</param>
-        public override Int32 CompareTo(Object Object)
+        public Int32 CompareTo(Object Object)
         {
 
             if (Object == null)
@@ -464,7 +477,7 @@ namespace social.OpenData.UsersAPI
         /// </summary>
         /// <param name="Object">An object to compare with.</param>
         /// <returns>true|false</returns>
-        public override Boolean Equals(Object Object)
+        public Boolean Equals(Object Object)
         {
 
             if (Object == null)

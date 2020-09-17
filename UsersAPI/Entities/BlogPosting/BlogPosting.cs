@@ -31,13 +31,14 @@ using org.GraphDefined.Vanaheimr.Aegir;
 using org.GraphDefined.Vanaheimr.Illias;
 using org.GraphDefined.Vanaheimr.Hermod;
 using org.GraphDefined.Vanaheimr.Hermod.Mail;
-using org.GraphDefined.Vanaheimr.Hermod.Distributed;
+
 using org.GraphDefined.Vanaheimr.Hermod.HTTP;
 using org.GraphDefined.Vanaheimr.Styx.Arrows;
 using org.GraphDefined.Vanaheimr.BouncyCastle;
 using System.Security.Cryptography;
 using Org.BouncyCastle.Security;
 using Org.BouncyCastle.Crypto;
+using Newtonsoft.Json;
 
 #endregion
 
@@ -101,16 +102,16 @@ namespace social.OpenData.UsersAPI.Postings
     /// <summary>
     /// An Open Data blog posting.
     /// </summary>
-    public class BlogPosting : ADistributedEntity<BlogPosting_Id>,
-                               IEntityClass<BlogPosting>
+    public class BlogPosting : AEntity<BlogPosting_Id,
+                                       BlogPosting>
     {
 
         #region Data
 
         /// <summary>
-        /// The JSON-LD context of this object.
+        /// The default JSON-LD context of organizations.
         /// </summary>
-        public const String JSONLDContext  = "https://opendata.social/contexts/BlogPostingsAPI+json/BlogPosting";
+        public readonly static JSONLDContext DefaultJSONLDContext = JSONLDContext.Parse("https://opendata.social/contexts/UsersAPI/blogPosting");
 
         #endregion
 
@@ -254,6 +255,8 @@ namespace social.OpenData.UsersAPI.Postings
                            String                             DataSource        = "")
 
             : base(Id,
+                   DefaultJSONLDContext,
+                   null,
                    DataSource)
 
         {
@@ -302,7 +305,7 @@ namespace social.OpenData.UsersAPI.Postings
                    new JProperty("@id",                  Id.ToString()),
 
                    !Embedded
-                       ? new JProperty("@context",       JSONLDContext)
+                       ? new JProperty("@context",       JSONLDContext.ToString())
                        : null,
 
                    Text.IsNeitherNullNorEmpty()
@@ -323,10 +326,6 @@ namespace social.OpenData.UsersAPI.Postings
 
                    Signatures.Any()
                        ? new JProperty("signatures",     new JArray(Signatures.SafeSelect(signature => signature.ToJSON(Embedded: true))))
-                       : null,
-
-                   IncludeCryptoHash
-                       ? new JProperty("hash", CurrentCryptoHash)
                        : null
 
                );
@@ -378,16 +377,17 @@ namespace social.OpenData.UsersAPI.Postings
 
                 #region Parse Context          [mandatory]
 
-                if (!JSONObject.ParseMandatoryText("@context",
-                                                   "JSON-LinkedData context information",
-                                                   out String Context,
-                                                   out ErrorResponse))
+                if (!JSONObject.ParseMandatory("@context",
+                                               "JSON-LinkedData context information",
+                                               JSONLDContext.TryParse,
+                                               out JSONLDContext Context,
+                                               out ErrorResponse))
                 {
                     ErrorResponse = @"The JSON-LD ""@context"" information is missing!";
                     return false;
                 }
 
-                if (Context != JSONLDContext)
+                if (Context != DefaultJSONLDContext)
                 {
                     ErrorResponse = @"The given JSON-LD ""@context"" information '" + Context + "' is not supported!";
                     return false;
@@ -487,7 +487,7 @@ namespace social.OpenData.UsersAPI.Postings
 
         #region CopyAllEdgesTo(NewPosting)
 
-        public void CopyAllEdgesTo(BlogPosting NewPosting)
+        public override void CopyAllEdgesTo(BlogPosting NewPosting)
         {
 
 
@@ -635,7 +635,7 @@ namespace social.OpenData.UsersAPI.Postings
         /// Compares two instances of this object.
         /// </summary>
         /// <param name="Posting">An Posting object to compare with.</param>
-        public Int32 CompareTo(BlogPosting Posting)
+        public override Int32 CompareTo(BlogPosting Posting)
         {
 
             if ((Object) Posting == null)
@@ -681,7 +681,7 @@ namespace social.OpenData.UsersAPI.Postings
         /// </summary>
         /// <param name="Posting">An Posting to compare with.</param>
         /// <returns>True if both match; False otherwise.</returns>
-        public Boolean Equals(BlogPosting Posting)
+        public override Boolean Equals(BlogPosting Posting)
         {
 
             if ((Object) Posting == null)

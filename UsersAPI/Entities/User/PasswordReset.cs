@@ -128,7 +128,7 @@ namespace social.OpenData.UsersAPI
 
                    Embedded
                        ? null
-                       : new JProperty("@context",  JSONLDContext),
+                       : new JProperty("@context",  JSONLDContext.ToString()),
 
                    new JProperty("timestamp",       Timestamp.ToIso8601()),
                    new JProperty("userIds",         new JArray(UserIds.Select(user => user.ToString()))),
