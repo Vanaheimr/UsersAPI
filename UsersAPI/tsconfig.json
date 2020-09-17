@@ -24,10 +24,11 @@
 
     "HTTPRoot/user/user.ts",
     "HTTPRoot/user/users.ts",
+    "HTTPRoot/user/userGroups.ts",
 
     "HTTPRoot/organization/organization.ts",
-    "HTTPRoot/organization/organization.ts",
     "HTTPRoot/organization/organizations.ts",
+    "HTTPRoot/organization/organizationGroups.ts",
     "HTTPRoot/organization/address.ts",
     "HTTPRoot/organization/members.ts",
     "HTTPRoot/organization/newMember.ts",

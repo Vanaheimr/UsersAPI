@@ -16,6 +16,10 @@
     "inputFile": "HTTPRoot/user/users.scss"
   },
   {
+    "outputFile": "HTTPRoot/user/userGroups.css",
+    "inputFile": "HTTPRoot/user/userGroups.scss"
+  },
+  {
     "outputFile": "HTTPRoot/profile/profile.css",
     "inputFile": "HTTPRoot/profile/profile.scss"
   },
@@ -70,6 +74,10 @@
   {
     "outputFile": "HTTPRoot/organization/organizations.css",
     "inputFile": "HTTPRoot/organization/organizations.scss"
+  },
+  {
+    "outputFile": "HTTPRoot/organization/organizationGroups.css",
+    "inputFile": "HTTPRoot/organization/organizationGroups.scss"
   },
   {
     "outputFile": "HTTPRoot/organization/subOrganizations.css",

@@ -145,6 +145,12 @@
     <EmbeddedResource Include="HTTPRoot\notification\settings.js.map">
       <DependentUpon>settings.ts</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="HTTPRoot\organization\organizationGroups.js">
+      <DependentUpon>organizationGroups.ts</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="HTTPRoot\organization\organizationGroups.js.map">
+      <DependentUpon>organizationGroups.ts</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="HTTPRoot\robots.txt" />
   </ItemGroup>
   <ItemGroup>
@@ -218,6 +224,12 @@
     </EmbeddedResource>
     <EmbeddedResource Include="HTTPRoot\defaults\defaults.js.map">
       <DependentUpon>defaults.ts</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="HTTPRoot\user\userGroups.js">
+      <DependentUpon>userGroups.ts</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="HTTPRoot\user\userGroups.js.map">
+      <DependentUpon>userGroups.ts</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="HTTPRoot\webfonts\fa-brands-400.eot" />
     <EmbeddedResource Include="HTTPRoot\webfonts\fa-brands-400.ttf" />
@@ -310,6 +322,8 @@
     <EmbeddedResource Include="HTTPRoot\profile\organizations.scss" />
     <EmbeddedResource Include="HTTPRoot\notification\settings.scss" />
     <EmbeddedResource Include="HTTPRoot\organization\tiles.scss" />
+    <EmbeddedResource Include="HTTPRoot\user\userGroups.scss" />
+    <EmbeddedResource Include="HTTPRoot\organization\organizationGroups.scss" />
     <None Include="README.md" />
     <None Include="tsconfig.json" />
   </ItemGroup>
@@ -333,6 +347,20 @@
     <Content Include="HTTPRoot\admin\admin.css">
       <DependentUpon>admin.scss</DependentUpon>
     </Content>
+    <EmbeddedResource Include="HTTPRoot\organization\organizationGroups.css">
+      <DependentUpon>organizationGroups.scss</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="HTTPRoot\organization\organizationGroups.min.css">
+      <DependentUpon>organizationGroups.css</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="HTTPRoot\user\userGroups.css">
+      <DependentUpon>userGroups.scss</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="HTTPRoot\user\userGroups.min.css">
+      <DependentUpon>userGroups.css</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="HTTPRoot\organization\organizationGroups.shtml" />
+    <EmbeddedResource Include="HTTPRoot\user\userGroups.shtml" />
     <EmbeddedResource Include="HTTPRoot\organization\tiles.min.css">
       <DependentUpon>tiles.css</DependentUpon>
     </EmbeddedResource>
@@ -571,6 +599,8 @@
     <EmbeddedResource Include="HTTPRoot\user\user.ts" />
     <EmbeddedResource Include="HTTPRoot\user\users.ts" />
     <EmbeddedResource Include="HTTPRoot\notification\settings.ts" />
+    <EmbeddedResource Include="HTTPRoot\user\userGroups.ts" />
+    <EmbeddedResource Include="HTTPRoot\organization\organizationGroups.ts" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\BouncyCastle\crypto\crypto.csproj">

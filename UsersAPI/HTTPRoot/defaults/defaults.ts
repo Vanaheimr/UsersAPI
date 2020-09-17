@@ -30,6 +30,12 @@ interface IUserProfile {
     hash:             string;
 }
 
+interface IUserGroup {
+    id:                     string;
+    name:                   Object;
+    description:            Object;
+}
+
 let organizationJSON: IOrganization;
 
 interface IOrganization {
@@ -52,6 +58,12 @@ interface IOrganization {
     privacyLevel:                    string;
     isDisabled:                      boolean;
     hash:                            string;
+}
+
+interface IOrganizationGroup {
+    id:                     string;
+    name:                   Object;
+    description:            Object;
 }
 
 interface IAddress {

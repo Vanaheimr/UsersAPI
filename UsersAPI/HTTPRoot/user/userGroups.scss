@@ -1,0 +1,48 @@
+﻿@import "../defaults/_search.scss";
+
+#text {
+    .entity {
+        #resultsBox {
+            .searchResults {
+                .searchResult {
+
+                    .id {
+
+                        font-size:          85%;
+                        padding-bottom:     10px;
+
+                        .I18NValue {
+                            position:           relative;
+                            top:                1px;
+                        }
+
+                    }
+
+                    .name {
+                        font-size:          150%;
+                        margin:             5px 0px;
+                    }
+
+                    .description {
+                        .I18NValue {
+                            margin:             5px;
+                        }
+                    }
+
+                    .email {
+
+                        margin:             10px 0px 5px 0px;
+
+                        a {
+                            text-decoration:    none;
+                            font-size:          90%;
+                            color:              #555555;
+                        }
+
+                    }
+
+                }
+            }
+        }
+    }
+}
