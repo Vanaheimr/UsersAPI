@@ -518,7 +518,7 @@ namespace social.OpenData.UsersAPI
                                            OrganizationProviderDelegate   OrganizationProvider,
                                            out ServiceTicket              ServiceTicket,
                                            out String                     ErrorResponse,
-                                           JSONLDContext?                 VerifyContext        = null,//JSONLDContext,
+                                           JSONLDContext?                 VerifyContext        = default,
                                            ServiceTicket_Id?              ServiceTicketIdURI   = null,
                                            OverwriteUserDelegate          OverwriteAuthor      = null)
         {
@@ -546,7 +546,10 @@ namespace social.OpenData.UsersAPI
                     return false;
                 }
 
-                if (VerifyContext.HasValue && Context != VerifyContext.Value)
+                if (!VerifyContext.HasValue)
+                    VerifyContext = DefaultJSONLDContext;
+
+                if (Context != VerifyContext.Value)
                 {
                     ErrorResponse = @"The given JSON-LD ""@context"" information '" + Context + "' is not supported!";
                     return false;
@@ -867,8 +870,8 @@ namespace social.OpenData.UsersAPI
 
                 var ChangeSets = new List<ServiceTicketChangeSet>();
 
-                if (JSONObject.ParseOptional("history",
-                                             "service ticket history",
+                if (JSONObject.ParseOptional("changeSets",
+                                             "service ticket change sets",
                                              out JArray HistoryJSON,
                                              out ErrorResponse))
                 {
@@ -893,11 +896,11 @@ namespace social.OpenData.UsersAPI
 
                                 //    case ServiceTicketChangeSet.DefaultJSONLDContext:
                                         if (!ServiceTicketChangeSet.TryParseJSON(historyJSON,
-                                                                               ServiceTicketProvider,
-                                                                               UserProvider,
-                                                                               OrganizationProvider,
-                                                                               out ServiceTicketChangeSet serviceTicketHistory,
-                                                                               out ErrorResponse))
+                                                                                 ServiceTicketProvider,
+                                                                                 UserProvider,
+                                                                                 OrganizationProvider,
+                                                                                 out ServiceTicketChangeSet serviceTicketHistory,
+                                                                                 out ErrorResponse))
                                         {
                                             return false;
                                         }

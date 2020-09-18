@@ -102,9 +102,14 @@ namespace social.OpenData.UsersAPI
         #region Data
 
         /// <summary>
-        /// The default JSON-LD context for service ticket change sets.
+        /// The JSON-LD context of this object.
         /// </summary>
-        public readonly static JSONLDContext DefaultJSONLDContext = JSONLDContext.Parse("https://opendata.social/contexts/UsersAPI/serviceTickets/changeSet");
+        public new const String JSONLDContextText = "https://opendata.social/contexts/UsersAPI/serviceTicket/changeSet";
+
+        /// <summary>
+        /// The JSON-LD context of this object.
+        /// </summary>
+        public new readonly static JSONLDContext DefaultJSONLDContext = JSONLDContext.Parse(JSONLDContextText);
 
         #endregion
 
@@ -259,15 +264,15 @@ namespace social.OpenData.UsersAPI
 
                                       String                                        DataSource            = null)
 
-            : base(Id ?? ServiceTicketChangeSet_Id.Random(),
+            : base(Id            ?? ServiceTicketChangeSet_Id.Random(),
                    JSONLDContext ?? DefaultJSONLDContext,
                    CustomData,
                    DataSource)
 
         {
 
-            this.Timestamp            = Timestamp        ?? DateTime.UtcNow;
-            this.Author               = Author           ?? throw new ArgumentNullException(nameof(Author), "The given author must not be null!");
+            this.Timestamp            = Timestamp           ?? DateTime.UtcNow;
+            this.Author               = Author              ?? throw new ArgumentNullException(nameof(Author), "The given author must not be null!");
             this.Status               = Status;
             this.Title                = Title;
             this.Affected             = Affected;
@@ -276,7 +281,7 @@ namespace social.OpenData.UsersAPI
             this.GeoLocation          = GeoLocation;
             this.ProblemDescriptions  = ProblemDescriptions != null ? ProblemDescriptions.Distinct() : Array.Empty<ProblemDescriptionI18N>();
             this.StatusIndicators     = StatusIndicators    != null ? StatusIndicators.   Distinct() : Array.Empty<Tag>();
-            this.Reactions            = Reactions        ?? Array.Empty<Tag>();
+            this.Reactions            = Reactions           ?? Array.Empty<Tag>();
             this.AdditionalInfo       = AdditionalInfo;
             this.AttachedFiles        = AttachedFiles       != null ? AttachedFiles.      Distinct() : Array.Empty<AttachedFile>();
             this.TicketReferences     = TicketReferences    != null ? TicketReferences.   Distinct() : Array.Empty<ServiceTicketReference>();
@@ -321,6 +326,8 @@ namespace social.OpenData.UsersAPI
             var JSON = JSONObject.Create(
 
                 Id.ToJSON("@id"),
+
+                new JProperty("@context", JSONLDContext.ToString()),
 
                 new JProperty("timestamp",                  Timestamp.ToIso8601()),
 
@@ -495,7 +502,10 @@ namespace social.OpenData.UsersAPI
                     return false;
                 }
 
-                if (Context != DefaultJSONLDContext)
+                if (!VerifyContext.HasValue)
+                    VerifyContext = DefaultJSONLDContext;
+
+                if (Context != VerifyContext.Value)
                 {
                     ErrorResponse = @"The given JSON-LD ""@context"" information '" + Context + "' is not supported!";
                     return false;
@@ -1301,7 +1311,7 @@ namespace social.OpenData.UsersAPI
 
                            String                                        DataSource            = null)
 
-                : base(Id ?? ServiceTicketChangeSet_Id.Random(),
+                : base(Id            ?? ServiceTicketChangeSet_Id.Random(),
                        JSONLDContext ?? DefaultJSONLDContext,
                        CustomData,
                        DataSource)
