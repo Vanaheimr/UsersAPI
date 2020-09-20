@@ -503,9 +503,9 @@ namespace social.OpenData.UsersAPI
         /// </summary>
         public  const             Languages                                     DefaultLanguage                 = Languages.eng;
 
-        public  const             Byte                                          DefaultMinLoginLenght           = 4;
-        public  const             Byte                                          DefaultMinRealmLenght           = 2;
-        public  const             Byte                                          DefaultMinUserNameLenght        = 4;
+        public  const             Byte                                          DefaultMinLoginLength           = 4;
+        public  const             Byte                                          DefaultMinRealmLength           = 2;
+        public  const             Byte                                          DefaultMinUserNameLength        = 4;
         public  static readonly   PasswordQualityCheckDelegate                  DefaultPasswordQualityCheck     = password => password.Length >= 8 ? 1.0f : 0;
 
         public  static readonly   TimeSpan                                      DefaultSignInSessionLifetime    = TimeSpan.FromDays(30);
@@ -823,21 +823,21 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
-        #region MinLoginLenght
+        #region MinLoginLength
 
         /// <summary>
         /// The minimal login length.
         /// </summary>
-        public Byte MinLoginLenght { get; }
+        public Byte MinLoginLength { get; }
 
         #endregion
 
-        #region MinRealmLenght
+        #region MinRealmLength
 
         /// <summary>
         /// The minimal realm length.
         /// </summary>
-        public Byte MinRealmLenght { get; }
+        public Byte MinRealmLength { get; }
 
         #endregion
 
@@ -850,12 +850,12 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
-        #region MinUserNameLenght
+        #region MinUserNameLength
 
         /// <summary>
         /// The minimal user name length.
         /// </summary>
-        public Byte MinUserNameLenght { get; }
+        public Byte MinUserNameLength { get; }
 
         #endregion
 
@@ -1863,8 +1863,8 @@ namespace social.OpenData.UsersAPI
         /// <param name="NewUserWelcomeEMailCreator">A delegate for sending a welcome e-mail to a new user.</param>
         /// <param name="ResetPasswordEMailCreator">A delegate for sending a reset password e-mail to a user.</param>
         /// <param name="PasswordChangedEMailCreator">A delegate for sending a password changed e-mail to a user.</param>
-        /// <param name="MinUserNameLenght">The minimal user name length.</param>
-        /// <param name="MinRealmLenght">The minimal realm length.</param>
+        /// <param name="MinUserNameLength">The minimal user name length.</param>
+        /// <param name="MinRealmLength">The minimal realm length.</param>
         /// <param name="PasswordQualityCheck">A delegate to ensure a minimal password quality.</param>
         /// <param name="SignInSessionLifetime">The sign-in session lifetime.</param>
         /// 
@@ -1919,9 +1919,9 @@ namespace social.OpenData.UsersAPI
                         NewUserWelcomeEMailCreatorDelegate   NewUserWelcomeEMailCreator         = null,
                         ResetPasswordEMailCreatorDelegate    ResetPasswordEMailCreator          = null,
                         PasswordChangedEMailCreatorDelegate  PasswordChangedEMailCreator        = null,
-                        Byte?                                MinLoginLenght                     = null,
-                        Byte?                                MinRealmLenght                     = null,
-                        Byte?                                MinUserNameLenght                  = null,
+                        Byte?                                MinLoginLength                     = null,
+                        Byte?                                MinRealmLength                     = null,
+                        Byte?                                MinUserNameLength                  = null,
                         PasswordQualityCheckDelegate         PasswordQualityCheck               = null,
                         TimeSpan?                            SignInSessionLifetime              = null,
 
@@ -1995,9 +1995,9 @@ namespace social.OpenData.UsersAPI
                    NewUserWelcomeEMailCreator,
                    ResetPasswordEMailCreator,
                    PasswordChangedEMailCreator,
-                   MinLoginLenght,
-                   MinRealmLenght,
-                   MinUserNameLenght,
+                   MinLoginLength,
+                   MinRealmLength,
+                   MinUserNameLength,
                    PasswordQualityCheck,
                    SignInSessionLifetime,
 
@@ -2054,8 +2054,8 @@ namespace social.OpenData.UsersAPI
         /// <param name="NewUserWelcomeEMailCreator">A delegate for sending a welcome e-mail to a new user.</param>
         /// <param name="ResetPasswordEMailCreator">A delegate for sending a reset password e-mail to a user.</param>
         /// <param name="PasswordChangedEMailCreator">A delegate for sending a password changed e-mail to a user.</param>
-        /// <param name="MinUserNameLenght">The minimal user name length.</param>
-        /// <param name="MinRealmLenght">The minimal realm length.</param>
+        /// <param name="MinUserNameLength">The minimal user name length.</param>
+        /// <param name="MinRealmLength">The minimal realm length.</param>
         /// <param name="PasswordQualityCheck">A delegate to ensure a minimal password quality.</param>
         /// <param name="SignInSessionLifetime">The sign-in session lifetime.</param>
         /// 
@@ -2092,9 +2092,9 @@ namespace social.OpenData.UsersAPI
                            NewUserWelcomeEMailCreatorDelegate   NewUserWelcomeEMailCreator    = null,
                            ResetPasswordEMailCreatorDelegate    ResetPasswordEMailCreator     = null,
                            PasswordChangedEMailCreatorDelegate  PasswordChangedEMailCreator   = null,
-                           Byte?                                MinLoginLenght                = null,
-                           Byte?                                MinRealmLenght                = null,
-                           Byte?                                MinUserNameLenght             = null,
+                           Byte?                                MinLoginLength                = null,
+                           Byte?                                MinRealmLength                = null,
+                           Byte?                                MinUserNameLength             = null,
                            PasswordQualityCheckDelegate         PasswordQualityCheck          = null,
                            TimeSpan?                            SignInSessionLifetime         = null,
 
@@ -2176,9 +2176,9 @@ namespace social.OpenData.UsersAPI
             this.NewUserWelcomeEMailCreator   = NewUserWelcomeEMailCreator  ?? throw new ArgumentNullException(nameof(NewUserWelcomeEMailCreator),  "NewUserWelcomeEMailCreator!");
             this.ResetPasswordEMailCreator    = ResetPasswordEMailCreator   ?? throw new ArgumentNullException(nameof(ResetPasswordEMailCreator),   "ResetPasswordEMailCreator!");
             this.PasswordChangedEMailCreator  = PasswordChangedEMailCreator ?? throw new ArgumentNullException(nameof(PasswordChangedEMailCreator), "PasswordChangedEMailCreator!");
-            this.MinLoginLenght               = MinLoginLenght              ?? DefaultMinLoginLenght;
-            this.MinRealmLenght               = MinRealmLenght              ?? DefaultMinRealmLenght;
-            this.MinUserNameLenght            = MinUserNameLenght           ?? DefaultMinUserNameLenght;
+            this.MinLoginLength               = MinLoginLength              ?? DefaultMinLoginLength;
+            this.MinRealmLength               = MinRealmLength              ?? DefaultMinRealmLength;
+            this.MinUserNameLength            = MinUserNameLength           ?? DefaultMinUserNameLength;
             this.PasswordQualityCheck         = PasswordQualityCheck        ?? DefaultPasswordQualityCheck;
             this.SignInSessionLifetime        = SignInSessionLifetime       ?? DefaultSignInSessionLifetime;
 
@@ -2553,9 +2553,9 @@ namespace social.OpenData.UsersAPI
         /// <param name="NewUserSignUpEMailCurrentUserId">A delegate for sending a sign-up e-mail to a new user.</param>
         /// <param name="NewUserWelcomeEMailCurrentUserId">A delegate for sending a welcome e-mail to a new user.</param>
         /// <param name="ResetPasswordEMailCurrentUserId">A delegate for sending a reset password e-mail to a user.</param>
-        /// <param name="MinUserNameLenght">The minimal user name length.</param>
-        /// <param name="MinRealmLenght">The minimal realm length.</param>
-        /// <param name="MinPasswordLenght">The minimal password length.</param>
+        /// <param name="MinUserNameLength">The minimal user name length.</param>
+        /// <param name="MinRealmLength">The minimal realm length.</param>
+        /// <param name="MinPasswordLength">The minimal password length.</param>
         /// <param name="SignInSessionLifetime">The sign-in session lifetime.</param>
         /// 
         /// <param name="SkipURLTemplates">Skip URI templates.</param>
@@ -2589,9 +2589,9 @@ namespace social.OpenData.UsersAPI
                                                NewUserWelcomeEMailCreatorDelegate   NewUserWelcomeEMailCreator    = null,
                                                ResetPasswordEMailCreatorDelegate    ResetPasswordEMailCreator     = null,
                                                PasswordChangedEMailCreatorDelegate  PasswordChangedEMailCreator   = null,
-                                               Byte                                 MinLoginLenght                = DefaultMinLoginLenght,
-                                               Byte                                 MinRealmLenght                = DefaultMinRealmLenght,
-                                               Byte                                 MinUserNameLenght             = DefaultMinUserNameLenght,
+                                               Byte                                 MinLoginLength                = DefaultMinLoginLength,
+                                               Byte                                 MinRealmLength                = DefaultMinRealmLength,
+                                               Byte                                 MinUserNameLength             = DefaultMinUserNameLength,
                                                PasswordQualityCheckDelegate         PasswordQualityCheck          = null,
                                                TimeSpan?                            SignInSessionLifetime         = null,
 
@@ -2631,9 +2631,9 @@ namespace social.OpenData.UsersAPI
                             NewUserWelcomeEMailCreator,
                             ResetPasswordEMailCreator,
                             PasswordChangedEMailCreator,
-                            MinLoginLenght,
-                            MinRealmLenght,
-                            MinUserNameLenght,
+                            MinLoginLength,
+                            MinRealmLength,
+                            MinUserNameLength,
                             PasswordQualityCheck,
                             SignInSessionLifetime,
 
@@ -3482,7 +3482,7 @@ namespace social.OpenData.UsersAPI
 
                                               Login = HTTPTools.URLDecode(Login);
 
-                                              if (Login.Length < MinLoginLenght)
+                                              if (Login.Length < MinLoginLength)
                                               {
 
                                                   return Task.FromResult(
@@ -4327,7 +4327,7 @@ namespace social.OpenData.UsersAPI
                                               if (UserId.HasValue)
                                               {
 
-                                                  if (UserId.Value.Length < MinLoginLenght)
+                                                  if (UserId.Value.Length < MinLoginLength)
                                                   {
 
                                                       return new HTTPResponse.Builder(Request) {
@@ -4392,7 +4392,7 @@ namespace social.OpenData.UsersAPI
 
                                               Username = Username.Trim();
 
-                                              if (Username.IsNullOrEmpty() || Username.Length < MinUserNameLenght)
+                                              if (Username.IsNullOrEmpty() || Username.Length < MinUserNameLength)
                                               {
 
                                                   return new HTTPResponse.Builder(Request) {
@@ -4935,7 +4935,7 @@ namespace social.OpenData.UsersAPI
                                               }
 
                                               if (!User_Id.TryParse(Request.ParsedURIParameters[0], out User_Id UserId) ||
-                                                   UserId.Length < MinLoginLenght)
+                                                   UserId.Length < MinLoginLength)
                                               {
 
                                                   return new HTTPResponse.Builder(Request) {
@@ -5779,7 +5779,7 @@ namespace social.OpenData.UsersAPI
                                               // The login is taken from the URI, not from the JSON!
                                               var Login = Request.ParsedURIParameters[0];
 
-                                              if (Login.Length < MinLoginLenght)
+                                              if (Login.Length < MinLoginLength)
                                               {
 
                                                   return new HTTPResponse.Builder(Request) {
@@ -5807,7 +5807,7 @@ namespace social.OpenData.UsersAPI
                                               var Realm = LoginData.GetString("realm");
 
                                               if (Realm.IsNotNullOrEmpty() &&
-                                                  Realm.Length < MinRealmLenght)
+                                                  Realm.Length < MinRealmLength)
 
                                               {
 
@@ -11877,7 +11877,7 @@ namespace social.OpenData.UsersAPI
                 if (_Users.ContainsKey(User.Id))
                     throw new Exception("User '" + User.Id + "' already exists in this API!");
 
-                if (User.Id.Length < MinLoginLenght)
+                if (User.Id.Length < MinLoginLength)
                     throw new Exception("User '" + User.Id + "' is too short!");
 
                 User.API = this;
@@ -11926,7 +11926,7 @@ namespace social.OpenData.UsersAPI
                 if (_Users.ContainsKey(User.Id))
                     return _Users[User.Id];
 
-                if (User.Id.Length < MinLoginLenght)
+                if (User.Id.Length < MinLoginLength)
                     throw new Exception("User '" + User.Id + "' is too short!");
 
                 User.API = this;
@@ -11974,7 +11974,7 @@ namespace social.OpenData.UsersAPI
                 if (User.API != null && User.API != this)
                     throw new ArgumentException(nameof(User), "The given user is already attached to another API!");
 
-                if (User.Id.Length < MinLoginLenght)
+                if (User.Id.Length < MinLoginLength)
                     throw new Exception("User '" + User.Id + "' is too short!");
 
                 await WriteToDatabaseFile(NotificationMessageType.Parse("addOrUpdateUser"),
@@ -12030,7 +12030,7 @@ namespace social.OpenData.UsersAPI
                 if (!_Users.TryGetValue(User.Id, out User OldUser))
                     throw new Exception("User '" + User.Id + "' does not exists in this API!");
 
-                if (User.Id.Length < MinLoginLenght)
+                if (User.Id.Length < MinLoginLength)
                     throw new Exception("User '" + User.Id + "' is too short!");
 
 
@@ -12447,7 +12447,7 @@ namespace social.OpenData.UsersAPI
             try
             {
 
-                if (UserId.Length < MinLoginLenght)
+                if (UserId.Length < MinLoginLength)
                     throw new Exception("UserId '" + UserId + "' is too short!");
 
                 await UsersSemaphore.WaitAsync();
@@ -12478,7 +12478,7 @@ namespace social.OpenData.UsersAPI
                                                          User_Id?  CurrentUserId    = null)
         {
 
-            if (UserId.Length < MinLoginLenght)
+            if (UserId.Length < MinLoginLength)
                 throw new Exception("UserId '" + UserId + "' is too short!");
 
             #region AddPassword
@@ -12573,7 +12573,7 @@ namespace social.OpenData.UsersAPI
             try
             {
 
-                if (UserId.Length < MinLoginLenght)
+                if (UserId.Length < MinLoginLength)
                     throw new Exception("UserId '" + UserId + "' is too short!");
 
                 UsersSemaphore.Wait();
