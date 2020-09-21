@@ -603,7 +603,7 @@ namespace social.OpenData.UsersAPI
 
         public String                    LoggingPath                        { get; }
         public String                    UsersAPIPath                       { get; }
-        public String                    HTTPSSEPath                        { get; }
+        public String                    HTTPSSEsPath                       { get; }
         public String                    HTTPRequestsPath                   { get; }
         public String                    HTTPResponsesPath                  { get; }
         public String                    NotificationsPath                  { get; }
@@ -703,24 +703,6 @@ namespace social.OpenData.UsersAPI
 
 
         public UserGroup                 Admins                         { get; }
-
-
-        #region LogoImage
-
-        protected readonly String _LogoImage;
-
-        /// <summary>
-        /// The logo of the website.
-        /// </summary>
-        public String LogoImage
-        {
-            get
-            {
-                return _LogoImage;
-            }
-        }
-
-        #endregion
 
         public HTTPCookieName            CookieName                     { get; }
 
@@ -1858,7 +1840,6 @@ namespace social.OpenData.UsersAPI
         /// <param name="CookieName">The name of the HTTP Cookie for authentication.</param>
         /// <param name="UseSecureCookies">Force the web browser to send cookies only via HTTPS.</param>
         /// <param name="Language">The main language of the API.</param>
-        /// <param name="LogoImage">The logo of the website.</param>
         /// <param name="NewUserSignUpEMailCreator">A delegate for sending a sign-up e-mail to a new user.</param>
         /// <param name="NewUserWelcomeEMailCreator">A delegate for sending a welcome e-mail to a new user.</param>
         /// <param name="ResetPasswordEMailCreator">A delegate for sending a reset password e-mail to a user.</param>
@@ -1914,7 +1895,6 @@ namespace social.OpenData.UsersAPI
                         HTTPCookieName?                      CookieName                         = null,
                         Boolean                              UseSecureCookies                   = true,
                         Languages?                           Language                           = null,
-                        String                               LogoImage                          = null,
                         NewUserSignUpEMailCreatorDelegate    NewUserSignUpEMailCreator          = null,
                         NewUserWelcomeEMailCreatorDelegate   NewUserWelcomeEMailCreator         = null,
                         ResetPasswordEMailCreatorDelegate    ResetPasswordEMailCreator          = null,
@@ -1990,7 +1970,6 @@ namespace social.OpenData.UsersAPI
                    CookieName,
                    UseSecureCookies,
                    Language,
-                   LogoImage,
                    NewUserSignUpEMailCreator,
                    NewUserWelcomeEMailCreator,
                    ResetPasswordEMailCreator,
@@ -2049,7 +2028,6 @@ namespace social.OpenData.UsersAPI
         /// <param name="CookieName">The name of the HTTP Cookie for authentication.</param>
         /// <param name="UseSecureCookies">Force the web browser to send cookies only via HTTPS.</param>
         /// <param name="Language">The main language of the API.</param>
-        /// <param name="LogoImage">The logo of the website.</param>
         /// <param name="NewUserSignUpEMailCreator">A delegate for sending a sign-up e-mail to a new user.</param>
         /// <param name="NewUserWelcomeEMailCreator">A delegate for sending a welcome e-mail to a new user.</param>
         /// <param name="ResetPasswordEMailCreator">A delegate for sending a reset password e-mail to a user.</param>
@@ -2087,7 +2065,6 @@ namespace social.OpenData.UsersAPI
                            HTTPCookieName?                      CookieName                    = null,
                            Boolean                              UseSecureCookies              = true,
                            Languages?                           Language                      = null,
-                           String                               LogoImage                     = null,
                            NewUserSignUpEMailCreatorDelegate    NewUserSignUpEMailCreator     = null,
                            NewUserWelcomeEMailCreatorDelegate   NewUserWelcomeEMailCreator    = null,
                            ResetPasswordEMailCreatorDelegate    ResetPasswordEMailCreator     = null,
@@ -2117,6 +2094,13 @@ namespace social.OpenData.UsersAPI
 
         {
 
+            #region Inital checks
+
+            if (APIEMailAddress == null)
+                throw new ArgumentNullException(nameof(APIEMailAddress), "The given API e-mail address must not be null!");
+
+            #endregion
+
             #region Init data
 
             this.APIVersionHash               = APIVersionHashes?[nameof(UsersAPI)]?.Value<String>()?.Trim();
@@ -2132,7 +2116,7 @@ namespace social.OpenData.UsersAPI
             this.UsersAPIPath                 = this.LoggingPath + "UsersAPI"       + Path.DirectorySeparatorChar;
             this.HTTPRequestsPath             = this.LoggingPath + "HTTPRequests"   + Path.DirectorySeparatorChar;
             this.HTTPResponsesPath            = this.LoggingPath + "HTTPResponses"  + Path.DirectorySeparatorChar;
-            this.HTTPSSEPath                  = this.LoggingPath + "HTTPSSEs"       + Path.DirectorySeparatorChar;
+            this.HTTPSSEsPath                 = this.LoggingPath + "HTTPSSEs"       + Path.DirectorySeparatorChar;
             this.MetricsPath                  = this.LoggingPath + "Metrics"        + Path.DirectorySeparatorChar;
             this.NotificationsPath            = this.LoggingPath + "Notifications"  + Path.DirectorySeparatorChar;
             this.TelegramLoggingPath          = this.LoggingPath + "Telegram"       + Path.DirectorySeparatorChar;
@@ -2145,7 +2129,7 @@ namespace social.OpenData.UsersAPI
                 Directory.CreateDirectory(this.UsersAPIPath);
                 Directory.CreateDirectory(this.HTTPRequestsPath);
                 Directory.CreateDirectory(this.HTTPResponsesPath);
-                Directory.CreateDirectory(this.HTTPSSEPath);
+                Directory.CreateDirectory(this.HTTPSSEsPath);
                 Directory.CreateDirectory(this.MetricsPath);
                 Directory.CreateDirectory(this.NotificationsPath);
                 Directory.CreateDirectory(this.TelegramLoggingPath);
@@ -2163,15 +2147,14 @@ namespace social.OpenData.UsersAPI
 
             CurrentAsyncLocalUserId.Value     = Robot.Id;
 
-            this.APIPassphrase                = APIPassphrase;
-            this.APIAdminEMails               = APIAdminEMails;
-            this.APISMTPClient                = APISMTPClient;
+            this.APIPassphrase                = APIPassphrase               ?? throw new ArgumentNullException(nameof(APIPassphrase),  "The given API passphrase must not be null!");
+            this.APIAdminEMails               = APIAdminEMails              ?? throw new ArgumentNullException(nameof(APIAdminEMails), "The given API admin e-mail (list) must not be null!");
+            this.APISMTPClient                = APISMTPClient               ?? throw new ArgumentNullException(nameof(APISMTPClient),  "The given API SMTP client must not be null!");
 
             this.CookieName                   = CookieName                  ?? DefaultCookieName;
             this.SessionCookieName            = this.CookieName + "Session";
             this.UseSecureCookies             = UseSecureCookies;
             this.Language                     = Language                    ?? DefaultLanguage;
-            this._LogoImage                   = LogoImage;
             this.NewUserSignUpEMailCreator    = NewUserSignUpEMailCreator   ?? throw new ArgumentNullException(nameof(NewUserSignUpEMailCreator),   "NewUserSignUpEMailCreator!");
             this.NewUserWelcomeEMailCreator   = NewUserWelcomeEMailCreator  ?? throw new ArgumentNullException(nameof(NewUserWelcomeEMailCreator),  "NewUserWelcomeEMailCreator!");
             this.ResetPasswordEMailCreator    = ResetPasswordEMailCreator   ?? throw new ArgumentNullException(nameof(ResetPasswordEMailCreator),   "ResetPasswordEMailCreator!");
@@ -2549,7 +2532,6 @@ namespace social.OpenData.UsersAPI
         /// <param name="CookieName">The name of the HTTP Cookie for authentication.</param>
         /// <param name="UseSecureCookies">Force the web browser to send cookies only via HTTPS.</param>
         /// <param name="DefaultLanguage">The default language of the API.</param>
-        /// <param name="LogoImage">The logo of the website.</param>
         /// <param name="NewUserSignUpEMailCurrentUserId">A delegate for sending a sign-up e-mail to a new user.</param>
         /// <param name="NewUserWelcomeEMailCurrentUserId">A delegate for sending a welcome e-mail to a new user.</param>
         /// <param name="ResetPasswordEMailCurrentUserId">A delegate for sending a reset password e-mail to a user.</param>
@@ -2584,7 +2566,6 @@ namespace social.OpenData.UsersAPI
                                                HTTPCookieName?                      CookieName                    = null,
                                                Boolean                              UseSecureCookies              = true,
                                                Languages                            DefaultLanguage               = Languages.eng,
-                                               String                               LogoImage                     = null,
                                                NewUserSignUpEMailCreatorDelegate    NewUserSignUpEMailCreator     = null,
                                                NewUserWelcomeEMailCreatorDelegate   NewUserWelcomeEMailCreator    = null,
                                                ResetPasswordEMailCreatorDelegate    ResetPasswordEMailCreator     = null,
@@ -2626,7 +2607,6 @@ namespace social.OpenData.UsersAPI
                             CookieName,
                             UseSecureCookies,
                             DefaultLanguage,
-                            LogoImage,
                             NewUserSignUpEMailCreator,
                             NewUserWelcomeEMailCreator,
                             ResetPasswordEMailCreator,
@@ -3283,8 +3263,8 @@ namespace social.OpenData.UsersAPI
                                               typeof(UsersAPI).Assembly.GetManifestResourceStream(HTTPRoot + "SignUp.SignUp-" + DefaultLanguage.ToString() + ".html").SeekAndCopyTo(_MemoryStream2, 0);
                                               var HTML     = Template.Replace("<%= content %>",   _MemoryStream2.ToArray().ToUTF8String());
 
-                                              if (LogoImage != null)
-                                                  HTML = HTML.Replace("<%= logoimage %>", String.Concat(@"<img src=""", LogoImage, @""" /> "));
+                                              //if (LogoImage != null)
+                                              //    HTML = HTML.Replace("<%= logoimage %>", String.Concat(@"<img src=""", LogoImage, @""" /> "));
 
                                               return new HTTPResponse.Builder(Request) {
                                                   HTTPStatusCode  = HTTPStatusCode.OK,
