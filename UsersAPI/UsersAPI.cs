@@ -1816,7 +1816,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="HTTPServerName">The default HTTP servername, used whenever no HTTP Host-header had been given.</param>
         /// <param name="LocalHostname">The HTTP hostname for all URIs within this API.</param>
         /// <param name="LocalPort">A TCP port to listen on.</param>
-        /// <param name="BaseURL">The base url of the service.</param>
+        /// <param name="ExternalDNSName">The offical URL/DNS name of this service, e.g. for sending e-mails.</param>
         /// <param name="URLPathPrefix">A common prefix for all URLs.</param>
         /// <param name="HTMLTemplate">An optional HTML template.</param>
         /// <param name="APIVersionHashes">The API version hashes (git commit hash values).</param>
@@ -1871,7 +1871,7 @@ namespace social.OpenData.UsersAPI
                         String                               HTTPServerName                     = "GraphDefined Users API",
                         HTTPHostname?                        LocalHostname                      = null,
                         IPPort?                              LocalPort                          = null,
-                        String                               BaseURL                            = "",
+                        String                               ExternalDNSName                    = null,
                         HTTPPath?                            URLPathPrefix                      = null,
                         String                               HTMLTemplate                       = null,
                         JObject                              APIVersionHashes                   = null,
@@ -1951,7 +1951,7 @@ namespace social.OpenData.UsersAPI
 
                    LocalHostname,
                    ServiceName,
-                   BaseURL,
+                   ExternalDNSName,
                    URLPathPrefix,
                    HTMLTemplate,
                    APIVersionHashes,
@@ -2009,7 +2009,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="HTTPServer">An existing HTTP server.</param>
         /// <param name="HTTPHostname">The HTTP hostname for all URIs within this API.</param>
         /// <param name="ServiceName">The name of the service.</param>
-        /// <param name="BaseURL">The base URL of the service.</param>
+        /// <param name="ExternalDNSName">The offical URL/DNS name of this service, e.g. for sending e-mails.</param>
         /// <param name="URLPathPrefix">A common prefix for all URLs.</param>
         /// <param name="HTMLTemplate">An optional HTML template.</param>
         /// <param name="APIVersionHashes">The API version hashes (git commit hash values).</param>
@@ -2046,7 +2046,7 @@ namespace social.OpenData.UsersAPI
         protected UsersAPI(HTTPServer                           HTTPServer,
                            HTTPHostname?                        HTTPHostname                  = null,
                            String                               ServiceName                   = "GraphDefined Users API",
-                           String                               BaseURL                       = "",
+                           String                               ExternalDNSName               = null,
                            HTTPPath?                            URLPathPrefix                 = null,
                            String                               HTMLTemplate                  = null,
                            JObject                              APIVersionHashes              = null,
@@ -2087,9 +2087,9 @@ namespace social.OpenData.UsersAPI
 
             : base(HTTPServer,
                    HTTPHostname,
-                   ServiceName,
-                   BaseURL,
+                   ExternalDNSName,
                    URLPathPrefix,
+                   ServiceName,
                    HTMLTemplate)
 
         {
@@ -2515,7 +2515,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="HTTPServer">An existing HTTP server.</param>
         /// <param name="HTTPHostname">The HTTP hostname for all URIs within this API.</param>
         /// <param name="ServiceName">The name of the service.</param>
-        /// <param name="BaseURL">The base URL of the service.</param>
+        /// <param name="ExternalDNSName">The offical URL/DNS name of this service, e.g. for sending e-mails.</param>
         /// <param name="URLPathPrefix">A common prefix for all URLs.</param>
         /// <param name="HTMLTemplate">An optional HTML template.</param>
         /// <param name="APIVersionHashes">The API version hashes (git commit hash values).</param>
@@ -2547,7 +2547,7 @@ namespace social.OpenData.UsersAPI
         public static UsersAPI AttachToHTTPAPI(HTTPServer                           HTTPServer,
                                                HTTPHostname?                        HTTPHostname                  = null,
                                                String                               ServiceName                   = "GraphDefined Users API",
-                                               String                               BaseURL                       = "",
+                                               String                               ExternalDNSName               = null,
                                                HTTPPath?                            URLPathPrefix                 = null,
                                                String                               HTMLTemplate                  = null,
                                                JObject                              APIVersionHashes              = null,
@@ -2588,7 +2588,7 @@ namespace social.OpenData.UsersAPI
             => new UsersAPI(HTTPServer,
                             HTTPHostname,
                             ServiceName,
-                            BaseURL,
+                            ExternalDNSName,
                             URLPathPrefix,
                             HTMLTemplate,
                             APIVersionHashes,
@@ -15622,7 +15622,7 @@ namespace social.OpenData.UsersAPI
                     if (AllEMailNotifications.Count > 0)
                     {
 
-                        await APISMTPClient.Send(__ServiceTicketChangedEMailDelegate(BaseURL, Robot.EMail, APIPassphrase)
+                        await APISMTPClient.Send(__ServiceTicketChangedEMailDelegate(ExternalDNSName, Robot.EMail, APIPassphrase)
                                                  (ServiceTicket,
                                                   MessageType,
                                                   MessageTypes,
