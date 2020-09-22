@@ -3161,7 +3161,7 @@ namespace social.OpenData.UsersAPI
 
         #region (private) MixWithHTMLTemplate    (ResourceName)
 
-        private String MixWithHTMLTemplate(String ResourceName)
+        protected virtual String MixWithHTMLTemplate(String ResourceName)
 
             => MixWithHTMLTemplate(ResourceName,
                                    new Tuple<String, System.Reflection.Assembly>(UsersAPI.HTTPRoot, typeof(UsersAPI).    Assembly));
