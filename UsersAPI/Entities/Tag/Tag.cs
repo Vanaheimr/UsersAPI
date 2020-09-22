@@ -143,7 +143,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="JSONObject">A JSON object.</param>
         /// <param name="Tag">The parsed tag.</param>
         /// <param name="ErrorResponse">An error message.</param>
-        /// <param name="TagIdURI">The optional tag identification, e.g. from the HTTP URI.</param>
+        /// <param name="TagIdURL">An optional tag identification, e.g. from the HTTP URL.</param>
         public static Boolean TryParseJSON(JObject     JSONObject,
                                            out Tag     Tag,
                                            out String  ErrorResponse,

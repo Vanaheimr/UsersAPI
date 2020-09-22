@@ -437,7 +437,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="OrganizationProvider">A delegate resolving organizations.</param>
         /// <param name="ServiceTicketChangeSet">The parsed service ticket change set.</param>
         /// <param name="ErrorResponse">An error message.</param>
-        /// <param name="ServiceTicketChangeSetIdURI">The optional service ticket change set identification, e.g. from the HTTP URI.</param>
+        /// <param name="ServiceTicketChangeSetIdURL">An optional service ticket change set identification, e.g. from the HTTP URL.</param>
         /// <param name="OverwriteAuthor">Overwrite the author of the service ticket, if given.</param>
         /// <param name="DataSource">The source of this data.</param>
         public static Boolean TryParseJSON(JObject                        JSONObject,

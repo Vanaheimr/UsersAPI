@@ -264,7 +264,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="UserProvider">A delegate resolving users.</param>
         /// <param name="UserGroup">The parsed user group.</param>
         /// <param name="ErrorResponse">An error message.</param>
-        /// <param name="UserGroupIdURI">The optional UserGroup identification, e.g. from the HTTP URI.</param>
+        /// <param name="UserGroupIdURL">An optional UserGroup identification, e.g. from the HTTP URL.</param>
         public static Boolean TryParseJSON(JObject                    JSONObject,
                                            UserGroupProviderDelegate  UserGroupProvider,
                                            UserProviderDelegate       UserProvider,

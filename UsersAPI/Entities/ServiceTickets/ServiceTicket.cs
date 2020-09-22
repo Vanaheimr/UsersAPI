@@ -510,7 +510,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="ServiceTicket">The parsed service ticket.</param>
         /// <param name="ErrorResponse">An error message.</param>
         /// <param name="VerifyContext">Verify the JSON-LD context.</param>
-        /// <param name="ServiceTicketIdURI">The optional service ticket identification, e.g. from the HTTP URI.</param>
+        /// <param name="ServiceTicketIdURL">An optional service ticket identification, e.g. from the HTTP URL.</param>
         /// <param name="OverwriteAuthor">Overwrite the author of the service ticket, if given.</param>
         public static Boolean TryParseJSON(JObject                        JSONObject,
                                            ServiceTicketProviderDelegate  ServiceTicketProvider,

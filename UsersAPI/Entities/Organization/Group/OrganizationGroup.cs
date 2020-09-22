@@ -253,7 +253,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="OrganizationProvider">A delegate resolving organizations.</param>
         /// <param name="OrganizationGroup">The parsed organization group.</param>
         /// <param name="ErrorResponse">An error message.</param>
-        /// <param name="OrganizationGroupIdURI">The optional OrganizationGroup identification, e.g. from the HTTP URI.</param>
+        /// <param name="OrganizationGroupIdURL">An optional OrganizationGroup identification, e.g. from the HTTP URL.</param>
         public static Boolean TryParseJSON(JObject                    JSONObject,
                                            OrganizationGroupProviderDelegate  OrganizationGroupProvider,
                                            OrganizationProviderDelegate       OrganizationProvider,
