@@ -561,6 +561,7 @@ namespace social.OpenData.UsersAPI
         protected static readonly     String[]                   Split2                             = { ": " };
         protected static readonly     String[]                   Split3                             = { " " };
         protected static readonly     Char[]                     Split4                             = { ',' };
+        protected static readonly     Char[]                     Split5                             = { '|' };
 
         #endregion
 
@@ -2496,7 +2497,7 @@ namespace social.OpenData.UsersAPI
             RegisterNotifications().Wait();
 
             if (!SkipURLTemplates)
-                RegisterURITemplates();
+                RegisterURLTemplates();
 
             DebugX.Log("UsersAPI started...");
 
@@ -3227,9 +3228,9 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
-        #region (private) RegisterURITemplates()
+        #region (private) RegisterURLTemplates()
 
-        private void RegisterURITemplates()
+        private void RegisterURLTemplates()
         {
 
             #region /shared/UsersAPI
@@ -4133,6 +4134,51 @@ namespace social.OpenData.UsersAPI
 
             #region GET         ~/users
 
+            #region HTML
+
+            // -------------------------------------------------------------------
+            // curl -v -H "Accept: application/json" http://127.0.0.1:3001/users
+            // -------------------------------------------------------------------
+            HTTPServer.AddMethodCallback(Hostname,
+                                         HTTPMethod.GET,
+                                         URLPathPrefix + "users",
+                                         HTTPContentType.HTML_UTF8,
+                                         HTTPDelegate: Request => {
+
+                                             #region Get HTTP user and its users
+
+                                             // Will return HTTP 401 Unauthorized, when the HTTP user is unknown!
+                                             if (!TryGetHTTPUser(Request,
+                                                                 out User                   HTTPUser,
+                                                                 out HashSet<Organization>  HTTPOrganizations,
+                                                                 out HTTPResponse           Response,
+                                                                 Recursive:                 true))
+                                             {
+                                                 return Task.FromResult(Response);
+                                             }
+
+                                             #endregion
+
+                                             return Task.FromResult(
+                                                     new HTTPResponse.Builder(Request) {
+                                                         HTTPStatusCode             = HTTPStatusCode.OK,
+                                                         Server                     = HTTPServer.DefaultServerName,
+                                                         Date                       = DateTime.UtcNow,
+                                                         AccessControlAllowOrigin   = "*",
+                                                         AccessControlAllowMethods  = "GET",
+                                                         AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
+                                                         ContentType                = HTTPContentType.HTML_UTF8,
+                                                         Content                    = MixWithHTMLTemplate("user.users.shtml").ToUTF8Bytes(),
+                                                         Connection                 = "close",
+                                                         Vary                       = "Accept"
+                                                     }.AsImmutable);
+
+                                         });
+
+            #endregion
+
+            #region JSON
+
             // -------------------------------------------------------------------
             // curl -v -H "Accept: application/json" http://127.0.0.1:2000/users
             // -------------------------------------------------------------------
@@ -4208,6 +4254,8 @@ namespace social.OpenData.UsersAPI
                                                  }.AsImmutable);
 
                                          });
+
+            #endregion
 
             #endregion
 
@@ -7062,11 +7110,54 @@ namespace social.OpenData.UsersAPI
 
             #endregion
 
-            #endregion
 
-            #region ~/userGroups
 
             #region GET         ~/userGroups
+
+            #region HTML
+
+            // -------------------------------------------------------------------
+            // curl -v -H "Accept: application/json" http://127.0.0.1:3001/userGroups
+            // -------------------------------------------------------------------
+            HTTPServer.AddMethodCallback(Hostname,
+                                         HTTPMethod.GET,
+                                         URLPathPrefix + "userGroups",
+                                         HTTPContentType.HTML_UTF8,
+                                         HTTPDelegate: Request => {
+
+                                             #region Get HTTP user and its users
+
+                                             // Will return HTTP 401 Unauthorized, when the HTTP user is unknown!
+                                             if (!TryGetHTTPUser(Request,
+                                                                 out User                   HTTPUser,
+                                                                 out HashSet<Organization>  HTTPOrganizations,
+                                                                 out HTTPResponse           Response,
+                                                                 Recursive:                 true))
+                                             {
+                                                 return Task.FromResult(Response);
+                                             }
+
+                                             #endregion
+
+                                             return Task.FromResult(
+                                                     new HTTPResponse.Builder(Request) {
+                                                         HTTPStatusCode             = HTTPStatusCode.OK,
+                                                         Server                     = HTTPServer.DefaultServerName,
+                                                         Date                       = DateTime.UtcNow,
+                                                         AccessControlAllowOrigin   = "*",
+                                                         AccessControlAllowMethods  = "GET",
+                                                         AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
+                                                         ContentType                = HTTPContentType.HTML_UTF8,
+                                                         Content                    = MixWithHTMLTemplate("user.userGroups.shtml").ToUTF8Bytes(),
+                                                         Connection                 = "close",
+                                                         Vary                       = "Accept"
+                                                     }.AsImmutable);
+
+                                         });
+
+            #endregion
+
+            #region JSON
 
             // ------------------------------------------------------------------------
             // curl -v -H "Accept: application/json" http://127.0.0.1:2000/userGroups
@@ -7143,6 +7234,8 @@ namespace social.OpenData.UsersAPI
                                                  }.AsImmutable);
 
                                          });
+
+            #endregion
 
             #endregion
 
