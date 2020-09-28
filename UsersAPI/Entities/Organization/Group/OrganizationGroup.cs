@@ -259,7 +259,7 @@ namespace social.OpenData.UsersAPI
                                            OrganizationProviderDelegate       OrganizationProvider,
                                            out OrganizationGroup              OrganizationGroup,
                                            out String                 ErrorResponse,
-                                           OrganizationGroup_Id?              OrganizationGroupIdURI = null)
+                                           OrganizationGroup_Id?              OrganizationGroupIdURL = null)
         {
 
             try
@@ -289,13 +289,13 @@ namespace social.OpenData.UsersAPI
 
                 }
 
-                if (!OrganizationGroupIdURI.HasValue && !OrganizationGroupIdBody.HasValue)
+                if (!OrganizationGroupIdURL.HasValue && !OrganizationGroupIdBody.HasValue)
                 {
                     ErrorResponse = "The OrganizationGroup identification is missing!";
                     return false;
                 }
 
-                if (OrganizationGroupIdURI.HasValue && OrganizationGroupIdBody.HasValue && OrganizationGroupIdURI.Value != OrganizationGroupIdBody.Value)
+                if (OrganizationGroupIdURL.HasValue && OrganizationGroupIdBody.HasValue && OrganizationGroupIdURL.Value != OrganizationGroupIdBody.Value)
                 {
                     ErrorResponse = "The optional OrganizationGroup identification given within the JSON body does not match the one given in the URI!";
                     return false;
@@ -449,7 +449,7 @@ namespace social.OpenData.UsersAPI
                 #endregion
 
 
-                OrganizationGroup = new OrganizationGroup(OrganizationGroupIdBody ?? OrganizationGroupIdURI.Value,
+                OrganizationGroup = new OrganizationGroup(OrganizationGroupIdBody ?? OrganizationGroupIdURL.Value,
 
                                                           Name,
                                                           Description,

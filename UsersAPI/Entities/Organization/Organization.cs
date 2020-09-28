@@ -779,7 +779,7 @@ namespace social.OpenData.UsersAPI
         public static Boolean TryParseJSON(JObject           JSONObject,
                                            out Organization  Organization,
                                            out String        ErrorResponse,
-                                           Organization_Id?  OrganizationIdURI = null)
+                                           Organization_Id?  OrganizationIdURL = null)
         {
 
             try
@@ -803,13 +803,13 @@ namespace social.OpenData.UsersAPI
 
                 }
 
-                if (!OrganizationIdURI.HasValue && !OrganizationIdBody.HasValue)
+                if (!OrganizationIdURL.HasValue && !OrganizationIdBody.HasValue)
                 {
                     ErrorResponse = "The organization identification is missing!";
                     return false;
                 }
 
-                if (OrganizationIdURI.HasValue && OrganizationIdBody.HasValue && OrganizationIdURI.Value != OrganizationIdBody.Value)
+                if (OrganizationIdURL.HasValue && OrganizationIdBody.HasValue && OrganizationIdURL.Value != OrganizationIdBody.Value)
                 {
                     ErrorResponse = "The optional organization identification given within the JSON body does not match the one given in the URI!";
                     return false;
@@ -975,7 +975,7 @@ namespace social.OpenData.UsersAPI
                 #endregion
 
 
-                Organization = new Organization(OrganizationIdBody ?? OrganizationIdURI.Value,
+                Organization = new Organization(OrganizationIdBody ?? OrganizationIdURL.Value,
 
                                                 Name,
                                                 Description,

@@ -4894,7 +4894,7 @@ namespace social.OpenData.UsersAPI
                                               #region Check UserId URI parameter
 
                                               if (!Request.ParseUserId(this,
-                                                                       out User_Id? UserIdURI,
+                                                                       out User_Id? UserIdURL,
                                                                        out ErrorResponse))
                                               {
                                                   return ErrorResponse;
@@ -4926,7 +4926,7 @@ namespace social.OpenData.UsersAPI
 
                                               }
 
-                                              if (!UserIdURI.HasValue && !UserIdBody.HasValue)
+                                              if (!UserIdURL.HasValue && !UserIdBody.HasValue)
                                               {
 
                                                   return new HTTPResponse.Builder(Request) {
@@ -4944,7 +4944,7 @@ namespace social.OpenData.UsersAPI
 
                                               }
 
-                                              if (UserIdURI.HasValue && UserIdBody.HasValue && UserIdURI.Value != UserIdBody.Value)
+                                              if (UserIdURL.HasValue && UserIdBody.HasValue && UserIdURL.Value != UserIdBody.Value)
                                               {
 
                                                   return new HTTPResponse.Builder(Request) {
@@ -5252,13 +5252,13 @@ namespace social.OpenData.UsersAPI
                                               try
                                               {
 
-                                                  var SetPasswordRequest  = await ResetPassword(UserIdURI.Value,
+                                                  var SetPasswordRequest  = await ResetPassword(UserIdURL.Value,
                                                                                                 SecurityToken_Id.Random(40, _Random),
                                                                                                 SecurityToken_Id.Parse(_Random.RandomString(5) + "-" + _Random.RandomString(5)));
 
                                                   #region Send e-mail...
 
-                                                  var MailResultTask  = APISMTPClient.Send(NewUserSignUpEMailCreator(UserIdURI.Value,
+                                                  var MailResultTask  = APISMTPClient.Send(NewUserSignUpEMailCreator(UserIdURL.Value,
                                                                                                                      new EMailAddress(Name,
                                                                                                                                       UserEMail,
                                                                                                                                       _PublicKeyRing),
@@ -5693,7 +5693,7 @@ namespace social.OpenData.UsersAPI
                                              #region Check UserId URI parameter
 
                                              if (!Request.ParseUserId(this,
-                                                                      out User_Id?      UserIdURI,
+                                                                      out User_Id?      UserIdURL,
                                                                       out HTTPResponse  HTTPResponse))
                                              {
                                                  return HTTPResponse;
@@ -5709,7 +5709,7 @@ namespace social.OpenData.UsersAPI
                                              if (!User.TryParseJSON(JSONObj,
                                                                     out User    _User,
                                                                     out String  ErrorResponse,
-                                                                    UserIdURI))
+                                                                    UserIdURL))
                                              {
 
                                                  return new HTTPResponse.Builder(Request) {
@@ -6132,13 +6132,13 @@ namespace social.OpenData.UsersAPI
                                              #region Check UserId URI parameter
 
                                              if (!Request.ParseUserId(this,
-                                                                      out User_Id?      UserIdURI,
+                                                                      out User_Id?      UserIdURL,
                                                                       out HTTPResponse  HTTPResponse))
                                              {
                                                  return HTTPResponse;
                                              }
 
-                                             if (!TryGetUser(UserIdURI.Value, out User UserURI))
+                                             if (!TryGetUser(UserIdURL.Value, out User UserURI))
                                              {
 
                                                  return new HTTPResponse.Builder(Request) {
@@ -6248,13 +6248,13 @@ namespace social.OpenData.UsersAPI
                                              #region Check UserId URI parameter
 
                                              if (!Request.ParseUserId(this,
-                                                                      out User_Id?      UserIdURI,
+                                                                      out User_Id?      UserIdURL,
                                                                       out HTTPResponse  HTTPResponse))
                                              {
                                                  return Task.FromResult(HTTPResponse);
                                              }
 
-                                             if (!TryGetUser(UserIdURI.Value, out User UserURI))
+                                             if (!TryGetUser(UserIdURL.Value, out User UserURI))
                                              {
 
                                                  return Task.FromResult(
@@ -6436,7 +6436,7 @@ namespace social.OpenData.UsersAPI
                                              #region Check UserId URI parameter
 
                                              if (!Request.ParseUser(this,
-                                                                    out User_Id?  UserIdURI,
+                                                                    out User_Id?  UserIdURL,
                                                                     out User      User,
                                                                     out           HTTPResponse))
                                              {
@@ -6447,7 +6447,7 @@ namespace social.OpenData.UsersAPI
 
                                              #region Has the current HTTP user the required access rights to update?
 
-                                             if (UserIdURI != HTTPUser.Id)
+                                             if (UserIdURL != HTTPUser.Id)
                                              {
 
                                                  return new HTTPResponse.Builder(Request) {
@@ -6626,7 +6626,7 @@ namespace social.OpenData.UsersAPI
                                              #region Check UserId URI parameter
 
                                              if (!Request.ParseUser(this,
-                                                                    out User_Id?  UserIdURI,
+                                                                    out User_Id?  UserIdURL,
                                                                     out User      User,
                                                                     out           HTTPResponse))
                                              {
@@ -6637,7 +6637,7 @@ namespace social.OpenData.UsersAPI
 
                                              #region Has the current HTTP user the required access rights to update?
 
-                                             if (UserIdURI != HTTPUser.Id)
+                                             if (UserIdURL != HTTPUser.Id)
                                              {
 
                                                  return new HTTPResponse.Builder(Request) {
@@ -7010,7 +7010,7 @@ namespace social.OpenData.UsersAPI
                                              #region Check UserId URI parameter
 
                                              if (!Request.ParseUserId(this,
-                                                                      out User_Id?      UserIdURI,
+                                                                      out User_Id?      UserIdURL,
                                                                       out HTTPResponse  HTTPResponse))
                                              {
                                                  return HTTPResponse;
@@ -7051,7 +7051,7 @@ namespace social.OpenData.UsersAPI
 
                                              // Has the current HTTP user the required
                                              // access rights to update?
-                                             if (HTTPUser.Id != UserIdURI.Value)
+                                             if (HTTPUser.Id != UserIdURL.Value)
                                              {
 
                                                  return new HTTPResponse.Builder(Request) {
@@ -7066,7 +7066,7 @@ namespace social.OpenData.UsersAPI
 
                                              }
 
-                                             if (TryChangePassword(UserIdURI.Value,
+                                             if (TryChangePassword(UserIdURL.Value,
                                                                    Password.Parse(NewPassword),
                                                                    CurrentPassword,
                                                                    HTTPUser.Id).Result)
@@ -7474,7 +7474,7 @@ namespace social.OpenData.UsersAPI
                                              if (Organization.TryParseJSON(JSONObj,
                                                                            out Organization    newOrganization,
                                                                            out String          ErrorResponse,
-                                                                           OrganizationIdURI:  Organization_Id.Random()))
+                                                                           OrganizationIdURL:  Organization_Id.Random()))
                                              {
 
                                                  #region Parse parent organization
@@ -7832,7 +7832,7 @@ namespace social.OpenData.UsersAPI
                                              #region Check OrganizationId URI parameter
 
                                              if (!Request.ParseOrganizationId(this,
-                                                                              out Organization_Id?  OrganizationIdURI,
+                                                                              out Organization_Id?  OrganizationIdURL,
                                                                               out HTTPResponse      HTTPResponse))
                                              {
                                                  return HTTPResponse;
@@ -7848,7 +7848,7 @@ namespace social.OpenData.UsersAPI
                                              if (Organization.TryParseJSON(JSONObj,
                                                                            out Organization  NewChildOrganization,
                                                                            out String        ErrorResponse,
-                                                                           OrganizationIdURI))
+                                                                           OrganizationIdURL))
                                              {
 
                                                  // {
@@ -8081,7 +8081,7 @@ namespace social.OpenData.UsersAPI
                                              #region Check OrganizationId URI parameter
 
                                              if (!Request.ParseOrganization(this,
-                                                                            out Organization_Id?  OrganizationIdURI,
+                                                                            out Organization_Id?  OrganizationIdURL,
                                                                             out Organization      Organization,
                                                                             out HTTPResponse      HTTPResponse))
                                              {
@@ -8116,7 +8116,7 @@ namespace social.OpenData.UsersAPI
                                              if (Organization.TryParseJSON(JSONObj,
                                                                            out Organization  UpdatedOrganization,
                                                                            out String        ErrorResponse,
-                                                                           OrganizationIdURI))
+                                                                           OrganizationIdURL))
                                              {
 
                                                  try
@@ -8209,7 +8209,7 @@ namespace social.OpenData.UsersAPI
                                              #region Check Organization
 
                                              if (!Request.ParseOrganization(this,
-                                                                            out Organization_Id?  OrganizationIdURI,
+                                                                            out Organization_Id?  OrganizationIdURL,
                                                                             out Organization      Organization,
                                                                             out HTTPResponse      HTTPResponse))
                                              {
@@ -8239,7 +8239,7 @@ namespace social.OpenData.UsersAPI
                                              try
                                              {
 
-                                                 var result = await RemoveOrganization(OrganizationIdURI.Value,
+                                                 var result = await RemoveOrganization(OrganizationIdURL.Value,
                                                                                        CurrentUserId:  HTTPUser.Id);
 
                                                  if (result.IsSuccess)
@@ -8929,7 +8929,7 @@ namespace social.OpenData.UsersAPI
                                              #region Check OrganizationId URI parameter
 
                                              if (!Request.ParseOrganization(this,
-                                                                            out Organization_Id?  OrganizationIdURI,
+                                                                            out Organization_Id?  OrganizationIdURL,
                                                                             out Organization      Organization,
                                                                             out                   HTTPResponse))
                                              {

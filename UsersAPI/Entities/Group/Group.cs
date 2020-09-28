@@ -199,7 +199,7 @@
 //        public static Boolean TryParseJSON(JObject     JSONObject,
 //                                           out Group   Group,
 //                                           out String  ErrorResponse,
-//                                           Group_Id?   GroupIdURI = null)
+//                                           Group_Id?   GroupIdURL = null)
 //        {
 
 //            try
@@ -223,13 +223,13 @@
 
 //                }
 
-//                if (!GroupIdURI.HasValue && !GroupIdBody.HasValue)
+//                if (!GroupIdURL.HasValue && !GroupIdBody.HasValue)
 //                {
 //                    ErrorResponse = "The group identification is missing!";
 //                    return false;
 //                }
 
-//                if (GroupIdURI.HasValue && GroupIdBody.HasValue && GroupIdURI.Value != GroupIdBody.Value)
+//                if (GroupIdURL.HasValue && GroupIdBody.HasValue && GroupIdURL.Value != GroupIdBody.Value)
 //                {
 //                    ErrorResponse = "The optional group identification given within the JSON body does not match the one given in the URI!";
 //                    return false;
@@ -316,7 +316,7 @@
 //                #endregion
 
 
-//                Group = new Group(GroupIdBody ?? GroupIdURI.Value,
+//                Group = new Group(GroupIdBody ?? GroupIdURL.Value,
 //                                  Name,
 //                                  Description,
 //                                  PrivacyLevel,

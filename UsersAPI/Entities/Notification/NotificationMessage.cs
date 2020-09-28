@@ -194,7 +194,7 @@ namespace social.OpenData.UsersAPI.Notifications
                                            Func<Organization_Id, Organization>  OrganizationProvider,
                                            out NotificationMessage              NotificationMessage,
                                            out String                           ErrorResponse,
-                                           NotificationMessage_Id?              NotificationMessageIdURI = null)
+                                           NotificationMessage_Id?              NotificationMessageIdURL = null)
         {
 
             if (OrganizationProvider == null)
@@ -225,13 +225,13 @@ namespace social.OpenData.UsersAPI.Notifications
 
                 }
 
-                if (!NotificationMessageIdURI.HasValue && !NotificationMessageIdBody.HasValue)
+                if (!NotificationMessageIdURL.HasValue && !NotificationMessageIdBody.HasValue)
                 {
                     ErrorResponse = "The NotificationMessage identification is missing!";
                     return false;
                 }
 
-                if (NotificationMessageIdURI.HasValue && NotificationMessageIdBody.HasValue && NotificationMessageIdURI.Value != NotificationMessageIdBody.Value)
+                if (NotificationMessageIdURL.HasValue && NotificationMessageIdBody.HasValue && NotificationMessageIdURL.Value != NotificationMessageIdBody.Value)
                 {
                     ErrorResponse = "The optional NotificationMessage identification given within the JSON body does not match the one given in the URI!";
                     return false;
@@ -363,7 +363,7 @@ namespace social.OpenData.UsersAPI.Notifications
                 #endregion
 
 
-                NotificationMessage = new NotificationMessage(NotificationMessageIdBody ?? NotificationMessageIdURI.Value,
+                NotificationMessage = new NotificationMessage(NotificationMessageIdBody ?? NotificationMessageIdURL.Value,
                                                               Timestamp,
                                                               Type,
                                                               Data,

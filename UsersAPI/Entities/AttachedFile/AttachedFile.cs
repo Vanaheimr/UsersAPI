@@ -184,7 +184,7 @@ namespace social.OpenData.UsersAPI
         public static Boolean TryParseJSON(JObject           JSONObject,
                                            out AttachedFile  AttachedFile,
                                            out String        ErrorResponse,
-                                           AttachedFile_Id?  AttachedFileIdURI)
+                                           AttachedFile_Id?  AttachedFileIdURL)
         {
 
             try
@@ -214,13 +214,13 @@ namespace social.OpenData.UsersAPI
 
                 }
 
-                if (!AttachedFileIdURI.HasValue && !AttachedFileIdBody.HasValue)
+                if (!AttachedFileIdURL.HasValue && !AttachedFileIdBody.HasValue)
                 {
                     ErrorResponse = "The AttachedFile identification is missing!";
                     return false;
                 }
 
-                if (AttachedFileIdURI.HasValue && AttachedFileIdBody.HasValue && AttachedFileIdURI.Value != AttachedFileIdBody.Value)
+                if (AttachedFileIdURL.HasValue && AttachedFileIdBody.HasValue && AttachedFileIdURL.Value != AttachedFileIdBody.Value)
                 {
                     ErrorResponse = "The optional AttachedFile identification given within the JSON body does not match the one given in the URI!";
                     return false;
@@ -290,7 +290,7 @@ namespace social.OpenData.UsersAPI
                 #endregion
 
 
-                AttachedFile = new AttachedFile(Id:               AttachedFileIdBody ?? AttachedFileIdURI.Value,
+                AttachedFile = new AttachedFile(Id:               AttachedFileIdBody ?? AttachedFileIdURL.Value,
                                                 Description:      Description,
                                                 Locations:        Locations,
                                                 ContentType:      ContentType,

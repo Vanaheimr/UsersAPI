@@ -147,7 +147,7 @@ namespace social.OpenData.UsersAPI
         public static Boolean TryParseJSON(JObject     JSONObject,
                                            out Tag     Tag,
                                            out String  ErrorResponse,
-                                           Tag_Id?     TagIdURI = null)
+                                           Tag_Id?     TagIdURL = null)
         {
 
             try
@@ -177,13 +177,13 @@ namespace social.OpenData.UsersAPI
 
                 }
 
-                if (!TagIdURI.HasValue && !TagIdBody.HasValue)
+                if (!TagIdURL.HasValue && !TagIdBody.HasValue)
                 {
                     ErrorResponse = "The tag identification is missing!";
                     return false;
                 }
 
-                if (TagIdURI.HasValue && TagIdBody.HasValue && TagIdURI.Value != TagIdBody.Value)
+                if (TagIdURL.HasValue && TagIdBody.HasValue && TagIdURL.Value != TagIdBody.Value)
                 {
                     ErrorResponse = "The optional tag identification given within the JSON body does not match the one given in the URI!";
                     return false;
@@ -226,7 +226,7 @@ namespace social.OpenData.UsersAPI
                 #endregion
 
 
-                Tag = new Tag(TagIdBody ?? TagIdURI.Value,
+                Tag = new Tag(TagIdBody ?? TagIdURL.Value,
                               Description);
 
                 ErrorResponse = null;

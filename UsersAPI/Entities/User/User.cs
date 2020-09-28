@@ -1014,7 +1014,7 @@ namespace social.OpenData.UsersAPI
         public static Boolean TryParseJSON(JObject     JSONObject,
                                            out User    User,
                                            out String  ErrorResponse,
-                                           User_Id?    UserIdURI = null)
+                                           User_Id?    UserIdURL = null)
         {
 
             try
@@ -1038,13 +1038,13 @@ namespace social.OpenData.UsersAPI
 
                 }
 
-                if (!UserIdURI.HasValue && !UserIdBody.HasValue)
+                if (!UserIdURL.HasValue && !UserIdBody.HasValue)
                 {
                     ErrorResponse = "The user identification is missing!";
                     return false;
                 }
 
-                if (UserIdURI.HasValue && UserIdBody.HasValue && UserIdURI.Value != UserIdBody.Value)
+                if (UserIdURL.HasValue && UserIdBody.HasValue && UserIdURL.Value != UserIdBody.Value)
                 {
                     ErrorResponse = "The optional user identification given within the JSON body does not match the one given in the URI!";
                     return false;
@@ -1301,7 +1301,7 @@ namespace social.OpenData.UsersAPI
                 #endregion
 
 
-                User = new User(UserIdBody ?? UserIdURI.Value,
+                User = new User(UserIdBody ?? UserIdURL.Value,
 
                                 EMail,
                                 Name,

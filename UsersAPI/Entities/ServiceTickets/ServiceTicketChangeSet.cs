@@ -447,7 +447,7 @@ namespace social.OpenData.UsersAPI
                                            out ServiceTicketChangeSet     ServiceTicketChangeSet,
                                            out String                     ErrorResponse,
                                            JSONLDContext?                 VerifyContext                 = null,
-                                           ServiceTicketChangeSet_Id?     ServiceTicketChangeSetIdURI   = null,
+                                           ServiceTicketChangeSet_Id?     ServiceTicketChangeSetIdURL   = null,
                                            OverwriteUserDelegate          OverwriteAuthor               = null,
                                            String                         DataSource                    = null)
         {
@@ -479,10 +479,10 @@ namespace social.OpenData.UsersAPI
 
                 }
 
-                if (!ServiceTicketChangeSetIdURI.HasValue && !ServiceTicketChangeSetIdBody.HasValue)
+                if (!ServiceTicketChangeSetIdURL.HasValue && !ServiceTicketChangeSetIdBody.HasValue)
                     ServiceTicketChangeSetIdBody = ServiceTicketChangeSet_Id.Random();
 
-                if (ServiceTicketChangeSetIdURI.HasValue && ServiceTicketChangeSetIdBody.HasValue && ServiceTicketChangeSetIdURI.Value != ServiceTicketChangeSetIdBody.Value)
+                if (ServiceTicketChangeSetIdURL.HasValue && ServiceTicketChangeSetIdBody.HasValue && ServiceTicketChangeSetIdURL.Value != ServiceTicketChangeSetIdBody.Value)
                 {
                     ErrorResponse = "The optional service ticket change set identification given within the JSON body does not match the one given in the URI!";
                     return false;
@@ -856,7 +856,7 @@ namespace social.OpenData.UsersAPI
                 #endregion
 
 
-                ServiceTicketChangeSet = new ServiceTicketChangeSet(ServiceTicketChangeSetIdBody ?? ServiceTicketChangeSetIdURI.Value,
+                ServiceTicketChangeSet = new ServiceTicketChangeSet(ServiceTicketChangeSetIdBody ?? ServiceTicketChangeSetIdURL.Value,
                                                                     Context,
 
                                                                     Timestamp,

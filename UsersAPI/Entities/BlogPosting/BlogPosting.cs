@@ -337,7 +337,7 @@ namespace social.OpenData.UsersAPI.Postings
         public static Boolean TryParseJSON(JObject          JSONObject,
                                            out BlogPosting  Posting,
                                            out String       ErrorResponse,
-                                           BlogPosting_Id?  PostingIdURI  = null)
+                                           BlogPosting_Id?  PostingIdURL  = null)
         {
 
             try
@@ -361,13 +361,13 @@ namespace social.OpenData.UsersAPI.Postings
 
                 }
 
-                if (!PostingIdURI.HasValue && !PostingIdBody.HasValue)
+                if (!PostingIdURL.HasValue && !PostingIdBody.HasValue)
                 {
                     ErrorResponse = "The Posting identification is missing!";
                     return false;
                 }
 
-                if (PostingIdURI.HasValue && PostingIdBody.HasValue && PostingIdURI.Value != PostingIdBody.Value)
+                if (PostingIdURL.HasValue && PostingIdBody.HasValue && PostingIdURL.Value != PostingIdBody.Value)
                 {
                     ErrorResponse = "The optional Posting identification given within the JSON body does not match the one given in the URI!";
                     return false;
@@ -459,7 +459,7 @@ namespace social.OpenData.UsersAPI.Postings
                 #endregion
 
 
-                Posting = new BlogPosting(PostingIdBody ?? PostingIdURI.Value,
+                Posting = new BlogPosting(PostingIdBody ?? PostingIdURL.Value,
                                           Text,
                                           PublicationDate,
                                           GeoLocation,

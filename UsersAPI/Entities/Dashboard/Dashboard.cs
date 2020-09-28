@@ -302,7 +302,7 @@ namespace social.OpenData.UsersAPI
         public static Boolean TryParseJSON(JObject        JSONObject,
                                            out Dashboard  Dashboard,
                                            out String     ErrorResponse,
-                                           Dashboard_Id?  DashboardIdURI  = null)
+                                           Dashboard_Id?  DashboardIdURL  = null)
         {
 
             try
@@ -326,13 +326,13 @@ namespace social.OpenData.UsersAPI
 
                 }
 
-                if (!DashboardIdURI.HasValue && !DashboardIdBody.HasValue)
+                if (!DashboardIdURL.HasValue && !DashboardIdBody.HasValue)
                 {
                     ErrorResponse = "The Dashboard identification is missing!";
                     return false;
                 }
 
-                if (DashboardIdURI.HasValue && DashboardIdBody.HasValue && DashboardIdURI.Value != DashboardIdBody.Value)
+                if (DashboardIdURL.HasValue && DashboardIdBody.HasValue && DashboardIdURL.Value != DashboardIdBody.Value)
                 {
                     ErrorResponse = "The optional Dashboard identification given within the JSON body does not match the one given in the URI!";
                     return false;
@@ -413,7 +413,7 @@ namespace social.OpenData.UsersAPI
                 #endregion
 
 
-                Dashboard = new Dashboard(DashboardIdBody ?? DashboardIdURI.Value,
+                Dashboard = new Dashboard(DashboardIdBody ?? DashboardIdURL.Value,
                                           Name,
                                           Description,
                                           CreationDate,

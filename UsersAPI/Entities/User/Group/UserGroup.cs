@@ -270,7 +270,7 @@ namespace social.OpenData.UsersAPI
                                            UserProviderDelegate       UserProvider,
                                            out UserGroup              UserGroup,
                                            out String                 ErrorResponse,
-                                           UserGroup_Id?              UserGroupIdURI = null)
+                                           UserGroup_Id?              UserGroupIdURL = null)
         {
 
             try
@@ -300,13 +300,13 @@ namespace social.OpenData.UsersAPI
 
                 }
 
-                if (!UserGroupIdURI.HasValue && !UserGroupIdBody.HasValue)
+                if (!UserGroupIdURL.HasValue && !UserGroupIdBody.HasValue)
                 {
                     ErrorResponse = "The UserGroup identification is missing!";
                     return false;
                 }
 
-                if (UserGroupIdURI.HasValue && UserGroupIdBody.HasValue && UserGroupIdURI.Value != UserGroupIdBody.Value)
+                if (UserGroupIdURL.HasValue && UserGroupIdBody.HasValue && UserGroupIdURL.Value != UserGroupIdBody.Value)
                 {
                     ErrorResponse = "The optional UserGroup identification given within the JSON body does not match the one given in the URI!";
                     return false;
@@ -460,7 +460,7 @@ namespace social.OpenData.UsersAPI
                 #endregion
 
 
-                UserGroup = new UserGroup(UserGroupIdBody ?? UserGroupIdURI.Value,
+                UserGroup = new UserGroup(UserGroupIdBody ?? UserGroupIdURL.Value,
 
                                           Name,
                                           Description,

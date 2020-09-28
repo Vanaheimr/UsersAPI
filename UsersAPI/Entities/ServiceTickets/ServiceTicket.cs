@@ -519,7 +519,7 @@ namespace social.OpenData.UsersAPI
                                            out ServiceTicket              ServiceTicket,
                                            out String                     ErrorResponse,
                                            JSONLDContext?                 VerifyContext        = default,
-                                           ServiceTicket_Id?              ServiceTicketIdURI   = null,
+                                           ServiceTicket_Id?              ServiceTicketIdURL   = null,
                                            OverwriteUserDelegate          OverwriteAuthor      = null)
         {
 
@@ -574,13 +574,13 @@ namespace social.OpenData.UsersAPI
 
                 }
 
-                if (!ServiceTicketIdURI.HasValue && !ServiceTicketIdBody.HasValue)
+                if (!ServiceTicketIdURL.HasValue && !ServiceTicketIdBody.HasValue)
                 {
                     ErrorResponse = "The service ticket identification is missing!";
                     return false;
                 }
 
-                if (ServiceTicketIdURI.HasValue && ServiceTicketIdBody.HasValue && ServiceTicketIdURI.Value != ServiceTicketIdBody.Value)
+                if (ServiceTicketIdURL.HasValue && ServiceTicketIdBody.HasValue && ServiceTicketIdURL.Value != ServiceTicketIdBody.Value)
                 {
                     ErrorResponse = "The optional service ticket identification given within the JSON body does not match the one given in the URI!";
                     return false;
@@ -953,11 +953,11 @@ namespace social.OpenData.UsersAPI
 
                 ServiceTicket = ChangeSets.SafeAny()
 
-                                    ? new ServiceTicket(ServiceTicketIdBody ?? ServiceTicketIdURI.Value,
+                                    ? new ServiceTicket(ServiceTicketIdBody ?? ServiceTicketIdURL.Value,
                                                         ChangeSets,
                                                         Context)
 
-                                    : new ServiceTicket(ServiceTicketIdBody ?? ServiceTicketIdURI.Value,
+                                    : new ServiceTicket(ServiceTicketIdBody ?? ServiceTicketIdURL.Value,
                                                         Context,
 
                                                         DateTime.UtcNow,
