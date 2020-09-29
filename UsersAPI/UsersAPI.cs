@@ -10170,10 +10170,10 @@ namespace social.OpenData.UsersAPI
 
         //ToDo: Receive Network Database Commands
 
-        #region (protected) ProcessCommand(Command, JSONObject)
+        #region (protected) ProcessEvent(EventCommand, JSONObject)
 
-        protected async Task ProcessCommand(String   Command,
-                                            JObject  JSONObject)
+        protected async Task ProcessEvent(String   EventCommand,
+                                          JObject  JSONObject)
         {
 
             User_Id          userId;
@@ -10181,10 +10181,10 @@ namespace social.OpenData.UsersAPI
             Organization_Id  organizationId;
             Organization     organization;
 
-            switch (Command)
+            switch (EventCommand)
             {
 
-                #region CreateUser
+                #region Create user
 
                 case "createUser":
 
@@ -10196,13 +10196,13 @@ namespace social.OpenData.UsersAPI
                     }
 
                     else
-                        DebugX.Log(String.Concat(nameof(UsersAPI), " ", Command, ": ", ErrorResponse));
+                        DebugX.Log(String.Concat(nameof(UsersAPI), " ", EventCommand, ": ", ErrorResponse));
 
                     break;
 
                 #endregion
 
-                #region addUser
+                #region Add user
 
                 case "addUser":
 
@@ -10214,15 +10214,15 @@ namespace social.OpenData.UsersAPI
                     }
 
                     else
-                        DebugX.Log(String.Concat(nameof(UsersAPI), " ", Command, ": ", ErrorResponse));
+                        DebugX.Log(String.Concat(nameof(UsersAPI), " ", EventCommand, ": ", ErrorResponse));
 
                     break;
 
                 #endregion
 
-                #region addIfNotExistsUser
+                #region Add user if not exists
 
-                case "addIfNotExistsUser":
+                case "addUserIfNotExists":
 
                     if (User.TryParseJSON(JSONObject,
                                           out user,
@@ -10238,13 +10238,13 @@ namespace social.OpenData.UsersAPI
                     }
 
                     else
-                        DebugX.Log(String.Concat(nameof(UsersAPI), " ", Command, ": ", ErrorResponse));
+                        DebugX.Log(String.Concat(nameof(UsersAPI), " ", EventCommand, ": ", ErrorResponse));
 
                     break;
 
                 #endregion
 
-                #region addOrUpdateUser
+                #region Add or update user
 
                 case "addOrUpdateUser":
 
@@ -10264,13 +10264,13 @@ namespace social.OpenData.UsersAPI
                     }
 
                     else
-                        DebugX.Log(String.Concat(nameof(UsersAPI), " ", Command, ": ", ErrorResponse));
+                        DebugX.Log(String.Concat(nameof(UsersAPI), " ", EventCommand, ": ", ErrorResponse));
 
                     break;
 
                 #endregion
 
-                #region updateUser
+                #region Update user
 
                 case "updateUser":
 
@@ -10293,13 +10293,13 @@ namespace social.OpenData.UsersAPI
                     }
 
                     else
-                        DebugX.Log(String.Concat(nameof(UsersAPI), " ", Command, ": ", ErrorResponse));
+                        DebugX.Log(String.Concat(nameof(UsersAPI), " ", EventCommand, ": ", ErrorResponse));
 
                     break;
 
                 #endregion
 
-                #region removeUser
+                #region Remove user
 
                 case "removeUser":
 
@@ -10322,13 +10322,13 @@ namespace social.OpenData.UsersAPI
                     }
 
                     else
-                        DebugX.Log(String.Concat(nameof(UsersAPI), " ", Command, ": ", ErrorResponse));
+                        DebugX.Log(String.Concat(nameof(UsersAPI), " ", EventCommand, ": ", ErrorResponse));
 
                     break;
 
                 #endregion
 
-                #region removeUserId
+                #region Remove user id
 
                 case "removeUserId":
 
@@ -10353,14 +10353,14 @@ namespace social.OpenData.UsersAPI
                     }
 
                     else
-                        DebugX.Log(String.Concat(nameof(UsersAPI), " ", Command, ": ", ErrorResponse));
+                        DebugX.Log(String.Concat(nameof(UsersAPI), " ", EventCommand, ": ", ErrorResponse));
 
                     break;
 
                 #endregion
 
 
-                #region CreateOrganization
+                #region Create organization
 
                 case "createOrganization":
 
@@ -10372,13 +10372,13 @@ namespace social.OpenData.UsersAPI
                     }
 
                     else
-                        DebugX.Log(String.Concat(nameof(UsersAPI), " ", Command, ": ", ErrorResponse));
+                        DebugX.Log(String.Concat(nameof(UsersAPI), " ", EventCommand, ": ", ErrorResponse));
 
                     break;
 
                 #endregion
 
-                #region addOrganization
+                #region Add organization
 
                 case "addOrganization":
 
@@ -10399,15 +10399,15 @@ namespace social.OpenData.UsersAPI
                     }
 
                     else
-                        DebugX.Log(String.Concat(nameof(UsersAPI), " ", Command, ": ", ErrorResponse));
+                        DebugX.Log(String.Concat(nameof(UsersAPI), " ", EventCommand, ": ", ErrorResponse));
 
                     break;
 
                 #endregion
 
-                #region addIfNotExistsOrganization
+                #region Add organization if not exists
 
-                case "addIfNotExistsOrganization":
+                case "addOrganizationIfNotExists":
 
                     if (Organization.TryParseJSON(JSONObject,
                                                   out organization,
@@ -10423,13 +10423,13 @@ namespace social.OpenData.UsersAPI
                     }
 
                     else
-                        DebugX.Log(String.Concat(nameof(UsersAPI), " ", Command, ": ", ErrorResponse));
+                        DebugX.Log(String.Concat(nameof(UsersAPI), " ", EventCommand, ": ", ErrorResponse));
 
                     break;
 
                 #endregion
 
-                #region AddOrUpdateOrganization
+                #region Add or update organization
 
                 case "addOrUpdateOrganization":
 
@@ -10451,13 +10451,13 @@ namespace social.OpenData.UsersAPI
                     }
 
                     else
-                        DebugX.Log(String.Concat(nameof(UsersAPI), " ", Command, ": ", ErrorResponse));
+                        DebugX.Log(String.Concat(nameof(UsersAPI), " ", EventCommand, ": ", ErrorResponse));
 
                     break;
 
                 #endregion
 
-                #region UpdateOrganization
+                #region Update organization
 
                 case "updateOrganization":
 
@@ -10480,13 +10480,13 @@ namespace social.OpenData.UsersAPI
                     }
 
                     else
-                        DebugX.Log(String.Concat(nameof(UsersAPI), " ", Command, ": ", ErrorResponse));
+                        DebugX.Log(String.Concat(nameof(UsersAPI), " ", EventCommand, ": ", ErrorResponse));
 
                     break;
 
                 #endregion
 
-                #region RemoveOrganization
+                #region Remove organization
 
                 case "removeOrganization":
 
@@ -10517,13 +10517,13 @@ namespace social.OpenData.UsersAPI
                     }
 
                     else
-                        DebugX.Log(String.Concat(nameof(UsersAPI), " ", Command, ": ", ErrorResponse));
+                        DebugX.Log(String.Concat(nameof(UsersAPI), " ", EventCommand, ": ", ErrorResponse));
 
                     break;
 
                 #endregion
 
-                #region RemoveOrganizationId
+                #region Remove organization id
 
                 case "removeOrganizationId":
 
@@ -10556,47 +10556,46 @@ namespace social.OpenData.UsersAPI
                     }
 
                     else
-                        DebugX.Log(String.Concat(nameof(UsersAPI), " ", Command, ": ", ErrorResponse));
+                        DebugX.Log(String.Concat(nameof(UsersAPI), " ", EventCommand, ": ", ErrorResponse));
 
                     break;
 
                 #endregion
 
 
-                #region AddUserToOrganization
+                #region Add user to organization
 
                 case "addUserToOrganization":
-                case "AddUserToOrganization":
 
                     if (!User_Id.TryParse(JSONObject["user"]?.Value<String>(), out User_Id U2O_UserId))
                     {
-                        DebugX.Log(String.Concat(nameof(UsersAPI), " ", Command, ": ", "Invalid user identification '" + JSONObject["user"]?.Value<String>() + "'!"));
+                        DebugX.Log(String.Concat(nameof(UsersAPI), " ", EventCommand, ": ", "Invalid user identification '" + JSONObject["user"]?.Value<String>() + "'!"));
                         break;
                     }
 
                     if (!TryGetUser(U2O_UserId, out User U2O_User))
                     {
-                        DebugX.Log(String.Concat(nameof(UsersAPI), " ", Command, ": ", "Unknown user '" + U2O_UserId + "'!"));
+                        DebugX.Log(String.Concat(nameof(UsersAPI), " ", EventCommand, ": ", "Unknown user '" + U2O_UserId + "'!"));
                         break;
                     }
 
 
                     if (!Organization_Id.TryParse(JSONObject["organization"]?.Value<String>(), out Organization_Id U2O_OrganizationId))
                     {
-                        DebugX.Log(String.Concat(nameof(UsersAPI), " ", Command, ": ", "Invalid organization identification '" + JSONObject["user"]?.Value<String>() + "'!"));
+                        DebugX.Log(String.Concat(nameof(UsersAPI), " ", EventCommand, ": ", "Invalid organization identification '" + JSONObject["user"]?.Value<String>() + "'!"));
                         break;
                     }
 
                     if (!TryGetOrganization(U2O_OrganizationId, out Organization U2O_Organization))
                     {
-                        DebugX.Log(String.Concat(nameof(UsersAPI), " ", Command, ": ", "Unknown organization '" + U2O_OrganizationId + "'!"));
+                        DebugX.Log(String.Concat(nameof(UsersAPI), " ", EventCommand, ": ", "Unknown organization '" + U2O_OrganizationId + "'!"));
                         break;
                     }
 
 
                     if (!Enum.TryParse(JSONObject["edge"].Value<String>(), out User2OrganizationEdgeTypes U2O_EdgeLabel))
                     {
-                        DebugX.Log(String.Concat(nameof(UsersAPI), " ", Command, ": ", "Unknown edge label '" + JSONObject["edge"].Value<String>() + "'!"));
+                        DebugX.Log(String.Concat(nameof(UsersAPI), " ", EventCommand, ": ", "Unknown edge label '" + JSONObject["edge"].Value<String>() + "'!"));
                         break;
                     }
 
@@ -10609,40 +10608,39 @@ namespace social.OpenData.UsersAPI
 
                 #endregion
 
-                #region LinkOrganizations
+                #region Link organizations
 
                 case "linkOrganizations":
-                case "LinkOrganizations":
 
                     if (!Organization_Id.TryParse(JSONObject["organizationOut"]?.Value<String>(), out Organization_Id O2O_OrganizationIdOut))
                     {
-                        DebugX.Log(String.Concat(nameof(UsersAPI), " ", Command, ": ", "Invalid outgoing organization identification '" + JSONObject["user"]?.Value<String>() + "'!"));
+                        DebugX.Log(String.Concat(nameof(UsersAPI), " ", EventCommand, ": ", "Invalid outgoing organization identification '" + JSONObject["user"]?.Value<String>() + "'!"));
                         break;
                     }
 
                     if (!TryGetOrganization(O2O_OrganizationIdOut, out Organization O2O_OrganizationOut))
                     {
-                        DebugX.Log(String.Concat(nameof(UsersAPI), " ", Command, ": ", "Unknown outgoing organization '" + O2O_OrganizationIdOut + "'!"));
+                        DebugX.Log(String.Concat(nameof(UsersAPI), " ", EventCommand, ": ", "Unknown outgoing organization '" + O2O_OrganizationIdOut + "'!"));
                         break;
                     }
 
 
                     if (!Organization_Id.TryParse(JSONObject["organizationIn"]?.Value<String>(), out Organization_Id O2O_OrganizationIdIn))
                     {
-                        DebugX.Log(String.Concat(nameof(UsersAPI), " ", Command, ": ", "Invalid incoming organization identification '" + JSONObject["user"]?.Value<String>() + "'!"));
+                        DebugX.Log(String.Concat(nameof(UsersAPI), " ", EventCommand, ": ", "Invalid incoming organization identification '" + JSONObject["user"]?.Value<String>() + "'!"));
                         break;
                     }
 
                     if (!TryGetOrganization(O2O_OrganizationIdIn, out Organization O2O_OrganizationIn))
                     {
-                        DebugX.Log(String.Concat(nameof(UsersAPI), " ", Command, ": ", "Unknown incoming organization '" + O2O_OrganizationIdIn + "'!"));
+                        DebugX.Log(String.Concat(nameof(UsersAPI), " ", EventCommand, ": ", "Unknown incoming organization '" + O2O_OrganizationIdIn + "'!"));
                         break;
                     }
 
 
                     if (!Enum.TryParse(JSONObject["edge"].Value<String>(), out Organization2OrganizationEdgeTypes O2O_EdgeLabel))
                     {
-                        DebugX.Log(String.Concat(nameof(UsersAPI), " ", Command, ": ", "Unknown edge label '" + JSONObject["edge"].Value<String>() + "'!"));
+                        DebugX.Log(String.Concat(nameof(UsersAPI), " ", EventCommand, ": ", "Unknown edge label '" + JSONObject["edge"].Value<String>() + "'!"));
                         break;
                     }
 
@@ -10656,10 +10654,9 @@ namespace social.OpenData.UsersAPI
                 #endregion
 
 
-                #region CreateUserGroup
+                #region Create user group
 
                 case "createUserGroup":
-                case "CreateUserGroup":
 
                     if (UserGroup.TryParseJSON(JSONObject,
                                                null,
@@ -10672,47 +10669,45 @@ namespace social.OpenData.UsersAPI
                     }
 
                     else
-                        DebugX.Log(String.Concat(nameof(UsersAPI), " ", Command, ": ", ErrorResponse));
+                        DebugX.Log(String.Concat(nameof(UsersAPI), " ", EventCommand, ": ", ErrorResponse));
 
                     break;
 
                 #endregion
 
+                #region Add user to user group
 
-                #region AddUserToGroup
-
-                case "addUserToGroup":
-                case "AddUserToGroup":
+                case "addUserToUserGroup":
 
                     if (!User_Id.TryParse(JSONObject["user"]?.Value<String>(), out User_Id U2G_UserId))
                     {
-                        DebugX.Log(String.Concat(nameof(UsersAPI), " ", Command, ": ", "Invalid user identification '" + JSONObject["user"]?.Value<String>() + "'!"));
+                        DebugX.Log(String.Concat(nameof(UsersAPI), " ", EventCommand, ": ", "Invalid user identification '" + JSONObject["user"]?.Value<String>() + "'!"));
                         break;
                     }
 
                     if (!TryGetUser(U2G_UserId, out User U2G_User))
                     {
-                        DebugX.Log(String.Concat(nameof(UsersAPI), " ", Command, ": ", "Unknown user '" + U2G_UserId + "'!"));
+                        DebugX.Log(String.Concat(nameof(UsersAPI), " ", EventCommand, ": ", "Unknown user '" + U2G_UserId + "'!"));
                         break;
                     }
 
 
                     if (!UserGroup_Id.TryParse(JSONObject["group"]?.Value<String>(), out UserGroup_Id U2G_GroupId))
                     {
-                        DebugX.Log(String.Concat(nameof(UsersAPI), " ", Command, ": ", "Invalid group identification '" + JSONObject["user"]?.Value<String>() + "'!"));
+                        DebugX.Log(String.Concat(nameof(UsersAPI), " ", EventCommand, ": ", "Invalid group identification '" + JSONObject["user"]?.Value<String>() + "'!"));
                         break;
                     }
 
                     if (!TryGet(U2G_GroupId, out UserGroup U2G_Group))
                     {
-                        DebugX.Log(String.Concat(nameof(UsersAPI), " ", Command, ": ", "Unknown group '" + U2G_GroupId + "'!"));
+                        DebugX.Log(String.Concat(nameof(UsersAPI), " ", EventCommand, ": ", "Unknown group '" + U2G_GroupId + "'!"));
                         break;
                     }
 
 
                     if (!Enum.TryParse(JSONObject["edge"].Value<String>(), out User2GroupEdgeTypes U2G_EdgeLabel))
                     {
-                        DebugX.Log(String.Concat(nameof(UsersAPI), " ", Command, ": ", "Unknown edge label '" + JSONObject["edge"].Value<String>() + "'!"));
+                        DebugX.Log(String.Concat(nameof(UsersAPI), " ", EventCommand, ": ", "Unknown edge label '" + JSONObject["edge"].Value<String>() + "'!"));
                         break;
                     }
 
@@ -10726,10 +10721,9 @@ namespace social.OpenData.UsersAPI
                 #endregion
 
 
-                #region AddNotification
+                #region Add notification
 
                 case "addNotification":
-                case "AddNotification":
 
                     user          = null;
                     organization  = null;
@@ -10840,7 +10834,7 @@ namespace social.OpenData.UsersAPI
 
                 #endregion
 
-                #region RemoveNotification
+                #region Remove notification
 
                 case "removeNotification":
 
@@ -10954,10 +10948,9 @@ namespace social.OpenData.UsersAPI
                 #endregion
 
 
-                #region AddAPIKey
+                #region Add API key
 
                 case "addAPIKey":
-                case "AddAPIKey":
 
                     if (APIKeyInfo.TryParseJSON(JSONObject,
                                                 out APIKeyInfo _APIKey,
@@ -10968,7 +10961,7 @@ namespace social.OpenData.UsersAPI
                     }
 
                     else
-                        DebugX.Log(String.Concat(nameof(UsersAPI), " ", Command, ": ", ErrorResponse));
+                        DebugX.Log(String.Concat(nameof(UsersAPI), " ", EventCommand, ": ", ErrorResponse));
 
                     break;
 
@@ -10976,7 +10969,7 @@ namespace social.OpenData.UsersAPI
 
 
                 default:
-                    DebugX.Log(String.Concat(nameof(UsersAPI), " I don't know what to do with database command '", Command, "'!"));
+                    DebugX.Log(String.Concat(nameof(UsersAPI), ": does not know what to do with database command '", EventCommand, "'!"));
                     break;
 
             }
@@ -12004,7 +11997,7 @@ namespace social.OpenData.UsersAPI
 
                 User.API = this;
 
-                await WriteToDatabaseFile(NotificationMessageType.Parse("addIfNotExistsUser"),
+                await WriteToDatabaseFile(NotificationMessageType.Parse("addUserIfNotExists"),
                                           User.ToJSON(),
                                           CurrentUserId);
 
@@ -14267,9 +14260,9 @@ namespace social.OpenData.UsersAPI
 
                 Organization.API = this;
 
-                await WriteToDatabaseFile(NotificationMessageType.Parse("addIfNotExistsOrganization"),
-                                     Organization.ToJSON(),
-                                     CurrentUserId);
+                await WriteToDatabaseFile(NotificationMessageType.Parse("addOrganizationIfNotExists"),
+                                          Organization.ToJSON(),
+                                          CurrentUserId);
 
                 var NewOrg = _Organizations.AddAndReturnValue(Organization.Id, Organization);
 
