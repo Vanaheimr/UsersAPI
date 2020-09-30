@@ -354,8 +354,8 @@ namespace social.OpenData.UsersAPI
         public User2OrganizationEdge
 
             AddOutgoingEdge(User2OrganizationEdgeTypes  EdgeLabel,
-                            Organization            Target,
-                            PrivacyLevel            PrivacyLevel = PrivacyLevel.World)
+                            Organization                Target,
+                            PrivacyLevel                PrivacyLevel = PrivacyLevel.World)
 
             => _User2Organization_OutEdges.AddAndReturnElement(new User2OrganizationEdge(this, EdgeLabel, Target, PrivacyLevel));
 
@@ -363,9 +363,9 @@ namespace social.OpenData.UsersAPI
 
         public User2GroupEdge
 
-            AddOutgoingEdge(User2GroupEdgeTypes EdgeLabel,
-                            UserGroup           Target,
-                            PrivacyLevel        PrivacyLevel = PrivacyLevel.World)
+            AddOutgoingEdge(User2GroupEdgeTypes  EdgeLabel,
+                            UserGroup            Target,
+                            PrivacyLevel         PrivacyLevel = PrivacyLevel.World)
 
             => _User2Group_OutEdges.AddAndReturnElement(new User2GroupEdge(this, EdgeLabel, Target, PrivacyLevel));
 

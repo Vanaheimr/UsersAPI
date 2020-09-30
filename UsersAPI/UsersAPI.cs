@@ -9747,18 +9747,18 @@ namespace social.OpenData.UsersAPI
         #endregion
 
 
-        #region (protected) ReadDatabaseFile(ProcessCommandDelegate, DBFile = null)
+        #region (protected) ReadDatabaseFile(ProcessEventDelegate, DatabaseFileName = null)
 
-        protected async Task ReadDatabaseFile(Func<String, JObject, Task>  ProcessCommandDelegate,
-                                              String                       DatabaseFile = null)
+        protected async Task ReadDatabaseFile(Func<String, JObject, String, UInt64?, Task>  ProcessEventDelegate,
+                                              String                                        DatabaseFileName = null)
         {
 
             if (DisableLogfile)
                 return;
 
-            var DBFile = DatabaseFile ?? this.DatabaseFileName;
+            var databaseFileName = DatabaseFileName ?? this.DatabaseFileName;
 
-            DebugX.Log("Reloading database file '" + DBFile + "'...");
+            DebugX.Log("Reloading database file '" + databaseFileName + "'...");
 
             try
             {
@@ -9767,7 +9767,7 @@ namespace social.OpenData.UsersAPI
                 String  JSONCommand;
                 JObject JSONObject;
 
-                File.ReadLines(DBFile).ForEachCounted(async (line, linenumber) => {
+                File.ReadLines(databaseFileName).ForEachCounted(async (line, lineNumber) => {
 
                     if (line.IsNeitherNullNorEmpty() &&
                        !line.StartsWith("#") &&
@@ -9783,12 +9783,15 @@ namespace social.OpenData.UsersAPI
                             CurrentDatabaseHashValue  = JSONLine["sha256hash"]?["hashValue"]?.Value<String>();
 
                             if (JSONCommand.IsNotNullOrEmpty() && JSONObject != null)
-                                await ProcessCommandDelegate(JSONCommand, JSONObject);
+                                await ProcessEventDelegate(JSONCommand,
+                                                           JSONObject,
+                                                           databaseFileName,
+                                                           lineNumber);
 
                         }
                         catch (Exception e)
                         {
-                            DebugX.Log(@"Could not (re-)load database file ''" + DBFile + "' line " + linenumber + ": " + e.Message);
+                            DebugX.Log(@"Could not (re-)load database file ''" + databaseFileName + "' line " + lineNumber + ": " + e.Message);
                         }
 
                     }
@@ -9802,10 +9805,10 @@ namespace social.OpenData.UsersAPI
             { }
             catch (Exception e)
             {
-                DebugX.LogT(@"Could not (re-)load database file '" + DBFile + "': " + e.Message);
+                DebugX.LogT(@"Could not (re-)load database file '" + databaseFileName + "': " + e.Message);
             }
 
-            DebugX.Log("Reloading of database file '" + DBFile + "' finished!");
+            DebugX.Log("Reloading of database file '" + databaseFileName + "' finished!");
 
         }
 
@@ -10168,27 +10171,39 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
-        //ToDo: Receive Network Database Commands
+        //ToDo: Receive Network Database Events
 
-        #region (protected) ProcessEvent(EventCommand, JSONObject)
+        #region (protected) ProcessEvent(Command, Data, Sender = null, LineNumber = null)
 
-        protected async Task ProcessEvent(String   EventCommand,
-                                          JObject  JSONObject)
+        /// <summary>
+        /// Process an event.
+        /// </summary>
+        /// <param name="Command">The event command.</param>
+        /// <param name="Data">The event data.</param>
+        /// <param name="Sender">The event sender or file name.</param>
+        /// <param name="LineNumber">The event line number within the event file.</param>
+        protected async Task ProcessEvent(String   Command,
+                                          JObject  Data,
+                                          String   Sender     = null,
+                                          UInt64?  LineNumber = null)
         {
+
+            if (Command.IsNullOrEmpty() || Data == null)
+                return;
 
             User_Id          userId;
             User             user;
             Organization_Id  organizationId;
             Organization     organization;
 
-            switch (EventCommand)
+            switch (Command)
             {
 
                 #region Create user
 
                 case "createUser":
 
-                    if (User.TryParseJSON(JSONObject,
+                    if (User.TryParseJSON(Data,
                                           out user,
                                           out String  ErrorResponse))
                     {
@@ -10196,7 +10211,7 @@ namespace social.OpenData.UsersAPI
                     }
 
                     else
-                        DebugX.Log(String.Concat(nameof(UsersAPI), " ", EventCommand, ": ", ErrorResponse));
+                        DebugX.Log(String.Concat(nameof(UsersAPI), " ", Command, Sender.IsNotNullOrEmpty() ? " via " + Sender : "", LineNumber.HasValue ? ", line " + LineNumber.Value : "", ": ", ErrorResponse));
 
                     break;
 
@@ -10206,7 +10221,7 @@ namespace social.OpenData.UsersAPI
 
                 case "addUser":
 
-                    if (User.TryParseJSON(JSONObject,
+                    if (User.TryParseJSON(Data,
                                           out user,
                                           out ErrorResponse))
                     {
@@ -10214,7 +10229,7 @@ namespace social.OpenData.UsersAPI
                     }
 
                     else
-                        DebugX.Log(String.Concat(nameof(UsersAPI), " ", EventCommand, ": ", ErrorResponse));
+                        DebugX.Log(String.Concat(nameof(UsersAPI), " ", Command, Sender.IsNotNullOrEmpty() ? " via " + Sender : "", LineNumber.HasValue ? ", line " + LineNumber.Value : "", ": ", ErrorResponse));
 
                     break;
 
@@ -10224,7 +10239,7 @@ namespace social.OpenData.UsersAPI
 
                 case "addUserIfNotExists":
 
-                    if (User.TryParseJSON(JSONObject,
+                    if (User.TryParseJSON(Data,
                                           out user,
                                           out ErrorResponse))
                     {
@@ -10238,7 +10253,7 @@ namespace social.OpenData.UsersAPI
                     }
 
                     else
-                        DebugX.Log(String.Concat(nameof(UsersAPI), " ", EventCommand, ": ", ErrorResponse));
+                        DebugX.Log(String.Concat(nameof(UsersAPI), " ", Command, Sender.IsNotNullOrEmpty() ? " via " + Sender : "", LineNumber.HasValue ? ", line " + LineNumber.Value : "", ": ", ErrorResponse));
 
                     break;
 
@@ -10248,7 +10263,7 @@ namespace social.OpenData.UsersAPI
 
                 case "addOrUpdateUser":
 
-                    if (User.TryParseJSON(JSONObject,
+                    if (User.TryParseJSON(Data,
                                           out user,
                                           out ErrorResponse))
                     {
@@ -10264,7 +10279,7 @@ namespace social.OpenData.UsersAPI
                     }
 
                     else
-                        DebugX.Log(String.Concat(nameof(UsersAPI), " ", EventCommand, ": ", ErrorResponse));
+                        DebugX.Log(String.Concat(nameof(UsersAPI), " ", Command, Sender.IsNotNullOrEmpty() ? " via " + Sender : "", LineNumber.HasValue ? ", line " + LineNumber.Value : "", ": ", ErrorResponse));
 
                     break;
 
@@ -10274,7 +10289,7 @@ namespace social.OpenData.UsersAPI
 
                 case "updateUser":
 
-                    if (User.TryParseJSON(JSONObject,
+                    if (User.TryParseJSON(Data,
                                           out user,
                                           out ErrorResponse))
                     {
@@ -10293,7 +10308,7 @@ namespace social.OpenData.UsersAPI
                     }
 
                     else
-                        DebugX.Log(String.Concat(nameof(UsersAPI), " ", EventCommand, ": ", ErrorResponse));
+                        DebugX.Log(String.Concat(nameof(UsersAPI), " ", Command, Sender.IsNotNullOrEmpty() ? " via " + Sender : "", LineNumber.HasValue ? ", line " + LineNumber.Value : "", ": ", ErrorResponse));
 
                     break;
 
@@ -10303,7 +10318,7 @@ namespace social.OpenData.UsersAPI
 
                 case "removeUser":
 
-                    if (User.TryParseJSON(JSONObject,
+                    if (User.TryParseJSON(Data,
                                           out user,
                                           out ErrorResponse))
                     {
@@ -10322,7 +10337,7 @@ namespace social.OpenData.UsersAPI
                     }
 
                     else
-                        DebugX.Log(String.Concat(nameof(UsersAPI), " ", EventCommand, ": ", ErrorResponse));
+                        DebugX.Log(String.Concat(nameof(UsersAPI), " ", Command, Sender.IsNotNullOrEmpty() ? " via " + Sender : "", LineNumber.HasValue ? ", line " + LineNumber.Value : "", ": ", ErrorResponse));
 
                     break;
 
@@ -10332,7 +10347,7 @@ namespace social.OpenData.UsersAPI
 
                 case "removeUserId":
 
-                    if (JSONObject.ParseOptional("@id",
+                    if (Data.ParseOptional("@id",
                                                  "User identification to remove",
                                                  User_Id.TryParse,
                                                  out userId,
@@ -10353,7 +10368,7 @@ namespace social.OpenData.UsersAPI
                     }
 
                     else
-                        DebugX.Log(String.Concat(nameof(UsersAPI), " ", EventCommand, ": ", ErrorResponse));
+                        DebugX.Log(String.Concat(nameof(UsersAPI), " ", Command, Sender.IsNotNullOrEmpty() ? " via " + Sender : "", LineNumber.HasValue ? ", line " + LineNumber.Value : "", ": ", ErrorResponse));
 
                     break;
 
@@ -10364,7 +10379,7 @@ namespace social.OpenData.UsersAPI
 
                 case "createOrganization":
 
-                    if (Organization.TryParseJSON(JSONObject,
+                    if (Organization.TryParseJSON(Data,
                                                   out organization,
                                                   out ErrorResponse))
                     {
@@ -10372,7 +10387,7 @@ namespace social.OpenData.UsersAPI
                     }
 
                     else
-                        DebugX.Log(String.Concat(nameof(UsersAPI), " ", EventCommand, ": ", ErrorResponse));
+                        DebugX.Log(String.Concat(nameof(UsersAPI), " ", Command, Sender.IsNotNullOrEmpty() ? " via " + Sender : "", LineNumber.HasValue ? ", line " + LineNumber.Value : "", ": ", ErrorResponse));
 
                     break;
 
@@ -10382,7 +10397,7 @@ namespace social.OpenData.UsersAPI
 
                 case "addOrganization":
 
-                    if (Organization.TryParseJSON(JSONObject,
+                    if (Organization.TryParseJSON(Data,
                                                   out organization,
                                                   out ErrorResponse))
                     {
@@ -10399,7 +10414,7 @@ namespace social.OpenData.UsersAPI
                     }
 
                     else
-                        DebugX.Log(String.Concat(nameof(UsersAPI), " ", EventCommand, ": ", ErrorResponse));
+                        DebugX.Log(String.Concat(nameof(UsersAPI), " ", Command, Sender.IsNotNullOrEmpty() ? " via " + Sender : "", LineNumber.HasValue ? ", line " + LineNumber.Value : "", ": ", ErrorResponse));
 
                     break;
 
@@ -10409,7 +10424,7 @@ namespace social.OpenData.UsersAPI
 
                 case "addOrganizationIfNotExists":
 
-                    if (Organization.TryParseJSON(JSONObject,
+                    if (Organization.TryParseJSON(Data,
                                                   out organization,
                                                   out ErrorResponse))
                     {
@@ -10423,7 +10438,7 @@ namespace social.OpenData.UsersAPI
                     }
 
                     else
-                        DebugX.Log(String.Concat(nameof(UsersAPI), " ", EventCommand, ": ", ErrorResponse));
+                        DebugX.Log(String.Concat(nameof(UsersAPI), " ", Command, Sender.IsNotNullOrEmpty() ? " via " + Sender : "", LineNumber.HasValue ? ", line " + LineNumber.Value : "", ": ", ErrorResponse));
 
                     break;
 
@@ -10433,7 +10448,7 @@ namespace social.OpenData.UsersAPI
 
                 case "addOrUpdateOrganization":
 
-                    if (Organization.TryParseJSON(JSONObject,
+                    if (Organization.TryParseJSON(Data,
                                                   out organization,
                                                   out ErrorResponse))
                     {
@@ -10451,7 +10466,7 @@ namespace social.OpenData.UsersAPI
                     }
 
                     else
-                        DebugX.Log(String.Concat(nameof(UsersAPI), " ", EventCommand, ": ", ErrorResponse));
+                        DebugX.Log(String.Concat(nameof(UsersAPI), " ", Command, Sender.IsNotNullOrEmpty() ? " via " + Sender : "", LineNumber.HasValue ? ", line " + LineNumber.Value : "", ": ", ErrorResponse));
 
                     break;
 
@@ -10461,7 +10476,7 @@ namespace social.OpenData.UsersAPI
 
                 case "updateOrganization":
 
-                    if (Organization.TryParseJSON(JSONObject,
+                    if (Organization.TryParseJSON(Data,
                                                   out organization,
                                                   out ErrorResponse))
                     {
@@ -10480,7 +10495,7 @@ namespace social.OpenData.UsersAPI
                     }
 
                     else
-                        DebugX.Log(String.Concat(nameof(UsersAPI), " ", EventCommand, ": ", ErrorResponse));
+                        DebugX.Log(String.Concat(nameof(UsersAPI), " ", Command, Sender.IsNotNullOrEmpty() ? " via " + Sender : "", LineNumber.HasValue ? ", line " + LineNumber.Value : "", ": ", ErrorResponse));
 
                     break;
 
@@ -10490,7 +10505,7 @@ namespace social.OpenData.UsersAPI
 
                 case "removeOrganization":
 
-                    if (Organization.TryParseJSON(JSONObject,
+                    if (Organization.TryParseJSON(Data,
                                                   out organization,
                                                   out ErrorResponse))
                     {
@@ -10517,7 +10532,7 @@ namespace social.OpenData.UsersAPI
                     }
 
                     else
-                        DebugX.Log(String.Concat(nameof(UsersAPI), " ", EventCommand, ": ", ErrorResponse));
+                        DebugX.Log(String.Concat(nameof(UsersAPI), " ", Command, Sender.IsNotNullOrEmpty() ? " via " + Sender : "", LineNumber.HasValue ? ", line " + LineNumber.Value : "", ": ", ErrorResponse));
 
                     break;
 
@@ -10527,7 +10542,7 @@ namespace social.OpenData.UsersAPI
 
                 case "removeOrganizationId":
 
-                    if (JSONObject.ParseOptional("@id",
+                    if (Data.ParseOptional("@id",
                                                  "Organization identification to remove",
                                                  Organization_Id.TryParse,
                                                  out organizationId,
@@ -10556,7 +10571,7 @@ namespace social.OpenData.UsersAPI
                     }
 
                     else
-                        DebugX.Log(String.Concat(nameof(UsersAPI), " ", EventCommand, ": ", ErrorResponse));
+                        DebugX.Log(String.Concat(nameof(UsersAPI), " ", Command, Sender.IsNotNullOrEmpty() ? " via " + Sender : "", LineNumber.HasValue ? ", line " + LineNumber.Value : "", ": ", ErrorResponse));
 
                     break;
 
@@ -10567,42 +10582,42 @@ namespace social.OpenData.UsersAPI
 
                 case "addUserToOrganization":
 
-                    if (!User_Id.TryParse(JSONObject["user"]?.Value<String>(), out User_Id U2O_UserId))
+                    if (!User_Id.TryParse(Data["user"]?.Value<String>(), out User_Id U2O_UserId))
                     {
-                        DebugX.Log(String.Concat(nameof(UsersAPI), " ", EventCommand, ": ", "Invalid user identification '" + JSONObject["user"]?.Value<String>() + "'!"));
+                        DebugX.Log(String.Concat(nameof(UsersAPI), " ", Command, ": ", "Invalid user identification '" + Data["user"]?.Value<String>() + "'!"));
                         break;
                     }
 
                     if (!TryGetUser(U2O_UserId, out User U2O_User))
                     {
-                        DebugX.Log(String.Concat(nameof(UsersAPI), " ", EventCommand, ": ", "Unknown user '" + U2O_UserId + "'!"));
+                        DebugX.Log(String.Concat(nameof(UsersAPI), " ", Command, ": ", "Unknown user '" + U2O_UserId + "'!"));
                         break;
                     }
 
 
-                    if (!Organization_Id.TryParse(JSONObject["organization"]?.Value<String>(), out Organization_Id U2O_OrganizationId))
+                    if (!Organization_Id.TryParse(Data["organization"]?.Value<String>(), out Organization_Id U2O_OrganizationId))
                     {
-                        DebugX.Log(String.Concat(nameof(UsersAPI), " ", EventCommand, ": ", "Invalid organization identification '" + JSONObject["user"]?.Value<String>() + "'!"));
+                        DebugX.Log(String.Concat(nameof(UsersAPI), " ", Command, ": ", "Invalid organization identification '" + Data["user"]?.Value<String>() + "'!"));
                         break;
                     }
 
                     if (!TryGetOrganization(U2O_OrganizationId, out Organization U2O_Organization))
                     {
-                        DebugX.Log(String.Concat(nameof(UsersAPI), " ", EventCommand, ": ", "Unknown organization '" + U2O_OrganizationId + "'!"));
+                        DebugX.Log(String.Concat(nameof(UsersAPI), " ", Command, ": ", "Unknown organization '" + U2O_OrganizationId + "'!"));
                         break;
                     }
 
 
-                    if (!Enum.TryParse(JSONObject["edge"].Value<String>(), out User2OrganizationEdgeTypes U2O_EdgeLabel))
+                    if (!Enum.TryParse(Data["edge"].Value<String>(), out User2OrganizationEdgeTypes U2O_EdgeLabel))
                     {
-                        DebugX.Log(String.Concat(nameof(UsersAPI), " ", EventCommand, ": ", "Unknown edge label '" + JSONObject["edge"].Value<String>() + "'!"));
+                        DebugX.Log(String.Concat(nameof(UsersAPI), " ", Command, ": ", "Unknown edge label '" + Data["edge"].Value<String>() + "'!"));
                         break;
                     }
 
 
                     U2O_Organization.LinkUser(U2O_User.AddOutgoingEdge(U2O_EdgeLabel,
-                                                                       U2O_Organization,
-                                                                       JSONObject.ParseMandatory_PrivacyLevel()));
+                                                                       U2O_Organization));
+                                                                       //Data.ParseMandatory_PrivacyLevel()));
 
                     break;
 
@@ -10612,42 +10627,42 @@ namespace social.OpenData.UsersAPI
 
                 case "linkOrganizations":
 
-                    if (!Organization_Id.TryParse(JSONObject["organizationOut"]?.Value<String>(), out Organization_Id O2O_OrganizationIdOut))
+                    if (!Organization_Id.TryParse(Data["organizationOut"]?.Value<String>(), out Organization_Id O2O_OrganizationIdOut))
                     {
-                        DebugX.Log(String.Concat(nameof(UsersAPI), " ", EventCommand, ": ", "Invalid outgoing organization identification '" + JSONObject["user"]?.Value<String>() + "'!"));
+                        DebugX.Log(String.Concat(nameof(UsersAPI), " ", Command, ": ", "Invalid outgoing organization identification '" + Data["user"]?.Value<String>() + "'!"));
                         break;
                     }
 
                     if (!TryGetOrganization(O2O_OrganizationIdOut, out Organization O2O_OrganizationOut))
                     {
-                        DebugX.Log(String.Concat(nameof(UsersAPI), " ", EventCommand, ": ", "Unknown outgoing organization '" + O2O_OrganizationIdOut + "'!"));
+                        DebugX.Log(String.Concat(nameof(UsersAPI), " ", Command, ": ", "Unknown outgoing organization '" + O2O_OrganizationIdOut + "'!"));
                         break;
                     }
 
 
-                    if (!Organization_Id.TryParse(JSONObject["organizationIn"]?.Value<String>(), out Organization_Id O2O_OrganizationIdIn))
+                    if (!Organization_Id.TryParse(Data["organizationIn"]?.Value<String>(), out Organization_Id O2O_OrganizationIdIn))
                     {
-                        DebugX.Log(String.Concat(nameof(UsersAPI), " ", EventCommand, ": ", "Invalid incoming organization identification '" + JSONObject["user"]?.Value<String>() + "'!"));
+                        DebugX.Log(String.Concat(nameof(UsersAPI), " ", Command, ": ", "Invalid incoming organization identification '" + Data["user"]?.Value<String>() + "'!"));
                         break;
                     }
 
                     if (!TryGetOrganization(O2O_OrganizationIdIn, out Organization O2O_OrganizationIn))
                     {
-                        DebugX.Log(String.Concat(nameof(UsersAPI), " ", EventCommand, ": ", "Unknown incoming organization '" + O2O_OrganizationIdIn + "'!"));
+                        DebugX.Log(String.Concat(nameof(UsersAPI), " ", Command, ": ", "Unknown incoming organization '" + O2O_OrganizationIdIn + "'!"));
                         break;
                     }
 
 
-                    if (!Enum.TryParse(JSONObject["edge"].Value<String>(), out Organization2OrganizationEdgeTypes O2O_EdgeLabel))
+                    if (!Enum.TryParse(Data["edge"].Value<String>(), out Organization2OrganizationEdgeTypes O2O_EdgeLabel))
                     {
-                        DebugX.Log(String.Concat(nameof(UsersAPI), " ", EventCommand, ": ", "Unknown edge label '" + JSONObject["edge"].Value<String>() + "'!"));
+                        DebugX.Log(String.Concat(nameof(UsersAPI), " ", Command, ": ", "Unknown edge label '" + Data["edge"].Value<String>() + "'!"));
                         break;
                     }
 
 
                     O2O_OrganizationIn.AddInEdge(O2O_OrganizationOut.AddOutEdge(O2O_EdgeLabel,
-                                                                                O2O_OrganizationIn,
-                                                                                JSONObject.ParseMandatory_PrivacyLevel()));
+                                                                                O2O_OrganizationIn));
+                                                                                //Data.ParseMandatory_PrivacyLevel()));
 
                     break;
 
@@ -10658,7 +10673,7 @@ namespace social.OpenData.UsersAPI
 
                 case "createUserGroup":
 
-                    if (UserGroup.TryParseJSON(JSONObject,
+                    if (UserGroup.TryParseJSON(Data,
                                                null,
                                                null,
                                                out UserGroup userGroup,
@@ -10669,7 +10684,7 @@ namespace social.OpenData.UsersAPI
                     }
 
                     else
-                        DebugX.Log(String.Concat(nameof(UsersAPI), " ", EventCommand, ": ", ErrorResponse));
+                        DebugX.Log(String.Concat(nameof(UsersAPI), " ", Command, Sender.IsNotNullOrEmpty() ? " via " + Sender : "", LineNumber.HasValue ? ", line " + LineNumber.Value : "", ": ", ErrorResponse));
 
                     break;
 
@@ -10679,42 +10694,42 @@ namespace social.OpenData.UsersAPI
 
                 case "addUserToUserGroup":
 
-                    if (!User_Id.TryParse(JSONObject["user"]?.Value<String>(), out User_Id U2G_UserId))
+                    if (!User_Id.TryParse(Data["user"]?.Value<String>(), out User_Id U2G_UserId))
                     {
-                        DebugX.Log(String.Concat(nameof(UsersAPI), " ", EventCommand, ": ", "Invalid user identification '" + JSONObject["user"]?.Value<String>() + "'!"));
+                        DebugX.Log(String.Concat(nameof(UsersAPI), " ", Command, ": ", "Invalid user identification '" + Data["user"]?.Value<String>() + "'!"));
                         break;
                     }
 
                     if (!TryGetUser(U2G_UserId, out User U2G_User))
                     {
-                        DebugX.Log(String.Concat(nameof(UsersAPI), " ", EventCommand, ": ", "Unknown user '" + U2G_UserId + "'!"));
+                        DebugX.Log(String.Concat(nameof(UsersAPI), " ", Command, ": ", "Unknown user '" + U2G_UserId + "'!"));
                         break;
                     }
 
 
-                    if (!UserGroup_Id.TryParse(JSONObject["group"]?.Value<String>(), out UserGroup_Id U2G_GroupId))
+                    if (!UserGroup_Id.TryParse(Data["group"]?.Value<String>(), out UserGroup_Id U2G_GroupId))
                     {
-                        DebugX.Log(String.Concat(nameof(UsersAPI), " ", EventCommand, ": ", "Invalid group identification '" + JSONObject["user"]?.Value<String>() + "'!"));
+                        DebugX.Log(String.Concat(nameof(UsersAPI), " ", Command, ": ", "Invalid group identification '" + Data["user"]?.Value<String>() + "'!"));
                         break;
                     }
 
                     if (!TryGet(U2G_GroupId, out UserGroup U2G_Group))
                     {
-                        DebugX.Log(String.Concat(nameof(UsersAPI), " ", EventCommand, ": ", "Unknown group '" + U2G_GroupId + "'!"));
+                        DebugX.Log(String.Concat(nameof(UsersAPI), " ", Command, ": ", "Unknown group '" + U2G_GroupId + "'!"));
                         break;
                     }
 
 
-                    if (!Enum.TryParse(JSONObject["edge"].Value<String>(), out User2GroupEdgeTypes U2G_EdgeLabel))
+                    if (!Enum.TryParse(Data["edge"].Value<String>(), out User2GroupEdgeTypes U2G_EdgeLabel))
                     {
-                        DebugX.Log(String.Concat(nameof(UsersAPI), " ", EventCommand, ": ", "Unknown edge label '" + JSONObject["edge"].Value<String>() + "'!"));
+                        DebugX.Log(String.Concat(nameof(UsersAPI), " ", Command, ": ", "Unknown edge label '" + Data["edge"].Value<String>() + "'!"));
                         break;
                     }
 
 
                     U2G_Group.AddIncomingEdge(U2G_User.AddOutgoingEdge(U2G_EdgeLabel,
-                                                                       U2G_Group,
-                                                                       JSONObject.ParseMandatory_PrivacyLevel()));
+                                                                       U2G_Group));
+                                                                       //Data.ParseMandatory_PrivacyLevel()));
 
                     break;
 
@@ -10728,25 +10743,25 @@ namespace social.OpenData.UsersAPI
                     user          = null;
                     organization  = null;
 
-                    if (JSONObject["@context"]?.Value<String>().IsNotNullOrEmpty() == true &&
+                    if (Data["@context"]?.Value<String>().IsNotNullOrEmpty() == true &&
 
-                       (JSONObject["userId"]?.Value<String>().IsNotNullOrEmpty() == true &&
-                        User_Id.TryParse(JSONObject["userId"]?.Value<String>(), out userId) &&
+                       (Data["userId"]?.Value<String>().IsNotNullOrEmpty() == true &&
+                        User_Id.TryParse(Data["userId"]?.Value<String>(), out userId) &&
                         TryGetUser(userId, out user))
 
                         ||
 
-                       (JSONObject["organizationId"]?.Value<String>().IsNotNullOrEmpty() == true &&
-                        Organization_Id.TryParse(JSONObject["organizationId"]?.Value<String>(), out organizationId) &&
+                       (Data["organizationId"]?.Value<String>().IsNotNullOrEmpty() == true &&
+                        Organization_Id.TryParse(Data["organizationId"]?.Value<String>(), out organizationId) &&
                         TryGetOrganization(organizationId, out organization)))
                     {
 
-                        switch (JSONObject["@context"]?.Value<String>())
+                        switch (Data["@context"]?.Value<String>())
                         {
 
                             case TelegramNotification.JSONLDContext:
 
-                                var telegramNotification = TelegramNotification.Parse(JSONObject);
+                                var telegramNotification = TelegramNotification.Parse(Data);
 
                                 if (telegramNotification != null)
                                 {
@@ -10762,7 +10777,7 @@ namespace social.OpenData.UsersAPI
 
                             case TelegramGroupNotification.JSONLDContext:
 
-                                var telegramGroupNotification = TelegramGroupNotification.Parse(JSONObject);
+                                var telegramGroupNotification = TelegramGroupNotification.Parse(Data);
 
                                 if (telegramGroupNotification != null)
                                 {
@@ -10778,7 +10793,7 @@ namespace social.OpenData.UsersAPI
 
                             case SMSNotification.JSONLDContext:
 
-                                var smsnotification = SMSNotification.Parse(JSONObject);
+                                var smsnotification = SMSNotification.Parse(Data);
 
                                 if (smsnotification != null)
                                 {
@@ -10794,7 +10809,7 @@ namespace social.OpenData.UsersAPI
 
                             case HTTPSNotification.JSONLDContext:
 
-                                var httpsnotification = HTTPSNotification.Parse(JSONObject);
+                                var httpsnotification = HTTPSNotification.Parse(Data);
 
                                 if (httpsnotification != null)
                                 {
@@ -10810,7 +10825,7 @@ namespace social.OpenData.UsersAPI
 
                             case EMailNotification.JSONLDContext:
 
-                                var emailnotification = EMailNotification.Parse(JSONObject);
+                                var emailnotification = EMailNotification.Parse(Data);
 
                                 if (emailnotification != null)
                                 {
@@ -10841,25 +10856,25 @@ namespace social.OpenData.UsersAPI
                     user          = null;
                     organization  = null;
 
-                    if (JSONObject["@context"]?.Value<String>().IsNotNullOrEmpty() == true &&
+                    if (Data["@context"]?.Value<String>().IsNotNullOrEmpty() == true &&
 
-                       (JSONObject["userId"]?.Value<String>().IsNotNullOrEmpty() == true &&
-                        User_Id.TryParse(JSONObject["userId"]?.Value<String>(), out userId) &&
+                       (Data["userId"]?.Value<String>().IsNotNullOrEmpty() == true &&
+                        User_Id.TryParse(Data["userId"]?.Value<String>(), out userId) &&
                         TryGetUser(userId, out user))
 
                         ||
 
-                       (JSONObject["organizationId"]?.Value<String>().IsNotNullOrEmpty() == true &&
-                        Organization_Id.TryParse(JSONObject["organizationId"]?.Value<String>(), out organizationId) &&
+                       (Data["organizationId"]?.Value<String>().IsNotNullOrEmpty() == true &&
+                        Organization_Id.TryParse(Data["organizationId"]?.Value<String>(), out organizationId) &&
                         TryGetOrganization(organizationId, out organization)))
                     {
 
-                        switch (JSONObject["@context"]?.Value<String>())
+                        switch (Data["@context"]?.Value<String>())
                         {
 
                             case TelegramNotification.JSONLDContext:
 
-                                var telegramNotification = TelegramNotification.Parse(JSONObject);
+                                var telegramNotification = TelegramNotification.Parse(Data);
 
                                 if (telegramNotification != null)
                                 {
@@ -10875,7 +10890,7 @@ namespace social.OpenData.UsersAPI
 
                             case TelegramGroupNotification.JSONLDContext:
 
-                                var telegramGroupNotification = TelegramGroupNotification.Parse(JSONObject);
+                                var telegramGroupNotification = TelegramGroupNotification.Parse(Data);
 
                                 if (telegramGroupNotification != null)
                                 {
@@ -10891,7 +10906,7 @@ namespace social.OpenData.UsersAPI
 
                             case SMSNotification.JSONLDContext:
 
-                                var smsnotification = SMSNotification.Parse(JSONObject);
+                                var smsnotification = SMSNotification.Parse(Data);
 
                                 if (smsnotification != null)
                                 {
@@ -10907,7 +10922,7 @@ namespace social.OpenData.UsersAPI
 
                             case HTTPSNotification.JSONLDContext:
 
-                                var httpsnotification = HTTPSNotification.Parse(JSONObject);
+                                var httpsnotification = HTTPSNotification.Parse(Data);
 
                                 if (httpsnotification != null)
                                 {
@@ -10923,7 +10938,7 @@ namespace social.OpenData.UsersAPI
 
                             case EMailNotification.JSONLDContext:
 
-                                var emailnotification = EMailNotification.Parse(JSONObject);
+                                var emailnotification = EMailNotification.Parse(Data);
 
                                 if (emailnotification != null)
                                 {
@@ -10952,7 +10967,7 @@ namespace social.OpenData.UsersAPI
 
                 case "addAPIKey":
 
-                    if (APIKeyInfo.TryParseJSON(JSONObject,
+                    if (APIKeyInfo.TryParseJSON(Data,
                                                 out APIKeyInfo _APIKey,
                                                 _Users.TryGetValue,
                                                 out ErrorResponse))
@@ -10961,7 +10976,7 @@ namespace social.OpenData.UsersAPI
                     }
 
                     else
-                        DebugX.Log(String.Concat(nameof(UsersAPI), " ", EventCommand, ": ", ErrorResponse));
+                        DebugX.Log(String.Concat(nameof(UsersAPI), " ", Command, Sender.IsNotNullOrEmpty() ? " via " + Sender : "", LineNumber.HasValue ? ", line " + LineNumber.Value : "", ": ", ErrorResponse));
 
                     break;
 
@@ -10969,7 +10984,10 @@ namespace social.OpenData.UsersAPI
 
 
                 default:
-                    DebugX.Log(String.Concat(nameof(UsersAPI), ": does not know what to do with database command '", EventCommand, "'!"));
+                    DebugX.Log(String.Concat(nameof(UsersAPI), ": does not know what to do with event '", Command,
+                                             Sender.IsNotNullOrEmpty() ? " via " + Sender : "",
+                                             LineNumber.HasValue ? ", line " + LineNumber.Value : "",
+                                             "'!"));
                     break;
 
             }
