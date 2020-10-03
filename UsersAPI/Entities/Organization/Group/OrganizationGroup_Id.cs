@@ -149,7 +149,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="Context">The text representation of the organization group identification context.</param>
         /// <param name="Text">A text representation of an organization group identification.</param>
         public static OrganizationGroup_Id Parse(String  Context,
-                                                  String  Text)
+                                                 String  Text)
         {
 
             if (TryParse(Context,
@@ -197,7 +197,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="Context">The text representation of the organization group identification context.</param>
         /// <param name="Text">A text representation of an organization group identification.</param>
         public static OrganizationGroup_Id? TryParse(String  Context,
-                                                      String  Text)
+                                                     String  Text)
         {
 
             if (TryParse(Context,
@@ -219,13 +219,26 @@ namespace social.OpenData.UsersAPI
         /// Try to parse the given text as an organization group identification.
         /// </summary>
         /// <param name="Text">A text representation of an organization group identification.</param>
-        /// <param name="Realm">An optional realm of the organization group identification.</param>
         /// <param name="OrganizationGroupId">The parsed organization group identification.</param>
         public static Boolean TryParse(String Text, out OrganizationGroup_Id OrganizationGroupId)
+        {
 
-            => TryParse(String.Empty,
-                        Text,
-                        out OrganizationGroupId);
+            if (Text.IsNullOrEmpty())
+            {
+                OrganizationGroupId = default;
+                return false;
+            }
+
+            if (Text.Contains("."))
+                return TryParse(Text.Substring(0, Text.LastIndexOf(".")),
+                                Text.Substring(Text.LastIndexOf(".") + 1),
+                                out OrganizationGroupId);
+
+            return TryParse(String.Empty,
+                            Text,
+                            out OrganizationGroupId);
+
+        }
 
         #endregion
 
@@ -237,8 +250,8 @@ namespace social.OpenData.UsersAPI
         /// <param name="Context">The text representation of the organization group identification context.</param>
         /// <param name="Text">A text representation of an organization group identification.</param>
         /// <param name="OrganizationGroupId">The parsed organization group identification.</param>
-        public static Boolean TryParse(String                     Context,
-                                       String                     Text,
+        public static Boolean TryParse(String                    Context,
+                                       String                    Text,
                                        out OrganizationGroup_Id  OrganizationGroupId)
         {
 

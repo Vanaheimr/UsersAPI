@@ -219,13 +219,26 @@ namespace social.OpenData.UsersAPI
         /// Try to parse the given text as an user group identification.
         /// </summary>
         /// <param name="Text">A text representation of an user group identification.</param>
-        /// <param name="Realm">An optional realm of the user group identification.</param>
         /// <param name="UserGroupId">The parsed user group identification.</param>
         public static Boolean TryParse(String Text, out UserGroup_Id UserGroupId)
+        {
 
-            => TryParse(String.Empty,
-                        Text,
-                        out UserGroupId);
+            if (Text.IsNullOrEmpty())
+            {
+                UserGroupId = default;
+                return false;
+            }
+
+            if (Text.Contains("."))
+                return TryParse(Text.Substring(0, Text.LastIndexOf(".")),
+                                Text.Substring(Text.LastIndexOf(".") + 1),
+                                out UserGroupId);
+
+            return TryParse(String.Empty,
+                            Text,
+                            out UserGroupId);
+
+        }
 
         #endregion
 
