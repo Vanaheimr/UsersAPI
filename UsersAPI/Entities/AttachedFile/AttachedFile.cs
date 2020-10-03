@@ -497,7 +497,7 @@ namespace social.OpenData.UsersAPI
         /// <summary>
         /// Compares two defibrillator identifications for equality.
         /// </summary>
-        /// <param name="AttachedFile">An defibrillator identification to compare with.</param>
+        /// <param name="AttachedFile">A defibrillator identification to compare with.</param>
         /// <returns>True if both match; False otherwise.</returns>
         public Boolean Equals(AttachedFile AttachedFile)
         {
