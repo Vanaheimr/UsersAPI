@@ -32,7 +32,7 @@ namespace social.OpenData.UsersAPI
     /// <summary>
     /// A password.
     /// </summary>
-    public struct Password : IEquatable<Password>
+    public readonly struct Password : IEquatable<Password>
     {
 
         #region Data

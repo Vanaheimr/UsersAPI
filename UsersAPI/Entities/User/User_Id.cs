@@ -29,9 +29,9 @@ namespace social.OpenData.UsersAPI
     /// <summary>
     /// The unique identification of an user.
     /// </summary>
-    public struct User_Id : IId,
-                            IEquatable<User_Id>,
-                            IComparable<User_Id>
+    public readonly struct User_Id : IId,
+                                     IEquatable<User_Id>,
+                                     IComparable<User_Id>
 
     {
 

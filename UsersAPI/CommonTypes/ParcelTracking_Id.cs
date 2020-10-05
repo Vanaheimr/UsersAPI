@@ -29,9 +29,7 @@ namespace social.OpenData.UsersAPI
     /// <summary>
     /// The unique parcel tracking identification.
     /// </summary>
-    public struct ParcelTracking_Id : IId,
-                                      IEquatable<ParcelTracking_Id>,
-                                      IComparable<ParcelTracking_Id>
+    public readonly struct ParcelTracking_Id : IId<ParcelTracking_Id>
     {
 
         #region Data
