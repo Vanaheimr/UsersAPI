@@ -27,9 +27,9 @@ namespace social.OpenData.UsersAPI
     /// <summary>
     /// A user identification and password combination.
     /// </summary>
-    public class LoginPassword : IEquatable<LoginPassword>,
-                                 IComparable<LoginPassword>,
-                                 IComparable
+    public readonly struct LoginPassword : IEquatable<LoginPassword>,
+                                           IComparable<LoginPassword>,
+                                           IComparable
     {
 
         #region Properties
@@ -86,19 +86,10 @@ namespace social.OpenData.UsersAPI
         /// </summary>
         /// <param name="Object">An object to compare with.</param>
         public Int32 CompareTo(Object Object)
-        {
 
-            if (Object == null)
-                throw new ArgumentNullException("The given object must not be null!");
-
-            // Check if the given object is a Login/Password object.
-            var _LoginPassword = Object as LoginPassword;
-            if ((Object) _LoginPassword == null)
-                throw new ArgumentException("The given object is not an user group!");
-
-            return CompareTo(_LoginPassword);
-
-        }
+            => Object is LoginPassword loginPassword
+                   ? CompareTo(loginPassword)
+                   : throw new ArgumentException("The given object is not a login/password!", nameof(Object));
 
         #endregion
 
@@ -109,14 +100,8 @@ namespace social.OpenData.UsersAPI
         /// </summary>
         /// <param name="LoginPassword">A Login/Password object to compare with.</param>
         public Int32 CompareTo(LoginPassword LoginPassword)
-        {
 
-            if ((Object) LoginPassword == null)
-                throw new ArgumentNullException("The given Login/Password object must not be null!");
-
-            return Login.CompareTo(LoginPassword.Login);
-
-        }
+            => Login.CompareTo(LoginPassword.Login);
 
         #endregion
 
@@ -132,19 +117,9 @@ namespace social.OpenData.UsersAPI
         /// <param name="Object">An object to compare with.</param>
         /// <returns>true|false</returns>
         public override Boolean Equals(Object Object)
-        {
 
-            if (Object == null)
-                return false;
-
-            // Check if the given object is a Login/Password object.
-            var _LoginPassword = Object as LoginPassword;
-            if ((Object) _LoginPassword == null)
-                return false;
-
-            return Equals(_LoginPassword);
-
-        }
+            => Object is LoginPassword loginPassword &&
+                   Equals(loginPassword);
 
         #endregion
 
@@ -156,15 +131,9 @@ namespace social.OpenData.UsersAPI
         /// <param name="LoginPassword">A Login/Password object to compare with.</param>
         /// <returns>True if both match; False otherwise.</returns>
         public Boolean Equals(LoginPassword LoginPassword)
-        {
 
-            if ((Object) LoginPassword == null)
-                return false;
-
-            return Login.   Equals(LoginPassword.Login) &&
-                   Password.Equals(LoginPassword.Password);
-
-        }
+            => Login.   Equals(LoginPassword.Login) &&
+               Password.Equals(LoginPassword.Password);
 
         #endregion
 
@@ -177,7 +146,7 @@ namespace social.OpenData.UsersAPI
         /// </summary>
         public override Int32 GetHashCode()
 
-            => Login.   GetHashCode() ^
+            => Login.   GetHashCode() * 3 ^
                Password.GetHashCode();
 
         #endregion

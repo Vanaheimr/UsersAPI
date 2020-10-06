@@ -61,13 +61,13 @@ namespace social.OpenData.UsersAPI
 
         public HTTPContentType        ContentType      { get; }
 
-        public UInt64                 Size             { get; }
+        public UInt64?                Size             { get; }
 
         public HTTPPath?              Icon             { get; }
 
-        public DateTime               Created          { get; }
+        public DateTime?              Created          { get; }
 
-        public DateTime               LastModified     { get; }
+        public DateTime?              LastModified     { get; }
 
         #endregion
 
@@ -79,8 +79,8 @@ namespace social.OpenData.UsersAPI
         private AttachedFile(AttachedFile_Id        Id,
                              I18NString             Description,
                              IEnumerable<HTTPPath>  Locations,
-                             HTTPContentType        ContentType,
-                             UInt64                 Size,
+                             HTTPContentType        ContentType   = null,
+                             UInt64?                Size          = null,
                              HTTPPath?              Icon          = null,
                              DateTime?              Created       = null,
                              DateTime?              LastModifed   = null,
@@ -105,17 +105,17 @@ namespace social.OpenData.UsersAPI
 
         #region ToJSON(...)
 
-        /// <summary>
-        /// Return a JSON representation of this object.
-        /// </summary>
-        /// <param name="Embedded">Whether this data is embedded into another data structure.</param>
-        /// <param name="IncludeCryptoHash">Include the crypto hash value of this object.</param>
-        public JObject ToJSON(Boolean Embedded           = false,
-                              Boolean IncludeCryptoHash  = false)
+        ///// <summary>
+        ///// Return a JSON representation of this object.
+        ///// </summary>
+        ///// <param name="Embedded">Whether this data is embedded into another data structure.</param>
+        ///// <param name="IncludeCryptoHash">Include the crypto hash value of this object.</param>
+        //public JObject ToJSON(Boolean Embedded           = false,
+        //                      Boolean IncludeCryptoHash  = false)
 
-            => ToJSON(Embedded:           false,
-                      IncludeSignatures:  InfoStatus.Hidden,
-                      IncludeCryptoHash:  true);
+        //    => ToJSON(Embedded:           false,
+        //              IncludeSignatures:  InfoStatus.Hidden,
+        //              IncludeCryptoHash:  true);
 
 
 
@@ -124,34 +124,58 @@ namespace social.OpenData.UsersAPI
         /// </summary>
         /// <param name="Embedded">Whether this data is embedded into another data structure, e.g. into a AttachedFile.</param>
         /// <param name="IncludeCryptoHash">Whether to include the cryptograhical hash value of this object.</param>
-        public JObject ToJSON(Boolean     Embedded            = false,
-                              InfoStatus  IncludeSignatures   = InfoStatus.Hidden,
-                              Boolean     IncludeCryptoHash   = true)
+        public JObject ToJSON(Boolean                                       Embedded                       = false,
+                              InfoStatus                                    IncludeSignatures              = InfoStatus.Hidden,
+                              Boolean                                       IncludeCryptoHash              = true,
+                              CustomJObjectSerializerDelegate<AttachedFile> CustomAttachedFileSerializer   = null)
         {
 
-            return JSONObject.Create(
+            var JSON = JSONObject.Create(
 
-                Id.ToJSON("@id"),
+                           new JProperty("@id", Id.ToString()),
 
-                Embedded
-                    ? null
-                    : new JProperty("@context",      DefaultJSONLDContext.ToString()),
+                           Embedded
+                               ? null
+                               : new JProperty("@context",            DefaultJSONLDContext.ToString()),
 
-                Description?.ToJSON("description"),
+                           Description.IsNeitherNullNorEmpty()
+                               ? new JProperty("description",         Description.ToJSON())
+                               : null,
 
-                new JProperty("icon",                Icon.        ToString()),
-                new JProperty("contentType",         ContentType. ToString()),
-                new JProperty("created",             Created.     ToIso8601()),
-                new JProperty("lastModified",        LastModified.ToString()),
-                new JProperty("size",                Size),
-                new JProperty("locations",           new JArray(Locations.SafeSelect(location => location.ToString())))
+                           Icon.HasValue
+                               ? new JProperty("icon",                Icon.              ToString())
+                               : null,
 
-                //IncludeCryptoHash
-                //    ? new JProperty("cryptoHash", CurrentCryptoHash)
-                //    : null
+                           ContentType != null
+                               ? new JProperty("contentType",         ContentType.       ToString())
+                               : null,
+
+                           Created.HasValue
+                               ? new JProperty("created",             Created.     Value.ToIso8601())
+                               : null,
+
+                           LastModified.HasValue
+                               ? new JProperty("lastModified",        LastModified.Value.ToIso8601())
+                               : null,
+
+                           Size.HasValue
+                               ? new JProperty("size",                Size.Value)
+                               : null,
+
+                           Locations.SafeAny()
+                               ? new JProperty("locations",           new JArray(Locations.SafeSelect(location => location.ToString())))
+                               : null
+
+                           //IncludeCryptoHash
+                           //    ? new JProperty("cryptoHash", CurrentCryptoHash)
+                           //    : null
 
 
             );
+
+            return CustomAttachedFileSerializer != null
+                       ? CustomAttachedFileSerializer(this, JSON)
+                       : JSON;
 
         }
 
@@ -323,18 +347,17 @@ namespace social.OpenData.UsersAPI
         /// <summary>
         /// Compares two instances of this object.
         /// </summary>
-        /// <param name="AttachedFileId1">A defibrillator group identification.</param>
-        /// <param name="AttachedFileId2">Another defibrillator group identification.</param>
+        /// <param name="AttachedFileId1">An attached file.</param>
+        /// <param name="AttachedFileId2">Another attached file.</param>
         /// <returns>true|false</returns>
-        public static Boolean operator == (AttachedFile AttachedFileId1, AttachedFile AttachedFileId2)
+        public static Boolean operator == (AttachedFile AttachedFileId1,
+                                           AttachedFile AttachedFileId2)
         {
 
-            // If both are null, or both are same instance, return true.
             if (Object.ReferenceEquals(AttachedFileId1, AttachedFileId2))
                 return true;
 
-            // If one is null, but not both, return false.
-            if (((Object) AttachedFileId1 == null) || ((Object) AttachedFileId2 == null))
+            if ((AttachedFileId1 is null) || (AttachedFileId2 is null))
                 return false;
 
             return AttachedFileId1.Equals(AttachedFileId2);
@@ -348,10 +371,12 @@ namespace social.OpenData.UsersAPI
         /// <summary>
         /// Compares two instances of this object.
         /// </summary>
-        /// <param name="AttachedFileId1">A defibrillator group identification.</param>
-        /// <param name="AttachedFileId2">Another defibrillator group identification.</param>
+        /// <param name="AttachedFileId1">An attached file.</param>
+        /// <param name="AttachedFileId2">Another attached file.</param>
         /// <returns>true|false</returns>
-        public static Boolean operator != (AttachedFile AttachedFileId1, AttachedFile AttachedFileId2)
+        public static Boolean operator != (AttachedFile AttachedFileId1,
+                                           AttachedFile AttachedFileId2)
+
             => !(AttachedFileId1 == AttachedFileId2);
 
         #endregion
@@ -361,18 +386,15 @@ namespace social.OpenData.UsersAPI
         /// <summary>
         /// Compares two instances of this object.
         /// </summary>
-        /// <param name="AttachedFileId1">A defibrillator group identification.</param>
-        /// <param name="AttachedFileId2">Another defibrillator group identification.</param>
+        /// <param name="AttachedFileId1">An attached file.</param>
+        /// <param name="AttachedFileId2">Another attached file.</param>
         /// <returns>true|false</returns>
-        public static Boolean operator < (AttachedFile AttachedFileId1, AttachedFile AttachedFileId2)
-        {
+        public static Boolean operator < (AttachedFile AttachedFileId1,
+                                          AttachedFile AttachedFileId2)
 
-            if ((Object) AttachedFileId1 == null)
-                throw new ArgumentNullException(nameof(AttachedFileId1), "The given AttachedFileId1 must not be null!");
-
-            return AttachedFileId1.CompareTo(AttachedFileId2) < 0;
-
-        }
+            => AttachedFileId1 is null
+                   ? throw new ArgumentNullException(nameof(AttachedFileId1), "The given attached file must not be null!")
+                   : AttachedFileId1.CompareTo(AttachedFileId2) < 0;
 
         #endregion
 
@@ -381,10 +403,12 @@ namespace social.OpenData.UsersAPI
         /// <summary>
         /// Compares two instances of this object.
         /// </summary>
-        /// <param name="AttachedFileId1">A defibrillator group identification.</param>
-        /// <param name="AttachedFileId2">Another defibrillator group identification.</param>
+        /// <param name="AttachedFileId1">An attached file.</param>
+        /// <param name="AttachedFileId2">Another attached file.</param>
         /// <returns>true|false</returns>
-        public static Boolean operator <= (AttachedFile AttachedFileId1, AttachedFile AttachedFileId2)
+        public static Boolean operator <= (AttachedFile AttachedFileId1,
+                                           AttachedFile AttachedFileId2)
+
             => !(AttachedFileId1 > AttachedFileId2);
 
         #endregion
@@ -394,18 +418,14 @@ namespace social.OpenData.UsersAPI
         /// <summary>
         /// Compares two instances of this object.
         /// </summary>
-        /// <param name="AttachedFileId1">A defibrillator group identification.</param>
-        /// <param name="AttachedFileId2">Another defibrillator group identification.</param>
+        /// <param name="AttachedFileId1">An attached file.</param>
+        /// <param name="AttachedFileId2">Another attached file.</param>
         /// <returns>true|false</returns>
         public static Boolean operator > (AttachedFile AttachedFileId1, AttachedFile AttachedFileId2)
-        {
 
-            if ((Object) AttachedFileId1 == null)
-                throw new ArgumentNullException(nameof(AttachedFileId1), "The given AttachedFileId1 must not be null!");
-
-            return AttachedFileId1.CompareTo(AttachedFileId2) > 0;
-
-        }
+            => AttachedFileId1 is null
+                   ? throw new ArgumentNullException(nameof(AttachedFileId1), "The given attached file must not be null!")
+                   : AttachedFileId1.CompareTo(AttachedFileId2) > 0;
 
         #endregion
 
@@ -414,10 +434,12 @@ namespace social.OpenData.UsersAPI
         /// <summary>
         /// Compares two instances of this object.
         /// </summary>
-        /// <param name="AttachedFileId1">A defibrillator group identification.</param>
-        /// <param name="AttachedFileId2">Another defibrillator group identification.</param>
+        /// <param name="AttachedFileId1">An attached file.</param>
+        /// <param name="AttachedFileId2">Another attached file.</param>
         /// <returns>true|false</returns>
-        public static Boolean operator >= (AttachedFile AttachedFileId1, AttachedFile AttachedFileId2)
+        public static Boolean operator >= (AttachedFile AttachedFileId1,
+                                           AttachedFile AttachedFileId2)
+
             => !(AttachedFileId1 < AttachedFileId2);
 
         #endregion
@@ -433,18 +455,11 @@ namespace social.OpenData.UsersAPI
         /// </summary>
         /// <param name="Object">An object to compare with.</param>
         public Int32 CompareTo(Object Object)
-        {
 
-            if (Object == null)
-                throw new ArgumentNullException(nameof(Object), "The given object must not be null!");
-
-            if (!(Object is AttachedFile AttachedFile))
-                throw new ArgumentException("The given object is not a defibrillator identification!",
-                                            nameof(Object));
-
-            return CompareTo(AttachedFile);
-
-        }
+            => Object is AttachedFile attachedFile
+                   ? CompareTo(attachedFile)
+                   : throw new ArgumentException("The given object is not an attached file!",
+                                                 nameof(Object));
 
         #endregion
 
@@ -455,14 +470,10 @@ namespace social.OpenData.UsersAPI
         /// </summary>
         /// <param name="AttachedFile">An object to compare with.</param>
         public Int32 CompareTo(AttachedFile AttachedFile)
-        {
 
-            if (AttachedFile is null)
-                throw new ArgumentNullException(nameof(AttachedFile),  "The given attached file identification must not be null!");
-
-            return Id.CompareTo(AttachedFile.Id);
-
-        }
+            => AttachedFile is null
+                   ? throw new ArgumentNullException(nameof(AttachedFile),  "The given attached file must not be null!")
+                   : Id.CompareTo(AttachedFile.Id);
 
         #endregion
 
@@ -477,18 +488,10 @@ namespace social.OpenData.UsersAPI
         /// </summary>
         /// <param name="Object">An object to compare with.</param>
         /// <returns>true|false</returns>
-        public Boolean Equals(Object Object)
-        {
+        public override Boolean Equals(Object Object)
 
-            if (Object == null)
-                return false;
-
-            if (!(Object is AttachedFile AttachedFile))
-                return false;
-
-            return Equals(AttachedFile);
-
-        }
+            => Object is AttachedFile attachedFile &&
+                   Equals(attachedFile);
 
         #endregion
 
@@ -497,17 +500,20 @@ namespace social.OpenData.UsersAPI
         /// <summary>
         /// Compares two defibrillator identifications for equality.
         /// </summary>
-        /// <param name="AttachedFile">An defibrillator identification to compare with.</param>
+        /// <param name="AttachedFile">A defibrillator identification to compare with.</param>
         /// <returns>True if both match; False otherwise.</returns>
         public Boolean Equals(AttachedFile AttachedFile)
-        {
 
-            if (AttachedFile is null)
-                return false;
+            => !(AttachedFile is null) &&
 
-            return AttachedFile.Id.Equals(AttachedFile.Id);
-
-        }
+                 Id.          Equals(AttachedFile.Id)          &&
+                 Description. Equals(AttachedFile.Description) &&
+                 Locations.   Equals(AttachedFile.Locations)   &&
+                 ContentType. Equals(AttachedFile.ContentType) &&
+                 Size.        Equals(AttachedFile.Size)        &&
+                 Icon.        Equals(AttachedFile.Icon)        &&
+                 Created.     Equals(AttachedFile.Created)     &&
+                 LastModified.Equals(AttachedFile.LastModified);
 
         #endregion
 

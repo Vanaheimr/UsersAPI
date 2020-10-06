@@ -101,7 +101,7 @@ function StartSearch2(requestURL, searchFilters, doStartUp, nameOfItem, nameOfIt
                             const searchResultDiv = searchResultsDiv.appendChild(document.createElement('a'));
                             searchResultDiv.id = nameOfItem + "_" + searchResult["@id"];
                             searchResultDiv.className = "searchResult " + nameOfItem;
-                            if (typeof linkPrefix !== 'undefined' && linkPrefix)
+                            if (typeof linkPrefix !== 'undefined' && linkPrefix && linkPrefix(searchResult) != null)
                                 searchResultDiv.href = linkPrefix(searchResult) + nameOfItems + "/" + searchResult["@id"];
                             try {
                                 doListView(searchResult, searchResultDiv);
