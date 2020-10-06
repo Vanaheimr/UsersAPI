@@ -135,7 +135,7 @@ namespace social.OpenData.UsersAPI
                                          HTTPContentType.JSON_UTF8,
                                          HTTPDelegate: async Request => {
 
-                                             if (!ParseIdDelegate(Request.ParsedURIParameters[0], out TId Id))
+                                             if (!ParseIdDelegate(Request.ParsedURLParameters[0], out TId Id))
                                                  return new HTTPResponse.Builder(Request) {
                                                      HTTPStatusCode             = HTTPStatusCode.BadRequest,
                                                      Server                     = HTTPServerName,
@@ -145,7 +145,7 @@ namespace social.OpenData.UsersAPI
                                                      AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
                                                      ETag                       = "1",
                                                      ContentType                = HTTPContentType.JSON_UTF8,
-                                                     Content                    = ErrorMessage(ParseIdError(Request.ParsedURIParameters[0])).ToUTF8Bytes(),
+                                                     Content                    = ErrorMessage(ParseIdError(Request.ParsedURLParameters[0])).ToUTF8Bytes(),
                                                      CacheControl               = "no-cache",
                                                      Connection                 = "close"
                                                  };
@@ -199,12 +199,12 @@ namespace social.OpenData.UsersAPI
                                              TId   Id;
                                              TItem Item;
 
-                                             if (!ParseIdDelegate(Request.ParsedURIParameters[0], out Id))
+                                             if (!ParseIdDelegate(Request.ParsedURLParameters[0], out Id))
                                                  return new HTTPResponse.Builder(Request) {
                                                      HTTPStatusCode  = HTTPStatusCode.BadRequest,
                                                      Server          = HTTPServer.DefaultServerName,
                                                      ContentType     = HTTPContentType.JSON_UTF8,
-                                                     Content         = ErrorMessage(ParseIdError(Request.ParsedURIParameters[0])).ToUTF8Bytes(),
+                                                     Content         = ErrorMessage(ParseIdError(Request.ParsedURLParameters[0])).ToUTF8Bytes(),
                                                      CacheControl    = "no-cache",
                                                      Connection      = "close"
                                                  };

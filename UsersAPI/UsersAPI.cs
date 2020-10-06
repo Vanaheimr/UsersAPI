@@ -151,7 +151,7 @@ namespace social.OpenData.UsersAPI
             UserId        = null;
             HTTPResponse  = null;
 
-            if (HTTPRequest.ParsedURIParameters.Length < 1)
+            if (HTTPRequest.ParsedURLParameters.Length < 1)
             {
 
                 HTTPResponse = new HTTPResponse.Builder(HTTPRequest) {
@@ -165,7 +165,7 @@ namespace social.OpenData.UsersAPI
 
             }
 
-            UserId = User_Id.TryParse(HTTPRequest.ParsedURIParameters[0], "");
+            UserId = User_Id.TryParse(HTTPRequest.ParsedURLParameters[0], "");
 
             if (!UserId.HasValue)
             {
@@ -223,7 +223,7 @@ namespace social.OpenData.UsersAPI
             User          = null;
             HTTPResponse  = null;
 
-            if (HTTPRequest.ParsedURIParameters.Length < 1) {
+            if (HTTPRequest.ParsedURLParameters.Length < 1) {
 
                 HTTPResponse = new HTTPResponse.Builder(HTTPRequest) {
                     HTTPStatusCode  = HTTPStatusCode.BadRequest,
@@ -236,7 +236,7 @@ namespace social.OpenData.UsersAPI
 
             }
 
-            UserId = User_Id.TryParse(HTTPRequest.ParsedURIParameters[0], "");
+            UserId = User_Id.TryParse(HTTPRequest.ParsedURLParameters[0], "");
 
             if (!UserId.HasValue) {
 
@@ -306,7 +306,7 @@ namespace social.OpenData.UsersAPI
             OrganizationId        = null;
             HTTPResponse  = null;
 
-            if (HTTPRequest.ParsedURIParameters.Length < 1)
+            if (HTTPRequest.ParsedURLParameters.Length < 1)
             {
 
                 HTTPResponse = new HTTPResponse.Builder(HTTPRequest) {
@@ -320,7 +320,7 @@ namespace social.OpenData.UsersAPI
 
             }
 
-            OrganizationId = Organization_Id.TryParse(HTTPRequest.ParsedURIParameters[0]);
+            OrganizationId = Organization_Id.TryParse(HTTPRequest.ParsedURLParameters[0]);
 
             if (!OrganizationId.HasValue)
             {
@@ -378,7 +378,7 @@ namespace social.OpenData.UsersAPI
             Organization          = null;
             HTTPResponse  = null;
 
-            if (HTTPRequest.ParsedURIParameters.Length < 1) {
+            if (HTTPRequest.ParsedURLParameters.Length < 1) {
 
                 HTTPResponse = new HTTPResponse.Builder(HTTPRequest) {
                     HTTPStatusCode  = HTTPStatusCode.BadRequest,
@@ -391,7 +391,7 @@ namespace social.OpenData.UsersAPI
 
             }
 
-            OrganizationId = Organization_Id.TryParse(HTTPRequest.ParsedURIParameters[0]);
+            OrganizationId = Organization_Id.TryParse(HTTPRequest.ParsedURLParameters[0]);
 
             if (!OrganizationId.HasValue) {
 
@@ -1815,7 +1815,7 @@ namespace social.OpenData.UsersAPI
         /// </summary>
         /// <param name="ServiceName">The name of the service.</param>
         /// <param name="HTTPServerName">The default HTTP servername, used whenever no HTTP Host-header had been given.</param>
-        /// <param name="LocalHostname">The HTTP hostname for all URIs within this API.</param>
+        /// <param name="LocalHostname">The HTTP hostname for all URLs within this API.</param>
         /// <param name="LocalPort">A TCP port to listen on.</param>
         /// <param name="ExternalDNSName">The offical URL/DNS name of this service, e.g. for sending e-mails.</param>
         /// <param name="URLPathPrefix">A common prefix for all URLs.</param>
@@ -2002,13 +2002,13 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
-        #region (protected) UsersAPI(HTTPServer, URIPrefix = "/", ...)
+        #region (protected) UsersAPI(HTTPServer, URLPrefix = "/", ...)
 
         /// <summary>
         /// Attach this Open Data HTTP API to the given HTTP server.
         /// </summary>
         /// <param name="HTTPServer">An existing HTTP server.</param>
-        /// <param name="HTTPHostname">The HTTP hostname for all URIs within this API.</param>
+        /// <param name="HTTPHostname">The HTTP hostname for all URLs within this API.</param>
         /// <param name="ServiceName">The name of the service.</param>
         /// <param name="ExternalDNSName">The offical URL/DNS name of this service, e.g. for sending e-mails.</param>
         /// <param name="URLPathPrefix">A common prefix for all URLs.</param>
@@ -2508,13 +2508,13 @@ namespace social.OpenData.UsersAPI
         #endregion
 
 
-        #region (static) AttachToHTTPAPI(HTTPServer, URIPrefix = "/", ...)
+        #region (static) AttachToHTTPAPI(HTTPServer, URLPrefix = "/", ...)
 
         /// <summary>
         /// Attach this Open Data HTTP API to the given HTTP server.
         /// </summary>
         /// <param name="HTTPServer">An existing HTTP server.</param>
-        /// <param name="HTTPHostname">The HTTP hostname for all URIs within this API.</param>
+        /// <param name="HTTPHostname">The HTTP hostname for all URLs within this API.</param>
         /// <param name="ServiceName">The name of the service.</param>
         /// <param name="ExternalDNSName">The offical URL/DNS name of this service, e.g. for sending e-mails.</param>
         /// <param name="URLPathPrefix">A common prefix for all URLs.</param>
@@ -2541,7 +2541,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="MinPasswordLength">The minimal password length.</param>
         /// <param name="SignInSessionLifetime">The sign-in session lifetime.</param>
         /// 
-        /// <param name="SkipURLTemplates">Skip URI templates.</param>
+        /// <param name="SkipURLTemplates">Skip URL templates.</param>
         /// <param name="DisableNotifications">Disable external notifications.</param>
         /// <param name="DisableLogfile">Disable the log file.</param>
         /// <param name="LogfileName">The name of the logfile for this API.</param>
@@ -2986,7 +2986,7 @@ namespace social.OpenData.UsersAPI
                             {
 
                                 String       protocol;
-                                HTTPPath      URI;
+                                HTTPPath      URL;
                                 HTTPHostname hostname;
 
                                 if (notificationURL.URL.Contains("://"))
@@ -2994,13 +2994,13 @@ namespace social.OpenData.UsersAPI
                                     protocol = notificationURL.URL.Substring(0, notificationURL.URL.IndexOf("://"));
                                     var url  = notificationURL.URL.Substring(notificationURL.URL.IndexOf("://") + 3);
                                     hostname = HTTPHostname.Parse(url.Substring(0, url.IndexOf('/')));
-                                    URI      = HTTPPath.Parse(url.Substring(url.IndexOf('/')));
+                                    URL      = HTTPPath.Parse(url.Substring(url.IndexOf('/')));
                                 }
                                 else
                                 {
                                     protocol = "https";
                                     hostname = HTTPHostname.Parse(notificationURL.URL.Substring(0, notificationURL.URL.IndexOf('/')));
-                                    URI      = HTTPPath.Parse(notificationURL.URL.Substring(notificationURL.URL.IndexOf('/')));
+                                    URL      = HTTPPath.Parse(notificationURL.URL.Substring(notificationURL.URL.IndexOf('/')));
                                 }
 
                                 using (var _HTTPSClient = new HTTPSClient(hostname,
@@ -3019,7 +3019,7 @@ namespace social.OpenData.UsersAPI
                                     request  = new HTTPRequest.Builder(_HTTPSClient) {
                                                    HTTPMethod     = notificationURL.Method,
                                                    Host           = hostname,
-                                                   URI            = URI,
+                                                   URL            = URL,
                                                    Content        = new JArray(JSONNotification).ToUTF8Bytes(),
                                                    ContentType    = HTTPContentType.JSON_UTF8,
                                                    UserAgent      = "CardiCloud Notification API",
@@ -3274,7 +3274,7 @@ namespace social.OpenData.UsersAPI
                                                   Connection      = "close"
                                               };
 
-                                          }, AllowReplacement: URIReplacement.Allow);
+                                          }, AllowReplacement: URLReplacement.Allow);
 
 
             #endregion
@@ -3297,7 +3297,7 @@ namespace social.OpenData.UsersAPI
                                               VerificationToken VerificationToken = null;
 
                                               foreach (var _VerificationToken in _VerificationTokens)
-                                                  if (_VerificationToken.ToString() == Request.ParsedURIParameters[0])
+                                                  if (_VerificationToken.ToString() == Request.ParsedURLParameters[0])
                                                   {
                                                       VerificationToken = _VerificationToken;
                                                       break;
@@ -3408,7 +3408,7 @@ namespace social.OpenData.UsersAPI
                                                       Connection      = "close"
                                                   }.AsImmutable);
 
-                                          }, AllowReplacement: URIReplacement.Allow);
+                                          }, AllowReplacement: URLReplacement.Allow);
 
             #endregion
 
@@ -3541,15 +3541,15 @@ namespace social.OpenData.UsersAPI
 
                                               #endregion
 
-                                              #region Get RedirectURI
+                                              #region Get RedirectURL
 
-                                              LoginData.TryGetValue("RedirectURI", out String RedirectURI);
+                                              LoginData.TryGetValue("RedirectURL", out String RedirectURL);
 
-                                              if (RedirectURI.IsNotNullOrEmpty())
-                                                 RedirectURI = HTTPTools.URLDecode(RedirectURI);
+                                              if (RedirectURL.IsNotNullOrEmpty())
+                                                 RedirectURL = HTTPTools.URLDecode(RedirectURL);
 
                                               else
-                                                 RedirectURI = "/";
+                                                 RedirectURL = "/";
 
                                               #endregion
 
@@ -3675,7 +3675,7 @@ namespace social.OpenData.UsersAPI
                                                       ContentType     = HTTPContentType.HTML_UTF8,
                                                       Content         = String.Concat(
                                                                             "<!DOCTYPE html>", Environment.NewLine,
-                                                                            @"<html><head><meta http-equiv=""refresh"" content=""0; url=" + RedirectURI + @""" /></head></html>",
+                                                                            @"<html><head><meta http-equiv=""refresh"" content=""0; url=" + RedirectURL + @""" /></head></html>",
                                                                             Environment.NewLine
                                                                         ).ToUTF8Bytes(),
                                                       CacheControl    = "private",
@@ -3719,7 +3719,7 @@ namespace social.OpenData.UsersAPI
                                                     Connection                 = "close"
                                                 }.AsImmutable),
 
-                                         AllowReplacement: URIReplacement.Allow);
+                                         AllowReplacement: URLReplacement.Allow);
 
             #endregion
 
@@ -3897,7 +3897,7 @@ namespace social.OpenData.UsersAPI
 
                                              },
 
-                                             AllowReplacement: URIReplacement.Allow);
+                                             AllowReplacement: URLReplacement.Allow);
 
             #endregion
 
@@ -4125,7 +4125,7 @@ namespace social.OpenData.UsersAPI
 
                                              },
 
-                                             AllowReplacement: URIReplacement.Allow);
+                                             AllowReplacement: URLReplacement.Allow);
 
             #endregion
 
@@ -4891,7 +4891,7 @@ namespace social.OpenData.UsersAPI
 
                                               #endregion
 
-                                              #region Check UserId URI parameter
+                                              #region Check UserId URL parameter
 
                                               if (!Request.ParseUserId(this,
                                                                        out User_Id? UserIdURL,
@@ -4956,13 +4956,13 @@ namespace social.OpenData.UsersAPI
                                                              AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
                                                              ContentType                = HTTPContentType.JSON_UTF8,
                                                              Content                    = JSONObject.Create(
-                                                                                              new JProperty("description", "The optional user identification given within the JSON body does not match the one given in the URI!")
+                                                                                              new JProperty("description", "The optional user identification given within the JSON body does not match the one given in the URL!")
                                                                                           ).ToUTF8Bytes()
                                                          }.AsImmutable;
 
                                               }
 
-                                              if (!User_Id.TryParse(Request.ParsedURIParameters[0], out User_Id UserId) ||
+                                              if (!User_Id.TryParse(Request.ParsedURLParameters[0], out User_Id UserId) ||
                                                    UserId.Length < MinLoginLength)
                                               {
 
@@ -5418,7 +5418,7 @@ namespace social.OpenData.UsersAPI
             // -----------------------------------------------------------------------------------
             // curl -X OPTIONS -v -H "Accept: application/json" http://127.0.0.1:2100/users/ahzf
             // -----------------------------------------------------------------------------------
-            //HTTPServer.ITEM_GET<User_Id, User>(UriTemplate:         URIPrefix + "users/{UserId}",
+            //HTTPServer.ITEM_GET<User_Id, User>(UriTemplate:         URLPrefix + "users/{UserId}",
             //                                   ParseIdDelegate:     User_Id.TryParse,
             //                                   ParseIdError:        Text => "Invalid user identification '" + Text + "'!",
             //                                   TryGetItemDelegate:  _Users.TryGetValue,
@@ -5471,7 +5471,7 @@ namespace social.OpenData.UsersAPI
             // ------------------------------------------------------------------------
             // curl -v -H "Accept: application/json" http://127.0.0.1:2100/users/ahzf
             // ------------------------------------------------------------------------
-            //HTTPServer.ITEM_GET<User_Id, User>(UriTemplate:         URIPrefix + "users/{UserId}",
+            //HTTPServer.ITEM_GET<User_Id, User>(UriTemplate:         URLPrefix + "users/{UserId}",
             //                                   ParseIdDelegate:     User_Id.TryParse,
             //                                   ParseIdError:        Text => "Invalid user identification '" + Text + "'!",
             //                                   TryGetItemDelegate:  _Users.TryGetValue,
@@ -5494,7 +5494,7 @@ namespace social.OpenData.UsersAPI
 
                                              #endregion
 
-                                             #region Check UserId URI parameter
+                                             #region Check UserId URL parameter
 
                                              Request.ParseUser(this,
                                                                out User_Id?      UserId,
@@ -5690,7 +5690,7 @@ namespace social.OpenData.UsersAPI
 
                                              #endregion
 
-                                             #region Check UserId URI parameter
+                                             #region Check UserId URL parameter
 
                                              if (!Request.ParseUserId(this,
                                                                       out User_Id?      UserIdURL,
@@ -5804,8 +5804,8 @@ namespace social.OpenData.UsersAPI
 
                                               #region Verify username
 
-                                              // The login is taken from the URI, not from the JSON!
-                                              var Login = Request.ParsedURIParameters[0];
+                                              // The login is taken from the URL, not from the JSON!
+                                              var Login = Request.ParsedURLParameters[0];
 
                                               if (Login.Length < MinLoginLength)
                                               {
@@ -6129,7 +6129,7 @@ namespace social.OpenData.UsersAPI
 
                                              #endregion
 
-                                             #region Check UserId URI parameter
+                                             #region Check UserId URL parameter
 
                                              if (!Request.ParseUserId(this,
                                                                       out User_Id?      UserIdURL,
@@ -6138,7 +6138,7 @@ namespace social.OpenData.UsersAPI
                                                  return HTTPResponse;
                                              }
 
-                                             if (!TryGetUser(UserIdURL.Value, out User UserURI))
+                                             if (!TryGetUser(UserIdURL.Value, out User UserURL))
                                              {
 
                                                  return new HTTPResponse.Builder(Request) {
@@ -6157,7 +6157,7 @@ namespace social.OpenData.UsersAPI
 
                                              #region Is the current user allowed to impersonate the given user?
 
-                                             if (!CanImpersonate(Astronaut, UserURI))
+                                             if (!CanImpersonate(Astronaut, UserURL))
                                                  return new HTTPResponse.Builder(Request) {
                                                             HTTPStatusCode              = HTTPStatusCode.Forbidden,
                                                             Server                      = HTTPServer.DefaultServerName,
@@ -6176,7 +6176,7 @@ namespace social.OpenData.UsersAPI
                                              var SHA256Hash       = new SHA256Managed();
                                              var SecurityTokenId  = SecurityToken_Id.Parse(SHA256Hash.ComputeHash(
                                                                                                String.Concat(Guid.NewGuid().ToString(),
-                                                                                                             UserURI.Id).
+                                                                                                             UserURL.Id).
                                                                                                ToUTF8Bytes()
                                                                                            ).ToHexString());
 
@@ -6186,12 +6186,12 @@ namespace social.OpenData.UsersAPI
                                              {
 
                                                  HTTPCookies.Add(SecurityTokenId,
-                                                                    new SecurityToken(UserURI.Id,
+                                                                    new SecurityToken(UserURL.Id,
                                                                                       Expires,
                                                                                       Astronaut.Id));
 
                                                  File.AppendAllText(UsersAPIPath + DefaultHTTPCookiesFile,
-                                                                    SecurityTokenId + ";" + UserURI.Id + ";" + Expires.ToIso8601() + ";" + Astronaut.Id + Environment.NewLine);
+                                                                    SecurityTokenId + ";" + UserURL.Id + ";" + Expires.ToIso8601() + ";" + Astronaut.Id + Environment.NewLine);
 
                                              }
 
@@ -6203,14 +6203,14 @@ namespace social.OpenData.UsersAPI
                                                         ContentType     = HTTPContentType.TEXT_UTF8,
                                                         Content         = new JObject(
                                                                               new JProperty("@context",  SignInOutContext),
-                                                                              new JProperty("login",     UserURI.Id.ToString()),
-                                                                              new JProperty("username",  UserURI.Name),
-                                                                              new JProperty("email",     UserURI.EMail.Address.ToString())
+                                                                              new JProperty("login",     UserURL.Id.ToString()),
+                                                                              new JProperty("username",  UserURL.Name),
+                                                                              new JProperty("email",     UserURL.EMail.Address.ToString())
                                                                           ).ToUTF8Bytes(),
                                                         CacheControl    = "private",
                                                         SetCookies      = new String[] {
                                                                               String.Concat(CookieName,
-                                                                                            GenerateCookieUserData(UserURI, Astronaut),
+                                                                                            GenerateCookieUserData(UserURL, Astronaut),
                                                                                             GenerateCookieSettings(Expires)),
                                                                               String.Concat(SessionCookieName, "=", SecurityTokenId.ToString(),
                                                                                             GenerateCookieSettings(Expires),
@@ -6245,7 +6245,7 @@ namespace social.OpenData.UsersAPI
 
                                              #endregion
 
-                                             #region Check UserId URI parameter
+                                             #region Check UserId URL parameter
 
                                              if (!Request.ParseUserId(this,
                                                                       out User_Id?      UserIdURL,
@@ -6254,7 +6254,7 @@ namespace social.OpenData.UsersAPI
                                                  return Task.FromResult(HTTPResponse);
                                              }
 
-                                             if (!TryGetUser(UserIdURL.Value, out User UserURI))
+                                             if (!TryGetUser(UserIdURL.Value, out User UserURL))
                                              {
 
                                                  return Task.FromResult(
@@ -6274,8 +6274,8 @@ namespace social.OpenData.UsersAPI
 
                                              #region Is the current user allowed to impersonate the given user?
 
-                                             //if (UserURI.Id.ToString() == "ahzf" ||
-                                             //    UserURI.Id.ToString() == "lars")
+                                             //if (UserURL.Id.ToString() == "ahzf" ||
+                                             //    UserURL.Id.ToString() == "lars")
                                              //{
 
                                              //    return Task.FromResult(
@@ -6351,7 +6351,7 @@ namespace social.OpenData.UsersAPI
 
             HTTPServer.RegisterFilesystemFile(HTTPHostname.Any,
                                               URLPathPrefix + "users/{UserId}/profilephoto",
-                                              URIParams => "LocalHTTPRoot/data/Users/" + URIParams[0] + ".png",
+                                              URLParams => "LocalHTTPRoot/data/Users/" + URLParams[0] + ".png",
                                               DefaultFile: "HTTPRoot/images/defaults/DefaultUser.png");
 
             #endregion
@@ -6433,7 +6433,7 @@ namespace social.OpenData.UsersAPI
 
                                              #endregion
 
-                                             #region Check UserId URI parameter
+                                             #region Check UserId URL parameter
 
                                              if (!Request.ParseUser(this,
                                                                     out User_Id?  UserIdURL,
@@ -6623,7 +6623,7 @@ namespace social.OpenData.UsersAPI
 
                                              #endregion
 
-                                             #region Check UserId URI parameter
+                                             #region Check UserId URL parameter
 
                                              if (!Request.ParseUser(this,
                                                                     out User_Id?  UserIdURL,
@@ -6807,7 +6807,7 @@ namespace social.OpenData.UsersAPI
 
                                              #region Get notificationId URL parameter
 
-                                             if (Request.ParsedURIParameters.Length < 2)
+                                             if (Request.ParsedURLParameters.Length < 2)
                                              {
 
                                                  return Task.FromResult(
@@ -6820,7 +6820,7 @@ namespace social.OpenData.UsersAPI
 
                                              }
 
-                                             var notificationId = Request.ParsedURIParameters[1];
+                                             var notificationId = Request.ParsedURLParameters[1];
 
                                              #endregion
 
@@ -7007,7 +7007,7 @@ namespace social.OpenData.UsersAPI
 
                                              #endregion
 
-                                             #region Check UserId URI parameter
+                                             #region Check UserId URL parameter
 
                                              if (!Request.ParseUserId(this,
                                                                       out User_Id?      UserIdURL,
@@ -7593,7 +7593,7 @@ namespace social.OpenData.UsersAPI
 
                                              #endregion
 
-                                             #region Check OrganizationId URI parameter
+                                             #region Check OrganizationId URL parameter
 
                                              if (!Request.ParseOrganization(this,
                                                                             out Organization_Id?  OrganizationId,
@@ -7684,7 +7684,7 @@ namespace social.OpenData.UsersAPI
 
                                              #endregion
 
-                                             #region Check OrganizationId URI parameter
+                                             #region Check OrganizationId URL parameter
 
                                              if (!Request.ParseOrganization(this,
                                                                             out Organization_Id?  OrganizationId,
@@ -7753,7 +7753,7 @@ namespace social.OpenData.UsersAPI
 
                                              #endregion
 
-                                             #region Check OrganizationId URI parameter
+                                             #region Check OrganizationId URL parameter
 
                                              if (!Request.ParseOrganization(this,
                                                                             out Organization_Id?  OrganizationId,
@@ -7829,7 +7829,7 @@ namespace social.OpenData.UsersAPI
 
                                              #endregion
 
-                                             #region Check OrganizationId URI parameter
+                                             #region Check OrganizationId URL parameter
 
                                              if (!Request.ParseOrganizationId(this,
                                                                               out Organization_Id?  OrganizationIdURL,
@@ -8078,7 +8078,7 @@ namespace social.OpenData.UsersAPI
 
                                              #endregion
 
-                                             #region Check OrganizationId URI parameter
+                                             #region Check OrganizationId URL parameter
 
                                              if (!Request.ParseOrganization(this,
                                                                             out Organization_Id?  OrganizationIdURL,
@@ -8317,7 +8317,7 @@ namespace social.OpenData.UsersAPI
 
                                              #endregion
 
-                                             #region Check OrganizationId URI parameter
+                                             #region Check OrganizationId URL parameter
 
                                              if (!Request.ParseOrganization(this,
                                                                             out Organization_Id?  OrganizationId,
@@ -8389,7 +8389,7 @@ namespace social.OpenData.UsersAPI
 
                                              #endregion
 
-                                             #region Check OrganizationId URI parameter
+                                             #region Check OrganizationId URL parameter
 
                                              if (!Request.ParseOrganization(this,
                                                                             out Organization_Id?  OrganizationId,
@@ -8461,7 +8461,7 @@ namespace social.OpenData.UsersAPI
 
                                              #endregion
 
-                                             #region Check OrganizationId URI parameter
+                                             #region Check OrganizationId URL parameter
 
                                              if (!Request.ParseOrganization(this,
                                                                             out Organization_Id?  OrganizationId,
@@ -8533,7 +8533,7 @@ namespace social.OpenData.UsersAPI
 
                                              #endregion
 
-                                             #region Check OrganizationId URI parameter
+                                             #region Check OrganizationId URL parameter
 
                                              if (!Request.ParseOrganization(this,
                                                                             out Organization_Id?  OrganizationId,
@@ -8605,7 +8605,7 @@ namespace social.OpenData.UsersAPI
 
                                              #endregion
 
-                                             #region Check OrganizationId URI parameter
+                                             #region Check OrganizationId URL parameter
 
                                              if (!Request.ParseOrganization(this,
                                                                             out Organization_Id?  OrganizationId,
@@ -8678,7 +8678,7 @@ namespace social.OpenData.UsersAPI
 
                                              #endregion
 
-                                             #region Check OrganizationId URI parameter
+                                             #region Check OrganizationId URL parameter
 
                                              if (!Request.ParseOrganization(this,
                                                                             out Organization_Id?  OrganizationId,
@@ -8740,7 +8740,7 @@ namespace social.OpenData.UsersAPI
 
                                              #endregion
 
-                                             #region Check OrganizationId URI parameter
+                                             #region Check OrganizationId URL parameter
 
                                              if (!Request.ParseOrganization(this,
                                                                             out Organization_Id?  OrganizationId,
@@ -8926,7 +8926,7 @@ namespace social.OpenData.UsersAPI
 
                                              #endregion
 
-                                             #region Check OrganizationId URI parameter
+                                             #region Check OrganizationId URL parameter
 
                                              if (!Request.ParseOrganization(this,
                                                                             out Organization_Id?  OrganizationIdURL,
@@ -9251,8 +9251,8 @@ namespace social.OpenData.UsersAPI
 
                                              #region Get notificationId URL parameter
 
-                                             if (Request.ParsedURIParameters.Length < 1 ||
-                                                 !UInt32.TryParse(Request.ParsedURIParameters[0], out UInt32 NotificationId))
+                                             if (Request.ParsedURLParameters.Length < 1 ||
+                                                 !UInt32.TryParse(Request.ParsedURLParameters[0], out UInt32 NotificationId))
                                              {
 
                                                  return Task.FromResult(
@@ -9484,7 +9484,7 @@ namespace social.OpenData.UsersAPI
                                                      Vary                        = "Accept"
                                                  }.AsImmutable);
 
-                                         }, AllowReplacement: URIReplacement.Allow);
+                                         }, AllowReplacement: URLReplacement.Allow);
 
             #endregion
 
@@ -9679,7 +9679,7 @@ namespace social.OpenData.UsersAPI
 
                                              }
 
-                                         }, AllowReplacement: URIReplacement.Allow);
+                                         }, AllowReplacement: URLReplacement.Allow);
 
             #endregion
 
@@ -11112,7 +11112,7 @@ namespace social.OpenData.UsersAPI
 
             #region Get user from Basic-Auth...
 
-            if (Request.Authorization?.HTTPCredentialType == HTTPAuthenticationTypes.Basic)
+            if (Request.Authorization is HTTPBasicAuthentication basicAuth)
             {
 
                 #region Find username or e-mail addresses...
@@ -11120,8 +11120,8 @@ namespace social.OpenData.UsersAPI
                 var possibleUsers = new HashSet<User>();
                 var validUsers    = new HashSet<User>();
 
-                if (User_Id.TryParse   (Request.Authorization.Username, out User_Id _UserId) &&
-                    _Users. TryGetValue(_UserId,                        out User    _User))
+                if (User_Id.TryParse   (basicAuth.Username, out User_Id _UserId) &&
+                    _Users. TryGetValue(_UserId,            out User    _User))
                 {
                     possibleUsers.Add(_User);
                 }
@@ -11130,7 +11130,7 @@ namespace social.OpenData.UsersAPI
                 {
                     foreach (var user in _Users.Values)
                     {
-                        if (String.Equals(Request.Authorization.Username,
+                        if (String.Equals(basicAuth.Username,
                                           user.EMail.Address.ToString(),
                                           StringComparison.OrdinalIgnoreCase))
                         {
@@ -11144,7 +11144,7 @@ namespace social.OpenData.UsersAPI
                     foreach (var possibleUser in possibleUsers)
                     {
                         if (_LoginPasswords.TryGetValue(possibleUser.Id, out LoginPassword loginPassword) &&
-                            loginPassword.VerifyPassword(Request.Authorization.Password))
+                            loginPassword.VerifyPassword(basicAuth.Password))
                         {
                             validUsers.Add(possibleUser);
                         }
@@ -11614,10 +11614,10 @@ namespace social.OpenData.UsersAPI
         #endregion
 
 
-        #region AddEventSource(HTTPEventSourceId, URITemplate, IncludeFilterAtRuntime, CreateState, ...)
+        #region AddEventSource(HTTPEventSourceId, URLTemplate, IncludeFilterAtRuntime, CreateState, ...)
 
         public void AddEventSource<TData, TState>(HTTPEventSource_Id                             HTTPEventSourceId,
-                                                  HTTPPath                                       URITemplate,
+                                                  HTTPPath                                       URLTemplate,
 
                                                   Func<TState, User, HTTPEvent<TData>, Boolean>  IncludeFilterAtRuntime,
                                                   Func<TState>                                   CreatePerRequestState,
@@ -11626,7 +11626,7 @@ namespace social.OpenData.UsersAPI
                                                   HTTPMethod?                                    HttpMethod                 = null,
                                                   HTTPContentType                                HTTPContentType            = null,
 
-                                                  HTTPAuthentication                             URIAuthentication          = null,
+                                                  HTTPAuthentication                             URLAuthentication          = null,
                                                   HTTPAuthentication                             HTTPMethodAuthentication   = null,
 
                                                   HTTPDelegate                                   DefaultErrorHandler        = null)
@@ -11640,9 +11640,9 @@ namespace social.OpenData.UsersAPI
 
                 HTTPServer.AddMethodCallback(Hostname        ?? HTTPHostname.Any,
                                              HttpMethod      ?? HTTPMethod.GET,
-                                             URITemplate,
+                                             URLTemplate,
                                              HTTPContentType ?? HTTPContentType.EVENTSTREAM,
-                                             URIAuthentication:         URIAuthentication,
+                                             URLAuthentication:         URLAuthentication,
                                              HTTPMethodAuthentication:  HTTPMethodAuthentication,
                                              DefaultErrorHandler:       DefaultErrorHandler,
                                              HTTPDelegate:              Request => {
@@ -11697,9 +11697,9 @@ namespace social.OpenData.UsersAPI
 
                 HTTPServer.AddMethodCallback(Hostname        ?? HTTPHostname.Any,
                                              HttpMethod      ?? HTTPMethod.GET,
-                                             URITemplate,
+                                             URLTemplate,
                                              HTTPContentType ?? HTTPContentType.JSON_UTF8,
-                                             URIAuthentication:         URIAuthentication,
+                                             URLAuthentication:         URLAuthentication,
                                              HTTPMethodAuthentication:  HTTPMethodAuthentication,
                                              DefaultErrorHandler:       DefaultErrorHandler,
                                              HTTPDelegate:              Request => {
@@ -11759,10 +11759,10 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
-        #region AddEventSource(HTTPEventSourceId, URITemplate, IncludeFilterAtRuntime, CreateState, ...)
+        #region AddEventSource(HTTPEventSourceId, URLTemplate, IncludeFilterAtRuntime, CreateState, ...)
 
         public void AddEventSource<TData, TState>(HTTPEventSource_Id                                                        HTTPEventSourceId,
-                                                  HTTPPath                                                                  URITemplate,
+                                                  HTTPPath                                                                  URLTemplate,
 
                                                   Func<TState, User, IEnumerable<Organization>, HTTPEvent<TData>, Boolean>  IncludeFilterAtRuntime,
                                                   Func<TState>                                                              CreatePerRequestState,
@@ -11771,7 +11771,7 @@ namespace social.OpenData.UsersAPI
                                                   HTTPMethod?                                                               HttpMethod                 = null,
                                                   HTTPContentType                                                           HTTPContentType            = null,
 
-                                                  HTTPAuthentication                                                        URIAuthentication          = null,
+                                                  HTTPAuthentication                                                        URLAuthentication          = null,
                                                   HTTPAuthentication                                                        HTTPMethodAuthentication   = null,
 
                                                   HTTPDelegate                                                              DefaultErrorHandler        = null)
@@ -11785,9 +11785,9 @@ namespace social.OpenData.UsersAPI
 
                 HTTPServer.AddMethodCallback(Hostname        ?? HTTPHostname.Any,
                                              HttpMethod      ?? HTTPMethod.GET,
-                                             URITemplate,
+                                             URLTemplate,
                                              HTTPContentType ?? HTTPContentType.EVENTSTREAM,
-                                             URIAuthentication:         URIAuthentication,
+                                             URLAuthentication:         URLAuthentication,
                                              HTTPMethodAuthentication:  HTTPMethodAuthentication,
                                              DefaultErrorHandler:       DefaultErrorHandler,
                                              HTTPDelegate:              Request => {
@@ -11844,9 +11844,9 @@ namespace social.OpenData.UsersAPI
 
                 HTTPServer.AddMethodCallback(Hostname        ?? HTTPHostname.Any,
                                              HttpMethod      ?? HTTPMethod.GET,
-                                             URITemplate,
+                                             URLTemplate,
                                              HTTPContentType ?? HTTPContentType.JSON_UTF8,
-                                             URIAuthentication:         URIAuthentication,
+                                             URLAuthentication:         URLAuthentication,
                                              HTTPMethodAuthentication:  HTTPMethodAuthentication,
                                              DefaultErrorHandler:       DefaultErrorHandler,
                                              HTTPDelegate:              Request => {
@@ -16315,17 +16315,17 @@ namespace social.OpenData.UsersAPI
             => _DataLicenses.Values;
 
 
-        #region CreateDataLicense           (Id, Description, URIs)
+        #region CreateDataLicense           (Id, Description, URLs)
 
         /// <summary>
         /// Create a new data license.
         /// </summary>
         /// <param name="Id">The unique identification of the data license.</param>
         /// <param name="Description">The description of the data license.</param>
-        /// <param name="URIs">Optional URIs for more information.</param>
+        /// <param name="URLs">Optional URLs for more information.</param>
         public DataLicense CreateDataLicense(DataLicense_Id   Id,
                                              String           Description,
-                                             params String[]  URIs)
+                                             params String[]  URLs)
         {
 
             lock (_DataLicenses)
@@ -16337,7 +16337,7 @@ namespace social.OpenData.UsersAPI
 
                 var DataLicense = new DataLicense(Id,
                                                   Description,
-                                                  URIs);
+                                                  URLs);
 
                 WriteToDatabaseFile(NotificationMessageType.Parse("createDataLicense"),
                                DataLicense.ToJSON(),
@@ -16351,17 +16351,17 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
-        #region CreateDataLicenseIfNotExists(Id, Description, URIs)
+        #region CreateDataLicenseIfNotExists(Id, Description, URLs)
 
         /// <summary>
         /// Create a new data license.
         /// </summary>
         /// <param name="Id">The unique identification of the data license.</param>
         /// <param name="Description">The description of the data license.</param>
-        /// <param name="URIs">Optional URIs for more information.</param>
+        /// <param name="URLs">Optional URLs for more information.</param>
         public DataLicense CreateDataLicenseIfNotExists(DataLicense_Id   Id,
                                                         String           Description,
-                                                        params String[]  URIs)
+                                                        params String[]  URLs)
         {
 
             lock (_DataLicenses)
@@ -16372,7 +16372,7 @@ namespace social.OpenData.UsersAPI
 
                 return CreateDataLicense(Id,
                                          Description,
-                                         URIs);
+                                         URLs);
 
             }
 
