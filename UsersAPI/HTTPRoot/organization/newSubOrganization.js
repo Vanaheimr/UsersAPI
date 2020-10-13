@@ -33,7 +33,7 @@ function StartNewSubOrganization() {
     }
     function SaveData() {
         const newChildOrganizationJSON = {
-            "@context": "https://opendata.social/contexts/UsersAPI+json/organization",
+            "@context": "https://opendata.social/contexts/UsersAPI/organization",
             "parentOrganization": organizationId,
             "name": { "eng": name.value.trim() }
         };
