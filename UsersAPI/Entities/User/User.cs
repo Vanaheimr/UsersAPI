@@ -484,13 +484,13 @@ namespace social.OpenData.UsersAPI
             var _Groups = RequireReadWriteAccess
 
                                      ? _User2Group_OutEdges.
-                                           Where (edge => edge.EdgeLabel == User2GroupEdgeTypes.IsAdmin_ReadWrite ||
+                                           Where (edge => edge.EdgeLabel == User2GroupEdgeTypes.IsAdmin ||
                                                           edge.EdgeLabel == User2GroupEdgeTypes.IsMember).
                                            Select(edge => edge.Target).
                                            ToList()
 
                                      : _User2Group_OutEdges.
-                                           Where (edge => edge.EdgeLabel == User2GroupEdgeTypes.IsAdmin_ReadWrite  ||
+                                           Where (edge => edge.EdgeLabel == User2GroupEdgeTypes.IsAdmin  ||
                                                           edge.EdgeLabel == User2GroupEdgeTypes.IsMember ||
                                                           edge.EdgeLabel == User2GroupEdgeTypes.IsVisitor).
                                            Select(edge => edge.Target).
@@ -1953,13 +1953,13 @@ namespace social.OpenData.UsersAPI
                 var _Groups = RequireReadWriteAccess
 
                                          ? _User2Group_OutEdges.
-                                               Where (edge => edge.EdgeLabel == User2GroupEdgeTypes.IsAdmin_ReadWrite ||
+                                               Where (edge => edge.EdgeLabel == User2GroupEdgeTypes.IsAdmin ||
                                                               edge.EdgeLabel == User2GroupEdgeTypes.IsMember).
                                                Select(edge => edge.Target).
                                                ToList()
 
                                          : _User2Group_OutEdges.
-                                               Where (edge => edge.EdgeLabel == User2GroupEdgeTypes.IsAdmin_ReadWrite  ||
+                                               Where (edge => edge.EdgeLabel == User2GroupEdgeTypes.IsAdmin  ||
                                                               edge.EdgeLabel == User2GroupEdgeTypes.IsMember ||
                                                               edge.EdgeLabel == User2GroupEdgeTypes.IsVisitor).
                                                Select(edge => edge.Target).

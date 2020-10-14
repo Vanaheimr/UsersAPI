@@ -11540,7 +11540,7 @@ namespace social.OpenData.UsersAPI
                 if (Request.HTTPSource.IPAddress.IsIPv4 &&
                     Request.HTTPSource.IPAddress.IsLocalhost)
                 {
-                    User           = Admins.User2GroupInEdges(edgelabel => edgelabel == User2GroupEdgeTypes.IsAdmin_ReadWrite).FirstOrDefault()?.Source;
+                    User           = Admins.User2GroupInEdges(edgelabel => edgelabel == User2GroupEdgeTypes.IsAdmin).FirstOrDefault()?.Source;
                     Organizations  = new HashSet<Organization>(User.Organizations(AccessLevel, Recursive));
                     return;
                 }
@@ -13115,7 +13115,7 @@ namespace social.OpenData.UsersAPI
                 return Access_Levels.ReadOnly;
             }
 
-            if (User.Groups(User2GroupEdgeTypes.IsAdmin_ReadWrite).
+            if (User.Groups(User2GroupEdgeTypes.IsAdmin).
                      Contains(Admins))
             {
                 return Access_Levels.ReadWrite;
