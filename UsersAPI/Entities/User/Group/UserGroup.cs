@@ -62,16 +62,16 @@ namespace social.OpenData.UsersAPI
         /// <param name="Take">The optional number of user groups to return.</param>
         /// <param name="Embedded">Whether this data is embedded into another data structure, e.g. into a user group.</param>
         public static JArray ToJSON(this IEnumerable<UserGroup>  UserGroups,
-                                    UInt64?                              Skip                           = null,
-                                    UInt64?                              Take                           = null,
-                                    Boolean                              Embedded                       = false,
-                                    InfoStatus                           ExpandUsers            = InfoStatus.ShowIdOnly,
-                                    InfoStatus                           ExpandParentGroup              = InfoStatus.ShowIdOnly,
-                                    InfoStatus                           ExpandSubgroups                = InfoStatus.ShowIdOnly,
-                                    InfoStatus                           ExpandAttachedFiles            = InfoStatus.ShowIdOnly,
-                                    InfoStatus                           IncludeAttachedFileSignatures  = InfoStatus.ShowIdOnly,
-                                    UserGroupToJSONDelegate      UserGroupToJSON        = null,
-                                    Boolean                              IncludeCryptoHash              = true)
+                                    UInt64?                      Skip                            = null,
+                                    UInt64?                      Take                            = null,
+                                    Boolean                      Embedded                        = false,
+                                    InfoStatus                   ExpandUsers                     = InfoStatus.ShowIdOnly,
+                                    InfoStatus                   ExpandParentGroup               = InfoStatus.ShowIdOnly,
+                                    InfoStatus                   ExpandSubgroups                 = InfoStatus.ShowIdOnly,
+                                    InfoStatus                   ExpandAttachedFiles             = InfoStatus.ShowIdOnly,
+                                    InfoStatus                   IncludeAttachedFileSignatures   = InfoStatus.ShowIdOnly,
+                                    UserGroupToJSONDelegate      UserGroupToJSON                 = null,
+                                    Boolean                      IncludeCryptoHash               = true)
 
 
             => UserGroups?.Any() != true
@@ -220,7 +220,11 @@ namespace social.OpenData.UsersAPI
                                       Boolean     IncludeCryptoHash               = true)
         {
 
-            var JSON = JSONObject.Create(
+
+            var JSON = base.ToJSON(Embedded,
+                                   false, //IncludeLastChange,
+                                   IncludeCryptoHash,
+                                   null,
 
                            Members.SafeAny() && ExpandUsers != InfoStatus.Hidden
                                ? ExpandSubgroups.Switch(
@@ -247,6 +251,8 @@ namespace social.OpenData.UsersAPI
                                : null
 
                        );
+
+
 
             return JSON;
 

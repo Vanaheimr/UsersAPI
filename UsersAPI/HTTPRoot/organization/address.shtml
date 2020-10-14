@@ -102,7 +102,7 @@
     map = L.map('map', {
         center: [49.594760, 11.019356],
         zoom:   14,
-        layers: [ grayscale ]
+        layers: [ emerald ]
     });
 
     var baseLayers = {

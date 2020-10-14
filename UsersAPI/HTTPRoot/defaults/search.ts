@@ -60,6 +60,7 @@ enum searchResultsMode
 function StartSearch<TSearchResult>(requestURL:   string,
                                     nameOfItem:   string,
                                     nameOfItems:  string,
+                                    nameOfItems2: string,
                                     doListView:   SearchListView<TSearchResult>,
                                     doTableView:  SearchTableView<TSearchResult>,
                                     linkPrefix?:  SearchResult2Link<TSearchResult>,
@@ -71,6 +72,7 @@ function StartSearch<TSearchResult>(requestURL:   string,
                                             () => { },
                                             nameOfItem,
                                             nameOfItems,
+                                            nameOfItems2,
                                             doListView,
                                             doTableView,
                                             linkPrefix,
@@ -84,6 +86,7 @@ function StartSearch2<TMetadata extends TMetadataDefaults, TSearchResult>(reques
                                                                           doStartUp:      SearchStartUp<TMetadata>,
                                                                           nameOfItem:     string,
                                                                           nameOfItems:    string,
+                                                                          nameOfItems2:   string,
                                                                           doListView:     SearchListView<TSearchResult>,
                                                                           doTableView:    SearchTableView<TSearchResult>,
                                                                           linkPrefix?:    SearchResult2Link<TSearchResult>,
@@ -226,7 +229,7 @@ function StartSearch2<TMetadata extends TMetadataDefaults, TSearchResult>(reques
                         messageDiv.innerHTML = searchResults.length > 0
                                                    ? "showing results " + (skip + 1) + " - " + (skip + Math.min(searchResults.length, take)) +
                                                          " of " + filteredNumberOfResults
-                                                   : "no matching " + nameOfItems + " found";
+                                                   : "no matching " + nameOfItems2 + " found";
 
                         if (skip > 0)
                             leftButton.disabled  = false;
@@ -297,7 +300,7 @@ function StartSearch2<TMetadata extends TMetadataDefaults, TSearchResult>(reques
 
                     localSearchMessageDiv.innerHTML = numberOfMatches > 0
                                                           ? numberOfMatches + " local matches"
-                                                          : "no matching " + nameOfItems + " found";
+                                                          : "no matching " + nameOfItems2 + " found";
 
                 }
 

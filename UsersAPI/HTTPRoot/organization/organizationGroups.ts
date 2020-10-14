@@ -2,9 +2,10 @@
 
 function StartOrganizationGroupSearch() {
 
-    StartSearch<IOrganizationGroup>("/organizationGroup",
+    StartSearch<IOrganizationGroup>("/organizationGroups",
                                     "organizationGroup",
                                     "organizationGroups",
+                                    "organization groups",
                                     (organizationGroup, organizationGroupDiv) => {
                                          CreateDiv(organizationGroupDiv, "id", organizationGroup["@id"]);
                                          organizationGroupDiv.appendChild(CreateI18NDiv(organizationGroup.name,         "name"));

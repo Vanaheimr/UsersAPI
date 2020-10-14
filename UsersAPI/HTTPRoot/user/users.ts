@@ -6,6 +6,7 @@ function StartUserSearch() {
     StartSearch<IUserProfile>("/users",
                               "user",
                               "users",
+                              "users",
                               (user, userDiv) => {
                                   CreateDiv(userDiv, "id",    user["@id"]);
                                   CreateDiv(userDiv, "name",  user.name);

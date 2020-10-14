@@ -16,10 +16,10 @@ var searchResultsMode;
     searchResultsMode[searchResultsMode["listView"] = 0] = "listView";
     searchResultsMode[searchResultsMode["tableView"] = 1] = "tableView";
 })(searchResultsMode || (searchResultsMode = {}));
-function StartSearch(requestURL, nameOfItem, nameOfItems, doListView, doTableView, linkPrefix, startView, context) {
-    return StartSearch2(requestURL, () => "", () => { }, nameOfItem, nameOfItems, doListView, doTableView, linkPrefix, startView, context);
+function StartSearch(requestURL, nameOfItem, nameOfItems, nameOfItems2, doListView, doTableView, linkPrefix, startView, context) {
+    return StartSearch2(requestURL, () => "", () => { }, nameOfItem, nameOfItems, nameOfItems2, doListView, doTableView, linkPrefix, startView, context);
 }
-function StartSearch2(requestURL, searchFilters, doStartUp, nameOfItem, nameOfItems, doListView, doTableView, linkPrefix, startView, context) {
+function StartSearch2(requestURL, searchFilters, doStartUp, nameOfItem, nameOfItems, nameOfItems2, doListView, doTableView, linkPrefix, startView, context) {
     var _a;
     requestURL = requestURL.indexOf('?') === -1
         ? requestURL + '?'
@@ -114,7 +114,7 @@ function StartSearch2(requestURL, searchFilters, doStartUp, nameOfItem, nameOfIt
                 messageDiv.innerHTML = searchResults.length > 0
                     ? "showing results " + (skip + 1) + " - " + (skip + Math.min(searchResults.length, take)) +
                         " of " + filteredNumberOfResults
-                    : "no matching " + nameOfItems + " found";
+                    : "no matching " + nameOfItems2 + " found";
                 if (skip > 0)
                     leftButton.disabled = false;
                 if (skip + take < filteredNumberOfResults)
@@ -158,7 +158,7 @@ function StartSearch2(requestURL, searchFilters, doStartUp, nameOfItem, nameOfIt
                 if (localSearchMessageDiv !== null) {
                     localSearchMessageDiv.innerHTML = numberOfMatches > 0
                         ? numberOfMatches + " local matches"
-                        : "no matching " + nameOfItems + " found";
+                        : "no matching " + nameOfItems2 + " found";
                 }
             }
         };

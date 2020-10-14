@@ -5,6 +5,7 @@ function StartOrganizationSearch() {
     StartSearch<IOrganization>("/organizations",
                                "organization",
                                "organizations",
+                               "organizations",
                                (organization, organizationDiv) => {
                                     CreateDiv(organizationDiv, "id", organization["@id"]);
                                     organizationDiv.appendChild(CreateI18NDiv(organization.name,         "name"));
