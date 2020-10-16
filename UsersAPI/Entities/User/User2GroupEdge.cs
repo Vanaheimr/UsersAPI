@@ -30,7 +30,7 @@ namespace social.OpenData.UsersAPI
     {
         IsRoot,
         IsAdmin_ReadOnly,
-        IsAdmin_ReadWrite,
+        IsAdmin,
         IsMember,
         IsVisitor
     }

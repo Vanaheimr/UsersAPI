@@ -6,6 +6,7 @@ function StartUserGroupSearch() {
     StartSearch<IUserGroup>("/userGroups",
                             "userGroup",
                             "userGroups",
+                            "user groups",
                             (userGroup, userGroupDiv) => {
                                 CreateDiv(userGroupDiv, "id",    userGroup["@id"]);
                                 CreateDiv(userGroupDiv, "name",  CreateI18NDiv(userGroup.name,        "name"));

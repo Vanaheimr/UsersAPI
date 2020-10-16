@@ -489,9 +489,10 @@ namespace social.OpenData.UsersAPI
         private static readonly SemaphoreSlim  LogFileSemaphore                = new SemaphoreSlim(1, 1);
         //private static readonly SemaphoreSlim  NotificationsSemaphore          = new SemaphoreSlim(1, 1);
         private static readonly SemaphoreSlim  UsersSemaphore                  = new SemaphoreSlim(1, 1);
+        private static readonly SemaphoreSlim  UserGroupsSemaphore             = new SemaphoreSlim(1, 1);
         private static readonly SemaphoreSlim  OrganizationsSemaphore          = new SemaphoreSlim(1, 1);
+        private static readonly SemaphoreSlim  OrganizationGroupsSemaphore     = new SemaphoreSlim(1, 1);
         private static readonly SemaphoreSlim  DashboardsSemaphore             = new SemaphoreSlim(1, 1);
-        private static readonly SemaphoreSlim  UserGroupsSemaphore                 = new SemaphoreSlim(1, 1);
 
         /// <summary>
         /// The HTTP root for embedded ressources.
@@ -2166,11 +2167,12 @@ namespace social.OpenData.UsersAPI
             this.PasswordQualityCheck         = PasswordQualityCheck        ?? DefaultPasswordQualityCheck;
             this.SignInSessionLifetime        = SignInSessionLifetime       ?? DefaultSignInSessionLifetime;
 
-            this._DataLicenses                = new Dictionary<DataLicense_Id,   DataLicense>();
-            this._Users                       = new Dictionary<User_Id,          User>();
-            this._UserGroups                  = new Dictionary<UserGroup_Id,     UserGroup>();
-            this._Organizations               = new Dictionary<Organization_Id,  Organization>();
-            this._Messages                    = new Dictionary<Message_Id,       Message>();
+            this._DataLicenses                = new Dictionary<DataLicense_Id,             DataLicense>();
+            this._Users                       = new Dictionary<User_Id,                    User>();
+            this._UserGroups                  = new Dictionary<UserGroup_Id,               UserGroup>();
+            this._Organizations               = new Dictionary<Organization_Id,            Organization>();
+            this._OrganizationGroups          = new Dictionary<OrganizationGroup_Id,       OrganizationGroup>();
+            this._Messages                    = new Dictionary<Message_Id,                 Message>();
             this._ServiceTickets              = new ConcurrentDictionary<ServiceTicket_Id, ServiceTicket>();
 
             this._LoginPasswords              = new Dictionary<User_Id,         LoginPassword>();
@@ -2689,7 +2691,69 @@ namespace social.OpenData.UsersAPI
         #endregion
 
 
-        #region (protected) GetOrganizationSerializator(Request, User)
+        #region (protected) GetUserSerializator             (Request, User)
+
+        protected UserToJSONDelegate GetUserSerializator(HTTPRequest  Request,
+                                                         User         User)
+        {
+
+            switch (User?.Id.ToString())
+            {
+
+                //case __issapi:
+                //    return ISSNotificationExtentions.ToISSJSON;
+
+                default:
+                    return (user,
+                            embedded,
+                            includeCryptoHash)
+
+                            => user.ToJSON(embedded,
+                                           includeCryptoHash);
+
+            }
+
+        }
+
+        #endregion
+
+        #region (protected) GetUserGroupSerializator        (Request, User)
+
+        protected UserGroupToJSONDelegate GetUserGroupSerializator(HTTPRequest  Request,
+                                                                   User         User)
+        {
+
+            switch (User?.Id.ToString())
+            {
+
+                //case __issapi:
+                //    return ISSNotificationExtentions.ToISSJSON;
+
+                default:
+                    return (userGroup,
+                            embedded,
+                            expandUsers,
+                            expandParentGroup,
+                            expandSubgroups,
+                            expandAttachedFiles,
+                            includeAttachedFileSignatures,
+                            includeCryptoHash)
+
+                            => userGroup.ToJSON(embedded,
+                                                expandUsers,
+                                                expandParentGroup,
+                                                expandSubgroups,
+                                                expandAttachedFiles,
+                                                includeAttachedFileSignatures,
+                                                includeCryptoHash);
+
+            }
+
+        }
+
+        #endregion
+
+        #region (protected) GetOrganizationSerializator     (Request, User)
 
         protected OrganizationToJSONDelegate GetOrganizationSerializator(HTTPRequest  Request,
                                                                          User         User)
@@ -2723,10 +2787,10 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
-        #region (protected) GetUserSerializator        (Request, User)
+        #region (protected) GetOrganizationGroupSerializator(Request, User)
 
-        protected UserToJSONDelegate GetUserSerializator(HTTPRequest  Request,
-                                                         User         User)
+        protected OrganizationGroupToJSONDelegate GetOrganizationGroupSerializator(HTTPRequest  Request,
+                                                                                   User         User)
         {
 
             switch (User?.Id.ToString())
@@ -2736,12 +2800,22 @@ namespace social.OpenData.UsersAPI
                 //    return ISSNotificationExtentions.ToISSJSON;
 
                 default:
-                    return (user,
+                    return (organizationGroup,
                             embedded,
+                            expandOrganizations,
+                            expandParentGroup,
+                            expandSubgroups,
+                            expandAttachedFiles,
+                            includeAttachedFileSignatures,
                             includeCryptoHash)
 
-                            => user.ToJSON(embedded,
-                                           includeCryptoHash);
+                            => organizationGroup.ToJSON(embedded,
+                                                        expandOrganizations,
+                                                        expandParentGroup,
+                                                        expandSubgroups,
+                                                        expandAttachedFiles,
+                                                        includeAttachedFileSignatures,
+                                                        includeCryptoHash);
 
             }
 
@@ -2749,7 +2823,7 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
-        #region (protected) GetBlogPostingSerializator (Request, User)
+        #region (protected) GetBlogPostingSerializator      (Request, User)
 
         protected BlogPostingToJSONDelegate GetBlogPostingSerializator(HTTPRequest  Request,
                                                                        User         User)
@@ -3034,7 +3108,7 @@ namespace social.OpenData.UsersAPI
                                     };
 
                                     result   = await _HTTPSClient.Execute(Request:              request,
-                                                                          RequestLogDelegate:   (timestamp, client, req)       => LogRequests(timestamp, client, hostname.Name, req),
+                                                                          RequestLogDelegate:   (timestamp, client, req)       => LogRequest(timestamp, client, hostname.Name, req),
                                                                           ResponseLogDelegate:  (timestamp, client, req, resp) => LogResponse(timestamp, client, hostname.Name, req, resp),
 
                                                                           CancellationToken:    null,
@@ -3077,12 +3151,12 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
-        #region (protected) LogRequests(...)
+        #region (protected) LogRequest(...)
 
-        protected Task LogRequests(DateTime                                           Timestamp,
-                                   org.GraphDefined.Vanaheimr.Hermod.HTTP.HTTPClient  Client,
-                                   String                                             RemoteHost,
-                                   HTTPRequest                                        Request)
+        protected Task LogRequest(DateTime                                           Timestamp,
+                                  org.GraphDefined.Vanaheimr.Hermod.HTTP.HTTPClient  Client,
+                                  String                                             RemoteHost,
+                                  HTTPRequest                                        Request)
         {
 
             return Task.Run(() => {
@@ -4200,7 +4274,7 @@ namespace social.OpenData.UsersAPI
 
 
                                              var withMetadata           = Request.QueryString.GetBoolean("withMetadata", false);
-                                             var includeFilter          = Request.QueryString.CreateStringFilter<User>("include",
+                                             var includeFilter          = Request.QueryString.CreateStringFilter<User>("match",
                                                                                                                        (user, include) => user.Id.  IndexOf(include)                                     >= 0 ||
                                                                                                                                           user.Name.IndexOf(include, StringComparison.OrdinalIgnoreCase) >= 0 ||
                                                                                                                                           user.Description.Matches(include, IgnoreCase: true));
@@ -7110,7 +7184,9 @@ namespace social.OpenData.UsersAPI
 
             #endregion
 
+            #endregion
 
+            #region ~/userGroups
 
             #region GET         ~/userGroups
 
@@ -7180,10 +7256,10 @@ namespace social.OpenData.UsersAPI
 
 
                                              var withMetadata           = Request.QueryString.GetBoolean("withMetadata", false);
-                                             var includeFilter          = Request.QueryString.CreateStringFilter<User>("include",
-                                                                                                                       (user, include) => user.Id.  IndexOf(include)                                     >= 0 ||
-                                                                                                                                          user.Name.IndexOf(include, StringComparison.OrdinalIgnoreCase) >= 0 ||
-                                                                                                                                          user.Description.Matches(include, IgnoreCase: true));
+                                             var includeFilter          = Request.QueryString.CreateStringFilter<UserGroup>("match",
+                                                                                                                            (group, include) => group.Id.ToString().IndexOf(include) >= 0 ||
+                                                                                                                                                group.Name.       Matches(include, IgnoreCase: true) ||
+                                                                                                                                                group.Description.Matches(include, IgnoreCase: true));
 
                                              var skip                   = Request.QueryString.GetUInt64 ("skip");
                                              var take                   = Request.QueryString.GetUInt64 ("take");
@@ -7193,21 +7269,25 @@ namespace social.OpenData.UsersAPI
                                              var expand                 = Request.QueryString.GetStrings("expand");
                                              //var expandTags             = expand.ContainsIgnoreCase("tags")              ? InfoStatus.Expanded : InfoStatus.ShowIdOnly;
 
-                                             var filteredUsers          = HTTPOrganizations.
-                                                                              SafeSelectMany(organization => organization.Users).
-                                                                              Distinct      ().
+                                             var filteredUserGroups     = _UserGroups.Values.
+                                                                              Where         (group => group.Id.ToString() != "Admins").
                                                                               Where         (includeFilter).
                                                                               OrderBy       (user => user.Name).
                                                                               ToArray();
 
-                                             var filteredCount          = filteredUsers.ULongCount();
+                                             var filteredCount          = filteredUserGroups.ULongCount();
                                              var totalCount             = HTTPOrganizations.ULongCount();
 
-                                             var JSONResults            = filteredUsers.
+                                             var JSONResults            = filteredUserGroups.
                                                                               ToJSON(skip,
                                                                                      take,
                                                                                      false, //Embedded
-                                                                                     GetUserSerializator(Request, HTTPUser),
+                                                                                     InfoStatus.ShowIdOnly,
+                                                                                     InfoStatus.ShowIdOnly,
+                                                                                     InfoStatus.ShowIdOnly,
+                                                                                     InfoStatus.ShowIdOnly,
+                                                                                     InfoStatus.ShowIdOnly,
+                                                                                     GetUserGroupSerializator(Request, HTTPUser),
                                                                                      includeCryptoHash);
 
 
@@ -7225,7 +7305,7 @@ namespace social.OpenData.UsersAPI
                                                                                          ? JSONObject.Create(
                                                                                                new JProperty("totalCount",     totalCount),
                                                                                                new JProperty("filteredCount",  filteredCount),
-                                                                                               new JProperty("users",          JSONResults)
+                                                                                               new JProperty("userGroups",     JSONResults)
                                                                                            ).ToUTF8Bytes()
                                                                                          : JSONResults.ToUTF8Bytes(),
                                                      X_ExpectedTotalNumberOfItems  = filteredCount,
@@ -7240,6 +7320,7 @@ namespace social.OpenData.UsersAPI
             #endregion
 
             #endregion
+
 
             #region ~/organizations
 
@@ -7268,7 +7349,7 @@ namespace social.OpenData.UsersAPI
 
 
                                              var withMetadata            = Request.QueryString.GetBoolean("withMetadata", false);
-                                             var includeFilter           = Request.QueryString.CreateStringFilter<Organization>("include",
+                                             var includeFilter           = Request.QueryString.CreateStringFilter<Organization>("match",
                                                                                                                                 (organization, include) => organization.Id.         IndexOf(include)               > 0 ||
                                                                                                                                                            organization.Name.       Matches(include, IgnoreCase: true) ||
                                                                                                                                                            organization.Description.Matches(include, IgnoreCase: true));
@@ -9080,6 +9161,141 @@ namespace social.OpenData.UsersAPI
             #endregion
 
             #endregion
+
+            #region ~/organizationGroups
+
+            #region GET         ~/organizationGroups
+
+            #region HTML
+
+            // --------------------------------------------------------------------------------
+            // curl -v -H "Accept: application/json" http://127.0.0.1:3001/organizationGroups
+            // --------------------------------------------------------------------------------
+            HTTPServer.AddMethodCallback(Hostname,
+                                         HTTPMethod.GET,
+                                         URLPathPrefix + "organizationGroups",
+                                         HTTPContentType.HTML_UTF8,
+                                         HTTPDelegate: Request => {
+
+                                             #region Get HTTP organization and its organizations
+
+                                             // Will return HTTP 401 Unauthorized, when the HTTP organization is unknown!
+                                             if (!TryGetHTTPUser(Request,
+                                                                 out User                   HTTPUser,
+                                                                 out HashSet<Organization>  HTTPOrganizations,
+                                                                 out HTTPResponse           Response,
+                                                                 Recursive:                 true))
+                                             {
+                                                 return Task.FromResult(Response);
+                                             }
+
+                                             #endregion
+
+                                             return Task.FromResult(
+                                                     new HTTPResponse.Builder(Request) {
+                                                         HTTPStatusCode             = HTTPStatusCode.OK,
+                                                         Server                     = HTTPServer.DefaultServerName,
+                                                         Date                       = DateTime.UtcNow,
+                                                         AccessControlAllowOrigin   = "*",
+                                                         AccessControlAllowMethods  = "GET",
+                                                         AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
+                                                         ContentType                = HTTPContentType.HTML_UTF8,
+                                                         Content                    = MixWithHTMLTemplate("organization.organizationGroups.shtml").ToUTF8Bytes(),
+                                                         Connection                 = "close",
+                                                         Vary                       = "Accept"
+                                                     }.AsImmutable);
+
+                                         });
+
+            #endregion
+
+            #region JSON
+
+            // --------------------------------------------------------------------------------
+            // curl -v -H "Accept: application/json" http://127.0.0.1:2000/organizationGroups
+            // --------------------------------------------------------------------------------
+            HTTPServer.AddMethodCallback(Hostname,
+                                         HTTPMethod.GET,
+                                         URLPathPrefix + "organizationGroups",
+                                         HTTPContentType.JSON_UTF8,
+                                         HTTPDelegate: Request => {
+
+                                             #region Try to get HTTP organization and its organizations
+
+                                             TryGetHTTPUser(Request,
+                                                            out User                   HTTPUser,
+                                                            out HashSet<Organization>  HTTPOrganizations,
+                                                            out HTTPResponse           Response,
+                                                            Recursive: true);
+
+                                             #endregion
+
+
+                                             var withMetadata           = Request.QueryString.GetBoolean("withMetadata", false);
+                                             var includeFilter          = Request.QueryString.CreateStringFilter<OrganizationGroup>("match",
+                                                                                                                                    (group, include) => group.Id.ToString().IndexOf(include) >= 0 ||
+                                                                                                                                                        group.Name.       Matches(include, IgnoreCase: true) ||
+                                                                                                                                                        group.Description.Matches(include, IgnoreCase: true));
+
+                                             var skip                   = Request.QueryString.GetUInt64 ("skip");
+                                             var take                   = Request.QueryString.GetUInt64 ("take");
+
+                                             var includeCryptoHash      = Request.QueryString.GetBoolean("includeCryptoHash", true);
+
+                                             var expand                 = Request.QueryString.GetStrings("expand");
+                                             //var expandTags             = expand.ContainsIgnoreCase("tags")              ? InfoStatus.Expanded : InfoStatus.ShowIdOnly;
+
+                                             var filteredGroups         = _OrganizationGroups.Values.
+                                                                              Where         (includeFilter).
+                                                                              OrderBy       (organization => organization.Name).
+                                                                              ToArray();
+
+                                             var filteredCount          = filteredGroups.ULongCount();
+                                             var totalCount             = HTTPOrganizations.ULongCount();
+
+                                             var JSONResults            = filteredGroups.
+                                                                              ToJSON(skip,
+                                                                                     take,
+                                                                                     false, //Embedded
+                                                                                     InfoStatus.ShowIdOnly,
+                                                                                     InfoStatus.ShowIdOnly,
+                                                                                     InfoStatus.ShowIdOnly,
+                                                                                     InfoStatus.ShowIdOnly,
+                                                                                     InfoStatus.ShowIdOnly,
+                                                                                     GetOrganizationGroupSerializator(Request, HTTPUser),
+                                                                                     includeCryptoHash);
+
+
+                                             return Task.FromResult(
+                                                 new HTTPResponse.Builder(Request) {
+                                                     HTTPStatusCode                = HTTPStatusCode.OK,
+                                                     Server                        = HTTPServer.DefaultServerName,
+                                                     Date                          = DateTime.UtcNow,
+                                                     AccessControlAllowOrigin      = "*",
+                                                     AccessControlAllowMethods     = "GET, COUNT, OPTIONS",
+                                                     AccessControlAllowHeaders     = "Content-Type, Accept, Authorization",
+                                                     ETag                          = "1",
+                                                     ContentType                   = HTTPContentType.JSON_UTF8,
+                                                     Content                       = withMetadata
+                                                                                         ? JSONObject.Create(
+                                                                                               new JProperty("totalCount",          totalCount),
+                                                                                               new JProperty("filteredCount",       filteredCount),
+                                                                                               new JProperty("organizationGroups",  JSONResults)
+                                                                                           ).ToUTF8Bytes()
+                                                                                         : JSONResults.ToUTF8Bytes(),
+                                                     X_ExpectedTotalNumberOfItems  = filteredCount,
+                                                     Connection                    = "close",
+                                                     Vary                          = "Accept"
+                                                 }.AsImmutable);
+
+                                         });
+
+            #endregion
+
+            #endregion
+
+            #endregion
+
 
             #region ~/groups
 
@@ -11324,7 +11540,7 @@ namespace social.OpenData.UsersAPI
                 if (Request.HTTPSource.IPAddress.IsIPv4 &&
                     Request.HTTPSource.IPAddress.IsLocalhost)
                 {
-                    User           = Admins.User2GroupInEdges(edgelabel => edgelabel == User2GroupEdgeTypes.IsAdmin_ReadWrite).FirstOrDefault()?.Source;
+                    User           = Admins.User2GroupInEdges(edgelabel => edgelabel == User2GroupEdgeTypes.IsAdmin).FirstOrDefault()?.Source;
                     Organizations  = new HashSet<Organization>(User.Organizations(AccessLevel, Recursive));
                     return;
                 }
@@ -12515,6 +12731,419 @@ namespace social.OpenData.UsersAPI
 
         public UserContext SetUserContext(User_Id UserId)
             => new UserContext(UserId);
+
+        #endregion
+
+        #region UserGroups
+
+        #region Data
+
+        protected readonly Dictionary<UserGroup_Id, UserGroup> _UserGroups;
+
+        /// <summary>
+        /// Return an enumeration of all groups.
+        /// </summary>
+        public IEnumerable<UserGroup> UserGroups
+        {
+            get
+            {
+                try
+                {
+                    UserGroupsSemaphore.Wait();
+                    return _UserGroups.Values.ToArray();
+                }
+                finally
+                {
+                    UserGroupsSemaphore.Release();
+                }
+
+            }
+        }
+
+        #endregion
+
+
+        #region CreateUserGroup           (Id, Name = null, Description = null)
+
+        public async Task<UserGroup> CreateUserGroup(UserGroup_Id  Id,
+                                                     User_Id       CurrentUserId,
+                                                     I18NString    Name          = null,
+                                                     I18NString    Description   = null)
+        {
+
+            try
+            {
+
+                await UserGroupsSemaphore.WaitAsync();
+
+                if (_UserGroups.ContainsKey(Id))
+                    throw new ArgumentException("The given group identification already exists!", nameof(Id));
+
+
+                var UserGroup = new UserGroup(Id,
+                                      Name,
+                                      Description);
+
+                if (UserGroup.Id.ToString() != AdminGroupName)
+                    await WriteToDatabaseFile(NotificationMessageType.Parse("createUserGroup"),
+                                         UserGroup.ToJSON(),
+                                         CurrentUserId);
+
+                return _UserGroups.AddAndReturnValue(UserGroup.Id, UserGroup);
+
+            }
+            finally
+            {
+                UserGroupsSemaphore.Release();
+            }
+
+        }
+
+        #endregion
+
+        #region CreateUserGroupIfNotExists(Id, Name = null, Description = null)
+
+        public async Task<UserGroup> CreateUserGroupIfNotExists(UserGroup_Id    Id,
+                                                        User_Id     CurrentUserId,
+                                                        I18NString  Name         = null,
+                                                        I18NString  Description  = null)
+        {
+
+            try
+            {
+
+                await UserGroupsSemaphore.WaitAsync();
+
+                if (_UserGroups.ContainsKey(Id))
+                    return _UserGroups[Id];
+
+                var UserGroup = new UserGroup(Id,
+                                      Name,
+                                      Description);
+
+                if (UserGroup.Id.ToString() != AdminGroupName)
+                    await WriteToDatabaseFile(NotificationMessageType.Parse("createUserGroup"),
+                                         UserGroup.ToJSON(),
+                                         CurrentUserId);
+
+                return _UserGroups.AddAndReturnValue(UserGroup.Id, UserGroup);
+
+            }
+            finally
+            {
+                UserGroupsSemaphore.Release();
+            }
+
+        }
+
+        #endregion
+
+
+        #region Contains(UserGroupId)
+
+        /// <summary>
+        /// Whether this API contains a group having the given unique identification.
+        /// </summary>
+        /// <param name="UserGroupId">The unique identification of the group.</param>
+        public Boolean Contains(UserGroup_Id UserGroupId)
+        {
+
+            try
+            {
+
+                UserGroupsSemaphore.Wait();
+
+                return _UserGroups.ContainsKey(UserGroupId);
+
+            }
+            finally
+            {
+                UserGroupsSemaphore.Release();
+            }
+
+        }
+
+        #endregion
+
+        #region Get     (UserGroupId)
+
+        /// <summary>
+        /// Get the group having the given unique identification.
+        /// </summary>
+        /// <param name="UserGroupId">The unique identification of the group.</param>
+        public async Task<UserGroup> Get(UserGroup_Id  UserGroupId)
+        {
+
+            try
+            {
+
+                await UserGroupsSemaphore.WaitAsync();
+
+                if (_UserGroups.TryGetValue(UserGroupId, out UserGroup UserGroup))
+                    return UserGroup;
+
+                return null;
+
+            }
+            finally
+            {
+                UserGroupsSemaphore.Release();
+            }
+
+        }
+
+        #endregion
+
+        #region TryGet  (UserGroupId, out UserGroup)
+
+        /// <summary>
+        /// Try to get the group having the given unique identification.
+        /// </summary>
+        /// <param name="UserGroupId">The unique identification of the group.</param>
+        /// <param name="UserGroup">The group.</param>
+        public Boolean TryGet(UserGroup_Id   UserGroupId,
+                              out UserGroup  UserGroup)
+        {
+
+            try
+            {
+
+                UserGroupsSemaphore.Wait();
+
+                return _UserGroups.TryGetValue(UserGroupId, out UserGroup);
+
+            }
+            finally
+            {
+                UserGroupsSemaphore.Release();
+            }
+
+        }
+
+        #endregion
+
+        #region SearchUserGroupsByName(UserGroupName)
+
+        /// <summary>
+        /// Find all groups having the given name.
+        /// </summary>
+        /// <param name="UserGroupName">The name of an group (might not be unique).</param>
+        public IEnumerable<UserGroup> SearchUserGroupsByName(String UserGroupName)
+        {
+
+            try
+            {
+
+                UserGroupsSemaphore.Wait();
+
+                var FoundUserGroups = new List<UserGroup>();
+
+                foreach (var group in _UserGroups.Values)
+                    if (group.Name.Any(i18npair => i18npair.Text == UserGroupName))
+                        FoundUserGroups.Add(group);
+
+                return FoundUserGroups;
+
+            }
+            finally
+            {
+                UserGroupsSemaphore.Release();
+            }
+
+        }
+
+        /// <summary>
+        /// Find all groups having the given name.
+        /// </summary>
+        /// <param name="UserGroupName">The name of an group (might not be unique).</param>
+        public IEnumerable<UserGroup> SearchUserGroupsByName(I18NString UserGroupName)
+        {
+
+            try
+            {
+
+                UserGroupsSemaphore.Wait();
+
+                var FoundUserGroups = new List<UserGroup>();
+
+                foreach (var group in _UserGroups.Values)
+                    if (group.Name == UserGroupName)
+                        FoundUserGroups.Add(group);
+
+                return FoundUserGroups;
+
+            }
+            finally
+            {
+                UserGroupsSemaphore.Release();
+            }
+
+        }
+
+        #endregion
+
+        #region SearchUserGroupsByName(UserGroupName, out UserGroups)
+
+        /// <summary>
+        /// Find all groups having the given name.
+        /// </summary>
+        /// <param name="UserGroupName">The name of an group (might not be unique).</param>
+        /// <param name="UserGroups">An enumeration of matching groups.</param>
+        public Boolean SearchUserGroupsByName(String UserGroupName, out IEnumerable<UserGroup> UserGroups)
+        {
+
+            try
+            {
+
+                UserGroupsSemaphore.Wait();
+
+                var FoundUserGroups = new List<UserGroup>();
+
+                foreach (var group in _UserGroups.Values)
+                    if (group.Name.Any(i18npair => i18npair.Text == UserGroupName))
+                        FoundUserGroups.Add(group);
+
+                UserGroups = FoundUserGroups;
+
+                return FoundUserGroups.Count > 0;
+
+            }
+            finally
+            {
+                UserGroupsSemaphore.Release();
+            }
+
+        }
+
+        /// <summary>
+        /// Find all groups having the given name.
+        /// </summary>
+        /// <param name="UserGroupName">The name of an group (might not be unique).</param>
+        /// <param name="UserGroups">An enumeration of matching groups.</param>
+        public Boolean SearchUserGroupsByName(I18NString UserGroupName, out IEnumerable<UserGroup> UserGroups)
+        {
+
+            try
+            {
+
+                UserGroupsSemaphore.Wait();
+
+                var FoundUserGroups = new List<UserGroup>();
+
+                foreach (var group in _UserGroups.Values)
+                    if (group.Name == UserGroupName)
+                        FoundUserGroups.Add(group);
+
+                UserGroups = FoundUserGroups;
+
+                return FoundUserGroups.Count > 0;
+
+            }
+            finally
+            {
+                UserGroupsSemaphore.Release();
+            }
+
+        }
+
+        #endregion
+
+
+        #region AddToUserGroup(User, Edge, UserGroup, PrivacyLevel = Private)
+
+        public async Task<Boolean> AddToUserGroup(User                 User,
+                                                  User2GroupEdgeTypes  Edge,
+                                                  UserGroup            UserGroup,
+                                                  PrivacyLevel         PrivacyLevel   = PrivacyLevel.Private,
+                                                  User_Id?             CurrentUserId  = null)
+
+        {
+
+            try
+            {
+
+                await UsersSemaphore.WaitAsync();
+                await UserGroupsSemaphore.WaitAsync();
+
+                if (!User.OutEdges(UserGroup).Any(edge => edge == Edge))
+                {
+
+                    User.AddOutgoingEdge(Edge, UserGroup, PrivacyLevel);
+
+                    if (!UserGroup.Edges(UserGroup).Any(edge => edge == Edge))
+                        UserGroup.AddIncomingEdge(User, Edge,  PrivacyLevel);
+
+                    await WriteToDatabaseFile(NotificationMessageType.Parse("addUserToUserGroup"),
+                                         new JObject(
+                                             new JProperty("user",   User.Id.ToString()),
+                                             new JProperty("edge",   Edge.   ToString()),
+                                             new JProperty("group",  UserGroup.  ToString()),
+                                             PrivacyLevel.ToJSON()
+                                         ),
+                                         CurrentUserId);
+
+                    return true;
+
+                }
+
+                return false;
+
+            }
+            finally
+            {
+                UsersSemaphore.Release();
+                UserGroupsSemaphore.Release();
+            }
+
+        }
+
+        #endregion
+
+
+        #region IsAdmin(User)
+
+        /// <summary>
+        /// Check if the given user is an API admin.
+        /// </summary>
+        /// <param name="User">A user.</param>
+        public Access_Levels IsAdmin(User User)
+        {
+
+            if (User.Groups(User2GroupEdgeTypes.IsAdmin_ReadOnly).
+                     Contains(Admins))
+            {
+                return Access_Levels.ReadOnly;
+            }
+
+            if (User.Groups(User2GroupEdgeTypes.IsAdmin).
+                     Contains(Admins))
+            {
+                return Access_Levels.ReadWrite;
+            }
+
+            return Access_Levels.None;
+
+        }
+
+        #endregion
+
+        #region IsAdmin(UserId)
+
+        /// <summary>
+        /// Check if the given user is an API admin.
+        /// </summary>
+        /// <param name="UserId">A user identification.</param>
+        public Access_Levels IsAdmin(User_Id UserId)
+        {
+
+            if (TryGetUser(UserId, out User User))
+                return IsAdmin(User);
+
+            return Access_Levels.None;
+
+        }
+
+        #endregion
 
         #endregion
 
@@ -13734,419 +14363,6 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
-        #region UserGroups
-
-        #region Data
-
-        protected readonly Dictionary<UserGroup_Id, UserGroup> _UserGroups;
-
-        /// <summary>
-        /// Return an enumeration of all groups.
-        /// </summary>
-        public IEnumerable<UserGroup> UserGroups
-        {
-            get
-            {
-                try
-                {
-                    UserGroupsSemaphore.Wait();
-                    return _UserGroups.Values.ToArray();
-                }
-                finally
-                {
-                    UserGroupsSemaphore.Release();
-                }
-
-            }
-        }
-
-        #endregion
-
-
-        #region CreateUserGroup           (Id, Name = null, Description = null)
-
-        public async Task<UserGroup> CreateUserGroup(UserGroup_Id   Id,
-                                             User_Id    CurrentUserId,
-                                             I18NString Name         = null,
-                                             I18NString Description  = null)
-        {
-
-            try
-            {
-
-                await UserGroupsSemaphore.WaitAsync();
-
-                if (_UserGroups.ContainsKey(Id))
-                    throw new ArgumentException("The given group identification already exists!", nameof(Id));
-
-
-                var UserGroup = new UserGroup(Id,
-                                      Name,
-                                      Description);
-
-                if (UserGroup.Id.ToString() != AdminGroupName)
-                    await WriteToDatabaseFile(NotificationMessageType.Parse("createUserGroup"),
-                                         UserGroup.ToJSON(),
-                                         CurrentUserId);
-
-                return _UserGroups.AddAndReturnValue(UserGroup.Id, UserGroup);
-
-            }
-            finally
-            {
-                UserGroupsSemaphore.Release();
-            }
-
-        }
-
-        #endregion
-
-        #region CreateUserGroupIfNotExists(Id, Name = null, Description = null)
-
-        public async Task<UserGroup> CreateUserGroupIfNotExists(UserGroup_Id    Id,
-                                                        User_Id     CurrentUserId,
-                                                        I18NString  Name         = null,
-                                                        I18NString  Description  = null)
-        {
-
-            try
-            {
-
-                await UserGroupsSemaphore.WaitAsync();
-
-                if (_UserGroups.ContainsKey(Id))
-                    return _UserGroups[Id];
-
-                var UserGroup = new UserGroup(Id,
-                                      Name,
-                                      Description);
-
-                if (UserGroup.Id.ToString() != AdminGroupName)
-                    await WriteToDatabaseFile(NotificationMessageType.Parse("createUserGroup"),
-                                         UserGroup.ToJSON(),
-                                         CurrentUserId);
-
-                return _UserGroups.AddAndReturnValue(UserGroup.Id, UserGroup);
-
-            }
-            finally
-            {
-                UserGroupsSemaphore.Release();
-            }
-
-        }
-
-        #endregion
-
-
-        #region Contains(UserGroupId)
-
-        /// <summary>
-        /// Whether this API contains a group having the given unique identification.
-        /// </summary>
-        /// <param name="UserGroupId">The unique identification of the group.</param>
-        public Boolean Contains(UserGroup_Id UserGroupId)
-        {
-
-            try
-            {
-
-                UserGroupsSemaphore.Wait();
-
-                return _UserGroups.ContainsKey(UserGroupId);
-
-            }
-            finally
-            {
-                UserGroupsSemaphore.Release();
-            }
-
-        }
-
-        #endregion
-
-        #region Get     (UserGroupId)
-
-        /// <summary>
-        /// Get the group having the given unique identification.
-        /// </summary>
-        /// <param name="UserGroupId">The unique identification of the group.</param>
-        public async Task<UserGroup> Get(UserGroup_Id  UserGroupId)
-        {
-
-            try
-            {
-
-                await UserGroupsSemaphore.WaitAsync();
-
-                if (_UserGroups.TryGetValue(UserGroupId, out UserGroup UserGroup))
-                    return UserGroup;
-
-                return null;
-
-            }
-            finally
-            {
-                UserGroupsSemaphore.Release();
-            }
-
-        }
-
-        #endregion
-
-        #region TryGet  (UserGroupId, out UserGroup)
-
-        /// <summary>
-        /// Try to get the group having the given unique identification.
-        /// </summary>
-        /// <param name="UserGroupId">The unique identification of the group.</param>
-        /// <param name="UserGroup">The group.</param>
-        public Boolean TryGet(UserGroup_Id   UserGroupId,
-                              out UserGroup  UserGroup)
-        {
-
-            try
-            {
-
-                UserGroupsSemaphore.Wait();
-
-                return _UserGroups.TryGetValue(UserGroupId, out UserGroup);
-
-            }
-            finally
-            {
-                UserGroupsSemaphore.Release();
-            }
-
-        }
-
-        #endregion
-
-        #region SearchUserGroupsByName(UserGroupName)
-
-        /// <summary>
-        /// Find all groups having the given name.
-        /// </summary>
-        /// <param name="UserGroupName">The name of an group (might not be unique).</param>
-        public IEnumerable<UserGroup> SearchUserGroupsByName(String UserGroupName)
-        {
-
-            try
-            {
-
-                UserGroupsSemaphore.Wait();
-
-                var FoundUserGroups = new List<UserGroup>();
-
-                foreach (var group in _UserGroups.Values)
-                    if (group.Name.Any(i18npair => i18npair.Text == UserGroupName))
-                        FoundUserGroups.Add(group);
-
-                return FoundUserGroups;
-
-            }
-            finally
-            {
-                UserGroupsSemaphore.Release();
-            }
-
-        }
-
-        /// <summary>
-        /// Find all groups having the given name.
-        /// </summary>
-        /// <param name="UserGroupName">The name of an group (might not be unique).</param>
-        public IEnumerable<UserGroup> SearchUserGroupsByName(I18NString UserGroupName)
-        {
-
-            try
-            {
-
-                UserGroupsSemaphore.Wait();
-
-                var FoundUserGroups = new List<UserGroup>();
-
-                foreach (var group in _UserGroups.Values)
-                    if (group.Name == UserGroupName)
-                        FoundUserGroups.Add(group);
-
-                return FoundUserGroups;
-
-            }
-            finally
-            {
-                UserGroupsSemaphore.Release();
-            }
-
-        }
-
-        #endregion
-
-        #region SearchUserGroupsByName(UserGroupName, out UserGroups)
-
-        /// <summary>
-        /// Find all groups having the given name.
-        /// </summary>
-        /// <param name="UserGroupName">The name of an group (might not be unique).</param>
-        /// <param name="UserGroups">An enumeration of matching groups.</param>
-        public Boolean SearchUserGroupsByName(String UserGroupName, out IEnumerable<UserGroup> UserGroups)
-        {
-
-            try
-            {
-
-                UserGroupsSemaphore.Wait();
-
-                var FoundUserGroups = new List<UserGroup>();
-
-                foreach (var group in _UserGroups.Values)
-                    if (group.Name.Any(i18npair => i18npair.Text == UserGroupName))
-                        FoundUserGroups.Add(group);
-
-                UserGroups = FoundUserGroups;
-
-                return FoundUserGroups.Count > 0;
-
-            }
-            finally
-            {
-                UserGroupsSemaphore.Release();
-            }
-
-        }
-
-        /// <summary>
-        /// Find all groups having the given name.
-        /// </summary>
-        /// <param name="UserGroupName">The name of an group (might not be unique).</param>
-        /// <param name="UserGroups">An enumeration of matching groups.</param>
-        public Boolean SearchUserGroupsByName(I18NString UserGroupName, out IEnumerable<UserGroup> UserGroups)
-        {
-
-            try
-            {
-
-                UserGroupsSemaphore.Wait();
-
-                var FoundUserGroups = new List<UserGroup>();
-
-                foreach (var group in _UserGroups.Values)
-                    if (group.Name == UserGroupName)
-                        FoundUserGroups.Add(group);
-
-                UserGroups = FoundUserGroups;
-
-                return FoundUserGroups.Count > 0;
-
-            }
-            finally
-            {
-                UserGroupsSemaphore.Release();
-            }
-
-        }
-
-        #endregion
-
-
-        #region AddToUserGroup(User, Edge, UserGroup, PrivacyLevel = Private)
-
-        public async Task<Boolean> AddToUserGroup(User                 User,
-                                                  User2GroupEdgeTypes  Edge,
-                                                  UserGroup            UserGroup,
-                                                  PrivacyLevel         PrivacyLevel   = PrivacyLevel.Private,
-                                                  User_Id?             CurrentUserId  = null)
-
-        {
-
-            try
-            {
-
-                await UsersSemaphore.WaitAsync();
-                await UserGroupsSemaphore.WaitAsync();
-
-                if (!User.OutEdges(UserGroup).Any(edge => edge == Edge))
-                {
-
-                    User.AddOutgoingEdge(Edge, UserGroup, PrivacyLevel);
-
-                    if (!UserGroup.Edges(UserGroup).Any(edge => edge == Edge))
-                        UserGroup.AddIncomingEdge(User, Edge,  PrivacyLevel);
-
-                    await WriteToDatabaseFile(NotificationMessageType.Parse("addUserToUserGroup"),
-                                         new JObject(
-                                             new JProperty("user",   User.Id.ToString()),
-                                             new JProperty("edge",   Edge.   ToString()),
-                                             new JProperty("group",  UserGroup.  ToString()),
-                                             PrivacyLevel.ToJSON()
-                                         ),
-                                         CurrentUserId);
-
-                    return true;
-
-                }
-
-                return false;
-
-            }
-            finally
-            {
-                UsersSemaphore.Release();
-                UserGroupsSemaphore.Release();
-            }
-
-        }
-
-        #endregion
-
-
-        #region IsAdmin(User)
-
-        /// <summary>
-        /// Check if the given user is an API admin.
-        /// </summary>
-        /// <param name="User">A user.</param>
-        public Access_Levels IsAdmin(User User)
-        {
-
-            if (User.Groups(User2GroupEdgeTypes.IsAdmin_ReadOnly).
-                     Contains(Admins))
-            {
-                return Access_Levels.ReadOnly;
-            }
-
-            if (User.Groups(User2GroupEdgeTypes.IsAdmin_ReadWrite).
-                     Contains(Admins))
-            {
-                return Access_Levels.ReadWrite;
-            }
-
-            return Access_Levels.None;
-
-        }
-
-        #endregion
-
-        #region IsAdmin(UserId)
-
-        /// <summary>
-        /// Check if the given user is an API admin.
-        /// </summary>
-        /// <param name="UserId">A user identification.</param>
-        public Access_Levels IsAdmin(User_Id UserId)
-        {
-
-            if (TryGetUser(UserId, out User User))
-                return IsAdmin(User);
-
-            return Access_Levels.None;
-
-        }
-
-        #endregion
-
-        #endregion
-
 
         #region Organizations
 
@@ -15061,6 +15277,375 @@ namespace social.OpenData.UsersAPI
         #endregion
 
         #endregion
+
+        #region OrganizationGroups
+
+        #region Data
+
+        protected readonly Dictionary<OrganizationGroup_Id, OrganizationGroup> _OrganizationGroups;
+
+        /// <summary>
+        /// Return an enumeration of all groups.
+        /// </summary>
+        public IEnumerable<OrganizationGroup> OrganizationGroups
+        {
+            get
+            {
+                try
+                {
+                    OrganizationGroupsSemaphore.Wait();
+                    return _OrganizationGroups.Values.ToArray();
+                }
+                finally
+                {
+                    OrganizationGroupsSemaphore.Release();
+                }
+
+            }
+        }
+
+        #endregion
+
+
+        #region CreateOrganizationGroup           (Id, Name = null, Description = null)
+
+        public async Task<OrganizationGroup> CreateOrganizationGroup(OrganizationGroup_Id   Id,
+                                             User_Id    CurrentUserId,
+                                             I18NString Name         = null,
+                                             I18NString Description  = null)
+        {
+
+            try
+            {
+
+                await OrganizationGroupsSemaphore.WaitAsync();
+
+                if (_OrganizationGroups.ContainsKey(Id))
+                    throw new ArgumentException("The given group identification already exists!", nameof(Id));
+
+
+                var OrganizationGroup = new OrganizationGroup(Id,
+                                      Name,
+                                      Description);
+
+                if (OrganizationGroup.Id.ToString() != AdminGroupName)
+                    await WriteToDatabaseFile(NotificationMessageType.Parse("createOrganizationGroup"),
+                                         OrganizationGroup.ToJSON(),
+                                         CurrentUserId);
+
+                return _OrganizationGroups.AddAndReturnValue(OrganizationGroup.Id, OrganizationGroup);
+
+            }
+            finally
+            {
+                OrganizationGroupsSemaphore.Release();
+            }
+
+        }
+
+        #endregion
+
+        #region CreateOrganizationGroupIfNotExists(Id, Name = null, Description = null)
+
+        public async Task<OrganizationGroup> CreateOrganizationGroupIfNotExists(OrganizationGroup_Id    Id,
+                                                        User_Id     CurrentUserId,
+                                                        I18NString  Name         = null,
+                                                        I18NString  Description  = null)
+        {
+
+            try
+            {
+
+                await OrganizationGroupsSemaphore.WaitAsync();
+
+                if (_OrganizationGroups.ContainsKey(Id))
+                    return _OrganizationGroups[Id];
+
+                var OrganizationGroup = new OrganizationGroup(Id,
+                                      Name,
+                                      Description);
+
+                if (OrganizationGroup.Id.ToString() != AdminGroupName)
+                    await WriteToDatabaseFile(NotificationMessageType.Parse("createOrganizationGroup"),
+                                         OrganizationGroup.ToJSON(),
+                                         CurrentUserId);
+
+                return _OrganizationGroups.AddAndReturnValue(OrganizationGroup.Id, OrganizationGroup);
+
+            }
+            finally
+            {
+                OrganizationGroupsSemaphore.Release();
+            }
+
+        }
+
+        #endregion
+
+
+        #region Contains(OrganizationGroupId)
+
+        /// <summary>
+        /// Whether this API contains a group having the given unique identification.
+        /// </summary>
+        /// <param name="OrganizationGroupId">The unique identification of the group.</param>
+        public Boolean Contains(OrganizationGroup_Id OrganizationGroupId)
+        {
+
+            try
+            {
+
+                OrganizationGroupsSemaphore.Wait();
+
+                return _OrganizationGroups.ContainsKey(OrganizationGroupId);
+
+            }
+            finally
+            {
+                OrganizationGroupsSemaphore.Release();
+            }
+
+        }
+
+        #endregion
+
+        #region Get     (OrganizationGroupId)
+
+        /// <summary>
+        /// Get the group having the given unique identification.
+        /// </summary>
+        /// <param name="OrganizationGroupId">The unique identification of the group.</param>
+        public async Task<OrganizationGroup> Get(OrganizationGroup_Id  OrganizationGroupId)
+        {
+
+            try
+            {
+
+                await OrganizationGroupsSemaphore.WaitAsync();
+
+                if (_OrganizationGroups.TryGetValue(OrganizationGroupId, out OrganizationGroup OrganizationGroup))
+                    return OrganizationGroup;
+
+                return null;
+
+            }
+            finally
+            {
+                OrganizationGroupsSemaphore.Release();
+            }
+
+        }
+
+        #endregion
+
+        #region TryGet  (OrganizationGroupId, out OrganizationGroup)
+
+        /// <summary>
+        /// Try to get the group having the given unique identification.
+        /// </summary>
+        /// <param name="OrganizationGroupId">The unique identification of the group.</param>
+        /// <param name="OrganizationGroup">The group.</param>
+        public Boolean TryGet(OrganizationGroup_Id   OrganizationGroupId,
+                              out OrganizationGroup  OrganizationGroup)
+        {
+
+            try
+            {
+
+                OrganizationGroupsSemaphore.Wait();
+
+                return _OrganizationGroups.TryGetValue(OrganizationGroupId, out OrganizationGroup);
+
+            }
+            finally
+            {
+                OrganizationGroupsSemaphore.Release();
+            }
+
+        }
+
+        #endregion
+
+        #region SearchOrganizationGroupsByName(OrganizationGroupName)
+
+        /// <summary>
+        /// Find all groups having the given name.
+        /// </summary>
+        /// <param name="OrganizationGroupName">The name of an group (might not be unique).</param>
+        public IEnumerable<OrganizationGroup> SearchOrganizationGroupsByName(String OrganizationGroupName)
+        {
+
+            try
+            {
+
+                OrganizationGroupsSemaphore.Wait();
+
+                var FoundOrganizationGroups = new List<OrganizationGroup>();
+
+                foreach (var group in _OrganizationGroups.Values)
+                    if (group.Name.Any(i18npair => i18npair.Text == OrganizationGroupName))
+                        FoundOrganizationGroups.Add(group);
+
+                return FoundOrganizationGroups;
+
+            }
+            finally
+            {
+                OrganizationGroupsSemaphore.Release();
+            }
+
+        }
+
+        /// <summary>
+        /// Find all groups having the given name.
+        /// </summary>
+        /// <param name="OrganizationGroupName">The name of an group (might not be unique).</param>
+        public IEnumerable<OrganizationGroup> SearchOrganizationGroupsByName(I18NString OrganizationGroupName)
+        {
+
+            try
+            {
+
+                OrganizationGroupsSemaphore.Wait();
+
+                var FoundOrganizationGroups = new List<OrganizationGroup>();
+
+                foreach (var group in _OrganizationGroups.Values)
+                    if (group.Name == OrganizationGroupName)
+                        FoundOrganizationGroups.Add(group);
+
+                return FoundOrganizationGroups;
+
+            }
+            finally
+            {
+                OrganizationGroupsSemaphore.Release();
+            }
+
+        }
+
+        #endregion
+
+        #region SearchOrganizationGroupsByName(OrganizationGroupName, out OrganizationGroups)
+
+        /// <summary>
+        /// Find all groups having the given name.
+        /// </summary>
+        /// <param name="OrganizationGroupName">The name of an group (might not be unique).</param>
+        /// <param name="OrganizationGroups">An enumeration of matching groups.</param>
+        public Boolean SearchOrganizationGroupsByName(String OrganizationGroupName, out IEnumerable<OrganizationGroup> OrganizationGroups)
+        {
+
+            try
+            {
+
+                OrganizationGroupsSemaphore.Wait();
+
+                var FoundOrganizationGroups = new List<OrganizationGroup>();
+
+                foreach (var group in _OrganizationGroups.Values)
+                    if (group.Name.Any(i18npair => i18npair.Text == OrganizationGroupName))
+                        FoundOrganizationGroups.Add(group);
+
+                OrganizationGroups = FoundOrganizationGroups;
+
+                return FoundOrganizationGroups.Count > 0;
+
+            }
+            finally
+            {
+                OrganizationGroupsSemaphore.Release();
+            }
+
+        }
+
+        /// <summary>
+        /// Find all groups having the given name.
+        /// </summary>
+        /// <param name="OrganizationGroupName">The name of an group (might not be unique).</param>
+        /// <param name="OrganizationGroups">An enumeration of matching groups.</param>
+        public Boolean SearchOrganizationGroupsByName(I18NString OrganizationGroupName, out IEnumerable<OrganizationGroup> OrganizationGroups)
+        {
+
+            try
+            {
+
+                OrganizationGroupsSemaphore.Wait();
+
+                var FoundOrganizationGroups = new List<OrganizationGroup>();
+
+                foreach (var group in _OrganizationGroups.Values)
+                    if (group.Name == OrganizationGroupName)
+                        FoundOrganizationGroups.Add(group);
+
+                OrganizationGroups = FoundOrganizationGroups;
+
+                return FoundOrganizationGroups.Count > 0;
+
+            }
+            finally
+            {
+                OrganizationGroupsSemaphore.Release();
+            }
+
+        }
+
+        #endregion
+
+
+        #region AddToOrganizationGroup(Organization, Edge, OrganizationGroup, PrivacyLevel = Private)
+
+        //public async Task<Boolean> AddToOrganizationGroup(Organization                 Organization,
+        //                                          Organization2GroupEdgeTypes  Edge,
+        //                                          OrganizationGroup            OrganizationGroup,
+        //                                          PrivacyLevel         PrivacyLevel   = PrivacyLevel.Private,
+        //                                          Organization_Id?             CurrentUserId  = null)
+
+        //{
+
+        //    try
+        //    {
+
+        //        await OrganizationsSemaphore.WaitAsync();
+        //        await OrganizationGroupsSemaphore.WaitAsync();
+
+        //        if (!Organization.OutEdges(OrganizationGroup).Any(edge => edge == Edge))
+        //        {
+
+        //            Organization.AddOutgoingEdge(Edge, OrganizationGroup, PrivacyLevel);
+
+        //            if (!OrganizationGroup.Edges(OrganizationGroup).Any(edge => edge == Edge))
+        //                OrganizationGroup.AddIncomingEdge(Organization, Edge,  PrivacyLevel);
+
+        //            await WriteToDatabaseFile(NotificationMessageType.Parse("addOrganizationToOrganizationGroup"),
+        //                                 new JObject(
+        //                                     new JProperty("organization",   Organization.Id.ToString()),
+        //                                     new JProperty("edge",   Edge.   ToString()),
+        //                                     new JProperty("group",  OrganizationGroup.  ToString()),
+        //                                     PrivacyLevel.ToJSON()
+        //                                 ),
+        //                                 CurrentUserId);
+
+        //            return true;
+
+        //        }
+
+        //        return false;
+
+        //    }
+        //    finally
+        //    {
+        //        OrganizationsSemaphore.Release();
+        //        OrganizationGroupsSemaphore.Release();
+        //    }
+
+        //}
+
+        #endregion
+
+        #endregion
+
+
 
         #region Dashboards
 
