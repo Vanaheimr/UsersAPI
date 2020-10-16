@@ -9183,10 +9183,10 @@ namespace social.OpenData.UsersAPI
                                              if (!TryGetHTTPUser(Request,
                                                                  out User                   HTTPUser,
                                                                  out HashSet<Organization>  HTTPOrganizations,
-                                                                 out HTTPResponse           Response,
+                                                                 out HTTPResponse.Builder   Response,
                                                                  Recursive:                 true))
                                              {
-                                                 return Task.FromResult(Response);
+                                                 return Task.FromResult(Response.AsImmutable);
                                              }
 
                                              #endregion
@@ -9225,7 +9225,7 @@ namespace social.OpenData.UsersAPI
                                              TryGetHTTPUser(Request,
                                                             out User                   HTTPUser,
                                                             out HashSet<Organization>  HTTPOrganizations,
-                                                            out HTTPResponse           Response,
+                                                            out HTTPResponse.Builder   Response,
                                                             Recursive: true);
 
                                              #endregion
