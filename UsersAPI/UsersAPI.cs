@@ -132,10 +132,10 @@ namespace social.OpenData.UsersAPI
         /// <param name="UserId">The parsed unique user identification.</param>
         /// <param name="HTTPResponse">A HTTP error response.</param>
         /// <returns>True, when user identification was found; false else.</returns>
-        public static Boolean ParseUserId(this HTTPRequest  HTTPRequest,
-                                          UsersAPI          UsersAPI,
-                                          out User_Id?      UserId,
-                                          out HTTPResponse  HTTPResponse)
+        public static Boolean ParseUserId(this HTTPRequest          HTTPRequest,
+                                          UsersAPI                  UsersAPI,
+                                          out User_Id?              UserId,
+                                          out HTTPResponse.Builder  HTTPResponse)
         {
 
             #region Initial checks
@@ -202,11 +202,11 @@ namespace social.OpenData.UsersAPI
         /// <param name="User">The resolved user.</param>
         /// <param name="HTTPResponse">A HTTP error response.</param>
         /// <returns>True, when user identification was found; false else.</returns>
-        public static Boolean ParseUser(this HTTPRequest  HTTPRequest,
-                                        UsersAPI          UsersAPI,
-                                        out User_Id?      UserId,
-                                        out User          User,
-                                        out HTTPResponse  HTTPResponse)
+        public static Boolean ParseUser(this HTTPRequest          HTTPRequest,
+                                        UsersAPI                  UsersAPI,
+                                        out User_Id?              UserId,
+                                        out User                  User,
+                                        out HTTPResponse.Builder  HTTPResponse)
         {
 
             #region Initial checks
@@ -287,10 +287,10 @@ namespace social.OpenData.UsersAPI
         /// <param name="OrganizationId">The parsed unique user identification.</param>
         /// <param name="HTTPResponse">A HTTP error response.</param>
         /// <returns>True, when user identification was found; false else.</returns>
-        public static Boolean ParseOrganizationId(this HTTPRequest      HTTPRequest,
-                                                  UsersAPI              UsersAPI,
-                                                  out Organization_Id?  OrganizationId,
-                                                  out HTTPResponse      HTTPResponse)
+        public static Boolean ParseOrganizationId(this HTTPRequest          HTTPRequest,
+                                                  UsersAPI                  UsersAPI,
+                                                  out Organization_Id?      OrganizationId,
+                                                  out HTTPResponse.Builder  HTTPResponse)
         {
 
             #region Initial checks
@@ -357,11 +357,11 @@ namespace social.OpenData.UsersAPI
         /// <param name="Organization">The resolved user.</param>
         /// <param name="HTTPResponse">A HTTP error response.</param>
         /// <returns>True, when user identification was found; false else.</returns>
-        public static Boolean ParseOrganization(this HTTPRequest      HTTPRequest,
-                                                UsersAPI              UsersAPI,
-                                                out Organization_Id?  OrganizationId,
-                                                out Organization      Organization,
-                                                out HTTPResponse      HTTPResponse)
+        public static Boolean ParseOrganization(this HTTPRequest          HTTPRequest,
+                                                UsersAPI                  UsersAPI,
+                                                out Organization_Id?      OrganizationId,
+                                                out Organization          Organization,
+                                                out HTTPResponse.Builder  HTTPResponse)
         {
 
             #region Initial checks
@@ -3736,7 +3736,7 @@ namespace social.OpenData.UsersAPI
 
                                              #region Parse JSON
 
-                                             if (!Request.TryParseJObjectRequestBody(out JObject JSONObj, out HTTPResponse HTTPResponse))
+                                             if (!Request.TryParseJObjectRequestBody(out JObject JSONObj, out HTTPResponse.Builder HTTPResponse))
                                              {
 
                                                  // Slow down attackers!
@@ -3921,7 +3921,7 @@ namespace social.OpenData.UsersAPI
 
                                              #region Parse JSON
 
-                                             if (!Request.TryParseJObjectRequestBody(out JObject JSONObj, out HTTPResponse HTTPResponse))
+                                             if (!Request.TryParseJObjectRequestBody(out JObject JSONObj, out HTTPResponse.Builder HTTPResponse))
                                              {
 
                                                  // Slow down attackers!
@@ -3939,7 +3939,7 @@ namespace social.OpenData.UsersAPI
                                                                          SecurityToken_Id.TryParse,
                                                                          out SecurityToken_Id SecurityToken1,
                                                                          Request,
-                                                                         out HTTPResponse ErrorResponse))
+                                                                         out HTTPResponse.Builder ErrorResponse))
                                              {
                                                  return HTTPResponse;
                                              }
@@ -4151,10 +4151,10 @@ namespace social.OpenData.UsersAPI
                                              if (!TryGetHTTPUser(Request,
                                                                  out User                   HTTPUser,
                                                                  out HashSet<Organization>  HTTPOrganizations,
-                                                                 out HTTPResponse           Response,
+                                                                 out HTTPResponse.Builder   Response,
                                                                  Recursive:                 true))
                                              {
-                                                 return Task.FromResult(Response);
+                                                 return Task.FromResult(Response.AsImmutable);
                                              }
 
                                              #endregion
@@ -4193,7 +4193,7 @@ namespace social.OpenData.UsersAPI
                                              TryGetHTTPUser(Request,
                                                             out User                   HTTPUser,
                                                             out HashSet<Organization>  HTTPOrganizations,
-                                                            out HTTPResponse           Response,
+                                                            out HTTPResponse.Builder   Response,
                                                             Recursive: true);
 
                                              #endregion
@@ -4286,7 +4286,7 @@ namespace social.OpenData.UsersAPI
                                               if (!TryGetHTTPUser(Request,
                                                                   out User                   HTTPUser,
                                                                   out HashSet<Organization>  HTTPOrganizations,
-                                                                  out HTTPResponse           ErrorResponse,
+                                                                  out HTTPResponse.Builder   ErrorResponse,
                                                                   AccessLevel:               Access_Levels.ReadWrite,
                                                                   Recursive:                 true))
                                               {
@@ -4882,7 +4882,7 @@ namespace social.OpenData.UsersAPI
                                               if (!TryGetHTTPUser(Request,
                                                                   out User                   HTTPUser,
                                                                   out HashSet<Organization>  HTTPOrganizations,
-                                                                  out HTTPResponse           ErrorResponse,
+                                                                  out HTTPResponse.Builder   ErrorResponse,
                                                                   AccessLevel:               Access_Levels.ReadWrite,
                                                                   Recursive:                 true))
                                               {
@@ -5497,9 +5497,9 @@ namespace social.OpenData.UsersAPI
                                              #region Check UserId URL parameter
 
                                              Request.ParseUser(this,
-                                                               out User_Id?      UserId,
-                                                               out User          User,
-                                                               out HTTPResponse  HTTPResponse);
+                                                               out User_Id?              UserId,
+                                                               out User                  User,
+                                                               out HTTPResponse.Builder  HTTPResponse);
 
                                              #endregion
 
@@ -5681,7 +5681,7 @@ namespace social.OpenData.UsersAPI
                                              if (!TryGetHTTPUser(Request,
                                                                  out User                   HTTPUser,
                                                                  out HashSet<Organization>  HTTPOrganizations,
-                                                                 out HTTPResponse           Response,
+                                                                 out HTTPResponse.Builder   Response,
                                                                  AccessLevel:               Access_Levels.ReadWrite,
                                                                  Recursive:                 true))
                                              {
@@ -5693,8 +5693,8 @@ namespace social.OpenData.UsersAPI
                                              #region Check UserId URL parameter
 
                                              if (!Request.ParseUserId(this,
-                                                                      out User_Id?      UserIdURL,
-                                                                      out HTTPResponse  HTTPResponse))
+                                                                      out User_Id?              UserIdURL,
+                                                                      out HTTPResponse.Builder  HTTPResponse))
                                              {
                                                  return HTTPResponse;
                                              }
@@ -5782,7 +5782,7 @@ namespace social.OpenData.UsersAPI
                                               //if (Body.HasErrors)
                                               //    return Body.Error;
 
-                                              if (!Request.TryParseJObjectRequestBody(out JObject LoginData, out HTTPResponse _HTTPResponse))
+                                              if (!Request.TryParseJObjectRequestBody(out JObject LoginData, out HTTPResponse.Builder _HTTPResponse))
                                                   return _HTTPResponse;
 
 
@@ -6121,7 +6121,7 @@ namespace social.OpenData.UsersAPI
                                              if (!TryGetAstronaut(Request,
                                                                   out User                       Astronaut,
                                                                   out IEnumerable<Organization>  AstronautOrganizations,
-                                                                  out HTTPResponse           Response,
+                                                                  out HTTPResponse.Builder       Response,
                                                                   Recursive: true))
                                              {
                                                  return Response;
@@ -6132,8 +6132,8 @@ namespace social.OpenData.UsersAPI
                                              #region Check UserId URL parameter
 
                                              if (!Request.ParseUserId(this,
-                                                                      out User_Id?      UserIdURL,
-                                                                      out HTTPResponse  HTTPResponse))
+                                                                      out User_Id?              UserIdURL,
+                                                                      out HTTPResponse.Builder  HTTPResponse))
                                              {
                                                  return HTTPResponse;
                                              }
@@ -6237,10 +6237,10 @@ namespace social.OpenData.UsersAPI
                                              if (!TryGetAstronaut(Request,
                                                                   out User                       Astronaut,
                                                                   out IEnumerable<Organization>  AstronautOrganizations,
-                                                                  out HTTPResponse               Response,
+                                                                  out HTTPResponse.Builder       Response,
                                                                   Recursive: true))
                                              {
-                                                 return Task.FromResult(Response);
+                                                 return Task.FromResult(Response.AsImmutable);
                                              }
 
                                              #endregion
@@ -6248,10 +6248,10 @@ namespace social.OpenData.UsersAPI
                                              #region Check UserId URL parameter
 
                                              if (!Request.ParseUserId(this,
-                                                                      out User_Id?      UserIdURL,
-                                                                      out HTTPResponse  HTTPResponse))
+                                                                      out User_Id?              UserIdURL,
+                                                                      out HTTPResponse.Builder  HTTPResponse))
                                              {
-                                                 return Task.FromResult(HTTPResponse);
+                                                 return Task.FromResult(HTTPResponse.AsImmutable);
                                              }
 
                                              if (!TryGetUser(UserIdURL.Value, out User UserURL))
@@ -6374,10 +6374,10 @@ namespace social.OpenData.UsersAPI
                                              if (!TryGetHTTPUser(Request,
                                                                  out User                   HTTPUser,
                                                                  out HashSet<Organization>  HTTPOrganizations,
-                                                                 out HTTPResponse           Response,
+                                                                 out HTTPResponse.Builder   Response,
                                                                  Recursive: true))
                                              {
-                                                 return Task.FromResult(Response);
+                                                 return Task.FromResult(Response.AsImmutable);
                                              }
 
                                              #endregion
@@ -6424,7 +6424,7 @@ namespace social.OpenData.UsersAPI
                                              if (!TryGetHTTPUser(Request,
                                                                  out User                   HTTPUser,
                                                                  out HashSet<Organization>  HTTPOrganizations,
-                                                                 out HTTPResponse           HTTPResponse,
+                                                                 out HTTPResponse.Builder   HTTPResponse,
                                                                  AccessLevel:               Access_Levels.ReadWrite,
                                                                  Recursive:                 true))
                                              {
@@ -6614,7 +6614,7 @@ namespace social.OpenData.UsersAPI
                                              if (!TryGetHTTPUser(Request,
                                                                  out User                   HTTPUser,
                                                                  out HashSet<Organization>  HTTPOrganizations,
-                                                                 out HTTPResponse               HTTPResponse,
+                                                                 out HTTPResponse.Builder   HTTPResponse,
                                                                  AccessLevel:               Access_Levels.ReadWrite,
                                                                  Recursive:                 true))
                                              {
@@ -6797,10 +6797,10 @@ namespace social.OpenData.UsersAPI
                                              if (!TryGetHTTPUser(Request,
                                                                  out User                   HTTPUser,
                                                                  out HashSet<Organization>  HTTPOrganizations,
-                                                                 out HTTPResponse           Response,
+                                                                 out HTTPResponse.Builder   Response,
                                                                  Recursive: true))
                                              {
-                                                 return Task.FromResult(Response);
+                                                 return Task.FromResult(Response.AsImmutable);
                                              }
 
                                              #endregion
@@ -6878,10 +6878,10 @@ namespace social.OpenData.UsersAPI
                                              if (!TryGetHTTPUser(Request,
                                                                  out User                   HTTPUser,
                                                                  out HashSet<Organization>  HTTPOrganizations,
-                                                                 out HTTPResponse           Response,
+                                                                 out HTTPResponse.Builder   Response,
                                                                  Recursive: true))
                                              {
-                                                 return Task.FromResult(Response);
+                                                 return Task.FromResult(Response.AsImmutable);
                                              }
 
                                              #endregion
@@ -6936,10 +6936,10 @@ namespace social.OpenData.UsersAPI
                                              if (!TryGetHTTPUser(Request,
                                                                  out User                   HTTPUser,
                                                                  out HashSet<Organization>  HTTPOrganizations,
-                                                                 out HTTPResponse           Response,
+                                                                 out HTTPResponse.Builder   Response,
                                                                  Recursive: true))
                                              {
-                                                 return Task.FromResult(Response);
+                                                 return Task.FromResult(Response.AsImmutable);
                                              }
 
                                              #endregion
@@ -6998,7 +6998,7 @@ namespace social.OpenData.UsersAPI
                                              if (!TryGetHTTPUser(Request,
                                                                  out User                   HTTPUser,
                                                                  out HashSet<Organization>  HTTPOrganizations,
-                                                                 out HTTPResponse           Response,
+                                                                 out HTTPResponse.Builder   Response,
                                                                  AccessLevel:               Access_Levels.ReadWrite,
                                                                  Recursive:                 true))
                                              {
@@ -7010,8 +7010,8 @@ namespace social.OpenData.UsersAPI
                                              #region Check UserId URL parameter
 
                                              if (!Request.ParseUserId(this,
-                                                                      out User_Id?      UserIdURL,
-                                                                      out HTTPResponse  HTTPResponse))
+                                                                      out User_Id?              UserIdURL,
+                                                                      out HTTPResponse.Builder  HTTPResponse))
                                              {
                                                  return HTTPResponse;
                                              }
@@ -7131,10 +7131,10 @@ namespace social.OpenData.UsersAPI
                                              if (!TryGetHTTPUser(Request,
                                                                  out User                   HTTPUser,
                                                                  out HashSet<Organization>  HTTPOrganizations,
-                                                                 out HTTPResponse           Response,
+                                                                 out HTTPResponse.Builder   Response,
                                                                  Recursive:                 true))
                                              {
-                                                 return Task.FromResult(Response);
+                                                 return Task.FromResult(Response.AsImmutable);
                                              }
 
                                              #endregion
@@ -7173,7 +7173,7 @@ namespace social.OpenData.UsersAPI
                                              TryGetHTTPUser(Request,
                                                             out User                   HTTPUser,
                                                             out HashSet<Organization>  HTTPOrganizations,
-                                                            out HTTPResponse           Response,
+                                                            out HTTPResponse.Builder   Response,
                                                             Recursive: true);
 
                                              #endregion
@@ -7261,7 +7261,7 @@ namespace social.OpenData.UsersAPI
                                              TryGetHTTPUser(Request,
                                                             out User                   HTTPUser,
                                                             out HashSet<Organization>  HTTPOrganizations,
-                                                            out HTTPResponse           Response,
+                                                            out HTTPResponse.Builder   Response,
                                                             Recursive: true);
 
                                              #endregion
@@ -7347,10 +7347,10 @@ namespace social.OpenData.UsersAPI
                                              if (!TryGetHTTPUser(Request,
                                                                  out User                   HTTPUser,
                                                                  out HashSet<Organization>  HTTPOrganizations,
-                                                                 out HTTPResponse           Response,
+                                                                 out HTTPResponse.Builder   Response,
                                                                  Recursive:                 true))
                                              {
-                                                 return Task.FromResult(Response);
+                                                 return Task.FromResult(Response.AsImmutable);
                                              }
 
                                              #endregion
@@ -7392,10 +7392,10 @@ namespace social.OpenData.UsersAPI
                                              if (!TryGetHTTPUser(Request,
                                                                  out User                   HTTPUser,
                                                                  out HashSet<Organization>  HTTPOrganizations,
-                                                                 out HTTPResponse           Response,
+                                                                 out HTTPResponse.Builder   Response,
                                                                  Recursive: true))
                                              {
-                                                 return Task.FromResult(Response);
+                                                 return Task.FromResult(Response.AsImmutable);
                                              }
 
                                              #endregion
@@ -7457,7 +7457,7 @@ namespace social.OpenData.UsersAPI
                                              if (!TryGetHTTPUser(Request,
                                                                  out User                   HTTPUser,
                                                                  out HashSet<Organization>  HTTPOrganizations,
-                                                                 out HTTPResponse           Response,
+                                                                 out HTTPResponse.Builder   Response,
                                                                  AccessLevel:               Access_Levels.ReadWrite,
                                                                  Recursive:                 true))
                                              {
@@ -7468,7 +7468,7 @@ namespace social.OpenData.UsersAPI
 
                                              #region Parse JSON and create the new child organization...
 
-                                             if (!Request.TryParseJObjectRequestBody(out JObject JSONObj, out HTTPResponse HTTPResponse))
+                                             if (!Request.TryParseJObjectRequestBody(out JObject JSONObj, out HTTPResponse.Builder HTTPResponse))
                                                  return HTTPResponse;
 
                                              if (Organization.TryParseJSON(JSONObj,
@@ -7588,7 +7588,7 @@ namespace social.OpenData.UsersAPI
                                              TryGetHTTPUser(Request,
                                                             out User                   HTTPUser,
                                                             out HashSet<Organization>  HTTPOrganizations,
-                                                            out HTTPResponse           Response,
+                                                            out HTTPResponse.Builder   Response,
                                                             Recursive: true);
 
                                              #endregion
@@ -7596,11 +7596,11 @@ namespace social.OpenData.UsersAPI
                                              #region Check OrganizationId URL parameter
 
                                              if (!Request.ParseOrganization(this,
-                                                                            out Organization_Id?  OrganizationId,
-                                                                            out Organization      Organization,
-                                                                            out HTTPResponse      HTTPResponse))
+                                                                            out Organization_Id?      OrganizationId,
+                                                                            out Organization          Organization,
+                                                                            out HTTPResponse.Builder  HTTPResponse))
                                              {
-                                                 return Task.FromResult(HTTPResponse);
+                                                 return Task.FromResult(HTTPResponse.AsImmutable);
                                              }
 
                                              #endregion
@@ -7676,10 +7676,10 @@ namespace social.OpenData.UsersAPI
                                              if (!TryGetHTTPUser(Request,
                                                                  out User                   HTTPUser,
                                                                  out HashSet<Organization>  HTTPOrganizations,
-                                                                 out HTTPResponse           Response,
+                                                                 out HTTPResponse.Builder   Response,
                                                                  Recursive:                 true))
                                              {
-                                                 return Task.FromResult(Response);
+                                                 return Task.FromResult(Response.AsImmutable);
                                              }
 
                                              #endregion
@@ -7687,11 +7687,11 @@ namespace social.OpenData.UsersAPI
                                              #region Check OrganizationId URL parameter
 
                                              if (!Request.ParseOrganization(this,
-                                                                            out Organization_Id?  OrganizationId,
-                                                                            out Organization      Organization,
-                                                                            out HTTPResponse      HTTPResponse))
+                                                                            out Organization_Id?      OrganizationId,
+                                                                            out Organization          Organization,
+                                                                            out HTTPResponse.Builder  HTTPResponse))
                                              {
-                                                 return Task.FromResult(HTTPResponse);
+                                                 return Task.FromResult(HTTPResponse.AsImmutable);
                                              }
 
                                              #endregion
@@ -7748,7 +7748,7 @@ namespace social.OpenData.UsersAPI
                                              TryGetHTTPUser(Request,
                                                             out User                   HTTPUser,
                                                             out HashSet<Organization>  HTTPOrganizations,
-                                                            out HTTPResponse           Response,
+                                                            out HTTPResponse.Builder   Response,
                                                             Recursive: true);
 
                                              #endregion
@@ -7756,11 +7756,11 @@ namespace social.OpenData.UsersAPI
                                              #region Check OrganizationId URL parameter
 
                                              if (!Request.ParseOrganization(this,
-                                                                            out Organization_Id?  OrganizationId,
-                                                                            out Organization      Organization,
-                                                                            out HTTPResponse      HTTPResponse))
+                                                                            out Organization_Id?      OrganizationId,
+                                                                            out Organization          Organization,
+                                                                            out HTTPResponse.Builder  HTTPResponse))
                                              {
-                                                 return Task.FromResult(HTTPResponse);
+                                                 return Task.FromResult(HTTPResponse.AsImmutable);
                                              }
 
                                              #endregion
@@ -7820,7 +7820,7 @@ namespace social.OpenData.UsersAPI
                                              if (!TryGetHTTPUser(Request,
                                                                  out User                   HTTPUser,
                                                                  out HashSet<Organization>  HTTPOrganizations,
-                                                                 out HTTPResponse           Response,
+                                                                 out HTTPResponse.Builder   Response,
                                                                  AccessLevel:               Access_Levels.ReadWrite,
                                                                  Recursive:                 true))
                                              {
@@ -7832,8 +7832,8 @@ namespace social.OpenData.UsersAPI
                                              #region Check OrganizationId URL parameter
 
                                              if (!Request.ParseOrganizationId(this,
-                                                                              out Organization_Id?  OrganizationIdURL,
-                                                                              out HTTPResponse      HTTPResponse))
+                                                                              out Organization_Id?      OrganizationIdURL,
+                                                                              out HTTPResponse.Builder  HTTPResponse))
                                              {
                                                  return HTTPResponse;
                                              }
@@ -8069,7 +8069,7 @@ namespace social.OpenData.UsersAPI
                                              if (!TryGetHTTPUser(Request,
                                                                  out User                   HTTPUser,
                                                                  out HashSet<Organization>  HTTPOrganizations,
-                                                                 out HTTPResponse           Response,
+                                                                 out HTTPResponse.Builder   Response,
                                                                  AccessLevel:               Access_Levels.ReadWrite,
                                                                  Recursive:                 true))
                                              {
@@ -8081,9 +8081,9 @@ namespace social.OpenData.UsersAPI
                                              #region Check OrganizationId URL parameter
 
                                              if (!Request.ParseOrganization(this,
-                                                                            out Organization_Id?  OrganizationIdURL,
-                                                                            out Organization      Organization,
-                                                                            out HTTPResponse      HTTPResponse))
+                                                                            out Organization_Id?      OrganizationIdURL,
+                                                                            out Organization          Organization,
+                                                                            out HTTPResponse.Builder  HTTPResponse))
                                              {
                                                  return HTTPResponse;
                                              }
@@ -8197,7 +8197,7 @@ namespace social.OpenData.UsersAPI
                                              if (!TryGetHTTPUser(Request,
                                                                  out User                   HTTPUser,
                                                                  out HashSet<Organization>  HTTPOrganizations,
-                                                                 out HTTPResponse           Response,
+                                                                 out HTTPResponse.Builder   Response,
                                                                  AccessLevel:               Access_Levels.ReadWrite,
                                                                  Recursive:                 true))
                                              {
@@ -8209,9 +8209,9 @@ namespace social.OpenData.UsersAPI
                                              #region Check Organization
 
                                              if (!Request.ParseOrganization(this,
-                                                                            out Organization_Id?  OrganizationIdURL,
-                                                                            out Organization      Organization,
-                                                                            out HTTPResponse      HTTPResponse))
+                                                                            out Organization_Id?      OrganizationIdURL,
+                                                                            out Organization          Organization,
+                                                                            out HTTPResponse.Builder  HTTPResponse))
                                              {
                                                  return HTTPResponse;
                                              }
@@ -8309,10 +8309,10 @@ namespace social.OpenData.UsersAPI
                                              if (!TryGetHTTPUser(Request,
                                                                  out User                   HTTPUser,
                                                                  out HashSet<Organization>  HTTPOrganizations,
-                                                                 out HTTPResponse           Response,
+                                                                 out HTTPResponse.Builder   Response,
                                                                  Recursive:                 true))
                                              {
-                                                 return Task.FromResult(Response);
+                                                 return Task.FromResult(Response.AsImmutable);
                                              }
 
                                              #endregion
@@ -8320,11 +8320,11 @@ namespace social.OpenData.UsersAPI
                                              #region Check OrganizationId URL parameter
 
                                              if (!Request.ParseOrganization(this,
-                                                                            out Organization_Id?  OrganizationId,
-                                                                            out Organization      Organization,
-                                                                            out HTTPResponse      HTTPResponse))
+                                                                            out Organization_Id?      OrganizationId,
+                                                                            out Organization          Organization,
+                                                                            out HTTPResponse.Builder  HTTPResponse))
                                              {
-                                                 return Task.FromResult(HTTPResponse);
+                                                 return Task.FromResult(HTTPResponse.AsImmutable);
                                              }
 
                                              #endregion
@@ -8381,10 +8381,10 @@ namespace social.OpenData.UsersAPI
                                              if (!TryGetHTTPUser(Request,
                                                                  out User                   HTTPUser,
                                                                  out HashSet<Organization>  HTTPOrganizations,
-                                                                 out HTTPResponse           Response,
+                                                                 out HTTPResponse.Builder   Response,
                                                                  Recursive:                 true))
                                              {
-                                                 return Task.FromResult(Response);
+                                                 return Task.FromResult(Response.AsImmutable);
                                              }
 
                                              #endregion
@@ -8392,11 +8392,11 @@ namespace social.OpenData.UsersAPI
                                              #region Check OrganizationId URL parameter
 
                                              if (!Request.ParseOrganization(this,
-                                                                            out Organization_Id?  OrganizationId,
-                                                                            out Organization      Organization,
-                                                                            out HTTPResponse      HTTPResponse))
+                                                                            out Organization_Id?      OrganizationId,
+                                                                            out Organization          Organization,
+                                                                            out HTTPResponse.Builder  HTTPResponse))
                                              {
-                                                 return Task.FromResult(HTTPResponse);
+                                                 return Task.FromResult(HTTPResponse.AsImmutable);
                                              }
 
                                              #endregion
@@ -8453,10 +8453,10 @@ namespace social.OpenData.UsersAPI
                                              if (!TryGetHTTPUser(Request,
                                                                  out User                   HTTPUser,
                                                                  out HashSet<Organization>  HTTPOrganizations,
-                                                                 out HTTPResponse           Response,
+                                                                 out HTTPResponse.Builder   Response,
                                                                  Recursive:                 true))
                                              {
-                                                 return Task.FromResult(Response);
+                                                 return Task.FromResult(Response.AsImmutable);
                                              }
 
                                              #endregion
@@ -8464,11 +8464,11 @@ namespace social.OpenData.UsersAPI
                                              #region Check OrganizationId URL parameter
 
                                              if (!Request.ParseOrganization(this,
-                                                                            out Organization_Id?  OrganizationId,
-                                                                            out Organization      Organization,
-                                                                            out HTTPResponse      HTTPResponse))
+                                                                            out Organization_Id?      OrganizationId,
+                                                                            out Organization          Organization,
+                                                                            out HTTPResponse.Builder  HTTPResponse))
                                              {
-                                                 return Task.FromResult(HTTPResponse);
+                                                 return Task.FromResult(HTTPResponse.AsImmutable);
                                              }
 
                                              #endregion
@@ -8525,10 +8525,10 @@ namespace social.OpenData.UsersAPI
                                              if (!TryGetHTTPUser(Request,
                                                                  out User                   HTTPUser,
                                                                  out HashSet<Organization>  HTTPOrganizations,
-                                                                 out HTTPResponse           Response,
+                                                                 out HTTPResponse.Builder   Response,
                                                                  Recursive:                 true))
                                              {
-                                                 return Task.FromResult(Response);
+                                                 return Task.FromResult(Response.AsImmutable);
                                              }
 
                                              #endregion
@@ -8536,11 +8536,11 @@ namespace social.OpenData.UsersAPI
                                              #region Check OrganizationId URL parameter
 
                                              if (!Request.ParseOrganization(this,
-                                                                            out Organization_Id?  OrganizationId,
-                                                                            out Organization      Organization,
-                                                                            out HTTPResponse      HTTPResponse))
+                                                                            out Organization_Id?      OrganizationId,
+                                                                            out Organization          Organization,
+                                                                            out HTTPResponse.Builder  HTTPResponse))
                                              {
-                                                 return Task.FromResult(HTTPResponse);
+                                                 return Task.FromResult(HTTPResponse.AsImmutable);
                                              }
 
                                              #endregion
@@ -8597,10 +8597,10 @@ namespace social.OpenData.UsersAPI
                                              if (!TryGetHTTPUser(Request,
                                                                  out User                   HTTPUser,
                                                                  out HashSet<Organization>  HTTPOrganizations,
-                                                                 out HTTPResponse           Response,
+                                                                 out HTTPResponse.Builder   Response,
                                                                  Recursive:                 true))
                                              {
-                                                 return Task.FromResult(Response);
+                                                 return Task.FromResult(Response.AsImmutable);
                                              }
 
                                              #endregion
@@ -8608,11 +8608,11 @@ namespace social.OpenData.UsersAPI
                                              #region Check OrganizationId URL parameter
 
                                              if (!Request.ParseOrganization(this,
-                                                                            out Organization_Id?  OrganizationId,
-                                                                            out Organization      Organization,
-                                                                            out HTTPResponse      HTTPResponse))
+                                                                            out Organization_Id?      OrganizationId,
+                                                                            out Organization          Organization,
+                                                                            out HTTPResponse.Builder  HTTPResponse))
                                              {
-                                                 return Task.FromResult(HTTPResponse);
+                                                 return Task.FromResult(HTTPResponse.AsImmutable);
                                              }
 
                                              #endregion
@@ -8670,10 +8670,10 @@ namespace social.OpenData.UsersAPI
                                              if (!TryGetHTTPUser(Request,
                                                                  out User                   HTTPUser,
                                                                  out HashSet<Organization>  HTTPOrganizations,
-                                                                 out HTTPResponse           Response,
+                                                                 out HTTPResponse.Builder   Response,
                                                                  Recursive: true))
                                              {
-                                                 return Task.FromResult(Response);
+                                                 return Task.FromResult(Response.AsImmutable);
                                              }
 
                                              #endregion
@@ -8681,11 +8681,11 @@ namespace social.OpenData.UsersAPI
                                              #region Check OrganizationId URL parameter
 
                                              if (!Request.ParseOrganization(this,
-                                                                            out Organization_Id?  OrganizationId,
-                                                                            out Organization      Organization,
-                                                                            out HTTPResponse      HTTPResponse))
+                                                                            out Organization_Id?      OrganizationId,
+                                                                            out Organization          Organization,
+                                                                            out HTTPResponse.Builder  HTTPResponse))
                                              {
-                                                 return Task.FromResult(HTTPResponse);
+                                                 return Task.FromResult(HTTPResponse.AsImmutable);
                                              }
 
                                              #endregion
@@ -8731,7 +8731,7 @@ namespace social.OpenData.UsersAPI
                                              if (!TryGetHTTPUser(Request,
                                                                  out User                   HTTPUser,
                                                                  out HashSet<Organization>  HTTPOrganizations,
-                                                                 out HTTPResponse           HTTPResponse,
+                                                                 out HTTPResponse.Builder   HTTPResponse,
                                                                  AccessLevel:               Access_Levels.ReadWrite,
                                                                  Recursive:                 true))
                                              {
@@ -8917,7 +8917,7 @@ namespace social.OpenData.UsersAPI
                                              if (!TryGetHTTPUser(Request,
                                                                  out User                   HTTPUser,
                                                                  out HashSet<Organization>  HTTPOrganizations,
-                                                                 out HTTPResponse           HTTPResponse,
+                                                                 out HTTPResponse.Builder   HTTPResponse,
                                                                  AccessLevel:               Access_Levels.ReadWrite,
                                                                  Recursive:                 true))
                                              {
@@ -9148,10 +9148,10 @@ namespace social.OpenData.UsersAPI
                                              if (!TryGetHTTPUser(Request,
                                                                  out User                   HTTPUser,
                                                                  out HashSet<Organization>  HTTPOrganizations,
-                                                                 out HTTPResponse           Response,
+                                                                 out HTTPResponse.Builder   Response,
                                                                  Recursive: true))
                                              {
-                                                 return Task.FromResult(Response);
+                                                 return Task.FromResult(Response.AsImmutable);
                                              }
 
                                              #endregion
@@ -9195,10 +9195,10 @@ namespace social.OpenData.UsersAPI
                                              if (!TryGetHTTPUser(Request,
                                                                  out User                   HTTPUser,
                                                                  out HashSet<Organization>  HTTPOrganizations,
-                                                                 out HTTPResponse           Response,
+                                                                 out HTTPResponse.Builder   Response,
                                                                  Recursive:                 true))
                                              {
-                                                 return Task.FromResult(Response);
+                                                 return Task.FromResult(Response.AsImmutable);
                                              }
 
                                              #endregion
@@ -9241,10 +9241,10 @@ namespace social.OpenData.UsersAPI
                                              if (!TryGetHTTPUser(Request,
                                                                  out User                   HTTPUser,
                                                                  out HashSet<Organization>  HTTPOrganizations,
-                                                                 out HTTPResponse           Response,
+                                                                 out HTTPResponse.Builder   Response,
                                                                  Recursive:                 true))
                                              {
-                                                 return Task.FromResult(Response);
+                                                 return Task.FromResult(Response.AsImmutable);
                                              }
 
                                              #endregion
@@ -9303,10 +9303,10 @@ namespace social.OpenData.UsersAPI
                                              if (!TryGetHTTPUser(Request,
                                                                  out User                   HTTPUser,
                                                                  out HashSet<Organization>  HTTPOrganizations,
-                                                                 out HTTPResponse           Response,
+                                                                 out HTTPResponse.Builder   Response,
                                                                  Recursive:                 true))
                                              {
-                                                 return Task.FromResult(Response);
+                                                 return Task.FromResult(Response.AsImmutable);
                                              }
 
                                              #endregion
@@ -9350,10 +9350,10 @@ namespace social.OpenData.UsersAPI
                                              if (!TryGetHTTPUser(Request,
                                                                  out User                   HTTPUser,
                                                                  out HashSet<Organization>  HTTPOrganizations,
-                                                                 out HTTPResponse           Response,
+                                                                 out HTTPResponse.Builder   Response,
                                                                  Recursive: true))
                                              {
-                                                 return Task.FromResult(Response);
+                                                 return Task.FromResult(Response.AsImmutable);
                                              }
 
                                              #endregion
@@ -9410,10 +9410,10 @@ namespace social.OpenData.UsersAPI
                                              if (!TryGetHTTPUser(Request,
                                                                  out User                   HTTPUser,
                                                                  out HashSet<Organization>  HTTPOrganizations,
-                                                                 out HTTPResponse           Response,
+                                                                 out HTTPResponse.Builder   Response,
                                                                  Recursive:                 true))
                                              {
-                                                 return Task.FromResult(Response);
+                                                 return Task.FromResult(Response.AsImmutable);
                                              }
 
                                              #endregion
@@ -9461,10 +9461,10 @@ namespace social.OpenData.UsersAPI
                                              if (!TryGetHTTPUser(Request,
                                                                  out User                   HTTPUser,
                                                                  out HashSet<Organization>  HTTPOrganizations,
-                                                                 out HTTPResponse           Response,
+                                                                 out HTTPResponse.Builder   Response,
                                                                  Recursive:                 true))
                                              {
-                                                 return Task.FromResult(Response);
+                                                 return Task.FromResult(Response.AsImmutable);
                                              }
 
                                              #endregion
@@ -9513,7 +9513,7 @@ namespace social.OpenData.UsersAPI
                                              TryGetHTTPUser(Request,
                                                             out User                   HTTPUser,
                                                             out HashSet<Organization>  HTTPOrganizations,
-                                                            out HTTPResponse           Response,
+                                                            out HTTPResponse.Builder   Response,
                                                             Recursive: true);
 
                                              #endregion
@@ -9602,8 +9602,8 @@ namespace social.OpenData.UsersAPI
 
                                                  #region Parse JSON
 
-                                                 if (!Request.TryParseJObjectRequestBody(out JObject JSONObj, out HTTPResponse response))
-                                                     return Task.FromResult(response);
+                                                 if (!Request.TryParseJObjectRequestBody(out JObject JSONObj, out HTTPResponse.Builder response))
+                                                     return Task.FromResult(response.AsImmutable);
 
                                                  var content = JSONObj["content"]?.Value<String>() ?? "";
 
@@ -11221,7 +11221,7 @@ namespace social.OpenData.UsersAPI
         protected Boolean TryGetHTTPUser(HTTPRequest                Request,
                                          out User                   User,
                                          out HashSet<Organization>  Organizations,
-                                         out HTTPResponse           Response,
+                                         out HTTPResponse.Builder   Response,
                                          Access_Levels              AccessLevel  = Access_Levels.ReadOnly,
                                          Boolean                    Recursive    = false)
         {
@@ -11270,7 +11270,7 @@ namespace social.OpenData.UsersAPI
         protected Boolean TryGetAstronaut(HTTPRequest                    Request,
                                           out User                       User,
                                           out IEnumerable<Organization>  Organizations,
-                                          out HTTPResponse           Response,
+                                          out HTTPResponse.Builder       Response,
                                           Access_Levels                  AccessLevel  = Access_Levels.ReadOnly,
                                           Boolean                        Recursive    = false)
         {
@@ -11653,11 +11653,11 @@ namespace social.OpenData.UsersAPI
                                                  if (!TryGetHTTPUser(Request,
                                                                      out User                   HTTPUser,
                                                                      out HashSet<Organization>  HTTPOrganizations,
-                                                                     out HTTPResponse           Response,
+                                                                     out HTTPResponse.Builder   Response,
                                                                      AccessLevel:               Access_Levels.ReadWrite,
                                                                      Recursive:                 true))
                                                  {
-                                                     return Task.FromResult(Response);
+                                                     return Task.FromResult(Response.AsImmutable);
                                                  }
 
                                                  #endregion
@@ -11710,11 +11710,11 @@ namespace social.OpenData.UsersAPI
                                                  if (!TryGetHTTPUser(Request,
                                                                      out User                   HTTPUser,
                                                                      out HashSet<Organization>  HTTPOrganizations,
-                                                                     out HTTPResponse           Response,
+                                                                     out HTTPResponse.Builder   Response,
                                                                      AccessLevel:               Access_Levels.ReadWrite,
                                                                      Recursive:                 true))
                                                  {
-                                                     return Task.FromResult(Response);
+                                                     return Task.FromResult(Response.AsImmutable);
                                                  }
 
                                                  #endregion
@@ -11798,11 +11798,11 @@ namespace social.OpenData.UsersAPI
                                                  if (!TryGetHTTPUser(Request,
                                                                      out User                   HTTPUser,
                                                                      out HashSet<Organization>  HTTPOrganizations,
-                                                                     out HTTPResponse           Response,
+                                                                     out HTTPResponse.Builder   Response,
                                                                      AccessLevel:               Access_Levels.ReadWrite,
                                                                      Recursive:                 true))
                                                  {
-                                                     return Task.FromResult(Response);
+                                                     return Task.FromResult(Response.AsImmutable);
                                                  }
 
                                                  #endregion
@@ -11857,11 +11857,11 @@ namespace social.OpenData.UsersAPI
                                                  if (!TryGetHTTPUser(Request,
                                                                      out User                   HTTPUser,
                                                                      out HashSet<Organization>  HTTPOrganizations,
-                                                                     out HTTPResponse           Response,
+                                                                     out HTTPResponse.Builder   Response,
                                                                      AccessLevel:               Access_Levels.ReadWrite,
                                                                      Recursive:                 true))
                                                  {
-                                                     return Task.FromResult(Response);
+                                                     return Task.FromResult(Response.AsImmutable);
                                                  }
 
                                                  #endregion
