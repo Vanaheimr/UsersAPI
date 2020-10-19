@@ -26,13 +26,13 @@ function ShowOrganizations() {
                 idDiv.id = "id";
                 idDiv.innerHTML = "(" + user["@id"] + isGuest + ")";
             }
-            let impersonateUserButton = wrapper.appendChild(document.createElement('button'));
-            impersonateUserButton.className = "impersonateUser";
-            impersonateUserButton.title = "Impersonate this user!";
-            impersonateUserButton.innerHTML = '<i class="fas fa-user-astronaut"></i>';
-            impersonateUserButton.onclick = function (ev) {
-                ImpersonateUser(user["@id"]);
-            };
+            //let impersonateUserButton = wrapper.appendChild(document.createElement('button')) as HTMLButtonElement;
+            //impersonateUserButton.className = "impersonateUser";
+            //impersonateUserButton.title     = "Impersonate this user!"
+            //impersonateUserButton.innerHTML = '<i class="fas fa-user-astronaut"></i>';
+            //impersonateUserButton.onclick = function (this: HTMLElement, ev: MouseEvent) {
+            //    ImpersonateUser(user["@id"]);
+            //}
             //if (deleteable) {
             //    let removeUserButton = wrapper.appendChild(document.createElement('button')) as HTMLButtonElement;
             //    removeUserButton.className = "removeUser";
@@ -390,7 +390,7 @@ function ShowOrganizations() {
             : organizationDiv.className += " notMember";
         let nameDiv = organizationDiv.appendChild(document.createElement('div'));
         nameDiv.className = "name";
-        nameDiv.innerHTML = firstValue(organization.name) + " <a href=\"/organizations/" + organization["@id"] + "\" style=\"text-decoration: none\"><i class=\"fas fa-arrow-right\"></i></a>";
+        nameDiv.innerHTML = "<a class=\"orgName\" href=\"/organizations/" + organization["@id"] + "\" style=\"text-decoration: none\">" + firstValue(organization.name) + "</a>";
         nameDiv.onclick = function (ev) {
             let propertiesDiv = this.parentElement.querySelector('.properties');
             propertiesDiv.style.display == '' || propertiesDiv.style.display == 'none'
@@ -420,7 +420,7 @@ function ShowOrganizations() {
                 PrintUser(admin, usersDiv, "admin", false, false);
         }
         // Show members... only when you are also a member!
-        if (organization.youAreMember) {
+        if (organization.youAreMember && organization.members != null && organization.members.length > 0) {
             myOrgs.push(orgDiv);
             let membersDiv = propertiesDiv.appendChild(document.createElement('div'));
             membersDiv.id = "members";
@@ -441,15 +441,15 @@ function ShowOrganizations() {
                 //let AddExistingUserButton = AddUserDiv.appendChild(document.createElement('button')) as HTMLButtonElement;
                 //AddExistingUserButton.className = "addExistingUserButton";
                 //AddExistingUserButton.innerHTML = '<i class="fas fa-link"></i><i class="fas fa-user"></i> Add existing user';
-                let CreateNewUserButton = AddUserDiv.appendChild(document.createElement('button'));
-                CreateNewUserButton.className = "createNewUserButton";
-                CreateNewUserButton.innerHTML = '<i class="fas fa-plus"></i><i class="fas fa-user"></i> Create new user';
-                CreateNewUserButton.onclick = function (ev) {
-                    CreateNewUser(organization, CreateNewUserButton.parentElement.parentElement, CreateNewUserButton);
-                };
+                //let CreateNewUserButton = AddUserDiv.appendChild(document.createElement('button')) as HTMLButtonElement;
+                //CreateNewUserButton.className = "createNewUserButton";
+                //CreateNewUserButton.innerHTML = '<i class="fas fa-plus"></i><i class="fas fa-user"></i> Create new user';
+                //CreateNewUserButton.onclick = function (this: HTMLElement, ev: MouseEvent) {
+                //    CreateNewUser(organization, CreateNewUserButton.parentElement.parentElement, CreateNewUserButton)
+                //}
             }
         }
-        // Show child orgranizations...
+        // Show child organizations...
         let childsDiv = organizationDiv.appendChild(document.createElement('div'));
         childsDiv.className = "childs";
         for (var child of organization._childs)
@@ -458,12 +458,12 @@ function ShowOrganizations() {
         if (organization.youCanCreateChildOrganizations) {
             let CreateChildOrganizationDiv = organizationDiv.appendChild(document.createElement('div'));
             CreateChildOrganizationDiv.className = "createChildOrganization";
-            let CreateChildOrganizationButton = CreateChildOrganizationDiv.appendChild(document.createElement('button'));
-            CreateChildOrganizationButton.className = "createChildOrganizationButton";
-            CreateChildOrganizationButton.innerHTML = '<i class="fas fa-plus"></i><i class="fas fa-building"></i> Create child organization';
-            CreateChildOrganizationButton.onclick = function (ev) {
-                AddChildOrganization(organization, CreateChildOrganizationDiv, CreateChildOrganizationButton);
-            };
+            //let CreateChildOrganizationButton = CreateChildOrganizationDiv.appendChild(document.createElement('button')) as HTMLButtonElement;
+            //CreateChildOrganizationButton.className = "createChildOrganizationButton";
+            //CreateChildOrganizationButton.innerHTML = '<i class="fas fa-plus"></i><i class="fas fa-building"></i> Create child organization';
+            //CreateChildOrganizationButton.onclick = function (this: HTMLElement, ev: MouseEvent) {
+            //    AddChildOrganization(organization, CreateChildOrganizationDiv, CreateChildOrganizationButton);
+            //};
         }
     }
     checkSignedIn(true);

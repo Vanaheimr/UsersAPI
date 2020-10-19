@@ -45,10 +45,14 @@ function StartOrganizationGeoLocation() {
         }
         // country
         if ((organizationJSON.address !== undefined && organizationJSON.address.country !== undefined ? organizationJSON.address.country : "") !== country.value) {
-            if (country.value != "" && country.value.length < 2) {
+            if (country.value !== "" && country.value.length < 2) {
                 responseDiv.innerHTML = "<div class=\"HTTP Error\">Organizations must have a valid country!</div>";
                 return false;
             }
+            return true;
+        }
+        // comment
+        if ((organizationJSON.address !== undefined && organizationJSON.address.comment !== undefined ? organizationJSON.address.comment : "") !== comment.value) {
             return true;
         }
         // geo location latitude
@@ -78,51 +82,88 @@ function StartOrganizationGeoLocation() {
         return changesDetected;
     }
     function SaveData() {
-        //// name
-        //if ((OrganizationJSON.name !== undefined ? firstValue(OrganizationJSON.name) : "") !== name.value) {
-        //    if (name.value != "") {
-        //        if (OrganizationJSON.name == null)
-        //            OrganizationJSON.name = new Object();
-        //        OrganizationJSON.name["eng"] = name.value;
-        //    }
-        //    else
-        //        delete OrganizationJSON.name;
-        //}
-        //// description
-        //if ((OrganizationJSON.description !== undefined ? firstValue(OrganizationJSON.description) : "") !== description.value) {
-        //    if (description.value != "") {
-        //        if (OrganizationJSON.description == null)
-        //            OrganizationJSON.description = new Object();
-        //        OrganizationJSON.description["eng"] = description.value;
-        //    }
-        //    else
-        //        delete OrganizationJSON.description;
-        //}
-        //// website
-        //if ((OrganizationJSON.website !== undefined ? OrganizationJSON.website : "") !== website.value)
-        //    OrganizationJSON.website = website.value;
-        //if (OrganizationJSON.website === "")
-        //    delete OrganizationJSON.website;
-        //// email
-        //if ((OrganizationJSON.email !== undefined ? OrganizationJSON.email : "") !== email.value)
-        //    OrganizationJSON.email = email.value;
-        //if (OrganizationJSON.email === "")
-        //    delete OrganizationJSON.email;
-        //// telephone
-        //if ((OrganizationJSON.telephone !== undefined ? OrganizationJSON.telephone : "") !== telephone.value)
-        //    OrganizationJSON.telephone = telephone.value;
-        //if (OrganizationJSON.telephone === "")
-        //    delete OrganizationJSON.telephone;
-        //// address
-        //if ((OrganizationJSON.address !== undefined ? OrganizationJSON.address : "") !== address.value)
-        //    OrganizationJSON.address = address.value;
-        //if (OrganizationJSON.address === "")
-        //    delete OrganizationJSON.address;
+        var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p, _q, _r, _s, _t;
+        // street
+        if ((((_a = organizationJSON.address) === null || _a === void 0 ? void 0 : _a.street) !== undefined ? organizationJSON.address.street : "") !== street.value) {
+            if (organizationJSON.address === undefined)
+                organizationJSON.address = {};
+            organizationJSON.address.street = street.value;
+        }
+        if (((_b = organizationJSON.address) === null || _b === void 0 ? void 0 : _b.street) === "")
+            delete organizationJSON.address.street;
+        // house number
+        if ((((_c = organizationJSON.address) === null || _c === void 0 ? void 0 : _c.houseNumber) !== undefined ? organizationJSON.address.houseNumber : "") !== houseNumber.value) {
+            if (organizationJSON.address === undefined)
+                organizationJSON.address = {};
+            organizationJSON.address.houseNumber = houseNumber.value;
+        }
+        if (((_d = organizationJSON.address) === null || _d === void 0 ? void 0 : _d.houseNumber) === "")
+            delete organizationJSON.address.houseNumber;
+        // floor level
+        if ((((_e = organizationJSON.address) === null || _e === void 0 ? void 0 : _e.floorLevel) !== undefined ? organizationJSON.address.floorLevel : "") !== floorLevel.value) {
+            if (organizationJSON.address === undefined)
+                organizationJSON.address = {};
+            organizationJSON.address.floorLevel = floorLevel.value;
+        }
+        if (((_f = organizationJSON.address) === null || _f === void 0 ? void 0 : _f.floorLevel) === "")
+            delete organizationJSON.address.floorLevel;
+        // postal code
+        if ((((_g = organizationJSON.address) === null || _g === void 0 ? void 0 : _g.postalCode) !== undefined ? organizationJSON.address.postalCode : "") !== postalCode.value) {
+            if (organizationJSON.address === undefined)
+                organizationJSON.address = {};
+            organizationJSON.address.postalCode = postalCode.value;
+        }
+        if (((_h = organizationJSON.address) === null || _h === void 0 ? void 0 : _h.postalCode) === "")
+            delete organizationJSON.address.postalCode;
+        // city
+        if ((((_j = organizationJSON.address) === null || _j === void 0 ? void 0 : _j.city) !== undefined ? organizationJSON.address.city : "") !== city.value) {
+            if (organizationJSON.address === undefined)
+                organizationJSON.address = {};
+            organizationJSON.address.city = { "eng": city.value };
+        }
+        if (((_m = (_l = (_k = organizationJSON.address) === null || _k === void 0 ? void 0 : _k.city) === null || _l === void 0 ? void 0 : _l.eng) === null || _m === void 0 ? void 0 : _m.toString()) === "")
+            delete organizationJSON.address.city;
+        // country
+        if ((((_o = organizationJSON.address) === null || _o === void 0 ? void 0 : _o.country) !== undefined ? organizationJSON.address.country : "") !== country.value) {
+            if (organizationJSON.address === undefined)
+                organizationJSON.address = {};
+            organizationJSON.address.country = country.value;
+        }
+        if (((_p = organizationJSON.address) === null || _p === void 0 ? void 0 : _p.country) === "")
+            delete organizationJSON.address.country;
+        // comment
+        if ((((_q = organizationJSON.address) === null || _q === void 0 ? void 0 : _q.comment) !== undefined ? organizationJSON.address.comment : "") !== comment.value) {
+            if (organizationJSON.address === undefined)
+                organizationJSON.address = {};
+            organizationJSON.address.comment = { "eng": comment.value };
+        }
+        if (((_t = (_s = (_r = organizationJSON.address) === null || _r === void 0 ? void 0 : _r.comment) === null || _s === void 0 ? void 0 : _s.eng) === null || _t === void 0 ? void 0 : _t.toString()) === "")
+            delete organizationJSON.address.comment;
+        // address
+        if (Object.keys(organizationJSON.address).length === 0 ||
+            (Object.keys(organizationJSON.address).length === 1 && Object.keys(organizationJSON.address)[0] === "@context"))
+            delete organizationJSON.address;
+        // geo latitude
+        if ((organizationJSON.geoLocation !== undefined && organizationJSON.geoLocation.lat !== undefined ? organizationJSON.geoLocation.lat : "") !== latitude.value) {
+            if (organizationJSON.geoLocation === undefined)
+                organizationJSON.geoLocation = {};
+            organizationJSON.geoLocation.lat = Number.parseFloat(latitude.value);
+        }
+        // geo longitude
+        if ((organizationJSON.geoLocation !== undefined && organizationJSON.geoLocation.lng !== undefined ? organizationJSON.geoLocation.lng : "") !== longitude.value) {
+            if (organizationJSON.geoLocation === undefined)
+                organizationJSON.geoLocation = {};
+            organizationJSON.geoLocation.lng = Number.parseFloat(longitude.value);
+        }
         // geo location
-        //if ((OrganizationJSON.geoLocation !== undefined && OrganizationJSON.geoLocation.lat !== undefined ? OrganizationJSON.geoLocation.lat : "") !== latitude.value)
-        //    OrganizationJSON.geoLocation.lat = Number.parseFloat(latitude.value);
-        //if (OrganizationJSON.geoLocation.lat === "")
-        //    delete OrganizationJSON.geoLocation;
+        if (organizationJSON.geoLocation !== undefined) {
+            if (isNaN(organizationJSON.geoLocation.lat))
+                delete organizationJSON.geoLocation.lat;
+            if (isNaN(organizationJSON.geoLocation.lng))
+                delete organizationJSON.geoLocation.lng;
+            if (Object.keys(organizationJSON.geoLocation).length === 0)
+                delete organizationJSON.geoLocation;
+        }
         HTTPSet("/organizations/" + organizationJSON["@id"], organizationJSON, (HTTPStatus, ResponseText) => {
             try {
                 var responseJSON = ResponseText != "" ? JSON.parse(ResponseText) : {};
@@ -174,6 +215,7 @@ function StartOrganizationGeoLocation() {
     postalCode.oninput = () => { ToogleSaveButton(); };
     city.oninput = () => { ToogleSaveButton(); };
     country.oninput = () => { ToogleSaveButton(); };
+    comment.oninput = () => { ToogleSaveButton(); };
     latitude.oninput = () => { DrawGeoPosition(); ToogleSaveButton(); };
     longitude.oninput = () => { DrawGeoPosition(); ToogleSaveButton(); };
     saveButton.onclick = () => { SaveData(); };
@@ -184,7 +226,7 @@ function StartOrganizationGeoLocation() {
         DrawGeoPosition();
         ToogleSaveButton();
     });
-    HTTPGet("/organizations/" + organizationId + "?showMgt&expand=parents,subOrganizations", (status, response) => {
+    HTTPGet("/organizations/" + organizationId, (status, response) => {
         try {
             organizationJSON = ParseJSON_LD(response);
             headlineDiv.querySelector("#name #language").innerText = firstKey(organizationJSON.name);
@@ -202,6 +244,7 @@ function StartOrganizationGeoLocation() {
                 postalCode.value = organizationJSON.address.postalCode !== undefined ? organizationJSON.address.postalCode : "";
                 city.value = organizationJSON.address.city !== undefined ? firstValue(organizationJSON.address.city) : "";
                 country.value = organizationJSON.address.country !== undefined ? organizationJSON.address.country : "";
+                comment.value = organizationJSON.address.comment !== undefined ? organizationJSON.address.comment.eng : "";
             }
             if (organizationJSON.geoLocation !== undefined) {
                 latitude.value = organizationJSON.geoLocation.lat !== undefined ? organizationJSON.geoLocation.lat.toString() : "";

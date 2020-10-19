@@ -30,6 +30,19 @@
                 padding:        14px 0px 10px 0px;
                 font-size:      120%;
                 cursor:         pointer;
+
+                a.orgName {
+                    color: #000000;
+                }
+
+                a.orgName:visited {
+                    color: #000000;
+                }
+
+                a.orgName:hover {
+                    color: #777777;
+                }
+
             }
 
             #youAreMember {

@@ -52,7 +52,7 @@ function StartOrganization() {
     }
     function SaveData() {
         saveButton.disabled = true;
-        organizationJSON["@context"] = "https://opendata.social/contexts/UsersAPI+json/organization";
+        organizationJSON["@context"] = "https://opendata.social/contexts/UsersAPI/organization";
         // name
         if ((organizationJSON.name !== undefined ? firstValue(organizationJSON.name) : "") !== name.value) {
             if (name.value != "") {
@@ -158,10 +158,10 @@ function StartOrganization() {
                 headlineDiv.querySelector("#description").style.display = "block";
                 headlineDiv.querySelector("#description #language").innerText = firstKey(organizationJSON.description);
                 headlineDiv.querySelector("#description #I18NText").innerText = firstValue(organizationJSON.description);
+                UpdateI18N(description.parentElement, organizationJSON.description);
             }
             // data
             UpdateI18N(name.parentElement, organizationJSON.name);
-            UpdateI18N(description.parentElement, organizationJSON.description);
             website.value = organizationJSON.website !== undefined ? organizationJSON.website : ""; // "<a href=\"https://" + OrganizationJSON.website + "\">" + OrganizationJSON.website + "</a>";
             email.value = organizationJSON.email !== undefined ? organizationJSON.email : ""; // "<a href=\"mailto:" + OrganizationJSON.email + "\">" + OrganizationJSON.email + "</a>";
             telephone.value = organizationJSON.telephone !== undefined ? organizationJSON.telephone : ""; // "<a href=\"tel:" + OrganizationJSON.telephone.replace(/^+/g, "00").replace(/[^0-9]/g, '') + "\">" + OrganizationJSON.telephone + "</a>";

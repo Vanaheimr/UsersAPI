@@ -350,9 +350,9 @@ function StartEditUserNotifications() {
             NotificationTypeSelect = NotificationValue.appendChild(document.createElement('select')) as HTMLSelectElement;
             NotificationTypeSelect.id = "NotificationSelect";
 
-            const NotificationTypes    = [ "Dashboard Notification",
+            const NotificationTypes    = [ //"Dashboard Notification",
                                            "Telegram Notification",
-                                           "Telegram Group Notification",
+                                           //"Telegram Group Notification",
                                            "SMS Notification",
                                            "HTTPS Notification",
                                            "E-Mail Notification" ];
@@ -364,20 +364,20 @@ function StartEditUserNotifications() {
 
             NotificationTypeSelect.onchange = () => {
 
-                DashboardGroup.style.display      = "none";
+                //DashboardGroup.style.display      = "none";
                 TelegramGroup.style.display       = "none";
-                TelegramGroupGroup.style.display  = "none";
+                //TelegramGroupGroup.style.display  = "none";
                 SMSGroup.style.display            = "none";
                 HTTPSGroup.style.display          = "none";
                 EMailGroup.style.display          = "none";
 
                 switch (NotificationTypeSelect.selectedIndex) {
-                    case 0: DashboardGroup.style.display      = "table-row-group"; break;
-                    case 1: TelegramGroup.style.display       = "table-row-group"; break;
-                    case 2: TelegramGroupGroup.style.display  = "table-row-group"; break;
-                    case 3: SMSGroup.style.display            = "table-row-group"; break;
-                    case 4: HTTPSGroup.style.display          = "table-row-group"; break;
-                    case 5: EMailGroup.style.display          = "table-row-group"; break;
+                    //case 0: DashboardGroup.style.display      = "table-row-group"; break;
+                    case 0: TelegramGroup.style.display       = "table-row-group"; break;
+                    //case 2: TelegramGroupGroup.style.display  = "table-row-group"; break;
+                    case 1: SMSGroup.style.display            = "table-row-group"; break;
+                    case 2: HTTPSGroup.style.display          = "table-row-group"; break;
+                    case 3: EMailGroup.style.display          = "table-row-group"; break;
                 }
 
             };

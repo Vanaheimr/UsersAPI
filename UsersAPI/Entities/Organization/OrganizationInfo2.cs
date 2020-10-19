@@ -62,7 +62,7 @@ namespace social.OpenData.UsersAPI
         /// <summary>
         /// The JSON-LD context of this object.
         /// </summary>
-        public const String JSONLDContext = "https://opendata.social/contexts/UsersAPI+json/organizationInfo";
+        public new readonly static JSONLDContext DefaultJSONLDContext = JSONLDContext.Parse("https://opendata.social/contexts/UsersAPI/organizationInfo");
 
         #endregion
 
@@ -233,7 +233,7 @@ namespace social.OpenData.UsersAPI
                                        ExpandTags,
                                        IncludeCryptoHash);
 
-            org["@context"] = JSONLDContext;
+            org["@context"] = JSONLDContext.ToString();
 
             org.Add("youAreMember",                    YouAreMember);
             org.Add("youCanAddMembers",                YouCanAddMembers);

@@ -18,12 +18,12 @@
 
             <div class="patternFilter">
                 <div class="group">
-                    <input id="patternFilterInput" placeholder="show results matching..." />
+                    <input id="patternFilterInput" placeholder="show notifications matching..." />
                     <i id="sign" class="fa fa-filter  fa-2x"></i>
                 </div>
             </div>
 
-            <div id="messageContextFilter" class="filter">
+  <!--          <div id="messageContextFilter" class="filter">
                 <select id="messageContextFilterSelect">
                     <option id="all"              value="all"             >all</option>
                     <option id="PAIRED"           value="PAIRED"          >PAIRED</option>
@@ -37,7 +37,7 @@
                     <option id="AEDINMOTION"      value="AEDINMOTION"     >AEDINMOTION</option>
                     <option id="ALARM"            value="ALARM"           >ALARM</option>
                 </select>
-            </div>
+            </div> -->
 
             <div id="take">
                 <select id="takeSelect">
@@ -99,7 +99,7 @@
     </div>
 
     <div id="lowerButtons">
-        <a id="downLoadButton" class="button" href="" type="text/csv"><i class="fa fa-download"></i> Download</a>
+     <!--   <a id="downLoadButton" class="button" href="" type="text/csv"><i class="fa fa-download"></i> Download</a> -->
     </div>
 
 </div>

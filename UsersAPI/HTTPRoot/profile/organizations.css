@@ -26,6 +26,12 @@
         padding: 14px 0px 10px 0px;
         font-size: 120%;
         cursor: pointer; }
+        #organizationsinfos #organizations .organization .name a.orgName {
+          color: #000000; }
+        #organizationsinfos #organizations .organization .name a.orgName:visited {
+          color: #000000; }
+        #organizationsinfos #organizations .organization .name a.orgName:hover {
+          color: #777777; }
       #organizationsinfos #organizations .organization #youAreMember {
         margin-top: 5px; }
       #organizationsinfos #organizations .organization .properties {

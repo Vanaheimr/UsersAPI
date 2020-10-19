@@ -677,11 +677,11 @@ namespace social.OpenData.UsersAPI
         public override JObject ToJSON(Boolean  Embedded           = false,
                                        Boolean  IncludeCryptoHash  = false)
 
-            => ToJSON(Embedded:            false,
-                      ExpandParents:       InfoStatus.ShowIdOnly,
-                      ExpandSubOrganizations:        InfoStatus.ShowIdOnly,
-                      ExpandTags:          InfoStatus.ShowIdOnly,
-                      IncludeCryptoHash:   true);
+            => ToJSON(Embedded:                false,
+                      ExpandParents:           InfoStatus.ShowIdOnly,
+                      ExpandSubOrganizations:  InfoStatus.ShowIdOnly,
+                      ExpandTags:              InfoStatus.ShowIdOnly,
+                      IncludeCryptoHash:       true);
 
 
         /// <summary>
@@ -829,7 +829,7 @@ namespace social.OpenData.UsersAPI
                     return false;
                 }
 
-                if (Context != DefaultJSONLDContext)
+                if (Context != DefaultJSONLDContext && Context != OrganizationInfo.DefaultJSONLDContext && Context != OrganizationInfo2.DefaultJSONLDContext)
                 {
                     ErrorResponse = @"The given JSON-LD ""@context"" information '" + Context + "' is not supported!";
                     return false;
@@ -930,10 +930,10 @@ namespace social.OpenData.UsersAPI
                 #region Parse Address          [optional]
 
                 if (JSONObject.ParseOptionalJSON("address",
-                                             "address",
-                                             org.GraphDefined.Vanaheimr.Illias.Address.TryParse,
-                                             out Address Address,
-                                             out ErrorResponse))
+                                                 "address",
+                                                 org.GraphDefined.Vanaheimr.Illias.Address.TryParse,
+                                                 out Address Address,
+                                                 out ErrorResponse))
                 {
 
                     if (ErrorResponse != null)
