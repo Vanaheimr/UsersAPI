@@ -437,12 +437,10 @@ namespace social.OpenData.UsersAPI
         #endregion
 
 
-        #region CopyAllEdgesTo(NewDashboard)
+        #region CopyAllLinkedDataFrom(OldDashboard)
 
-        public override void CopyAllEdgesTo(Dashboard NewDashboard)
+        public override void CopyAllLinkedDataFrom(Dashboard OldDashboard)
         {
-
-
 
         }
 

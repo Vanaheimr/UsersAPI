@@ -1009,43 +1009,43 @@ namespace social.OpenData.UsersAPI
         #endregion
 
 
-        #region CopyAllEdgesTo(NewOrganization)
+        #region CopyAllLinkedDataFrom(OldOrganization)
 
-        public override void CopyAllEdgesTo(Organization NewOrganization)
+        public override void CopyAllLinkedDataFrom(Organization OldOrganization)
         {
 
-            if (_User2Organization_InEdges.Any() && !NewOrganization._User2Organization_InEdges.Any())
+            if (OldOrganization._User2Organization_InEdges.Any() && !_User2Organization_InEdges.Any())
             {
 
-                NewOrganization.Add(_User2Organization_InEdges);
+                Add(OldOrganization._User2Organization_InEdges);
 
-                foreach (var edge in NewOrganization._User2Organization_InEdges)
-                    edge.Target = NewOrganization;
+                foreach (var edge in _User2Organization_InEdges)
+                    edge.Target = this;
 
             }
 
-            if (_Organization2Organization_InEdges.Any() && !NewOrganization._Organization2Organization_InEdges.Any())
+            if (OldOrganization._Organization2Organization_InEdges.Any() && !_Organization2Organization_InEdges.Any())
             {
 
-                NewOrganization.AddInEdges(_Organization2Organization_InEdges);
+                AddInEdges(OldOrganization._Organization2Organization_InEdges);
 
-                foreach (var edge in NewOrganization._Organization2Organization_InEdges)
-                    edge.Target = NewOrganization;
+                foreach (var edge in _Organization2Organization_InEdges)
+                    edge.Target = this;
 
             }
 
-            if (_Organization2Organization_OutEdges.Any() && !NewOrganization._Organization2Organization_OutEdges.Any())
+            if (OldOrganization._Organization2Organization_OutEdges.Any() && !_Organization2Organization_OutEdges.Any())
             {
 
-                NewOrganization.AddOutEdges(_Organization2Organization_OutEdges);
+                AddOutEdges(OldOrganization._Organization2Organization_OutEdges);
 
-                foreach (var edge in NewOrganization._Organization2Organization_OutEdges)
-                    edge.Source = NewOrganization;
+                foreach (var edge in _Organization2Organization_OutEdges)
+                    edge.Source = this;
 
             }
 
-            if (_Notifications.SafeAny() && !NewOrganization._Notifications.SafeAny())
-                NewOrganization._Notifications.Add(_Notifications);
+            if (OldOrganization._Notifications.SafeAny() && !_Notifications.SafeAny())
+                _Notifications.Add(OldOrganization._Notifications);
 
         }
 
@@ -1430,28 +1430,223 @@ namespace social.OpenData.UsersAPI
 
             #region Edges
 
+            #region User          -> Organization edges
+
             protected readonly List<User2OrganizationEdge> _User2Organization_InEdges;
 
             public IEnumerable<User2OrganizationEdge> User2OrganizationEdges
                 => _User2Organization_InEdges;
 
 
-            //protected readonly List<MiniEdge<Organization, Organization2UserEdgeTypes, User>> _Organization2UserEdges;
+            #region LinkUser(Edge)
 
-            //public IEnumerable<MiniEdge<Organization, Organization2UserEdgeTypes, User>> Organization2UserEdges
-            //    => _Organization2UserEdges;
+            public User2OrganizationEdge
 
+                LinkUser(User2OrganizationEdge Edge)
+
+                => _User2Organization_InEdges.AddAndReturnElement(Edge);
+
+            #endregion
+
+            #region LinkUser(Source, EdgeLabel, PrivacyLevel = PrivacyLevel.World)
+
+            public User2OrganizationEdge
+
+                LinkUser(User                    Source,
+                         User2OrganizationEdgeTypes  EdgeLabel,
+                         PrivacyLevel            PrivacyLevel = PrivacyLevel.World)
+
+                => _User2Organization_InEdges.
+                       AddAndReturnElement(new User2OrganizationEdge(Source,
+                                                                                                    EdgeLabel,
+                                                                                                    this,
+                                                                                                    PrivacyLevel));
+
+            #endregion
+
+
+            #region User2OrganizationInEdges     (User)
+
+            /// <summary>
+            /// The edge labels of all (incoming) edges between the given user and this organization.
+            /// </summary>
+            public IEnumerable<User2OrganizationEdge> User2OrganizationInEdges(User User)
+
+                => _User2Organization_InEdges.
+                       Where(edge => edge.Source == User);
+
+            #endregion
+
+            #region User2OrganizationInEdgeLabels(User)
+
+            /// <summary>
+            /// The edge labels of all (incoming) edges between the given user and this organization.
+            /// </summary>
+            public IEnumerable<User2OrganizationEdgeTypes> User2OrganizationInEdgeLabels(User User)
+
+                => _User2Organization_InEdges.
+                       Where (edge => edge.Source == User).
+                       Select(edge => edge.EdgeLabel);
+
+            #endregion
+
+            public IEnumerable<User2OrganizationEdge>
+
+                Add(IEnumerable<User2OrganizationEdge> Edges)
+
+                    => _User2Organization_InEdges.AddAndReturnList(Edges);
+
+
+            #region UnlinkUser(EdgeLabel, User)
+
+            public void UnlinkUser(User2OrganizationEdgeTypes  EdgeLabel,
+                                   User                    User)
+            {
+
+                var edges = _User2Organization_InEdges.
+                                Where(edge => edge.EdgeLabel == EdgeLabel &&
+                                              edge.Source    == User).
+                                ToArray();
+
+                foreach (var edge in edges)
+                    _User2Organization_InEdges.Remove(edge);
+
+            }
+
+            #endregion
+
+            public Boolean RemoveInEdge(User2OrganizationEdge Edge)
+                => _User2Organization_InEdges.Remove(Edge);
+
+            #endregion
+
+            #region Organization <-> Organization edges
 
             protected readonly List<Organization2OrganizationEdge> _Organization2Organization_InEdges;
 
             public IEnumerable<Organization2OrganizationEdge> Organization2OrganizationInEdges
                 => _Organization2Organization_InEdges;
 
+            #region AddInEdge (Edge)
+
+            public Organization2OrganizationEdge
+
+                AddInEdge(Organization2OrganizationEdge Edge)
+
+                => _Organization2Organization_InEdges.AddAndReturnElement(Edge);
+
+            #endregion
+
+            #region AddInEdge (EdgeLabel, SourceOrganization, PrivacyLevel = PrivacyLevel.World)
+
+            public Organization2OrganizationEdge
+
+                AddInEdge (Organization2OrganizationEdgeTypes  EdgeLabel,
+                           Organization                    SourceOrganization,
+                           PrivacyLevel                    PrivacyLevel = PrivacyLevel.World)
+
+                => _Organization2Organization_InEdges. AddAndReturnElement(new Organization2OrganizationEdge(SourceOrganization,
+                                                                                                                                                    EdgeLabel,
+                                                                                                                                                    this,
+                                                                                                                                                    PrivacyLevel));
+
+            #endregion
+
+            public IEnumerable<Organization2OrganizationEdge>
+
+                AddInEdges(IEnumerable<Organization2OrganizationEdge> Edges)
+
+                    => _Organization2Organization_InEdges.AddAndReturnList(Edges);
+
+            #region RemoveInEdges(EdgeLabel, TargetOrganization)
+
+            public Boolean RemoveInEdge(Organization2OrganizationEdge Edge)
+                => _Organization2Organization_InEdges.Remove(Edge);
+
+            #endregion
+
+            #region RemoveInEdges (EdgeLabel, SourceOrganization)
+
+            public void RemoveInEdges(Organization2OrganizationEdgeTypes EdgeLabel,
+                                      Organization SourceOrganization)
+            {
+
+                var edges = _Organization2Organization_OutEdges.
+                                Where(edge => edge.EdgeLabel == EdgeLabel &&
+                                              edge.Source == SourceOrganization).
+                                ToArray();
+
+                foreach (var edge in edges)
+                    _Organization2Organization_InEdges.Remove(edge);
+
+            }
+
+            #endregion
+
+
 
             protected readonly List<Organization2OrganizationEdge> _Organization2Organization_OutEdges;
 
             public IEnumerable<Organization2OrganizationEdge> Organization2OrganizationOutEdges
                 => _Organization2Organization_OutEdges;
+
+            #region AddOutEdge(Edge)
+
+            public Organization2OrganizationEdge
+
+                AddOutEdge(Organization2OrganizationEdge Edge)
+
+                => _Organization2Organization_OutEdges.AddAndReturnElement(Edge);
+
+            #endregion
+
+            #region AddOutEdge(EdgeLabel, TargetOrganization, PrivacyLevel = PrivacyLevel.World)
+
+            public Organization2OrganizationEdge
+
+                AddOutEdge(Organization2OrganizationEdgeTypes  EdgeLabel,
+                           Organization                    TargetOrganization,
+                           PrivacyLevel                    PrivacyLevel = PrivacyLevel.World)
+
+                => _Organization2Organization_OutEdges.AddAndReturnElement(new Organization2OrganizationEdge(this,
+                                                                                                                                                    EdgeLabel,
+                                                                                                                                                    TargetOrganization,
+                                                                                                                                                    PrivacyLevel));
+
+            #endregion
+
+            public IEnumerable<Organization2OrganizationEdge>
+
+                AddOutEdges(IEnumerable<Organization2OrganizationEdge> Edges)
+
+                    => _Organization2Organization_OutEdges.AddAndReturnList(Edges);
+
+            #region RemoveOutEdges(EdgeLabel, TargetOrganization)
+
+            public Boolean RemoveOutEdge(Organization2OrganizationEdge Edge)
+                => _Organization2Organization_OutEdges.Remove(Edge);
+
+            #endregion
+
+            #region RemoveOutEdges(EdgeLabel, TargetOrganization)
+
+            public void RemoveOutEdges(Organization2OrganizationEdgeTypes  EdgeLabel,
+                                       Organization                    TargetOrganization)
+            {
+
+                var edges = _Organization2Organization_OutEdges.
+                                Where(edge => edge.EdgeLabel == EdgeLabel &&
+                                              edge.Target    == TargetOrganization).
+                                ToArray();
+
+                foreach (var edge in edges)
+                    _Organization2Organization_OutEdges.Remove(edge);
+
+            }
+
+            #endregion
+
+            #endregion
 
             #endregion
 
@@ -1708,43 +1903,43 @@ namespace social.OpenData.UsersAPI
             #endregion
 
 
-            #region CopyAllEdgesTo(NewOrganization)
+            #region CopyAllLinkedDataFrom(OldOrganization)
 
-            public override void CopyAllEdgesTo(Organization NewOrganization)
+            public override void CopyAllLinkedDataFrom(Organization OldOrganization)
             {
 
-                if (_User2Organization_InEdges.Any() && !NewOrganization._User2Organization_InEdges.Any())
+                if (OldOrganization._User2Organization_InEdges.Any() && !_User2Organization_InEdges.Any())
                 {
 
-                    NewOrganization.Add(_User2Organization_InEdges);
+                    Add(OldOrganization._User2Organization_InEdges);
 
-                    foreach (var edge in NewOrganization._User2Organization_InEdges)
-                        edge.Target = NewOrganization;
+                    foreach (var edge in _User2Organization_InEdges)
+                        edge.Target = this;
 
                 }
 
-                if (_Organization2Organization_InEdges.Any() && !NewOrganization._Organization2Organization_InEdges.Any())
+                if (OldOrganization._Organization2Organization_InEdges.Any() && !_Organization2Organization_InEdges.Any())
                 {
 
-                    NewOrganization.AddInEdges(_Organization2Organization_InEdges);
+                    AddInEdges(OldOrganization._Organization2Organization_InEdges);
 
-                    foreach (var edge in NewOrganization._Organization2Organization_InEdges)
-                        edge.Target = NewOrganization;
+                    foreach (var edge in _Organization2Organization_InEdges)
+                        edge.Target = this;
 
                 }
 
-                if (_Organization2Organization_OutEdges.Any() && !NewOrganization._Organization2Organization_OutEdges.Any())
+                if (OldOrganization._Organization2Organization_OutEdges.Any() && !_Organization2Organization_OutEdges.Any())
                 {
 
-                    NewOrganization.AddOutEdges(_Organization2Organization_OutEdges);
+                    AddOutEdges(OldOrganization._Organization2Organization_OutEdges);
 
-                    foreach (var edge in NewOrganization._Organization2Organization_OutEdges)
-                        edge.Source = NewOrganization;
+                    foreach (var edge in _Organization2Organization_OutEdges)
+                        edge.Source = this;
 
                 }
 
-                if (_Notifications.SafeAny() && !NewOrganization._Notifications.SafeAny())
-                    NewOrganization._Notifications.Add(_Notifications);
+                if (OldOrganization._Notifications.SafeAny() && !_Notifications.SafeAny())
+                    _Notifications.Add(OldOrganization._Notifications);
 
             }
 

@@ -387,9 +387,9 @@ namespace social.OpenData.UsersAPI.Notifications
         #endregion
 
 
-        #region CopyAllEdgesTo(NewNotificationMessage)
+        #region CopyAllLinkedDataFrom(OldNotificationMessage)
 
-        public override void CopyAllEdgesTo(NotificationMessage NewNotificationMessage)
+        public override void CopyAllLinkedDataFrom(NotificationMessage OldNotificationMessage)
         {
 
             //if (_User2Organization_InEdges.Any() && !NewGroup._User2Organization_InEdges.Any())

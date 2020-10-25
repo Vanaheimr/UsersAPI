@@ -628,18 +628,18 @@ namespace social.OpenData.UsersAPI
 
 
 
-        #region CopyAllEdgesTo(Target)
+        #region CopyAllLinkedDataFrom(OldGroup)
 
-        public override void CopyAllEdgesTo(UserGroup NewGroup)
+        public override void CopyAllLinkedDataFrom(UserGroup OldGroup)
         {
 
-            if (_User2GroupEdges.Any() && !NewGroup._User2GroupEdges.Any())
+            if (OldGroup._User2GroupEdges.Any() && !_User2GroupEdges.Any())
             {
 
-                NewGroup.Add(_User2GroupEdges);
+                Add(OldGroup._User2GroupEdges);
 
-                foreach (var edge in NewGroup._User2GroupEdges)
-                    edge.Target = NewGroup;
+                foreach (var edge in _User2GroupEdges)
+                    edge.Target = this;
 
             }
 
@@ -952,10 +952,20 @@ namespace social.OpenData.UsersAPI
             #endregion
 
 
-            #region CopyAllEdgesTo(Target)
+            #region CopyAllLinkedDataFrom(OldGroup)
 
-            public override void CopyAllEdgesTo(UserGroup Target)
+            public override void CopyAllLinkedDataFrom(UserGroup OldGroup)
             {
+
+                //if (OldGroup._User2GroupEdges.Any() && !_User2GroupEdges.Any())
+                //{
+
+                //    Add(OldGroup._User2GroupEdges);
+
+                //    foreach (var edge in _User2GroupEdges)
+                //        edge.Target = this;
+
+                //}
 
             }
 

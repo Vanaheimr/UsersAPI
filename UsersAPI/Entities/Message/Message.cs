@@ -155,12 +155,10 @@ namespace social.OpenData.UsersAPI
         #endregion
 
 
-        #region CopyAllEdgesTo(NewMessage)
+        #region CopyAllLinkedDataFrom(OldMessage)
 
-        public override void CopyAllEdgesTo(Message NewMessage)
+        public override void CopyAllLinkedDataFrom(Message OldMessage)
         {
-
-
 
         }
 

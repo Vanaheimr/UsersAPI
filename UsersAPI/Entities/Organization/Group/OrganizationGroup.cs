@@ -479,9 +479,9 @@ namespace social.OpenData.UsersAPI
         #endregion
 
 
-        #region CopyAllEdgesTo(Target)
+        #region CopyAllLinkedDataFrom(OldOrganizationGroup)
 
-        public override void CopyAllEdgesTo(OrganizationGroup Target)
+        public override void CopyAllLinkedDataFrom(OrganizationGroup OldOrganizationGroup)
         {
 
         }
@@ -795,9 +795,9 @@ namespace social.OpenData.UsersAPI
             #endregion
 
 
-            #region CopyAllEdgesTo(Target)
+            #region CopyAllLinkedDataFrom(OldOrganizationGroup)
 
-            public override void CopyAllEdgesTo(OrganizationGroup Target)
+            public override void CopyAllLinkedDataFrom(OrganizationGroup OldOrganizationGroup)
             {
 
             }

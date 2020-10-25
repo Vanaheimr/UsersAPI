@@ -10487,7 +10487,7 @@ namespace social.OpenData.UsersAPI
                         if (_Users.TryGetValue(user.Id, out User OldUser))
                         {
                             _Users.Remove(OldUser.Id);
-                            OldUser.CopyAllEdgesTo(user);
+                            user.CopyAllLinkedDataFrom(OldUser);
                         }
 
                         _Users.Add(user.Id, user);
@@ -10515,7 +10515,7 @@ namespace social.OpenData.UsersAPI
 
                             _Users.Remove(OldUser.Id);
                             user.API = this;
-                            OldUser.CopyAllEdgesTo(user);
+                            user.CopyAllLinkedDataFrom(OldUser);
 
                             _Users.Add(user.Id, user);
 
@@ -10674,7 +10674,7 @@ namespace social.OpenData.UsersAPI
                         {
                             _Organizations.Remove(OldOrganization.Id);
                             organization.API = this;
-                            OldOrganization.CopyAllEdgesTo(organization);
+                            organization.CopyAllLinkedDataFrom(OldOrganization);
                         }
 
                         _Organizations.Add(organization.Id, organization);
@@ -10702,7 +10702,7 @@ namespace social.OpenData.UsersAPI
 
                             _Organizations.Remove(OldOrganization.Id);
                             organization.API = this;
-                            OldOrganization.CopyAllEdgesTo(organization);
+                            organization.CopyAllLinkedDataFrom(OldOrganization);
 
                             _Organizations.Add(organization.Id, organization);
 
@@ -12286,7 +12286,7 @@ namespace social.OpenData.UsersAPI
                 if (_Users.TryGetValue(User.Id, out User OldUser))
                 {
                     _Users.Remove(OldUser.Id);
-                    OldUser.CopyAllEdgesTo(User);
+                    User.CopyAllLinkedDataFrom(OldUser);
                 }
 
                 _Users.Add(User.Id, User);
@@ -12341,7 +12341,7 @@ namespace social.OpenData.UsersAPI
                 User.API = this;
 
                 _Users.Remove(OldUser.Id);
-                OldUser.CopyAllEdgesTo(User);
+                User.CopyAllLinkedDataFrom(OldUser);
 
                 return _Users.AddAndReturnValue(User.Id, User);
 
@@ -12390,7 +12390,7 @@ namespace social.OpenData.UsersAPI
                 NewUser.API = this;
 
                 _Users.Remove(OldUser.Id);
-                OldUser.CopyAllEdgesTo(NewUser);
+                NewUser.CopyAllLinkedDataFrom(OldUser);
 
                 return _Users.AddAndReturnValue(NewUser.Id, NewUser);
 
@@ -14610,7 +14610,7 @@ namespace social.OpenData.UsersAPI
                                      Organization.ToJSON(),
                                      CurrentUserId);
 
-                OldOrganization.CopyAllEdgesTo(Organization);
+                Organization.CopyAllLinkedDataFrom(OldOrganization);
 
                 return _Organizations.AddAndReturnValue(Organization.Id, Organization);
 
@@ -14659,7 +14659,7 @@ namespace social.OpenData.UsersAPI
                 NewOrganization.API = this;
 
                 _Organizations.Remove(OldOrganization.Id);
-                OldOrganization.CopyAllEdgesTo(NewOrganization);
+                NewOrganization.CopyAllLinkedDataFrom(OldOrganization);
 
                 return _Organizations.AddAndReturnValue(NewOrganization.Id, NewOrganization);
 
@@ -15842,7 +15842,7 @@ namespace social.OpenData.UsersAPI
                                      Dashboard.ToJSON(),
                                      CurrentUserId);
 
-                OldDashboard.CopyAllEdgesTo(Dashboard);
+                Dashboard.CopyAllLinkedDataFrom(OldDashboard);
 
                 return _Dashboards.AddAndReturnValue(Dashboard.Id, Dashboard);
 
@@ -15891,7 +15891,7 @@ namespace social.OpenData.UsersAPI
                 NewDashboard.API = this;
 
                 _Dashboards.Remove(OldDashboard.Id);
-                OldDashboard.CopyAllEdgesTo(NewDashboard);
+                NewDashboard.CopyAllLinkedDataFrom(OldDashboard);
 
                 return _Dashboards.AddAndReturnValue(NewDashboard.Id, NewDashboard);
 
@@ -16480,7 +16480,7 @@ namespace social.OpenData.UsersAPI
                 if (_ServiceTickets.TryRemove(ServiceTicket.Id, out OldServiceTicket))
                 {
 
-                    (OldServiceTicket as TServiceTicket)?.CopyAllEdgesTo(ServiceTicket);
+                    ServiceTicket.CopyAllLinkedDataFrom(OldServiceTicket);
 
                     //// Only run when the admin status changed!
                     //if (!DoNotAnalyzeTheServiceTicketStatus &&
@@ -16587,7 +16587,7 @@ namespace social.OpenData.UsersAPI
                     ServiceTicket.API = this;
 
                 _ServiceTickets.TryRemove(OldServiceTicket.Id, out ServiceTicket removedServiceTicket);
-                OldServiceTicket.CopyAllEdgesTo(ServiceTicket);
+                ServiceTicket.CopyAllLinkedDataFrom(OldServiceTicket);
 
                 _ServiceTickets.AddOrUpdate(ServiceTicket.Id,
                                             id                     => ServiceTicket,

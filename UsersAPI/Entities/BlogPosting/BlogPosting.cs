@@ -485,9 +485,9 @@ namespace social.OpenData.UsersAPI.Postings
         #endregion
 
 
-        #region CopyAllEdgesTo(NewPosting)
+        #region CopyAllLinkedDataFrom(OldPosting)
 
-        public override void CopyAllEdgesTo(BlogPosting NewPosting)
+        public override void CopyAllLinkedDataFrom(BlogPosting OldPosting)
         {
 
 

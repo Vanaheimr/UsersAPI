@@ -1341,43 +1341,43 @@ namespace social.OpenData.UsersAPI
         #endregion
 
 
-        #region CopyAllEdgesTo(NewUser)
+        #region CopyAllLinkedDataFrom(OldUser)
 
-        public override void CopyAllEdgesTo(User NewUser)
+        public override void CopyAllLinkedDataFrom(User OldUser)
         {
 
-            if (__User2UserEdges.Any() && !NewUser.__User2UserEdges.Any())
+            if (OldUser.__User2UserEdges.Any() && !__User2UserEdges.Any())
             {
 
-                NewUser.Add(__User2UserEdges);
+                Add(OldUser.__User2UserEdges);
 
-                foreach (var edge in NewUser.__User2UserEdges)
-                    edge.Source = NewUser;
+                foreach (var edge in __User2UserEdges)
+                    edge.Source = this;
 
             }
 
-            if (User2Organization_OutEdges.Any() && !NewUser.User2Organization_OutEdges.Any())
+            if (OldUser.User2Organization_OutEdges.Any() && !User2Organization_OutEdges.Any())
             {
 
-                NewUser.Add(User2Organization_OutEdges);
+                Add(OldUser.User2Organization_OutEdges);
 
-                foreach (var edge in NewUser.User2Organization_OutEdges)
-                    edge.Source = NewUser;
+                foreach (var edge in User2Organization_OutEdges)
+                    edge.Source = this;
 
             }
 
-            if (User2Group_OutEdges.Any() && !NewUser.User2Group_OutEdges.Any())
+            if (OldUser.User2Group_OutEdges.Any() && !User2Group_OutEdges.Any())
             {
 
-                NewUser.Add(User2Group_OutEdges);
+                Add(OldUser.User2Group_OutEdges);
 
-                foreach (var edge in NewUser.User2Group_OutEdges)
-                    edge.Source = NewUser;
+                foreach (var edge in User2Group_OutEdges)
+                    edge.Source = this;
 
             }
 
-            if (_NotificationStore.SafeAny() && !NewUser._NotificationStore.SafeAny())
-                NewUser._NotificationStore.Add(_NotificationStore);
+            if (OldUser._NotificationStore.SafeAny() && !_NotificationStore.SafeAny())
+                _NotificationStore.Add(OldUser._NotificationStore);
 
         }
 
@@ -2361,43 +2361,43 @@ namespace social.OpenData.UsersAPI
             #endregion
 
 
-            #region CopyAllEdgesTo(NewUser)
+            #region CopyAllLinkedDataFrom(OldUser)
 
-            public override void CopyAllEdgesTo(User NewUser)
+            public override void CopyAllLinkedDataFrom(User OldUser)
             {
 
-                if (__User2UserEdges.Any() && !NewUser.__User2UserEdges.Any())
+                if (OldUser.__User2UserEdges.Any() && !__User2UserEdges.Any())
                 {
 
-                    NewUser.Add(__User2UserEdges);
+                    Add(OldUser.__User2UserEdges);
 
-                    foreach (var edge in NewUser.__User2UserEdges)
-                        edge.Source = NewUser;
+                    foreach (var edge in __User2UserEdges)
+                        edge.Source = this;
 
                 }
 
-                if (User2Organization_OutEdges.Any() && !NewUser.User2Organization_OutEdges.Any())
+                if (OldUser.User2Organization_OutEdges.Any() && !User2Organization_OutEdges.Any())
                 {
 
-                    NewUser.Add(User2Organization_OutEdges);
+                    Add(OldUser.User2Organization_OutEdges);
 
-                    foreach (var edge in NewUser.User2Organization_OutEdges)
-                        edge.Source = NewUser;
+                    foreach (var edge in User2Organization_OutEdges)
+                        edge.Source = this;
 
                 }
 
-                if (User2Group_OutEdges.Any() && !NewUser.User2Group_OutEdges.Any())
+                if (OldUser.User2Group_OutEdges.Any() && !User2Group_OutEdges.Any())
                 {
 
-                    NewUser.Add(User2Group_OutEdges);
+                    Add(OldUser.User2Group_OutEdges);
 
-                    foreach (var edge in NewUser.User2Group_OutEdges)
-                        edge.Source = NewUser;
+                    foreach (var edge in User2Group_OutEdges)
+                        edge.Source = this;
 
                 }
 
-                if (_NotificationStore.SafeAny() && !NewUser._NotificationStore.SafeAny())
-                    NewUser._NotificationStore.Add(_NotificationStore);
+                if (OldUser._NotificationStore.SafeAny() && !_NotificationStore.SafeAny())
+                    _NotificationStore.Add(OldUser._NotificationStore);
 
             }
 
