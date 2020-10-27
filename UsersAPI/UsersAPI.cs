@@ -502,7 +502,7 @@ namespace social.OpenData.UsersAPI
         /// <summary>
         /// The default language of the API.
         /// </summary>
-        public  const             Languages                                     DefaultLanguage                 = Languages.eng;
+        public  const             Languages                                     DefaultLanguage                 = Languages.en;
 
         public  const             Byte                                          DefaultMinLoginLength           = 4;
         public  const             Byte                                          DefaultMinRealmLength           = 2;
@@ -2144,7 +2144,7 @@ namespace social.OpenData.UsersAPI
                                                          Name:             APIEMailAddress.OwnerName,
                                                          PublicKeyRing:    APIEMailAddress.PublicKeyRing,
                                                          SecretKeyRing:    APIEMailAddress.SecretKeyRing,
-                                                         Description:      I18NString.Create(Languages.eng, "API robot"),
+                                                         Description:      I18NString.Create(Languages.en, "API robot"),
                                                          IsAuthenticated:  true);
 
             CurrentAsyncLocalUserId.Value     = Robot.Id;
@@ -2199,8 +2199,8 @@ namespace social.OpenData.UsersAPI
 
             this.Admins  = CreateUserGroupIfNotExists(UserGroup_Id.Parse(AdminGroupName),
                                                       Robot.Id,
-                                                      I18NString.Create(Languages.eng, AdminGroupName),
-                                                      I18NString.Create(Languages.eng, "All admins of this API.")).Result;
+                                                      I18NString.Create(Languages.en, AdminGroupName),
+                                                      I18NString.Create(Languages.en, "All admins of this API.")).Result;
 
             #region Reflect data licenses
 
@@ -2221,7 +2221,7 @@ namespace social.OpenData.UsersAPI
             ReadUsersAPIDatabaseFiles().Wait();
 
             NoOwner                           = new Organization(Organization_Id.Parse("NoOwner"),
-                                                                 I18NString.Create(Languages.eng, "No owner"));
+                                                                 I18NString.Create(Languages.en, "No owner"));
             _Organizations.Add(NoOwner.Id, NoOwner);
 
             if (SMSAPICredentials != null)
@@ -2568,7 +2568,7 @@ namespace social.OpenData.UsersAPI
 
                                                HTTPCookieName?                      CookieName                    = null,
                                                Boolean                              UseSecureCookies              = true,
-                                               Languages                            DefaultLanguage               = Languages.eng,
+                                               Languages                            DefaultLanguage               = Languages.en,
                                                NewUserSignUpEMailCreatorDelegate    NewUserSignUpEMailCreator     = null,
                                                NewUserWelcomeEMailCreatorDelegate   NewUserWelcomeEMailCreator    = null,
                                                ResetPasswordEMailCreatorDelegate    ResetPasswordEMailCreator     = null,
@@ -3252,16 +3252,16 @@ namespace social.OpenData.UsersAPI
         {
 
             await AddNotificationMessageGroup(new NotificationMessageGroup(
-                                                  I18NString.Create(Languages.eng, "Service Tickets"),
-                                                  I18NString.Create(Languages.eng, "Service Ticket notifications"),
+                                                  I18NString.Create(Languages.en, "Service Tickets"),
+                                                  I18NString.Create(Languages.en, "Service Ticket notifications"),
                                                   NotificationVisibility.Customers,
                                                   new NotificationMessageDescription[] {
-                                                      new NotificationMessageDescription(I18NString.Create(Languages.eng, "(New) service ticket added"),                  I18NString.Create(Languages.eng, ""), NotificationVisibility.Customers,  addServiceTicket_MessageType),
-                                                      new NotificationMessageDescription(I18NString.Create(Languages.eng, "(New) service ticket added (did not exist)"),  I18NString.Create(Languages.eng, ""), NotificationVisibility.System,     addIfNotExistsServiceTicket_MessageType),
-                                                      new NotificationMessageDescription(I18NString.Create(Languages.eng, "(New) service ticket added or updated"),       I18NString.Create(Languages.eng, ""), NotificationVisibility.System,     addOrUpdateServiceTicket_MessageType),
-                                                      new NotificationMessageDescription(I18NString.Create(Languages.eng, "ServiceTicket updated"),                       I18NString.Create(Languages.eng, ""), NotificationVisibility.Customers,  updateServiceTicket_MessageType),
-                                                      new NotificationMessageDescription(I18NString.Create(Languages.eng, "ServiceTicket removed"),                       I18NString.Create(Languages.eng, ""), NotificationVisibility.Customers,  removeServiceTicket_MessageType),
-                                                      new NotificationMessageDescription(I18NString.Create(Languages.eng, "ServiceTicket status changed"),                I18NString.Create(Languages.eng, ""), NotificationVisibility.Customers,  changeServiceTicketStatus_MessageType)
+                                                      new NotificationMessageDescription(I18NString.Create(Languages.en, "(New) service ticket added"),                  I18NString.Create(Languages.en, ""), NotificationVisibility.Customers,  addServiceTicket_MessageType),
+                                                      new NotificationMessageDescription(I18NString.Create(Languages.en, "(New) service ticket added (did not exist)"),  I18NString.Create(Languages.en, ""), NotificationVisibility.System,     addIfNotExistsServiceTicket_MessageType),
+                                                      new NotificationMessageDescription(I18NString.Create(Languages.en, "(New) service ticket added or updated"),       I18NString.Create(Languages.en, ""), NotificationVisibility.System,     addOrUpdateServiceTicket_MessageType),
+                                                      new NotificationMessageDescription(I18NString.Create(Languages.en, "ServiceTicket updated"),                       I18NString.Create(Languages.en, ""), NotificationVisibility.Customers,  updateServiceTicket_MessageType),
+                                                      new NotificationMessageDescription(I18NString.Create(Languages.en, "ServiceTicket removed"),                       I18NString.Create(Languages.en, ""), NotificationVisibility.Customers,  removeServiceTicket_MessageType),
+                                                      new NotificationMessageDescription(I18NString.Create(Languages.en, "ServiceTicket status changed"),                I18NString.Create(Languages.en, ""), NotificationVisibility.Customers,  changeServiceTicketStatus_MessageType)
                                                   }));
 
         }
@@ -12436,7 +12436,7 @@ namespace social.OpenData.UsersAPI
                                            I18NString          Description       = null,
                                            PgpPublicKeyRing    PublicKeyRing     = null,
                                            PgpSecretKeyRing    SecretKeyRing     = null,
-                                           Languages           UserLanguage      = Languages.eng,
+                                           Languages           UserLanguage      = Languages.en,
                                            PhoneNumber?        Telephone         = null,
                                            PhoneNumber?        MobilePhone       = null,
                                            String              Telegram          = null,
@@ -12515,7 +12515,7 @@ namespace social.OpenData.UsersAPI
                                                       I18NString          Description       = null,
                                                       PgpPublicKeyRing    PublicKeyRing     = null,
                                                       PgpSecretKeyRing    SecretKeyRing     = null,
-                                                      Languages           UserLanguage      = Languages.eng,
+                                                      Languages           UserLanguage      = Languages.en,
                                                       PhoneNumber?        Telephone         = null,
                                                       PhoneNumber?        MobilePhone       = null,
                                                       String              Telegram          = null,
@@ -14679,10 +14679,10 @@ namespace social.OpenData.UsersAPI
         {
 
             if (Organization.Users.Any())
-                return new I18NString(Languages.eng, "The organization still has members!");
+                return new I18NString(Languages.en, "The organization still has members!");
 
             if (Organization.SubOrganizations.Any())
-                return new I18NString(Languages.eng, "The organization still has sub organizations!");
+                return new I18NString(Languages.en, "The organization still has sub organizations!");
 
             return null;
 

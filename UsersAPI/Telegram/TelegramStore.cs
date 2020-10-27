@@ -50,7 +50,7 @@ namespace social.OpenData.UsersAPI
                                 String     Firstname,
                                 String     Lastname,
                                 Int64      ChatId,
-                                Languages  PreferredLanguage = Languages.eng)
+                                Languages  PreferredLanguage = Languages.en)
             {
 
                 this.UserId             = UserId;
@@ -469,7 +469,7 @@ namespace social.OpenData.UsersAPI
             #endregion
 
             var eventTrackingId  = EventTracking_Id.New;
-            var message          = I18NString.Create(Languages.eng, Message);
+            var message          = I18NString.Create(Languages.en, Message);
             var usernames        = new String[] { Username };
 
             #region Send OnSendTelegramRequest event
@@ -604,7 +604,7 @@ namespace social.OpenData.UsersAPI
                                                      User.ChatId,
                                                      await TelegramAPI.SendTextMessageAsync(
                                                                            ChatId:  User.ChatId,
-                                                                           Text:    Message[User.PreferredLanguage] ?? Message[Languages.eng]
+                                                                           Text:    Message[User.PreferredLanguage] ?? Message[Languages.en]
                                                                        ));
 
             else
@@ -687,7 +687,7 @@ namespace social.OpenData.UsersAPI
             #endregion
 
             var eventTrackingId  = EventTracking_Id.New;
-            var message          = I18NString.Create(Languages.eng, Message);
+            var message          = I18NString.Create(Languages.en, Message);
 
             #region Send OnSendTelegramRequest event
 
@@ -840,7 +840,7 @@ namespace social.OpenData.UsersAPI
                                                             User.ChatId,
                                                             await TelegramAPI.SendTextMessageAsync(
                                                                                   ChatId:  User.ChatId,
-                                                                                  Text:    Message[User.PreferredLanguage] ?? Message[Languages.eng]
+                                                                                  Text:    Message[User.PreferredLanguage] ?? Message[Languages.en]
                                                                               )));
 
                 else
