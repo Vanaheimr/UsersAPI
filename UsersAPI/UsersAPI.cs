@@ -3093,7 +3093,7 @@ namespace social.OpenData.UsersAPI
                                     request  = new HTTPRequest.Builder(_HTTPSClient) {
                                                    HTTPMethod     = notificationURL.Method,
                                                    Host           = hostname,
-                                                   URL            = URL,
+                                                   Path           = URL,
                                                    Content        = new JArray(JSONNotification).ToUTF8Bytes(),
                                                    ContentType    = HTTPContentType.JSON_UTF8,
                                                    UserAgent      = "CardiCloud Notification API",
@@ -3273,13 +3273,13 @@ namespace social.OpenData.UsersAPI
         private String GenerateCookieUserData(User  User,
                                               User  Astronaut  = null)
 
-            => String.Concat("=login=",            User.     Id.      ToString().ToBase64(),
+            => String.Concat("=login=",            User.     Id.      ToString().EncodeBase64(),
                              Astronaut != null
-                                 ? ":astronaut=" + Astronaut.Id.      ToString().ToBase64()
+                                 ? ":astronaut=" + Astronaut.Id.      ToString().EncodeBase64()
                                  : "",
-                             ":username=",         User.Name.                    ToBase64(),
-                             ":email=",            User.EMail.Address.ToString().ToBase64(),
-                             ":language=",         User.UserLanguage. AsText().  ToBase64(),
+                             ":username=",         User.Name.                    EncodeBase64(),
+                             ":email=",            User.EMail.Address.ToString().EncodeBase64(),
+                             ":language=",         User.UserLanguage. AsText().  EncodeBase64(),
                              IsAdmin(User) == Access_Levels.ReadOnly  ? ":isAdminRO" : "",
                              IsAdmin(User) == Access_Levels.ReadWrite ? ":isAdminRW" : "");
 
