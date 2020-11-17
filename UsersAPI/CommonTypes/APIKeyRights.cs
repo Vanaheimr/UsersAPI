@@ -15,142 +15,40 @@
  * limitations under the License.
  */
 
-using Newtonsoft.Json.Linq;
-using org.GraphDefined.Vanaheimr.Illias;
+#region Usings
+
 using System;
+
+using Newtonsoft.Json.Linq;
+
+using org.GraphDefined.Vanaheimr.Illias;
+
+#endregion
 
 namespace social.OpenData.UsersAPI
 {
 
-        /// <summary>
+    /// <summary>
     /// JSON content representation.
     /// </summary>
     public static class APIKeyRightsExtentions
     {
 
-        #region ToJSON(this APIKeyRights)
+        public static APIKeyRights Parse(String Text)
 
-        public static JProperty ToJSON(this APIKeyRights APIKeyRights)
-        {
+            => Text switch {
+                "readWrite"    => APIKeyRights.ReadWrite,
+                "readWriteNew" => APIKeyRights.ReadWriteNew,
+                _              => APIKeyRights.ReadOnly,
+            };
 
-            switch (APIKeyRights)
-            {
+        public static String AsText(this APIKeyRights APIKeyRight)
 
-                case APIKeyRights.ReadWrite:
-                    return new JProperty("accessRights",  "readWrite");
-
-                default:
-                    return new JProperty("accessRights", "readOnly");
-
-            }
-
-        }
-
-        #endregion
-
-        #region ParseAPIKeyRights(this Text)
-
-        public static APIKeyRights ParseAPIKeyRights(this String Text)
-        {
-
-            switch (Text)
-            {
-
-                case "readWrite":
-                    return APIKeyRights.ReadWrite;
-
-                default:
-                    return APIKeyRights.ReadOnly;
-
-            }
-
-        }
-
-        public static APIKeyRights ParseMandatory_APIKeyRights(this JObject JSON)
-
-            => ParseMandatory_APIKeyRights(JSON["accessRights"]?.Value<String>());
-
-
-        public static APIKeyRights ParseMandatory_APIKeyRights(this String Value)
-        {
-
-            if (Value.IsNullOrEmpty())
-                throw new Exception("Invalid value!");
-
-            switch (Value)
-            {
-
-                case "readWrite":
-                    return APIKeyRights.ReadWrite;
-
-                case "readOnly":
-                    return APIKeyRights.ReadOnly;
-
-                default:
-                    throw new Exception("Invalid value '" + Value + "' for JSON property 'accessRights'!");
-
-            }
-
-        }
-
-        public static Boolean TryParseMandatory_APIKeyRights(this JObject      JSON,
-                                                             out APIKeyRights  APIKeyRights,
-                                                             out String        ErrorResponse)
-        {
-
-            var Value = JSON["accessRights"]?.Value<String>();
-
-            if (Value.IsNullOrEmpty())
-            {
-                APIKeyRights   = APIKeyRights.ReadOnly;
-                ErrorResponse  = "Missing JSON property 'accessRights'!";
-                return false;
-            }
-
-            switch (Value)
-            {
-
-                case "readWrite":
-                    APIKeyRights   = APIKeyRights.ReadWrite;
-                    ErrorResponse  = String.Empty;
-                    return true;
-
-                case "readOnly":
-                    APIKeyRights   = APIKeyRights.ReadOnly;
-                    ErrorResponse  = String.Empty;
-                    return true;
-
-                default:
-                    APIKeyRights   = APIKeyRights.ReadOnly;
-                    ErrorResponse  = "Invalid value '" + Value + "' for JSON property 'accessRights'!";
-                    return false;
-
-            }
-
-        }
-
-        public static APIKeyRights? ParseOptional_APIKeyRights(this JObject JSON)
-        {
-
-            var Value = JSON["accessRights"]?.Value<String>();
-
-            if (Value.IsNullOrEmpty())
-                return new APIKeyRights?();
-
-            switch (Value)
-            {
-
-                case "readWrite":
-                    return APIKeyRights.ReadWrite;
-
-                default:
-                    return APIKeyRights.ReadOnly;
-
-            }
-
-        }
-
-        #endregion
+            => APIKeyRight switch {
+                APIKeyRights.ReadWrite    => "readWrite",
+                APIKeyRights.ReadWriteNew => "readWriteNew",
+                _                         => "readOnly",
+            };
 
     }
 

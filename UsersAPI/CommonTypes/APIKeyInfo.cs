@@ -122,15 +122,8 @@ namespace social.OpenData.UsersAPI
                           Boolean?      IsDisabled     = false)
         {
 
-            #region Initial checks
-
-            if (User == null)
-                throw new ArgumentNullException(nameof(User), "The given user must not be null!");
-
-            #endregion
-
             this.APIKey        = APIKey;
-            this.User          = User;
+            this.User          = User        ?? throw new ArgumentNullException(nameof(User), "The given user must not be null!");
             this.Description   = Description ?? I18NString.Empty;
             this.AccessRights  = AccessRights;
             this.Created       = Created     ?? DateTime.UtcNow;
@@ -153,13 +146,13 @@ namespace social.OpenData.UsersAPI
 
             => JSONObject.Create(
 
-                   new JProperty("@id",                 APIKey.ToString()),
-                   new JProperty("@context",            JSONLDContext.ToString()),
+                   new JProperty("@id",                 APIKey.        ToString()),
+                   new JProperty("@context",            JSONLDContext. ToString()),
 
-                   new JProperty("userId",              User.Id.ToString()),
-                   new JProperty("description",         Description.ToJSON()),
-                   AccessRights.ToJSON(),
-                   new JProperty("created",             Created.ToIso8601()),
+                   new JProperty("userId",              User.Id.       ToString()),
+                   new JProperty("description",         Description.   ToJSON()),
+                   new JProperty("accessRights",        AccessRights.  AsText()),
+                   new JProperty("created",             Created.       ToIso8601()),
 
                    NotBefore.HasValue
                        ? new JProperty("notBefore",     NotAfter.Value.ToIso8601())
