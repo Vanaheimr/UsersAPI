@@ -1,6 +1,6 @@
 var HTTPCookieId = "UsersAPI";
 var APIKey = null;
-var UILanguage = "eng";
+var UILanguage = "en";
 let CurrentlyHighlightedMenuItem = "";
 let CurrentlyHighlightedSubmenuItem = "";
 // @ts-ignore
@@ -95,18 +95,24 @@ function firstValue(obj) {
 }
 function languageKey2Text(LanguageKey, UILanguage) {
     switch (LanguageKey) {
+        case "en":
         case "eng":
             switch (UILanguage) {
+                case "en":
                 case "eng":
                     return "english";
+                case "de":
                 case "deu":
                     return "englisch";
             }
             break;
+        case "de":
         case "deu":
             switch (UILanguage) {
+                case "en":
                 case "eng":
                     return "german";
+                case "de":
                 case "deu":
                     return "deutsch";
             }

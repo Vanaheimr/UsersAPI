@@ -11,7 +11,7 @@ function ShowAPIKey(parentDiv: HTMLDivElement, JSON: any) {
 
     const Description2Div = DescriptionDiv.appendChild(document.createElement('div')) as HTMLDivElement;
     Description2Div.className = "value";
-    Description2Div.innerText = JSON["description"]["eng"];
+    Description2Div.innerText = JSON["description"]["en"];
 
 
 

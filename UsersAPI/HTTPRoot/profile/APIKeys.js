@@ -7,7 +7,7 @@ function ShowAPIKey(parentDiv, JSON) {
     Description1Div.innerText = "Description";
     const Description2Div = DescriptionDiv.appendChild(document.createElement('div'));
     Description2Div.className = "value";
-    Description2Div.innerText = JSON["description"]["eng"];
+    Description2Div.innerText = JSON["description"]["en"];
     const APIKeyDiv = parentDiv.appendChild(document.createElement('div'));
     APIKeyDiv.className = "row APIKey";
     const APIKeyDiv1 = APIKeyDiv.appendChild(document.createElement('div'));
