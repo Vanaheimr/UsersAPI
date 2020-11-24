@@ -35,10 +35,10 @@ function StartNewSubOrganization() {
         const newChildOrganizationJSON = {
             "@context": "https://opendata.social/contexts/UsersAPI/organization",
             "parentOrganization": organizationId,
-            "name": { "eng": name.value.trim() }
+            "name": { "en": name.value.trim() }
         };
         if (description.value.trim() !== "")
-            newChildOrganizationJSON["description"] = { "eng": description.value.trim() };
+            newChildOrganizationJSON["description"] = { "en": description.value.trim() };
         if (website.value.trim() !== "")
             newChildOrganizationJSON["website"] = website.value.trim();
         if (email.value.trim() !== "")

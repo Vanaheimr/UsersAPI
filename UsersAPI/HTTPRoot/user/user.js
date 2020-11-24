@@ -9,8 +9,8 @@ function StartUser() {
             return true;
         }
         // email
-        if ((UserProfileJSON.email !== undefined ? UserProfileJSON.email : "") !== eMailAddress.value) {
-            if (eMailAddress.value == "" || eMailAddress.value.length < 6 || eMailAddress.value.indexOf("@") < 1 || eMailAddress.value.indexOf(".") < 4) {
+        if ((UserProfileJSON.email !== undefined ? UserProfileJSON.email : "") !== eMail.value) {
+            if (eMail.value == "" || eMail.value.length < 6 || eMail.value.indexOf("@") < 1 || eMail.value.indexOf(".") < 4) {
                 responseDiv.innerHTML = "<div class=\"HTTP Error\">Users must have a valid e-mail address!</div>";
                 return false;
             }
@@ -49,8 +49,8 @@ function StartUser() {
             return true;
         }
         // userLanguage
-        if ((UserProfileJSON.language !== undefined ? UserProfileJSON.language : "") !== userLanguage.value) {
-            if (userLanguage.value == "") {
+        if ((UserProfileJSON.language !== undefined ? UserProfileJSON.language : "") !== language.value) {
+            if (language.value == "") {
                 responseDiv.innerHTML = "<div class=\"HTTP Error\">Users must have a valid language setting!</div>";
                 return false;
             }
@@ -78,8 +78,8 @@ function StartUser() {
         if ((UserProfileJSON.name !== undefined ? UserProfileJSON.name : "") !== username.value)
             UserProfileJSON.name = username.value;
         // email
-        if ((UserProfileJSON.email !== undefined ? UserProfileJSON.email : "") !== eMailAddress.value)
-            UserProfileJSON.email = eMailAddress.value;
+        if ((UserProfileJSON.email !== undefined ? UserProfileJSON.email : "") !== eMail.value)
+            UserProfileJSON.email = eMail.value;
         // telephone
         if ((UserProfileJSON.telephone !== undefined ? UserProfileJSON.telephone : "") !== telephone.value)
             UserProfileJSON.telephone = telephone.value;
@@ -93,11 +93,11 @@ function StartUser() {
         if ((UserProfileJSON.homepage !== undefined ? UserProfileJSON.homepage : "") !== homepage.value)
             UserProfileJSON.homepage = homepage.value;
         // user language
-        if ((UserProfileJSON.language !== undefined ? UserProfileJSON.language : "") !== userLanguage.selectedOptions[0].value)
-            UserProfileJSON.language = userLanguage.selectedOptions[0].value;
+        if ((UserProfileJSON.language !== undefined ? UserProfileJSON.language : "") !== language.selectedOptions[0].value)
+            UserProfileJSON.language = language.selectedOptions[0].value;
         // description
         if ((UserProfileJSON.description !== undefined ? firstValue(UserProfileJSON.description) : "") !== descriptionText.value)
-            UserProfileJSON.description = { "eng": firstValue(UserProfileJSON.description) };
+            UserProfileJSON.description = { "en": descriptionText.value };
         if (UserProfileJSON.telephone === "")
             delete (UserProfileJSON.telephone);
         if (UserProfileJSON.mobilePhone === "")
@@ -139,30 +139,134 @@ function StartUser() {
     const data = userProfile.querySelector('#data');
     const login = data.querySelector('#login');
     const username = data.querySelector('#username');
-    const eMailAddress = data.querySelector('#eMailAddress');
+    const eMail = data.querySelector('#eMail');
+    const language = data.querySelector('#language');
     const telephone = data.querySelector('#telephone');
     const mobilePhone = data.querySelector('#mobilePhone');
     const telegram = data.querySelector('#telegram');
     const homepage = data.querySelector('#homepage');
-    const userLanguage = data.querySelector('#userLanguage');
     const description = data.querySelector('#userDescription');
     const descriptionText = data.querySelector('#description');
+    const usernameError = username.parentElement.querySelector('.validationError');
+    const eMailError = eMail.parentElement.querySelector('.validationError');
+    const telephoneError = telephone.parentElement.querySelector('.validationError');
+    const mobilePhoneError = mobilePhone.parentElement.querySelector('.validationError');
+    const homepageError = homepage.parentElement.querySelector('.validationError');
     const responseDiv = document.getElementById("response");
     const lowerButtonsDiv = userProfile.querySelector('#lowerButtons');
     const saveButton = lowerButtonsDiv.querySelector("#saveButton");
     login.value = userId;
+    function VerifyName() {
+        const name = username.value;
+        if (/^(.{4,})$/.test(name) == false) {
+            saveButton.disabled = true;
+            username.classList.add("error");
+            usernameError.innerText = "Invalid user name!";
+            usernameError.style.display = "flex";
+        }
+        else {
+            username.classList.remove("error");
+            usernameError.style.display = "none";
+            ToogleSaveButton();
+        }
+    }
+    function VerifyEMail() {
+        const EMail = eMail.value.trim();
+        eMail.value = EMail;
+        if (/^(\S{1,}@\S{2,}\.\S{2,})$/.test(EMail) == false) {
+            saveButton.disabled = true;
+            eMail.classList.add("error");
+            eMailError.innerText = "Invalid e-mail address!";
+            eMailError.style.display = "flex";
+        }
+        else {
+            eMail.classList.remove("error");
+            eMailError.style.display = "none";
+            VerifyAll();
+        }
+    }
+    function VerifyTelephone() {
+        const Telephone = telephone.value.trim();
+        telephone.value = Telephone;
+        if (Telephone == "") {
+            telephone.classList.remove("error");
+            telephoneError.style.display = "none";
+        }
+        else if (/^(\+?[0-9\ \-\/]{5,30})$/.test(Telephone) == false) {
+            saveButton.disabled = true;
+            telephone.classList.add("error");
+            telephoneError.innerText = "Invalid telephone number!";
+            telephoneError.style.display = "flex";
+        }
+        else {
+            telephone.classList.remove("error");
+            telephoneError.style.display = "none";
+            VerifyAll();
+        }
+    }
+    function VerifyMobilephone() {
+        const MobilePhone = mobilePhone.value.trim();
+        mobilePhone.value = MobilePhone;
+        if (MobilePhone == "") {
+            mobilePhone.classList.remove("error");
+            mobilePhoneError.style.display = "none";
+        }
+        else if (/^(\+?[0-9\ \-\/]{5,30})$/.test(MobilePhone) == false) {
+            saveButton.disabled = true;
+            mobilePhone.classList.add("error");
+            mobilePhoneError.innerText = "Invalid mobile phone number!";
+            mobilePhoneError.style.display = "flex";
+        }
+        else {
+            mobilePhone.classList.remove("error");
+            mobilePhoneError.style.display = "none";
+            VerifyAll();
+        }
+    }
+    function VerifyHomepage() {
+        const Homepage = homepage.value.trim();
+        homepage.value = Homepage;
+        if (Homepage == "") {
+            homepage.classList.remove("error");
+            homepageError.style.display = "none";
+        }
+        else if (/^(http:\/\/|https:\/\/)(\S{2,}\.\S{2,})$/.test(Homepage) == false) {
+            saveButton.disabled = true;
+            homepage.classList.add("error");
+            homepageError.innerText = "Invalid homepage URL!";
+            homepageError.style.display = "flex";
+        }
+        else {
+            homepage.classList.remove("error");
+            homepageError.style.display = "none";
+            VerifyAll();
+        }
+    }
+    function VerifyAll() {
+        //if (newUserJSON["@id"]      != null &&
+        //    newUserJSON.username    != ""   &&
+        //    newUserJSON.email       != ""   &&
+        //    newUserJSON.telephone   != null &&
+        //    newUserJSON.mobilephone != null &&
+        //    newUserJSON.homepage    != null)
+        //{
+        //    saveButton.disabled    = false;
+        //    responseDiv.innerHTML  = "";
+        //}
+        ToogleSaveButton();
+    }
     HTTPGet("/users/" + userId, (status, response) => {
         var _a, _b, _c, _d;
         try {
             UserProfileJSON = ParseJSON_LD(response);
             username.value = UserProfileJSON.name;
-            eMailAddress.value = UserProfileJSON.email;
+            eMail.value = UserProfileJSON.email;
             telephone.value = (_a = UserProfileJSON.telephone) !== null && _a !== void 0 ? _a : "";
             mobilePhone.value = (_b = UserProfileJSON.mobilePhone) !== null && _b !== void 0 ? _b : "";
             telegram.value = (_c = UserProfileJSON.telegram) !== null && _c !== void 0 ? _c : "";
             homepage.value = (_d = UserProfileJSON.homepage) !== null && _d !== void 0 ? _d : "";
             if (UserProfileJSON.language !== undefined)
-                userLanguage.add(new Option(languageKey2Text(UserProfileJSON.language, UILanguage), UserProfileJSON.language, true, true));
+                language.add(new Option(languageKey2Text(UserProfileJSON.language, UILanguage), UserProfileJSON.language, true, true));
             UpdateI18N(description, UserProfileJSON.description);
             if (UserProfileJSON["youCanEdit"]) {
                 impersonateButton.disabled = false;
@@ -171,28 +275,23 @@ function StartUser() {
                     ImpersonateUser(userId);
                 };
                 username.readOnly = false;
-                username.onchange = () => { ToogleSaveButton(); };
-                username.onkeyup = () => { ToogleSaveButton(); };
-                eMailAddress.readOnly = false;
-                eMailAddress.onchange = () => { ToogleSaveButton(); };
-                eMailAddress.onkeyup = () => { ToogleSaveButton(); };
+                username.oninput = () => { VerifyName(); };
+                eMail.readOnly = false;
+                eMail.oninput = () => { VerifyEMail(); };
+                language.onchange = () => { ToogleSaveButton(); };
                 telephone.readOnly = false;
-                telephone.onchange = () => { ToogleSaveButton(); };
-                telephone.onkeyup = () => { ToogleSaveButton(); };
+                telephone.oninput = () => { VerifyTelephone(); };
                 mobilePhone.readOnly = false;
-                mobilePhone.onchange = () => { ToogleSaveButton(); };
-                mobilePhone.onkeyup = () => { ToogleSaveButton(); };
+                mobilePhone.oninput = () => { VerifyMobilephone(); };
                 telegram.readOnly = false;
-                telegram.onchange = () => { ToogleSaveButton(); };
-                telegram.onkeyup = () => { ToogleSaveButton(); };
+                telegram.oninput = () => { ToogleSaveButton(); };
                 homepage.readOnly = false;
-                homepage.onchange = () => { ToogleSaveButton(); };
-                homepage.onkeyup = () => { ToogleSaveButton(); };
+                homepage.oninput = () => { VerifyHomepage(); };
+                descriptionText.oninput = () => { ToogleSaveButton(); };
                 //userLanguage.readOnly            = false;
-                userLanguage.onchange = () => { ToogleSaveButton(); };
+                language.onchange = () => { ToogleSaveButton(); };
                 descriptionText.readOnly = false;
-                descriptionText.onchange = () => { ToogleSaveButton(); };
-                descriptionText.onkeyup = () => { ToogleSaveButton(); };
+                descriptionText.oninput = () => { ToogleSaveButton(); };
                 saveButton.style.display = "block";
                 saveButton.onclick = () => {
                     SaveData();

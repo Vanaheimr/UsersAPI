@@ -29,20 +29,20 @@ function StartNewMember() {
 
     const dataDiv           = newMemberDiv.querySelector('#data')                           as HTMLDivElement;
     const accessRights      = dataDiv.querySelector('#accessRights')                        as HTMLSelectElement;
-    const login             = dataDiv.querySelector('#login')                               as HTMLTextAreaElement;
-    const Username          = dataDiv.querySelector('#username')                            as HTMLTextAreaElement;
-    const email             = dataDiv.querySelector('#email')                               as HTMLInputElement;
+    const login             = dataDiv.querySelector('#login')                               as HTMLInputElement;
+    const username          = dataDiv.querySelector('#username')                            as HTMLInputElement;
+    const eMail             = dataDiv.querySelector('#eMail')                               as HTMLInputElement;
     const language          = dataDiv.querySelector('#language')                            as HTMLSelectElement;
     const telephone         = dataDiv.querySelector('#telephone')                           as HTMLInputElement;
-    const mobilephone       = dataDiv.querySelector('#mobilephone')                         as HTMLInputElement;
+    const mobilePhone       = dataDiv.querySelector('#mobilePhone')                         as HTMLInputElement;
     const homepage          = dataDiv.querySelector('#homepage')                            as HTMLInputElement;
     const description       = dataDiv.querySelector('#description')                         as HTMLTextAreaElement;
 
     const loginError        = login.      parentElement.querySelector('.validationError')   as HTMLDivElement;
-    const UsernameError     = Username.   parentElement.querySelector('.validationError')   as HTMLDivElement;
-    const emailError        = email.      parentElement.querySelector('.validationError')   as HTMLDivElement;
+    const usernameError     = username.   parentElement.querySelector('.validationError')   as HTMLDivElement;
+    const eMailError        = eMail.      parentElement.querySelector('.validationError')   as HTMLDivElement;
     const telephoneError    = telephone.  parentElement.querySelector('.validationError')   as HTMLDivElement;
-    const mobilephoneError  = mobilephone.parentElement.querySelector('.validationError')   as HTMLDivElement;
+    const mobilePhoneError  = mobilePhone.parentElement.querySelector('.validationError')   as HTMLDivElement;
     const homepageError     = homepage.   parentElement.querySelector('.validationError')   as HTMLDivElement;
 
     const responseDiv       = document.getElementById("response")                           as HTMLDivElement;
@@ -51,10 +51,10 @@ function StartNewMember() {
     const saveButton        = lowerButtonsDiv.querySelector("#saveButton")                  as HTMLButtonElement;
 
     login.oninput           = () => { VerifyLogin();       }
-    Username.oninput        = () => { VerifyName();        }
-    email.oninput           = () => { VerifyEMail();       }
+    username.oninput        = () => { VerifyName();        }
+    eMail.oninput           = () => { VerifyEMail();       }
     telephone.oninput       = () => { VerifyTelephone();   }
-    mobilephone.oninput     = () => { VerifyMobilephone(); }
+    mobilePhone.oninput     = () => { VerifyMobilePhone(); }
     homepage.oninput        = () => { VerifyHomepage();    }
     saveButton.onclick      = () => { SaveData();          }
 
@@ -121,7 +121,7 @@ function StartNewMember() {
 
     function VerifyName() {
 
-        const name = Username.value;
+        const name = username.value;
 
         if (name == "") {
             saveButton.disabled = true;
@@ -131,14 +131,14 @@ function StartNewMember() {
         else if (/^(.{4,})$/.test(name) == false) {
             saveButton.disabled = true;
             newUserJSON.username = "";
-            Username.classList.add("error");
-            UsernameError.innerText = "Invalid user name!";
-            UsernameError.style.display = "flex";
+            username.classList.add("error");
+            usernameError.innerText = "Invalid user name!";
+            usernameError.style.display = "flex";
         }
 
         else {
-            Username.classList.remove("error");
-            UsernameError.style.display = "none";
+            username.classList.remove("error");
+            usernameError.style.display = "none";
             newUserJSON.username = name;
             VerifyAll();
         }
@@ -146,8 +146,8 @@ function StartNewMember() {
 
     function VerifyEMail() {
 
-        const EMail = email.value.trim();
-        email.value = EMail;
+        const EMail = eMail.value.trim();
+        eMail.value = EMail;
 
         if (EMail == "") {
             saveButton.disabled = true;
@@ -157,14 +157,14 @@ function StartNewMember() {
         else if (/^(\S{1,}@\S{2,}\.\S{2,})$/.test(EMail) == false) {
             saveButton.disabled = true;
             newUserJSON.email = "";
-            email.classList.add("error");
-            emailError.innerText = "Invalid e-mail address!";
-            emailError.style.display = "flex";
+            eMail.classList.add("error");
+            eMailError.innerText = "Invalid e-mail address!";
+            eMailError.style.display = "flex";
         }
 
         else {
-            email.classList.remove("error");
-            emailError.style.display = "none";
+            eMail.classList.remove("error");
+            eMailError.style.display = "none";
             newUserJSON.email = EMail;
             VerifyAll();
         }
@@ -199,29 +199,29 @@ function StartNewMember() {
 
     }
 
-    function VerifyMobilephone() {
+    function VerifyMobilePhone() {
 
-        const Mobilephone = mobilephone.value.trim();
-        mobilephone.value = Mobilephone;
+        const MobilePhone = mobilePhone.value.trim();
+        mobilePhone.value = MobilePhone;
 
-        if (Mobilephone == "") {
-            mobilephone.classList.remove("error");
-            mobilephoneError.style.display = "none";
+        if (MobilePhone == "") {
+            mobilePhone.classList.remove("error");
+            mobilePhoneError.style.display = "none";
             newUserJSON.mobilephone = "";
         }
 
-        else if (/^(\+?[0-9\ \-\/]{5,30})$/.test(Mobilephone) == false) {
+        else if (/^(\+?[0-9\ \-\/]{5,30})$/.test(MobilePhone) == false) {
             saveButton.disabled = true;
             newUserJSON.mobilephone = null;
-            mobilephone.classList.add("error");
-            mobilephoneError.innerText     = "Invalid mobile phone number!";
-            mobilephoneError.style.display = "flex";
+            mobilePhone.classList.add("error");
+            mobilePhoneError.innerText     = "Invalid mobile phone number!";
+            mobilePhoneError.style.display = "flex";
         }
 
         else {
-            mobilephone.classList.remove("error");
-            mobilephoneError.style.display = "none";
-            newUserJSON.mobilephone = Mobilephone;
+            mobilePhone.classList.remove("error");
+            mobilePhoneError.style.display = "none";
+            newUserJSON.mobilephone = MobilePhone;
             VerifyAll();
         }
 
@@ -233,6 +233,8 @@ function StartNewMember() {
         homepage.value = Homepage;
 
         if (Homepage == "") {
+            homepage.classList.remove("error");
+            homepageError.style.display = "none";
             newUserJSON.homepage = "";
         }
 
@@ -287,7 +289,7 @@ function StartNewMember() {
             delete newUserJSON.homepage;
 
         if (description.value.trim() !== "")
-            newUserJSON["description"] = { "eng": description.value.trim() };
+            newUserJSON["description"] = { "en": description.value.trim() };
 
         newUserJSON["accessRights"] = [{
             "organizationId":  organizationId,

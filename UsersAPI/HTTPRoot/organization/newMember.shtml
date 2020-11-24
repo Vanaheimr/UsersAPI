@@ -59,7 +59,7 @@
         <div class="row">
             <div class="key keyTop">E-Mail Address</div>
             <div class="value">
-                <input id="email" type="text" placeholder = "The e-mail address of the new user..." />
+                <input id="eMail" type="text" placeholder = "The e-mail address of the new user..." />
                 <div class="validationError"></div>
             </div>
         </div>
@@ -68,7 +68,7 @@
             <div class="key keyTop">Language</div>
             <div class="value">
                 <select id="language" name="language" size="1">
-                    <option value="eng">English</option>
+                    <option value="en">english</option>
                 </select>
             </div>
         </div>
@@ -84,7 +84,7 @@
         <div class="row">
             <div class="key keyTop">Mobile Phone</div>
             <div class="value">
-                <input id="mobilephone" type="text" placeholder = "An optional mobile phone number of the new user..." />
+                <input id="mobilePhone" type="text" placeholder = "An optional mobile phone number of the new user..." />
                 <div class="validationError"></div>
             </div>
         </div>
@@ -100,7 +100,7 @@
         <div class="row">
             <div class="key keyTop">Description</div>
             <div class="value I18N" id="descriptionDiv">
-                <select id="descriptionLanguage" name="descriptionLanguage" size="1"><option>eng</option></select><textarea id="description" placeholder = "An optional description of the new user..."></textarea>
+                <select id="descriptionLanguage" name="descriptionLanguage" size="1"><option value="en">english</option></select><textarea id="description" placeholder = "An optional description of the new user..."></textarea>
             </div>
         </div>
 

@@ -5807,7 +5807,7 @@ namespace social.OpenData.UsersAPI
 
                                              // Has the current HTTP user the required
                                              // access rights to update?
-                                             if (HTTPUser.Id != _User.Id)
+                                             if (HTTPUser.Id != _User.Id && !CanImpersonate(HTTPUser, _User))
                                                  return new HTTPResponse.Builder(Request) {
                                                             HTTPStatusCode              = HTTPStatusCode.Forbidden,
                                                             Server                      = HTTPServer.DefaultServerName,
@@ -5820,9 +5820,9 @@ namespace social.OpenData.UsersAPI
 
 
                                              await AddOrUpdateUser(_User,
-                                                               null,
-                                                               null,
-                                                               HTTPUser.Id);
+                                                                   null,
+                                                                   null,
+                                                                   HTTPUser.Id);
 
 
                                              return new HTTPResponse.Builder(Request) {
@@ -8204,7 +8204,7 @@ namespace social.OpenData.UsersAPI
                                                  {
 
                                                      var _NewChildOrganization = await UpdateOrganization(UpdatedOrganization,
-                                                                                              CurrentUserId:       HTTPUser.Id);
+                                                                                                          CurrentUserId:  HTTPUser.Id);
 
                                                  }
                                                  catch (Exception e)

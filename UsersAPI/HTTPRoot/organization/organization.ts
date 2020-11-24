@@ -45,7 +45,7 @@ function StartOrganization() {
         // email
         if ((organizationJSON.email !== undefined ? organizationJSON.email : "") !== email.value) {
 
-            if (email.value == "" || email.value.length < 6 || email.value.indexOf("@") < 1 || email.value.indexOf(".") < 4) {
+            if (email.value != "" && (email.value.length < 6 || email.value.indexOf("@") < 1 || email.value.indexOf(".") < 4)) {
                 responseDiv.innerHTML = "<div class=\"HTTP Error\">Organizations must have a valid e-mail address!</div>";
                 return false;
             }
@@ -94,12 +94,8 @@ function StartOrganization() {
         // name
         if ((organizationJSON.name !== undefined ? firstValue(organizationJSON.name) : "") !== name.value) {
 
-            if (name.value != "") {
-
-                if (organizationJSON.name == null)
-                    organizationJSON.name = { "eng": name.value };
-
-            }
+            if (name.value != "")
+                organizationJSON.name = { "en": name.value };
 
             else
                 delete organizationJSON.name;
@@ -110,12 +106,8 @@ function StartOrganization() {
         // description
         if ((organizationJSON.description !== undefined ? firstValue(organizationJSON.description) : "") !== description.value) {
 
-            if (description.value != "") {
-
-                if (organizationJSON.description == null)
-                    organizationJSON.description = { "eng": description.value };
-
-            }
+            if (description.value != "")
+                organizationJSON.description = { "en": description.value };
 
             else
                 delete organizationJSON.description;
@@ -367,7 +359,7 @@ function StartOrganization() {
                                                    const responseJSON = response !== "" ? JSON.parse(response) : {};
                                                    confirmToDeleteDiv.style.display = "none";
                                                    deletionFailedDiv.style.display  = "block";
-                                                   deletionFailedDescription.innerHTML = responseJSON.errorDescription.eng;
+                                                   deletionFailedDescription.innerHTML = responseJSON.errorDescription.en;
                                                }
                                                catch (exception)
                                                {

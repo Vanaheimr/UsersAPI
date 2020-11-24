@@ -279,9 +279,9 @@ function languageKey2Text(LanguageKey: string, UILanguage: string): string
 function UpdateI18N(parentDiv:   HTMLDivElement,
                     I18NString:  Record<string, string>) {
 
-    if (parentDiv              !== null &&
-        I18NString             !== null &&
-        firstValue(I18NString) !== null)
+    if (parentDiv              !== null      &&
+        I18NString             !== undefined &&
+        firstValue(I18NString) !== undefined)
     {
 
         const select    = parentDiv.querySelector("select")    as HTMLSelectElement;
@@ -726,7 +726,7 @@ function HTTPDelete(RessourceURI: string,
             }
 
             // Denied
-            if (this.status == 424) {
+            else if (this.status == 424) {
 
                 //alert(ajax.getAllResponseHeaders());
                 //alert(ajax.getResponseHeader("Date"));
@@ -737,7 +737,6 @@ function HTTPDelete(RessourceURI: string,
                     OnDenied(this.status, ajax.responseText);
 
             }
-
 
             else
                 if (OnError && typeof OnError === 'function')

@@ -21,37 +21,55 @@
 
         <div class="row">
             <div class="key">Name</div>
-            <div class="value"><input id="username"      readonly type="text" value="" placeholder="Your name." /></div>
+            <div class="value">
+                <input id="username"      readonly type="text" value="" placeholder="Your name." />
+                <div class="validationError"></div>
+            </div>
         </div>
 
         <div class="row">
             <div class="key">E-Mail Address</div>
-            <div class="value"><input id="eMailAddress"  readonly type="text" value="" placeholder="Your e-mail address." /></div>
-        </div>
-
-        <div class="row">
-            <div class="key">Telephone</div>
-            <div class="value"><input id="telephone"     readonly type="text" value="" placeholder="Your landline phone number." /></div>
-        </div>
-
-        <div class="row">
-            <div class="key">Mobil phone</div>
-            <div class="value"><input id="mobilePhone"   readonly type="text" value="" placeholder="Your mobile phone number, e.g. for receiving SMS notifications." /></div>
-        </div>
-
-        <div class="row">
-            <div class="key">Telegram</div>
-            <div class="value"><input id="telegram"      readonly type="text" value="" placeholder="Your Telegram user name" /></div>
-        </div>
-
-        <div class="row">
-            <div class="key">Homepage</div>
-            <div class="value"><input id="homepage"      readonly type="text" value="" placeholder="Your homepage" /></div>
+            <div class="value">
+                <input id="eMail"  readonly type="text" value="" placeholder="Your e-mail address." />
+                <div class="validationError"></div>
+            </div>
         </div>
 
         <div class="row">
             <div class="key keyTop">Language</div>
-            <div class="value"><select id="userLanguage" readonly size="1"></select></div>
+            <div class="value"><select id="language" readonly size="1"></select></div>
+        </div>
+
+        <div class="row">
+            <div class="key">Telephone</div>
+            <div class="value">
+                <input id="telephone"     readonly type="text" value="" placeholder="Your landline phone number." />
+                <div class="validationError"></div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="key">Mobil phone</div>
+            <div class="value">
+                <input id="mobilePhone"   readonly type="text" value="" placeholder="Your mobile phone number, e.g. for receiving SMS notifications." />
+                <div class="validationError"></div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="key">Telegram</div>
+            <div class="value">
+                <input id="telegram"      readonly type="text" value="" placeholder="Your Telegram user name" />
+                <div class="validationError"></div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="key">Homepage</div>
+            <div class="value">
+                <input id="homepage"      readonly type="text" value="" placeholder="Your homepage" />
+                <div class="validationError"></div>
+            </div>
         </div>
 
         <div class="row">

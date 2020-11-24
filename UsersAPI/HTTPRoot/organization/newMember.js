@@ -22,27 +22,27 @@ function StartNewMember() {
     const dataDiv = newMemberDiv.querySelector('#data');
     const accessRights = dataDiv.querySelector('#accessRights');
     const login = dataDiv.querySelector('#login');
-    const Username = dataDiv.querySelector('#username');
-    const email = dataDiv.querySelector('#email');
+    const username = dataDiv.querySelector('#username');
+    const eMail = dataDiv.querySelector('#eMail');
     const language = dataDiv.querySelector('#language');
     const telephone = dataDiv.querySelector('#telephone');
-    const mobilephone = dataDiv.querySelector('#mobilephone');
+    const mobilePhone = dataDiv.querySelector('#mobilePhone');
     const homepage = dataDiv.querySelector('#homepage');
     const description = dataDiv.querySelector('#description');
     const loginError = login.parentElement.querySelector('.validationError');
-    const UsernameError = Username.parentElement.querySelector('.validationError');
-    const emailError = email.parentElement.querySelector('.validationError');
+    const usernameError = username.parentElement.querySelector('.validationError');
+    const eMailError = eMail.parentElement.querySelector('.validationError');
     const telephoneError = telephone.parentElement.querySelector('.validationError');
-    const mobilephoneError = mobilephone.parentElement.querySelector('.validationError');
+    const mobilePhoneError = mobilePhone.parentElement.querySelector('.validationError');
     const homepageError = homepage.parentElement.querySelector('.validationError');
     const responseDiv = document.getElementById("response");
     const lowerButtonsDiv = newMemberDiv.querySelector('#lowerButtons');
     const saveButton = lowerButtonsDiv.querySelector("#saveButton");
     login.oninput = () => { VerifyLogin(); };
-    Username.oninput = () => { VerifyName(); };
-    email.oninput = () => { VerifyEMail(); };
+    username.oninput = () => { VerifyName(); };
+    eMail.oninput = () => { VerifyEMail(); };
     telephone.oninput = () => { VerifyTelephone(); };
-    mobilephone.oninput = () => { VerifyMobilephone(); };
+    mobilePhone.oninput = () => { VerifyMobilePhone(); };
     homepage.oninput = () => { VerifyHomepage(); };
     saveButton.onclick = () => { SaveData(); };
     function VerifyLogin() {
@@ -91,7 +91,7 @@ function StartNewMember() {
         }
     }
     function VerifyName() {
-        const name = Username.value;
+        const name = username.value;
         if (name == "") {
             saveButton.disabled = true;
             newUserJSON.username = "";
@@ -99,20 +99,20 @@ function StartNewMember() {
         else if (/^(.{4,})$/.test(name) == false) {
             saveButton.disabled = true;
             newUserJSON.username = "";
-            Username.classList.add("error");
-            UsernameError.innerText = "Invalid user name!";
-            UsernameError.style.display = "flex";
+            username.classList.add("error");
+            usernameError.innerText = "Invalid user name!";
+            usernameError.style.display = "flex";
         }
         else {
-            Username.classList.remove("error");
-            UsernameError.style.display = "none";
+            username.classList.remove("error");
+            usernameError.style.display = "none";
             newUserJSON.username = name;
             VerifyAll();
         }
     }
     function VerifyEMail() {
-        const EMail = email.value.trim();
-        email.value = EMail;
+        const EMail = eMail.value.trim();
+        eMail.value = EMail;
         if (EMail == "") {
             saveButton.disabled = true;
             newUserJSON.email = "";
@@ -120,13 +120,13 @@ function StartNewMember() {
         else if (/^(\S{1,}@\S{2,}\.\S{2,})$/.test(EMail) == false) {
             saveButton.disabled = true;
             newUserJSON.email = "";
-            email.classList.add("error");
-            emailError.innerText = "Invalid e-mail address!";
-            emailError.style.display = "flex";
+            eMail.classList.add("error");
+            eMailError.innerText = "Invalid e-mail address!";
+            eMailError.style.display = "flex";
         }
         else {
-            email.classList.remove("error");
-            emailError.style.display = "none";
+            eMail.classList.remove("error");
+            eMailError.style.display = "none";
             newUserJSON.email = EMail;
             VerifyAll();
         }
@@ -153,25 +153,25 @@ function StartNewMember() {
             VerifyAll();
         }
     }
-    function VerifyMobilephone() {
-        const Mobilephone = mobilephone.value.trim();
-        mobilephone.value = Mobilephone;
-        if (Mobilephone == "") {
-            mobilephone.classList.remove("error");
-            mobilephoneError.style.display = "none";
+    function VerifyMobilePhone() {
+        const MobilePhone = mobilePhone.value.trim();
+        mobilePhone.value = MobilePhone;
+        if (MobilePhone == "") {
+            mobilePhone.classList.remove("error");
+            mobilePhoneError.style.display = "none";
             newUserJSON.mobilephone = "";
         }
-        else if (/^(\+?[0-9\ \-\/]{5,30})$/.test(Mobilephone) == false) {
+        else if (/^(\+?[0-9\ \-\/]{5,30})$/.test(MobilePhone) == false) {
             saveButton.disabled = true;
             newUserJSON.mobilephone = null;
-            mobilephone.classList.add("error");
-            mobilephoneError.innerText = "Invalid mobile phone number!";
-            mobilephoneError.style.display = "flex";
+            mobilePhone.classList.add("error");
+            mobilePhoneError.innerText = "Invalid mobile phone number!";
+            mobilePhoneError.style.display = "flex";
         }
         else {
-            mobilephone.classList.remove("error");
-            mobilephoneError.style.display = "none";
-            newUserJSON.mobilephone = Mobilephone;
+            mobilePhone.classList.remove("error");
+            mobilePhoneError.style.display = "none";
+            newUserJSON.mobilephone = MobilePhone;
             VerifyAll();
         }
     }
@@ -179,6 +179,8 @@ function StartNewMember() {
         const Homepage = homepage.value.trim();
         homepage.value = Homepage;
         if (Homepage == "") {
+            homepage.classList.remove("error");
+            homepageError.style.display = "none";
             newUserJSON.homepage = "";
         }
         else if (/^(http:\/\/|https:\/\/)(\S{2,}\.\S{2,})$/.test(Homepage) == false) {
@@ -217,7 +219,7 @@ function StartNewMember() {
         if (newUserJSON.homepage == "")
             delete newUserJSON.homepage;
         if (description.value.trim() !== "")
-            newUserJSON["description"] = { "eng": description.value.trim() };
+            newUserJSON["description"] = { "en": description.value.trim() };
         newUserJSON["accessRights"] = [{
                 "organizationId": organizationId,
                 "accessRight": accessRights.selectedOptions[0].value.toLowerCase()

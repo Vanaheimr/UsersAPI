@@ -122,8 +122,8 @@ function languageKey2Text(LanguageKey, UILanguage) {
 }
 function UpdateI18N(parentDiv, I18NString) {
     if (parentDiv !== null &&
-        I18NString !== null &&
-        firstValue(I18NString) !== null) {
+        I18NString !== undefined &&
+        firstValue(I18NString) !== undefined) {
         const select = parentDiv.querySelector("select");
         const textarea = parentDiv.querySelector("textarea");
         if (select !== null && textarea !== null) {
@@ -379,7 +379,7 @@ function HTTPDelete(RessourceURI, OnSuccess, OnDenied, OnError) {
                     OnSuccess(this.status, ajax.responseText);
             }
             // Denied
-            if (this.status == 424) {
+            else if (this.status == 424) {
                 //alert(ajax.getAllResponseHeaders());
                 //alert(ajax.getResponseHeader("Date"));
                 //alert(ajax.getResponseHeader("Cache-control"));
