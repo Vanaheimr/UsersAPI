@@ -4,10 +4,11 @@ var APIKey:       string = null;
 var UILanguage:   string = "en";
 let CurrentlyHighlightedMenuItem     = "";
 let CurrentlyHighlightedSubmenuItem  = "";
+var mapboxgl:any = null;
 
- // @ts-ignore
+// @ts-ignore
 var map:     any = {};
- // @ts-ignore
+// @ts-ignore
 var leaflet: any = {};
 let markers      = [];
 
@@ -374,7 +375,7 @@ function HTTP(Method:       string,
 // #endregion
 
 
-// #region HTTPGet(RessourceURI, OnSuccess, OnError)
+// #region HTTPGet  (RessourceURI, OnSuccess, OnError)
 
 function HTTPGet(RessourceURI: string,
                  OnSuccess,
@@ -479,7 +480,7 @@ function HTTPCount(RessourceURI: string,
 
 // #endregion
 
-// #region Exists (RessourceURI, OnSuccess, OnError)
+// #region Exists   (RessourceURI, OnSuccess, OnError)
 
 function Exists(RessourceURI: string,
                 OnSuccess,
@@ -529,7 +530,7 @@ function Exists(RessourceURI: string,
 
 // #endregion
 
-// #region HTTPSet(RessourceURI, Data, OnSuccess, OnError)
+// #region HTTPSet  (RessourceURI, Data, OnSuccess, OnError)
 
 function HTTPSet(RessourceURI: string,
                  Data,
@@ -583,7 +584,7 @@ function HTTPSet(RessourceURI: string,
 
 // #endregion
 
-// #region HTTPAdd(RessourceURI, Data, OnSuccess, OnError)
+// #region HTTPAdd  (RessourceURI, Data, OnSuccess, OnError)
 
 function HTTPAdd(RessourceURI: string,
                  Data,

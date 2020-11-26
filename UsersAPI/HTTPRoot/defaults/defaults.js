@@ -3,6 +3,7 @@ var APIKey = null;
 var UILanguage = "en";
 let CurrentlyHighlightedMenuItem = "";
 let CurrentlyHighlightedSubmenuItem = "";
+var mapboxgl = null;
 // @ts-ignore
 var map = {};
 // @ts-ignore
@@ -171,7 +172,7 @@ function HTTP(Method, RessourceURI, Data, OnSuccess, OnError) {
     // #endregion
 }
 // #endregion
-// #region HTTPGet(RessourceURI, OnSuccess, OnError)
+// #region HTTPGet  (RessourceURI, OnSuccess, OnError)
 function HTTPGet(RessourceURI, OnSuccess, OnError) {
     // #region Make HTTP call
     const ajax = new XMLHttpRequest();
@@ -233,7 +234,7 @@ function HTTPCount(RessourceURI, Data, OnSuccess, OnError) {
     // #endregion
 }
 // #endregion
-// #region Exists (RessourceURI, OnSuccess, OnError)
+// #region Exists   (RessourceURI, OnSuccess, OnError)
 function Exists(RessourceURI, OnSuccess, OnError) {
     // #region Make HTTP call
     const ajax = new XMLHttpRequest();
@@ -262,7 +263,7 @@ function Exists(RessourceURI, OnSuccess, OnError) {
     // #endregion
 }
 // #endregion
-// #region HTTPSet(RessourceURI, Data, OnSuccess, OnError)
+// #region HTTPSet  (RessourceURI, Data, OnSuccess, OnError)
 function HTTPSet(RessourceURI, Data, OnSuccess, OnError) {
     // #region Make HTTP call
     const ajax = new XMLHttpRequest();
@@ -294,7 +295,7 @@ function HTTPSet(RessourceURI, Data, OnSuccess, OnError) {
     // #endregion
 }
 // #endregion
-// #region HTTPAdd(RessourceURI, Data, OnSuccess, OnError)
+// #region HTTPAdd  (RessourceURI, Data, OnSuccess, OnError)
 function HTTPAdd(RessourceURI, Data, OnSuccess, OnError) {
     // #region Make HTTP call
     const ajax = new XMLHttpRequest();

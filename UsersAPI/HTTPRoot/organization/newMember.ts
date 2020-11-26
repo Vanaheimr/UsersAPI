@@ -64,7 +64,7 @@ function StartNewMember() {
         const UserId = login.value.toLowerCase().trim();
         login.value = UserId;
 
-        if (UserId == "")
+        if (UserId === "")
         {
             newUserJSON["@id"] = "";
             login.classList.remove("error");
@@ -123,7 +123,7 @@ function StartNewMember() {
 
         const name = username.value;
 
-        if (name == "") {
+        if (name === "") {
             saveButton.disabled = true;
             newUserJSON.username = "";
         }
@@ -149,7 +149,7 @@ function StartNewMember() {
         const EMail = eMail.value.trim();
         eMail.value = EMail;
 
-        if (EMail == "") {
+        if (EMail === "") {
             saveButton.disabled = true;
             newUserJSON.email = "";
         }
@@ -176,7 +176,7 @@ function StartNewMember() {
         const Telephone = telephone.value.trim();
         telephone.value = Telephone;
 
-        if (Telephone == "") {
+        if (Telephone === "") {
             telephone.classList.remove("error");
             telephoneError.style.display = "none";
             newUserJSON.telephone = "";
@@ -204,7 +204,7 @@ function StartNewMember() {
         const MobilePhone = mobilePhone.value.trim();
         mobilePhone.value = MobilePhone;
 
-        if (MobilePhone == "") {
+        if (MobilePhone === "") {
             mobilePhone.classList.remove("error");
             mobilePhoneError.style.display = "none";
             newUserJSON.mobilephone = "";
@@ -232,7 +232,7 @@ function StartNewMember() {
         const Homepage = homepage.value.trim();
         homepage.value = Homepage;
 
-        if (Homepage == "") {
+        if (Homepage === "") {
             homepage.classList.remove("error");
             homepageError.style.display = "none";
             newUserJSON.homepage = "";

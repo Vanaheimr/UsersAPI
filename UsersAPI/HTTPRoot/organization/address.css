@@ -7,9 +7,9 @@
 body #page #right #text {
   position: relative; }
   body #page #right #text #organization {
-    width: calc(60% - 55px);
+    width: calc(50% - 55px);
     padding: 30px 30px 20px 25px;
-    font-size: 140%; }
+    font-size: 120%; }
     body #page #right #text #organization #headline {
       padding-bottom: 30px;
       color: #999; }
@@ -41,78 +41,31 @@ body #page #right #text {
         margin-right: 2px;
         font-size: 75%; }
     body #page #right #text #organization #data {
-      margin-left: 15px;
-      width: calc(100% - 15px);
-      display: table;
-      border-collapse: collapse;
-      width: 100%; }
-      body #page #right #text #organization #data .row {
-        display: table-row;
-        width: 100%; }
-        body #page #right #text #organization #data .row .key {
-          display: table-cell;
-          padding: 8px 42px 8px 0;
-          white-space: nowrap;
-          color: #666;
-          vertical-align: top; }
-        body #page #right #text #organization #data .row .value {
-          display: table-cell;
-          vertical-align: middle;
-          width: 100%; }
-          body #page #right #text #organization #data .row .value #name {
-            min-height: 10px; }
-          body #page #right #text #organization #data .row .value input {
-            background-color: rgba(255, 255, 255, 0.7);
-            width: calc(100% - 16px);
-            padding: 6px 8px;
-            border: 0;
-            border-radius: 4px;
-            color: #777;
-            color: #000;
-            font-size: 100%; }
-          body #page #right #text #organization #data .row .value input[type=checkbox]:checked {
-            color: #cc2d7b; }
-          body #page #right #text #organization #data .row .value textarea {
-            background-color: rgba(255, 255, 255, 0.7);
-            width: calc(100% - 16px);
-            height: 100px;
-            padding: 6px 8px;
-            border: 0;
-            color: #777;
-            color: #000;
-            font-size: 100%;
-            resize: vertical; }
-          body #page #right #text #organization #data .row .value input:focus, body #page #right #text #organization #data .row .value textarea:focus {
-            outline-color: #cc2d7b;
-            border-color: #cc2d7b;
-            box-shadow: 0 0 6px #cc2d7b; }
-          body #page #right #text #organization #data .row .value input::placeholder {
-            font-size: 90%;
-            font-style: italic;
-            color: #acacac;
-            opacity: 1;
-            /* Firefox fix */ }
-          body #page #right #text #organization #data .row .value #address {
-            margin-top: 2px;
-            border-radius: 4px; }
-        body #page #right #text #organization #data .row .organizationsList {
-          display: flex;
-          flex-wrap: wrap;
-          padding-top: 7px; }
-          body #page #right #text #organization #data .row .organizationsList .organization {
-            padding: 4px 8px;
-            margin: 2px;
-            border: 0;
-            border-radius: 3px; }
-          body #page #right #text #organization #data .row .organizationsList .organization:hover {
-            background-color: rgba(255, 115, 0, 0.2); }
+      margin-left: 15px; }
     body #page #right #text #organization #saveButton {
       margin-top: 2vh; }
-  body #page #right #text #map {
-    width: 40%;
+  body #page #right #text #mapArea {
+    width: 50%;
     display: inline-block;
     top: 0px;
     bottom: 0px;
     right: 0px;
     position: absolute;
     cursor: pointer; }
+    body #page #right #text #mapArea #map {
+      width: 100%;
+      height: 100%; }
+      body #page #right #text #mapArea #map .mapboxgl-canary:focus {
+        outline: transparent none 0px; }
+      body #page #right #text #mapArea #map .mapboxgl-canvas:focus {
+        outline: transparent none 0px; }
+    body #page #right #text #mapArea #map:focus {
+      outline: transparent none 0px; }
+    body #page #right #text #mapArea #menu {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      background: #ffffffaa;
+      font-size: 80%;
+      padding: 5px 10px;
+      border-radius: 4px; }

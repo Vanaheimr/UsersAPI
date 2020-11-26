@@ -1,10 +1,11 @@
 ﻿<link href="../../organization/address.min.css" type="text/css" rel="stylesheet" />
 
-<link rel="stylesheet" href="/libs/leaflet/leaflet.css" />
-<link rel="stylesheet" href="/libs/leaflet/L.Control.Locate.min.css" />
 <script type="text/javascript" src="../../organization/address.js"></script>
-<script src="/libs/leaflet/leaflet.js"></script>
-<script src="/libs/leaflet/L.Control.Locate.min.js"></script>
+
+<link  href="https://api.mapbox.com/mapbox-gl-js/v1.12.0/mapbox-gl.css" rel="stylesheet" type="text/css" />
+<link  href="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v4.5.1/mapbox-gl-geocoder.css" rel="stylesheet" type="text/css" />
+<script src="https://api.mapbox.com/mapbox-gl-js/v1.12.0/mapbox-gl.js"></script>
+<script src="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v4.5.1/mapbox-gl-geocoder.min.js"></script>
 
 <div id="organization" class="entity headline">
 
@@ -29,49 +30,80 @@
 
     <div id="data">
 
+        <div class="group">Address</div>
+
         <div class="row">
-            <div class="key">Street</div>
-            <div class="value"><input id="street" placeholder="The name of the street..." /></div>
+            <div class="subkey">Street</div>
+            <div class="value">
+                <input id="street" placeholder="The name of the street..." />
+                <div class="validationError"></div>
+            </div>
         </div>
 
         <div class="row">
-            <div class="key">House number</div>
-            <div class="value"><input id="houseNumber" placeholder="The house number..." /></div>
+            <div class="subkey">House number</div>
+            <div class="value">
+                <input id="houseNumber" placeholder="The house number..." />
+                <div class="validationError"></div>
+            </div>
         </div>
 
         <div class="row">
-            <div class="key">Floor level</div>
-            <div class="value"><input id="floorLevel" placeholder="The floor level..." /></div>
+            <div class="subkey">Floor level</div>
+            <div class="value">
+                <input id="floorLevel" placeholder="The floor level..." />
+                <div class="validationError"></div>
+            </div>
         </div>
 
         <div class="row">
-            <div class="key">Postal code</div>
-            <div class="value"><input id="postalCode" placeholder="The postal code..." /></div>
+            <div class="subkey">Postal code</div>
+            <div class="value">
+                <input id="postalCode" placeholder="The postal code..." />
+                <div class="validationError"></div>
+            </div>
         </div>
 
         <div class="row">
-            <div class="key">City</div>
-            <div class="value"><input id="city" placeholder="The city..." /></div>
+            <div class="subkey">City</div>
+            <div class="value">
+                <input id="city" placeholder="The city..." />
+                <div class="validationError"></div>
+            </div>
         </div>
 
         <div class="row">
-            <div class="key">Country</div>
-            <div class="value"><input id="country" placeholder="The country..." /></div>
+            <div class="subkey">Country</div>
+            <div class="value">
+                <input id="country" placeholder="The country..." />
+                <div class="validationError"></div>
+            </div>
         </div>
 
         <div class="row">
-            <div class="key">Comment</div>
-            <div class="value"><input id="comment" placeholder="An optional text/comment to describe the address..." type="text" value=""></div>
+            <div class="subkey">Comment</div>
+            <div class="value">
+                <textarea id="comment" placeholder="An optional text/comment to describe the address..." type="text"></textarea>
+                <div class="validationError"></div>
+            </div>
+        </div>
+
+        <div class="group">Geo location</div>
+
+        <div class="row">
+            <div class="subkey">Latitude</div>
+            <div class="value">
+                <input id="latitude" type="number" placeholder="The latitude of the geo location" />
+                <div class="validationError"></div>
+            </div>
         </div>
 
         <div class="row">
-            <div class="key">Geo Latitude</div>
-            <div class="value"><input id="latitude" type="number" placeholder="The latitude of the geo location" /></div>
-        </div>
-
-        <div class="row">
-            <div class="key">Geo Longitude</div>
-            <div class="value"><input id="longitude" type="number" placeholder="The longitude of the geo location" /></div>
+            <div class="subkey">Longitude</div>
+            <div class="value">
+                <input id="longitude" type="number" placeholder="The longitude of the geo location" />
+                <div class="validationError"></div>
+            </div>
         </div>
 
     </div>
@@ -84,40 +116,30 @@
 
 </div>
 
-<div id="map"></div>
+<div id="mapArea" class="item">
 
-<script>
+    <div id="map"></div>
 
-    var ACCESS_TOKEN = "?access_token=pk.eyJ1IjoiYWh6ZiIsImEiOiJOdEQtTkcwIn0.Cn0iGqUYyA6KPS8iVjN68w";
+    <div id="menu">
 
-    leaflet = L;
+        <input id="streets-v11" type="radio" name="rtoggle"´value="streets" checked="checked" />
+        <label for="streets-v11">streets</label>
 
-    var mapboxAttribution = '<a href="http://openstreetmap.org">OSM</a> contr., <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="http://mapbox.com">Mapbox</a>';
-    var satellite         = L.tileLayer('https://{s}.tiles.mapbox.com/v4/mapbox.streets-satellite/{z}/{x}/{y}.png'              + ACCESS_TOKEN, { id:'MapID',         attribution: mapboxAttribution, maxZoom: 20 });
-    var emerald           = L.tileLayer('https://api.mapbox.com/styles/v1/mapbox/emerald-v8/tiles/{z}/{x}/{y}'                  + ACCESS_TOKEN, { id:'MapID',         attribution: mapboxAttribution, maxZoom: 20 });
-    var streets           = L.tileLayer('https://{s}.tiles.mapbox.com/v4/mapbox.streets/{z}/{x}/{y}.png'                        + ACCESS_TOKEN, { id:'MapID',         attribution: mapboxAttribution, maxZoom: 20 });
-    var streets2          = L.tileLayer('https://api.mapbox.com/styles/v1/ahzf/cjhmtgzrf2ayk2so23dy7xcr3/tiles/256/{z}/{x}/{y}' + ACCESS_TOKEN, { id:'MapID',         attribution: mapboxAttribution, maxZoom: 20 });
-    var grayscale         = L.tileLayer('https://{s}.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png'                                  + ACCESS_TOKEN, { id:'ahzf.nc811hb2', attribution: mapboxAttribution, maxZoom: 20 });
+        <input id="light-v10" type="radio" name="rtoggle" value="light" />
+        <label for="light-v10">light</label>
 
-    map = L.map('map', {
-        center: [49.594760, 11.019356],
-        zoom:   14,
-        layers: [ emerald ]
-    });
+        <input id="dark-v10" type="radio" name="rtoggle" value="dark" />
+        <label for="dark-v10">dark</label>
 
-    var baseLayers = {
-        "satellite": satellite,
-        "emerald":   emerald,
-        "streets":   streets,
-        "streets2":  streets2,
-        "grayscale": grayscale
-    };
+        <input id="outdoors-v11" type="radio" name="rtoggle" value="outdoors" />
+        <label for="outdoors-v11">outdoors</label>
 
-    L.control.layers(baseLayers, null).addTo(map);
+        <input id="satellite-v9" type="radio" name="rtoggle" value="satellite" />
+        <label for="satellite-v9">satellite</label>
 
-    L.control.locate().addTo(map);
+    </div>
 
-</script>
+</div>
 
 <script type="text/javascript">
     StartOrganizationGeoLocation();

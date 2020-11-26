@@ -8232,6 +8232,8 @@ namespace social.OpenData.UsersAPI
                                                             AccessControlAllowOrigin    = "*",
                                                             AccessControlAllowMethods   = "GET, SET",
                                                             AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
+                                                            ContentType                 = HTTPContentType.JSON_UTF8,
+                                                            Content                     = UpdatedOrganization.ToJSON().ToUTF8Bytes(),
                                                             Connection                  = "close"
                                                         }.AsImmutable;
 
