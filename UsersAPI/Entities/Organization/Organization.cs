@@ -760,6 +760,13 @@ namespace social.OpenData.UsersAPI
                                                                                                                            _user => _user.ToJSON())))
                                            : null,
 
+                                       Guests.SafeAny()
+                                           ? new JProperty("guests",            Guests.
+                                                                                    SafeSelect(user => ExpandMembers.Switch(user,
+                                                                                                                           _user => _user.Id.ToString(),
+                                                                                                                           _user => _user.ToJSON())))
+                                           : null,
+
 
                                        new JProperty("isDisabled",              IsDisabled)
 
@@ -1111,6 +1118,11 @@ namespace social.OpenData.UsersAPI
 
         public IEnumerable<User> Members
             => _User2Organization_InEdges.Where(_ => _.EdgeLabel == User2OrganizationEdgeTypes.IsMember).
+                                          SafeSelect(edge => edge.Source).
+                                          Distinct();
+
+        public IEnumerable<User> Guests
+            => _User2Organization_InEdges.Where(_ => _.EdgeLabel == User2OrganizationEdgeTypes.IsGuest).
                                           SafeSelect(edge => edge.Source).
                                           Distinct();
 

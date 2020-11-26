@@ -50,6 +50,7 @@ interface IOrganization {
     geoLocation:                     IGeoLocation;
     admins:                          Array<string> | Array<IUserProfile>;
     members:                         Array<string> | Array<IUserProfile>;
+    guests:                          Array<string> | Array<IUserProfile>;
     parents:                         Array<string> | Array<object>;
     subOrganizations:                Array<string> | Array<object>;
     youAreMember:                    boolean;

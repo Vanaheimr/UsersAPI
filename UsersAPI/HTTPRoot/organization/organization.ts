@@ -190,16 +190,7 @@ function StartOrganization() {
     const pathElements              = window.location.pathname.split("/");
     const organizationId            = pathElements[pathElements.length - 1];
 
-    const organizationMenuDiv       = document.getElementById("organizationMenu") as HTMLDivElement;
-    const links                     = organizationMenuDiv.querySelectorAll("a");
-
-    for (let i = 0; i < links.length; i++) {
-
-        if (links[i].href.indexOf("00000000") > 0) {
-            links[i].href = links[i].href.replace("00000000", organizationId);
-        }
-
-    }
+    FixMenuLinks("organizationMenu", organizationId);
 
     const organizationDiv            = document.          getElementById("organization")                   as HTMLDivElement;
     const headlineDiv                = organizationDiv.   querySelector ("#headline")                      as HTMLDivElement;

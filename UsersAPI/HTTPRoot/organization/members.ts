@@ -1,151 +1,6 @@
 ﻿
 function StartOrganizationMembers() {
 
-    function AnyChangesMade(): boolean {
-
-        //// name
-        //if (UserProfileJSON.name != username.value) {
-
-        //    if (username.value == "") {
-        //        responseDiv.innerHTML = "<div class=\"HTTP Error\">Users must have a username!</div>";
-        //        return false;
-        //    }
-
-        //    return true;
-
-        //}
-
-        //// email
-        //if (UserProfileJSON.email != eMailAddress.value) {
-
-        //    if (eMailAddress.value == "" || eMailAddress.value.length < 6 || eMailAddress.value.indexOf("@") < 1 || eMailAddress.value.indexOf(".") < 4) {
-        //        responseDiv.innerHTML = "<div class=\"HTTP Error\">Users must have a valid e-mail address!</div>";
-        //        return false;
-        //    }
-
-        //    return true;
-
-        //}
-
-        //// telephone
-        //if (UserProfileJSON.telephone != telephone.value) {
-
-        //    if (telephone.value != "" && telephone.value.length < 6) {
-        //        responseDiv.innerHTML = "<div class=\"HTTP Error\">Users must have a valid telephone number!</div>";
-        //        return false;
-        //    }
-
-        //    return true;
-
-        //}
-
-        //// mobilePhone
-        //if (UserProfileJSON.mobilePhone != mobilePhone.value) {
-
-        //    if (mobilePhone.value != "" && mobilePhone.value.length < 6) {
-        //        responseDiv.innerHTML = "<div class=\"HTTP Error\">Users must have a valid mobile phone number!</div>";
-        //        return false;
-        //    }
-
-        //    return true;
-
-        //}
-
-        //// description
-        //let latestDescription  = UserProfileJSON.description != null ? firstValue(UserProfileJSON.description) : "";
-        //let newDescription     = descriptionText.value;
-
-        //if (latestDescription != newDescription)
-        //    return true;
-
-        //// publicKeyRing
-        //if ((UserProfileJSON.publicKeyRing != null ? UserProfileJSON.publicKeyRing : "") != publicKeyRing.value)
-        //    return true;
-
-
-        return false;
-
-    }
-
-    function ToogleSaveButton(): boolean {
-
-        var changesDetected = AnyChangesMade();
-
-        //saveButton.disabled = !changesDetected;
-
-        if (changesDetected)
-            responseDiv.innerHTML = "";
-
-        return changesDetected;
-
-    }
-
-    function SaveData() {
-
-        //// name
-        //if (UserProfileJSON.name != username.value)
-        //    UserProfileJSON.name = username.value;
-
-        //// email
-        //if (UserProfileJSON.email != eMailAddress.value)
-        //    UserProfileJSON.email = eMailAddress.value;
-
-        //// telephone
-        //if (UserProfileJSON.telephone != telephone.value)
-        //    UserProfileJSON.telephone = telephone.value;
-
-        //// mobilePhone
-        //if (UserProfileJSON.mobilePhone != mobilePhone.value)
-        //    UserProfileJSON.mobilePhone = mobilePhone.value;
-
-        //// description
-        //let latestDescription  = UserProfileJSON.description != null ? firstValue(UserProfileJSON.description) : "";
-        //let newDescription     = descriptionText.value;
-
-        //if (latestDescription != newDescription) {
-
-        //    if (newDescription != "") {
-
-        //        if (UserProfileJSON.description == null)
-        //            UserProfileJSON.description = new Object();
-
-        //        UserProfileJSON.description["eng"] = newDescription;
-        //    }
-
-        //    else {
-        //        delete UserProfileJSON.description;
-        //    }
-
-        //}
-
-        //// publicKeyRing
-        //if ((UserProfileJSON.publicKeyRing != null ? UserProfileJSON.publicKeyRing : "") != publicKeyRing.value)
-        //    UserProfileJSON.publicKeyRing = publicKeyRing.value;
-
-        //if (UserProfileJSON.telephone   == "")
-        //    delete (UserProfileJSON.telephone);
-
-        //if (UserProfileJSON.mobilePhone == "")
-        //    delete (UserProfileJSON.mobilePhone);
-
-
-        //HTTPSet("/users/" + UserProfileJSON["@id"],
-        //        UserProfileJSON,
-
-        //        (HTTPStatus, ResponseText) => {
-        //            var responseJSON = JSON.parse(ResponseText);
-        //            responseDiv.innerHTML = "<div class=\"HTTP OK\">Successfully stored updated user profile data.</div>";
-        //            saveButton.disabled = !AnyChangesMade();
-        //        },
-
-        //        (HTTPStatus, StatusText, ResponseText) => {
-        //            var responseJSON = ResponseText != "" ? JSON.parse(ResponseText) : {};
-        //            var info         = responseJSON.description != null ? "<br />" + responseJSON.description : "";
-        //            responseDiv.innerHTML = "<div class=\"HTTP Error\">Storing user profile data failed!" + info + "</div>";
-        //        });
-
-    }
-
     function ImpersonateUser(newUserId) {
 
         HTTPImpersonate("/users/" + newUserId,
@@ -228,34 +83,19 @@ function StartOrganizationMembers() {
     const pathElements         = window.location.pathname.split("/");
     const organizationId       = pathElements[pathElements.length - 2];
 
-    const organizationMenuDiv  = document.getElementById("organizationMenu") as HTMLDivElement;
-    const links                = organizationMenuDiv.querySelectorAll("a");
+    FixMenuLinks("organizationMenu", organizationId);
 
-    for (let i = 0; i < links.length; i++) {
+    const organizationDiv      = document.       getElementById("organization")          as HTMLDivElement;
+    const headlineDiv          = organizationDiv.querySelector ("#headline")             as HTMLDivElement;
 
-        if (links[i].href.indexOf("00000000") > 0) {
-            links[i].href = links[i].href.replace("00000000", organizationId);
-        }
+    const addNewMemberButton   = organizationDiv.querySelector ('#addNewMemberButton')   as HTMLButtonElement;
 
-    }
+    const adminsDiv            = organizationDiv.querySelector ('#adminsDiv')            as HTMLDivElement;
+    const membersDiv           = organizationDiv.querySelector ('#membersDiv')           as HTMLDivElement;
+    const guestsDiv            = organizationDiv.querySelector ('#guestsDiv')            as HTMLDivElement;
 
-    const organizationDiv      = document.getElementById("organization")                as HTMLDivElement;
-    const headlineDiv          = organizationDiv.querySelector ("#headline")            as HTMLDivElement;
+    const responseDiv          = document.       getElementById("response")              as HTMLDivElement;
 
-    const addNewMemberButton   = organizationDiv.querySelector ('#addNewMemberButton')  as HTMLButtonElement;
-
-    const nameDiv              = organizationDiv.querySelector ('#nameDiv')             as HTMLDivElement;
-    const name                 = organizationDiv.querySelector ('#name')                as HTMLInputElement;
-    const adminsDiv            = organizationDiv.querySelector ('#adminsDiv')           as HTMLDivElement;
-    const membersDiv           = organizationDiv.querySelector ('#membersDiv')          as HTMLDivElement;
-
-    const responseDiv          = document.    getElementById("response")                as HTMLDivElement;
-
-    name.onchange              = () => { ToogleSaveButton(); }
-    name.onkeyup               = () => { ToogleSaveButton(); }
-
-
-    var aa = SignInUser;
 
     HTTPGet("/organizations/" + organizationId + "?showMgt&expand=members",
 
@@ -276,12 +116,16 @@ function StartOrganizationMembers() {
                     }
 
                     if (organizationJSON.admins?.length > 0)
-                        for (const member of organizationJSON.admins)
-                            ShowUser(adminsDiv, member);
+                        for (const admin of organizationJSON.admins)
+                            ShowUser(adminsDiv, admin);
 
                     if (organizationJSON.members?.length > 0)
                         for (const member of organizationJSON.members)
                             ShowUser(membersDiv, member);
+
+                    if (organizationJSON.guests?.length > 0)
+                        for (const guest of organizationJSON.guests)
+                            ShowUser(guestsDiv, guest);
 
                     if (organizationJSON.youCanAddMembers) {
                         addNewMemberButton.disabled = false;
@@ -291,7 +135,7 @@ function StartOrganizationMembers() {
                 }
                 catch (exception)
                 {
-                    responseDiv.innerHTML = "<div class=\"HTTP Error\">Could not fetch organization members data from server!<br />" +
+                    responseDiv.innerHTML = "<div class=\"HTTP Error\">Could not fetch organization members from the remote API!<br />" +
                                                 "Exception: " + exception +
                                             "</div>";
                 }
@@ -303,19 +147,15 @@ function StartOrganizationMembers() {
                 try
                 {
 
-                    const responseJSON     = JSON.parse(response);
-                    responseDiv.innerHTML  = "<div class=\"HTTP Error\">Could not fetch organization members data from server!<br />" +
-                                                 (responseJSON.description != null
-                                                      ? responseJSON.description
-                                                      : "HTTP Error " + statusCode + " - " + status) +
-                                             "</div>";
+                    var responseJSON  = response                 !== ""   ? JSON.parse(response)                : { "description": "Received an empty response from the remote API!" };
+                    var info          = responseJSON.description !== null ? "<br />" + responseJSON.description : "";
+
+                    responseDiv.innerHTML = "<div class=\"HTTP Error\">An error occured while getting organization members from the remote API: " + info + "</div>";
 
                 }
                 catch (exception)
                 {
-                    responseDiv.innerHTML  = "<div class=\"HTTP Error\">Could not fetch organization members data from server!<br />" +
-                                                 "Exception: " + exception +
-                                             "</div>";
+                    responseDiv.innerHTML = "<div class=\"HTTP Error\">An exception occured while getting organization members from the remote API:<br />" + exception + "</div>";
                 }
 
             });

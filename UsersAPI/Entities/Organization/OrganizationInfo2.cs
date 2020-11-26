@@ -68,9 +68,11 @@ namespace social.OpenData.UsersAPI
 
         #region Properties
 
-        public   User                    You     { get; }
-        public   IEnumerable<User>       Admins  { get; }
-        public   IEnumerable<User>       Members { get; }
+        public   User                    You                               { get; }
+        //public   IEnumerable<User>       Admins                            { get; }
+        //public   IEnumerable<User>       Members                           { get; }
+
+        //public   IEnumerable<User>       Guests                            { get; }
 
         internal List<OrganizationInfo>  internalChilds;
         public IEnumerable<OrganizationInfo> Childs
@@ -114,9 +116,9 @@ namespace social.OpenData.UsersAPI
         {
 
             this.You                             = You;
-            this.Admins                          = _User2Organization_InEdges.Where(_ => _.EdgeLabel == User2OrganizationEdgeTypes.IsAdmin). SafeSelect(edge => edge.Source).ToArray();
-            this.Members                         = _User2Organization_InEdges.Where(_ => _.EdgeLabel == User2OrganizationEdgeTypes.IsMember).SafeSelect(edge => edge.Source).ToArray();
-
+            //this.Admins                          = _User2Organization_InEdges.Where(_ => _.EdgeLabel == User2OrganizationEdgeTypes.IsAdmin). SafeSelect(edge => edge.Source).ToArray();
+            //this.Members                         = _User2Organization_InEdges.Where(_ => _.EdgeLabel == User2OrganizationEdgeTypes.IsMember).SafeSelect(edge => edge.Source).ToArray();
+            //this.Guests                          = _User2Organization_InEdges.Where(_ => _.EdgeLabel == User2OrganizationEdgeTypes.IsGuest). SafeSelect(edge => edge.Source).ToArray();
 
             void CheckAccessRights(Organization  OOORg,
                                    ref Boolean  _YouAreMemberRecursion,
@@ -127,9 +129,9 @@ namespace social.OpenData.UsersAPI
                 foreach (var parent in OOORg.Parents)
                 {
                     CheckAccessRights(parent,
-                                 ref _YouAreMemberRecursion,
-                                 ref _YouCanAddMembersRecursion,
-                                 ref _YouCanCreateChildOrganizationsRecursion);
+                                      ref _YouAreMemberRecursion,
+                                      ref _YouCanAddMembersRecursion,
+                                      ref _YouCanCreateChildOrganizationsRecursion);
                 }
 
                 if (_YouAreMemberRecursion == false && (OOORg.Members.Contains(You) || OOORg.Admins.Contains(You)))

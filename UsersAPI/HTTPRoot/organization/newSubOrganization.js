@@ -1,13 +1,7 @@
 function StartNewSubOrganization() {
     const pathElements = window.location.pathname.split("/");
     const organizationId = pathElements[pathElements.length - 2];
-    const organizationMenuDiv = document.getElementById("organizationMenu");
-    const links = organizationMenuDiv.querySelectorAll("a");
-    for (let i = 0; i < links.length; i++) {
-        if (links[i].href.indexOf("00000000") > 0) {
-            links[i].href = links[i].href.replace("00000000", organizationId);
-        }
-    }
+    FixMenuLinks("organizationMenu", organizationId);
     const newSubOrganizationDiv = document.getElementById("newSubOrganization");
     const headlineDiv = newSubOrganizationDiv.querySelector("#headline");
     const dataDiv = newSubOrganizationDiv.querySelector('#data');

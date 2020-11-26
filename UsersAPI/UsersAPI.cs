@@ -7720,12 +7720,12 @@ namespace social.OpenData.UsersAPI
                                                                   ContentType                = HTTPContentType.JSON_UTF8,
                                                                   Content                    = (showMgt == true
                                                                                                     ? new OrganizationInfo2(Organization,
-                                                                                                                           HTTPUser).ToJSON(false,
-                                                                                                                                            expandMembers,
-                                                                                                                                            expandParents,
-                                                                                                                                            expandSubOrganizations,
-                                                                                                                                            expandTags,
-                                                                                                                                            includeCryptoHash)
+                                                                                                                            HTTPUser).ToJSON(false,
+                                                                                                                                             expandMembers,
+                                                                                                                                             expandParents,
+                                                                                                                                             expandSubOrganizations,
+                                                                                                                                             expandTags,
+                                                                                                                                             includeCryptoHash)
                                                                                                     : Organization.ToJSON(false,
                                                                                                                           expandMembers,
                                                                                                                           expandParents,

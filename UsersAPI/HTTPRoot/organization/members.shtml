@@ -39,6 +39,11 @@
             <div class="value memberGroup" id="membersDiv"></div>
         </div>
 
+        <div class="row">
+            <div class="key keyTop">Guests</div>
+            <div class="value memberGroup" id="guestsDiv"></div>
+        </div>
+
     </div>
 
     <div id="response"></div>
