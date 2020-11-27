@@ -94,6 +94,30 @@ function firstValue(obj) {
     for (const a in obj)
         return obj[a];
 }
+function UILanguageOrFirst(obj, UILanguage) {
+    if (obj == undefined || obj == null)
+        return "";
+    if (obj[UILanguage] !== undefined &&
+        obj[UILanguage] !== null) {
+        return obj[UILanguage];
+    }
+    for (const a in obj)
+        return obj[a];
+}
+function UILanguageOrFirstOrDefault(obj, UILanguage, Default) {
+    if (obj == undefined || obj == null)
+        return "";
+    if (obj[UILanguage] !== undefined &&
+        obj[UILanguage] !== null) {
+        return obj[UILanguage];
+    }
+    let response = "";
+    for (const a in obj)
+        response = obj[a];
+    return response == undefined || response == null
+        ? Default
+        : response;
+}
 function languageKey2Text(LanguageKey, UILanguage) {
     switch (LanguageKey) {
         case "en":

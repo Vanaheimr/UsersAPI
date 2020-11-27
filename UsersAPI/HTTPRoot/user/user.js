@@ -299,14 +299,18 @@ function StartUser() {
             }
         }
         catch (exception) {
-            responseDiv.innerHTML = "<div class=\"HTTP Error\">Could not fetch user data from server:<br />" + exception + "</div>";
+            responseDiv.innerHTML = "<div class=\"HTTP Error\">Could not fetch user data from the remote API!<br />" +
+                "Exception: " + exception +
+                "</div>";
         }
     }, (statusCode, status, response) => {
         try {
-            responseDiv.innerHTML = "<div class=\"HTTP Error\">Could not fetch user data from server!</div>";
+            var responseJSON = response !== "" ? JSON.parse(response) : { "description": "Received an empty response from the remote API!" };
+            var info = responseJSON.description !== null ? "<br />" + responseJSON.description : "";
+            responseDiv.innerHTML = "<div class=\"HTTP Error\">An error occured while getting user data from the remote API: " + info + "</div>";
         }
         catch (exception) {
-            responseDiv.innerHTML = "<div class=\"HTTP Error\">Could not fetch user data from server:<br />" + exception + "</div>";
+            responseDiv.innerHTML = "<div class=\"HTTP Error\">An exception occured while getting user data from the remote API:<br />" + exception + "</div>";
         }
     });
 }
