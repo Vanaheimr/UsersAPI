@@ -29,6 +29,10 @@ body {
             background-color:       $NavigationBackground;
             box-shadow:             2px 0 16px 0 rgba(0, 0, 0, 0.3);
 
+            #topMenu {
+                margin-top:         3vh;
+            }
+
             .menu {
                 display:            block;
                 color:              $NavigationMenuColor;

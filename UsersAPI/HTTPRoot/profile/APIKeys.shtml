@@ -5,12 +5,17 @@
 <script type="text/javascript" src="../profile/APIKeys.js"></script>
 <script type="text/javascript" src="/shared/UsersAPI/defaults/views.js"></script>
 
-<div id="APIKeyInfos">
+<div id="APIKeyInfos" class="entity headline">
 
-    <div id="APIKeys_headline" class="headline">Your API keys</div>
+    <div id="headline">
+        <div id="title">
+            Your API keys
+        </div>
+    </div>
 
     <div id="APIKeys"></div>
-    <div id="messages"></div>
+
+    <div id="response"></div>
 
     <!--<button class="button" onclick="AddAPIKeysView()"><div class="text"><i class="fa fa-plus  fa-2x menuicons"></i><div class="text2">New API key</div></div></button>-->
 

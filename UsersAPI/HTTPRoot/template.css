@@ -24,6 +24,8 @@ body {
         display: block;
         background-size: cover;
         background-repeat: no-repeat; }
+      body #page #navigation #topMenu {
+        margin-top: 3vh; }
       body #page #navigation .menu {
         display: block;
         color: #675939;

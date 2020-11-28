@@ -59,28 +59,47 @@ function ShowAPIKey(parentDiv, JSON) {
 }
 function StartAPIKeys() {
     checkSignedIn(true);
+    const APIKeysDiv = document.getElementById('APIKeys');
+    const responseDiv = document.getElementById("response");
     HTTPGet("/users/" + SignInUser + "/APIKeys", (status, response) => {
-        const multiplexer = JSON.parse(response);
-        const user = SignInUser;
-        // [
-        //     {
-        //         "@id":           "vdYS345t87xYtGGOEUMdQxpfdpU43526pjdYxhfGhtbjnbOfnIWOdfjYnOKEdGQf",
-        //         "@context":      "https://opendata.social/contexts/UsersAPI+json/APIKeyInfo",
-        //         "userId":        "test",
-        //         "description":   {
-        //             "eng":  "Test key"
-        //         },
-        //         "accessRights":  "readOnly",
-        //         "created":       "2018-03-13T11:41:58.228Z"
-        //     }
-        // ]
-        const APIKeysDiv = document.getElementById('APIKeys');
-        for (let i = 0, len = multiplexer.length; i < len; i++) {
-            const APIKeyInfoDiv = APIKeysDiv.appendChild(document.createElement('div'));
-            APIKeyInfoDiv.className = "APIKeyInfo";
-            ShowAPIKey(APIKeyInfoDiv, multiplexer[i]);
+        try {
+            const apiKeys = JSON.parse(response);
+            // [
+            //     {
+            //         "@id":           "vdYS345t87xYtGGOEUMdQxpfdpU43526pjdYxhfGhtbjnbOfnIWOdfjYnOKEdGQf",
+            //         "@context":      "https://opendata.social/contexts/UsersAPI+json/APIKeyInfo",
+            //         "userId":        "test",
+            //         "description":   {
+            //             "eng":  "Test key"
+            //         },
+            //         "accessRights":  "readOnly",
+            //         "created":       "2018-03-13T11:41:58.228Z"
+            //     }
+            // ]
+            if (apiKeys.length == 0)
+                responseDiv.innerHTML = "No API keys found!";
+            else {
+                for (const apiKey of apiKeys) {
+                    const APIKeyInfoDiv = APIKeysDiv.appendChild(document.createElement('div'));
+                    APIKeyInfoDiv.className = "APIKeyInfo";
+                    ShowAPIKey(APIKeyInfoDiv, apiKey);
+                }
+            }
+        }
+        catch (exception) {
+            responseDiv.innerHTML = "<div class=\"HTTP Error\">Could not fetch API keys from the remote API!<br />" +
+                "Exception: " + exception +
+                "</div>";
         }
     }, (statusCode, status, response) => {
+        try {
+            var responseJSON = response !== "" ? JSON.parse(response) : { "description": "Received an empty response from the remote API!" };
+            var info = responseJSON.description !== null ? "<br />" + responseJSON.description : "";
+            responseDiv.innerHTML = "<div class=\"HTTP Error\">An error occured while getting API keys from the remote API: " + info + "</div>";
+        }
+        catch (exception) {
+            responseDiv.innerHTML = "<div class=\"HTTP Error\">An exception occured while getting API keys from the remote API:<br />" + exception + "</div>";
+        }
     });
 }
 //# sourceMappingURL=APIKeys.js.map
