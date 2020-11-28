@@ -104,12 +104,12 @@ namespace social.OpenData.UsersAPI
         /// <summary>
         /// The JSON-LD context of this object.
         /// </summary>
-        public new const String JSONLDContextText = "https://opendata.social/contexts/UsersAPI/serviceTicket/changeSet";
+        public const String JSONLDContextText = "https://opendata.social/contexts/UsersAPI/serviceTicket/changeSet";
 
         /// <summary>
         /// The JSON-LD context of this object.
         /// </summary>
-        public new readonly static JSONLDContext DefaultJSONLDContext = JSONLDContext.Parse(JSONLDContextText);
+        public readonly static JSONLDContext DefaultJSONLDContext = JSONLDContext.Parse(JSONLDContextText);
 
         #endregion
 
@@ -446,7 +446,7 @@ namespace social.OpenData.UsersAPI
                                            OrganizationProviderDelegate   OrganizationProvider,
                                            out ServiceTicketChangeSet     ServiceTicketChangeSet,
                                            out String                     ErrorResponse,
-                                           JSONLDContext?                 VerifyContext                 = null,
+                                           JSONLDContext?                 ExpectedContext               = null,
                                            ServiceTicketChangeSet_Id?     ServiceTicketChangeSetIdURL   = null,
                                            OverwriteUserDelegate          OverwriteAuthor               = null,
                                            String                         DataSource                    = null)
@@ -463,7 +463,7 @@ namespace social.OpenData.UsersAPI
                     return false;
                 }
 
-                #region Parse ServiceTicketChangeSetId    [optional]
+                #region Parse ServiceTicketChangeSetId      [optional]
 
                 // Verify that a given service ticket change set identification
                 //   is at least valid.
@@ -490,7 +490,7 @@ namespace social.OpenData.UsersAPI
 
                 #endregion
 
-                #region Parse Context          [mandatory]
+                #region Parse Context                       [mandatory]
 
                 if (!JSONObject.ParseMandatory("@context",
                                                "JSON-LinkedData context information",
@@ -502,10 +502,10 @@ namespace social.OpenData.UsersAPI
                     return false;
                 }
 
-                if (!VerifyContext.HasValue)
-                    VerifyContext = DefaultJSONLDContext;
+                if (!ExpectedContext.HasValue)
+                    ExpectedContext = DefaultJSONLDContext;
 
-                if (Context != VerifyContext.Value)
+                if (Context != ExpectedContext.Value)
                 {
                     ErrorResponse = @"The given JSON-LD ""@context"" information '" + Context + "' is not supported!";
                     return false;
@@ -513,7 +513,7 @@ namespace social.OpenData.UsersAPI
 
                 #endregion
 
-                #region Parse Timestamp                   [mandatory]
+                #region Parse Timestamp                     [mandatory]
 
                 if (!JSONObject.ParseMandatory("timestamp",
                                                "timestamp",
@@ -525,7 +525,7 @@ namespace social.OpenData.UsersAPI
 
                 #endregion
 
-                #region Parse Author                      [optional]
+                #region Parse Author                        [optional]
 
                 User Author = null;
 

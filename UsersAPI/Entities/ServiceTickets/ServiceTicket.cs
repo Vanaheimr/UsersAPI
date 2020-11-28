@@ -67,7 +67,7 @@ namespace social.OpenData.UsersAPI
         /// <summary>
         /// The JSON-LD context of this object.
         /// </summary>
-        public new readonly static JSONLDContext DefaultJSONLDContext = JSONLDContext.Parse("https://opendata.social/contexts/UsersAPI/serviceTicket");
+        public readonly static JSONLDContext DefaultJSONLDContext = JSONLDContext.Parse("https://opendata.social/contexts/UsersAPI/serviceTicket");
 
         #endregion
 
@@ -509,7 +509,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="ServiceTicketProvider">A delegate resolving service tickets.</param>
         /// <param name="ServiceTicket">The parsed service ticket.</param>
         /// <param name="ErrorResponse">An error message.</param>
-        /// <param name="VerifyContext">Verify the JSON-LD context.</param>
+        /// <param name="ExpectedContext">Verify the JSON-LD context.</param>
         /// <param name="ServiceTicketIdURL">An optional service ticket identification, e.g. from the HTTP URL.</param>
         /// <param name="OverwriteAuthor">Overwrite the author of the service ticket, if given.</param>
         public static Boolean TryParseJSON(JObject                        JSONObject,
@@ -518,9 +518,10 @@ namespace social.OpenData.UsersAPI
                                            OrganizationProviderDelegate   OrganizationProvider,
                                            out ServiceTicket              ServiceTicket,
                                            out String                     ErrorResponse,
-                                           JSONLDContext?                 VerifyContext        = default,
-                                           ServiceTicket_Id?              ServiceTicketIdURL   = null,
-                                           OverwriteUserDelegate          OverwriteAuthor      = null)
+                                           JSONLDContext?                 ExpectedContext            = default,
+                                           JSONLDContext?                 ExpectedChangeSetContext   = default,
+                                           ServiceTicket_Id?              ServiceTicketIdURL         = null,
+                                           OverwriteUserDelegate          OverwriteAuthor            = null)
         {
 
             try
@@ -546,10 +547,10 @@ namespace social.OpenData.UsersAPI
                     return false;
                 }
 
-                if (!VerifyContext.HasValue)
-                    VerifyContext = DefaultJSONLDContext;
+                if (!ExpectedContext.HasValue)
+                    ExpectedContext = DefaultJSONLDContext;
 
-                if (Context != VerifyContext.Value)
+                if (Context != ExpectedContext.Value)
                 {
                     ErrorResponse = @"The given JSON-LD ""@context"" information '" + Context + "' is not supported!";
                     return false;
@@ -866,25 +867,25 @@ namespace social.OpenData.UsersAPI
                 #endregion
 
 
-                #region Parse History                    [optional]
+                #region Parse ChangeSets                 [optional]
 
                 var ChangeSets = new List<ServiceTicketChangeSet>();
 
                 if (JSONObject.ParseOptional("changeSets",
                                              "service ticket change sets",
-                                             out JArray HistoryJSON,
+                                             out JArray ChangeSetsJSON,
                                              out ErrorResponse))
                 {
 
                     if (ErrorResponse != null)
                         return false;
 
-                    if (HistoryJSON != null)
+                    if (ChangeSetsJSON != null)
                     {
-                        foreach (var history in HistoryJSON)
+                        foreach (var changeSet in ChangeSetsJSON)
                         {
 
-                            if (history is JObject historyJSON)
+                            if (changeSet is JObject changeSetJSON)
                             {
 
                                 //var context = historyJSON.GetString("@context");
@@ -895,12 +896,13 @@ namespace social.OpenData.UsersAPI
                                 //{
 
                                 //    case ServiceTicketChangeSet.DefaultJSONLDContext:
-                                        if (!ServiceTicketChangeSet.TryParseJSON(historyJSON,
+                                        if (!ServiceTicketChangeSet.TryParseJSON(changeSetJSON,
                                                                                  ServiceTicketProvider,
                                                                                  UserProvider,
                                                                                  OrganizationProvider,
                                                                                  out ServiceTicketChangeSet serviceTicketHistory,
-                                                                                 out ErrorResponse))
+                                                                                 out ErrorResponse,
+                                                                                 ExpectedChangeSetContext ?? ServiceTicketChangeSet.DefaultJSONLDContext))
                                         {
                                             return false;
                                         }
