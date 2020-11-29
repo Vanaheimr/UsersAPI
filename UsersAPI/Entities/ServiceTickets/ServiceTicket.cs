@@ -475,7 +475,7 @@ namespace social.OpenData.UsersAPI
                                        IncludeChangeSets && ChangeSets.SafeAny()
                                            ? new JProperty("changeSets",           new JArray(ChangeSets.
                                                                                                   OrderByDescending(changeSet => changeSet.Timestamp).
-                                                                                                  SafeSelect       (changeSet => changeSet.ToJSON())))
+                                                                                                  SafeSelect       (changeSet => changeSet.ToJSON(true))))
                                            : null,
 
 
@@ -1507,7 +1507,7 @@ namespace social.OpenData.UsersAPI
             #endregion
 
 
-            public void AppendHistoryEntry<TServiceTicketChangeSet>(TServiceTicketChangeSet ServiceTicketChangeSet)
+            public void AppendChangeSet<TServiceTicketChangeSet>(TServiceTicketChangeSet ServiceTicketChangeSet)
 
                 where TServiceTicketChangeSet : ServiceTicketChangeSet
 
