@@ -32,6 +32,21 @@ using org.GraphDefined.Vanaheimr.Hermod;
 namespace social.OpenData.UsersAPI
 {
 
+    public static class AffectedExtentions
+    {
+
+        /// <summary>
+        /// Whether the list of affected things is empty.
+        /// </summary>
+        public static Boolean IsEmpty(this Affected Affected)
+
+            => Affected == null ||
+             !(Affected.ServiceTickets.SafeAny() ||
+               Affected.Users.         SafeAny() ||
+               Affected.Organizations. SafeAny());
+
+    }
+
     /// <summary>
     /// A list of things affected by a service ticket.
     /// </summary>
@@ -76,15 +91,6 @@ namespace social.OpenData.UsersAPI
         /// </summary>
         public IEnumerable<MessageHolder<Organization_Id, Organization>>    Organizations
             => _Organizations;
-
-
-        /// <summary>
-        /// Whether the list of affected things is empty.
-        /// </summary>
-        public virtual Boolean IsEmpty
-            => !_ServiceTickets.SafeAny() &&
-               !_Users.         SafeAny() &&
-               !_Organizations. SafeAny();
 
         #endregion
 
@@ -225,11 +231,11 @@ namespace social.OpenData.UsersAPI
 
                 Affected = null;
 
-                if (JSONObject?.HasValues != true)
-                {
-                    ErrorResponse = "The given JSON object must not be null or empty!";
-                    return false;
-                }
+                //if (JSONObject?.HasValues != true)
+                //{
+                //    ErrorResponse = "The given JSON object must not be null or empty!";
+                //    return false;
+                //}
 
                 #region Parse ServiceTickets   [optional]
 

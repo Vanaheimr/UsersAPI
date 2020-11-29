@@ -348,7 +348,7 @@ namespace social.OpenData.UsersAPI
                     ? new JProperty("title",                Title.ToJSON())
                     : null,
 
-                Affected != null && !Affected.IsEmpty
+                !Affected.IsEmpty()
                     ? new JProperty("affected",             Affected.ToJSON())
                     : null,
 

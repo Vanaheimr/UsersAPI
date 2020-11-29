@@ -433,7 +433,7 @@ namespace social.OpenData.UsersAPI
                                                                                                                                        timestamped.Value.    ToString()))
                                                                                               )),
 
-                                       Affected != null && !Affected.IsEmpty
+                                       !Affected.IsEmpty()
                                            ? new JProperty("affected", Affected.ToJSON())
                                            : null,
 
@@ -519,6 +519,7 @@ namespace social.OpenData.UsersAPI
                                            out ServiceTicket              ServiceTicket,
                                            out String                     ErrorResponse,
                                            JSONLDContext?                 ExpectedContext            = default,
+                                           Boolean                        IgnoreChangeSets           = false,
                                            JSONLDContext?                 ExpectedChangeSetContext   = default,
                                            ServiceTicket_Id?              ServiceTicketIdURL         = null,
                                            OverwriteUserDelegate          OverwriteAuthor            = null)
@@ -871,7 +872,8 @@ namespace social.OpenData.UsersAPI
 
                 var ChangeSets = new List<ServiceTicketChangeSet>();
 
-                if (JSONObject.ParseOptional("changeSets",
+                if (!IgnoreChangeSets &&
+                    JSONObject.ParseOptional("changeSets",
                                              "service ticket change sets",
                                              out JArray ChangeSetsJSON,
                                              out ErrorResponse))
