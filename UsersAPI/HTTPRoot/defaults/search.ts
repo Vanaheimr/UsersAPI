@@ -204,25 +204,33 @@ function StartSearch2<TMetadata extends TMetadataDefaults, TSearchResult>(reques
 
                             // List view
                             default:
-                                for (const searchResult of searchResults) {
+                                if (searchResults.length > 0) {
 
-                                    const searchResultDiv      = searchResultsDiv.appendChild(document.createElement('a')) as HTMLAnchorElement;
-                                    searchResultDiv.id         = nameOfItem + "_" + searchResult["@id"];
-                                    searchResultDiv.className  = "searchResult " + nameOfItem;
+                                    downLoadButton.style.display = "block";
 
-                                    if (typeof linkPrefix !== 'undefined' && linkPrefix && linkPrefix(searchResult) != null)
-                                        searchResultDiv.href   = linkPrefix(searchResult) + nameOfItems + "/" + searchResult["@id"];
+                                    for (const searchResult of searchResults) {
 
-                                    try
-                                    {
-                                        doListView(searchResult, searchResultDiv);
-                                    }
-                                    catch (exception)
-                                    {
-                                        console.debug("Exception in search list view: " + exception);
+                                        const searchResultDiv      = searchResultsDiv.appendChild(document.createElement('a')) as HTMLAnchorElement;
+                                        searchResultDiv.id         = nameOfItem + "_" + searchResult["@id"];
+                                        searchResultDiv.className  = "searchResult " + nameOfItem;
+
+                                        if (typeof linkPrefix !== 'undefined' && linkPrefix && linkPrefix(searchResult) != null)
+                                            searchResultDiv.href   = linkPrefix(searchResult) + nameOfItems + "/" + searchResult["@id"];
+
+                                        try
+                                        {
+                                            doListView(searchResult, searchResultDiv);
+                                        }
+                                        catch (exception)
+                                        {
+                                            console.debug("Exception in search list view: " + exception);
+                                        }
+
                                     }
 
                                 }
+                                else
+                                    downLoadButton.style.display = "none";
 
                         }
 

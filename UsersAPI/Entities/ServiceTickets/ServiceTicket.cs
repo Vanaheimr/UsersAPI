@@ -380,7 +380,6 @@ namespace social.OpenData.UsersAPI
 
             => ToJSON(Embedded:               false,
                       MaxStatus:              null,
-                      IncludeStatus:          null,
                       ExpandDataLicenses:     InfoStatus.ShowIdOnly,
                       ExpandAuthorId:         InfoStatus.ShowIdOnly,
                       IncludeChangeSets:      true,
@@ -392,14 +391,13 @@ namespace social.OpenData.UsersAPI
         /// </summary>
         /// <param name="Embedded">Whether this data is embedded into another data structure, e.g. into a service ticket.</param>
         /// <param name="IncludeCryptoHash">Whether to include the cryptograhical hash value of this object.</param>
-        public JObject ToJSON(Boolean                                            Embedded                        = false,
-                              UInt16?                                            MaxStatus                       = null,
-                              Func<DateTime, ServiceTicketStatusTypes, Boolean>  IncludeStatus                   = null,
-                              InfoStatus                                         ExpandDataLicenses              = InfoStatus.ShowIdOnly,
-                              InfoStatus                                         ExpandAuthorId                  = InfoStatus.ShowIdOnly,
-                              Boolean                                            IncludeChangeSets               = true,
-                              Boolean                                            IncludeCryptoHash               = true,
-                              CustomJObjectSerializerDelegate<ServiceTicket>     CustomServiceTicketSerializer   = null)
+        public JObject ToJSON(Boolean                                         Embedded                        = false,
+                              UInt16?                                         MaxStatus                       = null,
+                              InfoStatus                                      ExpandDataLicenses              = InfoStatus.ShowIdOnly,
+                              InfoStatus                                      ExpandAuthorId                  = InfoStatus.ShowIdOnly,
+                              Boolean                                         IncludeChangeSets               = true,
+                              Boolean                                         IncludeCryptoHash               = true,
+                              CustomJObjectSerializerDelegate<ServiceTicket>  CustomServiceTicketSerializer   = null)
 
         {
 
@@ -427,10 +425,9 @@ namespace social.OpenData.UsersAPI
 
                                        new JProperty("status",                     new JObject((StatusHistory as IEnumerable<Timestamped<ServiceTicketStatusTypes>>).
                                                                                                    Reverse().
-                                                                                                   Where (timestamped => IncludeStatus != null ? IncludeStatus(timestamped.Timestamp, timestamped.Value) : true).
-                                                                                                   Take  (MaxStatus).
-                                                                                                   Select(timestamped => new JProperty(timestamped.Timestamp.ToIso8601(),
-                                                                                                                                       timestamped.Value.    ToString()))
+                                                                                                   Take   (MaxStatus).
+                                                                                                   Select (timestamped => new JProperty(timestamped.Timestamp.ToIso8601(),
+                                                                                                                                        timestamped.Value.    ToString()))
                                                                                               )),
 
                                        !Affected.IsEmpty()
