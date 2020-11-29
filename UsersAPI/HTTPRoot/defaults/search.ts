@@ -206,7 +206,8 @@ function StartSearch2<TMetadata extends TMetadataDefaults, TSearchResult>(reques
                             default:
                                 if (searchResults.length > 0) {
 
-                                    downLoadButton.style.display = "block";
+                                    if (downLoadButton != null)
+                                        downLoadButton.style.display = "block";
 
                                     for (const searchResult of searchResults) {
 
@@ -230,7 +231,10 @@ function StartSearch2<TMetadata extends TMetadataDefaults, TSearchResult>(reques
 
                                 }
                                 else
-                                    downLoadButton.style.display = "none";
+                                {
+                                    if (downLoadButton != null)
+                                        downLoadButton.style.display = "none";
+                                }
 
                         }
 

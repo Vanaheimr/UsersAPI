@@ -98,7 +98,8 @@ function StartSearch2(requestURL, searchFilters, doStartUp, nameOfItem, nameOfIt
                     // List view
                     default:
                         if (searchResults.length > 0) {
-                            downLoadButton.style.display = "block";
+                            if (downLoadButton != null)
+                                downLoadButton.style.display = "block";
                             for (const searchResult of searchResults) {
                                 const searchResultDiv = searchResultsDiv.appendChild(document.createElement('a'));
                                 searchResultDiv.id = nameOfItem + "_" + searchResult["@id"];
@@ -113,8 +114,10 @@ function StartSearch2(requestURL, searchFilters, doStartUp, nameOfItem, nameOfIt
                                 }
                             }
                         }
-                        else
-                            downLoadButton.style.display = "none";
+                        else {
+                            if (downLoadButton != null)
+                                downLoadButton.style.display = "none";
+                        }
                 }
                 messageDiv.innerHTML = searchResults.length > 0
                     ? "showing results " + (skip + 1) + " - " + (skip + Math.min(searchResults.length, take)) +
