@@ -169,6 +169,11 @@ namespace social.OpenData.UsersAPI
         public IEnumerable<Tag>                         StatusIndicators        { get; }
 
         /// <summary>
+        /// The first official response to a service ticket.
+        /// </summary>
+        public DateTime?                                FirstResponse           { get; }
+
+        /// <summary>
         /// An enumeration of reactions.
         /// </summary>
         public IEnumerable<Tag>                         Reactions               { get; }
@@ -246,38 +251,41 @@ namespace social.OpenData.UsersAPI
 
 
             Affected             = this.ChangeSets.Where(entry => entry.Affected            != null).
-                                                    FirstOrDefault()?.Affected;
+                                                   FirstOrDefault()?.Affected;
 
             Priority             = this.ChangeSets.Where(entry => entry.Priority.HasValue).
-                                                    FirstOrDefault()?.Priority
-                                                    ?? ServiceTicketPriorities.Normal;
+                                                   FirstOrDefault()?.Priority
+                                                   ?? ServiceTicketPriorities.Normal;
 
             Location             = this.ChangeSets.Where(entry => entry.Location.IsNeitherNullNorEmpty()).
-                                                    FirstOrDefault()?.Location;
+                                                   FirstOrDefault()?.Location;
 
             GeoLocation          = this.ChangeSets.Where(entry => entry.GeoLocation.HasValue).
-                                                    FirstOrDefault()?.GeoLocation;
+                                                   FirstOrDefault()?.GeoLocation;
 
             ProblemDescriptions  = this.ChangeSets.Where(entry => entry.ProblemDescriptions.SafeAny()).
-                                                    FirstOrDefault()?.ProblemDescriptions;
+                                                   FirstOrDefault()?.ProblemDescriptions;
 
             StatusIndicators     = this.ChangeSets.Where(entry => entry.StatusIndicators.SafeAny()).
-                                                    FirstOrDefault()?.StatusIndicators;
+                                                   FirstOrDefault()?.StatusIndicators;
+
+            FirstResponse        = this.ChangeSets.Where(entry => entry.FirstResponse.HasValue).
+                                                   LastOrDefault()?.FirstResponse;
 
             Reactions            = this.ChangeSets.Where(entry => entry.Reactions.SafeAny()).
-                                                    FirstOrDefault()?.Reactions;
+                                                   FirstOrDefault()?.Reactions;
 
             AdditionalInfo       = this.ChangeSets.Where(entry => entry.AdditionalInfo.IsNeitherNullNorEmpty()).
-                                                    FirstOrDefault()?.AdditionalInfo;
+                                                   FirstOrDefault()?.AdditionalInfo;
 
             AttachedFiles        = this.ChangeSets.Where(entry => entry.AttachedFiles.SafeAny()).
-                                                    FirstOrDefault()?.AttachedFiles;
+                                                   FirstOrDefault()?.AttachedFiles;
 
             TicketReferences     = this.ChangeSets.Where(entry => entry.TicketReferences.SafeAny()).
-                                                    FirstOrDefault()?.TicketReferences;
+                                                   FirstOrDefault()?.TicketReferences;
 
             DataLicenses         = this.ChangeSets.Where(entry => entry.DataLicenses.SafeAny()).
-                                                    FirstOrDefault()?.DataLicenses;
+                                                   FirstOrDefault()?.DataLicenses;
 
         }
 
@@ -300,6 +308,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="GeoLocation">The geographical location of the problem or broken device.</param>
         /// <param name="ProblemDescriptions">An enumeration of well-defined problem descriptions.</param>
         /// <param name="StatusIndicators">An enumeration of problem indicators.</param>
+        /// <param name="FirstResponse">The first official response to a service ticket.</param>
         /// <param name="Reactions">An enumeration of reactions.</param>
         /// <param name="AdditionalInfo">A multi-language description of the service ticket.</param>
         /// <param name="AttachedFiles">An enumeration of URLs to files attached to this service ticket.</param>
@@ -320,6 +329,7 @@ namespace social.OpenData.UsersAPI
                              GeoCoordinate?                       GeoLocation           = null,
                              IEnumerable<ProblemDescriptionI18N>  ProblemDescriptions   = null,
                              IEnumerable<Tag>                     StatusIndicators      = null,
+                             DateTime?                            FirstResponse         = null,
                              IEnumerable<Tag>                     Reactions             = null,
                              I18NString                           AdditionalInfo        = null,
                              JObject                              CustomData            = default,
@@ -345,6 +355,7 @@ namespace social.OpenData.UsersAPI
                            GeoLocation,
                            ProblemDescriptions,
                            StatusIndicators,
+                           FirstResponse,
                            Reactions,
                            AdditionalInfo,
                            CustomData,
@@ -395,6 +406,7 @@ namespace social.OpenData.UsersAPI
                               UInt16?                                         MaxStatus                       = null,
                               InfoStatus                                      ExpandDataLicenses              = InfoStatus.ShowIdOnly,
                               InfoStatus                                      ExpandAuthorId                  = InfoStatus.ShowIdOnly,
+                              InfoStatus                                      ExpandReactions                 = InfoStatus.ShowIdOnly,
                               Boolean                                         IncludeChangeSets               = true,
                               Boolean                                         IncludeCryptoHash               = true,
                               CustomJObjectSerializerDelegate<ServiceTicket>  CustomServiceTicketSerializer   = null)
@@ -461,12 +473,26 @@ namespace social.OpenData.UsersAPI
                                            ? new JProperty("statusIndicators",     new JArray(StatusIndicators.     Select(tag                => tag.Id.ToString())))
                                            : null,
 
+                                       FirstResponse.HasValue
+                                           ? new JProperty("firstResponse",        FirstResponse.Value.ToIso8601())
+                                           : null,
+
+                                       Reactions.SafeAny()
+                                           ? ExpandReactions.Switch(
+                                                 () => new JProperty("reactionIds",   new JArray(Reactions.          Select(tag                => tag.Id.ToString()))),
+                                                 () => new JProperty("reactions",     new JArray(Reactions.          Select(tag                => tag.ToJSON()))))
+                                           : null,
+
                                        AdditionalInfo.IsNeitherNullNorEmpty()
                                            ? AdditionalInfo.ToJSON("additionalInfo")
                                            : null,
 
                                        AttachedFiles.SafeAny()
-                                           ? new JProperty("attachedFiles",        new JArray(AttachedFiles.        Select(attachedFile       => attachedFile.ToString())))
+                                           ? new JProperty("attachedFiles",        new JArray(AttachedFiles.         Select(attachedFile       => attachedFile.ToString())))
+                                           : null,
+
+                                       TicketReferences.SafeAny()
+                                           ? new JProperty("ticketReferences",     new JArray(TicketReferences.      Select(references         => references.ToString())))
                                            : null,
 
                                        IncludeChangeSets && ChangeSets.SafeAny()
@@ -776,6 +802,21 @@ namespace social.OpenData.UsersAPI
 
                 #endregion
 
+                #region Parse FirstResponse             [optional]
+
+                if (JSONObject.ParseOptional("firstResponse",
+                                             "first response",
+                                             out DateTime? FirstResponse,
+                                             out ErrorResponse))
+                {
+
+                    if (ErrorResponse != null)
+                        return false;
+
+                }
+
+                #endregion
+
                 // Reactions
 
                 #region Parse AdditionalInfo             [optional]
@@ -971,6 +1012,7 @@ namespace social.OpenData.UsersAPI
                                                         GeoLocation,
                                                         ProblemDescriptions,
                                                         StatusIndicators,
+                                                        FirstResponse,
                                                         null, // Reactions
                                                         AdditionalInfo,
                                                         null, // CustomData
@@ -1249,6 +1291,7 @@ namespace social.OpenData.UsersAPI
                                  GeoLocation,
                                  ProblemDescriptions,
                                  StatusIndicators,
+                                 FirstResponse,
                                  Reactions,
                                  AdditionalInfo,
                                  CustomData,
@@ -1371,6 +1414,13 @@ namespace social.OpenData.UsersAPI
                                FirstOrDefault()?.StatusIndicators;
 
             /// <summary>
+            /// The first official response to a service ticket.
+            /// </summary>
+            public DateTime? FirstResponse
+                => ChangeSets?.Where(entry => entry.FirstResponse.HasValue).
+                               LastOrDefault()?.FirstResponse;
+
+            /// <summary>
             /// An enumeration of reactions.
             /// </summary>
             public IEnumerable<Tag> Reactions
@@ -1439,6 +1489,7 @@ namespace social.OpenData.UsersAPI
             /// <param name="GeoLocation">The geographical location of the problem or broken device.</param>
             /// <param name="ProblemDescriptions">An enumeration of well-defined problem descriptions.</param>
             /// <param name="StatusIndicators">An enumeration of problem indicators.</param>
+            /// <param name="FirstResponse">The first official response to a service ticket.</param>
             /// <param name="Reactions">An enumeration of reactions.</param>
             /// <param name="AdditionalInfo">A multi-language description of the service ticket.</param>
             /// <param name="AttachedFiles">An enumeration of URLs to files attached to this service ticket.</param>
@@ -1460,6 +1511,7 @@ namespace social.OpenData.UsersAPI
                            GeoCoordinate?                       GeoLocation                = null,
                            IEnumerable<ProblemDescriptionI18N>  ProblemDescriptions        = null,
                            IEnumerable<Tag>                     StatusIndicators           = null,
+                           DateTime?                            FirstResponse              = null,
                            IEnumerable<Tag>                     Reactions                  = null,
                            I18NString                           AdditionalInfo             = null,
                            JObject                              CustomData                 = null,
@@ -1486,6 +1538,7 @@ namespace social.OpenData.UsersAPI
                                GeoLocation,
                                ProblemDescriptions,
                                StatusIndicators,
+                               FirstResponse,
                                Reactions,
                                AdditionalInfo,
                                CustomData,
@@ -1563,6 +1616,7 @@ namespace social.OpenData.UsersAPI
                                            GeoLocation,
                                            ProblemDescriptions,
                                            StatusIndicators,
+                                           FirstResponse,
                                            Reactions,
                                            AdditionalInfo,
                                            CustomData,

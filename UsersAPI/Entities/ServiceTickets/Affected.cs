@@ -18,14 +18,13 @@
 #region Usings
 
 using System;
-using System.Linq;
 using System.Collections.Generic;
 
 using Newtonsoft.Json.Linq;
 
 using org.GraphDefined.Vanaheimr.Illias;
-using org.GraphDefined.Vanaheimr.Hermod.HTTP;
 using org.GraphDefined.Vanaheimr.Hermod;
+using org.GraphDefined.Vanaheimr.Hermod.HTTP;
 
 #endregion
 
@@ -44,6 +43,18 @@ namespace social.OpenData.UsersAPI
              !(Affected.ServiceTickets.SafeAny() ||
                Affected.Users.         SafeAny() ||
                Affected.Organizations. SafeAny());
+
+
+        /// <summary>
+        /// Create a new CardiCloudAffected builder.
+        /// </summary>
+        public static Affected.Builder ToBuilder(this Affected Affected)
+
+            => Affected == null
+                   ? new Affected.Builder()
+                   : new Affected.Builder(ServiceTicketLinks:  Affected.ServiceTickets,
+                                          UserLinks:           Affected.Users,
+                                          OrganizationLinks:   Affected.Organizations);
 
     }
 
@@ -192,15 +203,15 @@ namespace social.OpenData.UsersAPI
             => JSONObject.Create(
 
                    _ServiceTickets.SafeAny()
-                       ? new JProperty("serviceTicketIds",  new JArray(_ServiceTickets.    SafeSelect(serviceTicket => serviceTicket.Id.ToString())))
+                       ? new JProperty("serviceTicketIds",  new JArray(_ServiceTickets.SafeSelect(serviceTicket => serviceTicket.Id.ToString())))
                        : null,
 
                    _Users.SafeAny()
-                       ? new JProperty("userIds",           new JArray(_Users.             SafeSelect(user          => user.         Id.ToString())))
+                       ? new JProperty("userIds",           new JArray(_Users.         SafeSelect(user          => user.         Id.ToString())))
                        : null,
 
                    _Organizations.SafeAny()
-                       ? new JProperty("organizationIds",   new JArray(_Organizations.     SafeSelect(organization  => organization. Id.ToString())))
+                       ? new JProperty("organizationIds",   new JArray(_Organizations. SafeSelect(organization  => organization. Id.ToString())))
                        : null
 
                );
@@ -230,12 +241,6 @@ namespace social.OpenData.UsersAPI
             {
 
                 Affected = null;
-
-                //if (JSONObject?.HasValues != true)
-                //{
-                //    ErrorResponse = "The given JSON object must not be null or empty!";
-                //    return false;
-                //}
 
                 #region Parse ServiceTickets   [optional]
 
@@ -326,19 +331,6 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
-
-        #region ToBuilder()
-
-        /// <summary>
-        /// Return a builder for this service ticket.
-        /// </summary>
-        public Builder ToBuilder()
-
-            => new Builder(ServiceTicketLinks:  _ServiceTickets,
-                           UserLinks:           _Users,
-                           OrganizationLinks:   _Organizations);
-
-        #endregion
 
         #region (class) Builder
 

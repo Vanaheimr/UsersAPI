@@ -29,7 +29,6 @@ using org.GraphDefined.Vanaheimr.Aegir;
 using org.GraphDefined.Vanaheimr.Illias;
 using org.GraphDefined.Vanaheimr.Hermod;
 using org.GraphDefined.Vanaheimr.Hermod.HTTP;
-using System.Resources;
 
 #endregion
 
@@ -166,6 +165,11 @@ namespace social.OpenData.UsersAPI
         public IEnumerable<Tag>                              StatusIndicators            { get; }
 
         /// <summary>
+        /// The first official response to a service ticket.
+        /// </summary>
+        public DateTime?                                     FirstResponse               { get; }
+
+        /// <summary>
         /// An enumeration of reactions.
         /// </summary>
         public IEnumerable<Tag>                              Reactions                   { get; }
@@ -227,6 +231,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="GeoLocation">The geographical location of the problem or broken device.</param>
         /// <param name="ProblemDescriptions">An enumeration of well-defined problem descriptions.</param>
         /// <param name="StatusIndicators">An enumeration of problem indicators.</param>
+        /// <param name="FirstResponse">The first official response to a service ticket.</param>
         /// <param name="Reactions">An enumeration of reactions.</param>
         /// <param name="AdditionalInfo">A multi-language description of the service ticket.</param>
         /// <param name="AttachedFiles">An enumeration of URLs to files attached to this service ticket.</param>
@@ -251,6 +256,7 @@ namespace social.OpenData.UsersAPI
                                       GeoCoordinate?                                GeoLocation           = null,
                                       IEnumerable<ProblemDescriptionI18N>           ProblemDescriptions   = null,
                                       IEnumerable<Tag>                              StatusIndicators      = null,
+                                      DateTime?                                     FirstResponse         = null,
                                       IEnumerable<Tag>                              Reactions             = null,
                                       I18NString                                    AdditionalInfo        = null,
                                       JObject                                       CustomData            = default,
@@ -281,6 +287,7 @@ namespace social.OpenData.UsersAPI
             this.GeoLocation          = GeoLocation;
             this.ProblemDescriptions  = ProblemDescriptions != null ? ProblemDescriptions.Distinct() : Array.Empty<ProblemDescriptionI18N>();
             this.StatusIndicators     = StatusIndicators    != null ? StatusIndicators.   Distinct() : Array.Empty<Tag>();
+            this.FirstResponse        = FirstResponse;
             this.Reactions            = Reactions           ?? Array.Empty<Tag>();
             this.AdditionalInfo       = AdditionalInfo;
             this.AttachedFiles        = AttachedFiles       != null ? AttachedFiles.      Distinct() : Array.Empty<AttachedFile>();
@@ -370,6 +377,10 @@ namespace social.OpenData.UsersAPI
 
                 StatusIndicators.SafeAny()
                     ? new JProperty("statusIndicators",        new JArray(StatusIndicators.   Select(statusIndicator    => statusIndicator.Id.ToString())))
+                    : null,
+
+                FirstResponse.HasValue
+                    ? new JProperty("firstResponse",           FirstResponse.Value.ToIso8601())
                     : null,
 
                 Reactions.SafeAny()
@@ -726,6 +737,21 @@ namespace social.OpenData.UsersAPI
 
                 #endregion
 
+                #region Parse FirstResponse             [optional]
+
+                if (JSONObject.ParseOptional("firstResponse",
+                                             "first response",
+                                             out DateTime? FirstResponse,
+                                             out ErrorResponse))
+                {
+
+                    if (ErrorResponse != null)
+                        return false;
+
+                }
+
+                #endregion
+
                 var Reactions          = new Tag[0];
 
                 #region Parse Additional info           [optional]
@@ -869,6 +895,7 @@ namespace social.OpenData.UsersAPI
                                                                     GeoLocation,
                                                                     ProblemDescriptions,
                                                                     StatusIndicators,
+                                                                    FirstResponse,
                                                                     Reactions,
                                                                     AdditionalInfo,
                                                                     null,
@@ -1138,6 +1165,7 @@ namespace social.OpenData.UsersAPI
                            GeoLocation,
                            ProblemDescriptions,
                            StatusIndicators,
+                           FirstResponse,
                            Reactions,
                            AdditionalInfo,
                            CustomData,
@@ -1215,6 +1243,11 @@ namespace social.OpenData.UsersAPI
             public IEnumerable<Tag>                              StatusIndicators          { get; set; }
 
             /// <summary>
+            /// The first official response to a service ticket.
+            /// </summary>
+            public DateTime?                                     FirstResponse             { get; set; }
+
+            /// <summary>
             /// An enumeration of reactions.
             /// </summary>
             public IEnumerable<Tag>                              Reactions                 { get; set; }
@@ -1274,6 +1307,7 @@ namespace social.OpenData.UsersAPI
             /// <param name="GeoLocation">The geographical location of the problem or broken device.</param>
             /// <param name="ProblemDescriptions">An enumeration of well-defined problem descriptions.</param>
             /// <param name="StatusIndicators">An enumeration of problem indicators.</param>
+            /// <param name="FirstResponse">The first official response to a service ticket.</param>
             /// <param name="Reactions">An enumeration of reactions.</param>
             /// <param name="AdditionalInfo">A multi-language description of the service ticket.</param>
             /// <param name="AttachedFiles">An enumeration of URLs to files attached to this service ticket.</param>
@@ -1298,6 +1332,7 @@ namespace social.OpenData.UsersAPI
                            GeoCoordinate?                                GeoLocation           = null,
                            IEnumerable<ProblemDescriptionI18N>           ProblemDescriptions   = null,
                            IEnumerable<Tag>                              StatusIndicators      = null,
+                           DateTime?                                     FirstResponse         = null,
                            IEnumerable<Tag>                              Reactions             = null,
                            I18NString                                    AdditionalInfo        = null,
                            JObject                                       CustomData            = default,
@@ -1322,13 +1357,14 @@ namespace social.OpenData.UsersAPI
                 this.Author               = Author        ?? throw new ArgumentNullException(nameof(Author), "The given author must not be null!");
                 this.Status               = Status;
                 this.Title                = Title;
-                this.Affected             = Affected            != null ? Affected.ToBuilder()           : new Affected.Builder();
+                this.Affected             = Affected.ToBuilder();
                 this.Priority             = Priority;
                 this.Location             = Location;
                 this.GeoLocation          = GeoLocation;
                 this.ProblemDescriptions  = ProblemDescriptions != null ? ProblemDescriptions.Distinct() : Array.Empty<ProblemDescriptionI18N>();
                 this.StatusIndicators     = StatusIndicators    != null ? StatusIndicators.   Distinct() : Array.Empty<Tag>();
-                this.Reactions            = Reactions        ?? Array.Empty<Tag>();
+                this.FirstResponse        = FirstResponse;
+                this.Reactions            = Reactions     ?? Array.Empty<Tag>();
                 this.AdditionalInfo       = AdditionalInfo;
                 this.CustomData           = CustomData;
                 this.AttachedFiles        = AttachedFiles       != null ? AttachedFiles.      Distinct() : Array.Empty<AttachedFile>();
@@ -1385,6 +1421,7 @@ namespace social.OpenData.UsersAPI
                                               GeoLocation,
                                               ProblemDescriptions,
                                               StatusIndicators,
+                                              FirstResponse,
                                               Reactions,
                                               AdditionalInfo,
                                               CustomData,
