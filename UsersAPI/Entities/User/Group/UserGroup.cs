@@ -499,29 +499,26 @@ namespace social.OpenData.UsersAPI
 
         #region User  -> Group edges
 
-        public User2GroupEdge
+        public User2GroupEdge AddIncomingEdge(User                 Source,
+                                              User2GroupEdgeTypes  EdgeLabel,
+                                              PrivacyLevel         PrivacyLevel = PrivacyLevel.Private)
 
-            AddIncomingEdge(User                 Source,
-                            User2GroupEdgeTypes  EdgeLabel,
-                            PrivacyLevel         PrivacyLevel = PrivacyLevel.Private)
+            => _User2GroupEdges.
+                   AddAndReturnElement(new User2GroupEdge(Source,
+                                                          EdgeLabel,
+                                                          this,
+                                                          PrivacyLevel));
 
-            => _User2GroupEdges.AddAndReturnElement(new User2GroupEdge(Source,
-                                                                       EdgeLabel,
-                                                                       this,
-                                                                       PrivacyLevel));
 
-        public User2GroupEdge
+        public User2GroupEdge AddIncomingEdge(User2GroupEdge Edge)
 
-            AddIncomingEdge(User2GroupEdge Edge)
-
-            => _User2GroupEdges.AddAndReturnElement(Edge);
+            => _User2GroupEdges.
+                   AddAndReturnElement(Edge);
 
 
         public IEnumerable<User2GroupEdge> User2GroupInEdges(Func<User2GroupEdgeTypes, Boolean> User2GroupEdgeFilter)
             => _User2GroupEdges.Where(edge => User2GroupEdgeFilter(edge.EdgeLabel));
 
-
-        #region InEdges(User)
 
         /// <summary>
         /// All organizations this user belongs to,
@@ -529,11 +526,11 @@ namespace social.OpenData.UsersAPI
         /// </summary>
         /// <param name="User">Just return edges with the given user.</param>
         public IEnumerable<User2GroupEdgeTypes> InEdges(User User)
+
             => _User2GroupEdges.
                    Where (edge => edge.Source == User).
                    Select(edge => edge.EdgeLabel);
 
-        #endregion
 
         public Boolean HasEdge(User2GroupEdgeTypes  EdgeLabel,
                                User                 User)
@@ -556,78 +553,68 @@ namespace social.OpenData.UsersAPI
 
         #region Group -> User  edges
 
-        public Group2UserEdge
+        public Group2UserEdge AddOutgoingEdge(Group2UserEdgeTypes  EdgeLabel,
+                                              User                 Target,
+                                              PrivacyLevel         PrivacyLevel = PrivacyLevel.Private)
 
-            AddOutgoingEdge(Group2UserEdgeTypes  EdgeLabel,
-                            User                 Target,
-                            PrivacyLevel         PrivacyLevel = social.OpenData.UsersAPI.PrivacyLevel.Private)
+            => _Group2UserInEdges.
+                   AddAndReturnElement(new Group2UserEdge(this,
+                                                          EdgeLabel,
+                                                          Target,
+                                                          PrivacyLevel));
 
-            => _Group2UserInEdges.AddAndReturnElement(new Group2UserEdge(this,
-                                                                         EdgeLabel,
-                                                                         Target,
-                                                                         PrivacyLevel));
+        public Group2UserEdge AddIncomingEdge(Group2UserEdge Edge)
 
-        public Group2UserEdge
+            => _Group2UserInEdges.
+                   AddAndReturnElement(Edge);
 
-            AddIncomingEdge(Group2UserEdge Edge)
-
-                => _Group2UserInEdges.AddAndReturnElement(Edge);
-
-
-        #region Edges(User)
 
         /// <summary>
         /// All organizations this user belongs to,
         /// filtered by the given edge label.
         /// </summary>
-        public IEnumerable<Group2UserEdgeTypes> InEdges(UserGroup Group)
+        public IEnumerable<Group2UserEdgeTypes> OutEdges(User User)
+
             => _Group2UserInEdges.
-                   Where (edge => edge.Source == Group).
+                   Where (edge => edge.Target == User).
                    Select(edge => edge.EdgeLabel);
 
-        #endregion
-
-        #region RemoveInEdges(EdgeLabel, TargetOrganization)
 
         public Boolean RemoveInEdge(Group2UserEdge Edge)
-            => _Group2UserInEdges.Remove(Edge);
 
-        #endregion
+            => _Group2UserInEdges.
+                   Remove(Edge);
 
         #endregion
 
         #region Group -> Group edges
 
-        public Group2GroupEdge
+        public Group2GroupEdge AddEdge(Group2GroupEdgeTypes  EdgeLabel,
+                                       UserGroup             Target,
+                                       PrivacyLevel          PrivacyLevel = PrivacyLevel.Private)
 
-            AddEdge(Group2GroupEdgeTypes  EdgeLabel,
-                    UserGroup             Target,
-                    PrivacyLevel          PrivacyLevel = PrivacyLevel.Private)
-
-            => _Group2GroupEdgeTypes.AddAndReturnElement(new Group2GroupEdge(this,
-                                                                             EdgeLabel,
-                                                                             Target,
-                                                                             PrivacyLevel));
-
-        public Group2GroupEdge
-
-            AddEdge(Group2GroupEdge Edge)
-
-            => _Group2GroupEdgeTypes.AddAndReturnElement(Edge);
+            => _Group2GroupEdgeTypes.
+                   AddAndReturnElement(new Group2GroupEdge(this,
+                                                           EdgeLabel,
+                                                           Target,
+                                                           PrivacyLevel));
 
 
-        #region Edges(Group)
+        public Group2GroupEdge AddEdge(Group2GroupEdge Edge)
+
+            => _Group2GroupEdgeTypes.
+                   AddAndReturnElement(Edge);
+
 
         /// <summary>
         /// All organizations this user belongs to,
         /// filtered by the given edge label.
         /// </summary>
-        public IEnumerable<User2GroupEdgeTypes> Edges(UserGroup Group)
-            => _User2GroupEdges.
-                   Where(edge => edge.Target == Group).
-                   Select(edge => edge.EdgeLabel);
+        public IEnumerable<Group2GroupEdgeTypes> Edges(UserGroup Group)
 
-        #endregion
+            => _Group2GroupEdgeTypes.
+                   Where (edge => edge.Target == Group).
+                   Select(edge => edge.EdgeLabel);
 
         #endregion
 

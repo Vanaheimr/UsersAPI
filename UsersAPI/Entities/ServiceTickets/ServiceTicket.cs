@@ -244,13 +244,13 @@ namespace social.OpenData.UsersAPI
 
 
             Title                = this.ChangeSets.Where(entry => entry.Title.IsNeitherNullNorEmpty()).
-                                                    FirstOrDefault()?.Title;
+                                                   FirstOrDefault()?.Title;
 
             if (this.Title.IsNullOrEmpty())
                 throw new ArgumentNullException(nameof(Title),    "The title of the service ticket must not be null or empty!");
 
 
-            Affected             = this.ChangeSets.Where(entry => entry.Affected            != null).
+            Affected             = this.ChangeSets.Where(entry => !entry.Affected.IsEmpty()).
                                                    FirstOrDefault()?.Affected;
 
             Priority             = this.ChangeSets.Where(entry => entry.Priority.HasValue).

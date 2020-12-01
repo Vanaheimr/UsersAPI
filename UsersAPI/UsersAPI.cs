@@ -13074,7 +13074,7 @@ namespace social.OpenData.UsersAPI
         #region AddToUserGroup(User, Edge, UserGroup, PrivacyLevel = Private)
 
         public async Task<Boolean> AddToUserGroup(User                 User,
-                                                  User2GroupEdgeTypes  Edge,
+                                                  User2GroupEdgeTypes  EdgeLabel,
                                                   UserGroup            UserGroup,
                                                   PrivacyLevel         PrivacyLevel   = PrivacyLevel.Private,
                                                   User_Id?             CurrentUserId  = null)
@@ -13087,28 +13087,31 @@ namespace social.OpenData.UsersAPI
                 await UsersSemaphore.WaitAsync();
                 await UserGroupsSemaphore.WaitAsync();
 
-                if (!User.OutEdges(UserGroup).Any(edge => edge == Edge))
+                var updated = false;
+
+                if (!User.OutEdges(UserGroup).Any(edgeLabel => edgeLabel == EdgeLabel))
                 {
+                    User.AddOutgoingEdge(EdgeLabel, UserGroup, PrivacyLevel);
+                    updated = true;
+                }
 
-                    User.AddOutgoingEdge(Edge, UserGroup, PrivacyLevel);
+                if (!UserGroup.InEdges(User).Any(edgeLabel => edgeLabel == EdgeLabel))
+                {
+                    UserGroup.AddIncomingEdge(User, EdgeLabel, PrivacyLevel);
+                    updated = true;
+                }
 
-                    if (!UserGroup.Edges(UserGroup).Any(edge => edge == Edge))
-                         UserGroup.AddIncomingEdge(User, Edge,  PrivacyLevel);
-
+                if (updated)
                     await WriteToDatabaseFile(NotificationMessageType.Parse("addUserToUserGroup"),
                                               new JObject(
                                                   new JProperty("user",   User.Id.  ToString()),
-                                                  new JProperty("edge",   Edge.     ToString()),
+                                                  new JProperty("edge",   EdgeLabel.     ToString()),
                                                   new JProperty("group",  UserGroup.ToString()),
                                                   PrivacyLevel.ToJSON()
                                               ),
                                               CurrentUserId);
 
-                    return true;
-
-                }
-
-                return false;
+                return updated;
 
             }
             finally
