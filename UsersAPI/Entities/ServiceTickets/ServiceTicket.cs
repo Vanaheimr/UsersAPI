@@ -171,7 +171,7 @@ namespace social.OpenData.UsersAPI
         /// <summary>
         /// The first official response to a service ticket.
         /// </summary>
-        public DateTime?                                FirstResponse           { get; }
+        public FirstResponse?                           FirstResponse           { get; }
 
         /// <summary>
         /// An enumeration of reactions.
@@ -329,7 +329,7 @@ namespace social.OpenData.UsersAPI
                              GeoCoordinate?                       GeoLocation           = null,
                              IEnumerable<ProblemDescriptionI18N>  ProblemDescriptions   = null,
                              IEnumerable<Tag>                     StatusIndicators      = null,
-                             DateTime?                            FirstResponse         = null,
+                             FirstResponse?                       FirstResponse         = null,
                              IEnumerable<Tag>                     Reactions             = null,
                              I18NString                           AdditionalInfo        = null,
                              JObject                              CustomData            = default,
@@ -409,7 +409,8 @@ namespace social.OpenData.UsersAPI
                               InfoStatus                                      ExpandReactions                 = InfoStatus.ShowIdOnly,
                               Boolean                                         IncludeChangeSets               = true,
                               Boolean                                         IncludeCryptoHash               = true,
-                              CustomJObjectSerializerDelegate<ServiceTicket>  CustomServiceTicketSerializer   = null)
+                              CustomJObjectSerializerDelegate<ServiceTicket>  CustomServiceTicketSerializer   = null,
+                              CustomJObjectSerializerDelegate<FirstResponse>  CustomFirstResponseSerializer   = null)
 
         {
 
@@ -474,7 +475,7 @@ namespace social.OpenData.UsersAPI
                                            : null,
 
                                        FirstResponse.HasValue
-                                           ? new JProperty("firstResponse",        FirstResponse.Value.ToIso8601())
+                                           ? new JProperty("firstResponse",        FirstResponse.Value.ToJSON(CustomFirstResponseSerializer))
                                            : null,
 
                                        Reactions.SafeAny()
@@ -802,12 +803,13 @@ namespace social.OpenData.UsersAPI
 
                 #endregion
 
-                #region Parse FirstResponse             [optional]
+                #region Parse FirstResponse              [optional]
 
-                if (JSONObject.ParseOptional("firstResponse",
-                                             "first response",
-                                             out DateTime? FirstResponse,
-                                             out ErrorResponse))
+                if (JSONObject.ParseOptionalJSON("firstResponse",
+                                                 "first response",
+                                                 OpenData.UsersAPI.FirstResponse.TryParse,
+                                                 out FirstResponse? FirstResponse,
+                                                 out ErrorResponse))
                 {
 
                     if (ErrorResponse != null)
@@ -1416,7 +1418,7 @@ namespace social.OpenData.UsersAPI
             /// <summary>
             /// The first official response to a service ticket.
             /// </summary>
-            public DateTime? FirstResponse
+            public FirstResponse? FirstResponse
                 => ChangeSets?.Where(entry => entry.FirstResponse.HasValue).
                                LastOrDefault()?.FirstResponse;
 
@@ -1511,7 +1513,7 @@ namespace social.OpenData.UsersAPI
                            GeoCoordinate?                       GeoLocation                = null,
                            IEnumerable<ProblemDescriptionI18N>  ProblemDescriptions        = null,
                            IEnumerable<Tag>                     StatusIndicators           = null,
-                           DateTime?                            FirstResponse              = null,
+                           FirstResponse?                       FirstResponse              = null,
                            IEnumerable<Tag>                     Reactions                  = null,
                            I18NString                           AdditionalInfo             = null,
                            JObject                              CustomData                 = null,

@@ -2197,10 +2197,10 @@ namespace social.OpenData.UsersAPI
 
             #endregion
 
-            this.Admins  = CreateUserGroupIfNotExists(UserGroup_Id.Parse(AdminGroupName),
-                                                      Robot.Id,
-                                                      I18NString.Create(Languages.en, AdminGroupName),
-                                                      I18NString.Create(Languages.en, "All admins of this API.")).Result;
+            this.Admins  = AddUserGroupIfNotExists(UserGroup_Id.Parse(AdminGroupName),
+                                                   I18NString.Create(Languages.en, AdminGroupName),
+                                                   I18NString.Create(Languages.en, "All admins of this API."),
+                                                   Robot.Id).Result;
 
             #region Reflect data licenses
 
@@ -4162,7 +4162,7 @@ namespace social.OpenData.UsersAPI
                                                  #region Send e-mail...
 
                                                  var MailSentResult = MailSentStatus.failed;
-                                                 var user           = GetUser(userId);
+                                                 var user           = await GetUser(userId);
 
                                                  var MailResultTask = APISMTPClient.Send(PasswordChangedEMailCreator(user.Id,
                                                                                                                      user.EMail,
@@ -8024,7 +8024,7 @@ namespace social.OpenData.UsersAPI
 
                                                      }
 
-                                                     Admin = GetUser(admin.Value);
+                                                     Admin = await GetUser(admin.Value);
 
                                                      if (Admin == null)
                                                      {
@@ -10931,7 +10931,7 @@ namespace social.OpenData.UsersAPI
                         break;
                     }
 
-                    if (!TryGet(U2G_GroupId, out UserGroup U2G_Group))
+                    if (!TryGetUserGroup(U2G_GroupId, out UserGroup U2G_Group))
                     {
                         DebugX.Log(String.Concat(nameof(UsersAPI), " ", Command, ": ", "Unknown group '" + U2G_GroupId + "'!"));
                         break;
@@ -12583,13 +12583,13 @@ namespace social.OpenData.UsersAPI
         /// Get the user having the given unique identification.
         /// </summary>
         /// <param name="UserId">The unique identification of the user.</param>
-        public User GetUser(User_Id  UserId)
+        public async Task<User> GetUser(User_Id  UserId)
         {
 
             try
             {
 
-                UsersSemaphore.Wait();
+                await UsersSemaphore.WaitAsync();
 
                 if (_Users.TryGetValue(UserId, out User User))
                     return User;
@@ -12601,6 +12601,26 @@ namespace social.OpenData.UsersAPI
             {
                 UsersSemaphore.Release();
             }
+
+
+
+
+
+            //try
+            //{
+
+            //    UsersSemaphore.Wait();
+
+            //    if (_Users.TryGetValue(UserId, out User User))
+            //        return User;
+
+            //    return null;
+
+            //}
+            //finally
+            //{
+            //    UsersSemaphore.Release();
+            //}
 
         }
 
@@ -12765,12 +12785,12 @@ namespace social.OpenData.UsersAPI
         #endregion
 
 
-        #region CreateUserGroup           (Id, Name = null, Description = null)
+        #region AddUserGroup           (Id, Name = null, Description = null, CurrentUserId = null)
 
-        public async Task<UserGroup> CreateUserGroup(UserGroup_Id  Id,
-                                                     User_Id       CurrentUserId,
-                                                     I18NString    Name          = null,
-                                                     I18NString    Description   = null)
+        public async Task<UserGroup> AddUserGroup(UserGroup_Id  Id,
+                                                  I18NString    Name            = null,
+                                                  I18NString    Description     = null,
+                                                  User_Id?      CurrentUserId   = null)
         {
 
             try
@@ -12783,13 +12803,13 @@ namespace social.OpenData.UsersAPI
 
 
                 var UserGroup = new UserGroup(Id,
-                                      Name,
-                                      Description);
+                                              Name,
+                                              Description);
 
                 if (UserGroup.Id.ToString() != AdminGroupName)
                     await WriteToDatabaseFile(NotificationMessageType.Parse("createUserGroup"),
-                                         UserGroup.ToJSON(),
-                                         CurrentUserId);
+                                              UserGroup.ToJSON(),
+                                              CurrentUserId);
 
                 return _UserGroups.AddAndReturnValue(UserGroup.Id, UserGroup);
 
@@ -12803,12 +12823,12 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
-        #region CreateUserGroupIfNotExists(Id, Name = null, Description = null)
+        #region AddUserGroupIfNotExists(Id, Name = null, Description = null, CurrentUserId = null)
 
-        public async Task<UserGroup> CreateUserGroupIfNotExists(UserGroup_Id    Id,
-                                                        User_Id     CurrentUserId,
-                                                        I18NString  Name         = null,
-                                                        I18NString  Description  = null)
+        public async Task<UserGroup> AddUserGroupIfNotExists(UserGroup_Id  Id,
+                                                             I18NString    Name            = null,
+                                                             I18NString    Description     = null,
+                                                             User_Id?      CurrentUserId   = null)
         {
 
             try
@@ -12825,8 +12845,8 @@ namespace social.OpenData.UsersAPI
 
                 if (UserGroup.Id.ToString() != AdminGroupName)
                     await WriteToDatabaseFile(NotificationMessageType.Parse("createUserGroup"),
-                                         UserGroup.ToJSON(),
-                                         CurrentUserId);
+                                              UserGroup.ToJSON(),
+                                              CurrentUserId);
 
                 return _UserGroups.AddAndReturnValue(UserGroup.Id, UserGroup);
 
@@ -12867,13 +12887,13 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
-        #region Get     (UserGroupId)
+        #region GetUserGroup     (UserGroupId)
 
         /// <summary>
         /// Get the group having the given unique identification.
         /// </summary>
         /// <param name="UserGroupId">The unique identification of the group.</param>
-        public async Task<UserGroup> Get(UserGroup_Id  UserGroupId)
+        public async Task<UserGroup> GetUserGroup(UserGroup_Id  UserGroupId)
         {
 
             try
@@ -12896,15 +12916,15 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
-        #region TryGet  (UserGroupId, out UserGroup)
+        #region TryGetUserGroup  (UserGroupId, out UserGroup)
 
         /// <summary>
         /// Try to get the group having the given unique identification.
         /// </summary>
         /// <param name="UserGroupId">The unique identification of the group.</param>
         /// <param name="UserGroup">The group.</param>
-        public Boolean TryGet(UserGroup_Id   UserGroupId,
-                              out UserGroup  UserGroup)
+        public Boolean TryGetUserGroup(UserGroup_Id   UserGroupId,
+                                       out UserGroup  UserGroup)
         {
 
             try
@@ -13073,16 +13093,16 @@ namespace social.OpenData.UsersAPI
                     User.AddOutgoingEdge(Edge, UserGroup, PrivacyLevel);
 
                     if (!UserGroup.Edges(UserGroup).Any(edge => edge == Edge))
-                        UserGroup.AddIncomingEdge(User, Edge,  PrivacyLevel);
+                         UserGroup.AddIncomingEdge(User, Edge,  PrivacyLevel);
 
                     await WriteToDatabaseFile(NotificationMessageType.Parse("addUserToUserGroup"),
-                                         new JObject(
-                                             new JProperty("user",   User.Id.ToString()),
-                                             new JProperty("edge",   Edge.   ToString()),
-                                             new JProperty("group",  UserGroup.  ToString()),
-                                             PrivacyLevel.ToJSON()
-                                         ),
-                                         CurrentUserId);
+                                              new JObject(
+                                                  new JProperty("user",   User.Id.  ToString()),
+                                                  new JProperty("edge",   Edge.     ToString()),
+                                                  new JProperty("group",  UserGroup.ToString()),
+                                                  PrivacyLevel.ToJSON()
+                                              ),
+                                              CurrentUserId);
 
                     return true;
 
@@ -14431,7 +14451,7 @@ namespace social.OpenData.UsersAPI
                 // Check Admin!
                 if (CurrentUserId.HasValue)
                 {
-                    if (!GetUser(CurrentUserId.Value).
+                    if (!(await GetUser(CurrentUserId.Value)).
                              Organizations(Access_Levels.ReadWrite, true).
                              Contains(ParentOrganization))
                     {
@@ -16578,7 +16598,6 @@ namespace social.OpenData.UsersAPI
 
                 if (!_ServiceTickets.TryGetValue(ServiceTicket.Id, out OldServiceTicket))
                     throw new Exception("ServiceTicket '" + ServiceTicket.Id + "' does not exists in this API!");
-
 
                 await WriteToLogfileAndNotify(ServiceTicket,
                                               updateServiceTicket_MessageType,

@@ -167,7 +167,7 @@ namespace social.OpenData.UsersAPI
         /// <summary>
         /// The first official response to a service ticket.
         /// </summary>
-        public DateTime?                                     FirstResponse               { get; }
+        public FirstResponse?                                FirstResponse               { get; }
 
         /// <summary>
         /// An enumeration of reactions.
@@ -256,7 +256,7 @@ namespace social.OpenData.UsersAPI
                                       GeoCoordinate?                                GeoLocation           = null,
                                       IEnumerable<ProblemDescriptionI18N>           ProblemDescriptions   = null,
                                       IEnumerable<Tag>                              StatusIndicators      = null,
-                                      DateTime?                                     FirstResponse         = null,
+                                      FirstResponse?                                FirstResponse         = null,
                                       IEnumerable<Tag>                              Reactions             = null,
                                       I18NString                                    AdditionalInfo        = null,
                                       JObject                                       CustomData            = default,
@@ -323,44 +323,45 @@ namespace social.OpenData.UsersAPI
         /// Return a JSON representation of this object.
         /// </summary>
         /// <param name="IncludeCryptoHash">Whether to include the cryptograhical hash value of this object.</param>
-        public JObject ToJSON(InfoStatus       ExpandAuthorId       = InfoStatus.ShowIdOnly,
-                              InfoStatus       ExpandReactions      = InfoStatus.ShowIdOnly,
-                              InfoStatus       ExpandDataLicenses   = InfoStatus.ShowIdOnly,
-                              Boolean          IncludeCryptoHash    = true,
-                              Action<JObject>  Configurator         = null)
+        public JObject ToJSON(InfoStatus                                      ExpandAuthorId                  = InfoStatus.ShowIdOnly,
+                              InfoStatus                                      ExpandReactions                 = InfoStatus.ShowIdOnly,
+                              InfoStatus                                      ExpandDataLicenses              = InfoStatus.ShowIdOnly,
+                              Boolean                                         IncludeCryptoHash               = true,
+                              Action<JObject>                                 Configurator                    = null,
+                              CustomJObjectSerializerDelegate<FirstResponse>  CustomFirstResponseSerializer   = null)
         {
 
             var JSON = JSONObject.Create(
 
                 Id.ToJSON("@id"),
 
-                new JProperty("@context", JSONLDContext.ToString()),
+                new JProperty("@context",                        JSONLDContext.ToString()),
 
-                new JProperty("timestamp",                  Timestamp.ToIso8601()),
+                new JProperty("timestamp",                       Timestamp.ToIso8601()),
 
                 Author != null
                     ? ExpandAuthorId.Switch(
-                          () => new JProperty("author",     new JObject(
-                                                                new JProperty("@id",   Author.Id.ToString()),
-                                                                new JProperty("name",  Author.Name)
-                                                            )),
-                          () => new JProperty("author",     Author.ToJSON()))
+                          () => new JProperty("author",          new JObject(
+                                                                     new JProperty("@id",   Author.Id.ToString()),
+                                                                     new JProperty("name",  Author.Name)
+                                                                 )),
+                          () => new JProperty("author",          Author.ToJSON()))
                     : null,
 
                 Status.HasValue
-                    ? new JProperty("status",               Status.Value.ToString())
+                    ? new JProperty("status",                    Status.Value.ToString())
                     : null,
 
                 Title.IsNeitherNullNorEmpty()
-                    ? new JProperty("title",                Title.ToJSON())
+                    ? new JProperty("title",                     Title.ToJSON())
                     : null,
 
                 !Affected.IsEmpty()
-                    ? new JProperty("affected",             Affected.ToJSON())
+                    ? new JProperty("affected",                  Affected.ToJSON())
                     : null,
 
                 Priority.HasValue
-                    ? new JProperty("priority",             Priority.Value.ToString().ToLower())
+                    ? new JProperty("priority",                  Priority.Value.ToString().ToLower())
                     : null,
 
                 Location.IsNeitherNullNorEmpty()
@@ -372,21 +373,21 @@ namespace social.OpenData.UsersAPI
                     : null,
 
                 ProblemDescriptions.IsNeitherNullNorEmpty()
-                       ? new JProperty("problemDescriptions",  new JArray(ProblemDescriptions.Select(problemDescription => problemDescription.ToJSON())))
+                       ? new JProperty("problemDescriptions",    new JArray(ProblemDescriptions.Select(problemDescription => problemDescription.ToJSON())))
                        : null,
 
                 StatusIndicators.SafeAny()
-                    ? new JProperty("statusIndicators",        new JArray(StatusIndicators.   Select(statusIndicator    => statusIndicator.Id.ToString())))
+                    ? new JProperty("statusIndicators",          new JArray(StatusIndicators.   Select(statusIndicator    => statusIndicator.Id.ToString())))
                     : null,
 
                 FirstResponse.HasValue
-                    ? new JProperty("firstResponse",           FirstResponse.Value.ToIso8601())
+                    ? new JProperty("firstResponse",             FirstResponse.Value.ToJSON(CustomFirstResponseSerializer))
                     : null,
 
                 Reactions.SafeAny()
                     ? ExpandReactions.Switch(
-                          () => new JProperty("reactionIds",   new JArray(Reactions.          Select(tag                => tag.Id.ToString()))),
-                          () => new JProperty("reactions",     new JArray(Reactions.          Select(tag                => tag.ToJSON()))))
+                          () => new JProperty("reactionIds",     new JArray(Reactions.          Select(tag                => tag.Id.ToString()))),
+                          () => new JProperty("reactions",       new JArray(Reactions.          Select(tag                => tag.ToJSON()))))
                     : null,
 
                 AdditionalInfo.IsNeitherNullNorEmpty()
@@ -394,11 +395,11 @@ namespace social.OpenData.UsersAPI
                     : null,
 
                 AttachedFiles.SafeAny()
-                    ? new JProperty("attachedFiles",           new JArray(AttachedFiles.      Select(attachedFile       => attachedFile.ToString())))
+                    ? new JProperty("attachedFiles",             new JArray(AttachedFiles.      Select(attachedFile       => attachedFile.ToString())))
                     : null,
 
                 TicketReferences.SafeAny()
-                    ? new JProperty("ticketReferences",        new JArray(TicketReferences.   Select(references         => references.ToString())))
+                    ? new JProperty("ticketReferences",          new JArray(TicketReferences.   Select(references         => references.ToString())))
                     : null,
 
 
@@ -412,7 +413,7 @@ namespace social.OpenData.UsersAPI
                     : null,
 
                 CommentReferences.SafeAny()
-                    ? new JProperty("commentReferences",       new JArray(CommentReferences.  Select(references         => references.ToString())))
+                    ? new JProperty("commentReferences",         new JArray(CommentReferences.  Select(references         => references.ToString())))
                     : null,
 
 
@@ -424,7 +425,7 @@ namespace social.OpenData.UsersAPI
 
 
                 //IncludeCryptoHash
-                //    ? new JProperty("cryptoHash",          CurrentCryptoHash)
+                //    ? new JProperty("cryptoHash",                CurrentCryptoHash)
                 //    : null
 
             );
@@ -474,7 +475,7 @@ namespace social.OpenData.UsersAPI
                     return false;
                 }
 
-                #region Parse ServiceTicketChangeSetId      [optional]
+                #region Parse ServiceTicketChangeSetId   [optional]
 
                 // Verify that a given service ticket change set identification
                 //   is at least valid.
@@ -501,7 +502,7 @@ namespace social.OpenData.UsersAPI
 
                 #endregion
 
-                #region Parse Context                       [mandatory]
+                #region Parse Context                    [mandatory]
 
                 if (!JSONObject.ParseMandatory("@context",
                                                "JSON-LinkedData context information",
@@ -524,7 +525,7 @@ namespace social.OpenData.UsersAPI
 
                 #endregion
 
-                #region Parse Timestamp                     [mandatory]
+                #region Parse Timestamp                  [mandatory]
 
                 if (!JSONObject.ParseMandatory("timestamp",
                                                "timestamp",
@@ -536,7 +537,7 @@ namespace social.OpenData.UsersAPI
 
                 #endregion
 
-                #region Parse Author                        [optional]
+                #region Parse Author                     [optional]
 
                 User Author = null;
 
@@ -565,7 +566,7 @@ namespace social.OpenData.UsersAPI
 
                 #endregion
 
-                #region Parse Status                    [optional]
+                #region Parse Status                     [optional]
 
                 if (JSONObject.ParseOptional("status",
                                              "service ticket status",
@@ -581,7 +582,7 @@ namespace social.OpenData.UsersAPI
 
                 #endregion
 
-                #region Parse Title                     [optional]
+                #region Parse Title                      [optional]
 
                 if (JSONObject.ParseOptional("title",
                                              "title",
@@ -596,7 +597,7 @@ namespace social.OpenData.UsersAPI
 
                 #endregion
 
-                #region Parse Affected                  [optional]
+                #region Parse Affected                   [optional]
 
                 Affected Affected = null;
 
@@ -637,7 +638,7 @@ namespace social.OpenData.UsersAPI
 
                 #endregion
 
-                #region Parse Priority                  [optional]
+                #region Parse Priority                   [optional]
 
                 if (JSONObject.ParseOptionalEnum("priority",
                                                  "priority",
@@ -652,7 +653,7 @@ namespace social.OpenData.UsersAPI
 
                 #endregion
 
-                #region Parse Location                  [optional]
+                #region Parse Location                   [optional]
 
                 if (JSONObject.ParseOptional("location",
                                              "location",
@@ -667,7 +668,7 @@ namespace social.OpenData.UsersAPI
 
                 #endregion
 
-                #region Parse GeoLocation               [optional]
+                #region Parse GeoLocation                [optional]
 
                 if (JSONObject.ParseOptionalStruct("geoLocation",
                                                    "geo location",
@@ -683,7 +684,7 @@ namespace social.OpenData.UsersAPI
 
                 #endregion
 
-                #region Parse Problem descriptions      [optional]
+                #region Parse Problem descriptions       [optional]
 
                 if (!JSONObject.ParseOptionalI18N("problemDescriptions",
                                                   "problem descriptions",
@@ -699,7 +700,7 @@ namespace social.OpenData.UsersAPI
 
                 #endregion
 
-                #region Parse Status indicators         [optional]
+                #region Parse Status indicators          [optional]
 
                 var StatusIndicators = new HashSet<Tag>();
 
@@ -737,12 +738,13 @@ namespace social.OpenData.UsersAPI
 
                 #endregion
 
-                #region Parse FirstResponse             [optional]
+                #region Parse FirstResponse              [optional]
 
-                if (JSONObject.ParseOptional("firstResponse",
-                                             "first response",
-                                             out DateTime? FirstResponse,
-                                             out ErrorResponse))
+                if (JSONObject.ParseOptionalJSON("firstResponse",
+                                                 "first response",
+                                                 OpenData.UsersAPI.FirstResponse.TryParse,
+                                                 out FirstResponse? FirstResponse,
+                                                 out ErrorResponse))
                 {
 
                     if (ErrorResponse != null)
@@ -754,7 +756,7 @@ namespace social.OpenData.UsersAPI
 
                 var Reactions          = new Tag[0];
 
-                #region Parse Additional info           [optional]
+                #region Parse Additional info            [optional]
 
                 if (JSONObject.ParseOptional("additionalInfo",
                                              "additional information",
@@ -769,7 +771,7 @@ namespace social.OpenData.UsersAPI
 
                 #endregion
 
-                #region Parse Attached files            [optional]
+                #region Parse Attached files             [optional]
 
                 if (JSONObject.ParseOptionalHashSet("attachedFiles",
                                                     "attached files",
@@ -787,7 +789,7 @@ namespace social.OpenData.UsersAPI
 
                 var TicketReferences   = new ServiceTicketReference[0];
 
-                #region Parse DataLicenseIds            [optional]
+                #region Parse DataLicenseIds             [optional]
 
                 if (JSONObject.ParseOptional("dataLicenseIds",
                                              "data license identifications",
@@ -841,7 +843,7 @@ namespace social.OpenData.UsersAPI
                 #endregion
 
 
-                #region Parse Comment                   [optional]
+                #region Parse Comment                    [optional]
 
                 if (JSONObject.ParseOptional("comment",
                                              "comment",
@@ -856,7 +858,7 @@ namespace social.OpenData.UsersAPI
 
                 #endregion
 
-                #region Parse InReplyTo                 [optional]
+                #region Parse InReplyTo                  [optional]
 
                 if (JSONObject.ParseOptionalStruct("inReplyTo",
                                                    "in reply to",
@@ -875,7 +877,7 @@ namespace social.OpenData.UsersAPI
                 var CommentReferences  = new ServiceTicketChangeSetReference[0];
 
 
-                #region Parse CryptoHash                [optional]
+                #region Parse CryptoHash                 [optional]
 
                 var CryptoHash    = JSONObject.GetOptional("cryptoHash");
 
@@ -1245,7 +1247,7 @@ namespace social.OpenData.UsersAPI
             /// <summary>
             /// The first official response to a service ticket.
             /// </summary>
-            public DateTime?                                     FirstResponse             { get; set; }
+            public FirstResponse?                                FirstResponse             { get; set; }
 
             /// <summary>
             /// An enumeration of reactions.
@@ -1332,7 +1334,7 @@ namespace social.OpenData.UsersAPI
                            GeoCoordinate?                                GeoLocation           = null,
                            IEnumerable<ProblemDescriptionI18N>           ProblemDescriptions   = null,
                            IEnumerable<Tag>                              StatusIndicators      = null,
-                           DateTime?                                     FirstResponse         = null,
+                           FirstResponse?                                FirstResponse         = null,
                            IEnumerable<Tag>                              Reactions             = null,
                            I18NString                                    AdditionalInfo        = null,
                            JObject                                       CustomData            = default,

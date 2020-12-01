@@ -23,11 +23,9 @@ using System.Collections.Generic;
 
 using Newtonsoft.Json.Linq;
 
-using org.GraphDefined.Vanaheimr.Aegir;
 using org.GraphDefined.Vanaheimr.Illias;
 using org.GraphDefined.Vanaheimr.Hermod;
 using org.GraphDefined.Vanaheimr.Hermod.HTTP;
-using System.Runtime.CompilerServices;
 
 #endregion
 
@@ -536,6 +534,13 @@ namespace social.OpenData.UsersAPI
                    Select(edge => edge.EdgeLabel);
 
         #endregion
+
+        public Boolean HasEdge(User2GroupEdgeTypes  EdgeLabel,
+                               User                 User)
+
+            => _User2GroupEdges.
+                   Any(edge => edge.EdgeLabel == EdgeLabel && edge.Source == User);
+
 
         public UserGroup Add(IEnumerable<User2GroupEdge> Edges)
         {

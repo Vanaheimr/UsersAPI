@@ -64,6 +64,7 @@
     <Compile Include="Entities\ServiceTickets\Affected.cs" />
     <Compile Include="Entities\ServiceTickets\AGenericServiceTicket.cs" />
     <Compile Include="Entities\ServiceTickets\AServiceTicket.cs" />
+    <Compile Include="Entities\ServiceTickets\FirstResponse.cs" />
     <Compile Include="Entities\ServiceTickets\ServiceTicketChangeSet.cs" />
     <Compile Include="Entities\AttachedFile\AttachedFile.cs" />
     <Compile Include="Entities\ServiceTickets\DataFields.cs" />
