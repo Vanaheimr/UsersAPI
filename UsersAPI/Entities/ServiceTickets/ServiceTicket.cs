@@ -1040,11 +1040,59 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
-        public String ToCSV(Boolean IncludeMessageContext   = false,
-                            Char    UnitSeparator           = US)
+        #region ToCSV(IncludeMessageContext = false, UnitSeparator = US, ShortModelNamespaces = false)
+
+        public virtual String ToCSV(Boolean IncludeMessageContext   = false,
+                                    Char    UnitSeparator           = US,
+                                    Boolean ShortModelNamespaces    = false)
         {
-            return "";
+
+            var firstResponseSeconds  = FirstResponse.HasValue ? new Double?(Math.Round(FirstResponse.Value.ResponseTime.TotalSeconds, 0))    : new Double?();
+            var firstResponseDays     = FirstResponse.HasValue ? Math.Floor(firstResponseSeconds.Value / 60 / (60 * 24))                      : -1;
+            var firstResponseHours    = FirstResponse.HasValue ? Math.Floor(firstResponseSeconds.Value / 60 / 60) - (firstResponseDays  * 24) : -1;
+            var firstResponseMinutes  = FirstResponse.HasValue ? Math.Floor(firstResponseSeconds.Value / 60)      - (firstResponseHours * 60) : -1;
+            var firstResponse         = FirstResponse.HasValue
+                                            ? (firstResponseDays                            > 0 ? firstResponseDays    + " days "   : "") +
+                                              (firstResponseHours                           > 0 ? firstResponseHours   + " hours "  : "") +
+                                              (firstResponseDays == 0 && firstResponseHours < 4 ? firstResponseMinutes + " minutes" : "")
+                                            : "";
+
+            var ageSeconds            = Math.Round(((ChangeSets.FirstOrDefault(changeSet => changeSet.Status == ServiceTicketStatusTypes.Closed)?.Timestamp ?? DateTime.UtcNow) - ChangeSets.Last().Timestamp).TotalSeconds, 0);
+            var ageDays               = Math.Floor(ageSeconds / 60 / (60 * 24));
+            var ageHours              = Math.Floor(ageSeconds / 60 / 60) - (ageDays  * 24);
+            var ageMinutes            = Math.Floor(ageSeconds / 60)      - (ageHours * 60);
+            var age                   = (ageDays                  > 0 ? ageDays    + " days "   : "") +
+                                        (ageHours                 > 0 ? ageHours   + " hours "  : "") +
+                                        (ageDays == 0 && ageHours < 4 ? ageMinutes + " minutes" : "");
+
+            return String.Concat(Status.    Value.ToString(),                                                                           UnitSeparator,
+                                 Status.Timestamp.ToIso8601(),                                                                          UnitSeparator,
+                                 Title.           FirstText(),                                                                          UnitSeparator,
+                                 ProblemDescriptions.Select(problemDescription => problemDescription.FirstText()).AggregateWith(". "),  UnitSeparator,
+                                 //!Affected.IsEmpty()
+                                 //    ? Affected.DefibrillatorDeviceInfos.Select(info => info.DeviceId.ToString()).Concat(
+                                 //      Affected.CommunicatorDeviceInfos. Select(info => info.DeviceId.ToString())).
+                                 //      AggregateWith(",")
+                                 //    : "", UnitSeparator,
+                                 //!Affected.IsEmpty()
+                                 //    ? Affected.DefibrillatorDeviceInfos.Select(info => ShortModelNamespaces
+                                 //                                                           ? info.Model.Substring(Math.Max(info.Model.LastIndexOf(".") + 1, 0))
+                                 //                                                           : info.Model).AggregateWith(",")
+                                 //    : "",                                                                                              UnitSeparator,
+                                 Author.Name,                                                                                           UnitSeparator,
+                                 AdditionalInfo.FirstText(),                                                                            UnitSeparator,
+                                 firstResponse,                                                                                         UnitSeparator,
+                                 age,                                                                                                   UnitSeparator,
+                                 !Affected.IsEmpty()
+                                     ? Affected.Organizations.Select(info => info.Message.Name.FirstText()).AggregateWith(",")
+                                     : "",                                                                                              UnitSeparator,
+                                 Priority.ToString(),                                                                                   UnitSeparator,
+                                 Location.FirstText(),                                                                                  UnitSeparator,
+                                 Id.ToString());
+
         }
+
+        #endregion
 
 
         #region (private)  UpdateMyself     (NewServiceTicket)
