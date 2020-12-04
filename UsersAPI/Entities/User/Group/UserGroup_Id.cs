@@ -197,7 +197,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="Context">The text representation of the user group identification context.</param>
         /// <param name="Text">A text representation of an user group identification.</param>
         public static UserGroup_Id? TryParse(String  Context,
-                                                      String  Text)
+                                             String  Text)
         {
 
             if (TryParse(Context,
@@ -250,8 +250,8 @@ namespace social.OpenData.UsersAPI
         /// <param name="Context">The text representation of the user group identification context.</param>
         /// <param name="Text">A text representation of an user group identification.</param>
         /// <param name="UserGroupId">The parsed user group identification.</param>
-        public static Boolean TryParse(String                     Context,
-                                       String                     Text,
+        public static Boolean TryParse(String            Context,
+                                       String            Text,
                                        out UserGroup_Id  UserGroupId)
         {
 
@@ -263,7 +263,7 @@ namespace social.OpenData.UsersAPI
                 {
 
                     UserGroupId = new UserGroup_Id(Context?.Trim(),
-                                                                     Text);
+                                                   Text);
 
                     return true;
 

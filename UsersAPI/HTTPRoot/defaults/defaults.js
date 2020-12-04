@@ -10,6 +10,7 @@ var map = {};
 var leaflet = {};
 let markers = [];
 let UserProfileJSON;
+let UserGroupJSON;
 let organizationJSON;
 // #region MenuHighlight(name, NoURIupdate?)
 function MenuHighlight(name, NoURIupdate) {
@@ -155,6 +156,17 @@ function UpdateI18N(parentDiv, I18NString) {
             select.appendChild(new Option(languageKey2Text(firstKey(I18NString), UILanguage), firstKey(I18NString), true, true));
             textarea.value = firstValue(I18NString);
         }
+    }
+}
+function UpdateI18NTextArea(I18NTextArea, I18NString) {
+    if (I18NTextArea !== null &&
+        I18NString !== undefined &&
+        firstValue(I18NString) !== undefined) {
+        const select = I18NTextArea.parentElement.querySelector("select");
+        if (select !== null)
+            select.appendChild(new Option(languageKey2Text(firstKey(I18NString), UILanguage), firstKey(I18NString), true, true));
+        if (I18NTextArea !== null)
+            I18NTextArea.value = firstValue(I18NString);
     }
 }
 function ImpersonateUser(newUserId) {

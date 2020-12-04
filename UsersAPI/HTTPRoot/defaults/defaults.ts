@@ -31,10 +31,13 @@ interface IUserProfile {
     hash:             string;
 }
 
+let UserGroupJSON: IUserGroup;
+
 interface IUserGroup {
     id:                     string;
-    name:                   Object;
-    description:            Object;
+    name:                   Record<string, string>;
+    description:            Record<string, string>;
+    isMember:               Array<string>;
 }
 
 let organizationJSON: IOrganization;
@@ -336,6 +339,29 @@ function UpdateI18N(parentDiv:   HTMLDivElement,
             textarea.value = firstValue(I18NString);
 
         }
+
+    }
+
+}
+
+function UpdateI18NTextArea(I18NTextArea:  HTMLTextAreaElement,
+                            I18NString:    Record<string, string>) {
+
+    if (I18NTextArea           !== null      &&
+        I18NString             !== undefined &&
+        firstValue(I18NString) !== undefined)
+    {
+
+        const select = I18NTextArea.parentElement.querySelector("select") as HTMLSelectElement;
+
+        if (select !== null)
+            select.appendChild(new Option(languageKey2Text(firstKey(I18NString), UILanguage),
+                                          firstKey(I18NString),
+                                          true,
+                                          true));
+
+        if (I18NTextArea !== null)
+            I18NTextArea.value = firstValue(I18NString);
 
     }
 

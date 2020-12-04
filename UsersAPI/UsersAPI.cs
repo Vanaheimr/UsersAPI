@@ -275,6 +275,161 @@ namespace social.OpenData.UsersAPI
         #endregion
 
 
+        #region ParseUserGroupId(this HTTPRequest, UsersAPI, out UsersAPI,                   out HTTPResponse)
+
+        /// <summary>
+        /// Parse the given HTTP request and return the user identification
+        /// for the given HTTP hostname and HTTP query parameter
+        /// or an HTTP error response.
+        /// </summary>
+        /// <param name="HTTPRequest">A HTTP request.</param>
+        /// <param name="UsersAPI">The Users API.</param>
+        /// <param name="UserGroupId">The parsed unique user identification.</param>
+        /// <param name="HTTPResponse">A HTTP error response.</param>
+        /// <returns>True, when user identification was found; false else.</returns>
+        public static Boolean ParseUserGroupId(this HTTPRequest          HTTPRequest,
+                                               UsersAPI                  UsersAPI,
+                                               out UserGroup_Id?         UserGroupId,
+                                               out HTTPResponse.Builder  HTTPResponse)
+        {
+
+            #region Initial checks
+
+            if (HTTPRequest == null)
+                throw new ArgumentNullException(nameof(HTTPRequest),  "The given HTTP request must not be null!");
+
+            if (UsersAPI    == null)
+                throw new ArgumentNullException(nameof(UsersAPI),     "The given Users API must not be null!");
+
+            #endregion
+
+            UserGroupId   = null;
+            HTTPResponse  = null;
+
+            if (HTTPRequest.ParsedURLParameters.Length < 1)
+            {
+
+                HTTPResponse = new HTTPResponse.Builder(HTTPRequest) {
+                    HTTPStatusCode  = HTTPStatusCode.BadRequest,
+                    Server          = UsersAPI.HTTPServer.DefaultServerName,
+                    Date            = DateTime.UtcNow,
+                    Connection      = "close"
+                };
+
+                return false;
+
+            }
+
+            UserGroupId = UserGroup_Id.TryParse(HTTPRequest.ParsedURLParameters[0], "");
+
+            if (!UserGroupId.HasValue)
+            {
+
+                HTTPResponse = new HTTPResponse.Builder(HTTPRequest) {
+                    HTTPStatusCode  = HTTPStatusCode.BadRequest,
+                    Server          = UsersAPI.HTTPServer.DefaultServerName,
+                    Date            = DateTime.UtcNow,
+                    ContentType     = HTTPContentType.JSON_UTF8,
+                    Content         = @"{ ""description"": ""Invalid UserGroupId!"" }".ToUTF8Bytes(),
+                    Connection      = "close"
+                };
+
+                return false;
+
+            }
+
+            return true;
+
+        }
+
+        #endregion
+
+        #region ParseUserGroup  (this HTTPRequest, UsersAPI, out UserGroupId, out UserGroup, out HTTPResponse)
+
+        /// <summary>
+        /// Parse the given HTTP request and return the user identification
+        /// for the given HTTP hostname and HTTP query parameter
+        /// or an HTTP error response.
+        /// </summary>
+        /// <param name="HTTPRequest">A HTTP request.</param>
+        /// <param name="UsersAPI">The Users API.</param>
+        /// <param name="UserGroupId">The parsed unique user identification.</param>
+        /// <param name="UserGroup">The resolved user.</param>
+        /// <param name="HTTPResponse">A HTTP error response.</param>
+        /// <returns>True, when user identification was found; false else.</returns>
+        public static Boolean ParseUserGroup(this HTTPRequest          HTTPRequest,
+                                             UsersAPI                  UsersAPI,
+                                             out UserGroup_Id?         UserGroupId,
+                                             out UserGroup             UserGroup,
+                                             out HTTPResponse.Builder  HTTPResponse)
+        {
+
+            #region Initial checks
+
+            if (HTTPRequest == null)
+                throw new ArgumentNullException(nameof(HTTPRequest),  "The given HTTP request must not be null!");
+
+            if (UsersAPI    == null)
+                throw new ArgumentNullException(nameof(UsersAPI),     "The given Users API must not be null!");
+
+            #endregion
+
+            UserGroupId   = null;
+            UserGroup     = null;
+            HTTPResponse  = null;
+
+            if (HTTPRequest.ParsedURLParameters.Length < 1) {
+
+                HTTPResponse = new HTTPResponse.Builder(HTTPRequest) {
+                    HTTPStatusCode  = HTTPStatusCode.BadRequest,
+                    Server          = UsersAPI.HTTPServer.DefaultServerName,
+                    Date            = DateTime.UtcNow,
+                    Connection      = "close"
+                };
+
+                return false;
+
+            }
+
+            UserGroupId = UserGroup_Id.TryParse(HTTPRequest.ParsedURLParameters[0]);
+
+            if (!UserGroupId.HasValue) {
+
+                HTTPResponse = new HTTPResponse.Builder(HTTPRequest) {
+                    HTTPStatusCode  = HTTPStatusCode.BadRequest,
+                    Server          = UsersAPI.HTTPServer.DefaultServerName,
+                    Date            = DateTime.UtcNow,
+                    ContentType     = HTTPContentType.JSON_UTF8,
+                    Content         = @"{ ""description"": ""Invalid UserGroupId!"" }".ToUTF8Bytes(),
+                    Connection      = "close"
+                };
+
+                return false;
+
+            }
+
+            if (!UsersAPI.TryGetUserGroup(UserGroupId.Value, out UserGroup)) {
+
+                HTTPResponse = new HTTPResponse.Builder(HTTPRequest) {
+                    HTTPStatusCode  = HTTPStatusCode.NotFound,
+                    Server          = UsersAPI.HTTPServer.DefaultServerName,
+                    Date            = DateTime.UtcNow,
+                    ContentType     = HTTPContentType.JSON_UTF8,
+                    Content         = @"{ ""description"": ""Unknown UserGroupId!"" }".ToUTF8Bytes(),
+                    Connection      = "close"
+                };
+
+                return false;
+
+            }
+
+            return true;
+
+        }
+
+        #endregion
+
+
         #region ParseOrganizationId(this HTTPRequest, UsersAPI, out OrganizationId,                   out HTTPResponse)
 
         /// <summary>
@@ -429,6 +584,161 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
+
+        #region ParseNewsId(this HTTPRequest, UsersAPI, out NewsId,           out HTTPResponse)
+
+        /// <summary>
+        /// Parse the given HTTP request and return the News identification
+        /// for the given HTTP hostname and HTTP query parameter
+        /// or an HTTP error response.
+        /// </summary>
+        /// <param name="HTTPRequest">A HTTP request.</param>
+        /// <param name="UsersAPI">The UsersAPI.</param>
+        /// <param name="NewsId">The parsed unique News identification.</param>
+        /// <param name="HTTPResponse">A HTTP error response.</param>
+        /// <returns>True, when News identification was found; false else.</returns>
+        public static Boolean ParseNewsId(this HTTPRequest          HTTPRequest,
+                                          UsersAPI                  UsersAPI,
+                                          out NewsPosting_Id?              NewsId,
+                                          out HTTPResponse.Builder  HTTPResponse)
+        {
+
+            #region Initial checks
+
+            if (HTTPRequest == null)
+                throw new ArgumentNullException(nameof(HTTPRequest),    "The given HTTP request must not be null!");
+
+            if (UsersAPI     == null)
+                throw new ArgumentNullException(nameof(UsersAPI),  "The given UsersAPI must not be null!");
+
+            #endregion
+
+            NewsId        = null;
+            HTTPResponse  = null;
+
+            if (HTTPRequest.ParsedURLParameters.Length < 1)
+            {
+
+                HTTPResponse = new HTTPResponse.Builder(HTTPRequest) {
+                    HTTPStatusCode  = HTTPStatusCode.BadRequest,
+                    Server          = UsersAPI.HTTPServer.DefaultServerName,
+                    Date            = DateTime.UtcNow,
+                    Connection      = "close"
+                };
+
+                return false;
+
+            }
+
+            NewsId = NewsPosting_Id.TryParse(HTTPRequest.ParsedURLParameters[0]);
+
+            if (!NewsId.HasValue)
+            {
+
+                HTTPResponse = new HTTPResponse.Builder(HTTPRequest) {
+                    HTTPStatusCode  = HTTPStatusCode.BadRequest,
+                    Server          = UsersAPI.HTTPServer.DefaultServerName,
+                    Date            = DateTime.UtcNow,
+                    ContentType     = HTTPContentType.JSON_UTF8,
+                    Content         = @"{ ""description"": ""Invalid NewsId!"" }".ToUTF8Bytes(),
+                    Connection      = "close"
+                };
+
+                return false;
+
+            }
+
+            return true;
+
+        }
+
+        #endregion
+
+        #region ParseNews  (this HTTPRequest, UsersAPI, out NewsId, out News, out HTTPResponse)
+
+        /// <summary>
+        /// Parse the given HTTP request and return the News identification
+        /// for the given HTTP hostname and HTTP query parameter
+        /// or an HTTP error response.
+        /// </summary>
+        /// <param name="HTTPRequest">A HTTP request.</param>
+        /// <param name="UsersAPI">The UsersAPI.</param>
+        /// <param name="NewsId">The parsed unique News identification.</param>
+        /// <param name="News">The resolved News.</param>
+        /// <param name="HTTPResponse">A HTTP error response.</param>
+        /// <returns>True, when News identification was found; false else.</returns>
+        public static Boolean ParseNews(this HTTPRequest          HTTPRequest,
+                                        UsersAPI                  UsersAPI,
+                                        out NewsPosting_Id?              NewsId,
+                                        out NewsPosting                  News,
+                                        out HTTPResponse.Builder  HTTPResponse)
+        {
+
+            #region Initial checks
+
+            if (HTTPRequest == null)
+                throw new ArgumentNullException(nameof(HTTPRequest),    "The given HTTP request must not be null!");
+
+            if (UsersAPI     == null)
+                throw new ArgumentNullException(nameof(UsersAPI),  "The given UsersAPI must not be null!");
+
+            #endregion
+
+            NewsId        = null;
+            News          = null;
+            HTTPResponse  = null;
+
+            if (HTTPRequest.ParsedURLParameters.Length < 1) {
+
+                HTTPResponse = new HTTPResponse.Builder(HTTPRequest) {
+                    HTTPStatusCode  = HTTPStatusCode.BadRequest,
+                    Server          = UsersAPI.HTTPServer.DefaultServerName,
+                    Date            = DateTime.UtcNow,
+                    Connection      = "close"
+                };
+
+                return false;
+
+            }
+
+            NewsId = NewsPosting_Id.TryParse(HTTPRequest.ParsedURLParameters[0]);
+
+            if (!NewsId.HasValue) {
+
+                HTTPResponse = new HTTPResponse.Builder(HTTPRequest) {
+                    HTTPStatusCode  = HTTPStatusCode.BadRequest,
+                    Server          = UsersAPI.HTTPServer.DefaultServerName,
+                    Date            = DateTime.UtcNow,
+                    ContentType     = HTTPContentType.JSON_UTF8,
+                    Content         = @"{ ""description"": ""Invalid NewsId!"" }".ToUTF8Bytes(),
+                    Connection      = "close"
+                };
+
+                return false;
+
+            }
+
+            if (!UsersAPI.TryGet(NewsId.Value, out News)) {
+
+                HTTPResponse = new HTTPResponse.Builder(HTTPRequest) {
+                    HTTPStatusCode  = HTTPStatusCode.NotFound,
+                    Server          = UsersAPI.HTTPServer.DefaultServerName,
+                    Date            = DateTime.UtcNow,
+                    ContentType     = HTTPContentType.JSON_UTF8,
+                    Content         = @"{ ""description"": ""Unknown NewsId!"" }".ToUTF8Bytes(),
+                    Connection      = "close"
+                };
+
+                return false;
+
+            }
+
+            return true;
+
+        }
+
+        #endregion
+
     }
 
 
@@ -493,6 +803,9 @@ namespace social.OpenData.UsersAPI
         private static readonly SemaphoreSlim  OrganizationsSemaphore          = new SemaphoreSlim(1, 1);
         private static readonly SemaphoreSlim  OrganizationGroupsSemaphore     = new SemaphoreSlim(1, 1);
         private static readonly SemaphoreSlim  DashboardsSemaphore             = new SemaphoreSlim(1, 1);
+        private static readonly SemaphoreSlim  NewsPostingsSemaphore           = new SemaphoreSlim(1, 1);
+        private static readonly SemaphoreSlim  NewsBannersSemaphore            = new SemaphoreSlim(1, 1);
+        private static readonly SemaphoreSlim  FAQSemaphore                    = new SemaphoreSlim(1, 1);
 
         /// <summary>
         /// The HTTP root for embedded ressources.
@@ -568,12 +881,36 @@ namespace social.OpenData.UsersAPI
 
         #region (static) NotificationMessageTypes
 
-        public static NotificationMessageType addServiceTicket_MessageType                 = NotificationMessageType.Parse("addServiceTicket");
-        public static NotificationMessageType addIfNotExistsServiceTicket_MessageType      = NotificationMessageType.Parse("addIfNotExistsServiceTicket");
-        public static NotificationMessageType addOrUpdateServiceTicket_MessageType         = NotificationMessageType.Parse("addOrUpdateServiceTicket");
-        public static NotificationMessageType updateServiceTicket_MessageType              = NotificationMessageType.Parse("updateServiceTicket");
-        public static NotificationMessageType removeServiceTicket_MessageType              = NotificationMessageType.Parse("removeServiceTicket");
-        public static NotificationMessageType changeServiceTicketStatus_MessageType        = NotificationMessageType.Parse("changeServiceTicketStatus");
+        public static NotificationMessageType addServiceTicket_MessageType             = NotificationMessageType.Parse("addServiceTicket");
+        public static NotificationMessageType addIfNotExistsServiceTicket_MessageType  = NotificationMessageType.Parse("addIfNotExistsServiceTicket");
+        public static NotificationMessageType addOrUpdateServiceTicket_MessageType     = NotificationMessageType.Parse("addOrUpdateServiceTicket");
+        public static NotificationMessageType updateServiceTicket_MessageType          = NotificationMessageType.Parse("updateServiceTicket");
+        public static NotificationMessageType removeServiceTicket_MessageType          = NotificationMessageType.Parse("removeServiceTicket");
+        public static NotificationMessageType changeServiceTicketStatus_MessageType    = NotificationMessageType.Parse("changeServiceTicketStatus");
+
+        public static NotificationMessageType addNewsPosting_MessageType               = NotificationMessageType.Parse("addNewsPosting");
+        public static NotificationMessageType addNewsPostingIfNotExists_MessageType    = NotificationMessageType.Parse("addNewsPostingIfNotExists");
+        public static NotificationMessageType addOrUpdateNewsPosting_MessageType       = NotificationMessageType.Parse("addOrUpdateNewsPosting");
+        public static NotificationMessageType updateNewsPosting_MessageType            = NotificationMessageType.Parse("updateNewsPosting");
+        public static NotificationMessageType removeNewsPosting_MessageType            = NotificationMessageType.Parse("removeNewsPosting");
+        public static NotificationMessageType changeNewsAdminStatus_MessageType        = NotificationMessageType.Parse("changeNewsPostingAdminStatus");
+        public static NotificationMessageType changeNewsStatus_MessageType             = NotificationMessageType.Parse("changeNewsPostingStatus");
+
+        public static NotificationMessageType addNewsBanner_MessageType                = NotificationMessageType.Parse("addNewsBanner");
+        public static NotificationMessageType addNewsBannerIfNotExists_MessageType     = NotificationMessageType.Parse("addNewsBannerIfNotExists");
+        public static NotificationMessageType addOrUpdateNewsBanner_MessageType        = NotificationMessageType.Parse("addOrUpdateNewsBanner");
+        public static NotificationMessageType updateNewsBanner_MessageType             = NotificationMessageType.Parse("updateNewsBanner");
+        public static NotificationMessageType removeNewsBanner_MessageType             = NotificationMessageType.Parse("removeNewsBanner");
+        public static NotificationMessageType changeNewsAdminStatus_MessageType        = NotificationMessageType.Parse("changeNewsBannerAdminStatus");
+        public static NotificationMessageType changeNewsStatus_MessageType             = NotificationMessageType.Parse("changeNewsBannerStatus");
+
+        public static NotificationMessageType addFAQ_MessageType                       = NotificationMessageType.Parse("addFAQ");
+        public static NotificationMessageType addIfNotExistsFAQ_MessageType            = NotificationMessageType.Parse("addIfNotExistsFAQ");
+        public static NotificationMessageType addOrUpdateFAQ_MessageType               = NotificationMessageType.Parse("addOrUpdateFAQ");
+        public static NotificationMessageType updateFAQ_MessageType                    = NotificationMessageType.Parse("updateFAQ");
+        public static NotificationMessageType removeFAQ_MessageType                    = NotificationMessageType.Parse("removeFAQ");
+        public static NotificationMessageType changeFAQAdminStatus_MessageType         = NotificationMessageType.Parse("changeFAQAdminStatus");
+        public static NotificationMessageType changeFAQStatus_MessageType              = NotificationMessageType.Parse("changeFAQStatus");
 
         #endregion
 
@@ -2174,6 +2511,8 @@ namespace social.OpenData.UsersAPI
             this._OrganizationGroups          = new Dictionary<OrganizationGroup_Id,       OrganizationGroup>();
             this._Messages                    = new Dictionary<Message_Id,                 Message>();
             this._ServiceTickets              = new ConcurrentDictionary<ServiceTicket_Id, ServiceTicket>();
+            this._NewsPostings                        = new Dictionary<NewsPosting_Id,                    NewsPosting>();
+            this._FAQ                         = new Dictionary<FAQ_Id,                     FAQ>();
 
             this._LoginPasswords              = new Dictionary<User_Id,         LoginPassword>();
             this._VerificationTokens          = new List<VerificationToken>();
@@ -7256,7 +7595,7 @@ namespace social.OpenData.UsersAPI
 
 
                                              var withMetadata           = Request.QueryString.GetBoolean("withMetadata", false);
-                                             var includeFilter          = Request.QueryString.CreateStringFilter<UserGroup>("match",
+                                             var matchFilter            = Request.QueryString.CreateStringFilter<UserGroup>("match",
                                                                                                                             (group, include) => group.Id.ToString().IndexOf(include) >= 0 ||
                                                                                                                                                 group.Name.       Matches(include, IgnoreCase: true) ||
                                                                                                                                                 group.Description.Matches(include, IgnoreCase: true));
@@ -7266,13 +7605,13 @@ namespace social.OpenData.UsersAPI
 
                                              var includeCryptoHash      = Request.QueryString.GetBoolean("includeCryptoHash", true);
 
-                                             var expand                 = Request.QueryString.GetStrings("expand");
+                                             //var expand                 = Request.QueryString.GetStrings("expand");
                                              //var expandTags             = expand.ContainsIgnoreCase("tags")              ? InfoStatus.Expanded : InfoStatus.ShowIdOnly;
 
                                              var filteredUserGroups     = _UserGroups.Values.
-                                                                              Where         (group => group.Id.ToString() != "Admins").
-                                                                              Where         (includeFilter).
-                                                                              OrderBy       (user => user.Name).
+                                                                              //Where         (userGroup => userGroup.Id.ToString() != "Admins").
+                                                                              Where         (matchFilter).
+                                                                              OrderBy       (userGroup => userGroup.Name.FirstText()).
                                                                               ToArray();
 
                                              var filteredCount          = filteredUserGroups.ULongCount();
@@ -7281,7 +7620,7 @@ namespace social.OpenData.UsersAPI
                                              var JSONResults            = filteredUserGroups.
                                                                               ToJSON(skip,
                                                                                      take,
-                                                                                     false, //Embedded
+                                                                                     true, //Embedded
                                                                                      InfoStatus.ShowIdOnly,
                                                                                      InfoStatus.ShowIdOnly,
                                                                                      InfoStatus.ShowIdOnly,
@@ -7312,6 +7651,115 @@ namespace social.OpenData.UsersAPI
                                                      Connection                    = "close",
                                                      Vary                          = "Accept"
                                                  }.AsImmutable);
+
+                                         });
+
+            #endregion
+
+            #endregion
+
+
+            #region GET         ~/userGroups/{UserGroupId}
+
+            #region HTML
+
+            // --------------------------------------------------------------------------------------
+            // curl -v -H "Accept: application/json" http://127.0.0.1:3001/userGroups/{UserGroupId}
+            // --------------------------------------------------------------------------------------
+            HTTPServer.AddMethodCallback(Hostname,
+                                         HTTPMethod.GET,
+                                         URLPathPrefix + "userGroups/{UserGroupId}",
+                                         HTTPContentType.HTML_UTF8,
+                                         HTTPDelegate: Request => {
+
+                                             #region Get HTTP user and its users
+
+                                             // Will return HTTP 401 Unauthorized, when the HTTP user is unknown!
+                                             if (!TryGetHTTPUser(Request,
+                                                                 out User                   HTTPUser,
+                                                                 out HashSet<Organization>  HTTPOrganizations,
+                                                                 out HTTPResponse.Builder   Response,
+                                                                 Recursive:                 true))
+                                             {
+                                                 return Task.FromResult(Response.AsImmutable);
+                                             }
+
+                                             #endregion
+
+                                             return Task.FromResult(
+                                                     new HTTPResponse.Builder(Request) {
+                                                         HTTPStatusCode             = HTTPStatusCode.OK,
+                                                         Server                     = HTTPServer.DefaultServerName,
+                                                         Date                       = DateTime.UtcNow,
+                                                         AccessControlAllowOrigin   = "*",
+                                                         AccessControlAllowMethods  = "GET",
+                                                         AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
+                                                         ContentType                = HTTPContentType.HTML_UTF8,
+                                                         Content                    = MixWithHTMLTemplate("user.userGroup.shtml").ToUTF8Bytes(),
+                                                         Connection                 = "close",
+                                                         Vary                       = "Accept"
+                                                     }.AsImmutable);
+
+                                         });
+
+            #endregion
+
+            #region JSON
+
+            // --------------------------------------------------------------------------------------
+            // curl -v -H "Accept: application/json" http://127.0.0.1:2100/userGroups/{UserGroupId}
+            // --------------------------------------------------------------------------------------
+            HTTPServer.AddMethodCallback(Hostname,
+                                         HTTPMethod.GET,
+                                         URLPathPrefix + "userGroups/{UserGroupId}",
+                                         HTTPContentType.JSON_UTF8,
+                                         HTTPDelegate: Request => {
+
+                                             #region Get HTTP user and its organizations
+
+                                             TryGetHTTPUser(Request,
+                                                            out User                   HTTPUser,
+                                                            out HashSet<Organization>  HTTPOrganizations,
+                                                            Recursive: true);
+
+                                             #endregion
+
+                                             #region Check UserGroupId URL parameter
+
+                                             Request.ParseUserGroup(this,
+                                                                    out UserGroup_Id?         UserGroupId,
+                                                                    out UserGroup             UserGroup,
+                                                                    out HTTPResponse.Builder  HTTPResponse);
+
+                                             #endregion
+
+
+                                             if (UserGroup != null)
+                                                 return Task.FromResult(
+                                                     new HTTPResponse.Builder(Request) {
+                                                         HTTPStatusCode              = HTTPStatusCode.OK,
+                                                         Server                      = HTTPServer.DefaultServerName,
+                                                         Date                        = DateTime.UtcNow,
+                                                         AccessControlAllowOrigin    = "*",
+                                                         AccessControlAllowMethods   = "GET, SET",
+                                                         AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
+                                                         ContentType                 = HTTPContentType.HTML_UTF8,
+                                                         Content                     = UserGroup.ToJSON().ToUTF8Bytes(),
+                                                         Connection                  = "close",
+                                                         Vary                        = "Accept"
+                                                     }.AsImmutable);
+
+
+                                             return Task.FromResult(
+                                                              new HTTPResponse.Builder(Request) {
+                                                                        HTTPStatusCode             = HTTPStatusCode.Unauthorized,
+                                                                        Server                     = HTTPServer.DefaultServerName,
+                                                                        Date                       = DateTime.UtcNow,
+                                                                        AccessControlAllowOrigin   = "*",
+                                                                        AccessControlAllowMethods  = "GET, SET",
+                                                                        AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
+                                                                        Connection                 = "close"
+                                                                    }.AsImmutable);
 
                                          });
 
@@ -9715,6 +10163,7 @@ namespace social.OpenData.UsersAPI
             #endregion
 
 
+
             #region GET         ~/blogPostings
 
             // --------------------------------------------------------------------------
@@ -9771,6 +10220,1343 @@ namespace social.OpenData.UsersAPI
                                                     };
 
                                          });
+
+            #endregion
+
+            #region ~/newsPostings
+
+            #region OPTIONS     ~/newsPostings
+
+            // ---------------------------------------------------------
+            // curl -X OPTIONS -v http://127.0.0.1:3001/newsPostings
+            // ---------------------------------------------------------
+            HTTPServer.AddMethodCallback(Hostname,
+                                         HTTPMethod.OPTIONS,
+                                         URLPathPrefix + "newsPostings",
+                                         HTTPDelegate: Request => {
+
+                                             return Task.FromResult(
+                                                 new HTTPResponse.Builder(Request) {
+                                                     HTTPStatusCode             = HTTPStatusCode.OK,
+                                                     Server                     = HTTPServer.DefaultServerName,
+                                                     Date                       = DateTime.UtcNow,
+                                                     AccessControlAllowOrigin   = "*",
+                                                     AccessControlAllowMethods  = "GET, COUNT, SEARCH, OPTIONS",
+                                                     AccessControlAllowHeaders  = "X-PINGOTHER, Content-Type, Accept, Authorization, X-App-Version",
+                                                     Connection                 = "close"
+                                                 }.AsImmutable);
+
+                                         });
+
+            #endregion
+
+            #region GET         ~/newsPostings
+
+            #region JSON
+
+            // ------------------------------------------------------------------
+            // curl -v -H "Accept: application/json" http://127.0.0.1:3001/newsPostings
+            // ------------------------------------------------------------------
+            HTTPServer.AddMethodCallback(Hostname,
+                                         HTTPMethod.GET,
+                                         URLPathPrefix + "newsPostings",
+                                         HTTPContentType.JSON_UTF8,
+                                         HTTPDelegate: Request => {
+
+                                             #region Get HTTP user and its organizations
+
+                                             TryGetHTTPUser(Request,
+                                                            out User                   HTTPUser,
+                                                            out HashSet<Organization>  HTTPOrganizations,
+                                                            out HTTPResponse.Builder   Response,
+                                                            Recursive:                 true);
+
+                                             #endregion
+
+
+                                             var withMetadata        = Request.QueryString.GetBoolean    ("withMetadata", false);
+                                             var includeFilter       = Request.QueryString.CreateStringFilter<NewsPosting>("include",
+                                                                                                                    (news, include) => news.Headline.Matches(include, IgnoreCase: true) ||
+                                                                                                                                       news.Text.    Matches(include, IgnoreCase: true));
+
+                                             var from                = Request.QueryString.TryGetDateTime("from");
+                                             var to                  = Request.QueryString.TryGetDateTime("to");
+                                             var skip                = Request.QueryString.GetUInt64     ("skip");
+                                             var take                = Request.QueryString.GetUInt64     ("take");
+
+                                             var includeCryptoHash   = Request.QueryString.GetBoolean    ("includeCryptoHash", true);
+
+                                             var expand              = Request.QueryString.GetStrings    ("expand");
+                                             var expandTags          = expand.ContainsIgnoreCase("tags")         ? InfoStatus.Expanded : InfoStatus.ShowIdOnly;
+                                             var expandDataLicenses  = expand.ContainsIgnoreCase("dataLicenses") ? InfoStatus.Expanded : InfoStatus.ShowIdOnly;
+                                             var expandOwnerId       = expand.ContainsIgnoreCase("ownerId")      ? InfoStatus.Expanded : InfoStatus.ShowIdOnly;
+
+                                             var now                 = DateTime.UtcNow;
+
+                                             var allNews             = _NewsPostings.Values.
+                                                                           Where(posting => posting.PublicationDate <= now).
+                                                                           ToArray();
+                                             var totalCount          = _NewsPostings.ULongCount();
+
+                                             var filteredNews        = allNews.
+                                                                           Where(posting => !from.HasValue || posting.PublicationDate >= from.Value).
+                                                                           Where(posting => !to.  HasValue || posting.PublicationDate <  to.  Value).
+                                                                           Where(includeFilter).
+                                                                           ToArray();
+                                             var filteredCount       = filteredNews.ULongCount();
+
+                                             var JSONResults         = filteredNews.
+                                                                           OrderByDescending(posting => posting.PublicationDate).
+                                                                           ToJSON(skip,
+                                                                                  take,
+                                                                                  false, //Embedded
+                                                                                  expandTags,
+                                                                                  expandDataLicenses,
+                                                                                  expandOwnerId,
+                                                                                  GetNewsPostingSerializator(Request, HTTPUser),
+                                                                                  includeCryptoHash);
+
+
+                                             return Task.FromResult(
+                                                        new HTTPResponse.Builder(Request) {
+                                                            HTTPStatusCode                = HTTPStatusCode.OK,
+                                                            Server                        = HTTPServer.DefaultServerName,
+                                                            Date                          = DateTime.UtcNow,
+                                                            AccessControlAllowOrigin      = "*",
+                                                            AccessControlAllowMethods     = "GET",
+                                                            AccessControlAllowHeaders     = "Content-Type, Accept, Authorization",
+                                                            ContentType                   = HTTPContentType.JSON_UTF8,
+                                                            Content                       = withMetadata
+                                                                                                ? JSONObject.Create(
+                                                                                                      new JProperty("totalCount",     totalCount),
+                                                                                                      new JProperty("filteredCount",  filteredCount),
+                                                                                                      new JProperty("newsPostings",   JSONResults)
+                                                                                                  ).ToUTF8Bytes()
+                                                                                                : JSONResults.ToUTF8Bytes(),
+                                                            X_ExpectedTotalNumberOfItems  = filteredCount,
+                                                            Connection                    = "close",
+                                                            Vary                          = "Accept"
+                                                        }.AsImmutable);
+
+                                         });
+
+            #endregion
+
+            #region HTML
+
+            // -----------------------------------------------------------
+            // curl -v -H "Accept: text/html" http://127.0.0.1:3001/newsPostings
+            // -----------------------------------------------------------
+            HTTPServer.AddMethodCallback(Hostname,
+                                         HTTPMethod.GET,
+                                         URLPathPrefix + "newsPostings",
+                                         HTTPContentType.HTML_UTF8,
+                                         HTTPDelegate: Request => {
+
+                                             #region Get HTTP user and its organizations
+
+                                             // Will return HTTP 401 Unauthorized, when the HTTP user is unknown!
+                                             if (!TryGetHTTPUser(Request,
+                                                                 out User                   HTTPUser,
+                                                                 out HashSet<Organization>  HTTPOrganizations,
+                                                                 out HTTPResponse.Builder   Response,
+                                                                 Recursive:                 true))
+                                             {
+                                                 return Task.FromResult(Response.AsImmutable);
+                                             }
+
+                                             #endregion
+
+                                             return Task.FromResult(
+                                                 new HTTPResponse.Builder(Request) {
+                                                     HTTPStatusCode             = HTTPStatusCode.OK,
+                                                     Server                     = HTTPServer.DefaultServerName,
+                                                     Date                       = DateTime.UtcNow,
+                                                     AccessControlAllowOrigin   = "*",
+                                                     AccessControlAllowMethods  = "GET",
+                                                     AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
+                                                     ContentType                = HTTPContentType.HTML_UTF8,
+                                                     Content                    = MixWithHTMLTemplate("newsPosting.newsPostings.shtml").ToUTF8Bytes(),
+                                                     Connection                 = "close",
+                                                     Vary                       = "Accept"
+                                                 }.AsImmutable);
+
+                                         });
+
+            #endregion
+
+            #endregion
+
+            #region COUNT       ~/newsPostings
+
+            // ---------------------------------------------------------------------------
+            // curl -v -X COUNT -H "Accept: application/json" http://127.0.0.1:3001/newsPostings
+            // ---------------------------------------------------------------------------
+            HTTPServer.AddMethodCallback(Hostname,
+                                         HTTPMethod.COUNT,
+                                         URLPathPrefix + "newsPostings",
+                                         HTTPContentType.JSON_UTF8,
+                                         HTTPDelegate: Request => {
+
+                                             var since  = Request.QueryString.GetDateTime("since");
+
+                                             return Task.FromResult(
+                                                        new HTTPResponse.Builder(Request) {
+                                                            HTTPStatusCode                = HTTPStatusCode.OK,
+                                                            Server                        = HTTPServer.DefaultServerName,
+                                                            Date                          = DateTime.UtcNow,
+                                                            AccessControlAllowOrigin      = "*",
+                                                            AccessControlAllowMethods     = "GET",
+                                                            AccessControlAllowHeaders     = "Content-Type, Accept, Authorization",
+                                                            ContentType                   = HTTPContentType.JSON_UTF8,
+                                                            Content                       = JSONObject.Create(
+                                                                                                new JProperty("count",
+                                                                                                              _NewsPostings.Values.ULongCount(news => !since.HasValue || news.PublicationDate >= since.Value))
+                                                                                            ).ToUTF8Bytes(),
+                                                            Connection                    = "close"
+                                                     }.AsImmutable);
+
+                                         });
+
+            #endregion
+
+            #region SEARCH      ~/newsPostings
+
+            // --------------------------------------------------------------------------------------
+            // curl -v -X SEARCH -H "Accept: application/json" http://127.0.0.1:3001/newsPostings
+            // --------------------------------------------------------------------------------------
+            HTTPServer.AddMethodCallback(Hostname,
+                                         HTTPMethod.SEARCH,
+                                         URLPathPrefix + "newsPostings",
+                                         HTTPContentType.JSON_UTF8,
+                                         HTTPDelegate: Request => {
+
+                                             #region Get HTTP user and its organizations
+
+                                             // Will return HTTP 401 Unauthorized, when the HTTP user is unknown!
+                                             if (!TryGetHTTPUser(Request,
+                                                                 out User                   HTTPUser,
+                                                                 out HashSet<Organization>  HTTPOrganizations,
+                                                                 out HTTPResponse.Builder   Response,
+                                                                 Recursive:                 true))
+                                             {
+                                                 return Task.FromResult(Response.AsImmutable);
+                                             }
+
+                                             #endregion
+
+                                             #region Parse search center from JSON...
+
+                                             var SearchCenter    = new GeoCoordinate?();
+                                             var Radius          = new Double?();
+                                             var DistanceMetric  = DistanceMetricTypes.air;
+
+                                             if (Request.TryParseJObjectRequestBody(out JObject JSONObj, out Response))
+                                             {
+
+                                                 if (!JSONObj.ParseMandatoryEnum("lat",
+                                                                             "latitude of the search center",
+                                                                             HTTPServer.DefaultServerName,
+                                                                             out Latitude _Latitude,
+                                                                             Request,
+                                                                             out HTTPResponse.Builder ErrorResponse))
+
+                                                     return Task.FromResult(ErrorResponse.AsImmutable);
+
+                                                 if (!JSONObj.ParseMandatoryEnum("lng",
+                                                                             "longitude of the search center",
+                                                                             HTTPServer.DefaultServerName,
+                                                                             out Longitude _Longitude,
+                                                                             Request,
+                                                                             out ErrorResponse))
+
+                                                     return Task.FromResult(ErrorResponse.AsImmutable);
+
+                                                 if (!JSONObj.ParseMandatory("radius",
+                                                                             "search radius",
+                                                                             HTTPServer.DefaultServerName,
+                                                                             out Double _Radius,
+                                                                             Request,
+                                                                             out ErrorResponse))
+
+                                                     return Task.FromResult(ErrorResponse.AsImmutable);
+
+                                                 if (!JSONObj.ParseMandatoryEnum("distanceMetric",
+                                                                             "distance metric",
+                                                                             HTTPServer.DefaultServerName,
+                                                                             out DistanceMetric,
+                                                                             Request,
+                                                                             out ErrorResponse))
+
+                                                     return Task.FromResult(ErrorResponse.AsImmutable);
+
+
+                                                 SearchCenter  = GeoCoordinate.Create(_Latitude, _Longitude);
+                                                 Radius        = _Radius;
+
+                                             }
+
+                                             #endregion
+
+                                             #region ...or parse search center from HTTP query string
+
+                                             else
+                                             {
+
+                                                 SearchCenter    = GeoCoordinate.Create(
+                                                                                     Request.QueryString.Map("lat", Latitude.TryParse),
+                                                                                     Request.QueryString.Map("lng", Longitude.TryParse)
+                                                                                 );
+
+                                                 Radius          = Request.QueryString.GetDouble("radius");
+                                                 DistanceMetric  = Request.QueryString.ParseEnum("distanceMetric", DistanceMetricTypes.air);
+
+                                             }
+
+                                             #endregion
+
+                                             #region Fail, when no search center and no radius was given...
+
+                                             if (!SearchCenter.HasValue || !Radius.HasValue)
+                                             {
+
+                                                 return Task.FromResult(
+                                                     new HTTPResponse.Builder(Request) {
+                                                         HTTPStatusCode             = HTTPStatusCode.BadRequest,
+                                                         Server                     = HTTPServer.DefaultServerName,
+                                                         Date                       = DateTime.UtcNow,
+                                                         AccessControlAllowOrigin   = "*",
+                                                         AccessControlAllowMethods  = "GET, COUNT, SEARCH, OPTIONS",
+                                                         AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
+                                                     }.AsImmutable);
+
+                                             }
+
+                                             #endregion
+
+
+                                             var skip                = Request.QueryString.GetUInt64("skip");
+                                             var take                = Request.QueryString.GetUInt64("take");
+
+                                             var includeCryptoHash   = Request.QueryString.GetBoolean("includeCryptoHash", true);
+
+                                             var expand              = Request.QueryString.GetStrings("expand");
+                                             var expandTags          = expand.ContainsIgnoreCase("tags")         ? InfoStatus.Expanded : InfoStatus.ShowIdOnly;
+                                             var expandDataLicenses  = expand.ContainsIgnoreCase("dataLicenses") ? InfoStatus.Expanded : InfoStatus.ShowIdOnly;
+                                             var expandOwnerId       = expand.ContainsIgnoreCase("ownerId")      ? InfoStatus.Expanded : InfoStatus.ShowIdOnly;
+
+                                             return Task.FromResult(
+                                                     new HTTPResponse.Builder(Request) {
+                                                         HTTPStatusCode             = HTTPStatusCode.OK,
+                                                         Server                     = HTTPServer.DefaultServerName,
+                                                         Date                       = DateTime.UtcNow,
+                                                         AccessControlAllowOrigin   = "*",
+                                                         AccessControlAllowMethods  = "GET, COUNT, SEARCH, OPTIONS",
+                                                         AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
+                                                         ContentType                = HTTPContentType.JSON_UTF8,
+                                                         Content                    = _NewsPostings.Values.//Where(News => HTTPOrganizations.Contains(News.Owner)).
+                                                                                           GeoFilter(SearchCenter.Value,
+                                                                                                     Radius.Value / 1000,
+                                                                                                     skip,
+                                                                                                     take).
+                                                                                                 ToJSON(skip,
+                                                                                                        take,
+                                                                                                        false, //Embedded
+                                                                                                        expandTags,
+                                                                                                        expandDataLicenses,
+                                                                                                        expandOwnerId,
+                                                                                                        GetNewsPostingSerializator(Request, HTTPUser),
+                                                                                                        includeCryptoHash).
+                                                                                           ToUTF8Bytes(),
+                                                         Connection = "close"
+                                                     }.AsImmutable);
+
+                                         });
+
+            #endregion
+
+
+            #region OPTIONS          ~/newsPostings/{postingId}
+
+            // -------------------------------------------------------------------
+            // curl -X OPTIONS -v http://127.0.0.1:3001/newsPostings/214080158
+            // -------------------------------------------------------------------
+            HTTPServer.AddMethodCallback(Hostname,
+                                         HTTPMethod.OPTIONS,
+                                         URLPathPrefix + "newsPostings/{postingId}",
+                                         HTTPDelegate: Request => {
+
+                                             return Task.FromResult(
+                                                 new HTTPResponse.Builder(Request) {
+                                                     HTTPStatusCode             = HTTPStatusCode.OK,
+                                                     Server                     = HTTPServer.DefaultServerName,
+                                                     Date                       = DateTime.UtcNow,
+                                                     AccessControlAllowOrigin   = "*",
+                                                     AccessControlAllowMethods  = "GET, COUNT, SEARCH, OPTIONS",
+                                                     AccessControlAllowHeaders  = "X-PINGOTHER, Content-Type, Accept, Authorization, X-App-Version",
+                                                     Connection                 = "close"
+                                                 }.AsImmutable);
+
+                                         });
+
+            #endregion
+
+            #region GET              ~/newsPostings/{postingId}
+
+            #region JSON
+
+            // --------------------------------------------------------------------------------------
+            // curl -v -H "Accept: application/json" http://127.0.0.1:3001/newsPostings/214080158
+            // --------------------------------------------------------------------------------------
+            HTTPServer.AddMethodCallback(Hostname,
+                                         HTTPMethod.GET,
+                                         URLPathPrefix + "newsPostings/{postingId}",
+                                         HTTPContentType.JSON_UTF8,
+                                         HTTPDelegate: Request => {
+
+                                             #region Check NewsId URI parameter
+
+                                             if (!Request.ParseNews(this,
+                                                                    out NewsPosting_Id?              NewsId,
+                                                                    out NewsPosting                  News,
+                                                                    out HTTPResponse.Builder  HTTPResponse))
+                                             {
+                                                 return Task.FromResult(HTTPResponse.AsImmutable);
+                                             }
+
+                                             #endregion
+
+                                             #region Get HTTP user and its organizations
+
+                                             // Will return HTTP 401 Unauthorized, when the HTTP user is unknown!
+                                             if (!TryGetHTTPUser(Request,
+                                                                 out User                   HTTPUser,
+                                                                 out HashSet<Organization>  HTTPOrganizations,
+                                                                 out HTTPResponse.Builder   Response,
+                                                                 Recursive:                 true))
+                                             {
+                                                 return Task.FromResult(Response.AsImmutable);
+                                             }
+
+                                             #endregion
+
+                                             var includeCryptoHash   = Request.QueryString.GetBoolean("includeCryptoHash", true);
+
+                                             var expand              = Request.QueryString.GetStrings("expand");
+                                             var expandTags          = expand.ContainsIgnoreCase("tags")         ? InfoStatus.Expanded : InfoStatus.ShowIdOnly;
+                                             var expandDataLicenses  = expand.ContainsIgnoreCase("dataLicenses") ? InfoStatus.Expanded : InfoStatus.ShowIdOnly;
+                                             var expandOwnerId       = expand.ContainsIgnoreCase("ownerId")      ? InfoStatus.Expanded : InfoStatus.ShowIdOnly;
+
+                                             return Task.FromResult(
+                                                        HTTPOrganizations.Contains(News.Owner) ||
+                                                        Admins.InEdges(HTTPUser).Any(edgelabel => edgelabel == User2GroupEdgeTypes.IsAdmin)
+
+                                                            ? new HTTPResponse.Builder(Request) {
+                                                                HTTPStatusCode             = HTTPStatusCode.OK,
+                                                                Server                     = HTTPServer.DefaultServerName,
+                                                                Date                       = DateTime.UtcNow,
+                                                                AccessControlAllowOrigin   = "*",
+                                                                AccessControlAllowMethods  = "GET, SET",
+                                                                AccessControlAllowHeaders  = "X-PINGOTHER, Content-Type, Accept, Authorization, X-App-Version",
+                                                                ETag                       = "1",
+                                                                ContentType                = HTTPContentType.JSON_UTF8,
+                                                                Content                    = GetNewsPostingSerializator(Request, HTTPUser)
+                                                                                                                (News,
+                                                                                                                 false, //Embedded
+                                                                                                                 expandTags,
+                                                                                                                 expandDataLicenses,
+                                                                                                                 expandOwnerId,
+                                                                                                                 includeCryptoHash).
+                                                                                                             ToUTF8Bytes(),
+                                                                Connection                 = "close",
+                                                                Vary                       = "Accept"
+                                                            }.AsImmutable
+
+                                                            : new HTTPResponse.Builder(Request) {
+                                                                HTTPStatusCode             = HTTPStatusCode.Unauthorized,
+                                                                Server                     = HTTPServer.DefaultServerName,
+                                                                Date                       = DateTime.UtcNow,
+                                                                AccessControlAllowOrigin   = "*",
+                                                                AccessControlAllowMethods  = "GET, SET",
+                                                                AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
+                                                                Connection                 = "close",
+                                                                Vary                       = "Accept"
+                                                            }.AsImmutable);
+
+                                         });
+
+            #endregion
+
+            #region HTML
+
+            // --------------------------------------------------------------------------------------
+            // curl -v -H "Accept: text/html" http://127.0.0.1:3001/newsPostings/214080158
+            // --------------------------------------------------------------------------------------
+            HTTPServer.AddMethodCallback(Hostname,
+                                         HTTPMethod.GET,
+                                         URLPathPrefix + "newsPostings/{postingId}",
+                                         HTTPContentType.HTML_UTF8,
+                                         HTTPDelegate: Request => {
+
+                                             #region Get HTTP user and its organizations
+
+                                             // Will return HTTP 401 Unauthorized, when the HTTP user is unknown!
+                                             if (!TryGetHTTPUser(Request,
+                                                                 out User                   HTTPUser,
+                                                                 out HashSet<Organization>  HTTPOrganizations,
+                                                                 out HTTPResponse.Builder   Response,
+                                                                 Recursive:                 true))
+                                             {
+                                                 return Task.FromResult(Response.AsImmutable);
+                                             }
+
+                                             #endregion
+
+                                             #region Check NewsId URI parameter
+
+                                             if (!Request.ParseNews(this,
+                                                                             out NewsPosting_Id?              NewsId,
+                                                                             out NewsPosting                  News,
+                                                                             out HTTPResponse.Builder  HTTPResponse))
+                                             {
+                                                 return Task.FromResult(HTTPResponse.AsImmutable);
+                                             }
+
+                                             #endregion
+
+                                             if (HTTPOrganizations.Contains(News.Owner) ||
+                                                 Admins.InEdges(HTTPUser).Any(edgelabel => edgelabel == User2GroupEdgeTypes.IsAdmin))
+                                             {
+
+                                                 return Task.FromResult(
+                                                     new HTTPResponse.Builder(Request) {
+                                                         HTTPStatusCode             = HTTPStatusCode.OK,
+                                                         Server                     = HTTPServer.DefaultServerName,
+                                                         Date                       = DateTime.UtcNow,
+                                                         AccessControlAllowOrigin   = "*",
+                                                         AccessControlAllowMethods  = "GET",
+                                                         AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
+                                                         ContentType                = HTTPContentType.HTML_UTF8,
+                                                         Content                    = MixWithHTMLTemplate("News.News.shtml").ToUTF8Bytes(),
+                                                         Connection                 = "close",
+                                                         Vary                       = "Accept"
+                                                     }.AsImmutable);
+
+                                             }
+
+                                             return Task.FromResult(
+                                                        new HTTPResponse.Builder(Request) {
+                                                            HTTPStatusCode             = HTTPStatusCode.Unauthorized,
+                                                            Server                     = HTTPServer.DefaultServerName,
+                                                            Date                       = DateTime.UtcNow,
+                                                            AccessControlAllowOrigin   = "*",
+                                                            AccessControlAllowMethods  = "GET",
+                                                            AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
+                                                            Connection                 = "close",
+                                                            Vary                       = "Accept"
+                                                        }.AsImmutable);
+
+                                         });
+
+            #endregion
+
+            #endregion
+
+            #endregion
+
+            #region ~/newsBanners
+
+            #region OPTIONS     ~/newsBanners
+
+            // ---------------------------------------------------------
+            // curl -X OPTIONS -v http://127.0.0.1:3001/newsBanners
+            // ---------------------------------------------------------
+            HTTPServer.AddMethodCallback(Hostname,
+                                         HTTPMethod.OPTIONS,
+                                         URLPathPrefix + "newsBanners",
+                                         HTTPDelegate: Request => {
+
+                                             return Task.FromResult(
+                                                 new HTTPResponse.Builder(Request) {
+                                                     HTTPStatusCode             = HTTPStatusCode.OK,
+                                                     Server                     = HTTPServer.DefaultServerName,
+                                                     Date                       = DateTime.UtcNow,
+                                                     AccessControlAllowOrigin   = "*",
+                                                     AccessControlAllowMethods  = "GET, COUNT, SEARCH, OPTIONS",
+                                                     AccessControlAllowHeaders  = "X-PINGOTHER, Content-Type, Accept, Authorization, X-App-Version",
+                                                     Connection                 = "close"
+                                                 }.AsImmutable);
+
+                                         });
+
+            #endregion
+
+            #region GET         ~/newsBanners
+
+            #region JSON
+
+            // ------------------------------------------------------------------
+            // curl -v -H "Accept: application/json" http://127.0.0.1:3001/newsBanners
+            // ------------------------------------------------------------------
+            HTTPServer.AddMethodCallback(Hostname,
+                                         HTTPMethod.GET,
+                                         URLPathPrefix + "newsBanners",
+                                         HTTPContentType.JSON_UTF8,
+                                         HTTPDelegate: Request => {
+
+                                             #region Get HTTP user and its organizations
+
+                                             TryGetHTTPUser(Request,
+                                                            out User                   HTTPUser,
+                                                            out HashSet<Organization>  HTTPOrganizations,
+                                                            out HTTPResponse.Builder   Response,
+                                                            Recursive:                 true);
+
+                                             #endregion
+
+
+                                             var withMetadata        = Request.QueryString.GetBoolean    ("withMetadata", false);
+                                             var includeFilter       = Request.QueryString.CreateStringFilter<NewsBanner>("include",
+                                                                                                                    (news, include) => news.Headline.Matches(include, IgnoreCase: true) ||
+                                                                                                                                       news.Text.    Matches(include, IgnoreCase: true));
+
+                                             var from                = Request.QueryString.TryGetDateTime("from");
+                                             var to                  = Request.QueryString.TryGetDateTime("to");
+                                             var skip                = Request.QueryString.GetUInt64     ("skip");
+                                             var take                = Request.QueryString.GetUInt64     ("take");
+
+                                             var includeCryptoHash   = Request.QueryString.GetBoolean    ("includeCryptoHash", true);
+
+                                             var expand              = Request.QueryString.GetStrings    ("expand");
+                                             var expandTags          = expand.ContainsIgnoreCase("tags")         ? InfoStatus.Expanded : InfoStatus.ShowIdOnly;
+                                             var expandDataLicenses  = expand.ContainsIgnoreCase("dataLicenses") ? InfoStatus.Expanded : InfoStatus.ShowIdOnly;
+                                             var expandOwnerId       = expand.ContainsIgnoreCase("ownerId")      ? InfoStatus.Expanded : InfoStatus.ShowIdOnly;
+
+                                             var now                 = DateTime.UtcNow;
+
+                                             var allNews             = _NewsBanners.Values.
+                                                                           Where(posting => posting.PublicationDate <= now).
+                                                                           ToArray();
+                                             var totalCount          = _NewsBanners.ULongCount();
+
+                                             var filteredNews        = allNews.
+                                                                           Where(posting => !from.HasValue || posting.PublicationDate >= from.Value).
+                                                                           Where(posting => !to.  HasValue || posting.PublicationDate <  to.  Value).
+                                                                           Where(includeFilter).
+                                                                           ToArray();
+                                             var filteredCount       = filteredNews.ULongCount();
+
+                                             var JSONResults         = filteredNews.
+                                                                           OrderByDescending(posting => posting.PublicationDate).
+                                                                           ToJSON(skip,
+                                                                                  take,
+                                                                                  false, //Embedded
+                                                                                  expandTags,
+                                                                                  expandDataLicenses,
+                                                                                  expandOwnerId,
+                                                                                  GetNewsBannerSerializator(Request, HTTPUser),
+                                                                                  includeCryptoHash);
+
+
+                                             return Task.FromResult(
+                                                        new HTTPResponse.Builder(Request) {
+                                                            HTTPStatusCode                = HTTPStatusCode.OK,
+                                                            Server                        = HTTPServer.DefaultServerName,
+                                                            Date                          = DateTime.UtcNow,
+                                                            AccessControlAllowOrigin      = "*",
+                                                            AccessControlAllowMethods     = "GET",
+                                                            AccessControlAllowHeaders     = "Content-Type, Accept, Authorization",
+                                                            ContentType                   = HTTPContentType.JSON_UTF8,
+                                                            Content                       = withMetadata
+                                                                                                ? JSONObject.Create(
+                                                                                                      new JProperty("totalCount",     totalCount),
+                                                                                                      new JProperty("filteredCount",  filteredCount),
+                                                                                                      new JProperty("newsBanners",   JSONResults)
+                                                                                                  ).ToUTF8Bytes()
+                                                                                                : JSONResults.ToUTF8Bytes(),
+                                                            X_ExpectedTotalNumberOfItems  = filteredCount,
+                                                            Connection                    = "close",
+                                                            Vary                          = "Accept"
+                                                        }.AsImmutable);
+
+                                         });
+
+            #endregion
+
+            #region HTML
+
+            // -----------------------------------------------------------
+            // curl -v -H "Accept: text/html" http://127.0.0.1:3001/newsBanners
+            // -----------------------------------------------------------
+            HTTPServer.AddMethodCallback(Hostname,
+                                         HTTPMethod.GET,
+                                         URLPathPrefix + "newsBanners",
+                                         HTTPContentType.HTML_UTF8,
+                                         HTTPDelegate: Request => {
+
+                                             #region Get HTTP user and its organizations
+
+                                             // Will return HTTP 401 Unauthorized, when the HTTP user is unknown!
+                                             if (!TryGetHTTPUser(Request,
+                                                                 out User                   HTTPUser,
+                                                                 out HashSet<Organization>  HTTPOrganizations,
+                                                                 out HTTPResponse.Builder   Response,
+                                                                 Recursive:                 true))
+                                             {
+                                                 return Task.FromResult(Response.AsImmutable);
+                                             }
+
+                                             #endregion
+
+                                             return Task.FromResult(
+                                                 new HTTPResponse.Builder(Request) {
+                                                     HTTPStatusCode             = HTTPStatusCode.OK,
+                                                     Server                     = HTTPServer.DefaultServerName,
+                                                     Date                       = DateTime.UtcNow,
+                                                     AccessControlAllowOrigin   = "*",
+                                                     AccessControlAllowMethods  = "GET",
+                                                     AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
+                                                     ContentType                = HTTPContentType.HTML_UTF8,
+                                                     Content                    = MixWithHTMLTemplate("newsBanner.newsBanners.shtml").ToUTF8Bytes(),
+                                                     Connection                 = "close",
+                                                     Vary                       = "Accept"
+                                                 }.AsImmutable);
+
+                                         });
+
+            #endregion
+
+            #endregion
+
+            #region COUNT       ~/newsBanners
+
+            // ---------------------------------------------------------------------------
+            // curl -v -X COUNT -H "Accept: application/json" http://127.0.0.1:3001/newsBanners
+            // ---------------------------------------------------------------------------
+            HTTPServer.AddMethodCallback(Hostname,
+                                         HTTPMethod.COUNT,
+                                         URLPathPrefix + "newsBanners",
+                                         HTTPContentType.JSON_UTF8,
+                                         HTTPDelegate: Request => {
+
+                                             var since  = Request.QueryString.GetDateTime("since");
+
+                                             return Task.FromResult(
+                                                        new HTTPResponse.Builder(Request) {
+                                                            HTTPStatusCode                = HTTPStatusCode.OK,
+                                                            Server                        = HTTPServer.DefaultServerName,
+                                                            Date                          = DateTime.UtcNow,
+                                                            AccessControlAllowOrigin      = "*",
+                                                            AccessControlAllowMethods     = "GET",
+                                                            AccessControlAllowHeaders     = "Content-Type, Accept, Authorization",
+                                                            ContentType                   = HTTPContentType.JSON_UTF8,
+                                                            Content                       = JSONObject.Create(
+                                                                                                new JProperty("count",
+                                                                                                              _NewsBanners.Values.ULongCount(news => !since.HasValue || news.PublicationDate >= since.Value))
+                                                                                            ).ToUTF8Bytes(),
+                                                            Connection                    = "close"
+                                                     }.AsImmutable);
+
+                                         });
+
+            #endregion
+
+            #region SEARCH      ~/newsBanners
+
+            // --------------------------------------------------------------------------------------
+            // curl -v -X SEARCH -H "Accept: application/json" http://127.0.0.1:3001/newsBanners
+            // --------------------------------------------------------------------------------------
+            HTTPServer.AddMethodCallback(Hostname,
+                                         HTTPMethod.SEARCH,
+                                         URLPathPrefix + "newsBanners",
+                                         HTTPContentType.JSON_UTF8,
+                                         HTTPDelegate: Request => {
+
+                                             #region Get HTTP user and its organizations
+
+                                             // Will return HTTP 401 Unauthorized, when the HTTP user is unknown!
+                                             if (!TryGetHTTPUser(Request,
+                                                                 out User                   HTTPUser,
+                                                                 out HashSet<Organization>  HTTPOrganizations,
+                                                                 out HTTPResponse.Builder   Response,
+                                                                 Recursive:                 true))
+                                             {
+                                                 return Task.FromResult(Response.AsImmutable);
+                                             }
+
+                                             #endregion
+
+                                             #region Parse search center from JSON...
+
+                                             var SearchCenter    = new GeoCoordinate?();
+                                             var Radius          = new Double?();
+                                             var DistanceMetric  = DistanceMetricTypes.air;
+
+                                             if (Request.TryParseJObjectRequestBody(out JObject JSONObj, out Response))
+                                             {
+
+                                                 if (!JSONObj.ParseMandatoryEnum("lat",
+                                                                             "latitude of the search center",
+                                                                             HTTPServer.DefaultServerName,
+                                                                             out Latitude _Latitude,
+                                                                             Request,
+                                                                             out HTTPResponse.Builder ErrorResponse))
+
+                                                     return Task.FromResult(ErrorResponse.AsImmutable);
+
+                                                 if (!JSONObj.ParseMandatoryEnum("lng",
+                                                                             "longitude of the search center",
+                                                                             HTTPServer.DefaultServerName,
+                                                                             out Longitude _Longitude,
+                                                                             Request,
+                                                                             out ErrorResponse))
+
+                                                     return Task.FromResult(ErrorResponse.AsImmutable);
+
+                                                 if (!JSONObj.ParseMandatory("radius",
+                                                                             "search radius",
+                                                                             HTTPServer.DefaultServerName,
+                                                                             out Double _Radius,
+                                                                             Request,
+                                                                             out ErrorResponse))
+
+                                                     return Task.FromResult(ErrorResponse.AsImmutable);
+
+                                                 if (!JSONObj.ParseMandatoryEnum("distanceMetric",
+                                                                             "distance metric",
+                                                                             HTTPServer.DefaultServerName,
+                                                                             out DistanceMetric,
+                                                                             Request,
+                                                                             out ErrorResponse))
+
+                                                     return Task.FromResult(ErrorResponse.AsImmutable);
+
+
+                                                 SearchCenter  = GeoCoordinate.Create(_Latitude, _Longitude);
+                                                 Radius        = _Radius;
+
+                                             }
+
+                                             #endregion
+
+                                             #region ...or parse search center from HTTP query string
+
+                                             else
+                                             {
+
+                                                 SearchCenter    = GeoCoordinate.Create(
+                                                                                     Request.QueryString.Map("lat", Latitude.TryParse),
+                                                                                     Request.QueryString.Map("lng", Longitude.TryParse)
+                                                                                 );
+
+                                                 Radius          = Request.QueryString.GetDouble("radius");
+                                                 DistanceMetric  = Request.QueryString.ParseEnum("distanceMetric", DistanceMetricTypes.air);
+
+                                             }
+
+                                             #endregion
+
+                                             #region Fail, when no search center and no radius was given...
+
+                                             if (!SearchCenter.HasValue || !Radius.HasValue)
+                                             {
+
+                                                 return Task.FromResult(
+                                                     new HTTPResponse.Builder(Request) {
+                                                         HTTPStatusCode             = HTTPStatusCode.BadRequest,
+                                                         Server                     = HTTPServer.DefaultServerName,
+                                                         Date                       = DateTime.UtcNow,
+                                                         AccessControlAllowOrigin   = "*",
+                                                         AccessControlAllowMethods  = "GET, COUNT, SEARCH, OPTIONS",
+                                                         AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
+                                                     }.AsImmutable);
+
+                                             }
+
+                                             #endregion
+
+
+                                             var skip                = Request.QueryString.GetUInt64("skip");
+                                             var take                = Request.QueryString.GetUInt64("take");
+
+                                             var includeCryptoHash   = Request.QueryString.GetBoolean("includeCryptoHash", true);
+
+                                             var expand              = Request.QueryString.GetStrings("expand");
+                                             var expandTags          = expand.ContainsIgnoreCase("tags")         ? InfoStatus.Expanded : InfoStatus.ShowIdOnly;
+                                             var expandDataLicenses  = expand.ContainsIgnoreCase("dataLicenses") ? InfoStatus.Expanded : InfoStatus.ShowIdOnly;
+                                             var expandOwnerId       = expand.ContainsIgnoreCase("ownerId")      ? InfoStatus.Expanded : InfoStatus.ShowIdOnly;
+
+                                             return Task.FromResult(
+                                                     new HTTPResponse.Builder(Request) {
+                                                         HTTPStatusCode             = HTTPStatusCode.OK,
+                                                         Server                     = HTTPServer.DefaultServerName,
+                                                         Date                       = DateTime.UtcNow,
+                                                         AccessControlAllowOrigin   = "*",
+                                                         AccessControlAllowMethods  = "GET, COUNT, SEARCH, OPTIONS",
+                                                         AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
+                                                         ContentType                = HTTPContentType.JSON_UTF8,
+                                                         Content                    = _NewsBanners.Values.//Where(News => HTTPOrganizations.Contains(News.Owner)).
+                                                                                           GeoFilter(SearchCenter.Value,
+                                                                                                     Radius.Value / 1000,
+                                                                                                     skip,
+                                                                                                     take).
+                                                                                                 ToJSON(skip,
+                                                                                                        take,
+                                                                                                        false, //Embedded
+                                                                                                        expandTags,
+                                                                                                        expandDataLicenses,
+                                                                                                        expandOwnerId,
+                                                                                                        GetNewsBannerSerializator(Request, HTTPUser),
+                                                                                                        includeCryptoHash).
+                                                                                           ToUTF8Bytes(),
+                                                         Connection = "close"
+                                                     }.AsImmutable);
+
+                                         });
+
+            #endregion
+
+
+            #region OPTIONS          ~/newsBanners/{postingId}
+
+            // -------------------------------------------------------------------
+            // curl -X OPTIONS -v http://127.0.0.1:3001/newsBanners/214080158
+            // -------------------------------------------------------------------
+            HTTPServer.AddMethodCallback(Hostname,
+                                         HTTPMethod.OPTIONS,
+                                         URLPathPrefix + "newsBanners/{postingId}",
+                                         HTTPDelegate: Request => {
+
+                                             return Task.FromResult(
+                                                 new HTTPResponse.Builder(Request) {
+                                                     HTTPStatusCode             = HTTPStatusCode.OK,
+                                                     Server                     = HTTPServer.DefaultServerName,
+                                                     Date                       = DateTime.UtcNow,
+                                                     AccessControlAllowOrigin   = "*",
+                                                     AccessControlAllowMethods  = "GET, COUNT, SEARCH, OPTIONS",
+                                                     AccessControlAllowHeaders  = "X-PINGOTHER, Content-Type, Accept, Authorization, X-App-Version",
+                                                     Connection                 = "close"
+                                                 }.AsImmutable);
+
+                                         });
+
+            #endregion
+
+            #region GET              ~/newsBanners/{postingId}
+
+            #region JSON
+
+            // --------------------------------------------------------------------------------------
+            // curl -v -H "Accept: application/json" http://127.0.0.1:3001/newsBanners/214080158
+            // --------------------------------------------------------------------------------------
+            HTTPServer.AddMethodCallback(Hostname,
+                                         HTTPMethod.GET,
+                                         URLPathPrefix + "newsBanners/{postingId}",
+                                         HTTPContentType.JSON_UTF8,
+                                         HTTPDelegate: Request => {
+
+                                             #region Check NewsId URI parameter
+
+                                             if (!Request.ParseNews(this,
+                                                                    out NewsBanner_Id?              NewsId,
+                                                                    out NewsBanner                  News,
+                                                                    out HTTPResponse.Builder  HTTPResponse))
+                                             {
+                                                 return Task.FromResult(HTTPResponse.AsImmutable);
+                                             }
+
+                                             #endregion
+
+                                             #region Get HTTP user and its organizations
+
+                                             // Will return HTTP 401 Unauthorized, when the HTTP user is unknown!
+                                             if (!TryGetHTTPUser(Request,
+                                                                 out User                   HTTPUser,
+                                                                 out HashSet<Organization>  HTTPOrganizations,
+                                                                 out HTTPResponse.Builder   Response,
+                                                                 Recursive:                 true))
+                                             {
+                                                 return Task.FromResult(Response.AsImmutable);
+                                             }
+
+                                             #endregion
+
+                                             var includeCryptoHash   = Request.QueryString.GetBoolean("includeCryptoHash", true);
+
+                                             var expand              = Request.QueryString.GetStrings("expand");
+                                             var expandTags          = expand.ContainsIgnoreCase("tags")         ? InfoStatus.Expanded : InfoStatus.ShowIdOnly;
+                                             var expandDataLicenses  = expand.ContainsIgnoreCase("dataLicenses") ? InfoStatus.Expanded : InfoStatus.ShowIdOnly;
+                                             var expandOwnerId       = expand.ContainsIgnoreCase("ownerId")      ? InfoStatus.Expanded : InfoStatus.ShowIdOnly;
+
+                                             return Task.FromResult(
+                                                        HTTPOrganizations.Contains(News.Owner) ||
+                                                        Admins.InEdges(HTTPUser).Any(edgelabel => edgelabel == User2GroupEdgeTypes.IsAdmin)
+
+                                                            ? new HTTPResponse.Builder(Request) {
+                                                                HTTPStatusCode             = HTTPStatusCode.OK,
+                                                                Server                     = HTTPServer.DefaultServerName,
+                                                                Date                       = DateTime.UtcNow,
+                                                                AccessControlAllowOrigin   = "*",
+                                                                AccessControlAllowMethods  = "GET, SET",
+                                                                AccessControlAllowHeaders  = "X-PINGOTHER, Content-Type, Accept, Authorization, X-App-Version",
+                                                                ETag                       = "1",
+                                                                ContentType                = HTTPContentType.JSON_UTF8,
+                                                                Content                    = GetNewsBannerSerializator(Request, HTTPUser)
+                                                                                                                (News,
+                                                                                                                 false, //Embedded
+                                                                                                                 expandTags,
+                                                                                                                 expandDataLicenses,
+                                                                                                                 expandOwnerId,
+                                                                                                                 includeCryptoHash).
+                                                                                                             ToUTF8Bytes(),
+                                                                Connection                 = "close",
+                                                                Vary                       = "Accept"
+                                                            }.AsImmutable
+
+                                                            : new HTTPResponse.Builder(Request) {
+                                                                HTTPStatusCode             = HTTPStatusCode.Unauthorized,
+                                                                Server                     = HTTPServer.DefaultServerName,
+                                                                Date                       = DateTime.UtcNow,
+                                                                AccessControlAllowOrigin   = "*",
+                                                                AccessControlAllowMethods  = "GET, SET",
+                                                                AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
+                                                                Connection                 = "close",
+                                                                Vary                       = "Accept"
+                                                            }.AsImmutable);
+
+                                         });
+
+            #endregion
+
+            #region HTML
+
+            // --------------------------------------------------------------------------------------
+            // curl -v -H "Accept: text/html" http://127.0.0.1:3001/newsBanners/214080158
+            // --------------------------------------------------------------------------------------
+            HTTPServer.AddMethodCallback(Hostname,
+                                         HTTPMethod.GET,
+                                         URLPathPrefix + "newsBanners/{postingId}",
+                                         HTTPContentType.HTML_UTF8,
+                                         HTTPDelegate: Request => {
+
+                                             #region Get HTTP user and its organizations
+
+                                             // Will return HTTP 401 Unauthorized, when the HTTP user is unknown!
+                                             if (!TryGetHTTPUser(Request,
+                                                                 out User                   HTTPUser,
+                                                                 out HashSet<Organization>  HTTPOrganizations,
+                                                                 out HTTPResponse.Builder   Response,
+                                                                 Recursive:                 true))
+                                             {
+                                                 return Task.FromResult(Response.AsImmutable);
+                                             }
+
+                                             #endregion
+
+                                             #region Check NewsId URI parameter
+
+                                             if (!Request.ParseNews(this,
+                                                                             out NewsBanner_Id?              NewsId,
+                                                                             out NewsBanner                  News,
+                                                                             out HTTPResponse.Builder  HTTPResponse))
+                                             {
+                                                 return Task.FromResult(HTTPResponse.AsImmutable);
+                                             }
+
+                                             #endregion
+
+                                             if (HTTPOrganizations.Contains(News.Owner) ||
+                                                 Admins.InEdges(HTTPUser).Any(edgelabel => edgelabel == User2GroupEdgeTypes.IsAdmin))
+                                             {
+
+                                                 return Task.FromResult(
+                                                     new HTTPResponse.Builder(Request) {
+                                                         HTTPStatusCode             = HTTPStatusCode.OK,
+                                                         Server                     = HTTPServer.DefaultServerName,
+                                                         Date                       = DateTime.UtcNow,
+                                                         AccessControlAllowOrigin   = "*",
+                                                         AccessControlAllowMethods  = "GET",
+                                                         AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
+                                                         ContentType                = HTTPContentType.HTML_UTF8,
+                                                         Content                    = MixWithHTMLTemplate("News.News.shtml").ToUTF8Bytes(),
+                                                         Connection                 = "close",
+                                                         Vary                       = "Accept"
+                                                     }.AsImmutable);
+
+                                             }
+
+                                             return Task.FromResult(
+                                                        new HTTPResponse.Builder(Request) {
+                                                            HTTPStatusCode             = HTTPStatusCode.Unauthorized,
+                                                            Server                     = HTTPServer.DefaultServerName,
+                                                            Date                       = DateTime.UtcNow,
+                                                            AccessControlAllowOrigin   = "*",
+                                                            AccessControlAllowMethods  = "GET",
+                                                            AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
+                                                            Connection                 = "close",
+                                                            Vary                       = "Accept"
+                                                        }.AsImmutable);
+
+                                         });
+
+            #endregion
+
+            #endregion
+
+            #endregion
+
+            #region ~/FAQs
+
+            #region OPTIONS     ~/FAQs
+
+            // ---------------------------------------------------------
+            // curl -X OPTIONS -v http://127.0.0.1:3001/FAQs
+            // ---------------------------------------------------------
+            HTTPServer.AddMethodCallback(Hostname,
+                                         HTTPMethod.OPTIONS,
+                                         URLPathPrefix + "FAQs",
+                                         HTTPDelegate: Request => {
+
+                                             return Task.FromResult(
+                                                 new HTTPResponse.Builder(Request) {
+                                                     HTTPStatusCode             = HTTPStatusCode.OK,
+                                                     Server                     = HTTPServer.DefaultServerName,
+                                                     Date                       = DateTime.UtcNow,
+                                                     AccessControlAllowOrigin   = "*",
+                                                     AccessControlAllowMethods  = "GET, COUNT, SEARCH, OPTIONS",
+                                                     AccessControlAllowHeaders  = "X-PINGOTHER, Content-Type, Accept, Authorization, X-App-Version",
+                                                     Connection                 = "close"
+                                                 }.AsImmutable);
+
+                                         });
+
+            #endregion
+
+            #region GET         ~/FAQs
+
+            #region JSON
+
+            // ------------------------------------------------------------------
+            // curl -v -H "Accept: application/json" http://127.0.0.1:3001/FAQs
+            // ------------------------------------------------------------------
+            HTTPServer.AddMethodCallback(Hostname,
+                                         HTTPMethod.GET,
+                                         URLPathPrefix + "FAQs",
+                                         HTTPContentType.JSON_UTF8,
+                                         HTTPDelegate: Request => {
+
+                                             #region Get HTTP user and its organizations
+
+                                             TryGetHTTPUser(Request,
+                                                            out User                   HTTPUser,
+                                                            out HashSet<Organization>  HTTPOrganizations,
+                                                            out HTTPResponse.Builder   Response,
+                                                            Recursive:                 true);
+
+                                             #endregion
+
+
+                                             var withMetadata        = Request.QueryString.GetBoolean    ("withMetadata", false);
+                                             var includeFilter       = Request.QueryString.CreateStringFilter<FAQ>("include",
+                                                                                                                   (faq, include) => faq.Question.Matches(include, IgnoreCase: true) ||
+                                                                                                                                     faq.Answer.  Matches(include, IgnoreCase: true));
+
+                                             var from                = Request.QueryString.TryGetDateTime("from");
+                                             var to                  = Request.QueryString.TryGetDateTime("to");
+                                             var skip                = Request.QueryString.GetUInt64     ("skip");
+                                             var take                = Request.QueryString.GetUInt64     ("take");
+
+                                             var includeCryptoHash   = Request.QueryString.GetBoolean    ("includeCryptoHash", true);
+
+                                             var expand              = Request.QueryString.GetStrings    ("expand");
+                                             var expandTags          = expand.ContainsIgnoreCase("tags")         ? InfoStatus.Expanded : InfoStatus.ShowIdOnly;
+                                             var expandDataLicenses  = expand.ContainsIgnoreCase("dataLicenses") ? InfoStatus.Expanded : InfoStatus.ShowIdOnly;
+                                             var expandOwnerId       = expand.ContainsIgnoreCase("ownerId")      ? InfoStatus.Expanded : InfoStatus.ShowIdOnly;
+
+                                             var now                 = DateTime.UtcNow;
+
+                                             var allFAQs             = _FAQ.Values.
+                                                                           Where(posting => posting.PublicationDate <= now).
+                                                                           ToArray();
+                                             var totalCount          = allFAQs.ULongCount();
+
+                                             var filteredFAQs        = allFAQs.
+                                                                           Where(posting => !from.HasValue || posting.PublicationDate >= from.Value).
+                                                                           Where(posting => !to.  HasValue || posting.PublicationDate <  to.  Value).
+                                                                           Where(includeFilter).
+                                                                           ToArray();
+                                             var filteredCount       = filteredFAQs.ULongCount();
+
+                                             var JSONResults         = filteredFAQs.
+                                                                           OrderBy(posting => posting.PublicationDate).
+                                                                           ToJSON(skip,
+                                                                                  take,
+                                                                                  false, //Embedded
+                                                                                  expandTags,
+                                                                                  expandDataLicenses,
+                                                                                  expandOwnerId,
+                                                                                  GetFAQSerializator(Request, HTTPUser),
+                                                                                  includeCryptoHash);
+
+
+                                             return Task.FromResult(
+                                                        new HTTPResponse.Builder(Request) {
+                                                            HTTPStatusCode                = HTTPStatusCode.OK,
+                                                            Server                        = HTTPServer.DefaultServerName,
+                                                            Date                          = DateTime.UtcNow,
+                                                            AccessControlAllowOrigin      = "*",
+                                                            AccessControlAllowMethods     = "GET",
+                                                            AccessControlAllowHeaders     = "Content-Type, Accept, Authorization",
+                                                            ContentType                   = HTTPContentType.JSON_UTF8,
+                                                            Content                       = withMetadata
+                                                                                                ? JSONObject.Create(
+                                                                                                      new JProperty("totalCount",     totalCount),
+                                                                                                      new JProperty("filteredCount",  filteredCount),
+                                                                                                      new JProperty("FAQs",           JSONResults)
+                                                                                                  ).ToUTF8Bytes()
+                                                                                                : JSONResults.ToUTF8Bytes(),
+                                                            X_ExpectedTotalNumberOfItems  = filteredCount,
+                                                            Connection                    = "close",
+                                                            Vary                          = "Accept"
+                                                        }.AsImmutable);
+
+                                         });
+
+            #endregion
+
+            #region HTML
+
+            // -----------------------------------------------------------
+            // curl -v -H "Accept: text/html" http://127.0.0.1:3001/FAQs
+            // -----------------------------------------------------------
+            HTTPServer.AddMethodCallback(Hostname,
+                                         HTTPMethod.GET,
+                                         URLPathPrefix + "FAQs",
+                                         HTTPContentType.HTML_UTF8,
+                                         HTTPDelegate: Request => {
+
+                                             #region Get HTTP user and its organizations
+
+                                             // Will return HTTP 401 Unauthorized, when the HTTP user is unknown!
+                                             if (!TryGetHTTPUser(Request,
+                                                                 out User                   HTTPUser,
+                                                                 out HashSet<Organization>  HTTPOrganizations,
+                                                                 out HTTPResponse.Builder   Response,
+                                                                 Recursive:                 true))
+                                             {
+                                                 return Task.FromResult(Response.AsImmutable);
+                                             }
+
+                                             #endregion
+
+                                             return Task.FromResult(
+                                                 new HTTPResponse.Builder(Request) {
+                                                     HTTPStatusCode             = HTTPStatusCode.OK,
+                                                     Server                     = HTTPServer.DefaultServerName,
+                                                     Date                       = DateTime.UtcNow,
+                                                     AccessControlAllowOrigin   = "*",
+                                                     AccessControlAllowMethods  = "GET",
+                                                     AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
+                                                     ContentType                = HTTPContentType.HTML_UTF8,
+                                                     Content                    = MixWithHTMLTemplate("FAQ.FAQs.shtml").ToUTF8Bytes(),
+                                                     Connection                 = "close",
+                                                     Vary                       = "Accept"
+                                                 }.AsImmutable);
+
+                                         });
+
+            #endregion
+
+            #endregion
+
+            #region COUNT       ~/FAQs
+
+            // ---------------------------------------------------------------------------
+            // curl -v -X COUNT -H "Accept: application/json" http://127.0.0.1:3001/FAQs
+            // ---------------------------------------------------------------------------
+            HTTPServer.AddMethodCallback(Hostname,
+                                         HTTPMethod.COUNT,
+                                         URLPathPrefix + "FAQs",
+                                         HTTPContentType.JSON_UTF8,
+                                         HTTPDelegate: Request => {
+
+                                             var since  = Request.QueryString.GetDateTime("since");
+
+                                             return Task.FromResult(
+                                                        new HTTPResponse.Builder(Request) {
+                                                            HTTPStatusCode                = HTTPStatusCode.OK,
+                                                            Server                        = HTTPServer.DefaultServerName,
+                                                            Date                          = DateTime.UtcNow,
+                                                            AccessControlAllowOrigin      = "*",
+                                                            AccessControlAllowMethods     = "GET",
+                                                            AccessControlAllowHeaders     = "Content-Type, Accept, Authorization",
+                                                            ContentType                   = HTTPContentType.JSON_UTF8,
+                                                            Content                       = JSONObject.Create(
+                                                                                                new JProperty("count",
+                                                                                                              _FAQ.Values.ULongCount(news => !since.HasValue || news.PublicationDate >= since.Value))
+                                                                                            ).ToUTF8Bytes(),
+                                                            Connection                    = "close"
+                                                     }.AsImmutable);
+
+                                         });
+
+            #endregion
+
+
+            #region GET         ~/FAQ/_new
+
+            //// ---------------------------------------------------------------
+            //// curl -v -H "Accept: text/html" http://127.0.0.1:3001/FAQ/_new
+            //// ---------------------------------------------------------------
+            //HTTPServer.AddMethodCallback(Hostname,
+            //                             HTTPMethod.GET,
+            //                             URIPrefix + "FAQ/_new",
+            //                             HTTPContentType.HTML_UTF8,
+            //                             HTTPDelegate: Request => {
+
+            //                                 #region Get HTTP user and its organizations
+
+            //                                 // Will return HTTP 401 Unauthorized, when the HTTP user is unknown!
+            //                                 if (!TryGetHTTPUser(Request,
+            //                                                     out User                   HTTPUser,
+            //                                                     out HashSet<Organization>  HTTPOrganizations,
+            //                                                     out HTTPResponse           Response,
+            //                                                     Recursive:                 true))
+            //                                 {
+            //                                     return Task.FromResult(Response);
+            //                                 }
+
+            //                                 #endregion
+
+            //                                 var _MemoryStream1 = new MemoryStream();
+            //                                 GetType().Assembly.GetManifestResourceStream(HTTPRoot + "template.html").SeekAndCopyTo(_MemoryStream1, 0);
+            //                                 var Template = _MemoryStream1.ToArray().ToUTF8String();
+
+            //                                 var _MemoryStream2 = new MemoryStream();
+            //                                 GetType().Assembly.GetManifestResourceStream(HTTPRoot + "FAQ.newQuestion.shtml").SeekAndCopyTo(_MemoryStream2, 3);
+
+            //                                 return Task.FromResult(
+            //                                     new HTTPResponse.Builder(Request) {
+            //                                         HTTPStatusCode             = HTTPStatusCode.OK,
+            //                                         Server                     = HTTPServer.DefaultServerName,
+            //                                         Date                       = DateTime.UtcNow,
+            //                                         AccessControlAllowOrigin   = "*",
+            //                                         AccessControlAllowMethods  = "GET, SET",
+            //                                         AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
+            //                                         ETag                       = "1",
+            //                                         ContentType                = HTTPContentType.HTML_UTF8,
+            //                                         Content                    = Template.Replace("<%= content %>", _MemoryStream2.ToArray().ToUTF8String()).
+            //                                                                                            Replace("<%= logoimage %>", String.Concat(@"<img src=""", LogoImage, @""" /> ")).
+            //                                                                                            //Replace("/defibrillator/defibrillator.min.css", "/defibrillator/newDefibrillator.min.css").
+            //                                                                                            //Replace("/defibrillator/defibrillator.js",      "/defibrillator/newDefibrillator.js").
+            //                                                                                            //Replace("StartDefibrillator(true);",            "StartNewDefibrillator(true);").
+            //                                                                                            ToUTF8Bytes(),
+            //                                         Connection                 = "close"
+            //                                     }.AsImmutable);
+
+            //                             });
+
+            #endregion
 
             #endregion
 
@@ -10887,18 +12673,28 @@ namespace social.OpenData.UsersAPI
                 #endregion
 
 
-                #region Create user group
+                #region Add user group
 
+                case "addUserGroup":
                 case "createUserGroup":
 
                     if (UserGroup.TryParseJSON(Data,
-                                               null,
-                                               null,
+                                               _UserGroups.TryGetValue,
+                                               _Users.TryGetValue,
                                                out UserGroup userGroup,
                                                out ErrorResponse) &&
                         userGroup.Id != Admins.Id)
                     {
-                        _UserGroups.AddAndReturnValue(userGroup.Id, userGroup);
+
+                        if (!_UserGroups.ContainsKey(userGroup.Id))
+                        {
+                            userGroup.API = this;
+                            _UserGroups.AddAndReturnValue(userGroup.Id, userGroup);
+                        }
+
+                        else
+                            DebugX.Log("User group '" + userGroup.Id + "' already exists!");
+
                     }
 
                     else
@@ -12807,7 +14603,7 @@ namespace social.OpenData.UsersAPI
                                               Description);
 
                 if (UserGroup.Id.ToString() != AdminGroupName)
-                    await WriteToDatabaseFile(NotificationMessageType.Parse("createUserGroup"),
+                    await WriteToDatabaseFile(NotificationMessageType.Parse("addUserGroup"),
                                               UserGroup.ToJSON(),
                                               CurrentUserId);
 
@@ -12840,11 +14636,11 @@ namespace social.OpenData.UsersAPI
                     return _UserGroups[Id];
 
                 var UserGroup = new UserGroup(Id,
-                                      Name,
-                                      Description);
+                                              Name,
+                                              Description);
 
                 if (UserGroup.Id.ToString() != AdminGroupName)
-                    await WriteToDatabaseFile(NotificationMessageType.Parse("createUserGroup"),
+                    await WriteToDatabaseFile(NotificationMessageType.Parse("addUserGroupIfNotExists"),
                                               UserGroup.ToJSON(),
                                               CurrentUserId);
 
@@ -15670,6 +17466,1406 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
+
+        #region NewsPostings
+
+        #region Data
+
+        private readonly Dictionary<NewsPosting_Id, NewsPosting> _NewsPostings;
+
+        /// <summary>
+        /// Return an enumeration of all news postings.
+        /// </summary>
+        public IEnumerable<NewsPosting> NewsPostings
+        {
+            get
+            {
+                try
+                {
+                    NewsPostingsSemaphore.Wait();
+                    return _NewsPostings.Values.ToArray();
+                }
+                finally
+                {
+                    NewsPostingsSemaphore.Release();
+                }
+
+            }
+        }
+
+        #endregion
+
+        #region (private) GetNewsPostingSerializator(Request, User)
+
+        private NewsToJSONDelegate GetNewsPostingSerializator(HTTPRequest  Request,
+                                                              User         User)
+        {
+
+            //if (!Request.X_Portal)
+            //{
+            //    switch (User.Id.ToString())
+            //    {
+
+            //        case __issapi:
+            //            return ISSNotificationExtentions.ToISSJSON;
+
+            //    }
+            //}
+
+            return (NewsPosting,
+                    Embedded,
+                    ExpandTags,
+                    ExpandDataLicense,
+                    ExpandAuthorId,
+                    IncludeCryptoHash)
+
+                    => NewsPostings.ToJSON(Embedded,
+                                           ExpandTags,
+                                           ExpandDataLicense,
+                                           ExpandAuthorId,
+                                           IncludeCryptoHash);
+
+        }
+
+        #endregion
+
+        #region WriteToLogfileAndNotify(MessageType, NewsPosting, OldNews = null, CurrentUserId = null)
+
+        public async Task WriteToLogfileAndNotify(NewsPosting              NewsPosting,
+                                                  NotificationMessageType  MessageType,
+                                                  NewsPosting              OldNews        = null,
+                                                  User_Id?                 CurrentUserId  = null)
+        {
+
+            await WriteToDatabaseFile(MessageType,
+                                      NewsPostings.ToJSON(Embedded: false),
+                                      CurrentUserId);
+
+            //base.WriteToLogfileAndNotify(NotificationMessageType.Parse("News." + MessageType),
+            //                             News.ToJSON(Embedded: true),
+            //                             News.Owner,
+            //                             CardiCloudNotificationsLogFile,
+            //                             CurrentUserId);
+
+
+            var _MessageTypes  = new HashSet<NotificationMessageType>() { MessageType };
+
+            if (MessageType == addIfNotExistsNews_MessageType)
+            {
+                _MessageTypes.Add(addNewsPosting_MessageType);
+            }
+
+            else if (MessageType == addOrUpdateNewsPosting_MessageType)
+            {
+                _MessageTypes.Add(addNewsPosting_MessageType);
+            }
+
+            var MessageTypes   = _MessageTypes.ToArray();
+
+            // Add notifications here!
+
+        }
+
+        #endregion
+
+
+        #region AddNewsPosting           (NewsPosting,   CurrentUserId = null)
+
+        /// <summary>
+        /// Add the given news posting to the API.
+        /// </summary>
+        /// <param name="News">A news posting.</param>
+        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
+        public async Task<NewsPosting> AddNewsPosting(NewsPosting  NewsPosting,
+                                                      User_Id?     CurrentUserId  = null)
+        {
+
+            if (NewsPostings == null)
+                throw new ArgumentException(nameof(NewsPostings), "The given news posting must not be null!");
+
+            if (NewsPostings.API != null && NewsPostings.API != this)
+                throw new ArgumentException(nameof(NewsPostings), "The given news posting is already attached to another API!");
+
+            try
+            {
+
+                await NewsPostingsSemaphore.WaitAsync();
+
+                if (_NewsPostings.ContainsKey(NewsPostings.Id))
+                    throw new Exception("news posting '" + NewsPostings.Id + "' already exists in this API!");
+
+                await WriteToLogfileAndNotify(NewsPosting,
+                                              addNewsPosting_MessageType,
+                                              CurrentUserId: CurrentUserId);
+
+                NewsPostings.API = this;
+
+                return _NewsPostings.AddAndReturnValue(NewsPostings.Id, NewsPostings);
+
+            }
+            finally
+            {
+                NewsPostingsSemaphore.Release();
+            }
+
+        }
+
+        #endregion
+
+        #region AddNewsPostingIfNotExists(NewsPosting,   CurrentUserId = null)
+
+        /// <summary>
+        /// Add the given news posting to the API.
+        /// </summary>
+        /// <param name="News">A news posting.</param>
+        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
+        public async Task<NewsPosting> AddNewsPostingIfNotExists(NewsPosting  NewsPosting,
+                                                                 User_Id?     CurrentUserId  = null)
+        {
+
+            if (NewsPostings == null)
+                throw new ArgumentException(nameof(NewsPostings), "The given news posting must not be null!");
+
+            if (NewsPostings.API != null && NewsPostings.API != this)
+                throw new ArgumentException(nameof(NewsPostings), "The given news posting is already attached to another API!");
+
+            try
+            {
+
+                await NewsPostingsSemaphore.WaitAsync();
+
+                if (_NewsPostings.TryGetValue(NewsPostings.Id, out NewsPosting OldNewsPosting))
+                    return OldNewsPosting;
+
+                await WriteToLogfileAndNotify(NewsPosting,
+                                              addIfNotExistsNews_MessageType,
+                                              CurrentUserId: CurrentUserId);
+
+                NewsPostings.API = this;
+
+                return _NewsPostings.AddAndReturnValue(NewsPostings.Id, NewsPostings);
+
+            }
+            finally
+            {
+                NewsPostingsSemaphore.Release();
+            }
+
+        }
+
+        #endregion
+
+        #region AddOrUpdateNewsPosting   (NewsPosting,   CurrentUserId = null)
+
+        /// <summary>
+        /// Add or update the given news posting to/within the API.
+        /// </summary>
+        /// <param name="NewsPosting">A news posting.</param>
+        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
+        public async Task<NewsPosting> AddOrUpdateNewsPosting(NewsPosting  NewsPosting,
+                                                              User_Id?     CurrentUserId = null)
+        {
+
+            if (NewsPostings == null)
+                throw new ArgumentException(nameof(NewsPostings), "The given news posting must not be null!");
+
+            if (NewsPostings.API != null && NewsPostings.API != this)
+                throw new ArgumentException(nameof(NewsPostings), "The given news posting is already attached to another API!");
+
+            NewsPosting OldNewsPosting  = null;
+            DateTime    Now             = DateTime.UtcNow;
+
+            try
+            {
+
+                await NewsPostingsSemaphore.WaitAsync();
+
+                NewsPostings.API = this;
+
+                if (_NewsPostings.TryGetValue(NewsPostings.Id, out OldNewsPosting))
+                {
+                    _NewsPostings.Remove(OldNewsPosting.Id);
+                    NewsPostings.CopyAllLinkedDataFrom(OldNewsPosting);
+                }
+
+                await WriteToLogfileAndNotify(NewsPosting,
+                                              addOrUpdateNewsPosting_MessageType,
+                                              OldNewsPosting,
+                                              CurrentUserId);
+
+                _NewsPostings.Add(NewsPostings.Id, NewsPostings);
+
+            }
+            finally
+            {
+                NewsPostingsSemaphore.Release();
+            }
+
+            return NewsPostings;
+
+        }
+
+        #endregion
+
+        #region UpdateNewsPosting        (NewsPosting,   CurrentUserId = null)
+
+        /// <summary>
+        /// Update the given news posting within the API.
+        /// </summary>
+        /// <param name="NewsPosting">A news posting.</param>
+        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
+        public async Task<NewsPosting> UpdateNewsPosting(NewsPosting  NewsPosting,
+                                                         User_Id?     CurrentUserId   = null)
+        {
+
+            if (NewsPostings == null)
+                throw new ArgumentException(nameof(NewsPostings), "The given news posting must not be null!");
+
+            if (NewsPostings.API != null && NewsPostings.API != this)
+                throw new ArgumentException(nameof(NewsPostings), "The given news posting is already attached to another API!");
+
+            DateTime Now = DateTime.UtcNow;
+
+            try
+            {
+
+                await NewsPostingsSemaphore.WaitAsync();
+
+                if (!_NewsPostings.TryGetValue(NewsPostings.Id, out NewsPosting OldNewsPosting))
+                    throw new Exception("News posting '" + NewsPostings.Id + "' does not exists in this API!");
+
+
+                await WriteToLogfileAndNotify(NewsPosting,
+                                              updateNewsPosting_MessageType,
+                                              OldNewsPosting,
+                                              CurrentUserId);
+
+                NewsPostings.API = this;
+
+                _NewsPostings.Remove(OldNewsPosting.Id);
+                NewsPostings.CopyAllLinkedDataFrom(OldNewsPosting);
+
+                _NewsPostings.Add(NewsPostings.Id, NewsPostings);
+
+            }
+            finally
+            {
+                NewsPostingsSemaphore.Release();
+            }
+
+            return NewsPostings;
+
+        }
+
+        #endregion
+
+        #region UpdateNewsPosting        (NewsPostingId, UpdateDelegate, CurrentUserId = null)
+
+        /// <summary>
+        /// Update the given news posting.
+        /// </summary>
+        /// <param name="NewsPostingId">A news posting identification.</param>
+        /// <param name="UpdateDelegate">A delegate to update the given news posting.</param>
+        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
+        public async Task<NewsPosting> Update(NewsPosting_Id               NewsPostingId,
+                                              Action<NewsPosting.Builder>  UpdateDelegate,
+                                              User_Id?                     CurrentUserId  = null)
+        {
+
+            NewsPosting NewsPosting;
+            DateTime Now = DateTime.UtcNow;
+
+            try
+            {
+
+                if (UpdateDelegate == null)
+                    throw new Exception("The given update delegate must not be null!");
+
+                await NewsPostingsSemaphore.WaitAsync();
+
+                if (!_NewsPostings.TryGetValue(NewsPostingId, out NewsPosting OldNewsPosting))
+                    throw new Exception("News posting '" + NewsPostingId + "' does not exists in this API!");
+
+                var Builder = OldNewsPosting.ToBuilder();
+                UpdateDelegate(Builder);
+                NewsPosting = Builder.ToImmutable;
+                NewsPosting.API = this;
+
+                await WriteToLogfileAndNotify(NewsPosting,
+                                              updateNewsPosting_MessageType,
+                                              OldNewsPosting,
+                                              CurrentUserId);
+
+                _NewsPostings.Remove(OldNewsPosting.Id);
+                //OldNews.CopyAllEdgesTo(News);
+                _NewsPostings.Add(NewsPosting.Id, NewsPosting);
+
+            }
+            finally
+            {
+                NewsPostingsSemaphore.Release();
+            }
+
+            return NewsPosting;
+
+        }
+
+        #endregion
+
+        #region RemoveNewsPosting        (NewsPostingId, CurrentUserId = null)
+
+        /// <summary>
+        /// Remove the given news posting from this API.
+        /// </summary>
+        /// <param name="NewsPostingId">The unique identification of the news posting.</param>
+        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
+        public async Task<NewsPosting> RemoveNewsPosting(NewsPosting_Id  NewsPostingId,
+                                                         User_Id?        CurrentUserId  = null)
+        {
+
+            try
+            {
+
+                await NewsPostingsSemaphore.WaitAsync();
+
+                if (_NewsPostings.TryGetValue(NewsPostingId, out NewsPosting NewsPosting))
+                {
+
+                    await WriteToLogfileAndNotify(NewsPosting,
+                                                  removeNewsPosting_MessageType,
+                                                  CurrentUserId: CurrentUserId);
+
+                    _NewsPostings.Remove(NewsPostingId);
+
+                    NewsPosting.API = null;
+
+                    return NewsPosting;
+
+                }
+
+                return null;
+
+            }
+            finally
+            {
+                NewsPostingsSemaphore.Release();
+            }
+
+        }
+
+        #endregion
+
+
+        #region ContainsNewsPosting      (NewsPostingId)
+
+        /// <summary>
+        /// Whether this API contains a news posting having the given unique identification.
+        /// </summary>
+        /// <param name="NewsPostingId">The unique identification of the news posting.</param>
+        public Boolean ContainsNewsPosting(NewsPosting_Id NewsPostingId)
+        {
+
+            try
+            {
+
+                NewsPostingsSemaphore.Wait();
+
+                return _NewsPostings.ContainsKey(NewsPostingId);
+
+            }
+            finally
+            {
+                NewsPostingsSemaphore.Release();
+            }
+
+        }
+
+        #endregion
+
+        #region GetNewsPosting           (NewsPostingId)
+
+        /// <summary>
+        /// Get the news posting having the given unique identification.
+        /// </summary>
+        /// <param name="NewsPostingId">The unique identification of the news posting.</param>
+        public async Task<NewsPosting> GetNewsPosting(NewsPosting_Id  NewsPostingId)
+        {
+
+            try
+            {
+
+                await NewsPostingsSemaphore.WaitAsync();
+
+                if (_NewsPostings.TryGetValue(NewsPostingId, out NewsPosting newsPosting))
+                    return newsPosting;
+
+                return null;
+
+            }
+            finally
+            {
+                NewsPostingsSemaphore.Release();
+            }
+
+        }
+
+        #endregion
+
+        #region TryGetNewsPosting        (NewsPostingId, out NewsPosting)
+
+        /// <summary>
+        /// Try to get the news posting having the given unique identification.
+        /// </summary>
+        /// <param name="NewsId">The unique identification of the news posting.</param>
+        /// <param name="NewsPosting">The news posting.</param>
+        public Boolean TryGetNewsPosting(NewsPosting_Id   NewsPostingId,
+                                         out NewsPosting  NewsPosting)
+        {
+
+            try
+            {
+
+                NewsPostingsSemaphore.Wait();
+
+                return _NewsPostings.TryGetValue(NewsPostingId, out NewsPosting);
+
+            }
+            finally
+            {
+                NewsPostingsSemaphore.Release();
+            }
+
+        }
+
+        #endregion
+
+        #endregion
+
+        #region NewsBanners
+
+        #region Data
+
+        private readonly Dictionary<NewsBanner_Id, NewsBanner> _NewsBanners;
+
+        /// <summary>
+        /// Return an enumeration of all news banners.
+        /// </summary>
+        public IEnumerable<NewsBanner> NewsBanners
+        {
+            get
+            {
+                try
+                {
+                    NewsBannersSemaphore.Wait();
+                    return _NewsBanners.Values.ToArray();
+                }
+                finally
+                {
+                    NewsBannersSemaphore.Release();
+                }
+
+            }
+        }
+
+        #endregion
+
+        #region (private) GetNewsBannerSerializator(Request, User)
+
+        private NewsToJSONDelegate GetNewsBannerSerializator(HTTPRequest  Request,
+                                                              User         User)
+        {
+
+            //if (!Request.X_Portal)
+            //{
+            //    switch (User.Id.ToString())
+            //    {
+
+            //        case __issapi:
+            //            return ISSNotificationExtentions.ToISSJSON;
+
+            //    }
+            //}
+
+            return (NewsBanner,
+                    Embedded,
+                    ExpandTags,
+                    ExpandDataLicense,
+                    ExpandAuthorId,
+                    IncludeCryptoHash)
+
+                    => NewsBanners.ToJSON(Embedded,
+                                           ExpandTags,
+                                           ExpandDataLicense,
+                                           ExpandAuthorId,
+                                           IncludeCryptoHash);
+
+        }
+
+        #endregion
+
+        #region WriteToLogfileAndNotify(MessageType, NewsBanner, OldNews = null, CurrentUserId = null)
+
+        public async Task WriteToLogfileAndNotify(NewsBanner              NewsBanner,
+                                                  NotificationMessageType  MessageType,
+                                                  NewsBanner              OldNews        = null,
+                                                  User_Id?                 CurrentUserId  = null)
+        {
+
+            await WriteToDatabaseFile(MessageType,
+                                      NewsBanners.ToJSON(Embedded: false),
+                                      CurrentUserId);
+
+            //base.WriteToLogfileAndNotify(NotificationMessageType.Parse("News." + MessageType),
+            //                             News.ToJSON(Embedded: true),
+            //                             News.Owner,
+            //                             CardiCloudNotificationsLogFile,
+            //                             CurrentUserId);
+
+
+            var _MessageTypes  = new HashSet<NotificationMessageType>() { MessageType };
+
+            if (MessageType == addIfNotExistsNews_MessageType)
+            {
+                _MessageTypes.Add(addNewsBanner_MessageType);
+            }
+
+            else if (MessageType == addOrUpdateNewsBanner_MessageType)
+            {
+                _MessageTypes.Add(addNewsBanner_MessageType);
+            }
+
+            var MessageTypes   = _MessageTypes.ToArray();
+
+            // Add notifications here!
+
+        }
+
+        #endregion
+
+
+        #region AddNewsBanner           (NewsBanner,   CurrentUserId = null)
+
+        /// <summary>
+        /// Add the given news banner to the API.
+        /// </summary>
+        /// <param name="News">A news banner.</param>
+        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
+        public async Task<NewsBanner> AddNewsBanner(NewsBanner  NewsBanner,
+                                                      User_Id?     CurrentUserId  = null)
+        {
+
+            if (NewsBanners == null)
+                throw new ArgumentException(nameof(NewsBanners), "The given news banner must not be null!");
+
+            if (NewsBanners.API != null && NewsBanners.API != this)
+                throw new ArgumentException(nameof(NewsBanners), "The given news banner is already attached to another API!");
+
+            try
+            {
+
+                await NewsBannersSemaphore.WaitAsync();
+
+                if (_NewsBanners.ContainsKey(NewsBanners.Id))
+                    throw new Exception("news banner '" + NewsBanners.Id + "' already exists in this API!");
+
+                await WriteToLogfileAndNotify(NewsBanner,
+                                              addNewsBanner_MessageType,
+                                              CurrentUserId: CurrentUserId);
+
+                NewsBanners.API = this;
+
+                return _NewsBanners.AddAndReturnValue(NewsBanners.Id, NewsBanners);
+
+            }
+            finally
+            {
+                NewsBannersSemaphore.Release();
+            }
+
+        }
+
+        #endregion
+
+        #region AddNewsBannerIfNotExists(NewsBanner,   CurrentUserId = null)
+
+        /// <summary>
+        /// Add the given news banner to the API.
+        /// </summary>
+        /// <param name="News">A news banner.</param>
+        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
+        public async Task<NewsBanner> AddNewsBannerIfNotExists(NewsBanner  NewsBanner,
+                                                                 User_Id?     CurrentUserId  = null)
+        {
+
+            if (NewsBanners == null)
+                throw new ArgumentException(nameof(NewsBanners), "The given news banner must not be null!");
+
+            if (NewsBanners.API != null && NewsBanners.API != this)
+                throw new ArgumentException(nameof(NewsBanners), "The given news banner is already attached to another API!");
+
+            try
+            {
+
+                await NewsBannersSemaphore.WaitAsync();
+
+                if (_NewsBanners.TryGetValue(NewsBanners.Id, out NewsBanner OldNewsBanner))
+                    return OldNewsBanner;
+
+                await WriteToLogfileAndNotify(NewsBanner,
+                                              addIfNotExistsNews_MessageType,
+                                              CurrentUserId: CurrentUserId);
+
+                NewsBanners.API = this;
+
+                return _NewsBanners.AddAndReturnValue(NewsBanners.Id, NewsBanners);
+
+            }
+            finally
+            {
+                NewsBannersSemaphore.Release();
+            }
+
+        }
+
+        #endregion
+
+        #region AddOrUpdateNewsBanner   (NewsBanner,   CurrentUserId = null)
+
+        /// <summary>
+        /// Add or update the given news banner to/within the API.
+        /// </summary>
+        /// <param name="NewsBanner">A news banner.</param>
+        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
+        public async Task<NewsBanner> AddOrUpdateNewsBanner(NewsBanner  NewsBanner,
+                                                              User_Id?     CurrentUserId = null)
+        {
+
+            if (NewsBanners == null)
+                throw new ArgumentException(nameof(NewsBanners), "The given news banner must not be null!");
+
+            if (NewsBanners.API != null && NewsBanners.API != this)
+                throw new ArgumentException(nameof(NewsBanners), "The given news banner is already attached to another API!");
+
+            NewsBanner OldNewsBanner  = null;
+            DateTime    Now             = DateTime.UtcNow;
+
+            try
+            {
+
+                await NewsBannersSemaphore.WaitAsync();
+
+                NewsBanners.API = this;
+
+                if (_NewsBanners.TryGetValue(NewsBanners.Id, out OldNewsBanner))
+                {
+                    _NewsBanners.Remove(OldNewsBanner.Id);
+                    NewsBanners.CopyAllLinkedDataFrom(OldNewsBanner);
+                }
+
+                await WriteToLogfileAndNotify(NewsBanner,
+                                              addOrUpdateNewsBanner_MessageType,
+                                              OldNewsBanner,
+                                              CurrentUserId);
+
+                _NewsBanners.Add(NewsBanners.Id, NewsBanners);
+
+            }
+            finally
+            {
+                NewsBannersSemaphore.Release();
+            }
+
+            return NewsBanners;
+
+        }
+
+        #endregion
+
+        #region UpdateNewsBanner        (NewsBanner,   CurrentUserId = null)
+
+        /// <summary>
+        /// Update the given news banner within the API.
+        /// </summary>
+        /// <param name="NewsBanner">A news banner.</param>
+        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
+        public async Task<NewsBanner> UpdateNewsBanner(NewsBanner  NewsBanner,
+                                                         User_Id?     CurrentUserId   = null)
+        {
+
+            if (NewsBanners == null)
+                throw new ArgumentException(nameof(NewsBanners), "The given news banner must not be null!");
+
+            if (NewsBanners.API != null && NewsBanners.API != this)
+                throw new ArgumentException(nameof(NewsBanners), "The given news banner is already attached to another API!");
+
+            DateTime Now = DateTime.UtcNow;
+
+            try
+            {
+
+                await NewsBannersSemaphore.WaitAsync();
+
+                if (!_NewsBanners.TryGetValue(NewsBanners.Id, out NewsBanner OldNewsBanner))
+                    throw new Exception("News banner '" + NewsBanners.Id + "' does not exists in this API!");
+
+
+                await WriteToLogfileAndNotify(NewsBanner,
+                                              updateNewsBanner_MessageType,
+                                              OldNewsBanner,
+                                              CurrentUserId);
+
+                NewsBanners.API = this;
+
+                _NewsBanners.Remove(OldNewsBanner.Id);
+                NewsBanners.CopyAllLinkedDataFrom(OldNewsBanner);
+
+                _NewsBanners.Add(NewsBanners.Id, NewsBanners);
+
+            }
+            finally
+            {
+                NewsBannersSemaphore.Release();
+            }
+
+            return NewsBanners;
+
+        }
+
+        #endregion
+
+        #region UpdateNewsBanner        (NewsBannerId, UpdateDelegate, CurrentUserId = null)
+
+        /// <summary>
+        /// Update the given news banner.
+        /// </summary>
+        /// <param name="NewsBannerId">A news banner identification.</param>
+        /// <param name="UpdateDelegate">A delegate to update the given news banner.</param>
+        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
+        public async Task<NewsBanner> Update(NewsBanner_Id               NewsBannerId,
+                                              Action<NewsBanner.Builder>  UpdateDelegate,
+                                              User_Id?                     CurrentUserId  = null)
+        {
+
+            NewsBanner NewsBanner;
+            DateTime Now = DateTime.UtcNow;
+
+            try
+            {
+
+                if (UpdateDelegate == null)
+                    throw new Exception("The given update delegate must not be null!");
+
+                await NewsBannersSemaphore.WaitAsync();
+
+                if (!_NewsBanners.TryGetValue(NewsBannerId, out NewsBanner OldNewsBanner))
+                    throw new Exception("News banner '" + NewsBannerId + "' does not exists in this API!");
+
+                var Builder = OldNewsBanner.ToBuilder();
+                UpdateDelegate(Builder);
+                NewsBanner = Builder.ToImmutable;
+                NewsBanner.API = this;
+
+                await WriteToLogfileAndNotify(NewsBanner,
+                                              updateNewsBanner_MessageType,
+                                              OldNewsBanner,
+                                              CurrentUserId);
+
+                _NewsBanners.Remove(OldNewsBanner.Id);
+                //OldNews.CopyAllEdgesTo(News);
+                _NewsBanners.Add(NewsBanner.Id, NewsBanner);
+
+            }
+            finally
+            {
+                NewsBannersSemaphore.Release();
+            }
+
+            return NewsBanner;
+
+        }
+
+        #endregion
+
+        #region RemoveNewsBanner        (NewsBannerId, CurrentUserId = null)
+
+        /// <summary>
+        /// Remove the given news banner from this API.
+        /// </summary>
+        /// <param name="NewsBannerId">The unique identification of the news banner.</param>
+        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
+        public async Task<NewsBanner> RemoveNewsBanner(NewsBanner_Id  NewsBannerId,
+                                                         User_Id?        CurrentUserId  = null)
+        {
+
+            try
+            {
+
+                await NewsBannersSemaphore.WaitAsync();
+
+                if (_NewsBanners.TryGetValue(NewsBannerId, out NewsBanner NewsBanner))
+                {
+
+                    await WriteToLogfileAndNotify(NewsBanner,
+                                                  removeNewsBanner_MessageType,
+                                                  CurrentUserId: CurrentUserId);
+
+                    _NewsBanners.Remove(NewsBannerId);
+
+                    NewsBanner.API = null;
+
+                    return NewsBanner;
+
+                }
+
+                return null;
+
+            }
+            finally
+            {
+                NewsBannersSemaphore.Release();
+            }
+
+        }
+
+        #endregion
+
+
+        #region ContainsNewsBanner      (NewsBannerId)
+
+        /// <summary>
+        /// Whether this API contains a news banner having the given unique identification.
+        /// </summary>
+        /// <param name="NewsBannerId">The unique identification of the news banner.</param>
+        public Boolean ContainsNewsBanner(NewsBanner_Id NewsBannerId)
+        {
+
+            try
+            {
+
+                NewsBannersSemaphore.Wait();
+
+                return _NewsBanners.ContainsKey(NewsBannerId);
+
+            }
+            finally
+            {
+                NewsBannersSemaphore.Release();
+            }
+
+        }
+
+        #endregion
+
+        #region GetNewsBanner           (NewsBannerId)
+
+        /// <summary>
+        /// Get the news banner having the given unique identification.
+        /// </summary>
+        /// <param name="NewsBannerId">The unique identification of the news banner.</param>
+        public async Task<NewsBanner> GetNewsBanner(NewsBanner_Id  NewsBannerId)
+        {
+
+            try
+            {
+
+                await NewsBannersSemaphore.WaitAsync();
+
+                if (_NewsBanners.TryGetValue(NewsBannerId, out NewsBanner newsBanner))
+                    return newsBanner;
+
+                return null;
+
+            }
+            finally
+            {
+                NewsBannersSemaphore.Release();
+            }
+
+        }
+
+        #endregion
+
+        #region TryGetNewsBanner        (NewsBannerId, out NewsBanner)
+
+        /// <summary>
+        /// Try to get the news banner having the given unique identification.
+        /// </summary>
+        /// <param name="NewsId">The unique identification of the news banner.</param>
+        /// <param name="NewsBanner">The news banner.</param>
+        public Boolean TryGetNewsBanner(NewsBanner_Id   NewsBannerId,
+                                         out NewsBanner  NewsBanner)
+        {
+
+            try
+            {
+
+                NewsBannersSemaphore.Wait();
+
+                return _NewsBanners.TryGetValue(NewsBannerId, out NewsBanner);
+
+            }
+            finally
+            {
+                NewsBannersSemaphore.Release();
+            }
+
+        }
+
+        #endregion
+
+        #endregion
+
+        #region FAQ
+
+        #region Data
+
+        private readonly Dictionary<FAQ_Id, FAQ> _FAQ;
+
+        /// <summary>
+        /// Return an enumeration of all FAQs.
+        /// </summary>
+        public IEnumerable<FAQ> FAQ
+        {
+            get
+            {
+                try
+                {
+                    FAQSemaphore.Wait();
+                    return _FAQ.Values.ToArray();
+                }
+                finally
+                {
+                    FAQSemaphore.Release();
+                }
+
+            }
+        }
+
+        #endregion
+
+        #region (private) GetFAQSerializator(Request, User)
+
+        private FAQToJSONDelegate GetFAQSerializator(HTTPRequest  Request,
+                                                       User         User)
+        {
+
+            //if (!Request.X_Portal)
+            //{
+            //    switch (User.Id.ToString())
+            //    {
+
+            //        case __issapi:
+            //            return ISSNotificationExtentions.ToISSJSON;
+
+            //    }
+            //}
+
+            return (FAQ,
+                    Embedded,
+                    ExpandTags,
+                    ExpandDataLicense,
+                    ExpandOwnerId,
+                    IncludeCryptoHash)
+
+                    => FAQ.ToJSON(Embedded,
+                                   ExpandTags,
+                                   ExpandDataLicense,
+                                   ExpandOwnerId,
+                                   IncludeCryptoHash);
+
+        }
+
+        #endregion
+
+        #region WriteToLogfileAndNotify(MessageType, FAQ, OldFAQ = null, CurrentUserId = null)
+
+        public async Task WriteToLogfileAndNotify(FAQ                     FAQ,
+                                                  NotificationMessageType  MessageType,
+                                                  FAQ                     OldFAQ        = null,
+                                                  User_Id?                 CurrentUserId  = null)
+        {
+
+            await WriteToDatabaseFile(MessageType,
+                                      FAQ.ToJSON(Embedded: false),
+                                      CurrentUserId);
+
+            // Add notifications here!
+
+        }
+
+        #endregion
+
+
+        #region Add           (FAQ,   CurrentUserId = null)
+
+        /// <summary>
+        /// Add the given FAQ to the API.
+        /// </summary>
+        /// <param name="FAQ">A FAQ.</param>
+        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
+        public async Task<FAQ> AddFAQ(FAQ       FAQ,
+                                      User_Id?  CurrentUserId  = null)
+        {
+
+            if (FAQ == null)
+                throw new ArgumentException(nameof(FAQ), "The given FAQ must not be null!");
+
+            if (FAQ.API != null && FAQ.API != this)
+                throw new ArgumentException(nameof(FAQ), "The given FAQ is already attached to another API!");
+
+            try
+            {
+
+                await FAQSemaphore.WaitAsync();
+
+                if (_FAQ.ContainsKey(FAQ.Id))
+                    throw new Exception("FAQ '" + FAQ.Id + "' already exists in this API!");
+
+                await WriteToLogfileAndNotify(FAQ,
+                                              addFAQ_MessageType,
+                                              CurrentUserId: CurrentUserId);
+
+                FAQ.API = this;
+
+                return _FAQ.AddAndReturnValue(FAQ.Id, FAQ);
+
+            }
+            finally
+            {
+                FAQSemaphore.Release();
+            }
+
+        }
+
+        #endregion
+
+        #region AddIfNotExists(FAQ,   CurrentUserId = null)
+
+        /// <summary>
+        /// Add the given FAQ to the API.
+        /// </summary>
+        /// <param name="FAQ">A FAQ.</param>
+        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
+        public async Task<FAQ> AddIfNotExists(FAQ       FAQ,
+                                              User_Id?  CurrentUserId  = null)
+        {
+
+            if (FAQ == null)
+                throw new ArgumentException(nameof(FAQ), "The given FAQ must not be null!");
+
+            if (FAQ.API != null && FAQ.API != this)
+                throw new ArgumentException(nameof(FAQ), "The given FAQ is already attached to another API!");
+
+            try
+            {
+
+                await FAQSemaphore.WaitAsync();
+
+                if (_FAQ.TryGetValue(FAQ.Id, out FAQ OldFAQ))
+                    return OldFAQ;
+
+                await WriteToLogfileAndNotify(FAQ,
+                                              addIfNotExistsFAQ_MessageType,
+                                              CurrentUserId: CurrentUserId);
+
+                FAQ.API = this;
+
+                return _FAQ.AddAndReturnValue(FAQ.Id, FAQ);
+
+            }
+            finally
+            {
+                FAQSemaphore.Release();
+            }
+
+        }
+
+        #endregion
+
+        #region AddOrUpdate   (FAQ,   CurrentUserId = null)
+
+        /// <summary>
+        /// Add or update the given FAQ to/within the API.
+        /// </summary>
+        /// <param name="FAQ">A FAQ.</param>
+        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
+        public async Task<FAQ> AddOrUpdate(FAQ      FAQ,
+                                           User_Id? CurrentUserId = null)
+        {
+
+            if (FAQ == null)
+                throw new ArgumentException(nameof(FAQ), "The given FAQ must not be null!");
+
+            if (FAQ.API != null && FAQ.API != this)
+                throw new ArgumentException(nameof(FAQ), "The given FAQ is already attached to another API!");
+
+            FAQ      OldFAQ  = null;
+            DateTime Now     = DateTime.UtcNow;
+
+            try
+            {
+
+                await FAQSemaphore.WaitAsync();
+
+                FAQ.API = this;
+
+                if (_FAQ.TryGetValue(FAQ.Id, out OldFAQ))
+                {
+                    _FAQ.Remove(OldFAQ.Id);
+                    FAQ.CopyAllLinkedDataFrom(OldFAQ);
+                }
+
+                await WriteToLogfileAndNotify(FAQ,
+                                              addOrUpdateFAQ_MessageType,
+                                              OldFAQ,
+                                              CurrentUserId);
+
+                _FAQ.Add(FAQ.Id, FAQ);
+
+            }
+            finally
+            {
+                FAQSemaphore.Release();
+            }
+
+            return FAQ;
+
+        }
+
+        #endregion
+
+        #region Update        (FAQ,   CurrentUserId = null)
+
+        /// <summary>
+        /// Update the given FAQ within the API.
+        /// </summary>
+        /// <param name="FAQ">A FAQ.</param>
+        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
+        public async Task<FAQ> Update(FAQ       FAQ,
+                                      User_Id?  CurrentUserId              = null)
+        {
+
+            if (FAQ == null)
+                throw new ArgumentException(nameof(FAQ), "The given FAQ must not be null!");
+
+            if (FAQ.API != null && FAQ.API != this)
+                throw new ArgumentException(nameof(FAQ), "The given FAQ is already attached to another API!");
+
+            DateTime Now = DateTime.UtcNow;
+
+            try
+            {
+
+                await FAQSemaphore.WaitAsync();
+
+                if (!_FAQ.TryGetValue(FAQ.Id, out FAQ OldFAQ))
+                    throw new Exception("FAQ '" + FAQ.Id + "' does not exists in this API!");
+
+
+                await WriteToLogfileAndNotify(FAQ,
+                                              updateFAQ_MessageType,
+                                              OldFAQ,
+                                              CurrentUserId);
+
+                FAQ.API = this;
+
+                _FAQ.Remove(OldFAQ.Id);
+                FAQ.CopyAllLinkedDataFrom(OldFAQ);
+
+                _FAQ.Add(FAQ.Id, FAQ);
+
+            }
+            finally
+            {
+                FAQSemaphore.Release();
+            }
+
+            return FAQ;
+
+        }
+
+        #endregion
+
+        #region Update        (FAQId, UpdateDelegate, CurrentUserId = null)
+
+        /// <summary>
+        /// Update the given FAQ.
+        /// </summary>
+        /// <param name="FAQId">A FAQ identification.</param>
+        /// <param name="UpdateDelegate">A delegate to update the given FAQ.</param>
+        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
+        public async Task<FAQ> Update(FAQ_Id               FAQId,
+                                      Action<FAQ.Builder>  UpdateDelegate,
+                                      User_Id?             CurrentUserId  = null)
+        {
+
+            FAQ FAQ;
+
+            try
+            {
+
+                if (UpdateDelegate == null)
+                    throw new Exception("The given update delegate must not be null!");
+
+                await FAQSemaphore.WaitAsync();
+
+                if (!_FAQ.TryGetValue(FAQId, out FAQ OldFAQ))
+                    throw new Exception("FAQ '" + FAQId + "' does not exists in this API!");
+
+                var Builder = OldFAQ.ToBuilder();
+                UpdateDelegate(Builder);
+                FAQ = Builder.ToImmutable;
+                FAQ.API = this;
+
+                await WriteToLogfileAndNotify(FAQ,
+                                              updateFAQ_MessageType,
+                                              OldFAQ,
+                                              CurrentUserId);
+
+                _FAQ.Remove(OldFAQ.Id);
+                //OldFAQ.CopyAllEdgesTo(FAQ);
+                _FAQ.Add(FAQ.Id, FAQ);
+
+            }
+            finally
+            {
+                FAQSemaphore.Release();
+            }
+
+            return FAQ;
+
+        }
+
+        #endregion
+
+        #region Remove        (FAQId, CurrentUserId = null)
+
+        /// <summary>
+        /// Remove the given FAQ from this API.
+        /// </summary>
+        /// <param name="FAQId">The unique identification of the FAQ.</param>
+        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
+        public async Task<FAQ> Remove(FAQ_Id   FAQId,
+                                      User_Id? CurrentUserId  = null)
+        {
+
+            try
+            {
+
+                await FAQSemaphore.WaitAsync();
+
+                if (_FAQ.TryGetValue(FAQId, out FAQ FAQ))
+                {
+
+                    await WriteToLogfileAndNotify(FAQ,
+                                                  removeFAQ_MessageType,
+                                                  CurrentUserId: CurrentUserId);
+
+                    _FAQ.Remove(FAQId);
+
+                    FAQ.API = null;
+
+                    return FAQ;
+
+                }
+
+                return null;
+
+            }
+            finally
+            {
+                FAQSemaphore.Release();
+            }
+
+        }
+
+        #endregion
+
+
+        #region Contains      (FAQId)
+
+        /// <summary>
+        /// Whether this API contains a FAQ having the given unique identification.
+        /// </summary>
+        /// <param name="FAQId">The unique identification of the FAQ.</param>
+        public Boolean Contains(FAQ_Id FAQId)
+        {
+
+            try
+            {
+
+                FAQSemaphore.Wait();
+
+                return _FAQ.ContainsKey(FAQId);
+
+            }
+            finally
+            {
+                FAQSemaphore.Release();
+            }
+
+        }
+
+        #endregion
+
+        #region Get           (FAQId)
+
+        /// <summary>
+        /// Get the FAQ having the given unique identification.
+        /// </summary>
+        /// <param name="FAQId">The unique identification of the FAQ.</param>
+        public async Task<FAQ> Get(FAQ_Id  FAQId)
+        {
+
+            try
+            {
+
+                await FAQSemaphore.WaitAsync();
+
+                if (_FAQ.TryGetValue(FAQId, out FAQ FAQ))
+                    return FAQ;
+
+                return null;
+
+            }
+            finally
+            {
+                FAQSemaphore.Release();
+            }
+
+        }
+
+        #endregion
+
+        #region TryGet        (FAQId, out FAQ)
+
+        /// <summary>
+        /// Try to get the FAQ having the given unique identification.
+        /// </summary>
+        /// <param name="FAQId">The unique identification of the FAQ.</param>
+        /// <param name="FAQ">The FAQ.</param>
+        public Boolean TryGet(FAQ_Id   FAQId,
+                              out FAQ  FAQ)
+        {
+
+            try
+            {
+
+                FAQSemaphore.Wait();
+
+                return _FAQ.TryGetValue(FAQId, out FAQ);
+
+            }
+            finally
+            {
+                FAQSemaphore.Release();
+            }
+
+        }
+
+        #endregion
+
+        #endregion
 
 
         #region Dashboards

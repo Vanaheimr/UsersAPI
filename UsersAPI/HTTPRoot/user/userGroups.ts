@@ -8,10 +8,17 @@ function StartUserGroupSearch() {
                             "userGroups",
                             "user groups",
                             (userGroup, userGroupDiv) => {
-                                CreateDiv(userGroupDiv, "id",    userGroup["@id"]);
-                                CreateDiv(userGroupDiv, "name",  CreateI18NDiv(userGroup.name,        "name"));
-                                CreateDiv(userGroupDiv,  null,   CreateI18NDiv(userGroup.description, "description"));
-                                //CreateDiv(userDiv, "email", "<a href=\"" + user.email + "\">" + user.email + "</a>");
+
+                                //CreateDiv(userGroupDiv, "id",    userGroup["@id"]);
+                                userGroupDiv.appendChild(CreateI18NDiv(userGroup.name,        "name"));
+                                userGroupDiv.appendChild(CreateI18NDiv(userGroup.description, "description"));
+
+                                if (userGroup.isMember != undefined) {
+                                    const statusDiv      = userGroupDiv.appendChild(document.createElement('div'));
+                                    statusDiv.className  = "isMember";
+                                    statusDiv.innerHTML  = userGroup.isMember.length + " members";
+                                }
+
                             },
                             null,
                             userGroup => "",

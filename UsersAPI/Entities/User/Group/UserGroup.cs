@@ -224,29 +224,39 @@ namespace social.OpenData.UsersAPI
                                    IncludeCryptoHash,
                                    null,
 
-                           Members.SafeAny() && ExpandUsers != InfoStatus.Hidden
-                               ? ExpandSubgroups.Switch(
-                                       () => new JProperty("memberIds",      new JArray(Members.SafeSelect(user => user.Id.ToString()))),
-                                       () => new JProperty("members",        new JArray(Members.SafeSelect(user => user.   ToJSON(Embedded: true,
-                                                                                                                                            //ExpandParentGroup:  InfoStatus.Hidden,
-                                                                                                                                            //ExpandSubgroups:    InfoStatus.Expand,
-                                                                                                                                            IncludeCryptoHash:  IncludeCryptoHash)))))
-                               : null,
+                                   new JProperty("name",    Name.ToJSON()),
 
-                           ParentGroup != null      && ExpandParentGroup  != InfoStatus.Hidden
-                               ? ExpandParentGroup.Switch(
-                                       () => new JProperty("parentGroupId",  ParentGroup.Id.ToString()),
-                                       () => new JProperty("parentGroup",    ParentGroup.   ToJSON()))
-                               : null,
+                                   Description.IsNeitherNullNorEmpty()
+                                       ? new JProperty("description",    Description.ToJSON())
+                                       : null,
 
-                           Subgroups.SafeAny()      && ExpandSubgroups    != InfoStatus.Hidden
-                               ? ExpandSubgroups.Switch(
-                                       () => new JProperty("subgroupsIds",   new JArray(Subgroups.SafeSelect(subgroup => subgroup.Id.ToString()))),
-                                       () => new JProperty("subgroups",      new JArray(Subgroups.SafeSelect(subgroup => subgroup.   ToJSON(Embedded:           true,
-                                                                                                                                            ExpandParentGroup:  InfoStatus.Hidden,
-                                                                                                                                            ExpandSubgroups:    InfoStatus.Expanded,
-                                                                                                                                            IncludeCryptoHash:  IncludeCryptoHash)))))
-                               : null
+                                   _User2GroupEdges.Where(edge => edge.EdgeLabel == User2GroupEdgeTypes.IsMember).SafeAny()
+                                       ? new JProperty("isMember", new JArray(_User2GroupEdges.Where(edge => edge.EdgeLabel == User2GroupEdgeTypes.IsMember).Select(edge => edge.Source.Id.ToString())))
+                                       : null,
+
+                                   Members.SafeAny() && ExpandUsers != InfoStatus.Hidden
+                                       ? ExpandSubgroups.Switch(
+                                               () => new JProperty("memberIds",      new JArray(Members.SafeSelect(user => user.Id.ToString()))),
+                                               () => new JProperty("members",        new JArray(Members.SafeSelect(user => user.   ToJSON(Embedded: true,
+                                                                                                                                                    //ExpandParentGroup:  InfoStatus.Hidden,
+                                                                                                                                                    //ExpandSubgroups:    InfoStatus.Expand,
+                                                                                                                                                    IncludeCryptoHash:  IncludeCryptoHash)))))
+                                       : null,
+
+                                   ParentGroup != null      && ExpandParentGroup  != InfoStatus.Hidden
+                                       ? ExpandParentGroup.Switch(
+                                               () => new JProperty("parentGroupId",  ParentGroup.Id.ToString()),
+                                               () => new JProperty("parentGroup",    ParentGroup.   ToJSON()))
+                                       : null,
+
+                                   Subgroups.SafeAny()      && ExpandSubgroups    != InfoStatus.Hidden
+                                       ? ExpandSubgroups.Switch(
+                                               () => new JProperty("subgroupsIds",   new JArray(Subgroups.SafeSelect(subgroup => subgroup.Id.ToString()))),
+                                               () => new JProperty("subgroups",      new JArray(Subgroups.SafeSelect(subgroup => subgroup.   ToJSON(Embedded:           true,
+                                                                                                                                                    ExpandParentGroup:  InfoStatus.Hidden,
+                                                                                                                                                    ExpandSubgroups:    InfoStatus.Expanded,
+                                                                                                                                                    IncludeCryptoHash:  IncludeCryptoHash)))))
+                                       : null
 
                        );
 

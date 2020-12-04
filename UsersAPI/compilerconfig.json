@@ -16,6 +16,10 @@
     "inputFile": "HTTPRoot/user/users.scss"
   },
   {
+    "outputFile": "HTTPRoot/user/userGroup.css",
+    "inputFile": "HTTPRoot/user/userGroup.scss"
+  },
+  {
     "outputFile": "HTTPRoot/user/userGroups.css",
     "inputFile": "HTTPRoot/user/userGroups.scss"
   },

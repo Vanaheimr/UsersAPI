@@ -24,6 +24,7 @@
 
     "HTTPRoot/user/user.ts",
     "HTTPRoot/user/users.ts",
+    "HTTPRoot/user/userGroup.ts",
     "HTTPRoot/user/userGroups.ts",
 
     "HTTPRoot/organization/organization.ts",
