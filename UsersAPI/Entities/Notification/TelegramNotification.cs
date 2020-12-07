@@ -246,7 +246,7 @@ namespace social.OpenData.UsersAPI.Notifications
         /// <summary>
         /// The JSON-LD context of this object.
         /// </summary>
-        public const String JSONLDContext = "https://opendata.social/contexts/UsersAPI+json/TelegramNotification";
+        public const String JSONLDContext = "https://opendata.social/contexts/UsersAPI/TelegramNotification";
 
         #endregion
 

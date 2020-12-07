@@ -12731,12 +12731,17 @@ namespace social.OpenData.UsersAPI
 
                                 break;
 
+
+                            default:
+                                DebugX.Log(String.Concat(nameof(UsersAPI), " Could not parse the given 'add notification' command!"));
+                                break;
+
                         }
 
                     }
 
                     else
-                        DebugX.Log(String.Concat(nameof(UsersAPI), " Could not parse the given 'add notification' command!"));
+                        DebugX.Log(String.Concat(nameof(UsersAPI), " Could not parse the given 'add notification' command as context '" + Data["@context"]?.Value<String>() + "' is unknown!"));
 
                     break;
 

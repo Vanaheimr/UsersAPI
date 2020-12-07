@@ -290,7 +290,7 @@ namespace social.OpenData.UsersAPI.Notifications
         /// <summary>
         /// The JSON-LD context of this object.
         /// </summary>
-        public const String JSONLDContext = "https://opendata.social/contexts/UsersAPI+json/HTTPSNotification";
+        public const String JSONLDContext = "https://opendata.social/contexts/UsersAPI/HTTPSNotification";
 
         #endregion
 
