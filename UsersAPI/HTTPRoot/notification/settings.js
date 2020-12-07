@@ -2,12 +2,12 @@
 function StartUserNotificationSettings() {
     let notificationGroups = [];
     let userInfos = {};
-    const DashboardNotification_Context = "https://opendata.social/contexts/UsersAPI+json/DashboardNotification";
-    const TelegramNotification_Context = "https://opendata.social/contexts/UsersAPI+json/TelegramNotification";
-    const TelegramGroupNotification_Context = "https://opendata.social/contexts/UsersAPI+json/TelegramGroupNotification";
-    const SMSNotification_Context = "https://opendata.social/contexts/UsersAPI+json/SMSNotification";
-    const HTTPSNotification_Context = "https://opendata.social/contexts/UsersAPI+json/HTTPSNotification";
-    const EMailNotification_Context = "https://opendata.social/contexts/UsersAPI+json/EMailNotification";
+    const DashboardNotification_Context = "https://opendata.social/contexts/UsersAPI/DashboardNotification";
+    const TelegramNotification_Context = "https://opendata.social/contexts/UsersAPI/TelegramNotification";
+    const TelegramGroupNotification_Context = "https://opendata.social/contexts/UsersAPI/TelegramGroupNotification";
+    const SMSNotification_Context = "https://opendata.social/contexts/UsersAPI/SMSNotification";
+    const HTTPSNotification_Context = "https://opendata.social/contexts/UsersAPI/HTTPSNotification";
+    const EMailNotification_Context = "https://opendata.social/contexts/UsersAPI/EMailNotification";
     let notificationsCounter = 1;
     function ShowNotification(parentDiv, JSON) {
         function ShowDashboardNotification(parentDiv, JSON) {
