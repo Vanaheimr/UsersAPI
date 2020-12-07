@@ -10188,7 +10188,7 @@ namespace social.OpenData.UsersAPI
                                                             ETag                       = "1",
                                                             ContentType                = HTTPContentType.JSON_UTF8,
                                                             Content                    = JSONObject.Create(
-                                                                                             new JProperty("@context",  "https://opendata.social/contexts/UsersAPI+json/newNotification"),
+                                                                                             new JProperty("@context",  "https://opendata.social/contexts/UsersAPI/newNotification"),
                                                                                              new JProperty("user",      JSONObject.Create(
 
                                                                                                  new JProperty("name",  HTTPUser.EMail.OwnerName),
