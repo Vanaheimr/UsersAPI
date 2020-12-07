@@ -157,7 +157,7 @@ namespace social.OpenData.UsersAPI.Notifications
 
 
             => UsersAPI.GetNotificationsOf<TelegramNotification>(User,
-                                                            NotificationMessageTypes);
+                                                                 NotificationMessageTypes);
 
         #endregion
 
@@ -181,7 +181,7 @@ namespace social.OpenData.UsersAPI.Notifications
 
 
             => UsersAPI.GetNotificationsOf<TelegramNotification>(Organization,
-                                                            NotificationMessageTypes);
+                                                                 NotificationMessageTypes);
 
         #endregion
 

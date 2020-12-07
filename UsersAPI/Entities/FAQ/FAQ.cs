@@ -44,8 +44,7 @@ namespace social.OpenData.UsersAPI
     public delegate JObject FAQToJSONDelegate(FAQ         FAQ,
                                               Boolean     Embedded            = false,
                                               InfoStatus  ExpandTags          = InfoStatus.ShowIdOnly,
-                                              InfoStatus  ExpandDataLicenes   = InfoStatus.ShowIdOnly,
-                                              InfoStatus  ExpandOwnerId       = InfoStatus.ShowIdOnly,
+                                              InfoStatus  ExpandAuthorId      = InfoStatus.ShowIdOnly,
                                               Boolean     IncludeCryptoHash   = true);
 
 
@@ -69,8 +68,7 @@ namespace social.OpenData.UsersAPI
                                     UInt64?                Take                 = null,
                                     Boolean                Embedded             = false,
                                     InfoStatus             ExpandTags           = InfoStatus.ShowIdOnly,
-                                    InfoStatus             ExpandDataLicenses   = InfoStatus.ShowIdOnly,
-                                    InfoStatus             ExpandOwnerId        = InfoStatus.ShowIdOnly,
+                                    InfoStatus             ExpandAuthorId       = InfoStatus.ShowIdOnly,
                                     FAQToJSONDelegate      FAQToJSON            = null,
                                     Boolean                IncludeCryptoHash    = true)
 
@@ -87,14 +85,12 @@ namespace social.OpenData.UsersAPI
                                                                      ? FAQToJSON (faq,
                                                                                   Embedded,
                                                                                   ExpandTags,
-                                                                                  ExpandDataLicenses,
-                                                                                  ExpandOwnerId,
+                                                                                  ExpandAuthorId,
                                                                                   IncludeCryptoHash)
 
                                                                      : faq.ToJSON(Embedded,
                                                                                   ExpandTags,
-                                                                                  ExpandDataLicenses,
-                                                                                  ExpandOwnerId,
+                                                                                  ExpandAuthorId,
                                                                                   IncludeCryptoHash)));
 
         #endregion
@@ -152,8 +148,6 @@ namespace social.OpenData.UsersAPI
         #endregion
 
 
-        public Organization                       Owner                 { get; }
-
         /// <summary>
         /// The (multi-language) question of this FAQ.
         /// </summary>
@@ -167,16 +161,16 @@ namespace social.OpenData.UsersAPI
         public I18NString                         Answer                { get; }
 
         /// <summary>
+        /// The author of the news banner.
+        /// </summary>
+        [Mandatory]
+        public User                               Author                { get; }
+
+        /// <summary>
         /// The timestamp of the publication of this FAQ.
         /// </summary>
         [Mandatory]
         public DateTime                           PublicationDate       { get; }
-
-        /// <summary>
-        /// Optional geographical locations of/for this FAQ.
-        /// </summary>
-        [Optional]
-        public IEnumerable<GeoCoordinate>         GeoLocations          { get; }
 
         /// <summary>
         /// An enumeration of multi-language tags and their relevance.
@@ -189,7 +183,6 @@ namespace social.OpenData.UsersAPI
         /// </summary>
         [Optional]
         public Boolean                            IsHidden              { get; }
-
 
         /// <summary>
         /// All signatures of this FAQ.
@@ -209,28 +202,34 @@ namespace social.OpenData.UsersAPI
         /// </summary>
         /// <param name="Answer">The (multi-language) text of this FAQ.</param>
         /// <param name="PublicationDate">The timestamp of the publication of this FAQ.</param>
-        /// <param name="GeoLocation">An optional geographical location of this FAQ.</param>
         /// <param name="Tags">An enumeration of multi-language tags and their relevance.</param>
         /// <param name="IsHidden">The FAQ is hidden.</param>
         /// <param name="Signatures">All signatures of this FAQ.</param>
-        /// <param name="DataSource">The source of all this data, e.g. an automatic importer.</param>
         public FAQ(I18NString                  Question,
                    I18NString                  Answer,
+                   User                        Author,
                    DateTime?                   PublicationDate   = null,
-                   IEnumerable<GeoCoordinate>  GeoLocations      = null,
                    IEnumerable<TagRelevance>   Tags              = null,
+                   Boolean                     IsHidden          = false,
 
                    IEnumerable<Signature>      Signatures        = null,
-                   String                      DataSource        = "")
+
+                   JObject                     CustomData        = default,
+                   String                      DataSource        = default,
+                   DateTime?                   LastChange        = default)
 
             : this(FAQ_Id.Random(),
                    Question,
                    Answer,
+                   Author,
                    PublicationDate,
-                   GeoLocations,
                    Tags,
+                   IsHidden,
                    Signatures,
-                   DataSource)
+
+                   CustomData,
+                   DataSource,
+                   LastChange)
 
         { }
 
@@ -241,33 +240,38 @@ namespace social.OpenData.UsersAPI
         /// <param name="Id">The unique identification of this FAQ.</param>
         /// <param name="Answer">The (multi-language) text of this FAQ.</param>
         /// <param name="PublicationDate">The timestamp of the publication of this FAQ.</param>
-        /// <param name="GeoLocation">An optional geographical location of this FAQ.</param>
         /// <param name="Tags">An enumeration of multi-language tags and their relevance.</param>
         /// <param name="IsHidden">The FAQ is hidden.</param>
         /// <param name="Signatures">All signatures of this FAQ.</param>
-        /// <param name="DataSource">The source of all this data, e.g. an automatic importer.</param>
         public FAQ(FAQ_Id                      Id,
                    I18NString                  Question,
                    I18NString                  Answer,
+                   User                        Author,
                    DateTime?                   PublicationDate   = null,
-                   IEnumerable<GeoCoordinate>  GeoLocations      = null,
                    IEnumerable<TagRelevance>   Tags              = null,
+                   Boolean                     IsHidden          = false,
 
                    IEnumerable<Signature>      Signatures        = null,
-                   String                      DataSource        = "")
+
+                   JObject                     CustomData        = default,
+                   String                      DataSource        = default,
+                   DateTime?                   LastChange        = default)
 
             : base(Id,
                    DefaultJSONLDContext,
-                   null,
-                   DataSource)
+                   CustomData,
+                   DataSource,
+                   LastChange)
 
         {
 
-            this.Question         = Question        ?? throw new ArgumentNullException(nameof(Question), "The given question must not be null!");
-            this.Answer           = Answer          ?? throw new ArgumentNullException(nameof(Answer),   "The given answer must not be null!");
+            this.Question         = Question        ?? throw new ArgumentNullException(nameof(Question),  "The given question must not be null!");
+            this.Answer           = Answer          ?? throw new ArgumentNullException(nameof(Answer),    "The given answer must not be null!");
+            this.Author           = Author          ?? throw new ArgumentNullException(nameof(Author),    "The given author must not be null!");
             this.PublicationDate  = PublicationDate ?? DateTime.Now;
-            this.GeoLocations     = GeoLocations    ?? new GeoCoordinate[0];
             this.Tags             = Tags            ?? new TagRelevance[0];
+            this.IsHidden         = IsHidden;
+
             this.Signatures       = Signatures      ?? new Signature[0];
 
             CalcHash();
@@ -297,33 +301,28 @@ namespace social.OpenData.UsersAPI
         /// </summary>
         /// <param name="Embedded">Whether this data is embedded into another data structure.</param>
         /// <param name="IncludeCryptoHash">Include the crypto hash value of this object.</param>
-        public JObject ToJSON(Boolean     Embedded             = false,
-                              InfoStatus  ExpandTags           = InfoStatus.ShowIdOnly,
-                              InfoStatus  ExpandDataLicenses   = InfoStatus.ShowIdOnly,
-                              InfoStatus  ExpandOwnerId        = InfoStatus.ShowIdOnly,
-                              Boolean     IncludeCryptoHash    = false)
+        public JObject ToJSON(Boolean     Embedded            = false,
+                              InfoStatus  ExpandTags          = InfoStatus.ShowIdOnly,
+                              InfoStatus  ExpandAuthorId      = InfoStatus.ShowIdOnly,
+                              Boolean     IncludeCryptoHash   = false)
 
             => JSONObject.Create(
 
-                   new JProperty("@id",                  Id.ToString()),
+                   new JProperty("@id",                  Id.           ToString()),
 
                    !Embedded
                        ? new JProperty("@context",       JSONLDContext.ToString())
                        : null,
 
-                   Question.IsNeitherNullNorEmpty()
-                       ? new JProperty("question",       Question.ToJSON())
-                       : null,
+                   new JProperty("question",             Question.     ToJSON()),
+                   new JProperty("answer",               Answer.       ToJSON()),
 
-                   Answer.IsNeitherNullNorEmpty()
-                       ? new JProperty("answer",         Answer.ToJSON())
-                       : null,
+                   new JProperty("author",               JSONObject.Create(
+                                                             new JProperty("@id",  Author.Id.ToString()),
+                                                             new JProperty("name", Author.Name)
+                                                         )),
 
                    new JProperty("publicationDate",      PublicationDate.ToIso8601()),
-
-                   GeoLocations.SafeAny()
-                       ? new JProperty("geoLocations",   new JArray(GeoLocations.Select(geolocation => geolocation.ToJSON())))
-                       : null,
 
                    Tags.Any()
                        ? new JProperty("tags",           Tags.SafeSelect(tag => tag.ToJSON(ExpandTags)))
@@ -339,10 +338,11 @@ namespace social.OpenData.UsersAPI
 
         #region (static) TryParseJSON(JSONObject, ..., out FAQ, out ErrorResponse)
 
-        public static Boolean TryParseJSON(JObject     JSONObject,
-                                           out FAQ    FAQ,
-                                           out String  ErrorResponse,
-                                           FAQ_Id?    FAQIdURL  = null)
+        public static Boolean TryParseJSON(JObject               JSONObject,
+                                           UserProviderDelegate  UserProvider,
+                                           out FAQ               FAQ,
+                                           out String            ErrorResponse,
+                                           FAQ_Id?               FAQIdURL  = null)
         {
 
             try
@@ -350,7 +350,7 @@ namespace social.OpenData.UsersAPI
 
                 FAQ = null;
 
-                #region Parse FAQId           [optional]
+                #region Parse FAQId             [optional]
 
                 // Verify that a given FAQ identification
                 //   is at least valid.
@@ -380,7 +380,7 @@ namespace social.OpenData.UsersAPI
 
                 #endregion
 
-                #region Parse Context          [mandatory]
+                #region Parse Context           [mandatory]
 
                 if (!JSONObject.ParseMandatory("@context",
                                                "JSON-LinkedData context information",
@@ -400,7 +400,7 @@ namespace social.OpenData.UsersAPI
 
                 #endregion
 
-                #region Parse Question         [mandatory]
+                #region Parse Question          [mandatory]
 
                 if (!JSONObject.ParseMandatory("question",
                                                "FAQ headline",
@@ -412,7 +412,7 @@ namespace social.OpenData.UsersAPI
 
                 #endregion
 
-                #region Parse Answer           [mandatory]
+                #region Parse Answer            [mandatory]
 
                 if (!JSONObject.ParseMandatory("answer",
                                                "FAQ text",
@@ -424,15 +424,54 @@ namespace social.OpenData.UsersAPI
 
                 #endregion
 
-                var PublicationDate  = DateTime.Now;
+                #region Parse Author            [mandatory]
 
-                #region Parse GeoLocation      [optional]
+                User Author = null;
 
-                if (JSONObject.ParseOptionalStruct("geoLocation",
-                                                   "Geo location",
-                                                   GeoCoordinate.TryParseJSON,
-                                                   out GeoCoordinate? GeoLocation,
-                                                   out ErrorResponse))
+                if (JSONObject["author"] is JObject authorJSON &&
+                    authorJSON.ParseMandatory("@id",
+                                              "author identification",
+                                              User_Id.TryParse,
+                                              out User_Id AuthorId,
+                                              out ErrorResponse))
+                {
+
+                    if (ErrorResponse != null)
+                        return false;
+
+                    if (!UserProvider(AuthorId, out Author))
+                    {
+                        ErrorResponse = "The given author '" + AuthorId + "' is unknown!";
+                        return false;
+                    }
+
+                }
+
+                else
+                    return false;
+
+                #endregion
+
+                #region Parse PublicationDate   [mandatory]
+
+                if (!JSONObject.ParseMandatory("publicationDate",
+                                               "publication date",
+                                               out DateTime PublicationDate,
+                                               out ErrorResponse))
+                {
+                    return false;
+                }
+
+                #endregion
+
+                var Tags             = new TagRelevance[0];
+
+                #region Parse IsHidden          [optional]
+
+                if (JSONObject.ParseOptional("isHidden",
+                                             "is hidden",
+                                             out Boolean? IsHidden,
+                                             out ErrorResponse))
                 {
 
                     if (ErrorResponse != null)
@@ -442,17 +481,32 @@ namespace social.OpenData.UsersAPI
 
                 #endregion
 
-                var GeoLocations     = new GeoCoordinate[0];
-                var Tags             = new TagRelevance[0];
                 var Signatures       = new Signature[0];
 
-                #region Get   DataSource       [optional]
+                var CustomData = JSONObject["CustomData"] as JObject;
+
+                #region Get   DataSource        [optional]
 
                 var DataSource = JSONObject.GetOptional("dataSource");
 
                 #endregion
 
-                #region Parse CryptoHash       [optional]
+                #region Get   LastChange        [optional]
+
+                if (JSONObject.ParseOptional("lastChange",
+                                             "last change",
+                                             out DateTime? LastChange,
+                                             out ErrorResponse))
+                {
+
+                    if (ErrorResponse != null)
+                        return false;
+
+                }
+
+                #endregion
+
+                #region Parse CryptoHash        [optional]
 
                 var CryptoHash    = JSONObject.GetOptional("cryptoHash");
 
@@ -462,11 +516,15 @@ namespace social.OpenData.UsersAPI
                 FAQ = new FAQ(FAQIdBody ?? FAQIdURL.Value,
                               Question,
                               Answer,
+                              Author,
                               PublicationDate,
-                              GeoLocations,
                               Tags,
+                              IsHidden ?? false,
                               Signatures,
-                              DataSource);
+
+                              CustomData,
+                              DataSource,
+                              LastChange);
 
                 ErrorResponse = null;
                 return true;
@@ -475,7 +533,7 @@ namespace social.OpenData.UsersAPI
             catch (Exception e)
             {
                 ErrorResponse  = e.Message;
-                FAQ           = null;
+                FAQ            = null;
                 return false;
             }
 
@@ -724,11 +782,15 @@ namespace social.OpenData.UsersAPI
             => new Builder(NewFAQId ?? Id,
                            Question,
                            Answer,
+                           Author,
                            PublicationDate,
-                           GeoLocations,
                            Tags,
+                           IsHidden,
                            Signatures,
-                           DataSource);
+
+                           CustomData,
+                           DataSource,
+                           LastChange);
 
         #endregion
 
@@ -737,15 +799,11 @@ namespace social.OpenData.UsersAPI
         /// <summary>
         /// A FAQ builder.
         /// </summary>
-        public class Builder
+        public new class Builder : AEntity<FAQ_Id,
+                                           FAQ>.Builder
         {
 
             #region Properties
-
-            /// <summary>
-            /// The unique identification of this FAQ.
-            /// </summary>
-            public FAQ_Id                            Id                    { get; set; }
 
             /// <summary>
             /// The (multi-language) headline of this FAQ.
@@ -757,19 +815,19 @@ namespace social.OpenData.UsersAPI
             /// The (multi-language) text of this FAQ.
             /// </summary>
             [Mandatory]
-            public I18NString                         Answer                  { get; set; }
+            public I18NString                         Answer                { get; set; }
+
+            /// <summary>
+            /// The author of this FAQ.
+            /// </summary>
+            [Mandatory]
+            public User                               Author                { get; set; }
 
             /// <summary>
             /// The timestamp of the publication of this FAQ.
             /// </summary>
             [Mandatory]
-            public DateTime                           PublicationDate       { get; set; }
-
-            /// <summary>
-            /// Optional geographical locations of/for this FAQ.
-            /// </summary>
-            [Optional]
-            public List<GeoCoordinate>                GeoLocations          { get; set; }
+            public DateTime?                          PublicationDate       { get; set; }
 
             /// <summary>
             /// An enumeration of multi-language tags and their relevance.
@@ -778,15 +836,15 @@ namespace social.OpenData.UsersAPI
             public List<TagRelevance>                 Tags                  { get; set; }
 
             /// <summary>
+            /// The FAQ is hidden.
+            /// </summary>
+            [Optional]
+            public Boolean                            IsHidden              { get; set; }
+
+            /// <summary>
             /// All signatures of this FAQ.
             /// </summary>
             public List<Signature>                    Signatures            { get; set; }
-
-            /// <summary>
-            /// The source of this information, e.g. an automatic importer.
-            /// </summary>
-            [Optional]
-            public String                             DataSource            { get; set; }
 
             #endregion
 
@@ -795,72 +853,48 @@ namespace social.OpenData.UsersAPI
             /// <summary>
             /// Create a new FAQ builder.
             /// </summary>
+            /// <param name="Id">The unique identification of this FAQ.</param>
             /// <param name="Answer">The (multi-language) text of this FAQ.</param>
             /// <param name="PublicationDate">The timestamp of the publication of this FAQ.</param>
             /// <param name="GeoLocation">An optional geographical location of this FAQ.</param>
             /// <param name="Tags">An enumeration of multi-language tags and their relevance.</param>
-            /// <param name="PrivacyLevel">Whether the FAQ will be shown in FAQ listings, or not.</param>
             /// <param name="IsHidden">The FAQ is hidden.</param>
             /// <param name="Signatures">All signatures of this FAQ.</param>
             /// <param name="DataSource">The source of all this data, e.g. an automatic importer.</param>
-            public Builder(I18NString                  Question,
-                           I18NString                  Answer,
-                           DateTime?                   PublicationDate   = null,
-                           IEnumerable<GeoCoordinate>  GeoLocations      = null,
-                           IEnumerable<TagRelevance>   Tags              = null,
-                           Boolean                     IsHidden          = false,
-                           IEnumerable<Signature>      Signatures        = null,
-                           String                      DataSource        = "")
+            public Builder(FAQ_Id?                    Id                = null,
+                           I18NString                 Question          = null,
+                           I18NString                 Answer            = null,
+                           User                       Author            = null,
+                           DateTime?                  PublicationDate   = null,
+                           IEnumerable<TagRelevance>  Tags              = null,
+                           Boolean                    IsHidden          = false,
+                           IEnumerable<Signature>     Signatures        = null,
 
-                : this(FAQ_Id.Random(),
-                       Question,
-                       Answer,
-                       PublicationDate,
-                       GeoLocations,
-                       Tags,
-                       Signatures,
-                       DataSource)
+                           JObject                    CustomData        = default,
+                           String                     DataSource        = default,
+                           DateTime?                  LastChange        = default)
 
-            { }
+                : base(Id ?? FAQ_Id.Random(),
+                       DefaultJSONLDContext,
+                       CustomData,
+                       DataSource,
+                       LastChange)
 
-
-            /// <summary>
-            /// Create a new FAQ builder.
-            /// </summary>
-            /// <param name="Id">The unique identification of this FAQ.</param>
-            /// <param name="Text">The (multi-language) text of this FAQ.</param>
-            /// <param name="PublicationDate">The timestamp of the publication of this FAQ.</param>
-            /// <param name="GeoLocation">An optional geographical location of this FAQ.</param>
-            /// <param name="Tags">An enumeration of multi-language tags and their relevance.</param>
-            /// <param name="PrivacyLevel">Whether the FAQ will be shown in FAQ listings, or not.</param>
-            /// <param name="IsHidden">The FAQ is hidden.</param>
-            /// <param name="Signatures">All signatures of this FAQ.</param>
-            /// <param name="DataSource">The source of all this data, e.g. an automatic importer.</param>
-            public Builder(FAQ_Id                     Id,
-                           I18NString                  Headline,
-                           I18NString                  Text,
-                           DateTime?                   PublicationDate   = null,
-                           IEnumerable<GeoCoordinate>  GeoLocation       = null,
-                           IEnumerable<TagRelevance>   Tags              = null,
-                           IEnumerable<Signature>      Signatures        = null,
-                           String                      DataSource        = "")
             {
 
-                this.Id               = Id;
-                this.Question         = Headline        ?? throw new ArgumentNullException(nameof(Headline), "The given headline must not be null!");
-                this.Answer             = Text            ?? throw new ArgumentNullException(nameof(Text),     "The given text must not be null!");
-                this.PublicationDate  = PublicationDate ?? DateTime.Now;
-                this.GeoLocations     = GeoLocations != null
-                                            ? new List<GeoCoordinate>(GeoLocations)
-                                            : new List<GeoCoordinate>();
+                this.Id               = Id ?? FAQ_Id.Random();
+                this.Question         = Question;
+                this.Answer           = Answer;
+                this.Author           = Author;
+                this.PublicationDate  = PublicationDate;
                 this.Tags             = Tags != null
                                             ? new List<TagRelevance>(Tags)
                                             : new List<TagRelevance>();
+                this.IsHidden         = IsHidden;
 
                 this.Signatures       = Signatures != null
                                             ? new List<Signature>(Signatures)
                                             : new List<Signature>();
-                this.DataSource       = DataSource;
 
             }
 
@@ -873,11 +907,15 @@ namespace social.OpenData.UsersAPI
                 var FAQ        = new FAQ(Id,
                                          Question,
                                          Answer,
+                                         Author,
                                          PublicationDate,
-                                         GeoLocations,
                                          Tags,
+                                         IsHidden,
                                          Signatures,
-                                         DataSource);
+
+                                         CustomData,
+                                         DataSource,
+                                         LastChange);;
 
                 var ctext       = FAQ.ToJSON(Embedded:           false,
                                              ExpandTags:         InfoStatus.ShowIdOnly,
@@ -896,14 +934,28 @@ namespace social.OpenData.UsersAPI
                 signatures.Add(new Signature("json", "secp256k1", "DER+HEX", signature));
 
                 return new FAQ(Id,
-                                Question,
-                                Answer,
-                                PublicationDate,
-                                GeoLocations,
-                                Tags,
-                                signatures,
-                                DataSource);
+                               Question,
+                               Answer,
+                               Author,
+                               PublicationDate,
+                               Tags,
+                               IsHidden,
+                               signatures,
 
+                               CustomData,
+                               DataSource,
+                               LastChange);
+
+            }
+
+
+            public override void CopyAllLinkedDataFrom(FAQ OldEnity)
+            {
+            }
+
+            public override int CompareTo(object obj)
+            {
+                return 0;
             }
 
 
@@ -924,13 +976,17 @@ namespace social.OpenData.UsersAPI
             public FAQ ToImmutable
 
                 => new FAQ(Id,
-                            Question,
-                            Answer,
-                            PublicationDate,
-                            GeoLocations,
-                            Tags,
-                            Signatures,
-                            DataSource);
+                           Question,
+                           Answer,
+                           Author,
+                           PublicationDate,
+                           Tags,
+                           IsHidden,
+                           Signatures,
+
+                           CustomData,
+                           DataSource,
+                           LastChange);
 
             #endregion
 

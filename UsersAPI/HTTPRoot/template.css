@@ -79,6 +79,7 @@ body {
           padding-right: 0px; } }
     body #page #right {
       display: flex;
+      position: relative;
       flex-direction: column;
       width: 100%;
       overflow: hidden; }
@@ -150,6 +151,45 @@ body {
           display: none; }
         body #page #right #top #signout {
           padding-right: 20px; }
+      body #page #right #newsBanner {
+        display: none;
+        align-items: center;
+        position: absolute;
+        background-color: rgba(245, 186, 53, 0.9);
+        top: 50px;
+        z-index: 50;
+        padding: 30px;
+        width: calc(100% - 60px);
+        box-shadow: 2px 0 16px 0 rgba(0, 0, 0, 0.3); }
+        body #page #right #newsBanner #bannerText {
+          font-size: 120%;
+          display: inline-block; }
+          body #page #right #newsBanner #bannerText a {
+            text-decoration: none;
+            color: #a44f08;
+            background-color: #ff730040;
+            padding: 3px 6px;
+            border-radius: 4px; }
+          body #page #right #newsBanner #bannerText a:hover {
+            background-color: rgba(195, 30, 30, 0.25); }
+        body #page #right #newsBanner #ignoreNewsButton {
+          padding: 6px 8px;
+          margin-left: 10px;
+          border: 0;
+          border-radius: 4px;
+          margin-left: 20px;
+          background-color: #f29811d1;
+          outline: 0;
+          box-shadow: 2px 2px 4px 2px rgba(0, 0, 0, 0.1); }
+        body #page #right #newsBanner #ignoreNewsButton:active {
+          padding: 6px 8px;
+          margin-left: 10px;
+          border: 0;
+          border-radius: 4px;
+          margin-left: 21px;
+          background-color: rgba(208, 134, 23, 0.82);
+          outline: 0;
+          box-shadow: 1px 1px 4px 2px rgba(0, 0, 0, 0.1); }
       body #page #right #text {
         overflow-y: auto;
         height: calc(100vh - 50px);

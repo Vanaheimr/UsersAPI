@@ -38,7 +38,7 @@ namespace social.OpenData.UsersAPI
     public delegate JObject NewsBannerToJSONDelegate(NewsBanner  NewsBanner,
                                                      Boolean     Embedded            = false,
                                                      InfoStatus  ExpandTags          = InfoStatus.ShowIdOnly,
-                                                     InfoStatus  ExpandOwnerId       = InfoStatus.ShowIdOnly,
+                                                     InfoStatus  ExpandAuthorId      = InfoStatus.ShowIdOnly,
                                                      Boolean     IncludeCryptoHash   = true);
 
 
@@ -48,14 +48,14 @@ namespace social.OpenData.UsersAPI
     public static class NewsBannerExtentions
     {
 
-        #region ToJSON(this News, Skip = null, Take = null, Embedded = false, ...)
+        #region ToJSON(this NewsBanner, Skip = null, Take = null, Embedded = false, ...)
 
         /// <summary>
-        /// Return a JSON representation for the given enumeration of newss.
+        /// Return a JSON representation for the given enumeration of news banners.
         /// </summary>
-        /// <param name="NewsBanner">An enumeration of newss.</param>
-        /// <param name="Skip">The optional number of newss to skip.</param>
-        /// <param name="Take">The optional number of newss to return.</param>
+        /// <param name="NewsBanner">An enumeration of news banners.</param>
+        /// <param name="Skip">The optional number of news banners to skip.</param>
+        /// <param name="Take">The optional number of news banners to return.</param>
         /// <param name="Embedded">Whether this data is embedded into another data structure.</param>
         public static JArray ToJSON(this IEnumerable<NewsBanner>  NewsBanner,
                                     UInt64?                       Skip                = null,
@@ -222,7 +222,7 @@ namespace social.OpenData.UsersAPI
                           DateTime       StartTimestamp,
                           DateTime       EndTimestamp,
                           User           Author,
-                          Boolean?       IsHidden     = false,
+                          Boolean        IsHidden     = false,
 
                           JObject        CustomData   = default,
                           String         DataSource   = default,
@@ -230,7 +230,6 @@ namespace social.OpenData.UsersAPI
 
             : base(Id,
                    DefaultJSONLDContext,
-
                    CustomData,
                    DataSource,
                    LastChange)
@@ -244,7 +243,7 @@ namespace social.OpenData.UsersAPI
             this.StartTimestamp  = StartTimestamp;
             this.EndTimestamp    = EndTimestamp;
             this.Author          = Author ?? throw new ArgumentNullException(nameof(Author), "The given author must not be null!");
-            this.IsHidden        = IsHidden ?? false;
+            this.IsHidden        = IsHidden;
 
             CalcHash();
 
@@ -291,11 +290,10 @@ namespace social.OpenData.UsersAPI
 
                    new JProperty("startTimestamp",  StartTimestamp.ToIso8601()),
                    new JProperty("endTimestamp",    EndTimestamp.  ToIso8601()),
-                   new JProperty("Author",          JSONObject.Create(
+                   new JProperty("author",          JSONObject.Create(
                                                         new JProperty("@id",  Author.Id.ToString()),
                                                         new JProperty("name", Author.Name)
-                                                    )),
-                   new JProperty("text",            Text.          ToJSON())
+                                                    ))
 
                );
 
@@ -479,7 +477,7 @@ namespace social.OpenData.UsersAPI
                                             StartTimestamp,
                                             EndTimestamp,
                                             Author,
-                                            IsHidden,
+                                            IsHidden ?? false,
 
                                             CustomData,
                                             DataSource,
@@ -805,13 +803,13 @@ namespace social.OpenData.UsersAPI
             /// The timestamp of the publication start of this news banner.
             /// </summary>
             [Mandatory]
-            public DateTime     StartTimestamp        { get; set; }
+            public DateTime?    StartTimestamp        { get; set; }
 
             /// <summary>
             /// The timestamp of the publication end of this news banner.
             /// </summary>
             [Mandatory]
-            public DateTime     EndTimestamp          { get; set; }
+            public DateTime?    EndTimestamp          { get; set; }
 
             /// <summary>
             /// The author of the news banner.
@@ -832,58 +830,25 @@ namespace social.OpenData.UsersAPI
             /// <summary>
             /// Create a new news banner builder.
             /// </summary>
-            /// <param name="Text">The (multi-language) text of the news banner.</param>
-            /// <param name="StartTimestamp">The timestamp of the publication start of this news banner.</param>
-            /// <param name="EndTimestamp">The timestamp of the publication end of this news banner.</param>
-            /// <param name="Author">The author of the news banner.</param>
-            /// <param name="IsHidden">Whether the news banner is currently hidden.</param>
-            public Builder(I18NString  Text,
-                           DateTime    StartTimestamp,
-                           DateTime    EndTimestamp,
-                           User        Author,
-                           Boolean?    IsHidden     = false,
-
-                           JObject     CustomData   = default,
-                           String      DataSource   = default,
-                           DateTime?   LastChange   = default)
-
-                : this(NewsBanner_Id.Random(),
-                       Text,
-                       StartTimestamp,
-                       EndTimestamp,
-                       Author,
-                       IsHidden,
-
-                       CustomData,
-                       DataSource,
-                       LastChange)
-
-            { }
-
-
-            /// <summary>
-            /// Create a new news banner builder.
-            /// </summary>
             /// <param name="Id">The unique identification of the news banner.</param>
             /// <param name="Text">The (multi-language) text of the news banner.</param>
             /// <param name="StartTimestamp">The timestamp of the publication start of this news banner.</param>
             /// <param name="EndTimestamp">The timestamp of the publication end of this news banner.</param>
             /// <param name="Author">The author of the news banner.</param>
             /// <param name="IsHidden">Whether the news banner is currently hidden.</param>
-            public Builder(NewsBanner_Id  Id,
-                           I18NString     Text,
-                           DateTime       StartTimestamp,
-                           DateTime       EndTimestamp,
-                           User           Author,
-                           Boolean?       IsHidden     = false,
+            public Builder(NewsBanner_Id?  Id               = null,
+                           I18NString      Text             = null,
+                           DateTime?       StartTimestamp   = null,
+                           DateTime?       EndTimestamp     = null,
+                           User            Author           = null,
+                           Boolean         IsHidden         = false,
 
-                           JObject        CustomData   = default,
-                           String         DataSource   = default,
-                           DateTime?      LastChange   = default)
+                           JObject         CustomData       = default,
+                           String          DataSource       = default,
+                           DateTime?       LastChange       = default)
 
-                : base(Id,
+                : base(Id ?? NewsBanner_Id.Random(),
                        DefaultJSONLDContext,
-
                        CustomData,
                        DataSource,
                        LastChange)
@@ -894,7 +859,7 @@ namespace social.OpenData.UsersAPI
                 this.StartTimestamp  = StartTimestamp;
                 this.EndTimestamp    = EndTimestamp;
                 this.Author          = Author;
-                this.IsHidden        = IsHidden ?? false;
+                this.IsHidden        = IsHidden;
 
             }
 
@@ -904,12 +869,11 @@ namespace social.OpenData.UsersAPI
 
             public override void CopyAllLinkedDataFrom(NewsBanner OldEnity)
             {
-                throw new NotImplementedException();
             }
 
             public override int CompareTo(object obj)
             {
-                throw new NotImplementedException();
+                return 0;
             }
 
 
@@ -931,8 +895,8 @@ namespace social.OpenData.UsersAPI
 
                 => new NewsBanner(Id,
                                   Text,
-                                  StartTimestamp,
-                                  EndTimestamp,
+                                  StartTimestamp ?? DateTime.UtcNow,
+                                  EndTimestamp   ?? DateTime.UtcNow + TimeSpan.FromDays(14),
                                   Author,
                                   IsHidden,
 

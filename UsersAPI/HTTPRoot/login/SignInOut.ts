@@ -5,6 +5,8 @@ let UserEMail     = "";
 let Astronaut     = "";
 let isAdmin       = "";
 
+const newsBannersCookieId = "newsBanners";
+
 function HideElement(DivName) {
 
     const div = document.querySelector(DivName);
@@ -649,6 +651,11 @@ function checkSignedIn(RedirectUnkownUsers: boolean) {
 
     );
 
+    WithCookie(newsBannersCookieId,
+        cookie => checkNewsBanner(cookie.split(":")),
+        ()     => checkNewsBanner([])
+    );
+
 }
 
 function checkAdminSignedIn(RedirectUnkownUsers: boolean) {
@@ -714,12 +721,95 @@ function Depersonate() {
 
     HTTPDepersonate("/users/" + SignInUser,
 
-                    (HTTPStatus, ResponseText) => {
+                    (status, response) => {
                         window.location.reload(true);
                     },
 
-                    (HTTPStatus, StatusText, ResponseText) => {
+                    (status, statusText, response) => {
                         alert("Not allowed!");
                     });
+
+}
+
+interface INewsBanner {
+    "@id":           string;
+    text:            Record<string, string>;
+    startTimestamp:  string;
+    endTimestamp:    string;
+}
+
+function checkNewsBanner(knownNewsIds: string[]) {
+
+    const newsFilter = knownNewsIds.length > 0
+                           ? "?match=" + knownNewsIds.map(knownNewsId => "!" + knownNewsId).join(",")
+                           : "";
+
+    HTTPGet("/newsBanners" + newsFilter,
+
+            (status, response) => {
+
+                const newsBanners = ParseJSON_LD<INewsBanner[]>(response);
+
+                if (Array.isArray(newsBanners)) {
+
+                    const knownNewsBannerIds = GetCookie(newsBannersCookieId)?.split(",") ?? [];
+
+                    for (const newsBanner of newsBanners) {
+
+                        if (knownNewsBannerIds.indexOf(newsBanner["@id"]) < 0)
+                        {
+
+                            const newsBannerDiv = document.getElementById("newsBanner") as HTMLDivElement;
+                            newsBannerDiv.style.display = "flex";
+
+                            const bannerTextDiv = newsBannerDiv.querySelector("#bannerText") as HTMLDivElement;
+                            bannerTextDiv.innerHTML = newsBanner.text != undefined && newsBanner.text != null
+                                ? firstValue(newsBanner.text)
+                                : "No news found!";
+
+                            const ignoreNewsButton = newsBannerDiv.querySelector("#ignoreNewsButton") as HTMLButtonElement;
+                            ignoreNewsButton.onclick = () => {
+
+                                var expires = new Date(newsBanner.endTimestamp);
+                                expires.setDate(expires.getDate() + 1);
+
+                                let updatedKnownNewsBannerIds = GetCookie(newsBannersCookieId)?.split(",") ?? [];
+                                updatedKnownNewsBannerIds.push(newsBanner["@id"]);
+
+                                document.cookie = newsBannersCookieId + '=' + updatedKnownNewsBannerIds.join(",") + '; expires=' + expires + '; path=/';
+
+                                newsBannerDiv.style.display = "none";
+
+                            }
+
+                            const clickLinks = newsBannerDiv.querySelectorAll("a.clickLink") as NodeListOf<HTMLAnchorElement>;
+                            if (clickLinks != undefined && clickLinks.length > 0) {
+                                for (const clickLink of clickLinks) {
+                                    clickLink.onclick = () => {
+
+                                        var expires = new Date(newsBanner.endTimestamp);
+                                        expires.setDate(expires.getDate() + 1);
+
+                                        let updatedKnownNewsBannerIds = GetCookie(newsBannersCookieId)?.split(",") ?? [];
+                                        updatedKnownNewsBannerIds.push(newsBanner["@id"]);
+
+                                        document.cookie = newsBannersCookieId + '=' + updatedKnownNewsBannerIds.join(",") + '; expires=' + expires + '; path=/';
+
+                                    }
+                                }
+                            }
+
+
+                        }
+
+                    }
+
+                }
+
+            },
+
+            (status, statusText, response) => { }
+
+           );
 
 }

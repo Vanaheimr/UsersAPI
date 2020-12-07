@@ -20,6 +20,7 @@
 using System;
 using System.Linq;
 using System.Collections.Generic;
+using System.Security.Cryptography;
 
 using Newtonsoft.Json.Linq;
 
@@ -30,11 +31,8 @@ using org.GraphDefined.Vanaheimr.Hermod;
 using org.GraphDefined.Vanaheimr.Hermod.HTTP;
 using org.GraphDefined.Vanaheimr.Styx.Arrows;
 
-using System.Security.Cryptography;
 using Org.BouncyCastle.Security;
 using Org.BouncyCastle.Crypto;
-
-using social.OpenData.UsersAPI;
 
 #endregion
 
@@ -43,45 +41,43 @@ namespace social.OpenData.UsersAPI
 
 //    public delegate Boolean NewsProviderDelegate(News_Id NewsId, out News News);
 
-    public delegate JObject NewsToJSONDelegate(NewsPosting  NewsPosting,
-                                               Boolean      Embedded            = false,
-                                               InfoStatus   ExpandTags          = InfoStatus.ShowIdOnly,
-                                               InfoStatus   ExpandDataLicenes   = InfoStatus.ShowIdOnly,
-                                               InfoStatus   ExpandOwnerId       = InfoStatus.ShowIdOnly,
-                                               Boolean      IncludeCryptoHash   = true);
+    public delegate JObject NewsPostingToJSONDelegate(NewsPosting  NewsPosting,
+                                                      Boolean      Embedded            = false,
+                                                      InfoStatus   ExpandTags          = InfoStatus.ShowIdOnly,
+                                                      InfoStatus   ExpandAuthorId      = InfoStatus.ShowIdOnly,
+                                                      Boolean      IncludeCryptoHash   = true);
 
 
     /// <summary>
     /// Extention methods for news postings.
     /// </summary>
-    public static class NewsExtentions
+    public static class NewsPostingExtentions
     {
 
         #region ToJSON(this News, Skip = null, Take = null, Embedded = false, ...)
 
         /// <summary>
-        /// Return a JSON representation for the given enumeration of newss.
+        /// Return a JSON representation for the given enumeration of news postings.
         /// </summary>
-        /// <param name="News">An enumeration of newss.</param>
-        /// <param name="Skip">The optional number of newss to skip.</param>
-        /// <param name="Take">The optional number of newss to return.</param>
+        /// <param name="NewsPosting">An enumeration of news postings.</param>
+        /// <param name="Skip">The optional number of news postings to skip.</param>
+        /// <param name="Take">The optional number of news postings to return.</param>
         /// <param name="Embedded">Whether this data is embedded into another data structure.</param>
-        public static JArray ToJSON(this IEnumerable<NewsPosting>  News,
-                                    UInt64?                 Skip                 = null,
-                                    UInt64?                 Take                 = null,
-                                    Boolean                 Embedded             = false,
-                                    InfoStatus              ExpandTags           = InfoStatus.ShowIdOnly,
-                                    InfoStatus              ExpandDataLicenses   = InfoStatus.ShowIdOnly,
-                                    InfoStatus              ExpandOwnerId        = InfoStatus.ShowIdOnly,
-                                    NewsToJSONDelegate      NewsToJSON           = null,
-                                    Boolean                 IncludeCryptoHash    = true)
+        public static JArray ToJSON(this IEnumerable<NewsPosting>  NewsPosting,
+                                    UInt64?                        Skip                = null,
+                                    UInt64?                        Take                = null,
+                                    Boolean                        Embedded            = false,
+                                    InfoStatus                     ExpandTags          = InfoStatus.ShowIdOnly,
+                                    InfoStatus                     ExpandAuthorId      = InfoStatus.ShowIdOnly,
+                                    NewsPostingToJSONDelegate      NewsToJSON          = null,
+                                    Boolean                        IncludeCryptoHash   = true)
 
 
-            => News?.Any() != true
+            => NewsPosting?.Any() != true
 
                    ? new JArray()
 
-                   : new JArray(News.
+                   : new JArray(NewsPosting.
                                     Where            (dataSet =>  dataSet != null).
                                     //OrderByDescending(dataSet => dataSet.PublicationDate).
                                     SkipTakeFilter   (Skip, Take).
@@ -89,101 +85,13 @@ namespace social.OpenData.UsersAPI
                                                                      ? NewsToJSON (news,
                                                                                    Embedded,
                                                                                    ExpandTags,
-                                                                                   ExpandDataLicenses,
-                                                                                   ExpandOwnerId,
+                                                                                   ExpandAuthorId,
                                                                                    IncludeCryptoHash)
 
                                                                      : news.ToJSON(Embedded,
                                                                                    ExpandTags,
-                                                                                   ExpandDataLicenses,
-                                                                                   ExpandOwnerId,
+                                                                                   ExpandAuthorId,
                                                                                    IncludeCryptoHash)));
-
-        #endregion
-
-        #region GeoFilter(this News, SearchCenter, RadiusKM, Skip = null, Take = null, ...)
-
-        /// <summary>
-        /// Return a JSON representation for the given enumeration of News.
-        /// </summary>
-        /// <param name="News">An enumeration of News.</param>
-        /// <param name="SearchCenter">The search center.</param>
-        /// <param name="RadiusKM">The search radius.</param>
-        /// <param name="Skip">The optional number of News to skip.</param>
-        /// <param name="Take">The optional number of News to return.</param>
-        public static IEnumerable<WithDistance<NewsPosting>> GeoFilter(this IEnumerable<NewsPosting>  News,
-                                                                GeoCoordinate           SearchCenter,
-                                                                Double                  RadiusKM,
-                                                                UInt64?                 Skip   = null,
-                                                                UInt64?                 Take   = null)
-
-        {
-
-            if (News == null || !News.Any())
-                return new WithDistance<NewsPosting>[0];
-
-            var results = new List<WithDistance<NewsPosting>>();
-
-            foreach (var news in News)
-            {
-
-                if (!news.GeoLocations.SafeAny())
-                    continue;
-
-                var nearrest = news.GeoLocations.Select (geo  => new WithDistance<NewsPosting>(news,
-                                                                                        geo.DistanceKM(SearchCenter),
-                                                                                        DistanceMetricTypes.air)).
-                                                        OrderBy(geod => geod.Distance).
-                                                        FirstOrDefault();
-
-                if (nearrest.Distance <= RadiusKM)
-                    results.Add(nearrest);
-
-            }
-
-            return results.SkipTakeFilter(Skip, Take);
-
-        }
-
-        #endregion
-
-        #region ToJSON(this NewsWithDistance, Skip = null, Take = null, Embedded = false, ...)
-
-        /// <summary>
-        /// Return a JSON representation for the given enumeration of News.
-        /// </summary>
-        /// <param name="NewsWithDistance<News>">An enumeration of News.</param>
-        /// <param name="Skip">The optional number of News to skip.</param>
-        /// <param name="Take">The optional number of News to return.</param>
-        /// <param name="Embedded">Whether this data is embedded into another data structure, e.g. into a News.</param>
-        public static JArray ToJSON(this IEnumerable<WithDistance<NewsPosting>>  NewsWithDistance,
-                                    UInt64?                               Skip                 = null,
-                                    UInt64?                               Take                 = null,
-                                    Boolean                               Embedded             = false,
-                                    InfoStatus                            ExpandTags           = InfoStatus.ShowIdOnly,
-                                    InfoStatus                            ExpandDataLicenses   = InfoStatus.ShowIdOnly,
-                                    InfoStatus                            ExpandOwnerId        = InfoStatus.ShowIdOnly,
-                                    NewsToJSONDelegate                    NewsToJSON           = null,
-                                    Boolean                               IncludeCryptoHash    = true)
-
-
-            => NewsWithDistance == null || !NewsWithDistance.Any()
-
-                   ? new JArray()
-
-                   : new JArray(NewsWithDistance.
-                                    SkipTakeFilter(Skip, Take).
-                                    SafeSelect    (newsWithDistance => new JObject(
-                                                                                    new JProperty("distance",        newsWithDistance.Distance),
-                                                                                    new JProperty("distanceMetric",  newsWithDistance.DistanceMetric.ToString()),
-                                                                                    new JProperty("News",            newsWithDistance.
-                                                                                                                                  Element.
-                                                                                                                                  ToJSON(Embedded,
-                                                                                                                                         ExpandTags,
-                                                                                                                                         ExpandDataLicenses,
-                                                                                                                                         ExpandOwnerId,
-                                                                                                                                         IncludeCryptoHash))
-                                                                                )));
 
         #endregion
 
@@ -240,31 +148,29 @@ namespace social.OpenData.UsersAPI
         #endregion
 
 
-        public Organization                       Owner                 { get; }
-
         /// <summary>
-        /// The (multi-language) headline of this news.
+        /// The (multi-language) headline of this news posting.
         /// </summary>
         [Mandatory]
         public I18NString                         Headline              { get; }
 
         /// <summary>
-        /// The (multi-language) text of this news.
+        /// The (multi-language) text of this news posting.
         /// </summary>
         [Mandatory]
         public I18NString                         Text                  { get; }
 
         /// <summary>
-        /// The timestamp of the publication of this news.
+        /// The author of the news posting.
+        /// </summary>
+        [Mandatory]
+        public User                               Author                { get; }
+
+        /// <summary>
+        /// The publication timestamp of this news posting.
         /// </summary>
         [Mandatory]
         public DateTime                           PublicationDate       { get; }
-
-        /// <summary>
-        /// Optional geographical locations of/for this news.
-        /// </summary>
-        [Optional]
-        public IEnumerable<GeoCoordinate>         GeoLocations          { get; }
 
         /// <summary>
         /// An enumeration of multi-language tags and their relevance.
@@ -272,16 +178,14 @@ namespace social.OpenData.UsersAPI
         [Optional]
         public IEnumerable<TagRelevance>          Tags                  { get; }
 
-
         /// <summary>
-        /// The news is hidden.
+        /// Whether the news posting is currently hidden.
         /// </summary>
         [Optional]
         public Boolean                            IsHidden              { get; }
 
-
         /// <summary>
-        /// All signatures of this news.
+        /// All signatures of this news posting.
         /// </summary>
         public IEnumerable<Signature>             Signatures            { get; }
 
@@ -296,30 +200,36 @@ namespace social.OpenData.UsersAPI
         /// <summary>
         /// Create a new news.
         /// </summary>
-        /// <param name="Text">The (multi-language) text of this news.</param>
-        /// <param name="PublicationDate">The timestamp of the publication of this news.</param>
-        /// <param name="GeoLocation">An optional geographical location of this news.</param>
+        /// <param name="Text">The (multi-language) text of this news posting.</param>
+        /// <param name="PublicationDate">The publication timestamp of this news posting.</param>
         /// <param name="Tags">An enumeration of multi-language tags and their relevance.</param>
-        /// <param name="IsHidden">The news is hidden.</param>
+        /// <param name="IsHidden">Whether the news posting is currently hidden.</param>
         /// <param name="Signatures">All signatures of this news.</param>
-        /// <param name="DataSource">The source of all this data, e.g. an automatic importer.</param>
         public NewsPosting(I18NString                  Headline,
-                    I18NString                  Text,
-                    DateTime?                   PublicationDate   = null,
-                    IEnumerable<GeoCoordinate>  GeoLocations      = null,
-                    IEnumerable<TagRelevance>   Tags              = null,
+                           I18NString                  Text,
+                           User                        Author,
+                           DateTime?                   PublicationDate   = null,
+                           IEnumerable<TagRelevance>   Tags              = null,
+                           Boolean                     IsHidden          = false,
 
-                    IEnumerable<Signature>      Signatures        = null,
-                    String                      DataSource        = "")
+                           IEnumerable<Signature>      Signatures        = null,
+
+                           JObject                     CustomData        = default,
+                           String                      DataSource        = default,
+                           DateTime?                   LastChange        = default)
 
             : this(NewsPosting_Id.Random(),
                    Headline,
                    Text,
+                   Author,
                    PublicationDate,
-                   GeoLocations,
                    Tags,
+                   IsHidden,
                    Signatures,
-                   DataSource)
+
+                   CustomData,
+                   DataSource,
+                   LastChange)
 
         { }
 
@@ -329,34 +239,44 @@ namespace social.OpenData.UsersAPI
         /// </summary>
         /// <param name="Id">The unique identification of this news.</param>
         /// <param name="Text">The (multi-language) text of this news.</param>
-        /// <param name="PublicationDate">The timestamp of the publication of this news.</param>
-        /// <param name="GeoLocation">An optional geographical location of this news.</param>
+        /// <param name="PublicationDate">The publication timestamp of this news posting.</param>
         /// <param name="Tags">An enumeration of multi-language tags and their relevance.</param>
-        /// <param name="IsHidden">The news is hidden.</param>
+        /// <param name="IsHidden">Whether the news posting is currently hidden.</param>
         /// <param name="Signatures">All signatures of this news.</param>
-        /// <param name="DataSource">The source of all this data, e.g. an automatic importer.</param>
-        public NewsPosting(NewsPosting_Id                     Id,
-                    I18NString                  Headline,
-                    I18NString                  Text,
-                    DateTime?                   PublicationDate   = null,
-                    IEnumerable<GeoCoordinate>  GeoLocations      = null,
-                    IEnumerable<TagRelevance>   Tags              = null,
+        public NewsPosting(NewsPosting_Id              Id,
+                           I18NString                  Headline,
+                           I18NString                  Text,
+                           User                        Author,
+                           DateTime?                   PublicationDate   = null,
+                           IEnumerable<TagRelevance>   Tags              = null,
+                           Boolean                     IsHidden          = false,
 
-                    IEnumerable<Signature>      Signatures        = null,
-                    String                      DataSource        = "")
+                           IEnumerable<Signature>      Signatures        = null,
+
+                           JObject                     CustomData        = default,
+                           String                      DataSource        = default,
+                           DateTime?                   LastChange        = default)
 
             : base(Id,
                    DefaultJSONLDContext,
-                   null,
-                   DataSource)
+                   CustomData,
+                   DataSource,
+                   LastChange)
 
         {
 
-            this.Headline         = Headline        ?? throw new ArgumentNullException(nameof(Headline), "The given headline must not be null!");
-            this.Text             = Text            ?? throw new ArgumentNullException(nameof(Text),     "The given text must not be null!");
-            this.PublicationDate  = PublicationDate ?? DateTime.Now;
-            this.GeoLocations     = GeoLocations    ?? new GeoCoordinate[0];
+            if (Headline.IsNullOrEmpty())
+                throw new ArgumentNullException(nameof(Headline),  "The given (multi-language) headline must not be null or empty!");
+
+            if (Text.    IsNullOrEmpty())
+                throw new ArgumentNullException(nameof(Text),      "The given (multi-language) text must not be null or empty!");
+
+            this.Headline         = Headline;
+            this.Text             = Text;
+            this.Author           = Author          ?? throw new ArgumentNullException(nameof(Author), "The given author must not be null!");
+            this.PublicationDate  = PublicationDate ?? DateTime.UtcNow;
             this.Tags             = Tags            ?? new TagRelevance[0];
+            this.IsHidden         = IsHidden;
 
             this.Signatures       = Signatures      ?? new Signature[0];
 
@@ -387,40 +307,35 @@ namespace social.OpenData.UsersAPI
         /// </summary>
         /// <param name="Embedded">Whether this data is embedded into another data structure.</param>
         /// <param name="IncludeCryptoHash">Include the crypto hash value of this object.</param>
-        public JObject ToJSON(Boolean     Embedded             = false,
-                              InfoStatus  ExpandTags           = InfoStatus.ShowIdOnly,
-                              InfoStatus  ExpandDataLicenses   = InfoStatus.ShowIdOnly,
-                              InfoStatus  ExpandOwnerId        = InfoStatus.ShowIdOnly,
-                              Boolean     IncludeCryptoHash    = false)
+        public JObject ToJSON(Boolean     Embedded            = false,
+                              InfoStatus  ExpandTags          = InfoStatus.ShowIdOnly,
+                              InfoStatus  ExpandAuthorId      = InfoStatus.ShowIdOnly,
+                              Boolean     IncludeCryptoHash   = false)
 
             => JSONObject.Create(
 
-                   new JProperty("@id",                  Id.ToString()),
+                   new JProperty("@id",                Id.             ToString()),
 
                    !Embedded
-                       ? new JProperty("@context",       JSONLDContext.ToString())
+                       ? new JProperty("@context",     JSONLDContext.  ToString())
                        : null,
 
-                   Headline.IsNeitherNullNorEmpty()
-                       ? new JProperty("headline",       Headline.ToJSON())
-                       : null,
+                   new JProperty("headline",           Headline.       ToJSON()),
+                   new JProperty("text",               Text.           ToJSON()),
 
-                   Text.IsNeitherNullNorEmpty()
-                       ? new JProperty("text",           Text.ToJSON())
-                       : null,
+                   new JProperty("author",             JSONObject.Create(
+                                                           new JProperty("@id",  Author.Id.ToString()),
+                                                           new JProperty("name", Author.Name)
+                                                       )),
 
-                   new JProperty("publicationDate",      PublicationDate.ToIso8601()),
-
-                   GeoLocations.SafeAny()
-                       ? new JProperty("geoLocations",   new JArray(GeoLocations.Select(geolocation => geolocation.ToJSON())))
-                       : null,
+                   new JProperty("publicationDate",    PublicationDate.ToIso8601()),
 
                    Tags.Any()
-                       ? new JProperty("tags",           Tags.SafeSelect(tag => tag.ToJSON(ExpandTags)))
+                       ? new JProperty("tags",         Tags.SafeSelect(tag => tag.ToJSON(ExpandTags)))
                        : null,
 
                    Signatures.Any()
-                       ? new JProperty("signatures",     new JArray(Signatures.SafeSelect(signature => signature.ToJSON(Embedded: true))))
+                       ? new JProperty("signatures",   new JArray(Signatures.SafeSelect(signature => signature.ToJSON(Embedded: true))))
                        : null
 
                );
@@ -429,18 +344,19 @@ namespace social.OpenData.UsersAPI
 
         #region (static) TryParseJSON(JSONObject, ..., out News, out ErrorResponse)
 
-        public static Boolean TryParseJSON(JObject     JSONObject,
-                                           out NewsPosting    News,
-                                           out String  ErrorResponse,
-                                           NewsPosting_Id?    NewsIdURL  = null)
+        public static Boolean TryParseJSON(JObject               JSONObject,
+                                           UserProviderDelegate  UserProvider,
+                                           out NewsPosting       NewsPosting,
+                                           out String            ErrorResponse,
+                                           NewsPosting_Id?       NewsIdURL  = null)
         {
 
             try
             {
 
-                News = null;
+                NewsPosting = null;
 
-                #region Parse NewsId           [optional]
+                #region Parse NewsId            [optional]
 
                 // Verify that a given News identification
                 //   is at least valid.
@@ -470,7 +386,7 @@ namespace social.OpenData.UsersAPI
 
                 #endregion
 
-                #region Parse Context          [mandatory]
+                #region Parse Context           [mandatory]
 
                 if (!JSONObject.ParseMandatory("@context",
                                                "JSON-LinkedData context information",
@@ -490,7 +406,7 @@ namespace social.OpenData.UsersAPI
 
                 #endregion
 
-                #region Parse Headline         [mandatory]
+                #region Parse Headline          [mandatory]
 
                 if (!JSONObject.ParseMandatory("headline",
                                                "news headline",
@@ -502,7 +418,7 @@ namespace social.OpenData.UsersAPI
 
                 #endregion
 
-                #region Parse Text             [mandatory]
+                #region Parse Text              [mandatory]
 
                 if (!JSONObject.ParseMandatory("text",
                                                "news text",
@@ -514,15 +430,54 @@ namespace social.OpenData.UsersAPI
 
                 #endregion
 
-                var PublicationDate  = DateTime.Now;
+                #region Parse Author            [mandatory]
 
-                #region Parse GeoLocation      [optional]
+                User Author = null;
 
-                if (JSONObject.ParseOptionalStruct("geoLocation",
-                                                   "Geo location",
-                                                   GeoCoordinate.TryParseJSON,
-                                                   out GeoCoordinate? GeoLocation,
-                                                   out ErrorResponse))
+                if (JSONObject["author"] is JObject authorJSON &&
+                    authorJSON.ParseMandatory("@id",
+                                              "author identification",
+                                              User_Id.TryParse,
+                                              out User_Id AuthorId,
+                                              out ErrorResponse))
+                {
+
+                    if (ErrorResponse != null)
+                        return false;
+
+                    if (!UserProvider(AuthorId, out Author))
+                    {
+                        ErrorResponse = "The given author '" + AuthorId + "' is unknown!";
+                        return false;
+                    }
+
+                }
+
+                else
+                    return false;
+
+                #endregion
+
+                #region Parse PublicationDate   [mandatory]
+
+                if (!JSONObject.ParseMandatory("publicationDate",
+                                               "publication date",
+                                               out DateTime PublicationDate,
+                                               out ErrorResponse))
+                {
+                    return false;
+                }
+
+                #endregion
+
+                var Tags             = new TagRelevance[0];
+
+                #region Parse IsHidden          [optional]
+
+                if (JSONObject.ParseOptional("isHidden",
+                                             "is hidden",
+                                             out Boolean? IsHidden,
+                                             out ErrorResponse))
                 {
 
                     if (ErrorResponse != null)
@@ -532,31 +487,50 @@ namespace social.OpenData.UsersAPI
 
                 #endregion
 
-                var GeoLocations     = new GeoCoordinate[0];
-                var Tags             = new TagRelevance[0];
                 var Signatures       = new Signature[0];
 
-                #region Get   DataSource       [optional]
+                var CustomData = JSONObject["CustomData"] as JObject;
+
+                #region Get   DataSource        [optional]
 
                 var DataSource = JSONObject.GetOptional("dataSource");
 
                 #endregion
 
-                #region Parse CryptoHash       [optional]
+                #region Get   LastChange        [optional]
+
+                if (JSONObject.ParseOptional("lastChange",
+                                             "last change",
+                                             out DateTime? LastChange,
+                                             out ErrorResponse))
+                {
+
+                    if (ErrorResponse != null)
+                        return false;
+
+                }
+
+                #endregion
+
+                #region Parse CryptoHash        [optional]
 
                 var CryptoHash    = JSONObject.GetOptional("cryptoHash");
 
                 #endregion
 
 
-                News = new NewsPosting(NewsIdBody ?? NewsIdURL.Value,
-                                       Headline,
-                                       Text,
-                                       PublicationDate,
-                                       GeoLocations,
-                                       Tags,
-                                       Signatures,
-                                       DataSource);
+                NewsPosting = new NewsPosting(NewsIdBody ?? NewsIdURL.Value,
+                                              Headline,
+                                              Text,
+                                              Author,
+                                              PublicationDate,
+                                              Tags,
+                                              IsHidden ?? false,
+                                              Signatures,
+
+                                              CustomData,
+                                              DataSource,
+                                              LastChange);
 
                 ErrorResponse = null;
                 return true;
@@ -565,7 +539,7 @@ namespace social.OpenData.UsersAPI
             catch (Exception e)
             {
                 ErrorResponse  = e.Message;
-                News           = null;
+                NewsPosting    = null;
                 return false;
             }
 
@@ -803,63 +777,63 @@ namespace social.OpenData.UsersAPI
         #endregion
 
 
-        #region ToBuilder(NewNewsId = null)
+        #region ToBuilder(NewNewsPostingId = null)
 
         /// <summary>
-        /// Return a builder for this News.
+        /// Return a builder for this news posting.
         /// </summary>
-        /// <param name="NewNewsId">An optional new News identification.</param>
-        public Builder ToBuilder(NewsPosting_Id? NewNewsId = null)
+        /// <param name="NewNewsPostingId">An optional new news posting identification.</param>
+        public Builder ToBuilder(NewsPosting_Id? NewNewsPostingId = null)
 
-            => new Builder(NewNewsId ?? Id,
+            => new Builder(NewNewsPostingId ?? Id,
                            Headline,
                            Text,
+                           Author,
                            PublicationDate,
-                           GeoLocations,
                            Tags,
+                           IsHidden,
                            Signatures,
-                           DataSource);
+
+                           CustomData,
+                           DataSource,
+                           LastChange);
 
         #endregion
 
         #region (class) Builder
 
         /// <summary>
-        /// A news builder.
+        /// A news posting builder.
         /// </summary>
-        public class Builder
+        public new class Builder : AEntity<NewsPosting_Id,
+                                          NewsPosting>.Builder
         {
 
             #region Properties
 
             /// <summary>
-            /// The unique identification of this news.
-            /// </summary>
-            public NewsPosting_Id                            Id                    { get; set; }
-
-            /// <summary>
-            /// The (multi-language) headline of this news.
+            /// The (multi-language) headline of this news posting.
             /// </summary>
             [Mandatory]
             public I18NString                         Headline              { get; set; }
 
             /// <summary>
-            /// The (multi-language) text of this news.
+            /// The (multi-language) text of this news posting.
             /// </summary>
             [Mandatory]
             public I18NString                         Text                  { get; set; }
 
             /// <summary>
-            /// The timestamp of the publication of this news.
+            /// The author of this news posting.
             /// </summary>
             [Mandatory]
-            public DateTime                           PublicationDate       { get; set; }
+            public User                               Author                { get; set; }
 
             /// <summary>
-            /// Optional geographical locations of/for this news.
+            /// The publication timestamp of this news posting.
             /// </summary>
-            [Optional]
-            public List<GeoCoordinate>                GeoLocations          { get; set; }
+            [Mandatory]
+            public DateTime?                          PublicationDate       { get; set; }
 
             /// <summary>
             /// An enumeration of multi-language tags and their relevance.
@@ -868,88 +842,64 @@ namespace social.OpenData.UsersAPI
             public List<TagRelevance>                 Tags                  { get; set; }
 
             /// <summary>
+            /// Whether the news posting is currently hidden.
+            /// </summary>
+            [Optional]
+            public Boolean                            IsHidden              { get; set; }
+
+            /// <summary>
             /// All signatures of this news.
             /// </summary>
             public List<Signature>                    Signatures            { get; set; }
-
-            /// <summary>
-            /// The source of this information, e.g. an automatic importer.
-            /// </summary>
-            [Optional]
-            public String                             DataSource            { get; set; }
 
             #endregion
 
             #region Constructor(s)
 
             /// <summary>
-            /// Create a new news builder.
-            /// </summary>
-            /// <param name="Text">The (multi-language) text of this news.</param>
-            /// <param name="PublicationDate">The timestamp of the publication of this news.</param>
-            /// <param name="GeoLocation">An optional geographical location of this news.</param>
-            /// <param name="Tags">An enumeration of multi-language tags and their relevance.</param>
-            /// <param name="PrivacyLevel">Whether the news will be shown in news listings, or not.</param>
-            /// <param name="IsHidden">The news is hidden.</param>
-            /// <param name="Signatures">All signatures of this news.</param>
-            /// <param name="DataSource">The source of all this data, e.g. an automatic importer.</param>
-            public Builder(I18NString                  Headline, 
-                           I18NString                  Text,
-                           DateTime?                   PublicationDate   = null,
-                           IEnumerable<GeoCoordinate>  GeoLocations      = null,
-                           IEnumerable<TagRelevance>   Tags              = null,
-                           Boolean                     IsHidden          = false,
-                           IEnumerable<Signature>      Signatures        = null,
-                           String                      DataSource        = "")
-
-                : this(NewsPosting_Id.Random(),
-                       Headline,
-                       Text,
-                       PublicationDate,
-                       GeoLocations,
-                       Tags,
-                       Signatures,
-                       DataSource)
-
-            { }
-
-
-            /// <summary>
             /// Create a new News builder.
             /// </summary>
             /// <param name="Id">The unique identification of this news.</param>
-            /// <param name="Text">The (multi-language) text of this news.</param>
-            /// <param name="PublicationDate">The timestamp of the publication of this news.</param>
-            /// <param name="GeoLocation">An optional geographical location of this news.</param>
+            /// <param name="Headline">The (multi-language) headline of this news posting.</param>
+            /// <param name="Text">The (multi-language) text of this news posting.</param>
+            /// <param name="Author">The author of this news posting.</param>
+            /// <param name="PublicationDate">The publication timestamp of this news posting.</param>
             /// <param name="Tags">An enumeration of multi-language tags and their relevance.</param>
-            /// <param name="PrivacyLevel">Whether the news will be shown in news listings, or not.</param>
-            /// <param name="IsHidden">The news is hidden.</param>
+            /// <param name="IsHidden">Whether the news posting is currently hidden.</param>
             /// <param name="Signatures">All signatures of this news.</param>
             /// <param name="DataSource">The source of all this data, e.g. an automatic importer.</param>
-            public Builder(NewsPosting_Id                     Id,
-                           I18NString                  Headline,
-                           I18NString                  Text,
+            public Builder(NewsPosting_Id?             Id                = null,
+                           I18NString                  Headline          = null,
+                           I18NString                  Text              = null,
+                           User                        Author            = null,
                            DateTime?                   PublicationDate   = null,
-                           IEnumerable<GeoCoordinate>  GeoLocation       = null,
                            IEnumerable<TagRelevance>   Tags              = null,
+                           Boolean                     IsHidden          = false,
                            IEnumerable<Signature>      Signatures        = null,
-                           String                      DataSource        = "")
+
+                           JObject                     CustomData        = default,
+                           String                      DataSource        = default,
+                           DateTime?                   LastChange        = default)
+
+                : base(Id ?? NewsPosting_Id.Random(),
+                       DefaultJSONLDContext,
+                       CustomData,
+                       DataSource,
+                       LastChange)
+
             {
 
-                this.Id               = Id;
-                this.Headline         = Headline        ?? throw new ArgumentNullException(nameof(Headline), "The given headline must not be null!");
-                this.Text             = Text            ?? throw new ArgumentNullException(nameof(Text),     "The given text must not be null!");
-                this.PublicationDate  = PublicationDate ?? DateTime.Now;
-                this.GeoLocations     = GeoLocations != null
-                                            ? new List<GeoCoordinate>(GeoLocations)
-                                            : new List<GeoCoordinate>();
+                this.Headline         = Headline;
+                this.Text             = Text;
+                this.Author           = Author;
+                this.PublicationDate  = PublicationDate;
                 this.Tags             = Tags != null
                                             ? new List<TagRelevance>(Tags)
                                             : new List<TagRelevance>();
+                this.IsHidden         = IsHidden;
                 this.Signatures       = Signatures != null
                                             ? new List<Signature>(Signatures)
                                             : new List<Signature>();
-                this.DataSource       = DataSource;
 
             }
 
@@ -960,13 +910,13 @@ namespace social.OpenData.UsersAPI
             {
 
                 var news        = new NewsPosting(Id,
-                                           Headline,
-                                           Text,
-                                           PublicationDate,
-                                           GeoLocations,
-                                           Tags,
-                                           Signatures,
-                                           DataSource);
+                                                  Headline,
+                                                  Text,
+                                                  Author,
+                                                  PublicationDate,
+                                                  Tags,
+                                                  IsHidden,
+                                                  Signatures);
 
                 var ctext       = news.ToJSON(Embedded:           false,
                                               ExpandTags:         InfoStatus.ShowIdOnly,
@@ -985,16 +935,25 @@ namespace social.OpenData.UsersAPI
                 signatures.Add(new Signature("json", "secp256k1", "DER+HEX", signature));
 
                 return new NewsPosting(Id,
-                                Headline,
-                                Text,
-                                PublicationDate,
-                                GeoLocations,
-                                Tags,
-                                signatures,
-                                DataSource);
+                                       Headline,
+                                       Text,
+                                       Author,
+                                       PublicationDate,
+                                       Tags,
+                                       IsHidden,
+                                       signatures);
 
             }
 
+
+            public override void CopyAllLinkedDataFrom(NewsPosting OldEnity)
+            {
+            }
+
+            public override int CompareTo(object obj)
+            {
+                return 0;
+            }
 
             #region ToImmutable
 
@@ -1013,13 +972,17 @@ namespace social.OpenData.UsersAPI
             public NewsPosting ToImmutable
 
                 => new NewsPosting(Id,
-                            Headline,
-                            Text,
-                            PublicationDate,
-                            GeoLocations,
-                            Tags,
-                            Signatures,
-                            DataSource);
+                                   Headline,
+                                   Text,
+                                   Author,
+                                   PublicationDate,
+                                   Tags,
+                                   IsHidden,
+                                   Signatures,
+
+                                   CustomData,
+                                   DataSource,
+                                   LastChange);
 
             #endregion
 

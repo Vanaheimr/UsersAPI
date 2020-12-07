@@ -585,7 +585,7 @@ namespace social.OpenData.UsersAPI
         #endregion
 
 
-        #region ParseNewsId(this HTTPRequest, UsersAPI, out NewsId,           out HTTPResponse)
+        #region ParseNewsPostingId(this HTTPRequest, UsersAPI, out NewsPostingId,                  out HTTPResponse)
 
         /// <summary>
         /// Parse the given HTTP request and return the News identification
@@ -594,27 +594,27 @@ namespace social.OpenData.UsersAPI
         /// </summary>
         /// <param name="HTTPRequest">A HTTP request.</param>
         /// <param name="UsersAPI">The UsersAPI.</param>
-        /// <param name="NewsId">The parsed unique News identification.</param>
+        /// <param name="NewsPostingId">The parsed unique news posting identification.</param>
         /// <param name="HTTPResponse">A HTTP error response.</param>
         /// <returns>True, when News identification was found; false else.</returns>
-        public static Boolean ParseNewsId(this HTTPRequest          HTTPRequest,
-                                          UsersAPI                  UsersAPI,
-                                          out NewsPosting_Id?              NewsId,
-                                          out HTTPResponse.Builder  HTTPResponse)
+        public static Boolean ParseNewsPostingId(this HTTPRequest          HTTPRequest,
+                                                 UsersAPI                  UsersAPI,
+                                                 out NewsPosting_Id?       NewsPostingId,
+                                                 out HTTPResponse.Builder  HTTPResponse)
         {
 
             #region Initial checks
 
             if (HTTPRequest == null)
-                throw new ArgumentNullException(nameof(HTTPRequest),    "The given HTTP request must not be null!");
+                throw new ArgumentNullException(nameof(HTTPRequest),  "The given HTTP request must not be null!");
 
             if (UsersAPI     == null)
-                throw new ArgumentNullException(nameof(UsersAPI),  "The given UsersAPI must not be null!");
+                throw new ArgumentNullException(nameof(UsersAPI),     "The given UsersAPI must not be null!");
 
             #endregion
 
-            NewsId        = null;
-            HTTPResponse  = null;
+            NewsPostingId  = null;
+            HTTPResponse   = null;
 
             if (HTTPRequest.ParsedURLParameters.Length < 1)
             {
@@ -630,9 +630,9 @@ namespace social.OpenData.UsersAPI
 
             }
 
-            NewsId = NewsPosting_Id.TryParse(HTTPRequest.ParsedURLParameters[0]);
+            NewsPostingId = NewsPosting_Id.TryParse(HTTPRequest.ParsedURLParameters[0]);
 
-            if (!NewsId.HasValue)
+            if (!NewsPostingId.HasValue)
             {
 
                 HTTPResponse = new HTTPResponse.Builder(HTTPRequest) {
@@ -654,7 +654,7 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
-        #region ParseNews  (this HTTPRequest, UsersAPI, out NewsId, out News, out HTTPResponse)
+        #region ParseNewsPosting  (this HTTPRequest, UsersAPI, out NewsPostingId, out NewsPosting, out HTTPResponse)
 
         /// <summary>
         /// Parse the given HTTP request and return the News identification
@@ -663,30 +663,30 @@ namespace social.OpenData.UsersAPI
         /// </summary>
         /// <param name="HTTPRequest">A HTTP request.</param>
         /// <param name="UsersAPI">The UsersAPI.</param>
-        /// <param name="NewsId">The parsed unique News identification.</param>
-        /// <param name="News">The resolved News.</param>
+        /// <param name="NewsPostingId">The parsed unique news posting identification.</param>
+        /// <param name="NewsPosting">The resolved News.</param>
         /// <param name="HTTPResponse">A HTTP error response.</param>
         /// <returns>True, when News identification was found; false else.</returns>
-        public static Boolean ParseNews(this HTTPRequest          HTTPRequest,
-                                        UsersAPI                  UsersAPI,
-                                        out NewsPosting_Id?              NewsId,
-                                        out NewsPosting                  News,
-                                        out HTTPResponse.Builder  HTTPResponse)
+        public static Boolean ParseNewsPosting(this HTTPRequest          HTTPRequest,
+                                               UsersAPI                  UsersAPI,
+                                               out NewsPosting_Id?       NewsPostingId,
+                                               out NewsPosting           NewsPosting,
+                                               out HTTPResponse.Builder  HTTPResponse)
         {
 
             #region Initial checks
 
             if (HTTPRequest == null)
-                throw new ArgumentNullException(nameof(HTTPRequest),    "The given HTTP request must not be null!");
+                throw new ArgumentNullException(nameof(HTTPRequest),  "The given HTTP request must not be null!");
 
             if (UsersAPI     == null)
-                throw new ArgumentNullException(nameof(UsersAPI),  "The given UsersAPI must not be null!");
+                throw new ArgumentNullException(nameof(UsersAPI),     "The given UsersAPI must not be null!");
 
             #endregion
 
-            NewsId        = null;
-            News          = null;
-            HTTPResponse  = null;
+            NewsPostingId  = null;
+            NewsPosting    = null;
+            HTTPResponse   = null;
 
             if (HTTPRequest.ParsedURLParameters.Length < 1) {
 
@@ -701,9 +701,9 @@ namespace social.OpenData.UsersAPI
 
             }
 
-            NewsId = NewsPosting_Id.TryParse(HTTPRequest.ParsedURLParameters[0]);
+            NewsPostingId = NewsPosting_Id.TryParse(HTTPRequest.ParsedURLParameters[0]);
 
-            if (!NewsId.HasValue) {
+            if (!NewsPostingId.HasValue) {
 
                 HTTPResponse = new HTTPResponse.Builder(HTTPRequest) {
                     HTTPStatusCode  = HTTPStatusCode.BadRequest,
@@ -718,7 +718,162 @@ namespace social.OpenData.UsersAPI
 
             }
 
-            if (!UsersAPI.TryGet(NewsId.Value, out News)) {
+            if (!UsersAPI.TryGetNewsPosting(NewsPostingId.Value, out NewsPosting)) {
+
+                HTTPResponse = new HTTPResponse.Builder(HTTPRequest) {
+                    HTTPStatusCode  = HTTPStatusCode.NotFound,
+                    Server          = UsersAPI.HTTPServer.DefaultServerName,
+                    Date            = DateTime.UtcNow,
+                    ContentType     = HTTPContentType.JSON_UTF8,
+                    Content         = @"{ ""description"": ""Unknown NewsId!"" }".ToUTF8Bytes(),
+                    Connection      = "close"
+                };
+
+                return false;
+
+            }
+
+            return true;
+
+        }
+
+        #endregion
+
+
+        #region ParseNewsBannerId (this HTTPRequest, UsersAPI, out NewsBannerId,                   out HTTPResponse)
+
+        /// <summary>
+        /// Parse the given HTTP request and return the News identification
+        /// for the given HTTP hostname and HTTP query parameter
+        /// or an HTTP error response.
+        /// </summary>
+        /// <param name="HTTPRequest">A HTTP request.</param>
+        /// <param name="UsersAPI">The UsersAPI.</param>
+        /// <param name="NewsBannerId">The parsed unique news posting identification.</param>
+        /// <param name="HTTPResponse">A HTTP error response.</param>
+        /// <returns>True, when News identification was found; false else.</returns>
+        public static Boolean ParseNewsId(this HTTPRequest          HTTPRequest,
+                                          UsersAPI                  UsersAPI,
+                                          out NewsBanner_Id?       NewsBannerId,
+                                          out HTTPResponse.Builder  HTTPResponse)
+        {
+
+            #region Initial checks
+
+            if (HTTPRequest == null)
+                throw new ArgumentNullException(nameof(HTTPRequest),  "The given HTTP request must not be null!");
+
+            if (UsersAPI     == null)
+                throw new ArgumentNullException(nameof(UsersAPI),     "The given UsersAPI must not be null!");
+
+            #endregion
+
+            NewsBannerId  = null;
+            HTTPResponse   = null;
+
+            if (HTTPRequest.ParsedURLParameters.Length < 1)
+            {
+
+                HTTPResponse = new HTTPResponse.Builder(HTTPRequest) {
+                    HTTPStatusCode  = HTTPStatusCode.BadRequest,
+                    Server          = UsersAPI.HTTPServer.DefaultServerName,
+                    Date            = DateTime.UtcNow,
+                    Connection      = "close"
+                };
+
+                return false;
+
+            }
+
+            NewsBannerId = NewsBanner_Id.TryParse(HTTPRequest.ParsedURLParameters[0]);
+
+            if (!NewsBannerId.HasValue)
+            {
+
+                HTTPResponse = new HTTPResponse.Builder(HTTPRequest) {
+                    HTTPStatusCode  = HTTPStatusCode.BadRequest,
+                    Server          = UsersAPI.HTTPServer.DefaultServerName,
+                    Date            = DateTime.UtcNow,
+                    ContentType     = HTTPContentType.JSON_UTF8,
+                    Content         = @"{ ""description"": ""Invalid NewsId!"" }".ToUTF8Bytes(),
+                    Connection      = "close"
+                };
+
+                return false;
+
+            }
+
+            return true;
+
+        }
+
+        #endregion
+
+        #region ParseNewsBanner   (this HTTPRequest, UsersAPI, out NewsBannerId,  out NewsBanner,  out HTTPResponse)
+
+        /// <summary>
+        /// Parse the given HTTP request and return the News identification
+        /// for the given HTTP hostname and HTTP query parameter
+        /// or an HTTP error response.
+        /// </summary>
+        /// <param name="HTTPRequest">A HTTP request.</param>
+        /// <param name="UsersAPI">The UsersAPI.</param>
+        /// <param name="NewsBannerId">The parsed unique news posting identification.</param>
+        /// <param name="NewsBanner">The resolved News.</param>
+        /// <param name="HTTPResponse">A HTTP error response.</param>
+        /// <returns>True, when News identification was found; false else.</returns>
+        public static Boolean ParseNewsBanner(this HTTPRequest          HTTPRequest,
+                                              UsersAPI                  UsersAPI,
+                                              out NewsBanner_Id?        NewsBannerId,
+                                              out NewsBanner            NewsBanner,
+                                              out HTTPResponse.Builder  HTTPResponse)
+        {
+
+            #region Initial checks
+
+            if (HTTPRequest == null)
+                throw new ArgumentNullException(nameof(HTTPRequest),  "The given HTTP request must not be null!");
+
+            if (UsersAPI     == null)
+                throw new ArgumentNullException(nameof(UsersAPI),     "The given UsersAPI must not be null!");
+
+            #endregion
+
+            NewsBannerId  = null;
+            NewsBanner    = null;
+            HTTPResponse   = null;
+
+            if (HTTPRequest.ParsedURLParameters.Length < 1) {
+
+                HTTPResponse = new HTTPResponse.Builder(HTTPRequest) {
+                    HTTPStatusCode  = HTTPStatusCode.BadRequest,
+                    Server          = UsersAPI.HTTPServer.DefaultServerName,
+                    Date            = DateTime.UtcNow,
+                    Connection      = "close"
+                };
+
+                return false;
+
+            }
+
+            NewsBannerId = NewsBanner_Id.TryParse(HTTPRequest.ParsedURLParameters[0]);
+
+            if (!NewsBannerId.HasValue) {
+
+                HTTPResponse = new HTTPResponse.Builder(HTTPRequest) {
+                    HTTPStatusCode  = HTTPStatusCode.BadRequest,
+                    Server          = UsersAPI.HTTPServer.DefaultServerName,
+                    Date            = DateTime.UtcNow,
+                    ContentType     = HTTPContentType.JSON_UTF8,
+                    Content         = @"{ ""description"": ""Invalid NewsId!"" }".ToUTF8Bytes(),
+                    Connection      = "close"
+                };
+
+                return false;
+
+            }
+
+            if (!UsersAPI.TryGetNewsBanner(NewsBannerId.Value, out NewsBanner)) {
 
                 HTTPResponse = new HTTPResponse.Builder(HTTPRequest) {
                     HTTPStatusCode  = HTTPStatusCode.NotFound,
@@ -805,7 +960,7 @@ namespace social.OpenData.UsersAPI
         private static readonly SemaphoreSlim  DashboardsSemaphore             = new SemaphoreSlim(1, 1);
         private static readonly SemaphoreSlim  NewsPostingsSemaphore           = new SemaphoreSlim(1, 1);
         private static readonly SemaphoreSlim  NewsBannersSemaphore            = new SemaphoreSlim(1, 1);
-        private static readonly SemaphoreSlim  FAQSemaphore                    = new SemaphoreSlim(1, 1);
+        private static readonly SemaphoreSlim  FAQsSemaphore                   = new SemaphoreSlim(1, 1);
 
         /// <summary>
         /// The HTTP root for embedded ressources.
@@ -882,7 +1037,7 @@ namespace social.OpenData.UsersAPI
         #region (static) NotificationMessageTypes
 
         public static NotificationMessageType addServiceTicket_MessageType             = NotificationMessageType.Parse("addServiceTicket");
-        public static NotificationMessageType addIfNotExistsServiceTicket_MessageType  = NotificationMessageType.Parse("addIfNotExistsServiceTicket");
+        public static NotificationMessageType addServiceTicketIfNotExists_MessageType  = NotificationMessageType.Parse("addServiceTicketIfNotExists");
         public static NotificationMessageType addOrUpdateServiceTicket_MessageType     = NotificationMessageType.Parse("addOrUpdateServiceTicket");
         public static NotificationMessageType updateServiceTicket_MessageType          = NotificationMessageType.Parse("updateServiceTicket");
         public static NotificationMessageType removeServiceTicket_MessageType          = NotificationMessageType.Parse("removeServiceTicket");
@@ -893,19 +1048,15 @@ namespace social.OpenData.UsersAPI
         public static NotificationMessageType addOrUpdateNewsPosting_MessageType       = NotificationMessageType.Parse("addOrUpdateNewsPosting");
         public static NotificationMessageType updateNewsPosting_MessageType            = NotificationMessageType.Parse("updateNewsPosting");
         public static NotificationMessageType removeNewsPosting_MessageType            = NotificationMessageType.Parse("removeNewsPosting");
-        public static NotificationMessageType changeNewsAdminStatus_MessageType        = NotificationMessageType.Parse("changeNewsPostingAdminStatus");
-        public static NotificationMessageType changeNewsStatus_MessageType             = NotificationMessageType.Parse("changeNewsPostingStatus");
 
         public static NotificationMessageType addNewsBanner_MessageType                = NotificationMessageType.Parse("addNewsBanner");
         public static NotificationMessageType addNewsBannerIfNotExists_MessageType     = NotificationMessageType.Parse("addNewsBannerIfNotExists");
         public static NotificationMessageType addOrUpdateNewsBanner_MessageType        = NotificationMessageType.Parse("addOrUpdateNewsBanner");
         public static NotificationMessageType updateNewsBanner_MessageType             = NotificationMessageType.Parse("updateNewsBanner");
         public static NotificationMessageType removeNewsBanner_MessageType             = NotificationMessageType.Parse("removeNewsBanner");
-        public static NotificationMessageType changeNewsAdminStatus_MessageType        = NotificationMessageType.Parse("changeNewsBannerAdminStatus");
-        public static NotificationMessageType changeNewsStatus_MessageType             = NotificationMessageType.Parse("changeNewsBannerStatus");
 
         public static NotificationMessageType addFAQ_MessageType                       = NotificationMessageType.Parse("addFAQ");
-        public static NotificationMessageType addIfNotExistsFAQ_MessageType            = NotificationMessageType.Parse("addIfNotExistsFAQ");
+        public static NotificationMessageType addFAQIfNotExists_MessageType            = NotificationMessageType.Parse("addFAQIfNotExists");
         public static NotificationMessageType addOrUpdateFAQ_MessageType               = NotificationMessageType.Parse("addOrUpdateFAQ");
         public static NotificationMessageType updateFAQ_MessageType                    = NotificationMessageType.Parse("updateFAQ");
         public static NotificationMessageType removeFAQ_MessageType                    = NotificationMessageType.Parse("removeFAQ");
@@ -2511,10 +2662,11 @@ namespace social.OpenData.UsersAPI
             this._OrganizationGroups          = new Dictionary<OrganizationGroup_Id,       OrganizationGroup>();
             this._Messages                    = new Dictionary<Message_Id,                 Message>();
             this._ServiceTickets              = new ConcurrentDictionary<ServiceTicket_Id, ServiceTicket>();
-            this._NewsPostings                        = new Dictionary<NewsPosting_Id,                    NewsPosting>();
-            this._FAQ                         = new Dictionary<FAQ_Id,                     FAQ>();
+            this._NewsPostings                = new Dictionary<NewsPosting_Id,             NewsPosting>();
+            this._NewsBanners                 = new Dictionary<NewsBanner_Id,              NewsBanner>();
+            this._FAQs                         = new Dictionary<FAQ_Id,                     FAQ>();
 
-            this._LoginPasswords              = new Dictionary<User_Id,         LoginPassword>();
+            this._LoginPasswords              = new Dictionary<User_Id,                    LoginPassword>();
             this._VerificationTokens          = new List<VerificationToken>();
 
             this._DNSClient                   = HTTPServer.DNSClient;
@@ -3596,7 +3748,7 @@ namespace social.OpenData.UsersAPI
                                                   NotificationVisibility.Customers,
                                                   new NotificationMessageDescription[] {
                                                       new NotificationMessageDescription(I18NString.Create(Languages.en, "(New) service ticket added"),                  I18NString.Create(Languages.en, ""), NotificationVisibility.Customers,  addServiceTicket_MessageType),
-                                                      new NotificationMessageDescription(I18NString.Create(Languages.en, "(New) service ticket added (did not exist)"),  I18NString.Create(Languages.en, ""), NotificationVisibility.System,     addIfNotExistsServiceTicket_MessageType),
+                                                      new NotificationMessageDescription(I18NString.Create(Languages.en, "(New) service ticket added (did not exist)"),  I18NString.Create(Languages.en, ""), NotificationVisibility.System,     addServiceTicketIfNotExists_MessageType),
                                                       new NotificationMessageDescription(I18NString.Create(Languages.en, "(New) service ticket added or updated"),       I18NString.Create(Languages.en, ""), NotificationVisibility.System,     addOrUpdateServiceTicket_MessageType),
                                                       new NotificationMessageDescription(I18NString.Create(Languages.en, "ServiceTicket updated"),                       I18NString.Create(Languages.en, ""), NotificationVisibility.Customers,  updateServiceTicket_MessageType),
                                                       new NotificationMessageDescription(I18NString.Create(Languages.en, "ServiceTicket removed"),                       I18NString.Create(Languages.en, ""), NotificationVisibility.Customers,  removeServiceTicket_MessageType),
@@ -10275,9 +10427,10 @@ namespace social.OpenData.UsersAPI
 
 
                                              var withMetadata        = Request.QueryString.GetBoolean    ("withMetadata", false);
-                                             var includeFilter       = Request.QueryString.CreateStringFilter<NewsPosting>("include",
-                                                                                                                    (news, include) => news.Headline.Matches(include, IgnoreCase: true) ||
-                                                                                                                                       news.Text.    Matches(include, IgnoreCase: true));
+                                             var matchFilter         = Request.QueryString.CreateStringFilter<NewsPosting>("match",
+                                                                                                                           (newsPosting, pattern) => newsPosting.Id.ToString().Contains(pattern) ||
+                                                                                                                                                     newsPosting.Headline.Matches(pattern, IgnoreCase: true) ||
+                                                                                                                                                     newsPosting.Text.    Matches(pattern, IgnoreCase: true));
 
                                              var from                = Request.QueryString.TryGetDateTime("from");
                                              var to                  = Request.QueryString.TryGetDateTime("to");
@@ -10287,9 +10440,8 @@ namespace social.OpenData.UsersAPI
                                              var includeCryptoHash   = Request.QueryString.GetBoolean    ("includeCryptoHash", true);
 
                                              var expand              = Request.QueryString.GetStrings    ("expand");
-                                             var expandTags          = expand.ContainsIgnoreCase("tags")         ? InfoStatus.Expanded : InfoStatus.ShowIdOnly;
-                                             var expandDataLicenses  = expand.ContainsIgnoreCase("dataLicenses") ? InfoStatus.Expanded : InfoStatus.ShowIdOnly;
-                                             var expandOwnerId       = expand.ContainsIgnoreCase("ownerId")      ? InfoStatus.Expanded : InfoStatus.ShowIdOnly;
+                                             var expandTags          = expand.ContainsIgnoreCase("tags")     ? InfoStatus.Expanded : InfoStatus.ShowIdOnly;
+                                             var expandAuthorId      = expand.ContainsIgnoreCase("authorId") ? InfoStatus.Expanded : InfoStatus.ShowIdOnly;
 
                                              var now                 = DateTime.UtcNow;
 
@@ -10301,7 +10453,7 @@ namespace social.OpenData.UsersAPI
                                              var filteredNews        = allNews.
                                                                            Where(posting => !from.HasValue || posting.PublicationDate >= from.Value).
                                                                            Where(posting => !to.  HasValue || posting.PublicationDate <  to.  Value).
-                                                                           Where(includeFilter).
+                                                                           Where(matchFilter).
                                                                            ToArray();
                                              var filteredCount       = filteredNews.ULongCount();
 
@@ -10311,8 +10463,7 @@ namespace social.OpenData.UsersAPI
                                                                                   take,
                                                                                   false, //Embedded
                                                                                   expandTags,
-                                                                                  expandDataLicenses,
-                                                                                  expandOwnerId,
+                                                                                  expandAuthorId,
                                                                                   GetNewsPostingSerializator(Request, HTTPUser),
                                                                                   includeCryptoHash);
 
@@ -10420,161 +10571,6 @@ namespace social.OpenData.UsersAPI
 
             #endregion
 
-            #region SEARCH      ~/newsPostings
-
-            // --------------------------------------------------------------------------------------
-            // curl -v -X SEARCH -H "Accept: application/json" http://127.0.0.1:3001/newsPostings
-            // --------------------------------------------------------------------------------------
-            HTTPServer.AddMethodCallback(Hostname,
-                                         HTTPMethod.SEARCH,
-                                         URLPathPrefix + "newsPostings",
-                                         HTTPContentType.JSON_UTF8,
-                                         HTTPDelegate: Request => {
-
-                                             #region Get HTTP user and its organizations
-
-                                             // Will return HTTP 401 Unauthorized, when the HTTP user is unknown!
-                                             if (!TryGetHTTPUser(Request,
-                                                                 out User                   HTTPUser,
-                                                                 out HashSet<Organization>  HTTPOrganizations,
-                                                                 out HTTPResponse.Builder   Response,
-                                                                 Recursive:                 true))
-                                             {
-                                                 return Task.FromResult(Response.AsImmutable);
-                                             }
-
-                                             #endregion
-
-                                             #region Parse search center from JSON...
-
-                                             var SearchCenter    = new GeoCoordinate?();
-                                             var Radius          = new Double?();
-                                             var DistanceMetric  = DistanceMetricTypes.air;
-
-                                             if (Request.TryParseJObjectRequestBody(out JObject JSONObj, out Response))
-                                             {
-
-                                                 if (!JSONObj.ParseMandatoryEnum("lat",
-                                                                             "latitude of the search center",
-                                                                             HTTPServer.DefaultServerName,
-                                                                             out Latitude _Latitude,
-                                                                             Request,
-                                                                             out HTTPResponse.Builder ErrorResponse))
-
-                                                     return Task.FromResult(ErrorResponse.AsImmutable);
-
-                                                 if (!JSONObj.ParseMandatoryEnum("lng",
-                                                                             "longitude of the search center",
-                                                                             HTTPServer.DefaultServerName,
-                                                                             out Longitude _Longitude,
-                                                                             Request,
-                                                                             out ErrorResponse))
-
-                                                     return Task.FromResult(ErrorResponse.AsImmutable);
-
-                                                 if (!JSONObj.ParseMandatory("radius",
-                                                                             "search radius",
-                                                                             HTTPServer.DefaultServerName,
-                                                                             out Double _Radius,
-                                                                             Request,
-                                                                             out ErrorResponse))
-
-                                                     return Task.FromResult(ErrorResponse.AsImmutable);
-
-                                                 if (!JSONObj.ParseMandatoryEnum("distanceMetric",
-                                                                             "distance metric",
-                                                                             HTTPServer.DefaultServerName,
-                                                                             out DistanceMetric,
-                                                                             Request,
-                                                                             out ErrorResponse))
-
-                                                     return Task.FromResult(ErrorResponse.AsImmutable);
-
-
-                                                 SearchCenter  = GeoCoordinate.Create(_Latitude, _Longitude);
-                                                 Radius        = _Radius;
-
-                                             }
-
-                                             #endregion
-
-                                             #region ...or parse search center from HTTP query string
-
-                                             else
-                                             {
-
-                                                 SearchCenter    = GeoCoordinate.Create(
-                                                                                     Request.QueryString.Map("lat", Latitude.TryParse),
-                                                                                     Request.QueryString.Map("lng", Longitude.TryParse)
-                                                                                 );
-
-                                                 Radius          = Request.QueryString.GetDouble("radius");
-                                                 DistanceMetric  = Request.QueryString.ParseEnum("distanceMetric", DistanceMetricTypes.air);
-
-                                             }
-
-                                             #endregion
-
-                                             #region Fail, when no search center and no radius was given...
-
-                                             if (!SearchCenter.HasValue || !Radius.HasValue)
-                                             {
-
-                                                 return Task.FromResult(
-                                                     new HTTPResponse.Builder(Request) {
-                                                         HTTPStatusCode             = HTTPStatusCode.BadRequest,
-                                                         Server                     = HTTPServer.DefaultServerName,
-                                                         Date                       = DateTime.UtcNow,
-                                                         AccessControlAllowOrigin   = "*",
-                                                         AccessControlAllowMethods  = "GET, COUNT, SEARCH, OPTIONS",
-                                                         AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
-                                                     }.AsImmutable);
-
-                                             }
-
-                                             #endregion
-
-
-                                             var skip                = Request.QueryString.GetUInt64("skip");
-                                             var take                = Request.QueryString.GetUInt64("take");
-
-                                             var includeCryptoHash   = Request.QueryString.GetBoolean("includeCryptoHash", true);
-
-                                             var expand              = Request.QueryString.GetStrings("expand");
-                                             var expandTags          = expand.ContainsIgnoreCase("tags")         ? InfoStatus.Expanded : InfoStatus.ShowIdOnly;
-                                             var expandDataLicenses  = expand.ContainsIgnoreCase("dataLicenses") ? InfoStatus.Expanded : InfoStatus.ShowIdOnly;
-                                             var expandOwnerId       = expand.ContainsIgnoreCase("ownerId")      ? InfoStatus.Expanded : InfoStatus.ShowIdOnly;
-
-                                             return Task.FromResult(
-                                                     new HTTPResponse.Builder(Request) {
-                                                         HTTPStatusCode             = HTTPStatusCode.OK,
-                                                         Server                     = HTTPServer.DefaultServerName,
-                                                         Date                       = DateTime.UtcNow,
-                                                         AccessControlAllowOrigin   = "*",
-                                                         AccessControlAllowMethods  = "GET, COUNT, SEARCH, OPTIONS",
-                                                         AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
-                                                         ContentType                = HTTPContentType.JSON_UTF8,
-                                                         Content                    = _NewsPostings.Values.//Where(News => HTTPOrganizations.Contains(News.Owner)).
-                                                                                           GeoFilter(SearchCenter.Value,
-                                                                                                     Radius.Value / 1000,
-                                                                                                     skip,
-                                                                                                     take).
-                                                                                                 ToJSON(skip,
-                                                                                                        take,
-                                                                                                        false, //Embedded
-                                                                                                        expandTags,
-                                                                                                        expandDataLicenses,
-                                                                                                        expandOwnerId,
-                                                                                                        GetNewsPostingSerializator(Request, HTTPUser),
-                                                                                                        includeCryptoHash).
-                                                                                           ToUTF8Bytes(),
-                                                         Connection = "close"
-                                                     }.AsImmutable);
-
-                                         });
-
-            #endregion
-
 
             #region OPTIONS          ~/newsPostings/{postingId}
 
@@ -10614,12 +10610,12 @@ namespace social.OpenData.UsersAPI
                                          HTTPContentType.JSON_UTF8,
                                          HTTPDelegate: Request => {
 
-                                             #region Check NewsId URI parameter
+                                             #region Check NewsPostingId URI parameter
 
-                                             if (!Request.ParseNews(this,
-                                                                    out NewsPosting_Id?              NewsId,
-                                                                    out NewsPosting                  News,
-                                                                    out HTTPResponse.Builder  HTTPResponse))
+                                             if (!Request.ParseNewsPosting(this,
+                                                                           out NewsPosting_Id?       NewsPostingId,
+                                                                           out NewsPosting           NewsPosting,
+                                                                           out HTTPResponse.Builder  HTTPResponse))
                                              {
                                                  return Task.FromResult(HTTPResponse.AsImmutable);
                                              }
@@ -10640,48 +10636,30 @@ namespace social.OpenData.UsersAPI
 
                                              #endregion
 
-                                             var includeCryptoHash   = Request.QueryString.GetBoolean("includeCryptoHash", true);
 
-                                             var expand              = Request.QueryString.GetStrings("expand");
-                                             var expandTags          = expand.ContainsIgnoreCase("tags")         ? InfoStatus.Expanded : InfoStatus.ShowIdOnly;
-                                             var expandDataLicenses  = expand.ContainsIgnoreCase("dataLicenses") ? InfoStatus.Expanded : InfoStatus.ShowIdOnly;
-                                             var expandOwnerId       = expand.ContainsIgnoreCase("ownerId")      ? InfoStatus.Expanded : InfoStatus.ShowIdOnly;
+                                             var expand             = Request.QueryString.GetStrings("expand");
+                                             var expandTags         = expand.ContainsIgnoreCase("tags")     ? InfoStatus.Expanded : InfoStatus.ShowIdOnly;
+                                             var expandAuthorId     = expand.ContainsIgnoreCase("authorId") ? InfoStatus.Expanded : InfoStatus.ShowIdOnly;
 
                                              return Task.FromResult(
-                                                        HTTPOrganizations.Contains(News.Owner) ||
-                                                        Admins.InEdges(HTTPUser).Any(edgelabel => edgelabel == User2GroupEdgeTypes.IsAdmin)
-
-                                                            ? new HTTPResponse.Builder(Request) {
-                                                                HTTPStatusCode             = HTTPStatusCode.OK,
-                                                                Server                     = HTTPServer.DefaultServerName,
-                                                                Date                       = DateTime.UtcNow,
-                                                                AccessControlAllowOrigin   = "*",
-                                                                AccessControlAllowMethods  = "GET, SET",
-                                                                AccessControlAllowHeaders  = "X-PINGOTHER, Content-Type, Accept, Authorization, X-App-Version",
-                                                                ETag                       = "1",
-                                                                ContentType                = HTTPContentType.JSON_UTF8,
-                                                                Content                    = GetNewsPostingSerializator(Request, HTTPUser)
-                                                                                                                (News,
-                                                                                                                 false, //Embedded
-                                                                                                                 expandTags,
-                                                                                                                 expandDataLicenses,
-                                                                                                                 expandOwnerId,
-                                                                                                                 includeCryptoHash).
-                                                                                                             ToUTF8Bytes(),
-                                                                Connection                 = "close",
-                                                                Vary                       = "Accept"
-                                                            }.AsImmutable
-
-                                                            : new HTTPResponse.Builder(Request) {
-                                                                HTTPStatusCode             = HTTPStatusCode.Unauthorized,
-                                                                Server                     = HTTPServer.DefaultServerName,
-                                                                Date                       = DateTime.UtcNow,
-                                                                AccessControlAllowOrigin   = "*",
-                                                                AccessControlAllowMethods  = "GET, SET",
-                                                                AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
-                                                                Connection                 = "close",
-                                                                Vary                       = "Accept"
-                                                            }.AsImmutable);
+                                                        new HTTPResponse.Builder(Request) {
+                                                            HTTPStatusCode             = HTTPStatusCode.OK,
+                                                            Server                     = HTTPServer.DefaultServerName,
+                                                            Date                       = DateTime.UtcNow,
+                                                            AccessControlAllowOrigin   = "*",
+                                                            AccessControlAllowMethods  = "GET, SET",
+                                                            AccessControlAllowHeaders  = "X-PINGOTHER, Content-Type, Accept, Authorization, X-App-Version",
+                                                            ETag                       = "1",
+                                                            ContentType                = HTTPContentType.JSON_UTF8,
+                                                            Content                    = GetNewsPostingSerializator(Request, HTTPUser)
+                                                                                                            (NewsPosting,
+                                                                                                             false, //Embedded
+                                                                                                             expandTags,
+                                                                                                             expandAuthorId).
+                                                                                                         ToUTF8Bytes(),
+                                                            Connection                 = "close",
+                                                            Vary                       = "Accept"
+                                                        }.AsImmutable);
 
                                          });
 
@@ -10712,49 +10690,32 @@ namespace social.OpenData.UsersAPI
 
                                              #endregion
 
-                                             #region Check NewsId URI parameter
+                                             #region Check NewsPostingId URI parameter
 
-                                             if (!Request.ParseNews(this,
-                                                                             out NewsPosting_Id?              NewsId,
-                                                                             out NewsPosting                  News,
-                                                                             out HTTPResponse.Builder  HTTPResponse))
+                                             if (!Request.ParseNewsPosting(this,
+                                                                           out NewsPosting_Id?       NewsPostingId,
+                                                                           out NewsPosting           NewsPosting,
+                                                                           out HTTPResponse.Builder  HTTPResponse))
                                              {
                                                  return Task.FromResult(HTTPResponse.AsImmutable);
                                              }
 
                                              #endregion
 
-                                             if (HTTPOrganizations.Contains(News.Owner) ||
-                                                 Admins.InEdges(HTTPUser).Any(edgelabel => edgelabel == User2GroupEdgeTypes.IsAdmin))
-                                             {
-
-                                                 return Task.FromResult(
-                                                     new HTTPResponse.Builder(Request) {
-                                                         HTTPStatusCode             = HTTPStatusCode.OK,
-                                                         Server                     = HTTPServer.DefaultServerName,
-                                                         Date                       = DateTime.UtcNow,
-                                                         AccessControlAllowOrigin   = "*",
-                                                         AccessControlAllowMethods  = "GET",
-                                                         AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
-                                                         ContentType                = HTTPContentType.HTML_UTF8,
-                                                         Content                    = MixWithHTMLTemplate("News.News.shtml").ToUTF8Bytes(),
-                                                         Connection                 = "close",
-                                                         Vary                       = "Accept"
-                                                     }.AsImmutable);
-
-                                             }
 
                                              return Task.FromResult(
-                                                        new HTTPResponse.Builder(Request) {
-                                                            HTTPStatusCode             = HTTPStatusCode.Unauthorized,
-                                                            Server                     = HTTPServer.DefaultServerName,
-                                                            Date                       = DateTime.UtcNow,
-                                                            AccessControlAllowOrigin   = "*",
-                                                            AccessControlAllowMethods  = "GET",
-                                                            AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
-                                                            Connection                 = "close",
-                                                            Vary                       = "Accept"
-                                                        }.AsImmutable);
+                                                 new HTTPResponse.Builder(Request) {
+                                                     HTTPStatusCode             = HTTPStatusCode.OK,
+                                                     Server                     = HTTPServer.DefaultServerName,
+                                                     Date                       = DateTime.UtcNow,
+                                                     AccessControlAllowOrigin   = "*",
+                                                     AccessControlAllowMethods  = "GET",
+                                                     AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
+                                                     ContentType                = HTTPContentType.HTML_UTF8,
+                                                     Content                    = MixWithHTMLTemplate("News.News.shtml").ToUTF8Bytes(),
+                                                     Connection                 = "close",
+                                                     Vary                       = "Accept"
+                                                 }.AsImmutable);
 
                                          });
 
@@ -10816,9 +10777,9 @@ namespace social.OpenData.UsersAPI
 
 
                                              var withMetadata        = Request.QueryString.GetBoolean    ("withMetadata", false);
-                                             var includeFilter       = Request.QueryString.CreateStringFilter<NewsBanner>("include",
-                                                                                                                    (news, include) => news.Headline.Matches(include, IgnoreCase: true) ||
-                                                                                                                                       news.Text.    Matches(include, IgnoreCase: true));
+                                             var matchFilter         = Request.QueryString.CreateStringFilter<NewsBanner>("match",
+                                                                                                                          (newsBanner, pattern) => newsBanner.Id.ToString().Contains(pattern) ||
+                                                                                                                                                   newsBanner.Text.Matches(pattern, IgnoreCase: true));
 
                                              var from                = Request.QueryString.TryGetDateTime("from");
                                              var to                  = Request.QueryString.TryGetDateTime("to");
@@ -10835,24 +10796,22 @@ namespace social.OpenData.UsersAPI
                                              var now                 = DateTime.UtcNow;
 
                                              var allNews             = _NewsBanners.Values.
-                                                                           Where(posting => posting.PublicationDate <= now).
                                                                            ToArray();
                                              var totalCount          = _NewsBanners.ULongCount();
 
                                              var filteredNews        = allNews.
-                                                                           Where(posting => !from.HasValue || posting.PublicationDate >= from.Value).
-                                                                           Where(posting => !to.  HasValue || posting.PublicationDate <  to.  Value).
-                                                                           Where(includeFilter).
+                                                                           Where(matchFilter).
+                                                                           Where(banner => !from.HasValue || banner.StartTimestamp >= from.Value).
+                                                                           Where(banner => !to.  HasValue || banner.EndTimestamp   <  to.  Value).
                                                                            ToArray();
                                              var filteredCount       = filteredNews.ULongCount();
 
                                              var JSONResults         = filteredNews.
-                                                                           OrderByDescending(posting => posting.PublicationDate).
+                                                                           OrderByDescending(banner => banner.StartTimestamp).
                                                                            ToJSON(skip,
                                                                                   take,
                                                                                   false, //Embedded
                                                                                   expandTags,
-                                                                                  expandDataLicenses,
                                                                                   expandOwnerId,
                                                                                   GetNewsBannerSerializator(Request, HTTPUser),
                                                                                   includeCryptoHash);
@@ -10871,7 +10830,7 @@ namespace social.OpenData.UsersAPI
                                                                                                 ? JSONObject.Create(
                                                                                                       new JProperty("totalCount",     totalCount),
                                                                                                       new JProperty("filteredCount",  filteredCount),
-                                                                                                      new JProperty("newsBanners",   JSONResults)
+                                                                                                      new JProperty("newsBanners",    JSONResults)
                                                                                                   ).ToUTF8Bytes()
                                                                                                 : JSONResults.ToUTF8Bytes(),
                                                             X_ExpectedTotalNumberOfItems  = filteredCount,
@@ -10952,7 +10911,7 @@ namespace social.OpenData.UsersAPI
                                                             ContentType                   = HTTPContentType.JSON_UTF8,
                                                             Content                       = JSONObject.Create(
                                                                                                 new JProperty("count",
-                                                                                                              _NewsBanners.Values.ULongCount(news => !since.HasValue || news.PublicationDate >= since.Value))
+                                                                                                              _NewsBanners.Values.ULongCount(news => !since.HasValue || news.StartTimestamp >= since.Value))
                                                                                             ).ToUTF8Bytes(),
                                                             Connection                    = "close"
                                                      }.AsImmutable);
@@ -10961,170 +10920,15 @@ namespace social.OpenData.UsersAPI
 
             #endregion
 
-            #region SEARCH      ~/newsBanners
 
-            // --------------------------------------------------------------------------------------
-            // curl -v -X SEARCH -H "Accept: application/json" http://127.0.0.1:3001/newsBanners
-            // --------------------------------------------------------------------------------------
-            HTTPServer.AddMethodCallback(Hostname,
-                                         HTTPMethod.SEARCH,
-                                         URLPathPrefix + "newsBanners",
-                                         HTTPContentType.JSON_UTF8,
-                                         HTTPDelegate: Request => {
-
-                                             #region Get HTTP user and its organizations
-
-                                             // Will return HTTP 401 Unauthorized, when the HTTP user is unknown!
-                                             if (!TryGetHTTPUser(Request,
-                                                                 out User                   HTTPUser,
-                                                                 out HashSet<Organization>  HTTPOrganizations,
-                                                                 out HTTPResponse.Builder   Response,
-                                                                 Recursive:                 true))
-                                             {
-                                                 return Task.FromResult(Response.AsImmutable);
-                                             }
-
-                                             #endregion
-
-                                             #region Parse search center from JSON...
-
-                                             var SearchCenter    = new GeoCoordinate?();
-                                             var Radius          = new Double?();
-                                             var DistanceMetric  = DistanceMetricTypes.air;
-
-                                             if (Request.TryParseJObjectRequestBody(out JObject JSONObj, out Response))
-                                             {
-
-                                                 if (!JSONObj.ParseMandatoryEnum("lat",
-                                                                             "latitude of the search center",
-                                                                             HTTPServer.DefaultServerName,
-                                                                             out Latitude _Latitude,
-                                                                             Request,
-                                                                             out HTTPResponse.Builder ErrorResponse))
-
-                                                     return Task.FromResult(ErrorResponse.AsImmutable);
-
-                                                 if (!JSONObj.ParseMandatoryEnum("lng",
-                                                                             "longitude of the search center",
-                                                                             HTTPServer.DefaultServerName,
-                                                                             out Longitude _Longitude,
-                                                                             Request,
-                                                                             out ErrorResponse))
-
-                                                     return Task.FromResult(ErrorResponse.AsImmutable);
-
-                                                 if (!JSONObj.ParseMandatory("radius",
-                                                                             "search radius",
-                                                                             HTTPServer.DefaultServerName,
-                                                                             out Double _Radius,
-                                                                             Request,
-                                                                             out ErrorResponse))
-
-                                                     return Task.FromResult(ErrorResponse.AsImmutable);
-
-                                                 if (!JSONObj.ParseMandatoryEnum("distanceMetric",
-                                                                             "distance metric",
-                                                                             HTTPServer.DefaultServerName,
-                                                                             out DistanceMetric,
-                                                                             Request,
-                                                                             out ErrorResponse))
-
-                                                     return Task.FromResult(ErrorResponse.AsImmutable);
-
-
-                                                 SearchCenter  = GeoCoordinate.Create(_Latitude, _Longitude);
-                                                 Radius        = _Radius;
-
-                                             }
-
-                                             #endregion
-
-                                             #region ...or parse search center from HTTP query string
-
-                                             else
-                                             {
-
-                                                 SearchCenter    = GeoCoordinate.Create(
-                                                                                     Request.QueryString.Map("lat", Latitude.TryParse),
-                                                                                     Request.QueryString.Map("lng", Longitude.TryParse)
-                                                                                 );
-
-                                                 Radius          = Request.QueryString.GetDouble("radius");
-                                                 DistanceMetric  = Request.QueryString.ParseEnum("distanceMetric", DistanceMetricTypes.air);
-
-                                             }
-
-                                             #endregion
-
-                                             #region Fail, when no search center and no radius was given...
-
-                                             if (!SearchCenter.HasValue || !Radius.HasValue)
-                                             {
-
-                                                 return Task.FromResult(
-                                                     new HTTPResponse.Builder(Request) {
-                                                         HTTPStatusCode             = HTTPStatusCode.BadRequest,
-                                                         Server                     = HTTPServer.DefaultServerName,
-                                                         Date                       = DateTime.UtcNow,
-                                                         AccessControlAllowOrigin   = "*",
-                                                         AccessControlAllowMethods  = "GET, COUNT, SEARCH, OPTIONS",
-                                                         AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
-                                                     }.AsImmutable);
-
-                                             }
-
-                                             #endregion
-
-
-                                             var skip                = Request.QueryString.GetUInt64("skip");
-                                             var take                = Request.QueryString.GetUInt64("take");
-
-                                             var includeCryptoHash   = Request.QueryString.GetBoolean("includeCryptoHash", true);
-
-                                             var expand              = Request.QueryString.GetStrings("expand");
-                                             var expandTags          = expand.ContainsIgnoreCase("tags")         ? InfoStatus.Expanded : InfoStatus.ShowIdOnly;
-                                             var expandDataLicenses  = expand.ContainsIgnoreCase("dataLicenses") ? InfoStatus.Expanded : InfoStatus.ShowIdOnly;
-                                             var expandOwnerId       = expand.ContainsIgnoreCase("ownerId")      ? InfoStatus.Expanded : InfoStatus.ShowIdOnly;
-
-                                             return Task.FromResult(
-                                                     new HTTPResponse.Builder(Request) {
-                                                         HTTPStatusCode             = HTTPStatusCode.OK,
-                                                         Server                     = HTTPServer.DefaultServerName,
-                                                         Date                       = DateTime.UtcNow,
-                                                         AccessControlAllowOrigin   = "*",
-                                                         AccessControlAllowMethods  = "GET, COUNT, SEARCH, OPTIONS",
-                                                         AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
-                                                         ContentType                = HTTPContentType.JSON_UTF8,
-                                                         Content                    = _NewsBanners.Values.//Where(News => HTTPOrganizations.Contains(News.Owner)).
-                                                                                           GeoFilter(SearchCenter.Value,
-                                                                                                     Radius.Value / 1000,
-                                                                                                     skip,
-                                                                                                     take).
-                                                                                                 ToJSON(skip,
-                                                                                                        take,
-                                                                                                        false, //Embedded
-                                                                                                        expandTags,
-                                                                                                        expandDataLicenses,
-                                                                                                        expandOwnerId,
-                                                                                                        GetNewsBannerSerializator(Request, HTTPUser),
-                                                                                                        includeCryptoHash).
-                                                                                           ToUTF8Bytes(),
-                                                         Connection = "close"
-                                                     }.AsImmutable);
-
-                                         });
-
-            #endregion
-
-
-            #region OPTIONS          ~/newsBanners/{postingId}
+            #region OPTIONS          ~/newsBanners/{bannerId}
 
             // -------------------------------------------------------------------
             // curl -X OPTIONS -v http://127.0.0.1:3001/newsBanners/214080158
             // -------------------------------------------------------------------
             HTTPServer.AddMethodCallback(Hostname,
                                          HTTPMethod.OPTIONS,
-                                         URLPathPrefix + "newsBanners/{postingId}",
+                                         URLPathPrefix + "newsBanners/{bannerId}",
                                          HTTPDelegate: Request => {
 
                                              return Task.FromResult(
@@ -11142,25 +10946,25 @@ namespace social.OpenData.UsersAPI
 
             #endregion
 
-            #region GET              ~/newsBanners/{postingId}
+            #region GET              ~/newsBanners/{bannerId}
 
             #region JSON
 
-            // --------------------------------------------------------------------------------------
+            // -----------------------------------------------------------------------------------
             // curl -v -H "Accept: application/json" http://127.0.0.1:3001/newsBanners/214080158
-            // --------------------------------------------------------------------------------------
+            // -----------------------------------------------------------------------------------
             HTTPServer.AddMethodCallback(Hostname,
                                          HTTPMethod.GET,
-                                         URLPathPrefix + "newsBanners/{postingId}",
+                                         URLPathPrefix + "newsBanners/{bannerId}",
                                          HTTPContentType.JSON_UTF8,
                                          HTTPDelegate: Request => {
 
                                              #region Check NewsId URI parameter
 
-                                             if (!Request.ParseNews(this,
-                                                                    out NewsBanner_Id?              NewsId,
-                                                                    out NewsBanner                  News,
-                                                                    out HTTPResponse.Builder  HTTPResponse))
+                                             if (!Request.ParseNewsBanner(this,
+                                                                          out NewsBanner_Id?        NewsBannerId,
+                                                                          out NewsBanner            NewsBanner,
+                                                                          out HTTPResponse.Builder  HTTPResponse))
                                              {
                                                  return Task.FromResult(HTTPResponse.AsImmutable);
                                              }
@@ -11185,14 +10989,10 @@ namespace social.OpenData.UsersAPI
 
                                              var expand              = Request.QueryString.GetStrings("expand");
                                              var expandTags          = expand.ContainsIgnoreCase("tags")         ? InfoStatus.Expanded : InfoStatus.ShowIdOnly;
-                                             var expandDataLicenses  = expand.ContainsIgnoreCase("dataLicenses") ? InfoStatus.Expanded : InfoStatus.ShowIdOnly;
                                              var expandOwnerId       = expand.ContainsIgnoreCase("ownerId")      ? InfoStatus.Expanded : InfoStatus.ShowIdOnly;
 
                                              return Task.FromResult(
-                                                        HTTPOrganizations.Contains(News.Owner) ||
-                                                        Admins.InEdges(HTTPUser).Any(edgelabel => edgelabel == User2GroupEdgeTypes.IsAdmin)
-
-                                                            ? new HTTPResponse.Builder(Request) {
+                                                       new HTTPResponse.Builder(Request) {
                                                                 HTTPStatusCode             = HTTPStatusCode.OK,
                                                                 Server                     = HTTPServer.DefaultServerName,
                                                                 Date                       = DateTime.UtcNow,
@@ -11202,24 +11002,12 @@ namespace social.OpenData.UsersAPI
                                                                 ETag                       = "1",
                                                                 ContentType                = HTTPContentType.JSON_UTF8,
                                                                 Content                    = GetNewsBannerSerializator(Request, HTTPUser)
-                                                                                                                (News,
-                                                                                                                 false, //Embedded
-                                                                                                                 expandTags,
-                                                                                                                 expandDataLicenses,
-                                                                                                                 expandOwnerId,
-                                                                                                                 includeCryptoHash).
-                                                                                                             ToUTF8Bytes(),
-                                                                Connection                 = "close",
-                                                                Vary                       = "Accept"
-                                                            }.AsImmutable
-
-                                                            : new HTTPResponse.Builder(Request) {
-                                                                HTTPStatusCode             = HTTPStatusCode.Unauthorized,
-                                                                Server                     = HTTPServer.DefaultServerName,
-                                                                Date                       = DateTime.UtcNow,
-                                                                AccessControlAllowOrigin   = "*",
-                                                                AccessControlAllowMethods  = "GET, SET",
-                                                                AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
+                                                                                                                       (NewsBanner,
+                                                                                                                        false, //Embedded
+                                                                                                                        expandTags,
+                                                                                                                        expandOwnerId,
+                                                                                                                        includeCryptoHash).
+                                                                                                                    ToUTF8Bytes(),
                                                                 Connection                 = "close",
                                                                 Vary                       = "Accept"
                                                             }.AsImmutable);
@@ -11235,7 +11023,7 @@ namespace social.OpenData.UsersAPI
             // --------------------------------------------------------------------------------------
             HTTPServer.AddMethodCallback(Hostname,
                                          HTTPMethod.GET,
-                                         URLPathPrefix + "newsBanners/{postingId}",
+                                         URLPathPrefix + "newsBanners/{bannerId}",
                                          HTTPContentType.HTML_UTF8,
                                          HTTPDelegate: Request => {
 
@@ -11253,21 +11041,18 @@ namespace social.OpenData.UsersAPI
 
                                              #endregion
 
-                                             #region Check NewsId URI parameter
+                                             #region Check NewsBannerId URI parameter
 
-                                             if (!Request.ParseNews(this,
-                                                                             out NewsBanner_Id?              NewsId,
-                                                                             out NewsBanner                  News,
-                                                                             out HTTPResponse.Builder  HTTPResponse))
+                                             if (!Request.ParseNewsBanner(this,
+                                                                          out NewsBanner_Id?        NewsBannerId,
+                                                                          out NewsBanner            NewsBanner,
+                                                                          out HTTPResponse.Builder  HTTPResponse))
                                              {
                                                  return Task.FromResult(HTTPResponse.AsImmutable);
                                              }
 
                                              #endregion
 
-                                             if (HTTPOrganizations.Contains(News.Owner) ||
-                                                 Admins.InEdges(HTTPUser).Any(edgelabel => edgelabel == User2GroupEdgeTypes.IsAdmin))
-                                             {
 
                                                  return Task.FromResult(
                                                      new HTTPResponse.Builder(Request) {
@@ -11283,19 +11068,6 @@ namespace social.OpenData.UsersAPI
                                                          Vary                       = "Accept"
                                                      }.AsImmutable);
 
-                                             }
-
-                                             return Task.FromResult(
-                                                        new HTTPResponse.Builder(Request) {
-                                                            HTTPStatusCode             = HTTPStatusCode.Unauthorized,
-                                                            Server                     = HTTPServer.DefaultServerName,
-                                                            Date                       = DateTime.UtcNow,
-                                                            AccessControlAllowOrigin   = "*",
-                                                            AccessControlAllowMethods  = "GET",
-                                                            AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
-                                                            Connection                 = "close",
-                                                            Vary                       = "Accept"
-                                                        }.AsImmutable);
 
                                          });
 
@@ -11357,9 +11129,10 @@ namespace social.OpenData.UsersAPI
 
 
                                              var withMetadata        = Request.QueryString.GetBoolean    ("withMetadata", false);
-                                             var includeFilter       = Request.QueryString.CreateStringFilter<FAQ>("include",
-                                                                                                                   (faq, include) => faq.Question.Matches(include, IgnoreCase: true) ||
-                                                                                                                                     faq.Answer.  Matches(include, IgnoreCase: true));
+                                             var matchFilter         = Request.QueryString.CreateStringFilter<FAQ>("match",
+                                                                                                                   (faq, pattern) => faq.Id.ToString().Contains(pattern) ||
+                                                                                                                                     faq.Question.Matches(pattern, IgnoreCase: true) ||
+                                                                                                                                     faq.Answer.  Matches(pattern, IgnoreCase: true));
 
                                              var from                = Request.QueryString.TryGetDateTime("from");
                                              var to                  = Request.QueryString.TryGetDateTime("to");
@@ -11369,21 +11142,20 @@ namespace social.OpenData.UsersAPI
                                              var includeCryptoHash   = Request.QueryString.GetBoolean    ("includeCryptoHash", true);
 
                                              var expand              = Request.QueryString.GetStrings    ("expand");
-                                             var expandTags          = expand.ContainsIgnoreCase("tags")         ? InfoStatus.Expanded : InfoStatus.ShowIdOnly;
-                                             var expandDataLicenses  = expand.ContainsIgnoreCase("dataLicenses") ? InfoStatus.Expanded : InfoStatus.ShowIdOnly;
-                                             var expandOwnerId       = expand.ContainsIgnoreCase("ownerId")      ? InfoStatus.Expanded : InfoStatus.ShowIdOnly;
+                                             var expandTags          = expand.ContainsIgnoreCase("tags")     ? InfoStatus.Expanded : InfoStatus.ShowIdOnly;
+                                             var expandAuthorId      = expand.ContainsIgnoreCase("authorId") ? InfoStatus.Expanded : InfoStatus.ShowIdOnly;
 
                                              var now                 = DateTime.UtcNow;
 
-                                             var allFAQs             = _FAQ.Values.
+                                             var allFAQs             = _FAQs.Values.
                                                                            Where(posting => posting.PublicationDate <= now).
                                                                            ToArray();
                                              var totalCount          = allFAQs.ULongCount();
 
                                              var filteredFAQs        = allFAQs.
+                                                                           Where(matchFilter).
                                                                            Where(posting => !from.HasValue || posting.PublicationDate >= from.Value).
                                                                            Where(posting => !to.  HasValue || posting.PublicationDate <  to.  Value).
-                                                                           Where(includeFilter).
                                                                            ToArray();
                                              var filteredCount       = filteredFAQs.ULongCount();
 
@@ -11393,8 +11165,7 @@ namespace social.OpenData.UsersAPI
                                                                                   take,
                                                                                   false, //Embedded
                                                                                   expandTags,
-                                                                                  expandDataLicenses,
-                                                                                  expandOwnerId,
+                                                                                  expandAuthorId,
                                                                                   GetFAQSerializator(Request, HTTPUser),
                                                                                   includeCryptoHash);
 
@@ -11493,7 +11264,7 @@ namespace social.OpenData.UsersAPI
                                                             ContentType                   = HTTPContentType.JSON_UTF8,
                                                             Content                       = JSONObject.Create(
                                                                                                 new JProperty("count",
-                                                                                                              _FAQ.Values.ULongCount(news => !since.HasValue || news.PublicationDate >= since.Value))
+                                                                                                              _FAQs.Values.ULongCount(news => !since.HasValue || news.PublicationDate >= since.Value))
                                                                                             ).ToUTF8Bytes(),
                                                             Connection                    = "close"
                                                      }.AsImmutable);
@@ -12197,8 +11968,12 @@ namespace social.OpenData.UsersAPI
 
             User_Id          userId;
             User             user;
+            UserGroup        userGroup;
             Organization_Id  organizationId;
             Organization     organization;
+            NewsPosting      newsPosting;
+            NewsBanner       newsBanner;
+            FAQ              faq;
 
             switch (Command)
             {
@@ -12676,12 +12451,11 @@ namespace social.OpenData.UsersAPI
                 #region Add user group
 
                 case "addUserGroup":
-                case "createUserGroup":
 
                     if (UserGroup.TryParseJSON(Data,
                                                _UserGroups.TryGetValue,
                                                _Users.TryGetValue,
-                                               out UserGroup userGroup,
+                                               out userGroup,
                                                out ErrorResponse) &&
                         userGroup.Id != Admins.Id)
                     {
@@ -12694,6 +12468,33 @@ namespace social.OpenData.UsersAPI
 
                         else
                             DebugX.Log("User group '" + userGroup.Id + "' already exists!");
+
+                    }
+
+                    else
+                        DebugX.Log(String.Concat(nameof(UsersAPI), " ", Command, Sender.IsNotNullOrEmpty() ? " via " + Sender : "", LineNumber.HasValue ? ", line " + LineNumber.Value : "", ": ", ErrorResponse));
+
+                    break;
+
+                #endregion
+
+                #region Add user group if not exists
+
+                case "addUserGroupIfNotExists":
+
+                    if (UserGroup.TryParseJSON(Data,
+                                               _UserGroups.TryGetValue,
+                                               _Users.TryGetValue,
+                                               out userGroup,
+                                               out ErrorResponse) &&
+                        userGroup.Id != Admins.Id)
+                    {
+
+                        if (!_UserGroups.ContainsKey(userGroup.Id))
+                        {
+                            userGroup.API = this;
+                            _UserGroups.AddAndReturnValue(userGroup.Id, userGroup);
+                        }
 
                     }
 
@@ -12744,6 +12545,84 @@ namespace social.OpenData.UsersAPI
                     U2G_Group.AddIncomingEdge(U2G_User.AddOutgoingEdge(U2G_EdgeLabel,
                                                                        U2G_Group));
                                                                        //Data.ParseMandatory_PrivacyLevel()));
+
+                    break;
+
+                #endregion
+
+
+                #region Add news posting if not exists
+
+                case "addNewsPostingIfNotExists":
+
+                    if (NewsPosting.TryParseJSON(Data,
+                                                 _Users.TryGetValue,
+                                                 out newsPosting,
+                                                 out ErrorResponse))
+                    {
+
+                        if (!_NewsPostings.ContainsKey(newsPosting.Id))
+                        {
+                            newsPosting.API = this;
+                            _NewsPostings.AddAndReturnValue(newsPosting.Id, newsPosting);
+                        }
+
+                    }
+
+                    else
+                        DebugX.Log(String.Concat(nameof(UsersAPI), " ", Command, Sender.IsNotNullOrEmpty() ? " via " + Sender : "", LineNumber.HasValue ? ", line " + LineNumber.Value : "", ": ", ErrorResponse));
+
+                    break;
+
+                #endregion
+
+
+                #region Add news banner if not exists
+
+                case "addNewsBannerIfNotExists":
+
+                    if (NewsBanner.TryParseJSON(Data,
+                                                _Users.TryGetValue,
+                                                out newsBanner,
+                                                out ErrorResponse))
+                    {
+
+                        if (!_NewsBanners.ContainsKey(newsBanner.Id))
+                        {
+                            newsBanner.API = this;
+                            _NewsBanners.AddAndReturnValue(newsBanner.Id, newsBanner);
+                        }
+
+                    }
+
+                    else
+                        DebugX.Log(String.Concat(nameof(UsersAPI), " ", Command, Sender.IsNotNullOrEmpty() ? " via " + Sender : "", LineNumber.HasValue ? ", line " + LineNumber.Value : "", ": ", ErrorResponse));
+
+                    break;
+
+                #endregion
+
+
+                #region Add FAQ if not exists
+
+                case "addFAQIfNotExists":
+
+                    if (FAQ.TryParseJSON(Data,
+                                         _Users.TryGetValue,
+                                         out faq,
+                                         out ErrorResponse))
+                    {
+
+                        if (!_FAQs.ContainsKey(faq.Id))
+                        {
+                            faq.API = this;
+                            _FAQs.AddAndReturnValue(faq.Id, faq);
+                        }
+
+                    }
+
+                    else
+                        DebugX.Log(String.Concat(nameof(UsersAPI), " ", Command, Sender.IsNotNullOrEmpty() ? " via " + Sender : "", LineNumber.HasValue ? ", line " + LineNumber.Value : "", ": ", ErrorResponse));
 
                     break;
 
@@ -16184,6 +16063,436 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
+        #region Dashboards
+
+        #region Data
+
+        protected readonly Dictionary<Dashboard_Id, Dashboard> _Dashboards;
+
+        /// <summary>
+        /// Return an enumeration of all dashboards.
+        /// </summary>
+        public IEnumerable<Dashboard> Dashboards
+        {
+            get
+            {
+                try
+                {
+                    DashboardsSemaphore.Wait();
+                    return _Dashboards.Values.ToArray();
+                }
+                finally
+                {
+                    DashboardsSemaphore.Release();
+                }
+
+            }
+        }
+
+        #endregion
+
+
+        #region AddDashboard           (Dashboard,                   CurrentUserId = null)
+
+        /// <summary>
+        /// Add the given dashboard to the API.
+        /// </summary>
+        /// <param name="Dashboard">A new dashboard to be added to this API.</param>
+        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
+        public async Task<Dashboard> AddDashboard(Dashboard  Dashboard,
+                                                  User_Id?   CurrentUserId  = null)
+        {
+
+            try
+            {
+
+                await DashboardsSemaphore.WaitAsync();
+
+                if (Dashboard.API != null && Dashboard.API != this)
+                    throw new ArgumentException(nameof(Dashboard), "The given dashboard is already attached to another API!");
+
+                if (_Dashboards.ContainsKey(Dashboard.Id))
+                    throw new Exception("Dashboard '" + Dashboard.Id + "' already exists in this API!");
+
+                Dashboard.API = this;
+
+
+                await WriteToDatabaseFile(NotificationMessageType.Parse("addDashboard"),
+                                     Dashboard.ToJSON(),
+                                     CurrentUserId);
+
+                var newDashboard = _Dashboards.AddAndReturnValue(Dashboard.Id, Dashboard);
+
+                return newDashboard;
+
+            }
+            finally
+            {
+                DashboardsSemaphore.Release();
+            }
+
+        }
+
+        #endregion
+
+        #region AddDashboardIfNotExists(Dashboard,                   CurrentUserId = null)
+
+        /// <summary>
+        /// When it has not been created before, add the given dashboard to the API.
+        /// </summary>
+        /// <param name="Dashboard">A new dashboard to be added to this API.</param>
+        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
+        public async Task<Dashboard> AddDashboardIfNotExists(Dashboard  Dashboard,
+                                                             User_Id?   CurrentUserId  = null)
+        {
+
+            try
+            {
+
+                await DashboardsSemaphore.WaitAsync();
+
+                if (Dashboard.API != null && Dashboard.API != this)
+                    throw new ArgumentException(nameof(Dashboard), "The given dashboard is already attached to another API!");
+
+                if (_Dashboards.ContainsKey(Dashboard.Id))
+                    return _Dashboards[Dashboard.Id];
+
+                Dashboard.API = this;
+
+                await WriteToDatabaseFile(NotificationMessageType.Parse("addIfNotExistsDashboard"),
+                                     Dashboard.ToJSON(),
+                                     CurrentUserId);
+
+                var newDashboard = _Dashboards.AddAndReturnValue(Dashboard.Id, Dashboard);
+
+                return newDashboard;
+
+            }
+            finally
+            {
+                DashboardsSemaphore.Release();
+            }
+
+        }
+
+        #endregion
+
+        #region AddOrUpdateDashboard   (Dashboard,                   CurrentUserId = null)
+
+        /// <summary>
+        /// Add or update the given dashboard to/within the API.
+        /// </summary>
+        /// <param name="Dashboard">A dashboard.</param>
+        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
+        public async Task<Dashboard> AddOrUpdateDashboard(Dashboard  Dashboard,
+                                                          User_Id?   CurrentUserId  = null)
+        {
+
+            try
+            {
+
+                await DashboardsSemaphore.WaitAsync();
+
+                if (Dashboard.API != null && Dashboard.API != this)
+                    throw new ArgumentException(nameof(Dashboard), "The given dashboard is already attached to another API!");
+
+                if (_Dashboards.TryGetValue(Dashboard.Id, out Dashboard OldDashboard))
+                {
+                    _Dashboards.Remove(OldDashboard.Id);
+                }
+
+                Dashboard.API = this;
+
+                await WriteToDatabaseFile(NotificationMessageType.Parse("addOrUpdateDashboard"),
+                                     Dashboard.ToJSON(),
+                                     CurrentUserId);
+
+                var newDashboard = _Dashboards.AddAndReturnValue(Dashboard.Id, Dashboard);
+
+                // ToDo: Copy edges!
+
+                return newDashboard;
+
+            }
+            finally
+            {
+                DashboardsSemaphore.Release();
+            }
+
+        }
+
+        #endregion
+
+        #region UpdateDashboard        (Dashboard,                   CurrentUserId = null)
+
+        /// <summary>
+        /// Update the given dashboard within the API.
+        /// </summary>
+        /// <param name="Dashboard">A dashboard.</param>
+        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
+        public async Task<Dashboard> UpdateDashboard(Dashboard  Dashboard,
+                                                     User_Id?   CurrentUserId  = null)
+        {
+
+            try
+            {
+
+                await DashboardsSemaphore.WaitAsync();
+
+                if (Dashboard.API != null && Dashboard.API != this)
+                    throw new ArgumentException(nameof(Dashboard), "The given dashboard is already attached to another API!");
+
+                if (!_Dashboards.TryGetValue(Dashboard.Id, out Dashboard OldDashboard))
+                    throw new Exception("Dashboard '" + Dashboard.Id + "' does not exists in this API!");
+
+                else
+                {
+
+                    _Dashboards.Remove(OldDashboard.Id);
+
+                }
+
+                Dashboard.API = this;
+
+                await WriteToDatabaseFile(NotificationMessageType.Parse("updateDashboard"),
+                                     Dashboard.ToJSON(),
+                                     CurrentUserId);
+
+                Dashboard.CopyAllLinkedDataFrom(OldDashboard);
+
+                return _Dashboards.AddAndReturnValue(Dashboard.Id, Dashboard);
+
+            }
+            finally
+            {
+                DashboardsSemaphore.Release();
+            }
+
+        }
+
+        #endregion
+
+        #region UpdateDashboard        (DashboardId, UpdateDelegate, CurrentUserId = null)
+
+        /// <summary>
+        /// Update the given dashboard.
+        /// </summary>
+        /// <param name="DashboardId">An dashboard identification.</param>
+        /// <param name="UpdateDelegate">A delegate to update the given dashboard.</param>
+        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
+        public async Task<Dashboard> UpdateDashboard(Dashboard_Id               DashboardId,
+                                                     Action<Dashboard.Builder>  UpdateDelegate,
+                                                     User_Id?                   CurrentUserId  = null)
+        {
+
+            try
+            {
+
+                if (UpdateDelegate == null)
+                    throw new Exception("The given update delegate must not be null!");
+
+                await DashboardsSemaphore.WaitAsync();
+
+                if (!_Dashboards.TryGetValue(DashboardId, out Dashboard OldDashboard))
+                    throw new Exception("Dashboard '" + DashboardId + "' does not exists in this API!");
+
+                var Builder = OldDashboard.ToBuilder();
+                UpdateDelegate(Builder);
+                var NewDashboard = Builder.ToImmutable;
+
+                await WriteToDatabaseFile(NotificationMessageType.Parse("updateDashboard"),
+                                     NewDashboard.ToJSON(),
+                                     CurrentUserId);
+
+                NewDashboard.API = this;
+
+                _Dashboards.Remove(OldDashboard.Id);
+                NewDashboard.CopyAllLinkedDataFrom(OldDashboard);
+
+                return _Dashboards.AddAndReturnValue(NewDashboard.Id, NewDashboard);
+
+            }
+            finally
+            {
+                DashboardsSemaphore.Release();
+            }
+
+        }
+
+        #endregion
+
+
+        #region (protected internal) SetDashboardRequest (Request)
+
+        /// <summary>
+        /// An event sent whenever set dashboard (data) request was received.
+        /// </summary>
+        public event RequestLogHandler OnSetDashboardRequest;
+
+        protected internal HTTPRequest SetDashboardRequest(HTTPRequest Request)
+        {
+
+            OnSetDashboardRequest?.Invoke(Request.Timestamp,
+                                          HTTPServer,
+                                          Request);
+
+            return Request;
+
+        }
+
+        #endregion
+
+        #region (protected internal) SetDashboardResponse(Response)
+
+        /// <summary>
+        /// An event sent whenever a response on a set dashboard (data) request was sent.
+        /// </summary>
+        public event AccessLogHandler OnSetDashboardResponse;
+
+        protected internal HTTPResponse SetDashboardResponse(HTTPResponse Response)
+        {
+
+            OnSetDashboardResponse?.Invoke(Response.Timestamp,
+                                           HTTPServer,
+                                           Response.HTTPRequest,
+                                           Response);
+
+            return Response;
+
+        }
+
+        #endregion
+
+
+        #region DashboardExists        (DashboardId)
+
+        /// <summary>
+        /// Whether this API contains a dashboard having the given unique identification.
+        /// </summary>
+        /// <param name="DashboardId">The unique identification of the dashboard.</param>
+        public Boolean DashboardExists(Dashboard_Id DashboardId)
+        {
+
+            try
+            {
+
+                DashboardsSemaphore.Wait();
+
+                return _Dashboards.ContainsKey(DashboardId);
+
+            }
+            finally
+            {
+                DashboardsSemaphore.Release();
+            }
+
+        }
+
+        #endregion
+
+        #region GetDashboard           (DashboardId)
+
+        /// <summary>
+        /// Get the dashboard having the given unique identification.
+        /// </summary>
+        /// <param name="DashboardId">The unique identification of the dashboard.</param>
+        public async Task<Dashboard> GetDashboard(Dashboard_Id  DashboardId)
+        {
+
+            try
+            {
+
+                await DashboardsSemaphore.WaitAsync();
+
+                if (_Dashboards.TryGetValue(DashboardId, out Dashboard Dashboard))
+                    return Dashboard;
+
+                return null;
+
+            }
+            finally
+            {
+                DashboardsSemaphore.Release();
+            }
+
+        }
+
+        #endregion
+
+        #region TryGetDashboard        (DashboardId, out Dashboard)
+
+        /// <summary>
+        /// Try to get the dashboard having the given unique identification.
+        /// </summary>
+        /// <param name="DashboardId">The unique identification of the dashboard.</param>
+        /// <param name="Dashboard">The dashboard.</param>
+        public Boolean TryGetDashboard(Dashboard_Id   DashboardId,
+                                       out Dashboard  Dashboard)
+        {
+
+            try
+            {
+
+                DashboardsSemaphore.Wait();
+
+                return _Dashboards.TryGetValue(DashboardId, out Dashboard);
+
+            }
+            finally
+            {
+                DashboardsSemaphore.Release();
+            }
+
+        }
+
+        #endregion
+
+
+        #region RemoveDashboard        (DashboardId,                 CurrentUserId = null)
+
+        /// <summary>
+        /// Remove the given dashboard from this API.
+        /// </summary>
+        /// <param name="DashboardId">The unique identification of the dashboard.</param>
+        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
+        public async Task<Dashboard> RemoveDashboard(Dashboard_Id  DashboardId,
+                                                     User_Id?      CurrentUserId  = null)
+        {
+
+            try
+            {
+
+                await DashboardsSemaphore.WaitAsync();
+
+                if (_Dashboards.TryGetValue(DashboardId, out Dashboard Dashboard))
+                {
+
+                    await WriteToDatabaseFile(NotificationMessageType.Parse("removeDashboard"),
+                                         Dashboard.ToJSON(),
+                                         CurrentUserId);
+
+                    _Dashboards.Remove(DashboardId);
+
+                    //Dashboard.API = null;
+
+                    return Dashboard;
+
+                }
+
+                return null;
+
+            }
+            finally
+            {
+                DashboardsSemaphore.Release();
+            }
+
+        }
+
+        #endregion
+
+        #endregion
+
 
         #region Organizations
 
@@ -17467,1837 +17776,6 @@ namespace social.OpenData.UsersAPI
         #endregion
 
 
-        #region NewsPostings
-
-        #region Data
-
-        private readonly Dictionary<NewsPosting_Id, NewsPosting> _NewsPostings;
-
-        /// <summary>
-        /// Return an enumeration of all news postings.
-        /// </summary>
-        public IEnumerable<NewsPosting> NewsPostings
-        {
-            get
-            {
-                try
-                {
-                    NewsPostingsSemaphore.Wait();
-                    return _NewsPostings.Values.ToArray();
-                }
-                finally
-                {
-                    NewsPostingsSemaphore.Release();
-                }
-
-            }
-        }
-
-        #endregion
-
-        #region (private) GetNewsPostingSerializator(Request, User)
-
-        private NewsToJSONDelegate GetNewsPostingSerializator(HTTPRequest  Request,
-                                                              User         User)
-        {
-
-            //if (!Request.X_Portal)
-            //{
-            //    switch (User.Id.ToString())
-            //    {
-
-            //        case __issapi:
-            //            return ISSNotificationExtentions.ToISSJSON;
-
-            //    }
-            //}
-
-            return (NewsPosting,
-                    Embedded,
-                    ExpandTags,
-                    ExpandDataLicense,
-                    ExpandAuthorId,
-                    IncludeCryptoHash)
-
-                    => NewsPostings.ToJSON(Embedded,
-                                           ExpandTags,
-                                           ExpandDataLicense,
-                                           ExpandAuthorId,
-                                           IncludeCryptoHash);
-
-        }
-
-        #endregion
-
-        #region WriteToLogfileAndNotify(MessageType, NewsPosting, OldNews = null, CurrentUserId = null)
-
-        public async Task WriteToLogfileAndNotify(NewsPosting              NewsPosting,
-                                                  NotificationMessageType  MessageType,
-                                                  NewsPosting              OldNews        = null,
-                                                  User_Id?                 CurrentUserId  = null)
-        {
-
-            await WriteToDatabaseFile(MessageType,
-                                      NewsPostings.ToJSON(Embedded: false),
-                                      CurrentUserId);
-
-            //base.WriteToLogfileAndNotify(NotificationMessageType.Parse("News." + MessageType),
-            //                             News.ToJSON(Embedded: true),
-            //                             News.Owner,
-            //                             CardiCloudNotificationsLogFile,
-            //                             CurrentUserId);
-
-
-            var _MessageTypes  = new HashSet<NotificationMessageType>() { MessageType };
-
-            if (MessageType == addIfNotExistsNews_MessageType)
-            {
-                _MessageTypes.Add(addNewsPosting_MessageType);
-            }
-
-            else if (MessageType == addOrUpdateNewsPosting_MessageType)
-            {
-                _MessageTypes.Add(addNewsPosting_MessageType);
-            }
-
-            var MessageTypes   = _MessageTypes.ToArray();
-
-            // Add notifications here!
-
-        }
-
-        #endregion
-
-
-        #region AddNewsPosting           (NewsPosting,   CurrentUserId = null)
-
-        /// <summary>
-        /// Add the given news posting to the API.
-        /// </summary>
-        /// <param name="News">A news posting.</param>
-        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
-        public async Task<NewsPosting> AddNewsPosting(NewsPosting  NewsPosting,
-                                                      User_Id?     CurrentUserId  = null)
-        {
-
-            if (NewsPostings == null)
-                throw new ArgumentException(nameof(NewsPostings), "The given news posting must not be null!");
-
-            if (NewsPostings.API != null && NewsPostings.API != this)
-                throw new ArgumentException(nameof(NewsPostings), "The given news posting is already attached to another API!");
-
-            try
-            {
-
-                await NewsPostingsSemaphore.WaitAsync();
-
-                if (_NewsPostings.ContainsKey(NewsPostings.Id))
-                    throw new Exception("news posting '" + NewsPostings.Id + "' already exists in this API!");
-
-                await WriteToLogfileAndNotify(NewsPosting,
-                                              addNewsPosting_MessageType,
-                                              CurrentUserId: CurrentUserId);
-
-                NewsPostings.API = this;
-
-                return _NewsPostings.AddAndReturnValue(NewsPostings.Id, NewsPostings);
-
-            }
-            finally
-            {
-                NewsPostingsSemaphore.Release();
-            }
-
-        }
-
-        #endregion
-
-        #region AddNewsPostingIfNotExists(NewsPosting,   CurrentUserId = null)
-
-        /// <summary>
-        /// Add the given news posting to the API.
-        /// </summary>
-        /// <param name="News">A news posting.</param>
-        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
-        public async Task<NewsPosting> AddNewsPostingIfNotExists(NewsPosting  NewsPosting,
-                                                                 User_Id?     CurrentUserId  = null)
-        {
-
-            if (NewsPostings == null)
-                throw new ArgumentException(nameof(NewsPostings), "The given news posting must not be null!");
-
-            if (NewsPostings.API != null && NewsPostings.API != this)
-                throw new ArgumentException(nameof(NewsPostings), "The given news posting is already attached to another API!");
-
-            try
-            {
-
-                await NewsPostingsSemaphore.WaitAsync();
-
-                if (_NewsPostings.TryGetValue(NewsPostings.Id, out NewsPosting OldNewsPosting))
-                    return OldNewsPosting;
-
-                await WriteToLogfileAndNotify(NewsPosting,
-                                              addIfNotExistsNews_MessageType,
-                                              CurrentUserId: CurrentUserId);
-
-                NewsPostings.API = this;
-
-                return _NewsPostings.AddAndReturnValue(NewsPostings.Id, NewsPostings);
-
-            }
-            finally
-            {
-                NewsPostingsSemaphore.Release();
-            }
-
-        }
-
-        #endregion
-
-        #region AddOrUpdateNewsPosting   (NewsPosting,   CurrentUserId = null)
-
-        /// <summary>
-        /// Add or update the given news posting to/within the API.
-        /// </summary>
-        /// <param name="NewsPosting">A news posting.</param>
-        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
-        public async Task<NewsPosting> AddOrUpdateNewsPosting(NewsPosting  NewsPosting,
-                                                              User_Id?     CurrentUserId = null)
-        {
-
-            if (NewsPostings == null)
-                throw new ArgumentException(nameof(NewsPostings), "The given news posting must not be null!");
-
-            if (NewsPostings.API != null && NewsPostings.API != this)
-                throw new ArgumentException(nameof(NewsPostings), "The given news posting is already attached to another API!");
-
-            NewsPosting OldNewsPosting  = null;
-            DateTime    Now             = DateTime.UtcNow;
-
-            try
-            {
-
-                await NewsPostingsSemaphore.WaitAsync();
-
-                NewsPostings.API = this;
-
-                if (_NewsPostings.TryGetValue(NewsPostings.Id, out OldNewsPosting))
-                {
-                    _NewsPostings.Remove(OldNewsPosting.Id);
-                    NewsPostings.CopyAllLinkedDataFrom(OldNewsPosting);
-                }
-
-                await WriteToLogfileAndNotify(NewsPosting,
-                                              addOrUpdateNewsPosting_MessageType,
-                                              OldNewsPosting,
-                                              CurrentUserId);
-
-                _NewsPostings.Add(NewsPostings.Id, NewsPostings);
-
-            }
-            finally
-            {
-                NewsPostingsSemaphore.Release();
-            }
-
-            return NewsPostings;
-
-        }
-
-        #endregion
-
-        #region UpdateNewsPosting        (NewsPosting,   CurrentUserId = null)
-
-        /// <summary>
-        /// Update the given news posting within the API.
-        /// </summary>
-        /// <param name="NewsPosting">A news posting.</param>
-        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
-        public async Task<NewsPosting> UpdateNewsPosting(NewsPosting  NewsPosting,
-                                                         User_Id?     CurrentUserId   = null)
-        {
-
-            if (NewsPostings == null)
-                throw new ArgumentException(nameof(NewsPostings), "The given news posting must not be null!");
-
-            if (NewsPostings.API != null && NewsPostings.API != this)
-                throw new ArgumentException(nameof(NewsPostings), "The given news posting is already attached to another API!");
-
-            DateTime Now = DateTime.UtcNow;
-
-            try
-            {
-
-                await NewsPostingsSemaphore.WaitAsync();
-
-                if (!_NewsPostings.TryGetValue(NewsPostings.Id, out NewsPosting OldNewsPosting))
-                    throw new Exception("News posting '" + NewsPostings.Id + "' does not exists in this API!");
-
-
-                await WriteToLogfileAndNotify(NewsPosting,
-                                              updateNewsPosting_MessageType,
-                                              OldNewsPosting,
-                                              CurrentUserId);
-
-                NewsPostings.API = this;
-
-                _NewsPostings.Remove(OldNewsPosting.Id);
-                NewsPostings.CopyAllLinkedDataFrom(OldNewsPosting);
-
-                _NewsPostings.Add(NewsPostings.Id, NewsPostings);
-
-            }
-            finally
-            {
-                NewsPostingsSemaphore.Release();
-            }
-
-            return NewsPostings;
-
-        }
-
-        #endregion
-
-        #region UpdateNewsPosting        (NewsPostingId, UpdateDelegate, CurrentUserId = null)
-
-        /// <summary>
-        /// Update the given news posting.
-        /// </summary>
-        /// <param name="NewsPostingId">A news posting identification.</param>
-        /// <param name="UpdateDelegate">A delegate to update the given news posting.</param>
-        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
-        public async Task<NewsPosting> Update(NewsPosting_Id               NewsPostingId,
-                                              Action<NewsPosting.Builder>  UpdateDelegate,
-                                              User_Id?                     CurrentUserId  = null)
-        {
-
-            NewsPosting NewsPosting;
-            DateTime Now = DateTime.UtcNow;
-
-            try
-            {
-
-                if (UpdateDelegate == null)
-                    throw new Exception("The given update delegate must not be null!");
-
-                await NewsPostingsSemaphore.WaitAsync();
-
-                if (!_NewsPostings.TryGetValue(NewsPostingId, out NewsPosting OldNewsPosting))
-                    throw new Exception("News posting '" + NewsPostingId + "' does not exists in this API!");
-
-                var Builder = OldNewsPosting.ToBuilder();
-                UpdateDelegate(Builder);
-                NewsPosting = Builder.ToImmutable;
-                NewsPosting.API = this;
-
-                await WriteToLogfileAndNotify(NewsPosting,
-                                              updateNewsPosting_MessageType,
-                                              OldNewsPosting,
-                                              CurrentUserId);
-
-                _NewsPostings.Remove(OldNewsPosting.Id);
-                //OldNews.CopyAllEdgesTo(News);
-                _NewsPostings.Add(NewsPosting.Id, NewsPosting);
-
-            }
-            finally
-            {
-                NewsPostingsSemaphore.Release();
-            }
-
-            return NewsPosting;
-
-        }
-
-        #endregion
-
-        #region RemoveNewsPosting        (NewsPostingId, CurrentUserId = null)
-
-        /// <summary>
-        /// Remove the given news posting from this API.
-        /// </summary>
-        /// <param name="NewsPostingId">The unique identification of the news posting.</param>
-        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
-        public async Task<NewsPosting> RemoveNewsPosting(NewsPosting_Id  NewsPostingId,
-                                                         User_Id?        CurrentUserId  = null)
-        {
-
-            try
-            {
-
-                await NewsPostingsSemaphore.WaitAsync();
-
-                if (_NewsPostings.TryGetValue(NewsPostingId, out NewsPosting NewsPosting))
-                {
-
-                    await WriteToLogfileAndNotify(NewsPosting,
-                                                  removeNewsPosting_MessageType,
-                                                  CurrentUserId: CurrentUserId);
-
-                    _NewsPostings.Remove(NewsPostingId);
-
-                    NewsPosting.API = null;
-
-                    return NewsPosting;
-
-                }
-
-                return null;
-
-            }
-            finally
-            {
-                NewsPostingsSemaphore.Release();
-            }
-
-        }
-
-        #endregion
-
-
-        #region ContainsNewsPosting      (NewsPostingId)
-
-        /// <summary>
-        /// Whether this API contains a news posting having the given unique identification.
-        /// </summary>
-        /// <param name="NewsPostingId">The unique identification of the news posting.</param>
-        public Boolean ContainsNewsPosting(NewsPosting_Id NewsPostingId)
-        {
-
-            try
-            {
-
-                NewsPostingsSemaphore.Wait();
-
-                return _NewsPostings.ContainsKey(NewsPostingId);
-
-            }
-            finally
-            {
-                NewsPostingsSemaphore.Release();
-            }
-
-        }
-
-        #endregion
-
-        #region GetNewsPosting           (NewsPostingId)
-
-        /// <summary>
-        /// Get the news posting having the given unique identification.
-        /// </summary>
-        /// <param name="NewsPostingId">The unique identification of the news posting.</param>
-        public async Task<NewsPosting> GetNewsPosting(NewsPosting_Id  NewsPostingId)
-        {
-
-            try
-            {
-
-                await NewsPostingsSemaphore.WaitAsync();
-
-                if (_NewsPostings.TryGetValue(NewsPostingId, out NewsPosting newsPosting))
-                    return newsPosting;
-
-                return null;
-
-            }
-            finally
-            {
-                NewsPostingsSemaphore.Release();
-            }
-
-        }
-
-        #endregion
-
-        #region TryGetNewsPosting        (NewsPostingId, out NewsPosting)
-
-        /// <summary>
-        /// Try to get the news posting having the given unique identification.
-        /// </summary>
-        /// <param name="NewsId">The unique identification of the news posting.</param>
-        /// <param name="NewsPosting">The news posting.</param>
-        public Boolean TryGetNewsPosting(NewsPosting_Id   NewsPostingId,
-                                         out NewsPosting  NewsPosting)
-        {
-
-            try
-            {
-
-                NewsPostingsSemaphore.Wait();
-
-                return _NewsPostings.TryGetValue(NewsPostingId, out NewsPosting);
-
-            }
-            finally
-            {
-                NewsPostingsSemaphore.Release();
-            }
-
-        }
-
-        #endregion
-
-        #endregion
-
-        #region NewsBanners
-
-        #region Data
-
-        private readonly Dictionary<NewsBanner_Id, NewsBanner> _NewsBanners;
-
-        /// <summary>
-        /// Return an enumeration of all news banners.
-        /// </summary>
-        public IEnumerable<NewsBanner> NewsBanners
-        {
-            get
-            {
-                try
-                {
-                    NewsBannersSemaphore.Wait();
-                    return _NewsBanners.Values.ToArray();
-                }
-                finally
-                {
-                    NewsBannersSemaphore.Release();
-                }
-
-            }
-        }
-
-        #endregion
-
-        #region (private) GetNewsBannerSerializator(Request, User)
-
-        private NewsToJSONDelegate GetNewsBannerSerializator(HTTPRequest  Request,
-                                                              User         User)
-        {
-
-            //if (!Request.X_Portal)
-            //{
-            //    switch (User.Id.ToString())
-            //    {
-
-            //        case __issapi:
-            //            return ISSNotificationExtentions.ToISSJSON;
-
-            //    }
-            //}
-
-            return (NewsBanner,
-                    Embedded,
-                    ExpandTags,
-                    ExpandDataLicense,
-                    ExpandAuthorId,
-                    IncludeCryptoHash)
-
-                    => NewsBanners.ToJSON(Embedded,
-                                           ExpandTags,
-                                           ExpandDataLicense,
-                                           ExpandAuthorId,
-                                           IncludeCryptoHash);
-
-        }
-
-        #endregion
-
-        #region WriteToLogfileAndNotify(MessageType, NewsBanner, OldNews = null, CurrentUserId = null)
-
-        public async Task WriteToLogfileAndNotify(NewsBanner              NewsBanner,
-                                                  NotificationMessageType  MessageType,
-                                                  NewsBanner              OldNews        = null,
-                                                  User_Id?                 CurrentUserId  = null)
-        {
-
-            await WriteToDatabaseFile(MessageType,
-                                      NewsBanners.ToJSON(Embedded: false),
-                                      CurrentUserId);
-
-            //base.WriteToLogfileAndNotify(NotificationMessageType.Parse("News." + MessageType),
-            //                             News.ToJSON(Embedded: true),
-            //                             News.Owner,
-            //                             CardiCloudNotificationsLogFile,
-            //                             CurrentUserId);
-
-
-            var _MessageTypes  = new HashSet<NotificationMessageType>() { MessageType };
-
-            if (MessageType == addIfNotExistsNews_MessageType)
-            {
-                _MessageTypes.Add(addNewsBanner_MessageType);
-            }
-
-            else if (MessageType == addOrUpdateNewsBanner_MessageType)
-            {
-                _MessageTypes.Add(addNewsBanner_MessageType);
-            }
-
-            var MessageTypes   = _MessageTypes.ToArray();
-
-            // Add notifications here!
-
-        }
-
-        #endregion
-
-
-        #region AddNewsBanner           (NewsBanner,   CurrentUserId = null)
-
-        /// <summary>
-        /// Add the given news banner to the API.
-        /// </summary>
-        /// <param name="News">A news banner.</param>
-        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
-        public async Task<NewsBanner> AddNewsBanner(NewsBanner  NewsBanner,
-                                                      User_Id?     CurrentUserId  = null)
-        {
-
-            if (NewsBanners == null)
-                throw new ArgumentException(nameof(NewsBanners), "The given news banner must not be null!");
-
-            if (NewsBanners.API != null && NewsBanners.API != this)
-                throw new ArgumentException(nameof(NewsBanners), "The given news banner is already attached to another API!");
-
-            try
-            {
-
-                await NewsBannersSemaphore.WaitAsync();
-
-                if (_NewsBanners.ContainsKey(NewsBanners.Id))
-                    throw new Exception("news banner '" + NewsBanners.Id + "' already exists in this API!");
-
-                await WriteToLogfileAndNotify(NewsBanner,
-                                              addNewsBanner_MessageType,
-                                              CurrentUserId: CurrentUserId);
-
-                NewsBanners.API = this;
-
-                return _NewsBanners.AddAndReturnValue(NewsBanners.Id, NewsBanners);
-
-            }
-            finally
-            {
-                NewsBannersSemaphore.Release();
-            }
-
-        }
-
-        #endregion
-
-        #region AddNewsBannerIfNotExists(NewsBanner,   CurrentUserId = null)
-
-        /// <summary>
-        /// Add the given news banner to the API.
-        /// </summary>
-        /// <param name="News">A news banner.</param>
-        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
-        public async Task<NewsBanner> AddNewsBannerIfNotExists(NewsBanner  NewsBanner,
-                                                                 User_Id?     CurrentUserId  = null)
-        {
-
-            if (NewsBanners == null)
-                throw new ArgumentException(nameof(NewsBanners), "The given news banner must not be null!");
-
-            if (NewsBanners.API != null && NewsBanners.API != this)
-                throw new ArgumentException(nameof(NewsBanners), "The given news banner is already attached to another API!");
-
-            try
-            {
-
-                await NewsBannersSemaphore.WaitAsync();
-
-                if (_NewsBanners.TryGetValue(NewsBanners.Id, out NewsBanner OldNewsBanner))
-                    return OldNewsBanner;
-
-                await WriteToLogfileAndNotify(NewsBanner,
-                                              addIfNotExistsNews_MessageType,
-                                              CurrentUserId: CurrentUserId);
-
-                NewsBanners.API = this;
-
-                return _NewsBanners.AddAndReturnValue(NewsBanners.Id, NewsBanners);
-
-            }
-            finally
-            {
-                NewsBannersSemaphore.Release();
-            }
-
-        }
-
-        #endregion
-
-        #region AddOrUpdateNewsBanner   (NewsBanner,   CurrentUserId = null)
-
-        /// <summary>
-        /// Add or update the given news banner to/within the API.
-        /// </summary>
-        /// <param name="NewsBanner">A news banner.</param>
-        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
-        public async Task<NewsBanner> AddOrUpdateNewsBanner(NewsBanner  NewsBanner,
-                                                              User_Id?     CurrentUserId = null)
-        {
-
-            if (NewsBanners == null)
-                throw new ArgumentException(nameof(NewsBanners), "The given news banner must not be null!");
-
-            if (NewsBanners.API != null && NewsBanners.API != this)
-                throw new ArgumentException(nameof(NewsBanners), "The given news banner is already attached to another API!");
-
-            NewsBanner OldNewsBanner  = null;
-            DateTime    Now             = DateTime.UtcNow;
-
-            try
-            {
-
-                await NewsBannersSemaphore.WaitAsync();
-
-                NewsBanners.API = this;
-
-                if (_NewsBanners.TryGetValue(NewsBanners.Id, out OldNewsBanner))
-                {
-                    _NewsBanners.Remove(OldNewsBanner.Id);
-                    NewsBanners.CopyAllLinkedDataFrom(OldNewsBanner);
-                }
-
-                await WriteToLogfileAndNotify(NewsBanner,
-                                              addOrUpdateNewsBanner_MessageType,
-                                              OldNewsBanner,
-                                              CurrentUserId);
-
-                _NewsBanners.Add(NewsBanners.Id, NewsBanners);
-
-            }
-            finally
-            {
-                NewsBannersSemaphore.Release();
-            }
-
-            return NewsBanners;
-
-        }
-
-        #endregion
-
-        #region UpdateNewsBanner        (NewsBanner,   CurrentUserId = null)
-
-        /// <summary>
-        /// Update the given news banner within the API.
-        /// </summary>
-        /// <param name="NewsBanner">A news banner.</param>
-        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
-        public async Task<NewsBanner> UpdateNewsBanner(NewsBanner  NewsBanner,
-                                                         User_Id?     CurrentUserId   = null)
-        {
-
-            if (NewsBanners == null)
-                throw new ArgumentException(nameof(NewsBanners), "The given news banner must not be null!");
-
-            if (NewsBanners.API != null && NewsBanners.API != this)
-                throw new ArgumentException(nameof(NewsBanners), "The given news banner is already attached to another API!");
-
-            DateTime Now = DateTime.UtcNow;
-
-            try
-            {
-
-                await NewsBannersSemaphore.WaitAsync();
-
-                if (!_NewsBanners.TryGetValue(NewsBanners.Id, out NewsBanner OldNewsBanner))
-                    throw new Exception("News banner '" + NewsBanners.Id + "' does not exists in this API!");
-
-
-                await WriteToLogfileAndNotify(NewsBanner,
-                                              updateNewsBanner_MessageType,
-                                              OldNewsBanner,
-                                              CurrentUserId);
-
-                NewsBanners.API = this;
-
-                _NewsBanners.Remove(OldNewsBanner.Id);
-                NewsBanners.CopyAllLinkedDataFrom(OldNewsBanner);
-
-                _NewsBanners.Add(NewsBanners.Id, NewsBanners);
-
-            }
-            finally
-            {
-                NewsBannersSemaphore.Release();
-            }
-
-            return NewsBanners;
-
-        }
-
-        #endregion
-
-        #region UpdateNewsBanner        (NewsBannerId, UpdateDelegate, CurrentUserId = null)
-
-        /// <summary>
-        /// Update the given news banner.
-        /// </summary>
-        /// <param name="NewsBannerId">A news banner identification.</param>
-        /// <param name="UpdateDelegate">A delegate to update the given news banner.</param>
-        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
-        public async Task<NewsBanner> Update(NewsBanner_Id               NewsBannerId,
-                                              Action<NewsBanner.Builder>  UpdateDelegate,
-                                              User_Id?                     CurrentUserId  = null)
-        {
-
-            NewsBanner NewsBanner;
-            DateTime Now = DateTime.UtcNow;
-
-            try
-            {
-
-                if (UpdateDelegate == null)
-                    throw new Exception("The given update delegate must not be null!");
-
-                await NewsBannersSemaphore.WaitAsync();
-
-                if (!_NewsBanners.TryGetValue(NewsBannerId, out NewsBanner OldNewsBanner))
-                    throw new Exception("News banner '" + NewsBannerId + "' does not exists in this API!");
-
-                var Builder = OldNewsBanner.ToBuilder();
-                UpdateDelegate(Builder);
-                NewsBanner = Builder.ToImmutable;
-                NewsBanner.API = this;
-
-                await WriteToLogfileAndNotify(NewsBanner,
-                                              updateNewsBanner_MessageType,
-                                              OldNewsBanner,
-                                              CurrentUserId);
-
-                _NewsBanners.Remove(OldNewsBanner.Id);
-                //OldNews.CopyAllEdgesTo(News);
-                _NewsBanners.Add(NewsBanner.Id, NewsBanner);
-
-            }
-            finally
-            {
-                NewsBannersSemaphore.Release();
-            }
-
-            return NewsBanner;
-
-        }
-
-        #endregion
-
-        #region RemoveNewsBanner        (NewsBannerId, CurrentUserId = null)
-
-        /// <summary>
-        /// Remove the given news banner from this API.
-        /// </summary>
-        /// <param name="NewsBannerId">The unique identification of the news banner.</param>
-        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
-        public async Task<NewsBanner> RemoveNewsBanner(NewsBanner_Id  NewsBannerId,
-                                                         User_Id?        CurrentUserId  = null)
-        {
-
-            try
-            {
-
-                await NewsBannersSemaphore.WaitAsync();
-
-                if (_NewsBanners.TryGetValue(NewsBannerId, out NewsBanner NewsBanner))
-                {
-
-                    await WriteToLogfileAndNotify(NewsBanner,
-                                                  removeNewsBanner_MessageType,
-                                                  CurrentUserId: CurrentUserId);
-
-                    _NewsBanners.Remove(NewsBannerId);
-
-                    NewsBanner.API = null;
-
-                    return NewsBanner;
-
-                }
-
-                return null;
-
-            }
-            finally
-            {
-                NewsBannersSemaphore.Release();
-            }
-
-        }
-
-        #endregion
-
-
-        #region ContainsNewsBanner      (NewsBannerId)
-
-        /// <summary>
-        /// Whether this API contains a news banner having the given unique identification.
-        /// </summary>
-        /// <param name="NewsBannerId">The unique identification of the news banner.</param>
-        public Boolean ContainsNewsBanner(NewsBanner_Id NewsBannerId)
-        {
-
-            try
-            {
-
-                NewsBannersSemaphore.Wait();
-
-                return _NewsBanners.ContainsKey(NewsBannerId);
-
-            }
-            finally
-            {
-                NewsBannersSemaphore.Release();
-            }
-
-        }
-
-        #endregion
-
-        #region GetNewsBanner           (NewsBannerId)
-
-        /// <summary>
-        /// Get the news banner having the given unique identification.
-        /// </summary>
-        /// <param name="NewsBannerId">The unique identification of the news banner.</param>
-        public async Task<NewsBanner> GetNewsBanner(NewsBanner_Id  NewsBannerId)
-        {
-
-            try
-            {
-
-                await NewsBannersSemaphore.WaitAsync();
-
-                if (_NewsBanners.TryGetValue(NewsBannerId, out NewsBanner newsBanner))
-                    return newsBanner;
-
-                return null;
-
-            }
-            finally
-            {
-                NewsBannersSemaphore.Release();
-            }
-
-        }
-
-        #endregion
-
-        #region TryGetNewsBanner        (NewsBannerId, out NewsBanner)
-
-        /// <summary>
-        /// Try to get the news banner having the given unique identification.
-        /// </summary>
-        /// <param name="NewsId">The unique identification of the news banner.</param>
-        /// <param name="NewsBanner">The news banner.</param>
-        public Boolean TryGetNewsBanner(NewsBanner_Id   NewsBannerId,
-                                         out NewsBanner  NewsBanner)
-        {
-
-            try
-            {
-
-                NewsBannersSemaphore.Wait();
-
-                return _NewsBanners.TryGetValue(NewsBannerId, out NewsBanner);
-
-            }
-            finally
-            {
-                NewsBannersSemaphore.Release();
-            }
-
-        }
-
-        #endregion
-
-        #endregion
-
-        #region FAQ
-
-        #region Data
-
-        private readonly Dictionary<FAQ_Id, FAQ> _FAQ;
-
-        /// <summary>
-        /// Return an enumeration of all FAQs.
-        /// </summary>
-        public IEnumerable<FAQ> FAQ
-        {
-            get
-            {
-                try
-                {
-                    FAQSemaphore.Wait();
-                    return _FAQ.Values.ToArray();
-                }
-                finally
-                {
-                    FAQSemaphore.Release();
-                }
-
-            }
-        }
-
-        #endregion
-
-        #region (private) GetFAQSerializator(Request, User)
-
-        private FAQToJSONDelegate GetFAQSerializator(HTTPRequest  Request,
-                                                       User         User)
-        {
-
-            //if (!Request.X_Portal)
-            //{
-            //    switch (User.Id.ToString())
-            //    {
-
-            //        case __issapi:
-            //            return ISSNotificationExtentions.ToISSJSON;
-
-            //    }
-            //}
-
-            return (FAQ,
-                    Embedded,
-                    ExpandTags,
-                    ExpandDataLicense,
-                    ExpandOwnerId,
-                    IncludeCryptoHash)
-
-                    => FAQ.ToJSON(Embedded,
-                                   ExpandTags,
-                                   ExpandDataLicense,
-                                   ExpandOwnerId,
-                                   IncludeCryptoHash);
-
-        }
-
-        #endregion
-
-        #region WriteToLogfileAndNotify(MessageType, FAQ, OldFAQ = null, CurrentUserId = null)
-
-        public async Task WriteToLogfileAndNotify(FAQ                     FAQ,
-                                                  NotificationMessageType  MessageType,
-                                                  FAQ                     OldFAQ        = null,
-                                                  User_Id?                 CurrentUserId  = null)
-        {
-
-            await WriteToDatabaseFile(MessageType,
-                                      FAQ.ToJSON(Embedded: false),
-                                      CurrentUserId);
-
-            // Add notifications here!
-
-        }
-
-        #endregion
-
-
-        #region Add           (FAQ,   CurrentUserId = null)
-
-        /// <summary>
-        /// Add the given FAQ to the API.
-        /// </summary>
-        /// <param name="FAQ">A FAQ.</param>
-        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
-        public async Task<FAQ> AddFAQ(FAQ       FAQ,
-                                      User_Id?  CurrentUserId  = null)
-        {
-
-            if (FAQ == null)
-                throw new ArgumentException(nameof(FAQ), "The given FAQ must not be null!");
-
-            if (FAQ.API != null && FAQ.API != this)
-                throw new ArgumentException(nameof(FAQ), "The given FAQ is already attached to another API!");
-
-            try
-            {
-
-                await FAQSemaphore.WaitAsync();
-
-                if (_FAQ.ContainsKey(FAQ.Id))
-                    throw new Exception("FAQ '" + FAQ.Id + "' already exists in this API!");
-
-                await WriteToLogfileAndNotify(FAQ,
-                                              addFAQ_MessageType,
-                                              CurrentUserId: CurrentUserId);
-
-                FAQ.API = this;
-
-                return _FAQ.AddAndReturnValue(FAQ.Id, FAQ);
-
-            }
-            finally
-            {
-                FAQSemaphore.Release();
-            }
-
-        }
-
-        #endregion
-
-        #region AddIfNotExists(FAQ,   CurrentUserId = null)
-
-        /// <summary>
-        /// Add the given FAQ to the API.
-        /// </summary>
-        /// <param name="FAQ">A FAQ.</param>
-        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
-        public async Task<FAQ> AddIfNotExists(FAQ       FAQ,
-                                              User_Id?  CurrentUserId  = null)
-        {
-
-            if (FAQ == null)
-                throw new ArgumentException(nameof(FAQ), "The given FAQ must not be null!");
-
-            if (FAQ.API != null && FAQ.API != this)
-                throw new ArgumentException(nameof(FAQ), "The given FAQ is already attached to another API!");
-
-            try
-            {
-
-                await FAQSemaphore.WaitAsync();
-
-                if (_FAQ.TryGetValue(FAQ.Id, out FAQ OldFAQ))
-                    return OldFAQ;
-
-                await WriteToLogfileAndNotify(FAQ,
-                                              addIfNotExistsFAQ_MessageType,
-                                              CurrentUserId: CurrentUserId);
-
-                FAQ.API = this;
-
-                return _FAQ.AddAndReturnValue(FAQ.Id, FAQ);
-
-            }
-            finally
-            {
-                FAQSemaphore.Release();
-            }
-
-        }
-
-        #endregion
-
-        #region AddOrUpdate   (FAQ,   CurrentUserId = null)
-
-        /// <summary>
-        /// Add or update the given FAQ to/within the API.
-        /// </summary>
-        /// <param name="FAQ">A FAQ.</param>
-        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
-        public async Task<FAQ> AddOrUpdate(FAQ      FAQ,
-                                           User_Id? CurrentUserId = null)
-        {
-
-            if (FAQ == null)
-                throw new ArgumentException(nameof(FAQ), "The given FAQ must not be null!");
-
-            if (FAQ.API != null && FAQ.API != this)
-                throw new ArgumentException(nameof(FAQ), "The given FAQ is already attached to another API!");
-
-            FAQ      OldFAQ  = null;
-            DateTime Now     = DateTime.UtcNow;
-
-            try
-            {
-
-                await FAQSemaphore.WaitAsync();
-
-                FAQ.API = this;
-
-                if (_FAQ.TryGetValue(FAQ.Id, out OldFAQ))
-                {
-                    _FAQ.Remove(OldFAQ.Id);
-                    FAQ.CopyAllLinkedDataFrom(OldFAQ);
-                }
-
-                await WriteToLogfileAndNotify(FAQ,
-                                              addOrUpdateFAQ_MessageType,
-                                              OldFAQ,
-                                              CurrentUserId);
-
-                _FAQ.Add(FAQ.Id, FAQ);
-
-            }
-            finally
-            {
-                FAQSemaphore.Release();
-            }
-
-            return FAQ;
-
-        }
-
-        #endregion
-
-        #region Update        (FAQ,   CurrentUserId = null)
-
-        /// <summary>
-        /// Update the given FAQ within the API.
-        /// </summary>
-        /// <param name="FAQ">A FAQ.</param>
-        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
-        public async Task<FAQ> Update(FAQ       FAQ,
-                                      User_Id?  CurrentUserId              = null)
-        {
-
-            if (FAQ == null)
-                throw new ArgumentException(nameof(FAQ), "The given FAQ must not be null!");
-
-            if (FAQ.API != null && FAQ.API != this)
-                throw new ArgumentException(nameof(FAQ), "The given FAQ is already attached to another API!");
-
-            DateTime Now = DateTime.UtcNow;
-
-            try
-            {
-
-                await FAQSemaphore.WaitAsync();
-
-                if (!_FAQ.TryGetValue(FAQ.Id, out FAQ OldFAQ))
-                    throw new Exception("FAQ '" + FAQ.Id + "' does not exists in this API!");
-
-
-                await WriteToLogfileAndNotify(FAQ,
-                                              updateFAQ_MessageType,
-                                              OldFAQ,
-                                              CurrentUserId);
-
-                FAQ.API = this;
-
-                _FAQ.Remove(OldFAQ.Id);
-                FAQ.CopyAllLinkedDataFrom(OldFAQ);
-
-                _FAQ.Add(FAQ.Id, FAQ);
-
-            }
-            finally
-            {
-                FAQSemaphore.Release();
-            }
-
-            return FAQ;
-
-        }
-
-        #endregion
-
-        #region Update        (FAQId, UpdateDelegate, CurrentUserId = null)
-
-        /// <summary>
-        /// Update the given FAQ.
-        /// </summary>
-        /// <param name="FAQId">A FAQ identification.</param>
-        /// <param name="UpdateDelegate">A delegate to update the given FAQ.</param>
-        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
-        public async Task<FAQ> Update(FAQ_Id               FAQId,
-                                      Action<FAQ.Builder>  UpdateDelegate,
-                                      User_Id?             CurrentUserId  = null)
-        {
-
-            FAQ FAQ;
-
-            try
-            {
-
-                if (UpdateDelegate == null)
-                    throw new Exception("The given update delegate must not be null!");
-
-                await FAQSemaphore.WaitAsync();
-
-                if (!_FAQ.TryGetValue(FAQId, out FAQ OldFAQ))
-                    throw new Exception("FAQ '" + FAQId + "' does not exists in this API!");
-
-                var Builder = OldFAQ.ToBuilder();
-                UpdateDelegate(Builder);
-                FAQ = Builder.ToImmutable;
-                FAQ.API = this;
-
-                await WriteToLogfileAndNotify(FAQ,
-                                              updateFAQ_MessageType,
-                                              OldFAQ,
-                                              CurrentUserId);
-
-                _FAQ.Remove(OldFAQ.Id);
-                //OldFAQ.CopyAllEdgesTo(FAQ);
-                _FAQ.Add(FAQ.Id, FAQ);
-
-            }
-            finally
-            {
-                FAQSemaphore.Release();
-            }
-
-            return FAQ;
-
-        }
-
-        #endregion
-
-        #region Remove        (FAQId, CurrentUserId = null)
-
-        /// <summary>
-        /// Remove the given FAQ from this API.
-        /// </summary>
-        /// <param name="FAQId">The unique identification of the FAQ.</param>
-        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
-        public async Task<FAQ> Remove(FAQ_Id   FAQId,
-                                      User_Id? CurrentUserId  = null)
-        {
-
-            try
-            {
-
-                await FAQSemaphore.WaitAsync();
-
-                if (_FAQ.TryGetValue(FAQId, out FAQ FAQ))
-                {
-
-                    await WriteToLogfileAndNotify(FAQ,
-                                                  removeFAQ_MessageType,
-                                                  CurrentUserId: CurrentUserId);
-
-                    _FAQ.Remove(FAQId);
-
-                    FAQ.API = null;
-
-                    return FAQ;
-
-                }
-
-                return null;
-
-            }
-            finally
-            {
-                FAQSemaphore.Release();
-            }
-
-        }
-
-        #endregion
-
-
-        #region Contains      (FAQId)
-
-        /// <summary>
-        /// Whether this API contains a FAQ having the given unique identification.
-        /// </summary>
-        /// <param name="FAQId">The unique identification of the FAQ.</param>
-        public Boolean Contains(FAQ_Id FAQId)
-        {
-
-            try
-            {
-
-                FAQSemaphore.Wait();
-
-                return _FAQ.ContainsKey(FAQId);
-
-            }
-            finally
-            {
-                FAQSemaphore.Release();
-            }
-
-        }
-
-        #endregion
-
-        #region Get           (FAQId)
-
-        /// <summary>
-        /// Get the FAQ having the given unique identification.
-        /// </summary>
-        /// <param name="FAQId">The unique identification of the FAQ.</param>
-        public async Task<FAQ> Get(FAQ_Id  FAQId)
-        {
-
-            try
-            {
-
-                await FAQSemaphore.WaitAsync();
-
-                if (_FAQ.TryGetValue(FAQId, out FAQ FAQ))
-                    return FAQ;
-
-                return null;
-
-            }
-            finally
-            {
-                FAQSemaphore.Release();
-            }
-
-        }
-
-        #endregion
-
-        #region TryGet        (FAQId, out FAQ)
-
-        /// <summary>
-        /// Try to get the FAQ having the given unique identification.
-        /// </summary>
-        /// <param name="FAQId">The unique identification of the FAQ.</param>
-        /// <param name="FAQ">The FAQ.</param>
-        public Boolean TryGet(FAQ_Id   FAQId,
-                              out FAQ  FAQ)
-        {
-
-            try
-            {
-
-                FAQSemaphore.Wait();
-
-                return _FAQ.TryGetValue(FAQId, out FAQ);
-
-            }
-            finally
-            {
-                FAQSemaphore.Release();
-            }
-
-        }
-
-        #endregion
-
-        #endregion
-
-
-        #region Dashboards
-
-        #region Data
-
-        protected readonly Dictionary<Dashboard_Id, Dashboard> _Dashboards;
-
-        /// <summary>
-        /// Return an enumeration of all dashboards.
-        /// </summary>
-        public IEnumerable<Dashboard> Dashboards
-        {
-            get
-            {
-                try
-                {
-                    DashboardsSemaphore.Wait();
-                    return _Dashboards.Values.ToArray();
-                }
-                finally
-                {
-                    DashboardsSemaphore.Release();
-                }
-
-            }
-        }
-
-        #endregion
-
-
-        #region AddDashboard           (Dashboard,                   CurrentUserId = null)
-
-        /// <summary>
-        /// Add the given dashboard to the API.
-        /// </summary>
-        /// <param name="Dashboard">A new dashboard to be added to this API.</param>
-        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
-        public async Task<Dashboard> AddDashboard(Dashboard  Dashboard,
-                                                  User_Id?   CurrentUserId  = null)
-        {
-
-            try
-            {
-
-                await DashboardsSemaphore.WaitAsync();
-
-                if (Dashboard.API != null && Dashboard.API != this)
-                    throw new ArgumentException(nameof(Dashboard), "The given dashboard is already attached to another API!");
-
-                if (_Dashboards.ContainsKey(Dashboard.Id))
-                    throw new Exception("Dashboard '" + Dashboard.Id + "' already exists in this API!");
-
-                Dashboard.API = this;
-
-
-                await WriteToDatabaseFile(NotificationMessageType.Parse("addDashboard"),
-                                     Dashboard.ToJSON(),
-                                     CurrentUserId);
-
-                var newDashboard = _Dashboards.AddAndReturnValue(Dashboard.Id, Dashboard);
-
-                return newDashboard;
-
-            }
-            finally
-            {
-                DashboardsSemaphore.Release();
-            }
-
-        }
-
-        #endregion
-
-        #region AddDashboardIfNotExists(Dashboard,                   CurrentUserId = null)
-
-        /// <summary>
-        /// When it has not been created before, add the given dashboard to the API.
-        /// </summary>
-        /// <param name="Dashboard">A new dashboard to be added to this API.</param>
-        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
-        public async Task<Dashboard> AddDashboardIfNotExists(Dashboard  Dashboard,
-                                                             User_Id?   CurrentUserId  = null)
-        {
-
-            try
-            {
-
-                await DashboardsSemaphore.WaitAsync();
-
-                if (Dashboard.API != null && Dashboard.API != this)
-                    throw new ArgumentException(nameof(Dashboard), "The given dashboard is already attached to another API!");
-
-                if (_Dashboards.ContainsKey(Dashboard.Id))
-                    return _Dashboards[Dashboard.Id];
-
-                Dashboard.API = this;
-
-                await WriteToDatabaseFile(NotificationMessageType.Parse("addIfNotExistsDashboard"),
-                                     Dashboard.ToJSON(),
-                                     CurrentUserId);
-
-                var newDashboard = _Dashboards.AddAndReturnValue(Dashboard.Id, Dashboard);
-
-                return newDashboard;
-
-            }
-            finally
-            {
-                DashboardsSemaphore.Release();
-            }
-
-        }
-
-        #endregion
-
-        #region AddOrUpdateDashboard   (Dashboard,                   CurrentUserId = null)
-
-        /// <summary>
-        /// Add or update the given dashboard to/within the API.
-        /// </summary>
-        /// <param name="Dashboard">A dashboard.</param>
-        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
-        public async Task<Dashboard> AddOrUpdateDashboard(Dashboard  Dashboard,
-                                                          User_Id?   CurrentUserId  = null)
-        {
-
-            try
-            {
-
-                await DashboardsSemaphore.WaitAsync();
-
-                if (Dashboard.API != null && Dashboard.API != this)
-                    throw new ArgumentException(nameof(Dashboard), "The given dashboard is already attached to another API!");
-
-                if (_Dashboards.TryGetValue(Dashboard.Id, out Dashboard OldDashboard))
-                {
-                    _Dashboards.Remove(OldDashboard.Id);
-                }
-
-                Dashboard.API = this;
-
-                await WriteToDatabaseFile(NotificationMessageType.Parse("addOrUpdateDashboard"),
-                                     Dashboard.ToJSON(),
-                                     CurrentUserId);
-
-                var newDashboard = _Dashboards.AddAndReturnValue(Dashboard.Id, Dashboard);
-
-                // ToDo: Copy edges!
-
-                return newDashboard;
-
-            }
-            finally
-            {
-                DashboardsSemaphore.Release();
-            }
-
-        }
-
-        #endregion
-
-        #region UpdateDashboard        (Dashboard,                   CurrentUserId = null)
-
-        /// <summary>
-        /// Update the given dashboard within the API.
-        /// </summary>
-        /// <param name="Dashboard">A dashboard.</param>
-        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
-        public async Task<Dashboard> UpdateDashboard(Dashboard  Dashboard,
-                                                     User_Id?   CurrentUserId  = null)
-        {
-
-            try
-            {
-
-                await DashboardsSemaphore.WaitAsync();
-
-                if (Dashboard.API != null && Dashboard.API != this)
-                    throw new ArgumentException(nameof(Dashboard), "The given dashboard is already attached to another API!");
-
-                if (!_Dashboards.TryGetValue(Dashboard.Id, out Dashboard OldDashboard))
-                    throw new Exception("Dashboard '" + Dashboard.Id + "' does not exists in this API!");
-
-                else
-                {
-
-                    _Dashboards.Remove(OldDashboard.Id);
-
-                }
-
-                Dashboard.API = this;
-
-                await WriteToDatabaseFile(NotificationMessageType.Parse("updateDashboard"),
-                                     Dashboard.ToJSON(),
-                                     CurrentUserId);
-
-                Dashboard.CopyAllLinkedDataFrom(OldDashboard);
-
-                return _Dashboards.AddAndReturnValue(Dashboard.Id, Dashboard);
-
-            }
-            finally
-            {
-                DashboardsSemaphore.Release();
-            }
-
-        }
-
-        #endregion
-
-        #region UpdateDashboard        (DashboardId, UpdateDelegate, CurrentUserId = null)
-
-        /// <summary>
-        /// Update the given dashboard.
-        /// </summary>
-        /// <param name="DashboardId">An dashboard identification.</param>
-        /// <param name="UpdateDelegate">A delegate to update the given dashboard.</param>
-        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
-        public async Task<Dashboard> UpdateDashboard(Dashboard_Id               DashboardId,
-                                                     Action<Dashboard.Builder>  UpdateDelegate,
-                                                     User_Id?                   CurrentUserId  = null)
-        {
-
-            try
-            {
-
-                if (UpdateDelegate == null)
-                    throw new Exception("The given update delegate must not be null!");
-
-                await DashboardsSemaphore.WaitAsync();
-
-                if (!_Dashboards.TryGetValue(DashboardId, out Dashboard OldDashboard))
-                    throw new Exception("Dashboard '" + DashboardId + "' does not exists in this API!");
-
-                var Builder = OldDashboard.ToBuilder();
-                UpdateDelegate(Builder);
-                var NewDashboard = Builder.ToImmutable;
-
-                await WriteToDatabaseFile(NotificationMessageType.Parse("updateDashboard"),
-                                     NewDashboard.ToJSON(),
-                                     CurrentUserId);
-
-                NewDashboard.API = this;
-
-                _Dashboards.Remove(OldDashboard.Id);
-                NewDashboard.CopyAllLinkedDataFrom(OldDashboard);
-
-                return _Dashboards.AddAndReturnValue(NewDashboard.Id, NewDashboard);
-
-            }
-            finally
-            {
-                DashboardsSemaphore.Release();
-            }
-
-        }
-
-        #endregion
-
-
-        #region (protected internal) SetDashboardRequest (Request)
-
-        /// <summary>
-        /// An event sent whenever set dashboard (data) request was received.
-        /// </summary>
-        public event RequestLogHandler OnSetDashboardRequest;
-
-        protected internal HTTPRequest SetDashboardRequest(HTTPRequest Request)
-        {
-
-            OnSetDashboardRequest?.Invoke(Request.Timestamp,
-                                          HTTPServer,
-                                          Request);
-
-            return Request;
-
-        }
-
-        #endregion
-
-        #region (protected internal) SetDashboardResponse(Response)
-
-        /// <summary>
-        /// An event sent whenever a response on a set dashboard (data) request was sent.
-        /// </summary>
-        public event AccessLogHandler OnSetDashboardResponse;
-
-        protected internal HTTPResponse SetDashboardResponse(HTTPResponse Response)
-        {
-
-            OnSetDashboardResponse?.Invoke(Response.Timestamp,
-                                           HTTPServer,
-                                           Response.HTTPRequest,
-                                           Response);
-
-            return Response;
-
-        }
-
-        #endregion
-
-
-        #region DashboardExists        (DashboardId)
-
-        /// <summary>
-        /// Whether this API contains a dashboard having the given unique identification.
-        /// </summary>
-        /// <param name="DashboardId">The unique identification of the dashboard.</param>
-        public Boolean DashboardExists(Dashboard_Id DashboardId)
-        {
-
-            try
-            {
-
-                DashboardsSemaphore.Wait();
-
-                return _Dashboards.ContainsKey(DashboardId);
-
-            }
-            finally
-            {
-                DashboardsSemaphore.Release();
-            }
-
-        }
-
-        #endregion
-
-        #region GetDashboard           (DashboardId)
-
-        /// <summary>
-        /// Get the dashboard having the given unique identification.
-        /// </summary>
-        /// <param name="DashboardId">The unique identification of the dashboard.</param>
-        public async Task<Dashboard> GetDashboard(Dashboard_Id  DashboardId)
-        {
-
-            try
-            {
-
-                await DashboardsSemaphore.WaitAsync();
-
-                if (_Dashboards.TryGetValue(DashboardId, out Dashboard Dashboard))
-                    return Dashboard;
-
-                return null;
-
-            }
-            finally
-            {
-                DashboardsSemaphore.Release();
-            }
-
-        }
-
-        #endregion
-
-        #region TryGetDashboard        (DashboardId, out Dashboard)
-
-        /// <summary>
-        /// Try to get the dashboard having the given unique identification.
-        /// </summary>
-        /// <param name="DashboardId">The unique identification of the dashboard.</param>
-        /// <param name="Dashboard">The dashboard.</param>
-        public Boolean TryGetDashboard(Dashboard_Id   DashboardId,
-                                       out Dashboard  Dashboard)
-        {
-
-            try
-            {
-
-                DashboardsSemaphore.Wait();
-
-                return _Dashboards.TryGetValue(DashboardId, out Dashboard);
-
-            }
-            finally
-            {
-                DashboardsSemaphore.Release();
-            }
-
-        }
-
-        #endregion
-
-
-        #region RemoveDashboard        (DashboardId,                 CurrentUserId = null)
-
-        /// <summary>
-        /// Remove the given dashboard from this API.
-        /// </summary>
-        /// <param name="DashboardId">The unique identification of the dashboard.</param>
-        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
-        public async Task<Dashboard> RemoveDashboard(Dashboard_Id  DashboardId,
-                                                     User_Id?      CurrentUserId  = null)
-        {
-
-            try
-            {
-
-                await DashboardsSemaphore.WaitAsync();
-
-                if (_Dashboards.TryGetValue(DashboardId, out Dashboard Dashboard))
-                {
-
-                    await WriteToDatabaseFile(NotificationMessageType.Parse("removeDashboard"),
-                                         Dashboard.ToJSON(),
-                                         CurrentUserId);
-
-                    _Dashboards.Remove(DashboardId);
-
-                    //Dashboard.API = null;
-
-                    return Dashboard;
-
-                }
-
-                return null;
-
-            }
-            finally
-            {
-                DashboardsSemaphore.Release();
-            }
-
-        }
-
-        #endregion
-
-        #endregion
-
         #region ServiceTickets
 
         #region Data
@@ -19342,14 +17820,14 @@ namespace social.OpenData.UsersAPI
                 return;
 
             await WriteToDatabaseFile(MessageType,
-                                 ServiceTicket.ToJSON(),
-                                 DatabaseFileName,
-                                 CurrentUserId);
+                                      ServiceTicket.ToJSON(),
+                                      DatabaseFileName,
+                                      CurrentUserId);
 
 
             var _MessageTypes  = new HashSet<NotificationMessageType>() { MessageType };
 
-            if (MessageType == addIfNotExistsServiceTicket_MessageType)
+            if (MessageType == addServiceTicketIfNotExists_MessageType)
             {
                 _MessageTypes.Add(addServiceTicket_MessageType);
             }
@@ -19357,6 +17835,7 @@ namespace social.OpenData.UsersAPI
             else if (MessageType == addOrUpdateServiceTicket_MessageType)
             {
                 _MessageTypes.Add(addServiceTicket_MessageType);
+                _MessageTypes.Add(updateServiceTicket_MessageType);
             }
 
             var MessageTypes   = _MessageTypes.ToArray();
@@ -19372,6 +17851,25 @@ namespace social.OpenData.UsersAPI
 
                     var AllTelegramNotifications = this.GetTelegramNotifications(ServiceTicket.Author, MessageTypes).
                                                         ToHashSet();
+
+                    if (ServiceTicket.Affected != null)
+                    {
+
+                        if (ServiceTicket.Affected.Users.SafeAny())
+                        {
+                            foreach (var user in ServiceTicket.Affected.Users)
+                                foreach (var notification in this.GetTelegramNotifications(user.Id, MessageTypes))
+                                    AllTelegramNotifications.Add(notification);
+                        }
+
+                        if (ServiceTicket.Affected.Organizations.SafeAny())
+                        {
+                            foreach (var organization in ServiceTicket.Affected.Organizations)
+                                foreach (var notification in this.GetTelegramNotifications(organization.Id, MessageTypes))
+                                    AllTelegramNotifications.Add(notification);
+                        }
+
+                    }
 
                     if (DevMachines.Contains(Environment.MachineName))
                     {
@@ -19452,9 +17950,9 @@ namespace social.OpenData.UsersAPI
                                                    new JProperty("timestamp", DateTime.UtcNow.ToIso8601())
                                                );
 
-                        else if (MessageType == addIfNotExistsServiceTicket_MessageType)
+                        else if (MessageType == addServiceTicketIfNotExists_MessageType)
                             JSONNotification = new JObject(
-                                                   new JProperty("addIfNotExistsServiceTicket",
+                                                   new JProperty("addServiceTicketIfNotExists",
                                                        ServiceTicket.ToJSON()
                                                    ),
                                                    new JProperty("timestamp", DateTime.UtcNow.ToIso8601())
@@ -19640,7 +18138,7 @@ namespace social.OpenData.UsersAPI
                     return OldServiceTicket as TServiceTicket;
 
                 await WriteToLogfileAndNotify(ServiceTicket,
-                                              addIfNotExistsServiceTicket_MessageType,
+                                              addServiceTicketIfNotExists_MessageType,
                                               CurrentUserId: CurrentUserId);
 
                 ServiceTicket.API = this;
@@ -20109,6 +18607,1400 @@ namespace social.OpenData.UsersAPI
         #endregion
 
 
+        #region NewsPostings
+
+        #region Data
+
+        private readonly Dictionary<NewsPosting_Id, NewsPosting> _NewsPostings;
+
+        /// <summary>
+        /// Return an enumeration of all news postings.
+        /// </summary>
+        public IEnumerable<NewsPosting> NewsPostings
+        {
+            get
+            {
+                try
+                {
+                    NewsPostingsSemaphore.Wait();
+                    return _NewsPostings.Values.ToArray();
+                }
+                finally
+                {
+                    NewsPostingsSemaphore.Release();
+                }
+
+            }
+        }
+
+        #endregion
+
+        #region (private) GetNewsPostingSerializator(Request, User)
+
+        private NewsPostingToJSONDelegate GetNewsPostingSerializator(HTTPRequest  Request,
+                                                                     User         User)
+        {
+
+            //if (!Request.X_Portal)
+            //{
+            //    switch (User.Id.ToString())
+            //    {
+
+            //        case __issapi:
+            //            return ISSNotificationExtentions.ToISSJSON;
+
+            //    }
+            //}
+
+            return (NewsPosting,
+                    Embedded,
+                    ExpandTags,
+                    ExpandAuthorId,
+                    IncludeCryptoHash)
+
+                    => NewsPosting.ToJSON(Embedded,
+                                          ExpandTags,
+                                          ExpandAuthorId,
+                                          IncludeCryptoHash);
+
+        }
+
+        #endregion
+
+        #region WriteToLogfileAndNotify(MessageType, NewsPosting, OldNews = null, CurrentUserId = null)
+
+        public async Task WriteToLogfileAndNotify(NewsPosting              NewsPosting,
+                                                  NotificationMessageType  MessageType,
+                                                  NewsPosting              OldNews        = null,
+                                                  User_Id?                 CurrentUserId  = null)
+        {
+
+            await WriteToDatabaseFile(MessageType,
+                                      NewsPosting.ToJSON(Embedded: false),
+                                      CurrentUserId);
+
+            //base.WriteToLogfileAndNotify(NotificationMessageType.Parse("News." + MessageType),
+            //                             News.ToJSON(Embedded: true),
+            //                             News.Owner,
+            //                             CardiCloudNotificationsLogFile,
+            //                             CurrentUserId);
+
+
+            var _MessageTypes  = new HashSet<NotificationMessageType>() { MessageType };
+
+            if (MessageType == addNewsPostingIfNotExists_MessageType)
+            {
+                _MessageTypes.Add(addNewsPosting_MessageType);
+            }
+
+            else if (MessageType == addOrUpdateNewsPosting_MessageType)
+            {
+                _MessageTypes.Add(addNewsPosting_MessageType);
+            }
+
+            var MessageTypes   = _MessageTypes.ToArray();
+
+            // Add notifications here!
+
+        }
+
+        #endregion
+
+
+        #region AddNewsPosting           (NewsPosting,   CurrentUserId = null)
+
+        /// <summary>
+        /// Add the given news posting to the API.
+        /// </summary>
+        /// <param name="News">A news posting.</param>
+        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
+        public async Task<NewsPosting> AddNewsPosting(NewsPosting  NewsPosting,
+                                                      User_Id?     CurrentUserId  = null)
+        {
+
+            if (NewsPosting == null)
+                throw new ArgumentException(nameof(NewsPosting), "The given news posting must not be null!");
+
+            if (NewsPosting.API != null && NewsPosting.API != this)
+                throw new ArgumentException(nameof(NewsPosting), "The given news posting is already attached to another API!");
+
+            try
+            {
+
+                await NewsPostingsSemaphore.WaitAsync();
+
+                if (_NewsPostings.ContainsKey(NewsPosting.Id))
+                    throw new Exception("news posting '" + NewsPosting.Id + "' already exists in this API!");
+
+                await WriteToLogfileAndNotify(NewsPosting,
+                                              addNewsPosting_MessageType,
+                                              CurrentUserId: CurrentUserId);
+
+                NewsPosting.API = this;
+
+                return _NewsPostings.AddAndReturnValue(NewsPosting.Id, NewsPosting);
+
+            }
+            finally
+            {
+                NewsPostingsSemaphore.Release();
+            }
+
+        }
+
+        #endregion
+
+        #region AddNewsPostingIfNotExists(NewsPosting,   CurrentUserId = null)
+
+        /// <summary>
+        /// Add the given news posting to the API.
+        /// </summary>
+        /// <param name="NewsPosting">A news posting.</param>
+        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
+        public async Task<NewsPosting> AddNewsPostingIfNotExists(NewsPosting  NewsPosting,
+                                                                 User_Id?     CurrentUserId  = null)
+        {
+
+            if (NewsPosting == null)
+                throw new ArgumentException(nameof(NewsPosting), "The given news posting must not be null!");
+
+            if (NewsPosting.API != null && NewsPosting.API != this)
+                throw new ArgumentException(nameof(NewsPosting), "The given news posting is already attached to another API!");
+
+            try
+            {
+
+                await NewsPostingsSemaphore.WaitAsync();
+
+                if (_NewsPostings.TryGetValue(NewsPosting.Id, out NewsPosting OldNewsPosting))
+                    return OldNewsPosting;
+
+                await WriteToLogfileAndNotify(NewsPosting,
+                                              addNewsPostingIfNotExists_MessageType,
+                                              CurrentUserId: CurrentUserId);
+
+                NewsPosting.API = this;
+
+                return _NewsPostings.AddAndReturnValue(NewsPosting.Id, NewsPosting);
+
+            }
+            finally
+            {
+                NewsPostingsSemaphore.Release();
+            }
+
+        }
+
+        #endregion
+
+        #region AddOrUpdateNewsPosting   (NewsPosting,   CurrentUserId = null)
+
+        /// <summary>
+        /// Add or update the given news posting to/within the API.
+        /// </summary>
+        /// <param name="NewsPosting">A news posting.</param>
+        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
+        public async Task<NewsPosting> AddOrUpdateNewsPosting(NewsPosting  NewsPosting,
+                                                              User_Id?     CurrentUserId = null)
+        {
+
+            if (NewsPosting == null)
+                throw new ArgumentException(nameof(NewsPosting), "The given news posting must not be null!");
+
+            if (NewsPosting.API != null && NewsPosting.API != this)
+                throw new ArgumentException(nameof(NewsPosting), "The given news posting is already attached to another API!");
+
+            NewsPosting OldNewsPosting  = null;
+            DateTime    Now             = DateTime.UtcNow;
+
+            try
+            {
+
+                await NewsPostingsSemaphore.WaitAsync();
+
+                NewsPosting.API = this;
+
+                if (_NewsPostings.TryGetValue(NewsPosting.Id, out OldNewsPosting))
+                {
+                    _NewsPostings.Remove(OldNewsPosting.Id);
+                    NewsPosting.CopyAllLinkedDataFrom(OldNewsPosting);
+                }
+
+                await WriteToLogfileAndNotify(NewsPosting,
+                                              addOrUpdateNewsPosting_MessageType,
+                                              OldNewsPosting,
+                                              CurrentUserId);
+
+                _NewsPostings.Add(NewsPosting.Id, NewsPosting);
+
+            }
+            finally
+            {
+                NewsPostingsSemaphore.Release();
+            }
+
+            return NewsPosting;
+
+        }
+
+        #endregion
+
+        #region UpdateNewsPosting        (NewsPosting,   CurrentUserId = null)
+
+        /// <summary>
+        /// Update the given news posting within the API.
+        /// </summary>
+        /// <param name="NewsPosting">A news posting.</param>
+        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
+        public async Task<NewsPosting> UpdateNewsPosting(NewsPosting  NewsPosting,
+                                                         User_Id?     CurrentUserId   = null)
+        {
+
+            if (NewsPosting == null)
+                throw new ArgumentException(nameof(NewsPosting), "The given news posting must not be null!");
+
+            if (NewsPosting.API != null && NewsPosting.API != this)
+                throw new ArgumentException(nameof(NewsPosting), "The given news posting is already attached to another API!");
+
+            DateTime Now = DateTime.UtcNow;
+
+            try
+            {
+
+                await NewsPostingsSemaphore.WaitAsync();
+
+                if (!_NewsPostings.TryGetValue(NewsPosting.Id, out NewsPosting OldNewsPosting))
+                    throw new Exception("News posting '" + NewsPosting.Id + "' does not exists in this API!");
+
+
+                await WriteToLogfileAndNotify(NewsPosting,
+                                              updateNewsPosting_MessageType,
+                                              OldNewsPosting,
+                                              CurrentUserId);
+
+                NewsPosting.API = this;
+
+                _NewsPostings.Remove(OldNewsPosting.Id);
+                NewsPosting.CopyAllLinkedDataFrom(OldNewsPosting);
+
+                _NewsPostings.Add(NewsPosting.Id, NewsPosting);
+
+            }
+            finally
+            {
+                NewsPostingsSemaphore.Release();
+            }
+
+            return NewsPosting;
+
+        }
+
+        #endregion
+
+        #region UpdateNewsPosting        (NewsPostingId, UpdateDelegate, CurrentUserId = null)
+
+        /// <summary>
+        /// Update the given news posting.
+        /// </summary>
+        /// <param name="NewsPostingId">A news posting identification.</param>
+        /// <param name="UpdateDelegate">A delegate to update the given news posting.</param>
+        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
+        public async Task<NewsPosting> Update(NewsPosting_Id               NewsPostingId,
+                                              Action<NewsPosting.Builder>  UpdateDelegate,
+                                              User_Id?                     CurrentUserId  = null)
+        {
+
+            NewsPosting NewsPosting;
+            DateTime Now = DateTime.UtcNow;
+
+            try
+            {
+
+                if (UpdateDelegate == null)
+                    throw new Exception("The given update delegate must not be null!");
+
+                await NewsPostingsSemaphore.WaitAsync();
+
+                if (!_NewsPostings.TryGetValue(NewsPostingId, out NewsPosting OldNewsPosting))
+                    throw new Exception("News posting '" + NewsPostingId + "' does not exists in this API!");
+
+                var Builder = OldNewsPosting.ToBuilder();
+                UpdateDelegate(Builder);
+                NewsPosting = Builder.ToImmutable;
+                NewsPosting.API = this;
+
+                await WriteToLogfileAndNotify(NewsPosting,
+                                              updateNewsPosting_MessageType,
+                                              OldNewsPosting,
+                                              CurrentUserId);
+
+                _NewsPostings.Remove(OldNewsPosting.Id);
+                //OldNews.CopyAllEdgesTo(News);
+                _NewsPostings.Add(NewsPosting.Id, NewsPosting);
+
+            }
+            finally
+            {
+                NewsPostingsSemaphore.Release();
+            }
+
+            return NewsPosting;
+
+        }
+
+        #endregion
+
+        #region RemoveNewsPosting        (NewsPostingId, CurrentUserId = null)
+
+        /// <summary>
+        /// Remove the given news posting from this API.
+        /// </summary>
+        /// <param name="NewsPostingId">The unique identification of the news posting.</param>
+        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
+        public async Task<NewsPosting> RemoveNewsPosting(NewsPosting_Id  NewsPostingId,
+                                                         User_Id?        CurrentUserId  = null)
+        {
+
+            try
+            {
+
+                await NewsPostingsSemaphore.WaitAsync();
+
+                if (_NewsPostings.TryGetValue(NewsPostingId, out NewsPosting NewsPosting))
+                {
+
+                    await WriteToLogfileAndNotify(NewsPosting,
+                                                  removeNewsPosting_MessageType,
+                                                  CurrentUserId: CurrentUserId);
+
+                    _NewsPostings.Remove(NewsPostingId);
+
+                    NewsPosting.API = null;
+
+                    return NewsPosting;
+
+                }
+
+                return null;
+
+            }
+            finally
+            {
+                NewsPostingsSemaphore.Release();
+            }
+
+        }
+
+        #endregion
+
+
+        #region ContainsNewsPosting      (NewsPostingId)
+
+        /// <summary>
+        /// Whether this API contains a news posting having the given unique identification.
+        /// </summary>
+        /// <param name="NewsPostingId">The unique identification of the news posting.</param>
+        public Boolean ContainsNewsPosting(NewsPosting_Id NewsPostingId)
+        {
+
+            try
+            {
+
+                NewsPostingsSemaphore.Wait();
+
+                return _NewsPostings.ContainsKey(NewsPostingId);
+
+            }
+            finally
+            {
+                NewsPostingsSemaphore.Release();
+            }
+
+        }
+
+        #endregion
+
+        #region GetNewsPosting           (NewsPostingId)
+
+        /// <summary>
+        /// Get the news posting having the given unique identification.
+        /// </summary>
+        /// <param name="NewsPostingId">The unique identification of the news posting.</param>
+        public async Task<NewsPosting> GetNewsPosting(NewsPosting_Id  NewsPostingId)
+        {
+
+            try
+            {
+
+                await NewsPostingsSemaphore.WaitAsync();
+
+                if (_NewsPostings.TryGetValue(NewsPostingId, out NewsPosting newsPosting))
+                    return newsPosting;
+
+                return null;
+
+            }
+            finally
+            {
+                NewsPostingsSemaphore.Release();
+            }
+
+        }
+
+        #endregion
+
+        #region TryGetNewsPosting        (NewsPostingId, out NewsPosting)
+
+        /// <summary>
+        /// Try to get the news posting having the given unique identification.
+        /// </summary>
+        /// <param name="NewsId">The unique identification of the news posting.</param>
+        /// <param name="NewsPosting">The news posting.</param>
+        public Boolean TryGetNewsPosting(NewsPosting_Id   NewsPostingId,
+                                         out NewsPosting  NewsPosting)
+        {
+
+            try
+            {
+
+                NewsPostingsSemaphore.Wait();
+
+                return _NewsPostings.TryGetValue(NewsPostingId, out NewsPosting);
+
+            }
+            finally
+            {
+                NewsPostingsSemaphore.Release();
+            }
+
+        }
+
+        #endregion
+
+        #endregion
+
+        #region NewsBanners
+
+        #region Data
+
+        private readonly Dictionary<NewsBanner_Id, NewsBanner> _NewsBanners;
+
+        /// <summary>
+        /// Return an enumeration of all news banners.
+        /// </summary>
+        public IEnumerable<NewsBanner> NewsBanners
+        {
+            get
+            {
+                try
+                {
+                    NewsBannersSemaphore.Wait();
+                    return _NewsBanners.Values.ToArray();
+                }
+                finally
+                {
+                    NewsBannersSemaphore.Release();
+                }
+
+            }
+        }
+
+        #endregion
+
+        #region (private) GetNewsBannerSerializator(Request, User)
+
+        private NewsBannerToJSONDelegate GetNewsBannerSerializator(HTTPRequest  Request,
+                                                                   User         User)
+        {
+
+            //if (!Request.X_Portal)
+            //{
+            //    switch (User.Id.ToString())
+            //    {
+
+            //        case __issapi:
+            //            return ISSNotificationExtentions.ToISSJSON;
+
+            //    }
+            //}
+
+            return (NewsBanner,
+                    Embedded,
+                    ExpandTags,
+                    ExpandAuthorId,
+                    IncludeCryptoHash)
+
+                        => NewsBanner.ToJSON(Embedded,
+                                             ExpandTags,
+                                             ExpandAuthorId,
+                                             IncludeCryptoHash);
+
+        }
+
+        #endregion
+
+        #region WriteToLogfileAndNotify(MessageType, NewsBanner, OldNews = null, CurrentUserId = null)
+
+        public async Task WriteToLogfileAndNotify(NewsBanner              NewsBanner,
+                                                  NotificationMessageType  MessageType,
+                                                  NewsBanner              OldNews        = null,
+                                                  User_Id?                 CurrentUserId  = null)
+        {
+
+            await WriteToDatabaseFile(MessageType,
+                                      NewsBanner.ToJSON(Embedded: false),
+                                      CurrentUserId);
+
+            //base.WriteToLogfileAndNotify(NotificationMessageType.Parse("News." + MessageType),
+            //                             News.ToJSON(Embedded: true),
+            //                             News.Owner,
+            //                             CardiCloudNotificationsLogFile,
+            //                             CurrentUserId);
+
+
+            var _MessageTypes  = new HashSet<NotificationMessageType>() { MessageType };
+
+            if (MessageType == addNewsBannerIfNotExists_MessageType)
+            {
+                _MessageTypes.Add(addNewsBanner_MessageType);
+            }
+
+            else if (MessageType == addOrUpdateNewsBanner_MessageType)
+            {
+                _MessageTypes.Add(addNewsBanner_MessageType);
+            }
+
+            var MessageTypes   = _MessageTypes.ToArray();
+
+            // Add notifications here!
+
+        }
+
+        #endregion
+
+
+        #region AddNewsBanner           (NewsBanner,   CurrentUserId = null)
+
+        /// <summary>
+        /// Add the given news banner to the API.
+        /// </summary>
+        /// <param name="News">A news banner.</param>
+        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
+        public async Task<NewsBanner> AddNewsBanner(NewsBanner  NewsBanner,
+                                                      User_Id?     CurrentUserId  = null)
+        {
+
+            if (NewsBanner == null)
+                throw new ArgumentException(nameof(NewsBanner), "The given news banner must not be null!");
+
+            if (NewsBanner.API != null && NewsBanner.API != this)
+                throw new ArgumentException(nameof(NewsBanner), "The given news banner is already attached to another API!");
+
+            try
+            {
+
+                await NewsBannersSemaphore.WaitAsync();
+
+                if (_NewsBanners.ContainsKey(NewsBanner.Id))
+                    throw new Exception("news banner '" + NewsBanner.Id + "' already exists in this API!");
+
+                await WriteToLogfileAndNotify(NewsBanner,
+                                              addNewsBanner_MessageType,
+                                              CurrentUserId: CurrentUserId);
+
+                NewsBanner.API = this;
+
+                return _NewsBanners.AddAndReturnValue(NewsBanner.Id, NewsBanner);
+
+            }
+            finally
+            {
+                NewsBannersSemaphore.Release();
+            }
+
+        }
+
+        #endregion
+
+        #region AddNewsBannerIfNotExists(NewsBanner,   CurrentUserId = null)
+
+        /// <summary>
+        /// Add the given news banner to the API.
+        /// </summary>
+        /// <param name="NewsBanner">A news banner.</param>
+        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
+        public async Task<NewsBanner> AddNewsBannerIfNotExists(NewsBanner  NewsBanner,
+                                                               User_Id?    CurrentUserId  = null)
+        {
+
+            if (NewsBanner == null)
+                throw new ArgumentException(nameof(NewsBanner), "The given news banner must not be null!");
+
+            if (NewsBanner.API != null && NewsBanner.API != this)
+                throw new ArgumentException(nameof(NewsBanner), "The given news banner is already attached to another API!");
+
+            try
+            {
+
+                await NewsBannersSemaphore.WaitAsync();
+
+                if (_NewsBanners.TryGetValue(NewsBanner.Id, out NewsBanner OldNewsBanner))
+                    return OldNewsBanner;
+
+                await WriteToLogfileAndNotify(NewsBanner,
+                                              addNewsBannerIfNotExists_MessageType,
+                                              CurrentUserId: CurrentUserId);
+
+                NewsBanner.API = this;
+
+                return _NewsBanners.AddAndReturnValue(NewsBanner.Id, NewsBanner);
+
+            }
+            finally
+            {
+                NewsBannersSemaphore.Release();
+            }
+
+        }
+
+        #endregion
+
+        #region AddOrUpdateNewsBanner   (NewsBanner,   CurrentUserId = null)
+
+        /// <summary>
+        /// Add or update the given news banner to/within the API.
+        /// </summary>
+        /// <param name="NewsBanner">A news banner.</param>
+        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
+        public async Task<NewsBanner> AddOrUpdateNewsBanner(NewsBanner  NewsBanner,
+                                                              User_Id?     CurrentUserId = null)
+        {
+
+            if (NewsBanner == null)
+                throw new ArgumentException(nameof(NewsBanner), "The given news banner must not be null!");
+
+            if (NewsBanner.API != null && NewsBanner.API != this)
+                throw new ArgumentException(nameof(NewsBanner), "The given news banner is already attached to another API!");
+
+            NewsBanner OldNewsBanner  = null;
+            DateTime    Now             = DateTime.UtcNow;
+
+            try
+            {
+
+                await NewsBannersSemaphore.WaitAsync();
+
+                NewsBanner.API = this;
+
+                if (_NewsBanners.TryGetValue(NewsBanner.Id, out OldNewsBanner))
+                {
+                    _NewsBanners.Remove(OldNewsBanner.Id);
+                    NewsBanner.CopyAllLinkedDataFrom(OldNewsBanner);
+                }
+
+                await WriteToLogfileAndNotify(NewsBanner,
+                                              addOrUpdateNewsBanner_MessageType,
+                                              OldNewsBanner,
+                                              CurrentUserId);
+
+                _NewsBanners.Add(NewsBanner.Id, NewsBanner);
+
+            }
+            finally
+            {
+                NewsBannersSemaphore.Release();
+            }
+
+            return NewsBanner;
+
+        }
+
+        #endregion
+
+        #region UpdateNewsBanner        (NewsBanner,   CurrentUserId = null)
+
+        /// <summary>
+        /// Update the given news banner within the API.
+        /// </summary>
+        /// <param name="NewsBanner">A news banner.</param>
+        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
+        public async Task<NewsBanner> UpdateNewsBanner(NewsBanner  NewsBanner,
+                                                         User_Id?     CurrentUserId   = null)
+        {
+
+            if (NewsBanner == null)
+                throw new ArgumentException(nameof(NewsBanner), "The given news banner must not be null!");
+
+            if (NewsBanner.API != null && NewsBanner.API != this)
+                throw new ArgumentException(nameof(NewsBanner), "The given news banner is already attached to another API!");
+
+            DateTime Now = DateTime.UtcNow;
+
+            try
+            {
+
+                await NewsBannersSemaphore.WaitAsync();
+
+                if (!_NewsBanners.TryGetValue(NewsBanner.Id, out NewsBanner OldNewsBanner))
+                    throw new Exception("News banner '" + NewsBanner.Id + "' does not exists in this API!");
+
+
+                await WriteToLogfileAndNotify(NewsBanner,
+                                              updateNewsBanner_MessageType,
+                                              OldNewsBanner,
+                                              CurrentUserId);
+
+                NewsBanner.API = this;
+
+                _NewsBanners.Remove(OldNewsBanner.Id);
+                NewsBanner.CopyAllLinkedDataFrom(OldNewsBanner);
+
+                _NewsBanners.Add(NewsBanner.Id, NewsBanner);
+
+            }
+            finally
+            {
+                NewsBannersSemaphore.Release();
+            }
+
+            return NewsBanner;
+
+        }
+
+        #endregion
+
+        #region UpdateNewsBanner        (NewsBannerId, UpdateDelegate, CurrentUserId = null)
+
+        /// <summary>
+        /// Update the given news banner.
+        /// </summary>
+        /// <param name="NewsBannerId">A news banner identification.</param>
+        /// <param name="UpdateDelegate">A delegate to update the given news banner.</param>
+        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
+        public async Task<NewsBanner> Update(NewsBanner_Id               NewsBannerId,
+                                              Action<NewsBanner.Builder>  UpdateDelegate,
+                                              User_Id?                     CurrentUserId  = null)
+        {
+
+            NewsBanner NewsBanner;
+            DateTime Now = DateTime.UtcNow;
+
+            try
+            {
+
+                if (UpdateDelegate == null)
+                    throw new Exception("The given update delegate must not be null!");
+
+                await NewsBannersSemaphore.WaitAsync();
+
+                if (!_NewsBanners.TryGetValue(NewsBannerId, out NewsBanner OldNewsBanner))
+                    throw new Exception("News banner '" + NewsBannerId + "' does not exists in this API!");
+
+                var Builder = OldNewsBanner.ToBuilder();
+                UpdateDelegate(Builder);
+                NewsBanner = Builder.ToImmutable;
+                NewsBanner.API = this;
+
+                await WriteToLogfileAndNotify(NewsBanner,
+                                              updateNewsBanner_MessageType,
+                                              OldNewsBanner,
+                                              CurrentUserId);
+
+                _NewsBanners.Remove(OldNewsBanner.Id);
+                //OldNews.CopyAllEdgesTo(News);
+                _NewsBanners.Add(NewsBanner.Id, NewsBanner);
+
+            }
+            finally
+            {
+                NewsBannersSemaphore.Release();
+            }
+
+            return NewsBanner;
+
+        }
+
+        #endregion
+
+        #region RemoveNewsBanner        (NewsBannerId, CurrentUserId = null)
+
+        /// <summary>
+        /// Remove the given news banner from this API.
+        /// </summary>
+        /// <param name="NewsBannerId">The unique identification of the news banner.</param>
+        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
+        public async Task<NewsBanner> RemoveNewsBanner(NewsBanner_Id  NewsBannerId,
+                                                         User_Id?        CurrentUserId  = null)
+        {
+
+            try
+            {
+
+                await NewsBannersSemaphore.WaitAsync();
+
+                if (_NewsBanners.TryGetValue(NewsBannerId, out NewsBanner NewsBanner))
+                {
+
+                    await WriteToLogfileAndNotify(NewsBanner,
+                                                  removeNewsBanner_MessageType,
+                                                  CurrentUserId: CurrentUserId);
+
+                    _NewsBanners.Remove(NewsBannerId);
+
+                    NewsBanner.API = null;
+
+                    return NewsBanner;
+
+                }
+
+                return null;
+
+            }
+            finally
+            {
+                NewsBannersSemaphore.Release();
+            }
+
+        }
+
+        #endregion
+
+
+        #region ContainsNewsBanner      (NewsBannerId)
+
+        /// <summary>
+        /// Whether this API contains a news banner having the given unique identification.
+        /// </summary>
+        /// <param name="NewsBannerId">The unique identification of the news banner.</param>
+        public Boolean ContainsNewsBanner(NewsBanner_Id NewsBannerId)
+        {
+
+            try
+            {
+
+                NewsBannersSemaphore.Wait();
+
+                return _NewsBanners.ContainsKey(NewsBannerId);
+
+            }
+            finally
+            {
+                NewsBannersSemaphore.Release();
+            }
+
+        }
+
+        #endregion
+
+        #region GetNewsBanner           (NewsBannerId)
+
+        /// <summary>
+        /// Get the news banner having the given unique identification.
+        /// </summary>
+        /// <param name="NewsBannerId">The unique identification of the news banner.</param>
+        public async Task<NewsBanner> GetNewsBanner(NewsBanner_Id  NewsBannerId)
+        {
+
+            try
+            {
+
+                await NewsBannersSemaphore.WaitAsync();
+
+                if (_NewsBanners.TryGetValue(NewsBannerId, out NewsBanner newsBanner))
+                    return newsBanner;
+
+                return null;
+
+            }
+            finally
+            {
+                NewsBannersSemaphore.Release();
+            }
+
+        }
+
+        #endregion
+
+        #region TryGetNewsBanner        (NewsBannerId, out NewsBanner)
+
+        /// <summary>
+        /// Try to get the news banner having the given unique identification.
+        /// </summary>
+        /// <param name="NewsId">The unique identification of the news banner.</param>
+        /// <param name="NewsBanner">The news banner.</param>
+        public Boolean TryGetNewsBanner(NewsBanner_Id   NewsBannerId,
+                                         out NewsBanner  NewsBanner)
+        {
+
+            try
+            {
+
+                NewsBannersSemaphore.Wait();
+
+                return _NewsBanners.TryGetValue(NewsBannerId, out NewsBanner);
+
+            }
+            finally
+            {
+                NewsBannersSemaphore.Release();
+            }
+
+        }
+
+        #endregion
+
+        #endregion
+
+        #region FAQs
+
+        #region Data
+
+        private readonly Dictionary<FAQ_Id, FAQ> _FAQs;
+
+        /// <summary>
+        /// Return an enumeration of all FAQs.
+        /// </summary>
+        public IEnumerable<FAQ> FAQs
+        {
+            get
+            {
+                try
+                {
+                    FAQsSemaphore.Wait();
+                    return _FAQs.Values.ToArray();
+                }
+                finally
+                {
+                    FAQsSemaphore.Release();
+                }
+
+            }
+        }
+
+        #endregion
+
+        #region (private) GetFAQSerializator(Request, User)
+
+        private FAQToJSONDelegate GetFAQSerializator(HTTPRequest  Request,
+                                                       User         User)
+        {
+
+            //if (!Request.X_Portal)
+            //{
+            //    switch (User.Id.ToString())
+            //    {
+
+            //        case __issapi:
+            //            return ISSNotificationExtentions.ToISSJSON;
+
+            //    }
+            //}
+
+            return (FAQ,
+                    Embedded,
+                    ExpandTags,
+                    ExpandOwnerId,
+                    IncludeCryptoHash)
+
+                    => FAQ.ToJSON(Embedded,
+                                  ExpandTags,
+                                  ExpandOwnerId,
+                                  IncludeCryptoHash);
+
+        }
+
+        #endregion
+
+        #region WriteToLogfileAndNotify(MessageType, FAQ, OldFAQ = null, CurrentUserId = null)
+
+        public async Task WriteToLogfileAndNotify(FAQ                     FAQ,
+                                                  NotificationMessageType  MessageType,
+                                                  FAQ                     OldFAQ        = null,
+                                                  User_Id?                 CurrentUserId  = null)
+        {
+
+            await WriteToDatabaseFile(MessageType,
+                                      FAQ.ToJSON(Embedded: false),
+                                      CurrentUserId);
+
+            // Add notifications here!
+
+        }
+
+        #endregion
+
+
+        #region AddFAQ           (FAQ,   CurrentUserId = null)
+
+        /// <summary>
+        /// Add the given FAQ to the API.
+        /// </summary>
+        /// <param name="FAQ">A FAQ.</param>
+        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
+        public async Task<FAQ> AddFAQ(FAQ       FAQ,
+                                      User_Id?  CurrentUserId  = null)
+        {
+
+            if (FAQ == null)
+                throw new ArgumentException(nameof(FAQ), "The given FAQ must not be null!");
+
+            if (FAQ.API != null && FAQ.API != this)
+                throw new ArgumentException(nameof(FAQ), "The given FAQ is already attached to another API!");
+
+            try
+            {
+
+                await FAQsSemaphore.WaitAsync();
+
+                if (_FAQs.ContainsKey(FAQ.Id))
+                    throw new Exception("FAQ '" + FAQ.Id + "' already exists in this API!");
+
+                await WriteToLogfileAndNotify(FAQ,
+                                              addFAQ_MessageType,
+                                              CurrentUserId: CurrentUserId);
+
+                FAQ.API = this;
+
+                return _FAQs.AddAndReturnValue(FAQ.Id, FAQ);
+
+            }
+            finally
+            {
+                FAQsSemaphore.Release();
+            }
+
+        }
+
+        #endregion
+
+        #region AddFAQIfNotExists(FAQ,   CurrentUserId = null)
+
+        /// <summary>
+        /// Add the given FAQ to the API.
+        /// </summary>
+        /// <param name="FAQ">A FAQ.</param>
+        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
+        public async Task<FAQ> AddFAQIfNotExists(FAQ       FAQ,
+                                                 User_Id?  CurrentUserId  = null)
+        {
+
+            if (FAQ == null)
+                throw new ArgumentException(nameof(FAQ), "The given FAQ must not be null!");
+
+            if (FAQ.API != null && FAQ.API != this)
+                throw new ArgumentException(nameof(FAQ), "The given FAQ is already attached to another API!");
+
+            try
+            {
+
+                await FAQsSemaphore.WaitAsync();
+
+                if (_FAQs.TryGetValue(FAQ.Id, out FAQ OldFAQ))
+                    return OldFAQ;
+
+                await WriteToLogfileAndNotify(FAQ,
+                                              addFAQIfNotExists_MessageType,
+                                              CurrentUserId: CurrentUserId);
+
+                FAQ.API = this;
+
+                return _FAQs.AddAndReturnValue(FAQ.Id, FAQ);
+
+            }
+            finally
+            {
+                FAQsSemaphore.Release();
+            }
+
+        }
+
+        #endregion
+
+        #region AddOrUpdateFAQ   (FAQ,   CurrentUserId = null)
+
+        /// <summary>
+        /// Add or update the given FAQ to/within the API.
+        /// </summary>
+        /// <param name="FAQ">A FAQ.</param>
+        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
+        public async Task<FAQ> AddOrUpdateFAQ(FAQ      FAQ,
+                                              User_Id? CurrentUserId = null)
+        {
+
+            if (FAQ == null)
+                throw new ArgumentException(nameof(FAQ), "The given FAQ must not be null!");
+
+            if (FAQ.API != null && FAQ.API != this)
+                throw new ArgumentException(nameof(FAQ), "The given FAQ is already attached to another API!");
+
+            FAQ      OldFAQ  = null;
+            DateTime Now     = DateTime.UtcNow;
+
+            try
+            {
+
+                await FAQsSemaphore.WaitAsync();
+
+                FAQ.API = this;
+
+                if (_FAQs.TryGetValue(FAQ.Id, out OldFAQ))
+                {
+                    _FAQs.Remove(OldFAQ.Id);
+                    FAQ.CopyAllLinkedDataFrom(OldFAQ);
+                }
+
+                await WriteToLogfileAndNotify(FAQ,
+                                              addOrUpdateFAQ_MessageType,
+                                              OldFAQ,
+                                              CurrentUserId);
+
+                _FAQs.Add(FAQ.Id, FAQ);
+
+            }
+            finally
+            {
+                FAQsSemaphore.Release();
+            }
+
+            return FAQ;
+
+        }
+
+        #endregion
+
+        #region UpdateFAQ        (FAQ,   CurrentUserId = null)
+
+        /// <summary>
+        /// Update the given FAQ within the API.
+        /// </summary>
+        /// <param name="FAQ">A FAQ.</param>
+        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
+        public async Task<FAQ> UpdateFAQ(FAQ       FAQ,
+                                         User_Id?  CurrentUserId   = null)
+        {
+
+            if (FAQ == null)
+                throw new ArgumentException(nameof(FAQ), "The given FAQ must not be null!");
+
+            if (FAQ.API != null && FAQ.API != this)
+                throw new ArgumentException(nameof(FAQ), "The given FAQ is already attached to another API!");
+
+            DateTime Now = DateTime.UtcNow;
+
+            try
+            {
+
+                await FAQsSemaphore.WaitAsync();
+
+                if (!_FAQs.TryGetValue(FAQ.Id, out FAQ OldFAQ))
+                    throw new Exception("FAQ '" + FAQ.Id + "' does not exists in this API!");
+
+
+                await WriteToLogfileAndNotify(FAQ,
+                                              updateFAQ_MessageType,
+                                              OldFAQ,
+                                              CurrentUserId);
+
+                FAQ.API = this;
+
+                _FAQs.Remove(OldFAQ.Id);
+                FAQ.CopyAllLinkedDataFrom(OldFAQ);
+
+                _FAQs.Add(FAQ.Id, FAQ);
+
+            }
+            finally
+            {
+                FAQsSemaphore.Release();
+            }
+
+            return FAQ;
+
+        }
+
+        #endregion
+
+        #region UpdateFAQ        (FAQId, UpdateDelegate, CurrentUserId = null)
+
+        /// <summary>
+        /// Update the given FAQ.
+        /// </summary>
+        /// <param name="FAQId">A FAQ identification.</param>
+        /// <param name="UpdateDelegate">A delegate to update the given FAQ.</param>
+        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
+        public async Task<FAQ> UpdateFAQ(FAQ_Id               FAQId,
+                                         Action<FAQ.Builder>  UpdateDelegate,
+                                         User_Id?             CurrentUserId  = null)
+        {
+
+            FAQ FAQ;
+
+            try
+            {
+
+                if (UpdateDelegate == null)
+                    throw new Exception("The given update delegate must not be null!");
+
+                await FAQsSemaphore.WaitAsync();
+
+                if (!_FAQs.TryGetValue(FAQId, out FAQ OldFAQ))
+                    throw new Exception("FAQ '" + FAQId + "' does not exists in this API!");
+
+                var Builder = OldFAQ.ToBuilder();
+                UpdateDelegate(Builder);
+                FAQ = Builder.ToImmutable;
+                FAQ.API = this;
+
+                await WriteToLogfileAndNotify(FAQ,
+                                              updateFAQ_MessageType,
+                                              OldFAQ,
+                                              CurrentUserId);
+
+                _FAQs.Remove(OldFAQ.Id);
+                //OldFAQ.CopyAllEdgesTo(FAQ);
+                _FAQs.Add(FAQ.Id, FAQ);
+
+            }
+            finally
+            {
+                FAQsSemaphore.Release();
+            }
+
+            return FAQ;
+
+        }
+
+        #endregion
+
+        #region RemoveFAQ        (FAQId, CurrentUserId = null)
+
+        /// <summary>
+        /// Remove the given FAQ from this API.
+        /// </summary>
+        /// <param name="FAQId">The unique identification of the FAQ.</param>
+        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
+        public async Task<FAQ> RemoveFAQ(FAQ_Id   FAQId,
+                                         User_Id? CurrentUserId  = null)
+        {
+
+            try
+            {
+
+                await FAQsSemaphore.WaitAsync();
+
+                if (_FAQs.TryGetValue(FAQId, out FAQ FAQ))
+                {
+
+                    await WriteToLogfileAndNotify(FAQ,
+                                                  removeFAQ_MessageType,
+                                                  CurrentUserId: CurrentUserId);
+
+                    _FAQs.Remove(FAQId);
+
+                    FAQ.API = null;
+
+                    return FAQ;
+
+                }
+
+                return null;
+
+            }
+            finally
+            {
+                FAQsSemaphore.Release();
+            }
+
+        }
+
+        #endregion
+
+
+        #region ContainsFAQ      (FAQId)
+
+        /// <summary>
+        /// Whether this API contains a FAQ having the given unique identification.
+        /// </summary>
+        /// <param name="FAQId">The unique identification of the FAQ.</param>
+        public Boolean ContainsFAQ(FAQ_Id FAQId)
+        {
+
+            try
+            {
+
+                FAQsSemaphore.Wait();
+
+                return _FAQs.ContainsKey(FAQId);
+
+            }
+            finally
+            {
+                FAQsSemaphore.Release();
+            }
+
+        }
+
+        #endregion
+
+        #region GetFAQ           (FAQId)
+
+        /// <summary>
+        /// Get the FAQ having the given unique identification.
+        /// </summary>
+        /// <param name="FAQId">The unique identification of the FAQ.</param>
+        public async Task<FAQ> GetFAQ(FAQ_Id  FAQId)
+        {
+
+            try
+            {
+
+                await FAQsSemaphore.WaitAsync();
+
+                if (_FAQs.TryGetValue(FAQId, out FAQ FAQ))
+                    return FAQ;
+
+                return null;
+
+            }
+            finally
+            {
+                FAQsSemaphore.Release();
+            }
+
+        }
+
+        #endregion
+
+        #region TryGetFAQ        (FAQId, out FAQ)
+
+        /// <summary>
+        /// Try to get the FAQ having the given unique identification.
+        /// </summary>
+        /// <param name="FAQId">The unique identification of the FAQ.</param>
+        /// <param name="FAQ">The FAQ.</param>
+        public Boolean TryGetFAQ(FAQ_Id   FAQId,
+                                 out FAQ  FAQ)
+        {
+
+            try
+            {
+
+                FAQsSemaphore.Wait();
+
+                return _FAQs.TryGetValue(FAQId, out FAQ);
+
+            }
+            finally
+            {
+                FAQsSemaphore.Release();
+            }
+
+        }
+
+        #endregion
+
+        #endregion
+
         #region DataLicenses
 
         protected readonly Dictionary<DataLicense_Id, DataLicense> _DataLicenses;
@@ -20230,7 +20122,6 @@ namespace social.OpenData.UsersAPI
         #endregion
 
         #endregion
-
 
     }
 

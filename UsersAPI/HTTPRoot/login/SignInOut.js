@@ -3,6 +3,7 @@ let Username = "";
 let UserEMail = "";
 let Astronaut = "";
 let isAdmin = "";
+const newsBannersCookieId = "newsBanners";
 function HideElement(DivName) {
     const div = document.querySelector(DivName);
     if (div != null)
@@ -423,6 +424,7 @@ function checkSignedIn(RedirectUnkownUsers) {
         if (RedirectUnkownUsers)
             location.href = "/login";
     });
+    WithCookie(newsBannersCookieId, cookie => checkNewsBanner(cookie.split(":")), () => checkNewsBanner([]));
 }
 function checkAdminSignedIn(RedirectUnkownUsers) {
     WithCookie(HTTPCookieId, cookie => {
@@ -449,10 +451,55 @@ function SignOut() {
     location.href = "/login";
 }
 function Depersonate() {
-    HTTPDepersonate("/users/" + SignInUser, (HTTPStatus, ResponseText) => {
+    HTTPDepersonate("/users/" + SignInUser, (status, response) => {
         window.location.reload(true);
-    }, (HTTPStatus, StatusText, ResponseText) => {
+    }, (status, statusText, response) => {
         alert("Not allowed!");
     });
+}
+function checkNewsBanner(knownNewsIds) {
+    const newsFilter = knownNewsIds.length > 0
+        ? "?match=" + knownNewsIds.map(knownNewsId => "!" + knownNewsId).join(",")
+        : "";
+    HTTPGet("/newsBanners" + newsFilter, (status, response) => {
+        var _a, _b;
+        const newsBanners = ParseJSON_LD(response);
+        if (Array.isArray(newsBanners)) {
+            const knownNewsBannerIds = (_b = (_a = GetCookie(newsBannersCookieId)) === null || _a === void 0 ? void 0 : _a.split(",")) !== null && _b !== void 0 ? _b : [];
+            for (const newsBanner of newsBanners) {
+                if (knownNewsBannerIds.indexOf(newsBanner["@id"]) < 0) {
+                    const newsBannerDiv = document.getElementById("newsBanner");
+                    newsBannerDiv.style.display = "flex";
+                    const bannerTextDiv = newsBannerDiv.querySelector("#bannerText");
+                    bannerTextDiv.innerHTML = newsBanner.text != undefined && newsBanner.text != null
+                        ? firstValue(newsBanner.text)
+                        : "No news found!";
+                    const ignoreNewsButton = newsBannerDiv.querySelector("#ignoreNewsButton");
+                    ignoreNewsButton.onclick = () => {
+                        var _a, _b;
+                        var expires = new Date(newsBanner.endTimestamp);
+                        expires.setDate(expires.getDate() + 1);
+                        let updatedKnownNewsBannerIds = (_b = (_a = GetCookie(newsBannersCookieId)) === null || _a === void 0 ? void 0 : _a.split(",")) !== null && _b !== void 0 ? _b : [];
+                        updatedKnownNewsBannerIds.push(newsBanner["@id"]);
+                        document.cookie = newsBannersCookieId + '=' + updatedKnownNewsBannerIds.join(",") + '; expires=' + expires + '; path=/';
+                        newsBannerDiv.style.display = "none";
+                    };
+                    const clickLinks = newsBannerDiv.querySelectorAll("a.clickLink");
+                    if (clickLinks != undefined && clickLinks.length > 0) {
+                        for (const clickLink of clickLinks) {
+                            clickLink.onclick = () => {
+                                var _a, _b;
+                                var expires = new Date(newsBanner.endTimestamp);
+                                expires.setDate(expires.getDate() + 1);
+                                let updatedKnownNewsBannerIds = (_b = (_a = GetCookie(newsBannersCookieId)) === null || _a === void 0 ? void 0 : _a.split(",")) !== null && _b !== void 0 ? _b : [];
+                                updatedKnownNewsBannerIds.push(newsBanner["@id"]);
+                                document.cookie = newsBannersCookieId + '=' + updatedKnownNewsBannerIds.join(",") + '; expires=' + expires + '; path=/';
+                            };
+                        }
+                    }
+                }
+            }
+        }
+    }, (status, statusText, response) => { });
 }
 //# sourceMappingURL=SignInOut.js.map

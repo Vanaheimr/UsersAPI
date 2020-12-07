@@ -108,6 +108,7 @@ body {
         #right {
 
             display:            flex;
+            position:           relative;
             flex-direction:     column;
             width:              100%;
             overflow:           hidden;
@@ -222,6 +223,61 @@ body {
 
                 #signout {
                     padding-right:          20px;
+                }
+
+            }
+
+            #newsBanner {
+
+                display:                    none;
+                align-items:                center;
+                position:                   absolute;
+                background-color:           rgba(245, 186, 53, 0.9);
+                top:                        $TopbarHeight;
+                z-index:                    50;
+                padding:                    30px;
+                width:                      calc(100% - 60px);
+                box-shadow:                 2px 0 16px 0 rgba(0,0,0,.3);
+
+                #bannerText {
+
+                    font-size:                  120%;
+                    display:                    inline-block;
+
+                    a {
+                        text-decoration:            none;
+                        color:                      #a44f08;
+                        background-color:           #ff730040;
+                        padding:                    3px 6px;
+                        border-radius:              4px;
+                    }
+
+                    a:hover {
+                        background-color:           rgba(195, 30, 30, 0.25);
+                    }
+
+                }
+
+                #ignoreNewsButton {
+                    padding:                    6px 8px;
+                    margin-left:                10px;
+                    border:                     0;
+                    border-radius:              4px;
+                    margin-left:                20px;
+                    background-color:           #f29811d1;
+                    outline:                    0;
+                    box-shadow:                 2px 2px 4px 2px rgba(0,0,0,.1);
+                }
+
+                #ignoreNewsButton:active {
+                    padding:                    6px 8px;
+                    margin-left:                10px;
+                    border:                     0;
+                    border-radius:              4px;
+                    margin-left:                21px;
+                    background-color:           rgba(208, 134, 23, 0.82);
+                    outline:                    0;
+                    box-shadow:                 1px 1px 4px 2px rgba(0,0,0,.1);
                 }
 
             }
