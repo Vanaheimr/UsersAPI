@@ -4,13 +4,13 @@ function StartEditUserNotifications() {
     const notificationId = pathElements.length > 2 ? pathElements[pathElements.length - 1] : "";
     let NotificationTypeSelect = null;
     let notification = {};
-    const newNotification_Context = "https://opendata.social/contexts/UsersAPI+json/newNotification";
-    const DashboardNotification_Context = "https://opendata.social/contexts/UsersAPI+json/DashboardNotification";
-    const TelegramNotification_Context = "https://opendata.social/contexts/UsersAPI+json/TelegramNotification";
-    const TelegramGroupNotification_Context = "https://opendata.social/contexts/UsersAPI+json/TelegramGroupNotification";
-    const SMSNotification_Context = "https://opendata.social/contexts/UsersAPI+json/SMSNotification";
-    const HTTPSNotification_Context = "https://opendata.social/contexts/UsersAPI+json/HTTPSNotification";
-    const EMailNotification_Context = "https://opendata.social/contexts/UsersAPI+json/EMailNotification";
+    const newNotification_Context = "https://opendata.social/contexts/UsersAPI/newNotification";
+    const DashboardNotification_Context = "https://opendata.social/contexts/UsersAPI/DashboardNotification";
+    const TelegramNotification_Context = "https://opendata.social/contexts/UsersAPI/TelegramNotification";
+    const TelegramGroupNotification_Context = "https://opendata.social/contexts/UsersAPI/TelegramGroupNotification";
+    const SMSNotification_Context = "https://opendata.social/contexts/UsersAPI/SMSNotification";
+    const HTTPSNotification_Context = "https://opendata.social/contexts/UsersAPI/HTTPSNotification";
+    const EMailNotification_Context = "https://opendata.social/contexts/UsersAPI/EMailNotification";
     const responseDiv = document.getElementById("response");
     checkSignedIn(true);
     HTTPGet(notificationId != ""
