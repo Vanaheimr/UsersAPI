@@ -11,9 +11,6 @@
     "HTTPRoot/defaults/defaults.ts",
     "HTTPRoot/login/SignInOut.ts",
     "HTTPRoot/defaults/search.ts",
-
-    "HTTPRoot/defaults/defaults.ts",
-    "HTTPRoot/defaults/search.ts",
     "HTTPRoot/defaults/views.ts",
     "HTTPRoot/defaults/datePicker.ts",
 
