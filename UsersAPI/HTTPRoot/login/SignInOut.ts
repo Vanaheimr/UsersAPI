@@ -748,7 +748,8 @@ function checkNewsBanner(knownNewsIds: string[]) {
 
             (status, response) => {
 
-                const newsBanners = ParseJSON_LD<INewsBanner[]>(response);
+                const newsBanners  = ParseJSON_LD<INewsBanner[]>(response);
+                const currentDate  = new Date().getTime();
 
                 if (Array.isArray(newsBanners)) {
 
@@ -756,49 +757,50 @@ function checkNewsBanner(knownNewsIds: string[]) {
 
                     for (const newsBanner of newsBanners) {
 
-                        if (knownNewsBannerIds.indexOf(newsBanner["@id"]) < 0)
-                        {
+                        var expires = new Date(newsBanner.endTimestamp);
 
-                            const newsBannerDiv = document.getElementById("newsBanner") as HTMLDivElement;
-                            newsBannerDiv.style.display = "flex";
+                        if (expires.getTime() > currentDate) {
 
-                            const bannerTextDiv = newsBannerDiv.querySelector("#bannerText") as HTMLDivElement;
-                            bannerTextDiv.innerHTML = newsBanner.text != undefined && newsBanner.text != null
-                                ? firstValue(newsBanner.text)
-                                : "No news found!";
+                            // The expire date of the cookies...
+                            expires.setDate(expires.getDate() + 1);
 
-                            const ignoreNewsButton = newsBannerDiv.querySelector("#ignoreNewsButton") as HTMLButtonElement;
-                            ignoreNewsButton.onclick = () => {
+                            if (knownNewsBannerIds.indexOf(newsBanner["@id"]) < 0) {
 
-                                var expires = new Date(newsBanner.endTimestamp);
-                                expires.setDate(expires.getDate() + 1);
+                                const newsBannerDiv = document.getElementById("newsBanner") as HTMLDivElement;
+                                newsBannerDiv.style.display = "flex";
 
-                                let updatedKnownNewsBannerIds = GetCookie(newsBannersCookieId)?.split(",") ?? [];
-                                updatedKnownNewsBannerIds.push(newsBanner["@id"]);
+                                const bannerTextDiv = newsBannerDiv.querySelector("#bannerText") as HTMLDivElement;
+                                bannerTextDiv.innerHTML = newsBanner.text != undefined && newsBanner.text != null
+                                    ? firstValue(newsBanner.text)
+                                    : "No news found!";
 
-                                document.cookie = newsBannersCookieId + '=' + updatedKnownNewsBannerIds.join(",") + '; expires=' + expires + '; path=/';
+                                const ignoreNewsButton = newsBannerDiv.querySelector("#ignoreNewsButton") as HTMLButtonElement;
+                                ignoreNewsButton.onclick = () => {
 
-                                newsBannerDiv.style.display = "none";
+                                    let updatedKnownNewsBannerIds = GetCookie(newsBannersCookieId)?.split(",") ?? [];
+                                    updatedKnownNewsBannerIds.push(newsBanner["@id"]);
 
-                            }
+                                    document.cookie = newsBannersCookieId + '=' + updatedKnownNewsBannerIds.join(",") + '; expires=' + expires + '; path=/';
 
-                            const clickLinks = newsBannerDiv.querySelectorAll("a.clickLink") as NodeListOf<HTMLAnchorElement>;
-                            if (clickLinks != undefined && clickLinks.length > 0) {
-                                for (const clickLink of clickLinks) {
-                                    clickLink.onclick = () => {
+                                    newsBannerDiv.style.display = "none";
 
-                                        var expires = new Date(newsBanner.endTimestamp);
-                                        expires.setDate(expires.getDate() + 1);
+                                }
 
-                                        let updatedKnownNewsBannerIds = GetCookie(newsBannersCookieId)?.split(",") ?? [];
-                                        updatedKnownNewsBannerIds.push(newsBanner["@id"]);
+                                const clickLinks = newsBannerDiv.querySelectorAll("a.clickLink") as NodeListOf<HTMLAnchorElement>;
+                                if (clickLinks != undefined && clickLinks.length > 0) {
+                                    for (const clickLink of clickLinks) {
+                                        clickLink.onclick = () => {
 
-                                        document.cookie = newsBannersCookieId + '=' + updatedKnownNewsBannerIds.join(",") + '; expires=' + expires + '; path=/';
+                                            let updatedKnownNewsBannerIds = GetCookie(newsBannersCookieId)?.split(",") ?? [];
+                                            updatedKnownNewsBannerIds.push(newsBanner["@id"]);
 
+                                            document.cookie = newsBannersCookieId + '=' + updatedKnownNewsBannerIds.join(",") + '; expires=' + expires + '; path=/';
+
+                                        }
                                     }
                                 }
-                            }
 
+                            }
 
                         }
 
