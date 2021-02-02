@@ -464,37 +464,39 @@ function checkNewsBanner(knownNewsIds) {
     HTTPGet("/newsBanners" + newsFilter, (status, response) => {
         var _a, _b;
         const newsBanners = ParseJSON_LD(response);
+        const currentDate = new Date().getTime();
         if (Array.isArray(newsBanners)) {
             const knownNewsBannerIds = (_b = (_a = GetCookie(newsBannersCookieId)) === null || _a === void 0 ? void 0 : _a.split(",")) !== null && _b !== void 0 ? _b : [];
             for (const newsBanner of newsBanners) {
-                if (knownNewsBannerIds.indexOf(newsBanner["@id"]) < 0) {
-                    const newsBannerDiv = document.getElementById("newsBanner");
-                    newsBannerDiv.style.display = "flex";
-                    const bannerTextDiv = newsBannerDiv.querySelector("#bannerText");
-                    bannerTextDiv.innerHTML = newsBanner.text != undefined && newsBanner.text != null
-                        ? firstValue(newsBanner.text)
-                        : "No news found!";
-                    const ignoreNewsButton = newsBannerDiv.querySelector("#ignoreNewsButton");
-                    ignoreNewsButton.onclick = () => {
-                        var _a, _b;
-                        var expires = new Date(newsBanner.endTimestamp);
-                        expires.setDate(expires.getDate() + 1);
-                        let updatedKnownNewsBannerIds = (_b = (_a = GetCookie(newsBannersCookieId)) === null || _a === void 0 ? void 0 : _a.split(",")) !== null && _b !== void 0 ? _b : [];
-                        updatedKnownNewsBannerIds.push(newsBanner["@id"]);
-                        document.cookie = newsBannersCookieId + '=' + updatedKnownNewsBannerIds.join(",") + '; expires=' + expires + '; path=/';
-                        newsBannerDiv.style.display = "none";
-                    };
-                    const clickLinks = newsBannerDiv.querySelectorAll("a.clickLink");
-                    if (clickLinks != undefined && clickLinks.length > 0) {
-                        for (const clickLink of clickLinks) {
-                            clickLink.onclick = () => {
-                                var _a, _b;
-                                var expires = new Date(newsBanner.endTimestamp);
-                                expires.setDate(expires.getDate() + 1);
-                                let updatedKnownNewsBannerIds = (_b = (_a = GetCookie(newsBannersCookieId)) === null || _a === void 0 ? void 0 : _a.split(",")) !== null && _b !== void 0 ? _b : [];
-                                updatedKnownNewsBannerIds.push(newsBanner["@id"]);
-                                document.cookie = newsBannersCookieId + '=' + updatedKnownNewsBannerIds.join(",") + '; expires=' + expires + '; path=/';
-                            };
+                var expires = new Date(newsBanner.endTimestamp);
+                if (expires.getTime() > currentDate) {
+                    // The expire date of the cookies...
+                    expires.setDate(expires.getDate() + 1);
+                    if (knownNewsBannerIds.indexOf(newsBanner["@id"]) < 0) {
+                        const newsBannerDiv = document.getElementById("newsBanner");
+                        newsBannerDiv.style.display = "flex";
+                        const bannerTextDiv = newsBannerDiv.querySelector("#bannerText");
+                        bannerTextDiv.innerHTML = newsBanner.text != undefined && newsBanner.text != null
+                            ? firstValue(newsBanner.text)
+                            : "No news found!";
+                        const ignoreNewsButton = newsBannerDiv.querySelector("#ignoreNewsButton");
+                        ignoreNewsButton.onclick = () => {
+                            var _a, _b;
+                            let updatedKnownNewsBannerIds = (_b = (_a = GetCookie(newsBannersCookieId)) === null || _a === void 0 ? void 0 : _a.split(",")) !== null && _b !== void 0 ? _b : [];
+                            updatedKnownNewsBannerIds.push(newsBanner["@id"]);
+                            document.cookie = newsBannersCookieId + '=' + updatedKnownNewsBannerIds.join(",") + '; expires=' + expires + '; path=/';
+                            newsBannerDiv.style.display = "none";
+                        };
+                        const clickLinks = newsBannerDiv.querySelectorAll("a.clickLink");
+                        if (clickLinks != undefined && clickLinks.length > 0) {
+                            for (const clickLink of clickLinks) {
+                                clickLink.onclick = () => {
+                                    var _a, _b;
+                                    let updatedKnownNewsBannerIds = (_b = (_a = GetCookie(newsBannersCookieId)) === null || _a === void 0 ? void 0 : _a.split(",")) !== null && _b !== void 0 ? _b : [];
+                                    updatedKnownNewsBannerIds.push(newsBanner["@id"]);
+                                    document.cookie = newsBannersCookieId + '=' + updatedKnownNewsBannerIds.join(",") + '; expires=' + expires + '; path=/';
+                                };
+                            }
                         }
                     }
                 }

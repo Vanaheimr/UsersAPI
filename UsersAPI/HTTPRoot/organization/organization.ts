@@ -148,10 +148,10 @@ function StartOrganization() {
                 {
 
                     const responseJSON  = ResponseText             != ""   ? JSON.parse(ResponseText) : {};
-                    const info          = responseJSON.description != null ? "<br />" + responseJSON.description : "";
+                    //const info          = responseJSON.description != null ? "<br />" + firstValue(responseJSON.description) : "";
 
                     //saveButton.disabled   = !AnyChangesMade();
-                    responseDiv.innerHTML = "<div class=\"HTTP OK\">Successfully stored updated organization data." + info + "</div>";
+                    responseDiv.innerHTML = "<div class=\"HTTP OK\">Successfully stored updated organization data.</div>";
 
                     // Redirect after 2 seconds!
                     setTimeout(function () {
@@ -162,7 +162,7 @@ function StartOrganization() {
                 catch (exception)
                 {
                     saveButton.disabled = !AnyChangesMade();
-                    responseDiv.innerHTML = "<div class=\"HTTP Error\">Storing organization data failed!" + exception + "</div>";
+                    responseDiv.innerHTML = "<div class=\"HTTP Error\">Storing organization data failed!<br />" + exception + "</div>";
                 }
 
             },
@@ -175,7 +175,7 @@ function StartOrganization() {
                     const responseJSON  = ResponseText             != ""   ? JSON.parse(ResponseText) : {};
                     const info          = responseJSON.description != null ? "<br />" + responseJSON.description : "";
 
-                    responseDiv.innerHTML = "<div class=\"HTTP Error\">Storing organization data failed!" + info + "</div>";
+                    responseDiv.innerHTML = "<div class=\"HTTP Error\">Storing organization data failed!<br />" + info + "</div>";
 
                 }
                 catch (exception)
@@ -187,8 +187,8 @@ function StartOrganization() {
 
     }
 
-    const pathElements              = window.location.pathname.split("/");
-    const organizationId            = pathElements[pathElements.length - 1];
+    const pathElements               = window.location.pathname.split("/");
+    const organizationId             = pathElements[pathElements.length - 1];
 
     FixMenuLinks("organizationMenu", organizationId);
 
@@ -367,7 +367,7 @@ function StartOrganization() {
 
                                                    const responseJSON = response !== "" ? JSON.parse(response) : {};
                                                    const info         = responseJSON.description != null ? "<br />" + responseJSON.description : "";
-                                                   responseDiv.innerHTML = "<div class=\"HTTP Error\">Deleting this organization failed!" + info + "</div>";
+                                                   responseDiv.innerHTML = "<div class=\"HTTP Error\">Deleting this organization failed!<br />" + info + "</div>";
 
                                                }
                                                catch (exception) {

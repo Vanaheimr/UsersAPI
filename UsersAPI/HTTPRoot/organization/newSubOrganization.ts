@@ -85,7 +85,7 @@ function StartNewSubOrganization() {
                     catch (exception)
                     {
                         responseDiv.style.display  = "block";
-                        responseDiv.innerHTML      = "<div class=\"HTTP Error\">Storing the service ticket might have failed!<br />" +
+                        responseDiv.innerHTML      = "<div class=\"HTTP Error\">Storing the new sub-organization might have failed!<br />" +
                                                          "Exception: " + exception +
                                                      "</div>";
                     }

@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright (c) 2014-2020, Achim 'ahzf' Friedland <achim@graphdefined.org>
+ * Copyright (c) 2014-2021, Achim 'ahzf' Friedland <achim@graphdefined.org>
  * This file is part of OpenDataAPI <http://www.github.com/GraphDefined/OpenDataAPI>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");

@@ -85,9 +85,9 @@ function StartOrganization() {
         HTTPSet("/organizations/" + organizationJSON["@id"], organizationJSON, (HTTPStatus, ResponseText) => {
             try {
                 const responseJSON = ResponseText != "" ? JSON.parse(ResponseText) : {};
-                const info = responseJSON.description != null ? "<br />" + responseJSON.description : "";
+                //const info          = responseJSON.description != null ? "<br />" + firstValue(responseJSON.description) : "";
                 //saveButton.disabled   = !AnyChangesMade();
-                responseDiv.innerHTML = "<div class=\"HTTP OK\">Successfully stored updated organization data." + info + "</div>";
+                responseDiv.innerHTML = "<div class=\"HTTP OK\">Successfully stored updated organization data.</div>";
                 // Redirect after 2 seconds!
                 setTimeout(function () {
                     window.location.href = organizationJSON["@id"];
@@ -95,13 +95,13 @@ function StartOrganization() {
             }
             catch (exception) {
                 saveButton.disabled = !AnyChangesMade();
-                responseDiv.innerHTML = "<div class=\"HTTP Error\">Storing organization data failed!" + exception + "</div>";
+                responseDiv.innerHTML = "<div class=\"HTTP Error\">Storing organization data failed!<br />" + exception + "</div>";
             }
         }, (HTTPStatus, StatusText, ResponseText) => {
             try {
                 const responseJSON = ResponseText != "" ? JSON.parse(ResponseText) : {};
                 const info = responseJSON.description != null ? "<br />" + responseJSON.description : "";
-                responseDiv.innerHTML = "<div class=\"HTTP Error\">Storing organization data failed!" + info + "</div>";
+                responseDiv.innerHTML = "<div class=\"HTTP Error\">Storing organization data failed!<br />" + info + "</div>";
             }
             catch (exception) {
             }
@@ -231,7 +231,7 @@ function StartOrganization() {
                                 confirmToDeleteDiv.style.display = "none";
                                 const responseJSON = response !== "" ? JSON.parse(response) : {};
                                 const info = responseJSON.description != null ? "<br />" + responseJSON.description : "";
-                                responseDiv.innerHTML = "<div class=\"HTTP Error\">Deleting this organization failed!" + info + "</div>";
+                                responseDiv.innerHTML = "<div class=\"HTTP Error\">Deleting this organization failed!<br />" + info + "</div>";
                             }
                             catch (exception) {
                                 responseDiv.innerHTML = "<div class=\"HTTP Error\">Deleting this organization failed!</div>";
