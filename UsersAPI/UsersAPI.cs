@@ -4311,11 +4311,7 @@ namespace social.OpenData.UsersAPI
 
                                              }
 
-                                             var UserIdOrEMailJSON = JSONObj["id"].Value<String>();
-
-                                             if (UserIdOrEMailJSON != null)
-                                                 UserIdOrEMailJSON = UserIdOrEMailJSON.Trim();
-
+                                             var UserIdOrEMailJSON = JSONObj["id"]?.Value<String>()?.Trim();
                                              if (UserIdOrEMailJSON.IsNullOrEmpty() || UserIdOrEMailJSON.Length < 4)
                                              {
 
@@ -4983,7 +4979,7 @@ namespace social.OpenData.UsersAPI
 
                                               }
 
-                                              Username = Username.Trim();
+                                              Username = Username?.Trim();
 
                                               if (Username.IsNullOrEmpty() || Username.Length < MinUserNameLength)
                                               {
@@ -5288,11 +5284,11 @@ namespace social.OpenData.UsersAPI
                                               try
                                               {
 
-                                                  var SetPasswordRequest = await ResetPassword(UserId.Value,
+                                                  var SetPasswordRequest = await ResetPassword(newUser.Id,
                                                                                                SecurityToken_Id.Random(40, _Random),
                                                                                                SecurityToken_Id.Parse(_Random.RandomString(5) + "-" + _Random.RandomString(5)));
 
-                                                  var MailResultTask = APISMTPClient.Send(NewUserSignUpEMailCreator(UserId.Value,
+                                                  var MailResultTask = APISMTPClient.Send(NewUserSignUpEMailCreator(newUser.Id,
                                                                                                                     new EMailAddress(OwnerName:           Username,
                                                                                                                                      SimpleEMailAddress:  EMail,
                                                                                                                                      PublicKeyRing:       null),
