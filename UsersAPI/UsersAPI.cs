@@ -2407,6 +2407,8 @@ namespace social.OpenData.UsersAPI
 
                         TimeSpan?                            MaintenanceEvery                   = null,
                         Boolean                              DisableMaintenanceTasks            = false,
+                        TimeSpan?                            WardenInitialDelay                 = null,
+                        TimeSpan?                            WardenCheckEvery                   = null,
 
                         Boolean                              SkipURLTemplates                   = false,
                         Boolean                              DisableNotifications               = false,
@@ -2472,6 +2474,8 @@ namespace social.OpenData.UsersAPI
 
                    MaintenanceEvery,
                    DisableMaintenanceTasks,
+                   WardenInitialDelay,
+                   WardenCheckEvery,
 
                    SkipURLTemplates,
                    DisableNotifications,
@@ -2567,6 +2571,8 @@ namespace social.OpenData.UsersAPI
 
                            TimeSpan?                            MaintenanceEvery              = null,
                            Boolean                              DisableMaintenanceTasks       = false,
+                           TimeSpan?                            WardenInitialDelay            = null,
+                           TimeSpan?                            WardenCheckEvery              = null,
 
                            Boolean                              SkipURLTemplates              = false,
                            Boolean                              DisableNotifications          = false,
@@ -2664,7 +2670,7 @@ namespace social.OpenData.UsersAPI
             this._ServiceTickets              = new ConcurrentDictionary<ServiceTicket_Id, ServiceTicket>();
             this._NewsPostings                = new Dictionary<NewsPosting_Id,             NewsPosting>();
             this._NewsBanners                 = new Dictionary<NewsBanner_Id,              NewsBanner>();
-            this._FAQs                         = new Dictionary<FAQ_Id,                     FAQ>();
+            this._FAQs                        = new Dictionary<FAQ_Id,                     FAQ>();
 
             this._LoginPasswords              = new Dictionary<User_Id,                    LoginPassword>();
             this._VerificationTokens          = new List<VerificationToken>();
@@ -2684,7 +2690,10 @@ namespace social.OpenData.UsersAPI
 
             this.DisableMaintenanceTasks      = DisableMaintenanceTasks;
             this.MaintenanceEvery             = MaintenanceEvery ?? DefaultMaintenanceEvery;
-            this.MaintenanceTimer             = new Timer(DoMaintenance, null, this.MaintenanceEvery, this.MaintenanceEvery);
+            this.MaintenanceTimer             = new Timer(DoMaintenance,
+                                                          null,
+                                                          this.MaintenanceEvery,
+                                                          this.MaintenanceEvery);
 
             #endregion
 
@@ -2904,7 +2913,9 @@ namespace social.OpenData.UsersAPI
 
             #endregion
 
-            this.Warden = new Warden(InitialDelay: TimeSpan.FromMinutes(3));
+            this.Warden = new Warden(WardenInitialDelay ?? TimeSpan.FromMinutes(3),
+                                     WardenCheckEvery   ?? TimeSpan.FromMinutes(1),
+                                     DNSClient);
 
             this.BlogPostings = new List<BlogPosting>();
 
@@ -3026,12 +3037,8 @@ namespace social.OpenData.UsersAPI
         /// <param name="CookieName">The name of the HTTP Cookie for authentication.</param>
         /// <param name="UseSecureCookies">Force the web browser to send cookies only via HTTPS.</param>
         /// <param name="DefaultLanguage">The default language of the API.</param>
-        /// <param name="NewUserSignUpEMailCurrentUserId">A delegate for sending a sign-up e-mail to a new user.</param>
-        /// <param name="NewUserWelcomeEMailCurrentUserId">A delegate for sending a welcome e-mail to a new user.</param>
-        /// <param name="ResetPasswordEMailCurrentUserId">A delegate for sending a reset password e-mail to a user.</param>
         /// <param name="MinUserNameLength">The minimal user name length.</param>
         /// <param name="MinRealmLength">The minimal realm length.</param>
-        /// <param name="MinPasswordLength">The minimal password length.</param>
         /// <param name="SignInSessionLifetime">The sign-in session lifetime.</param>
         /// 
         /// <param name="SkipURLTemplates">Skip URL templates.</param>
@@ -3072,6 +3079,8 @@ namespace social.OpenData.UsersAPI
 
                                                TimeSpan?                            MaintenanceEvery              = null,
                                                Boolean                              DisableMaintenanceTasks       = false,
+                                               TimeSpan?                            WardenInitialDelay            = null,
+                                               TimeSpan?                            WardenCheckEvery              = null,
 
                                                Boolean                              SkipURLTemplates              = false,
                                                Boolean                              DisableNotifications          = false,
@@ -3113,6 +3122,8 @@ namespace social.OpenData.UsersAPI
 
                             MaintenanceEvery,
                             DisableMaintenanceTasks,
+                            WardenInitialDelay,
+                            WardenCheckEvery,
 
                             SkipURLTemplates,
                             DisableNotifications,
