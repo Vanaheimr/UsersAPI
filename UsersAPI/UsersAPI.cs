@@ -1089,13 +1089,7 @@ namespace social.OpenData.UsersAPI
         public Boolean                   DisableMaintenanceTasks            { get; set; }
 
 
-        public HashSet<String>           DevMachines                        { get; set; }
-
-        public String                    LoggingPath                        { get; }
         public String                    UsersAPIPath                       { get; }
-        public String                    HTTPSSEsPath                       { get; }
-        public String                    HTTPRequestsPath                   { get; }
-        public String                    HTTPResponsesPath                  { get; }
         public String                    NotificationsPath                  { get; }
         public String                    MetricsPath                        { get; }
         public String                    SMTPLoggingPath                    { get; }
@@ -2580,7 +2574,9 @@ namespace social.OpenData.UsersAPI
                    ExternalDNSName,
                    URLPathPrefix,
                    ServiceName,
-                   HTMLTemplate)
+                   HTMLTemplate,
+                   DisableLogfile,
+                   LoggingPath)
 
         {
 
@@ -2595,18 +2591,9 @@ namespace social.OpenData.UsersAPI
 
             this.APIVersionHash               = APIVersionHashes?[nameof(UsersAPI)]?.Value<String>()?.Trim();
 
-            this.LoggingPath                  = LoggingPath ?? Directory.GetCurrentDirectory();
-
-            if (this.LoggingPath[this.LoggingPath.Length - 1] != Path.DirectorySeparatorChar)
-                this.LoggingPath += Path.DirectorySeparatorChar;
-
             this.DatabaseFileName             = this.LoggingPath + (DatabaseFileName ?? DefaultUsersAPI_DatabaseFileName);
 
-            this.DevMachines                  = new HashSet<String>();
             this.UsersAPIPath                 = this.LoggingPath + "UsersAPI"       + Path.DirectorySeparatorChar;
-            this.HTTPRequestsPath             = this.LoggingPath + "HTTPRequests"   + Path.DirectorySeparatorChar;
-            this.HTTPResponsesPath            = this.LoggingPath + "HTTPResponses"  + Path.DirectorySeparatorChar;
-            this.HTTPSSEsPath                 = this.LoggingPath + "HTTPSSEs"       + Path.DirectorySeparatorChar;
             this.MetricsPath                  = this.LoggingPath + "Metrics"        + Path.DirectorySeparatorChar;
             this.NotificationsPath            = this.LoggingPath + "Notifications"  + Path.DirectorySeparatorChar;
             this.TelegramLoggingPath          = this.LoggingPath + "Telegram"       + Path.DirectorySeparatorChar;
@@ -2615,11 +2602,7 @@ namespace social.OpenData.UsersAPI
 
             if (!DisableLogfile)
             {
-                Directory.CreateDirectory(this.LoggingPath);
                 Directory.CreateDirectory(this.UsersAPIPath);
-                Directory.CreateDirectory(this.HTTPRequestsPath);
-                Directory.CreateDirectory(this.HTTPResponsesPath);
-                Directory.CreateDirectory(this.HTTPSSEsPath);
                 Directory.CreateDirectory(this.MetricsPath);
                 Directory.CreateDirectory(this.NotificationsPath);
                 Directory.CreateDirectory(this.TelegramLoggingPath);
