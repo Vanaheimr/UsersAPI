@@ -3565,10 +3565,10 @@ namespace social.OpenData.UsersAPI
                                 using (var _HTTPSClient = new HTTPSClient(hostname,
                                                                           //HTTPVirtualHost:
                                                                           RemoteCertificateValidator: (Object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors sslPolicyErrors) => true,
-                                                                          LocalCertificateSelector:    null,
+                                                                          ClientCertificateSelector:   null,
                                                                           ClientCert:                  null,
                                                                           RemotePort:                  notificationURL.RemotePort,
-                                                                          UserAgent:                   null,
+                                                                          HTTPUserAgent:               null,
                                                                           RequestTimeout:              null,
                                                                           DNSClient:                   this.DNSClient))
                                 {
@@ -3593,7 +3593,7 @@ namespace social.OpenData.UsersAPI
                                     };
 
                                     result   = await _HTTPSClient.Execute(Request:              request,
-                                                                          RequestLogDelegate:   (timestamp, client, req)       => LogRequest(timestamp, client, hostname.Name, req),
+                                                                          RequestLogDelegate:   (timestamp, client, req)       => LogRequest (timestamp, client, hostname.Name, req),
                                                                           ResponseLogDelegate:  (timestamp, client, req, resp) => LogResponse(timestamp, client, hostname.Name, req, resp),
 
                                                                           CancellationToken:    null,
@@ -3638,10 +3638,10 @@ namespace social.OpenData.UsersAPI
 
         #region (protected) LogRequest(...)
 
-        protected Task LogRequest(DateTime                                           Timestamp,
-                                  org.GraphDefined.Vanaheimr.Hermod.HTTP.HTTPClient  Client,
-                                  String                                             RemoteHost,
-                                  HTTPRequest                                        Request)
+        protected Task LogRequest(DateTime     Timestamp,
+                                  AHTTPClient  Client,
+                                  String       RemoteHost,
+                                  HTTPRequest  Request)
         {
 
             return Task.Run(() => {
@@ -3667,11 +3667,11 @@ namespace social.OpenData.UsersAPI
 
         #region (protected) LogResponse(...)
 
-        protected Task LogResponse(DateTime                                           Timestamp,
-                                   org.GraphDefined.Vanaheimr.Hermod.HTTP.HTTPClient  Client,
-                                   String                                             RemoteHost,
-                                   HTTPRequest                                        Request,
-                                   HTTPResponse                                       Response)
+        protected Task LogResponse(DateTime      Timestamp,
+                                   AHTTPClient   Client,
+                                   String        RemoteHost,
+                                   HTTPRequest   Request,
+                                   HTTPResponse  Response)
         {
 
             return Task.Run(() => {
