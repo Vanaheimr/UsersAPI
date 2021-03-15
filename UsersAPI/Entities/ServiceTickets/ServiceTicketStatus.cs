@@ -31,7 +31,7 @@ namespace social.OpenData.UsersAPI
     /// <summary>
     /// The current status of a service ticket.
     /// </summary>
-    public class ServiceTicketStatus : ACustomData,
+    public class ServiceTicketStatus : AInternalData,
                                        IEquatable <ServiceTicketStatus>,
                                        IComparable<ServiceTicketStatus>
     {
