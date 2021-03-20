@@ -2357,6 +2357,7 @@ namespace social.OpenData.UsersAPI
                         IPPort?                              LocalPort                          = null,
                         String                               ExternalDNSName                    = null,
                         HTTPPath?                            URLPathPrefix                      = null,
+                        HTTPPath?                            BasePath                           = null,
                         String                               HTMLTemplate                       = null,
                         JObject                              APIVersionHashes                   = null,
 
@@ -2439,6 +2440,7 @@ namespace social.OpenData.UsersAPI
                    ServiceName,
                    ExternalDNSName,
                    URLPathPrefix,
+                   BasePath,
                    HTMLTemplate,
                    APIVersionHashes,
 
@@ -2536,6 +2538,7 @@ namespace social.OpenData.UsersAPI
                            String                               ServiceName                   = "GraphDefined Users API",
                            String                               ExternalDNSName               = null,
                            HTTPPath?                            URLPathPrefix                 = null,
+                           HTTPPath?                            BasePath                      = null,
                            String                               HTMLTemplate                  = null,
                            JObject                              APIVersionHashes              = null,
 
@@ -2579,6 +2582,7 @@ namespace social.OpenData.UsersAPI
                    HTTPHostname,
                    ExternalDNSName,
                    URLPathPrefix,
+                   BasePath,
                    ServiceName,
                    HTMLTemplate,
                    DisableLogfile,
@@ -3033,6 +3037,7 @@ namespace social.OpenData.UsersAPI
                                                String                               ServiceName                   = "GraphDefined Users API",
                                                String                               ExternalDNSName               = null,
                                                HTTPPath?                            URLPathPrefix                 = null,
+                                               HTTPPath?                            BasePath                      = null,
                                                String                               HTMLTemplate                  = null,
                                                JObject                              APIVersionHashes              = null,
 
@@ -3076,6 +3081,7 @@ namespace social.OpenData.UsersAPI
                             ServiceName,
                             ExternalDNSName,
                             URLPathPrefix,
+                            BasePath,
                             HTMLTemplate,
                             APIVersionHashes,
 
