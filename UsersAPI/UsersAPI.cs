@@ -1107,6 +1107,9 @@ namespace social.OpenData.UsersAPI
         /// </summary>
         public Organization              NoOwner                            { get; }
 
+        /// <summary>
+        /// The virtual 'robot' user.
+        /// </summary>
         public User                      Robot                              { get; }
 
         #region APIPassphrase
