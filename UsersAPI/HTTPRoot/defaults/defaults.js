@@ -488,6 +488,10 @@ function HTTPCheck(RessourceURI, Data, OnSuccess, OnError) {
                 OnError(this.status, this.statusText, ajax.responseText);
         }
     };
+    ajax.onerror = function () {
+        if (OnError && typeof OnError === 'function')
+            OnError(this.status, this.statusText, ajax.responseText);
+    };
     if (Data != null)
         ajax.send(JSON.stringify(Data));
     else
