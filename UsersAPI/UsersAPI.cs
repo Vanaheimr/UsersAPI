@@ -3787,9 +3787,11 @@ namespace social.OpenData.UsersAPI
                                                       new NotificationMessageDescription(I18NString.Create(Languages.en, "User removed from portal"),         I18NString.Create(Languages.en, "The user was removed from the portal."),       NotificationVisibility.Admins,     removeUser_MessageType),
                                                       new NotificationMessageDescription(I18NString.Create(Languages.en, "User removed from organization"),   I18NString.Create(Languages.en, "The user was removed from an organization."),  NotificationVisibility.Customers,  removeUserFromOrganization_MessageType),
 
-                                                      new NotificationMessageDescription(I18NString.Create(Languages.en, "New organization created"),         I18NString.Create(Languages.en, "A new organization was created."),             NotificationVisibility.Customers,  addOrganization_MessageType),
-                                                      new NotificationMessageDescription(I18NString.Create(Languages.en, "Organization information updated"), I18NString.Create(Languages.en, "The organization information was updated."),   NotificationVisibility.Customers,  updateOrganization_MessageType),
-                                                      new NotificationMessageDescription(I18NString.Create(Languages.en, "Organization removed"),             I18NString.Create(Languages.en, "The organization was removed."),               NotificationVisibility.Customers,  removeOrganization_MessageType)
+                                                      new NotificationMessageDescription(I18NString.Create(Languages.en, "New organization created"),         I18NString.Create(Languages.en, "A new organization was created."),             NotificationVisibility.Admins,     addOrganization_MessageType),
+                                                      new NotificationMessageDescription(I18NString.Create(Languages.en, "New sub organization created"),     I18NString.Create(Languages.en, "A new sub organization was created."),         NotificationVisibility.Customers,  linkOrganizations_MessageType),
+                                                      new NotificationMessageDescription(I18NString.Create(Languages.en, "Organization information updated"), I18NString.Create(Languages.en, "An organization information was updated."),    NotificationVisibility.Customers,  updateOrganization_MessageType),
+                                                      new NotificationMessageDescription(I18NString.Create(Languages.en, "Organization removed"),             I18NString.Create(Languages.en, "An organization was removed."),                NotificationVisibility.Admins,     removeOrganization_MessageType),
+                                                      new NotificationMessageDescription(I18NString.Create(Languages.en, "Sub organization removed"),         I18NString.Create(Languages.en, "Sub organization was removed."),               NotificationVisibility.Customers,  unlinkOrganizations_MessageType),
                                                   }));
 
         }
@@ -13706,8 +13708,8 @@ namespace social.OpenData.UsersAPI
 
         public async Task WriteToLogfileAndNotify<TOrganization>(TOrganization            Organization,
                                                                  NotificationMessageType  MessageType,
-                                                                 Organization             OldOrganization        = null,
-                                                                 User_Id?                 CurrentUserId  = null)
+                                                                 Organization             OldOrganization   = null,
+                                                                 User_Id?                 CurrentUserId     = null)
 
             where TOrganization : Organization
 
@@ -13797,7 +13799,7 @@ namespace social.OpenData.UsersAPI
 
                         if (_MessageTypes.Contains(removeOrganization_MessageType))
                         {
-                            await TelegramStore.SendTelegrams(String.Concat("Organization '", Organization.Name.FirstText(), "' information has been removed. ",
+                            await TelegramStore.SendTelegrams(String.Concat("Organization '", Organization.Name.FirstText(), "' has been removed. ",
                                                                             "If you haven't approved this request, please contact support: support@cardi-link.com"),
                                                               AllTelegramNotifications.Select(TelegramNotification => TelegramNotification.Username));
                         }
@@ -13838,7 +13840,7 @@ namespace social.OpenData.UsersAPI
 
                         if (_MessageTypes.Contains(updateOrganization_MessageType))
                         {
-                            SendSMS(String.Concat("Organization '" + Organization.Name.FirstText() + "' information has been successfully updated. ",
+                            SendSMS(String.Concat("Organization '", Organization.Name.FirstText(), "' information has been successfully updated. ",
                                                   "https://", ExternalDNSName, BasePath, "/organizations/", Organization.Id),
                                                   // + {Updated information}
                                     AllSMSNotifications.Select(smsPhoneNumber => smsPhoneNumber.PhoneNumber.ToString()).ToArray(),
@@ -13847,7 +13849,7 @@ namespace social.OpenData.UsersAPI
 
                         if (_MessageTypes.Contains(removeOrganization_MessageType))
                         {
-                            SendSMS(String.Concat("Organization '" + Organization.Name.FirstText() + "' sent '" + MessageType + "'!"),
+                            SendSMS(String.Concat("Organization '", Organization.Name.FirstText(), "' has been removed."),
                                     AllSMSNotifications.Select(smsPhoneNumber => smsPhoneNumber.PhoneNumber.ToString()).ToArray(),
                                     "CardiCloud");
                         }
@@ -13975,7 +13977,7 @@ namespace social.OpenData.UsersAPI
                                          From           = Robot.EMail,
                                          To             = EMailAddressListBuilder.Create(EMailAddressList.Create(AllEMailNotifications.Select(emailnotification => emailnotification.EMailAddress))),
                                          Passphrase     = APIPassphrase,
-                                         Subject        = String.Concat("Organization '", Organization.Name.FirstText(), "' information has been successfully updated."), // + {Updated information}  + link {Org_baseData page}.",
+                                         Subject        = String.Concat("Organization '", Organization.Name.FirstText(), "' information has been successfully updated."),
 
                                          HTMLText       = String.Concat(HTMLEMailHeader,
                                                                         "Organization <a href=\"https://", ExternalDNSName, BasePath, "/organizations/", Organization.Id, "\">", Organization.Name.FirstText(), "</a> information has been successfully updated.",
@@ -14001,15 +14003,15 @@ namespace social.OpenData.UsersAPI
                                          From           = Robot.EMail,
                                          To             = EMailAddressListBuilder.Create(EMailAddressList.Create(AllEMailNotifications.Select(emailnotification => emailnotification.EMailAddress))),
                                          Passphrase     = APIPassphrase,
-                                         Subject        = String.Concat("Organization '", Organization.Name.FirstText(), "' information has been removed."),
+                                         Subject        = String.Concat("Organization '", Organization.Name.FirstText(), "' has been removed."),
 
                                          HTMLText       = String.Concat(HTMLEMailHeader,
-                                                                        "Organization <a href=\"https://", ExternalDNSName, BasePath, "/organizations/", Organization.Id, "\">", Organization.Name.FirstText(), "</a> information has been removed. ",
+                                                                        "Organization <a href=\"https://", ExternalDNSName, BasePath, "/organizations/", Organization.Id, "\">", Organization.Name.FirstText(), "</a> has been removed.<br />",
                                                                         "If you haven't approved this request, please contact support: <a href=\"mailto:support@cardi-link.com\">support@cardi-link.com</a>",
                                                                         HTMLEMailFooter),
 
                                          PlainText      = String.Concat(TextEMailHeader,
-                                                                        "Organization '", Organization.Name.FirstText(), "' information has been removed.\r\n",
+                                                                        "Organization '", Organization.Name.FirstText(), "' has been removed.\r\n",
                                                                         "If you haven't approved this request, please contact support: support@cardi-link.com\r\r\r\r",
                                                                         TextEMailFooter),
 
@@ -14231,7 +14233,7 @@ namespace social.OpenData.UsersAPI
                                          Subject        = String.Concat("User '", User.Name, "' was added to organization '", Organization.Name.FirstText(), "'."),
 
                                          HTMLText       = String.Concat(HTMLEMailHeader,
-                                                                        "User <a href=\"https://", this.ExternalDNSName, this.BasePath, "/users/", User.Id, "\">", User.Name, "</a> had been added to organization <a href=\"https://", ExternalDNSName, BasePath, "/organizations/", Organization.Id, "\">", Organization.Name.FirstText(), "</a>. ",
+                                                                        "User <a href=\"https://", this.ExternalDNSName, this.BasePath, "/users/", User.Id, "\">", User.Name, "</a> had been added to organization <a href=\"https://", ExternalDNSName, BasePath, "/organizations/", Organization.Id, "\">", Organization.Name.FirstText(), "</a>.<br />",
                                                                         "If you haven't approved this request, please contact support: <a href=\"mailto:support@cardi-link.com\">support@cardi-link.com</a>",
                                                                         HTMLEMailFooter),
 
@@ -14256,12 +14258,258 @@ namespace social.OpenData.UsersAPI
                                          Subject        = String.Concat("User '", User.Name, "' was removed from organization '", Organization.Name.FirstText(), "'."),
 
                                          HTMLText       = String.Concat(HTMLEMailHeader,
-                                                                        "User <a href=\"https://", this.ExternalDNSName, this.BasePath, "/users/", User.Id, "\">", User.Name, "</a> had been removed from organization <a href=\"https://", ExternalDNSName, BasePath, "/organizations/", Organization.Id, "\">", Organization.Name.FirstText(), "</a>. ",
+                                                                        "User <a href=\"https://", this.ExternalDNSName, this.BasePath, "/users/", User.Id, "\">", User.Name, "</a> had been removed from organization <a href=\"https://", ExternalDNSName, BasePath, "/organizations/", Organization.Id, "\">", Organization.Name.FirstText(), "</a>.<br />",
                                                                         "If you haven't approved this request, please contact support: <a href=\"mailto:support@cardi-link.com\">support@cardi-link.com</a>",
                                                                         HTMLEMailFooter),
 
                                          PlainText      = String.Concat(TextEMailHeader,
                                                                         "User '" + User.Name + "' had been removed from organization '", Organization.Name.FirstText(), "'.\r\n",
+                                                                        "If you haven't approved this request, please contact support: support@cardi-link.com\r\r\r\r",
+                                                                        TextEMailFooter),
+
+                                         SecurityLevel  = EMailSecurity.sign
+
+                                     });
+                        }
+
+                    }
+
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e);
+                }
+
+                #endregion
+
+            }
+
+        }
+
+        #endregion
+
+        #region Notify(OrganizationOut, OrganizationIn, MessageType, CurrentUserId = null)
+
+        public async Task Notify<TOrganization>(TOrganization            OrganizationOut,
+                                                TOrganization            OrganizationIn,
+                                                NotificationMessageType  MessageType,
+                                                User_Id?                 CurrentUserId    = null)
+
+            where TOrganization : Organization
+
+        {
+
+            if (OrganizationOut == null || OrganizationIn == null)
+                return;
+
+            var _MessageTypes = new HashSet<NotificationMessageType>() { MessageType };
+
+            //if (MessageType == addOrganizationIfNotExists_MessageType)
+            //{
+            //    _MessageTypes.Add(addOrganization_MessageType);
+            //}
+
+            var MessageTypes = _MessageTypes.ToArray();
+
+
+            if (!DisableNotifications)
+            {
+
+                #region Telegram Notifications
+
+                try
+                {
+
+                    var AllTelegramNotifications  = this.GetTelegramNotifications(OrganizationIn,  MessageTypes).Concat(
+                                                    this.GetTelegramNotifications(OrganizationOut, MessageTypes)).
+                                                    ToHashSet();
+
+                    if (DevMachines.Contains(Environment.MachineName))
+                    {
+                        AllTelegramNotifications.Clear();
+                    }
+
+                    if (AllTelegramNotifications.Count > 0)
+                    {
+
+                        if (_MessageTypes.Contains(linkOrganizations_MessageType))
+                        {
+                            await TelegramStore.SendTelegrams(String.Concat("Organization '", OrganizationOut.Name.FirstText(), "' was linked to organization '", OrganizationIn.Name.FirstText(), "'."),
+                                                              AllTelegramNotifications.Select(TelegramNotification => TelegramNotification.Username));
+                        }
+
+                        if (_MessageTypes.Contains(unlinkOrganizations_MessageType))
+                        {
+                            await TelegramStore.SendTelegrams(String.Concat("Organization '", OrganizationOut.Name.FirstText(), "' was unlinked from organization '", OrganizationIn.Name.FirstText(), "'."),
+                                                              AllTelegramNotifications.Select(TelegramNotification => TelegramNotification.Username));
+                        }
+
+                    }
+
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e);
+                }
+
+                #endregion
+
+                #region SMS Notifications
+
+                try
+                {
+
+                    var AllSMSNotifications  = this.GetSMSNotifications(OrganizationIn,  MessageTypes).Concat(
+                                               this.GetSMSNotifications(OrganizationOut, MessageTypes)).
+                                               ToHashSet();
+
+                    if (DevMachines.Contains(Environment.MachineName))
+                    {
+                        AllSMSNotifications.Clear();
+                    }
+
+                    if (AllSMSNotifications.Count > 0)
+                    {
+
+                        if (_MessageTypes.Contains(linkOrganizations_MessageType))
+                        {
+                            SendSMS(String.Concat("Organization '", OrganizationOut.Name.FirstText(), "' was linked to organization '", OrganizationIn.Name.FirstText(), "'."),
+                                    AllSMSNotifications.Select(smsPhoneNumber => smsPhoneNumber.PhoneNumber.ToString()).ToArray(),
+                                    "CardiCloud");
+                        }
+
+                        if (_MessageTypes.Contains(unlinkOrganizations_MessageType))
+                        {
+                            SendSMS(String.Concat("Organization '", OrganizationOut.Name.FirstText(), "' was unlinked from organization '", OrganizationIn.Name.FirstText(), "'."),
+                                    AllSMSNotifications.Select(smsPhoneNumber => smsPhoneNumber.PhoneNumber.ToString()).ToArray(),
+                                    "CardiCloud");
+                        }
+
+                    }
+
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e);
+                }
+
+                #endregion
+
+                #region HTTPS Notifications
+
+                try
+                {
+
+                    var AllHTTPSNotifications  = this.GetHTTPSNotifications(OrganizationIn,  MessageTypes).Concat(
+                                                 this.GetHTTPSNotifications(OrganizationOut, MessageTypes)).
+                                                 ToHashSet();
+
+                    if (DevMachines.Contains(Environment.MachineName))
+                        AllHTTPSNotifications.Clear();
+
+                    if (AllHTTPSNotifications.Count > 0)
+                    {
+
+                        if (_MessageTypes.Contains(linkOrganizations_MessageType))
+                        {
+
+                            await SendHTTPSNotifications(AllHTTPSNotifications,
+                                                         new JObject(
+                                                             new JProperty("linkOrganizations",
+                                                                 new JObject(
+                                                                     new JProperty("organization",       OrganizationOut.      ToJSON()),
+                                                                     new JProperty("parentOrganization", OrganizationIn.ToJSON())
+                                                                 )
+                                                             ),
+                                                             new JProperty("timestamp", DateTime.UtcNow.ToIso8601())
+                                                         ));
+
+                        }
+
+                        if (_MessageTypes.Contains(unlinkOrganizations_MessageType))
+                        {
+
+                            await SendHTTPSNotifications(AllHTTPSNotifications,
+                                                         new JObject(
+                                                             new JProperty("unlinkOrganizations",
+                                                                 new JObject(
+                                                                     new JProperty("organization",       OrganizationOut.      ToJSON()),
+                                                                     new JProperty("parentOrganization", OrganizationIn.ToJSON())
+                                                                 )
+                                                             ),
+                                                             new JProperty("timestamp", DateTime.UtcNow.ToIso8601())
+                                                         ));
+
+                        }
+
+                    }
+
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e);
+                }
+
+                #endregion
+
+                #region EMailNotifications
+
+                try
+                {
+
+                    var AllEMailNotifications  = this.GetEMailNotifications(OrganizationIn,  MessageTypes).Concat(
+                                                 this.GetEMailNotifications(OrganizationOut, MessageTypes)).
+                                                 ToHashSet();
+
+                    if (DevMachines.Contains(Environment.MachineName))
+                    {
+                        AllEMailNotifications.Clear();
+                    }
+
+                    if (AllEMailNotifications.Count > 0)
+                    {
+
+                        if (_MessageTypes.Contains(linkOrganizations_MessageType))
+                        {
+                            await APISMTPClient.Send(
+                                     new HTMLEMailBuilder() {
+
+                                         From           = Robot.EMail,
+                                         To             = EMailAddressListBuilder.Create(EMailAddressList.Create(AllEMailNotifications.Select(emailnotification => emailnotification.EMailAddress))),
+                                         Passphrase     = APIPassphrase,
+                                         Subject        = String.Concat("Organization '", OrganizationOut.Name.FirstText(), "' was linked to organization '", OrganizationIn.Name.FirstText(), "'."),
+
+                                         HTMLText       = String.Concat(HTMLEMailHeader,
+                                                                        "Organization <a href=\"https://", ExternalDNSName, BasePath, "/organizations/", OrganizationOut.Id, "\">", OrganizationOut.Name.FirstText(), "</a> had been linked to organization <a href=\"https://", ExternalDNSName, BasePath, "/organizations/", OrganizationIn.Id, "\">", OrganizationIn.Name.FirstText(), "</a>.<br />",
+                                                                        "If you haven't approved this request, please contact support: <a href=\"mailto:support@cardi-link.com\">support@cardi-link.com</a>",
+                                                                        HTMLEMailFooter),
+
+                                         PlainText      = String.Concat(TextEMailHeader,
+                                                                        "Organization '" + OrganizationOut.Name.FirstText() + "' had been linked to organization '", OrganizationIn.Name.FirstText(), "'.\r\r\r\r",
+                                                                        TextEMailFooter),
+
+                                         SecurityLevel  = EMailSecurity.sign
+
+                                     });
+                        }
+
+                        if (_MessageTypes.Contains(unlinkOrganizations_MessageType))
+                        {
+                            await APISMTPClient.Send(
+                                     new HTMLEMailBuilder() {
+
+                                         From           = Robot.EMail,
+                                         To             = EMailAddressListBuilder.Create(EMailAddressList.Create(AllEMailNotifications.Select(emailnotification => emailnotification.EMailAddress))),
+                                         Passphrase     = APIPassphrase,
+                                         Subject        = String.Concat("Organization '", OrganizationOut.Name.FirstText(), "' was unlinked from organization '", OrganizationIn.Name.FirstText(), "'."),
+
+                                         HTMLText       = String.Concat(HTMLEMailHeader,
+                                                                        "Organization <a href=\"https://", ExternalDNSName, BasePath, "/organizations/", OrganizationOut.Id, "\">", OrganizationOut.Name.FirstText(), "</a> had been unlinked from organization <a href=\"https://", ExternalDNSName, BasePath, "/organizations/", OrganizationIn.Id, "\">", OrganizationIn.Name.FirstText(), "</a>.<br />",
+                                                                        "If you haven't approved this request, please contact support: <a href=\"mailto:support@cardi-link.com\">support@cardi-link.com</a>",
+                                                                        HTMLEMailFooter),
+
+                                         PlainText      = String.Concat(TextEMailHeader,
+                                                                        "Organization '" + OrganizationOut.Name.FirstText() + "' had been unlinked from organization '", OrganizationIn.Name.FirstText(), "'.\r\n",
                                                                         "If you haven't approved this request, please contact support: support@cardi-link.com\r\r\r\r",
                                                                         TextEMailFooter),
 
@@ -14889,9 +15137,11 @@ namespace social.OpenData.UsersAPI
         /// <param name="User">A new user to be added to this API.</param>
         /// <param name="OnAdded">A delegate run whenever the user had been added successfully.</param>
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
-        public async Task<User> AddUser(User          User,
-                                        Action<User>  OnAdded        = null,
-                                        User_Id?      CurrentUserId  = null)
+        public async Task<User> AddUser(User                         User,
+                                        User2OrganizationEdgeTypes?  EdgeLabel            = null,
+                                        Organization                 ParentOrganization   = null,
+                                        Action<User>                 OnAdded              = null,
+                                        User_Id?                     CurrentUserId        = null)
         {
 
             try
@@ -14910,13 +15160,36 @@ namespace social.OpenData.UsersAPI
 
                 User.API = this;
 
-                await WriteToLogfileAndNotify(User,
-                                              addUser_MessageType,
-                                              CurrentUserId: CurrentUserId);
+
+                // The new user does not yet have an organization,
+                // therefore notifications do not work here now!
+                await WriteToDatabaseFile(addUser_MessageType,
+                                          User.ToJSON(false, true),
+                                          CurrentUserId);
+
+                await Notify(User,
+                             addUser_MessageType,
+                             null,
+                             CurrentUserId);
 
                 _Users.Add(User.Id, User);
 
                 OnAdded?.Invoke(User);
+
+                if (ParentOrganization != null && EdgeLabel != null)
+                {
+
+                    await _AddToOrganization(User,
+                                             EdgeLabel.Value,
+                                             ParentOrganization,
+                                             CurrentUserId);
+
+                    await Notify(ParentOrganization,
+                                 addUser_MessageType,
+                                 null,
+                                 CurrentUserId);
+
+                }
 
                 return User;
 
@@ -15167,25 +15440,27 @@ namespace social.OpenData.UsersAPI
         /// <param name="IsDisabled">The user will be shown in user listings.</param>
         /// <param name="DataSource">The source of all this data, e.g. an automatic importer.</param>
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
-        public async Task<User> CreateUser(User_Id             Id,
-                                           SimpleEMailAddress  EMail,
-                                           Password?           Password          = null,
-                                           String              Name              = null,
-                                           I18NString          Description       = null,
-                                           PgpPublicKeyRing    PublicKeyRing     = null,
-                                           PgpSecretKeyRing    SecretKeyRing     = null,
-                                           Languages           UserLanguage      = Languages.en,
-                                           PhoneNumber?        Telephone         = null,
-                                           PhoneNumber?        MobilePhone       = null,
-                                           String              Telegram          = null,
-                                           String              Homepage          = null,
-                                           GeoCoordinate?      GeoLocation       = null,
-                                           Address             Address           = null,
-                                           DateTime?           AcceptedEULA      = null,
-                                           Boolean             IsAuthenticated   = false,
-                                           Boolean             IsDisabled        = false,
-                                           String              DataSource        = "",
-                                           User_Id?            CurrentUserId     = null)
+        public async Task<User> CreateUser(User_Id                      Id,
+                                           SimpleEMailAddress           EMail,
+                                           Password?                    Password             = null,
+                                           String                       Name                 = null,
+                                           I18NString                   Description          = null,
+                                           PgpPublicKeyRing             PublicKeyRing        = null,
+                                           PgpSecretKeyRing             SecretKeyRing        = null,
+                                           Languages                    UserLanguage         = Languages.en,
+                                           PhoneNumber?                 Telephone            = null,
+                                           PhoneNumber?                 MobilePhone          = null,
+                                           String                       Telegram             = null,
+                                           String                       Homepage             = null,
+                                           GeoCoordinate?               GeoLocation          = null,
+                                           Address                      Address              = null,
+                                           DateTime?                    AcceptedEULA         = null,
+                                           Boolean                      IsAuthenticated      = false,
+                                           Boolean                      IsDisabled           = false,
+                                           User2OrganizationEdgeTypes?  EdgeLabel            = null,
+                                           Organization                 ParentOrganization   = null,
+                                           String                       DataSource           = "",
+                                           User_Id?                     CurrentUserId        = null)
 
             => await AddUser(new User(Id,
                                       EMail,
@@ -15204,6 +15479,9 @@ namespace social.OpenData.UsersAPI
                                       IsAuthenticated,
                                       IsDisabled,
                                       DataSource: DataSource),
+
+                         EdgeLabel,
+                         ParentOrganization,
 
                          user => {
 
@@ -16883,10 +17161,29 @@ namespace social.OpenData.UsersAPI
 
         #region GetNotifications  (UserId, NotificationMessageType = null)
 
-        public IEnumerable<ANotification> GetNotifications<T>(User_Id                   UserId,
-                                                                  NotificationMessageType?  NotificationMessageType = null)
+        public IEnumerable<ANotification> GetNotifications(User_Id                   UserId,
+                                                           NotificationMessageType?  NotificationMessageType = null)
+        {
 
-            => TryGetUser(UserId, out User User)
+            try
+            {
+
+                UsersSemaphore.Wait();
+
+                return _GetNotifications(UserId, NotificationMessageType);
+
+            }
+            finally
+            {
+                UsersSemaphore.Release();
+            }
+
+        }
+
+        private IEnumerable<ANotification> _GetNotifications(User_Id                   UserId,
+                                                             NotificationMessageType?  NotificationMessageType = null)
+
+            => _Users.TryGetValue(UserId, out User User)
                    ? User.GetNotifications(NotificationMessageType)
                    : new ANotification[0];
 
@@ -16907,10 +17204,30 @@ namespace social.OpenData.UsersAPI
 
         public IEnumerable<T> GetNotificationsOf<T>(User_Id                           UserId,
                                                     params NotificationMessageType[]  NotificationMessageTypes)
+            where T : ANotification
+        {
+
+            try
+            {
+
+                UsersSemaphore.Wait();
+
+                return _GetNotificationsOf<T>(UserId, NotificationMessageTypes);
+
+            }
+            finally
+            {
+                UsersSemaphore.Release();
+            }
+
+        }
+
+        private IEnumerable<T> _GetNotificationsOf<T>(User_Id                           UserId,
+                                                      params NotificationMessageType[]  NotificationMessageTypes)
 
             where T : ANotification
 
-            => TryGetUser(UserId, out User User)
+            => _Users.TryGetValue(UserId, out User User)
                    ? User.GetNotificationsOf<T>(NotificationMessageTypes)
                    : new T[0];
 
@@ -16926,7 +17243,7 @@ namespace social.OpenData.UsersAPI
             => Organization.
                    GetMeAndAllMyParents(parent => parent != NoOwner).
                    SelectMany          (parent => parent.User2OrganizationEdges).
-                   SelectMany          (edge   => GetNotificationsOf<T>(edge.Source.Id, NotificationMessageTypes));
+                   SelectMany          (edge   => _GetNotificationsOf<T>(edge.Source.Id, NotificationMessageTypes));
 
         #endregion
 
@@ -16934,10 +17251,30 @@ namespace social.OpenData.UsersAPI
 
         public IEnumerable<T> GetNotificationsOf<T>(Organization_Id                   OrganizationId,
                                                     params NotificationMessageType[]  NotificationMessageTypes)
+            where T : ANotification
+        {
+
+            try
+            {
+
+                OrganizationsSemaphore.Wait();
+
+                return _GetNotificationsOf<T>(OrganizationId, NotificationMessageTypes);
+
+            }
+            finally
+            {
+                OrganizationsSemaphore.Release();
+            }
+
+        }
+
+        private IEnumerable<T> _GetNotificationsOf<T>(Organization_Id                   OrganizationId,
+                                                      params NotificationMessageType[]  NotificationMessageTypes)
 
             where T : ANotification
 
-            => TryGetOrganization(OrganizationId, out Organization Organization)
+            => _Organizations.TryGetValue(OrganizationId, out Organization Organization)
                    ? GetNotificationsOf<T>(Organization, NotificationMessageTypes)
                    : new T[0];
 
@@ -17589,7 +17926,7 @@ namespace social.OpenData.UsersAPI
         /// Add the given organization to the API.
         /// </summary>
         /// <param name="Organization">A new organization to be added to this API.</param>
-        /// <param name="ParentOrganization">The parent organization of the organization organization to be added.</param>
+        /// <param name="ParentOrganization">The parent organization of the organization to be added.</param>
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
         public async Task<Organization> AddOrganization(Organization  Organization,
                                                         Organization  ParentOrganization   = null,
@@ -17610,8 +17947,8 @@ namespace social.OpenData.UsersAPI
                 if (ParentOrganization == null)
                     ParentOrganization = NoOwner;
 
-                if (ParentOrganization != null && !_Organizations.ContainsKey(ParentOrganization.Id))
-                    throw new Exception("Parent organization '" + ParentOrganization.Id + "' does not exists in this API!");
+                //if (ParentOrganization != null && !_Organizations.ContainsKey(ParentOrganization.Id))
+                //    throw new Exception("Parent organization '" + ParentOrganization.Id + "' does not exists in this API!");
 
                 Organization.API = this;
 
@@ -17628,17 +17965,28 @@ namespace social.OpenData.UsersAPI
                 }
 
 
-                await WriteToDatabaseFile(NotificationMessageType.Parse("addOrganization"),
-                                          Organization.ToJSON(),
+                // The new organization does not yet have a parent organization,
+                // therefore notifications do not work here now!
+                await WriteToDatabaseFile(addOrganization_MessageType,
+                                          Organization.ToJSON(false, true),
                                           CurrentUserId);
 
                 var newOrganization = _Organizations.AddAndReturnValue(Organization.Id, Organization);
 
                 if (ParentOrganization != null)
+                {
+
                     await _LinkOrganizations(newOrganization,
                                              Organization2OrganizationEdgeTypes.IsChildOf,
                                              ParentOrganization,
-                                             CurrentUserId:  CurrentUserId);
+                                             CurrentUserId: CurrentUserId);
+
+                    await Notify(Organization,
+                                 addOrganization_MessageType,
+                                 null,
+                                 CurrentUserId);
+
+                }
 
                 return newOrganization;
 
@@ -17679,21 +18027,34 @@ namespace social.OpenData.UsersAPI
                 if (ParentOrganization == null)
                     ParentOrganization = NoOwner;
 
-                if (ParentOrganization != null && !_Organizations.ContainsKey(ParentOrganization.Id))
-                    throw new Exception("Parent organization '" + ParentOrganization.Id + "' does not exists in this API!");
+                //if (ParentOrganization != null && !_Organizations.ContainsKey(ParentOrganization.Id))
+                //    throw new Exception("Parent organization '" + ParentOrganization.Id + "' does not exists in this API!");
 
                 Organization.API = this;
 
-                await WriteToDatabaseFile(addOrganizationIfNotExists_MessageType,
-                                          Organization.ToJSON(),
-                                          CurrentUserId);
+                await WriteToLogfileAndNotify(Organization,
+                                              addOrganizationIfNotExists_MessageType,
+                                              null,
+                                              CurrentUserId);
 
-                var NewOrg = _Organizations.AddAndReturnValue(Organization.Id, Organization);
+                _Organizations.Add(Organization.Id, Organization);
 
                 if (ParentOrganization != null)
-                    await _LinkOrganizations(NewOrg, Organization2OrganizationEdgeTypes.IsChildOf, ParentOrganization, CurrentUserId: CurrentUserId);
+                {
 
-                return NewOrg;
+                    await _LinkOrganizations(Organization,
+                                             Organization2OrganizationEdgeTypes.IsChildOf,
+                                             ParentOrganization,
+                                             CurrentUserId: CurrentUserId);
+
+                    await Notify(Organization,
+                                 addOrganization_MessageType,
+                                 null,
+                                 CurrentUserId);
+
+                }
+
+                return Organization;
 
             }
             finally
@@ -17729,31 +18090,40 @@ namespace social.OpenData.UsersAPI
                 if (ParentOrganization == null)
                     ParentOrganization = NoOwner;
 
-                if (ParentOrganization != null && !_Organizations.ContainsKey(ParentOrganization.Id))
-                    throw new Exception("Parent organization '" + ParentOrganization.Id + "' does not exists in this API!");
+                //if (ParentOrganization != null && !_Organizations.ContainsKey(ParentOrganization.Id))
+                //    throw new Exception("Parent organization '" + ParentOrganization.Id + "' does not exists in this API!");
 
                 if (_Organizations.TryGetValue(Organization.Id, out Organization OldOrganization))
                 {
+                    Organization.CopyAllLinkedDataFrom(OldOrganization);
                     _Organizations.Remove(OldOrganization.Id);
                 }
 
                 Organization.API = this;
 
-                await WriteToDatabaseFile(addOrUpdateOrganization_MessageType,
-                                          Organization.ToJSON(),
-                                          CurrentUserId);
+                await WriteToLogfileAndNotify(Organization,
+                                              addOrUpdateOrganization_MessageType,
+                                              OldOrganization,
+                                              CurrentUserId);
 
-                var NewOrg = _Organizations.AddAndReturnValue(Organization.Id, Organization);
-
-                // ToDo: Copy edges!
+                _Organizations.AddAndReturnValue(Organization.Id, Organization);
 
                 if (ParentOrganization != null)
                 {
-                    await _LinkOrganizations(NewOrg, Organization2OrganizationEdgeTypes.IsChildOf, ParentOrganization, CurrentUserId: CurrentUserId);
-                    //ToDo: Update link to parent organization
+
+                    await _LinkOrganizations(Organization,
+                                             Organization2OrganizationEdgeTypes.IsChildOf,
+                                             ParentOrganization,
+                                             CurrentUserId: CurrentUserId);
+
+                    await Notify(Organization,
+                                 addOrganization_MessageType,
+                                 null,
+                                 CurrentUserId);
+
                 }
 
-                return NewOrg;
+                return Organization;
 
             }
             finally
@@ -17795,12 +18165,12 @@ namespace social.OpenData.UsersAPI
                 }
 
                 Organization.API = this;
-
-                await WriteToDatabaseFile(updateOrganization_MessageType,
-                                          Organization.ToJSON(),
-                                          CurrentUserId);
-
                 Organization.CopyAllLinkedDataFrom(OldOrganization);
+
+                await WriteToLogfileAndNotify(Organization,
+                                              updateOrganization_MessageType,
+                                              OldOrganization,
+                                              CurrentUserId);
 
                 return _Organizations.AddAndReturnValue(Organization.Id, Organization);
 
@@ -17842,14 +18212,15 @@ namespace social.OpenData.UsersAPI
                 UpdateDelegate(Builder);
                 var NewOrganization = Builder.ToImmutable;
 
-                await WriteToDatabaseFile(NotificationMessageType.Parse("updateOrganization"),
-                                     NewOrganization.ToJSON(),
-                                     CurrentUserId);
-
                 NewOrganization.API = this;
+                NewOrganization.CopyAllLinkedDataFrom(OldOrganization);
+
+                await WriteToLogfileAndNotify(NewOrganization,
+                                              updateOrganization_MessageType,
+                                              OldOrganization,
+                                              CurrentUserId);
 
                 _Organizations.Remove(OldOrganization.Id);
-                NewOrganization.CopyAllLinkedDataFrom(OldOrganization);
 
                 return _Organizations.AddAndReturnValue(NewOrganization.Id, NewOrganization);
 
@@ -17904,6 +18275,11 @@ namespace social.OpenData.UsersAPI
                     if (result == null)
                     {
 
+                        await Notify(organization,
+                                     removeOrganization_MessageType,
+                                     null,
+                                     CurrentUserId);
+
                         // this --edge--> other_organization
                         foreach (var edge in organization.Organization2OrganizationOutEdges)
                             edge.Target.RemoveInEdge(edge);
@@ -17917,9 +18293,9 @@ namespace social.OpenData.UsersAPI
                             edge.Source.RemoveOutEdge(edge);
 
 
-                        await WriteToDatabaseFile(NotificationMessageType.Parse("removeOrganization"),
-                                             organization.ToJSON(),
-                                             CurrentUserId);
+                        await WriteToDatabaseFile(removeOrganization_MessageType,
+                                                  organization.ToJSON(false, true),
+                                                  CurrentUserId);
 
                         _Organizations.Remove(OrganizationId);
 
@@ -18768,11 +19144,11 @@ namespace social.OpenData.UsersAPI
 
         #region LinkOrganizations  (OrganizationOut, EdgeLabel, OrganizationIn, Privacy = Public, CurrentUserId = null)
 
-        protected async Task<Boolean> _LinkOrganizations(Organization                    OrganizationOut,
+        protected async Task<Boolean> _LinkOrganizations(Organization                        OrganizationOut,
                                                          Organization2OrganizationEdgeTypes  EdgeLabel,
-                                                         Organization                    OrganizationIn,
-                                                         PrivacyLevel                    Privacy        = PrivacyLevel.World,
-                                                         User_Id?                        CurrentUserId  = null)
+                                                         Organization                        OrganizationIn,
+                                                         PrivacyLevel                        Privacy        = PrivacyLevel.World,
+                                                         User_Id?                            CurrentUserId  = null)
         {
 
                 if (!OrganizationOut.
@@ -18799,6 +19175,11 @@ namespace social.OpenData.UsersAPI
                                                   Privacy.ToJSON()
                                               ),
                                               CurrentUserId);
+
+                    await Notify(OrganizationOut,
+                                 OrganizationIn,
+                                 linkOrganizations_MessageType,
+                                 CurrentUserId);
 
                     return true;
 
@@ -18867,6 +19248,11 @@ namespace social.OpenData.UsersAPI
                                               new JProperty("organizationIn",  OrganizationIn. Id.ToString())
                                           ),
                                           CurrentUserId);
+
+                await Notify(OrganizationOut,
+                             unlinkOrganizations_MessageType,
+                             null,
+                             CurrentUserId);
 
                 return true;
 
