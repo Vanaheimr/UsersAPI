@@ -193,37 +193,41 @@ function StartEditUserNotifications() {
             MessageTypeGroupMessagesDiv.className = "messageTypes";
             MessageTypeGroupMessagesDiv.style.display = "none";
             for (const MessageType of notificationGroup.notifications) {
-                const MessageTypeOption = MessageTypeGroupMessagesDiv.appendChild(document.createElement('div'));
-                MessageTypeOption.id = MessageType.messages[0];
-                MessageTypeOption.dataset.messageType = MessageType.messages[0];
-                MessageTypeOption.className = "messageType";
-                MessageTypeOption.innerHTML = "<i class=\"fas fa-check\"></i>";
-                const MessageTypeOptionText = MessageTypeOption.appendChild(document.createElement('div'));
-                MessageTypeOptionText.className = "text";
-                const MessageTypeOptionTitle = MessageTypeOptionText.appendChild(document.createElement('div'));
-                MessageTypeOptionTitle.className = "title";
-                MessageTypeOptionTitle.innerHTML = firstValue(MessageType.title);
-                const MessageTypeOptionDescription = MessageTypeOptionText.appendChild(document.createElement('div'));
-                MessageTypeOptionDescription.className = "description";
-                MessageTypeOptionDescription.innerHTML = firstValue(MessageType.description);
-                MessageTypeOption.onclick = (ev) => {
-                    // Text...
-                    if (MessageTypeOption.classList.contains("on"))
-                        MessageTypeOption.classList.remove("on");
-                    else
+                if (MessageType.visibility == "customers" || isAdmin == "readOnly" || isAdmin == "readWrite") {
+                    const MessageTypeOption = MessageTypeGroupMessagesDiv.appendChild(document.createElement('div'));
+                    MessageTypeOption.id = MessageType.messages[0];
+                    MessageTypeOption.dataset.messageType = MessageType.messages[0];
+                    MessageTypeOption.className = "messageType";
+                    MessageTypeOption.innerHTML = "<i class=\"fas fa-check\"></i>";
+                    const MessageTypeOptionText = MessageTypeOption.appendChild(document.createElement('div'));
+                    MessageTypeOptionText.className = "text";
+                    const MessageTypeOptionTitle = MessageTypeOptionText.appendChild(document.createElement('div'));
+                    MessageTypeOptionTitle.className = "title";
+                    MessageTypeOptionTitle.innerHTML = firstValue(MessageType.title) +
+                        (MessageType.visibility == "system" ? "<span class=\"systemNotification\">system</span>" : "") +
+                        (MessageType.visibility == "admins" ? "<span class=\"adminNotification\">admin</span>" : "");
+                    const MessageTypeOptionDescription = MessageTypeOptionText.appendChild(document.createElement('div'));
+                    MessageTypeOptionDescription.className = "description";
+                    MessageTypeOptionDescription.innerHTML = firstValue(MessageType.description);
+                    MessageTypeOption.onclick = (ev) => {
+                        // Text...
+                        if (MessageTypeOption.classList.contains("on"))
+                            MessageTypeOption.classList.remove("on");
+                        else
+                            MessageTypeOption.classList.add("on");
+                        // Green check item...
+                        if (MessageTypeOption.children[0].classList.contains("on"))
+                            MessageTypeOption.children[0].classList.remove("on");
+                        else
+                            MessageTypeOption.children[0].classList.add("on");
+                        ev.stopPropagation();
+                    };
+                    if (existingNotification != null &&
+                        existingNotification.messageTypes != null &&
+                        existingNotification.messageTypes.includes(MessageType.messages[0])) {
                         MessageTypeOption.classList.add("on");
-                    // Green check item...
-                    if (MessageTypeOption.children[0].classList.contains("on"))
-                        MessageTypeOption.children[0].classList.remove("on");
-                    else
                         MessageTypeOption.children[0].classList.add("on");
-                    ev.stopPropagation();
-                };
-                if (existingNotification != null &&
-                    existingNotification.messageTypes != null &&
-                    existingNotification.messageTypes.includes(MessageType.messages[0])) {
-                    MessageTypeOption.classList.add("on");
-                    MessageTypeOption.children[0].classList.add("on");
+                    }
                 }
             }
         }

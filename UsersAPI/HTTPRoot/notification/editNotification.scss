@@ -173,7 +173,27 @@ body {
                                                     padding:            2px 0px 1px 0px;
 
                                                     .title {
+
                                                         font-size:      100%;
+
+                                                        .systemNotification {
+                                                            background-color:   #ef9b9b;
+                                                            color:              #a85252;
+                                                            font-size:          80%;
+                                                            border-radius:      3px;
+                                                            padding:            2px 4px;
+                                                            margin-left:        10px;
+                                                        }
+
+                                                        .adminNotification {
+                                                            background-color:   #ffb364;
+                                                            color:              #d18230;
+                                                            font-size:          80%;
+                                                            border-radius:      3px;
+                                                            padding:            2px 4px;
+                                                            margin-left:        10px;
+                                                        }
+
                                                     }
 
                                                     .description {
