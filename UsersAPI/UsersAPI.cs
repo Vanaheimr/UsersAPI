@@ -3781,16 +3781,15 @@ namespace social.OpenData.UsersAPI
                                                   I18NString.Create(Languages.en, "Users Management notifications"),
                                                   NotificationVisibility.Customers,
                                                   new NotificationMessageDescription[] {
-                                                      new NotificationMessageDescription(I18NString.Create(Languages.en, "New user created"),                 I18NString.Create(Languages.en, "A new organization member was added."),        NotificationVisibility.Customers,  addUser_MessageType),
+                                                      new NotificationMessageDescription(I18NString.Create(Languages.en, "New user created"),                 I18NString.Create(Languages.en, "A new user was added to portal."),             NotificationVisibility.Admins,     addUser_MessageType),
+                                                      new NotificationMessageDescription(I18NString.Create(Languages.en, "User added to organization"),       I18NString.Create(Languages.en, "The user wad added to an organization."),      NotificationVisibility.Customers,  addUserToOrganization_MessageType),
                                                       new NotificationMessageDescription(I18NString.Create(Languages.en, "User information updated"),         I18NString.Create(Languages.en, "The user information was updated."),           NotificationVisibility.Customers,  updateUser_MessageType),
-                                                      new NotificationMessageDescription(I18NString.Create(Languages.en, "User removed"),                     I18NString.Create(Languages.en, "User removed from an organization."),          NotificationVisibility.Customers,  removeUser_MessageType),
+                                                      new NotificationMessageDescription(I18NString.Create(Languages.en, "User removed"),                     I18NString.Create(Languages.en, "User removed from the portal."),               NotificationVisibility.Admins,     removeUser_MessageType),
+                                                      new NotificationMessageDescription(I18NString.Create(Languages.en, "User removed from organization"),   I18NString.Create(Languages.en, "The user wad removed from an organization."),  NotificationVisibility.Customers,  addUserToOrganization_MessageType),
 
                                                       new NotificationMessageDescription(I18NString.Create(Languages.en, "Organization removed"),             I18NString.Create(Languages.en, "The organization was removed."),               NotificationVisibility.Customers,  removeOrganization_MessageType),
                                                       new NotificationMessageDescription(I18NString.Create(Languages.en, "Organization information updated"), I18NString.Create(Languages.en, "The organization information was updated."),   NotificationVisibility.Customers,  updateOrganization_MessageType),
-                                                      new NotificationMessageDescription(I18NString.Create(Languages.en, "New organization created"),         I18NString.Create(Languages.en, "A new organization was created."),             NotificationVisibility.Customers,  addOrganization_MessageType),
-
-                                                      new NotificationMessageDescription(I18NString.Create(Languages.en, "User added to organization"),       I18NString.Create(Languages.en, "The user wad added to an organization."),      NotificationVisibility.Customers,  addUserToOrganization_MessageType),
-                                                      new NotificationMessageDescription(I18NString.Create(Languages.en, "User removed from organization"),   I18NString.Create(Languages.en, "The user wad removed from an organization."),  NotificationVisibility.Customers,  addUserToOrganization_MessageType)
+                                                      new NotificationMessageDescription(I18NString.Create(Languages.en, "New organization created"),         I18NString.Create(Languages.en, "A new organization was created."),             NotificationVisibility.Customers,  addOrganization_MessageType)
                                                   }));
 
         }
