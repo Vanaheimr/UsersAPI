@@ -4111,7 +4111,7 @@ namespace social.OpenData.UsersAPI
 
                                               #region Get RedirectURL
 
-                                              LoginData.TryGetValue("RedirectURL", out String RedirectURL);
+                                              LoginData.TryGetValue("redirect", out String RedirectURL);
 
                                               if (RedirectURL.IsNotNullOrEmpty())
                                                  RedirectURL = HTTPTools.URLDecode(RedirectURL);
