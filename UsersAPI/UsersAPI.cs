@@ -13437,6 +13437,30 @@ namespace social.OpenData.UsersAPI
             var MessageTypes = _MessageTypes.ToArray();
 
 
+            #region Get notification settings from his organisations and higher-level organizations
+
+            var allHisOrganizations = User.User2Organization_OutEdges.
+                                           Where (edge => edge.EdgeLabel == User2OrganizationEdgeTypes.IsAdmin ||
+                                                          edge.EdgeLabel == User2OrganizationEdgeTypes.IsMember).
+                                           Select(edge => edge.Target).
+                                           ToHashSet();
+
+            // Limit the number of levels, or people will get overwhelmed by e-mails...
+            for (var i = 0; i <= 2; i++)
+            {
+                foreach (var higherLevelOrganization in allHisOrganizations.ToArray().
+                                                                            SelectMany(org => org.Organization2OrganizationOutEdges.
+                                                                                                  Where (edge => edge.EdgeLabel == Organization2OrganizationEdgeTypes.IsChildOf).
+                                                                                                  Select(edge => edge.Target)))
+                {
+                    if (higherLevelOrganization != NoOwner)
+                        allHisOrganizations.Add(higherLevelOrganization);
+                }
+            }
+
+            #endregion
+
+
             if (!DisableNotifications)
             {
 
@@ -13447,6 +13471,10 @@ namespace social.OpenData.UsersAPI
 
                     var AllTelegramNotifications  = this.GetTelegramNotifications(User, MessageTypes).
                                                          ToHashSet();
+
+                    foreach (var telegramNotification in allHisOrganizations.SelectMany(org => this.GetTelegramNotifications(org, MessageTypes)))
+                        AllTelegramNotifications.Add(telegramNotification);
+
 
                     if (DevMachines.Contains(Environment.MachineName))
                     {
@@ -13496,6 +13524,10 @@ namespace social.OpenData.UsersAPI
 
                     var AllSMSNotifications  = this.GetSMSNotifications(User, MessageTypes).
                                                     ToHashSet();
+
+                    foreach (var SMSNotification in allHisOrganizations.SelectMany(org => this.GetSMSNotifications(org, MessageTypes)))
+                        AllSMSNotifications.Add(SMSNotification);
+
 
                     if (DevMachines.Contains(Environment.MachineName))
                     {
@@ -13548,6 +13580,10 @@ namespace social.OpenData.UsersAPI
 
                     var AllHTTPSNotifications  = this.GetHTTPSNotifications(User, MessageTypes).
                                                       ToHashSet();
+
+                    foreach (var HTTPSNotification in allHisOrganizations.SelectMany(org => this.GetHTTPSNotifications(org, MessageTypes)))
+                        AllHTTPSNotifications.Add(HTTPSNotification);
+
 
                     if (DevMachines.Contains(Environment.MachineName))
                         AllHTTPSNotifications.Clear();
@@ -13605,6 +13641,10 @@ namespace social.OpenData.UsersAPI
 
                     var AllEMailNotifications  = this.GetEMailNotifications(User, MessageTypes).
                                                       ToHashSet();
+
+                    foreach (var eMailNotification in allHisOrganizations.SelectMany(org => this.GetEMailNotifications(org, MessageTypes)))
+                        AllEMailNotifications.Add(eMailNotification);
+
 
                     if (DevMachines.Contains(Environment.MachineName))
                     {
