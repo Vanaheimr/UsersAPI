@@ -317,8 +317,14 @@ function StartEditUserNotifications()
                     const MessageTypeOptionTitle       = MessageTypeOptionText.appendChild(document.createElement('div')) as HTMLDivElement;
                     MessageTypeOptionTitle.className = "title";
                     MessageTypeOptionTitle.innerHTML = firstValue(MessageType.title) +
+
                                                        (MessageType.visibility == "system" ? "<span class=\"systemNotification\">system</span>" : "") +
-                                                       (MessageType.visibility == "admins" ? "<span class=\"adminNotification\">admin</span>"  : "");
+                                                       (MessageType.visibility == "admins" ? "<span class=\"adminNotification\">admin</span>"   : "") +
+
+                                                       (MessageType.tags != null &&
+                                                        MessageType.tags.includes('NewUserDefault') &&
+                                                        (isAdmin == "readOnly" || isAdmin == "readWrite")
+                                                                                           ? "<span class=\"newUserDefault\">New User</span>"   : "");
 
                     const MessageTypeOptionDescription = MessageTypeOptionText.appendChild(document.createElement('div')) as HTMLDivElement;
                     MessageTypeOptionDescription.className = "description";

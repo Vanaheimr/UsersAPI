@@ -3768,12 +3768,12 @@ namespace social.OpenData.UsersAPI
                                                   I18NString.Create(Languages.en, "Service Ticket notifications"),
                                                   NotificationVisibility.Customers,
                                                   new NotificationMessageDescription[] {
-                                                      new NotificationMessageDescription(I18NString.Create(Languages.en, "(New) service ticket added"),                  I18NString.Create(Languages.en, ""), NotificationVisibility.Customers,  addServiceTicket_MessageType),
-                                                      new NotificationMessageDescription(I18NString.Create(Languages.en, "(New) service ticket added (did not exist)"),  I18NString.Create(Languages.en, ""), NotificationVisibility.System,     addServiceTicketIfNotExists_MessageType),
-                                                      new NotificationMessageDescription(I18NString.Create(Languages.en, "(New) service ticket added or updated"),       I18NString.Create(Languages.en, ""), NotificationVisibility.System,     addOrUpdateServiceTicket_MessageType),
-                                                      new NotificationMessageDescription(I18NString.Create(Languages.en, "ServiceTicket updated"),                       I18NString.Create(Languages.en, ""), NotificationVisibility.Customers,  updateServiceTicket_MessageType),
-                                                      new NotificationMessageDescription(I18NString.Create(Languages.en, "ServiceTicket removed"),                       I18NString.Create(Languages.en, ""), NotificationVisibility.Customers,  removeServiceTicket_MessageType),
-                                                      new NotificationMessageDescription(I18NString.Create(Languages.en, "ServiceTicket status changed"),                I18NString.Create(Languages.en, ""), NotificationVisibility.Customers,  changeServiceTicketStatus_MessageType)
+                                                      new NotificationMessageDescription(I18NString.Create(Languages.en, "(New) service ticket added"),                  I18NString.Create(Languages.en, ""), NotificationVisibility.Customers, NotificationTag.NewUserDefault, addServiceTicket_MessageType),
+                                                      new NotificationMessageDescription(I18NString.Create(Languages.en, "(New) service ticket added (did not exist)"),  I18NString.Create(Languages.en, ""), NotificationVisibility.System,    NotificationTag.NewUserDefault, addServiceTicketIfNotExists_MessageType),
+                                                      new NotificationMessageDescription(I18NString.Create(Languages.en, "(New) service ticket added or updated"),       I18NString.Create(Languages.en, ""), NotificationVisibility.System,    NotificationTag.NewUserDefault, addOrUpdateServiceTicket_MessageType),
+                                                      new NotificationMessageDescription(I18NString.Create(Languages.en, "ServiceTicket updated"),                       I18NString.Create(Languages.en, ""), NotificationVisibility.Customers, NotificationTag.NewUserDefault, updateServiceTicket_MessageType),
+                                                      new NotificationMessageDescription(I18NString.Create(Languages.en, "ServiceTicket removed"),                       I18NString.Create(Languages.en, ""), NotificationVisibility.Customers, NotificationTag.NewUserDefault, removeServiceTicket_MessageType),
+                                                      new NotificationMessageDescription(I18NString.Create(Languages.en, "ServiceTicket status changed"),                I18NString.Create(Languages.en, ""), NotificationVisibility.Customers, NotificationTag.NewUserDefault, changeServiceTicketStatus_MessageType)
                                                   }));
 
             await AddNotificationMessageGroup(new NotificationMessageGroup(
@@ -5313,6 +5313,26 @@ namespace social.OpenData.UsersAPI
                                                   }
 
                                               }
+
+                                              #endregion
+
+                                              #region Register 'New User Default'-Notifications
+
+                                              var newUserDefaultNotificationMessageGroups = _NotificationMessageGroups.
+                                                                                                SelectMany(group       => group.Notifications).
+                                                                                                Where     (description => description.Tags.Contains(NotificationTag.NewUserDefault)).
+                                                                                                SelectMany(description => description.Messages).
+                                                                                                ToHashSet();
+
+                                              if (newUserDefaultNotificationMessageGroups.Any())
+                                                  await AddNotification(newUser,
+                                                                        new EMailNotification(newUser.EMail,
+                                                                                              "",
+                                                                                              "",
+                                                                                              "",
+                                                                                              newUserDefaultNotificationMessageGroups,
+                                                                                              "Default notifications for new users"),
+                                                                        HTTPUser.Id);
 
                                               #endregion
 

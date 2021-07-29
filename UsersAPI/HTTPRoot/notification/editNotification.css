@@ -118,14 +118,21 @@ body #page #right #text #AddOrEditNotification {
                       color: #a85252;
                       font-size: 80%;
                       border-radius: 3px;
-                      padding: 2px 4px;
+                      padding: 2px 6px;
                       margin-left: 10px; }
                     body #page #right #text #AddOrEditNotification #notification .row .value .messageTypeGroups .messageTypeGroup .messageTypes .messageType .text .title .adminNotification {
                       background-color: #ffb364;
                       color: #d18230;
                       font-size: 80%;
                       border-radius: 3px;
-                      padding: 2px 4px;
+                      padding: 2px 6px;
+                      margin-left: 10px; }
+                    body #page #right #text #AddOrEditNotification #notification .row .value .messageTypeGroups .messageTypeGroup .messageTypes .messageType .text .title .newUserDefault {
+                      background-color: #e4e4e4;
+                      color: #878787;
+                      font-size: 80%;
+                      border-radius: 3px;
+                      padding: 2px 8px;
                       margin-left: 10px; }
                   body #page #right #text #AddOrEditNotification #notification .row .value .messageTypeGroups .messageTypeGroup .messageTypes .messageType .text .description {
                     font-size: 70%; }
