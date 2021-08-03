@@ -1366,172 +1366,231 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
-        #region E-Mail delegates
-
         #region E-Mail headers / footers
 
-        public const String HTMLEMailHeader  = "<!DOCTYPE html>\r\n" +
-                                              "<html>\r\n" +
-                                                "<head>\r\n" +
-                                                    "<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\" />\r\n" +
-                                                "</head>\r\n" +
-                                                "<body style=\"background-color: #ececec\">\r\n" +
-                                                  "<div style=\"width: 600px\">\r\n" +
-                                                    "<div style=\"border-bottom: 1px solid #AAAAAA; margin-bottom: 20px\">\r\n" +
-                                                        "<img src=\"https://cardi-link.cloud/login/CardiLink_Logo01.png\" style=\"width: 250px; padding-right: 10px\" alt=\"CardiLink\">\r\n" +
-                                                    "</div>\r\n" +
-                                                    "<div style=\"border-bottom: 1px solid #AAAAAA; padding-left: 6px; padding-bottom: 40px; margin-bottom: 10px;\">\r\n";
+        /// <summary>
+        /// The type of e-mails send.
+        /// This might influence the content of the common e-mail headers and footers.
+        /// </summary>
+        public enum EMailType
+        {
 
-        public const String HTMLEMailFooter  = "</div>\r\n" +
-                                                     "<div style=\"color: #AAAAAA; font-size: 70%\">\r\n" +
-                                                         "Fingerprint: CE12 96F1 74B3 75F8 0BE9&nbsp;&nbsp;0E54 289B 709A 9E53 A226<br />\r\n" +
-                                                         "CardiLink GmbH, Henkestr. 91, 91052 Erlangen, Germany<br />\r\n" +
-                                                         "Commercial Register Number: Amtsgericht Fürth HRB 15812<br />\r\n" +
-                                                         "Managing Director: Lars Wassermann<br />\r\n" +
-                                                     "</div>\r\n" +
-                                                   "</div>\r\n" +
-                                                 "</body>\r\n" +
-                                               "</html>\r\n\r\n";
+            /// <summary>
+            /// A normal e-mail.
+            /// </summary>
+            Normal,
 
-        public const String TextEMailHeader  = "CardiCloud\r\n" +
-                                               "---------\r\n\r\n";
+            /// <summary>
+            /// A notification e-mail.
+            /// </summary>
+            Notification
 
-        public const String TextEMailFooter  = "\r\n\r\n---------------------------------------------------------------\r\n" +
-                                               "Fingerprint: CE12 96F1 74B3 75F8 0BE9  0E54 289B 709A 9E53 A226\r\n" +
-                                               "CardiLink GmbH, Henkestr. 91, 91052 Erlangen, Germany\r\n" +
-                                               "Commercial Register Number: Amtsgericht Fürth HRB 15812\r\n" +
-                                               "Managing Director: Lars Wassermann\r\n\r\n";
+        }
+
+        /// <summary>
+        /// The common header of HTML notification e-mails.
+        /// </summary>
+        public Func<String, HTTPPath?, EMailType, String>
+
+            HTMLEMailHeader = (ExternalDNSName,
+                               BasePath,
+                               EMailType)
+
+                => String.Concat("<!DOCTYPE html>\r\n",
+                                 "<html>\r\n",
+                                   "<head>\r\n",
+                                       "<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\" />\r\n",
+                                   "</head>\r\n",
+                                   "<body style=\"background-color: #ececec\">\r\n",
+                                     "<div style=\"width: 600px\">\r\n",
+                                       "<div style=\"border-bottom: 1px solid #AAAAAA; margin-bottom: 20px\">\r\n",
+                                           "<img src=\"", ExternalDNSName, (BasePath?.ToString() ?? ""), "\" style=\"width: 250px; padding-right: 10px\" alt=\"CardiLink\">\r\n",
+                                       "</div>\r\n",
+                                       "<div style=\"border-bottom: 1px solid #AAAAAA; padding-left: 6px; padding-bottom: 40px; margin-bottom: 10px;\">\r\n");
+
+        /// <summary>
+        /// The common footer of HTML notification e-mails.
+        /// </summary>
+        public Func<String, HTTPPath?, EMailType, String>
+
+            HTMLEMailFooter = (ExternalDNSName,
+                               BasePath,
+                               EMailType)
+
+                => String.Concat(       "</div>\r\n",
+                                        (EMailType == EMailType.Notification
+                                                    ? "<div style=\"color: #AAAAAA; font-size: 80%; padding-bottom: 10px\">\r\n" +
+                                                          "If you no longer wish to receive this kind of notification e-mails you can unsubscribe <a href=\"https://" + ExternalDNSName + (BasePath?.ToString() ?? "") + "/profile/notifications\">here</a>.<br />\r\n" +
+                                                      "</div>\r\n"
+                                                    : ""),
+                                        "<div style=\"color: #AAAAAA; font-size: 70%\">\r\n",
+                                            "(c) GraphDefined GmbH<br />\r\n",
+                                        "</div>\r\n",
+                                      "</div>\r\n",
+                                    "</body>\r\n",
+                                  "</html>\r\n\r\n");
+
+
+        /// <summary>
+        /// The common header of plain text notification e-mails.
+        /// </summary>
+        public Func<String, HTTPPath?, EMailType, String>
+
+            TextEMailHeader = (ExternalDNSName,
+                               BasePath,
+                               EMailType)
+
+                => "GraphDefined Users API\r\n" +
+                   "----------------------\r\n\r\n";
+
+        /// <summary>
+        /// The common footer of plain text notification e-mails.
+        /// </summary>
+        public Func<String, HTTPPath?, EMailType, String>
+
+            TextEMailFooter = (ExternalDNSName,
+                               BasePath,
+                               EMailType)
+
+                => "\r\n\r\n---------------------------------------------------------------\r\n" +
+                   (EMailType == EMailType.Notification
+                                     ? "If you no longer wish to receive this kind of notification e-mails you can unsubscribe here: https://" + ExternalDNSName + (BasePath?.ToString() ?? "") + "/profile/notifications.\r\n\r\n"
+                                     : "") +
+
+                   "Users API\r\n" +
+                   "(c) GraphDefined GmbH\r\n\r\n";
 
         #endregion
 
+        #region E-Mail delegates
 
         #region NewServiceTicketMessageReceivedDelegate
 
-        /// <summary>
-        /// A delegate for sending e-mail notifications about received service ticket messages to users.
-        /// </summary>
-        public delegate EMail NewServiceTicketMessageReceivedDelegate(ServiceTicket    ParsedMessage,
-                                                                      EMailAddressList  EMailRecipients);
+        ///// <summary>
+        ///// A delegate for sending e-mail notifications about received service ticket messages to users.
+        ///// </summary>
+        //public delegate EMail NewServiceTicketMessageReceivedDelegate(ServiceTicket    ParsedMessage,
+        //                                                              EMailAddressList  EMailRecipients);
 
-        private static readonly Func<String, EMailAddress, String, NewServiceTicketMessageReceivedDelegate>
+        //private static readonly Func<String, EMailAddress, String, NewServiceTicketMessageReceivedDelegate>
 
-            __NewServiceTicketMessageReceivedDelegate = (BaseURL,
-                                                         APIEMailAddress,
-                                                         APIPassphrase)
+        //    __NewServiceTicketMessageReceivedDelegate = (BaseURL,
+        //                                                 APIEMailAddress,
+        //                                                 APIPassphrase)
 
-                => (ParsedMessage,
-                    EMailRecipients)
+        //        => (ParsedMessage,
+        //            EMailRecipients)
 
-                    =>  new HTMLEMailBuilder() {
+        //            =>  new HTMLEMailBuilder() {
 
-                            From            = APIEMailAddress,
-                            To              = EMailAddressListBuilder.Create(EMailRecipients),
-                            Passphrase      = APIPassphrase,
-                            Subject         = "...", //ParsedMessage.EMailSubject,
+        //                    From            = APIEMailAddress,
+        //                    To              = EMailAddressListBuilder.Create(EMailRecipients),
+        //                    Passphrase      = APIPassphrase,
+        //                    Subject         = "...", //ParsedMessage.EMailSubject,
 
-                            HTMLText        = HTMLEMailHeader +
-                                                  //ParsedMessage.EMailBody.Replace("\r\n", "<br />\r\n") + Environment.NewLine +
-                                              HTMLEMailFooter,
+        //                    HTMLText        = HTMLEMailHeader +
+        //                                          //ParsedMessage.EMailBody.Replace("\r\n", "<br />\r\n") + Environment.NewLine +
+        //                                      HTMLEMailFooter,
 
-                            PlainText       = TextEMailHeader +
-                                                  //ParsedMessage.EMailBody + Environment.NewLine +
-                                              TextEMailFooter,
+        //                    PlainText       = TextEMailHeader +
+        //                                          //ParsedMessage.EMailBody + Environment.NewLine +
+        //                                      TextEMailFooter,
 
-                            SecurityLevel   = EMailSecurity.sign
+        //                    SecurityLevel   = EMailSecurity.sign
 
-                        };
+        //                };
 
         #endregion
 
         #region ServiceTicketStatusChangedEMailDelegate
 
-        /// <summary>
-        /// A delegate for sending e-mail notifications about service ticket status changes to users.
-        /// </summary>
-        public delegate EMail ServiceTicketStatusChangedEMailDelegate(ServiceTicket                         ServiceTicket,
-                                                                      Timestamped<ServiceTicketStatusTypes>  OldStatus,
-                                                                      Timestamped<ServiceTicketStatusTypes>  NewStatus,
-                                                                      EMailAddressList                       EMailRecipients);
+        ///// <summary>
+        ///// A delegate for sending e-mail notifications about service ticket status changes to users.
+        ///// </summary>
+        //public delegate EMail ServiceTicketStatusChangedEMailDelegate(ServiceTicket                         ServiceTicket,
+        //                                                              Timestamped<ServiceTicketStatusTypes>  OldStatus,
+        //                                                              Timestamped<ServiceTicketStatusTypes>  NewStatus,
+        //                                                              EMailAddressList                       EMailRecipients);
 
-        private static readonly Func<String, EMailAddress, String, ServiceTicketStatusChangedEMailDelegate>
+        //private static readonly Func<String, EMailAddress, String, ServiceTicketStatusChangedEMailDelegate>
 
-            __ServiceTicketStatusChangedEMailDelegate = (BaseURL,
-                                                         APIEMailAddress,
-                                                         APIPassphrase)
+        //    __ServiceTicketStatusChangedEMailDelegate = (BaseURL,
+        //                                                 APIEMailAddress,
+        //                                                 APIPassphrase)
 
-                => (ServiceTicket,
-                    OldStatus,
-                    NewStatus,
-                    EMailRecipients)
+        //        => (ServiceTicket,
+        //            OldStatus,
+        //            NewStatus,
+        //            EMailRecipients)
 
-                    => new HTMLEMailBuilder() {
+        //            => new HTMLEMailBuilder() {
 
-                        From           = APIEMailAddress,
-                        To             = EMailAddressListBuilder.Create(EMailRecipients),
-                        Passphrase     = APIPassphrase,
-                        Subject        = String.Concat("ServiceTicket '",        ServiceTicket.Id,
-                                                       "' status change from '", OldStatus.Value,
-                                                       " to '",                  NewStatus.Value, "'!"),
+        //                From           = APIEMailAddress,
+        //                To             = EMailAddressListBuilder.Create(EMailRecipients),
+        //                Passphrase     = APIPassphrase,
+        //                Subject        = String.Concat("ServiceTicket '",        ServiceTicket.Id,
+        //                                               "' status change from '", OldStatus.Value,
+        //                                               " to '",                  NewStatus.Value, "'!"),
 
-                        HTMLText       = String.Concat(HTMLEMailHeader,
-                                                       "The status of service ticket <b>'", ServiceTicket.Id, "'</b> (Owner: '", ServiceTicket.Author,
-                                                       "'), changed from <i>'", OldStatus.Value, "'</i> (since ", OldStatus.Timestamp.ToIso8601(), ") ",
-                                                       " to <i>'", NewStatus.Value, "'</i>!<br /><br />",
-                                                       HTMLEMailFooter),
+        //                HTMLText       = String.Concat(HTMLEMailHeader,
+        //                                               "The status of service ticket <b>'", ServiceTicket.Id, "'</b> (Owner: '", ServiceTicket.Author,
+        //                                               "'), changed from <i>'", OldStatus.Value, "'</i> (since ", OldStatus.Timestamp.ToIso8601(), ") ",
+        //                                               " to <i>'", NewStatus.Value, "'</i>!<br /><br />",
+        //                                               HTMLEMailFooter),
 
-                        PlainText      = String.Concat(TextEMailHeader,
-                                                       "The status of service ticket '", ServiceTicket.Id, "' (Owner: '", ServiceTicket.Author,
-                                                       "'), changed from '", OldStatus.Value, "' (since ", OldStatus.Timestamp.ToIso8601(), ") ",
-                                                       " to '", NewStatus.Value, "'!\r\r\r\r",
-                                                       TextEMailFooter),
+        //                PlainText      = String.Concat(TextEMailHeader,
+        //                                               "The status of service ticket '", ServiceTicket.Id, "' (Owner: '", ServiceTicket.Author,
+        //                                               "'), changed from '", OldStatus.Value, "' (since ", OldStatus.Timestamp.ToIso8601(), ") ",
+        //                                               " to '", NewStatus.Value, "'!\r\r\r\r",
+        //                                               TextEMailFooter),
 
-                        SecurityLevel  = EMailSecurity.sign
+        //                SecurityLevel  = EMailSecurity.sign
 
-                    };
+        //            };
 
         #endregion
 
         #region ServiceTicketChangedEMailDelegate
 
-        /// <summary>
-        /// A delegate for sending e-mail notifications about service ticket changes to users.
-        /// </summary>
-        public delegate EMail ServiceTicketChangedEMailDelegate(ServiceTicket             ServiceTicket,
-                                                                NotificationMessageType    MessageType,
-                                                                NotificationMessageType[]  AdditionalMessageTypes,
-                                                                EMailAddressList           EMailRecipients);
+        ///// <summary>
+        ///// A delegate for sending e-mail notifications about service ticket changes to users.
+        ///// </summary>
+        //public delegate EMail ServiceTicketChangedEMailDelegate(ServiceTicket             ServiceTicket,
+        //                                                        NotificationMessageType    MessageType,
+        //                                                        NotificationMessageType[]  AdditionalMessageTypes,
+        //                                                        EMailAddressList           EMailRecipients);
 
-        private static readonly Func<String, EMailAddress, String, ServiceTicketChangedEMailDelegate>
+        //private static readonly Func<String, EMailAddress, String, ServiceTicketChangedEMailDelegate>
 
-            __ServiceTicketChangedEMailDelegate = (BaseURL,
-                                                   APIEMailAddress,
-                                                   APIPassphrase)
+        //    __ServiceTicketChangedEMailDelegate = (BaseURL,
+        //                                           APIEMailAddress,
+        //                                           APIPassphrase)
 
-                => (ServiceTicket,
-                    MessageType,
-                    AdditionalMessageTypes,
-                    EMailRecipients)
+        //        => (ServiceTicket,
+        //            MessageType,
+        //            AdditionalMessageTypes,
+        //            EMailRecipients)
 
-                    => new HTMLEMailBuilder() {
+        //            => new HTMLEMailBuilder() {
 
-                        From           = APIEMailAddress,
-                        To             = EMailAddressListBuilder.Create(EMailRecipients),
-                        Passphrase     = APIPassphrase,
-                        Subject        = String.Concat("ServiceTicket data '", ServiceTicket.Id, "' was changed'!"),
+        //                From           = APIEMailAddress,
+        //                To             = EMailAddressListBuilder.Create(EMailRecipients),
+        //                Passphrase     = APIPassphrase,
+        //                Subject        = String.Concat("ServiceTicket data '", ServiceTicket.Id, "' was changed'!"),
 
-                        HTMLText       = String.Concat(HTMLEMailHeader,
-                                                       "The data of service ticket <b>'", ServiceTicket.Id, "'</b> (Owner: '", ServiceTicket.Author,
-                                                       "') was changed!<br /><br />",
-                                                       HTMLEMailFooter),
+        //                HTMLText       = String.Concat(HTMLEMailHeader,
+        //                                               "The data of service ticket <b>'", ServiceTicket.Id, "'</b> (Owner: '", ServiceTicket.Author,
+        //                                               "') was changed!<br /><br />",
+        //                                               HTMLEMailFooter),
 
-                        PlainText      = String.Concat(TextEMailHeader,
-                                                       "The data of service ticket '", ServiceTicket.Id, "' (Owner: '", ServiceTicket.Author,
-                                                       "') was changed!\r\r\r\r",
-                                                       TextEMailFooter),
+        //                PlainText      = String.Concat(TextEMailHeader,
+        //                                               "The data of service ticket '", ServiceTicket.Id, "' (Owner: '", ServiceTicket.Author,
+        //                                               "') was changed!\r\r\r\r",
+        //                                               TextEMailFooter),
 
-                        SecurityLevel  = EMailSecurity.sign
+        //                SecurityLevel  = EMailSecurity.sign
 
-                    };
+        //            };
 
         #endregion
 
@@ -12962,9 +13021,8 @@ namespace social.OpenData.UsersAPI
             if (Request.Cookies == null)
                 return null;
 
-            if (Request. Cookies.TryGet  (SessionCookieName,            out HTTPCookie        Cookie) &&
-                         Cookie. TryGet  (SessionCookieName.ToString(), out String            Value)  &&
-                SecurityToken_Id.TryParse(Value,                        out SecurityToken_Id  SecurityTokenId))
+            if (Request.Cookies. TryGet  (SessionCookieName,           out HTTPCookie       Cookie) &&
+                SecurityToken_Id.TryParse(Cookie.FirstOrDefault().Key, out SecurityToken_Id SecurityTokenId))
             {
                 return SecurityTokenId;
             }
@@ -12981,9 +13039,8 @@ namespace social.OpenData.UsersAPI
         {
 
             if (Request.Cookies  != null &&
-                Request.Cookies. TryGet  (SessionCookieName,            out HTTPCookie  Cookie) &&
-                        Cookie.  TryGet  (SessionCookieName.ToString(), out String      Value)  &&
-                SecurityToken_Id.TryParse(Value,                        out             SecurityTokenId))
+                Request.Cookies. TryGet  (SessionCookieName,           out HTTPCookie Cookie) &&
+                SecurityToken_Id.TryParse(Cookie.FirstOrDefault().Key, out            SecurityTokenId))
             {
                 return true;
             }
@@ -13002,12 +13059,11 @@ namespace social.OpenData.UsersAPI
 
             #region Get user from cookie...
 
-            if (Request.Cookies != null                                                                               &&
-                Request. Cookies.TryGet     (SessionCookieName,            out HTTPCookie        Cookie)              &&
-                         Cookie. TryGet     (SessionCookieName.ToString(), out String            Value)               &&
-                SecurityToken_Id.TryParse   (Value,                        out SecurityToken_Id  SecurityTokenId)     &&
-                HTTPCookies.     TryGetValue(SecurityTokenId,              out SecurityToken     SecurityInformation) &&
-                DateTime.UtcNow < SecurityInformation.Expires                                                         &&
+            if (Request.Cookies != null                                                                             &&
+                Request.Cookies. TryGet     (SessionCookieName,           out HTTPCookie       Cookie)              &&
+                SecurityToken_Id.TryParse   (Cookie.FirstOrDefault().Key, out SecurityToken_Id SecurityTokenId)     &&
+                HTTPCookies.     TryGetValue(SecurityTokenId,             out SecurityToken    SecurityInformation) &&
+                DateTime.UtcNow < SecurityInformation.Expires                                                       &&
                 TryGetUser(SecurityInformation.UserId, out User))
             {
                 return true;
@@ -13101,12 +13157,11 @@ namespace social.OpenData.UsersAPI
 
             #region Get user from cookie...
 
-            if (Request.Cookies != null                                                                               &&
-                Request. Cookies.TryGet     (SessionCookieName,            out HTTPCookie        Cookie)              &&
-                         Cookie. TryGet     (SessionCookieName.ToString(), out String            Value)               &&
-                SecurityToken_Id.TryParse   (Value,                        out SecurityToken_Id  SecurityTokenId)     &&
-                HTTPCookies.     TryGetValue(SecurityTokenId,              out SecurityToken     SecurityInformation) &&
-                DateTime.UtcNow < SecurityInformation.Expires                                                         &&
+            if (Request.Cookies != null                                                                             &&
+                Request.Cookies. TryGet     (SessionCookieName,           out HTTPCookie       Cookie)              &&
+                SecurityToken_Id.TryParse   (Cookie.FirstOrDefault().Key, out SecurityToken_Id SecurityTokenId)     &&
+                HTTPCookies.     TryGetValue(SecurityTokenId,             out SecurityToken    SecurityInformation) &&
+                DateTime.UtcNow < SecurityInformation.Expires                                                       &&
                 TryGetUser(SecurityInformation.Astronaut ?? SecurityInformation.UserId, out User))
             {
                 return true;
@@ -18444,12 +18499,12 @@ namespace social.OpenData.UsersAPI
                     if (AllEMailNotifications.Count > 0)
                     {
 
-                        await APISMTPClient.Send(__ServiceTicketChangedEMailDelegate(ExternalDNSName, Robot.EMail, APIPassphrase)
-                                                 (ServiceTicket,
-                                                  MessageType,
-                                                  MessageTypes,
-                                                  EMailAddressList.Create(AllEMailNotifications.Select(emailnotification => emailnotification.EMailAddress))
-                                                 ));
+                        //await APISMTPClient.Send(__ServiceTicketChangedEMailDelegate(ExternalDNSName, Robot.EMail, APIPassphrase)
+                        //                         (ServiceTicket,
+                        //                          MessageType,
+                        //                          MessageTypes,
+                        //                          EMailAddressList.Create(AllEMailNotifications.Select(emailnotification => emailnotification.EMailAddress))
+                        //                         ));
 
                     }
 

@@ -30,9 +30,9 @@ namespace social.OpenData.UsersAPI
     /// <summary>
     /// The unique identification of a security token.
     /// </summary>
-    public struct SecurityToken_Id : IId,
-                                     IEquatable<SecurityToken_Id>,
-                                     IComparable<SecurityToken_Id>
+    public readonly struct SecurityToken_Id : IId,
+                                              IEquatable<SecurityToken_Id>,
+                                              IComparable<SecurityToken_Id>
     {
 
         #region Data
@@ -148,8 +148,7 @@ namespace social.OpenData.UsersAPI
 
             #region Initial checks
 
-            if (Text != null)
-                Text = Text.Trim();
+            Text = Text?.Trim();
 
             if (Text.IsNullOrEmpty())
             {
