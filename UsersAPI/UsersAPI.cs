@@ -1383,9 +1383,24 @@ namespace social.OpenData.UsersAPI
 
         #region E-Mail headers / footers
 
+        /// <summary>
+        /// The common header of HTML notification e-mails.
+        /// </summary>
         public Func<String, HTTPPath?, String> HTMLEMailHeader = (ExternalDNSName, BasePath) => "";
+
+        /// <summary>
+        /// The common footer of HTML notification e-mails.
+        /// </summary>
         public Func<String, HTTPPath?, String> HTMLEMailFooter = (ExternalDNSName, BasePath) => "";
+
+        /// <summary>
+        /// The common header of plain text notification e-mails.
+        /// </summary>
         public Func<String, HTTPPath?, String> TextEMailHeader = (ExternalDNSName, BasePath) => "";
+
+        /// <summary>
+        /// The common footer of plain text notification e-mails.
+        /// </summary>
         public Func<String, HTTPPath?, String> TextEMailFooter = (ExternalDNSName, BasePath) => "";
 
         #endregion
