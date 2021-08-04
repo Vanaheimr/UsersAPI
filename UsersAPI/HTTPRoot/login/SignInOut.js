@@ -43,6 +43,7 @@ function DeleteCookie(CookieName, Path) {
 }
 function VerifyLogin() {
     let acceptsEULA = false;
+    const redirectInputHidden = document.getElementById("redirect");
     const loginform = document.getElementById("loginform");
     const _login = document.getElementById("_login");
     const _realm = document.getElementById("_realm");
@@ -54,6 +55,13 @@ function VerifyLogin() {
     const IAcceptDiv = document.getElementById("IAccept");
     const acceptEULAButton = document.getElementById("acceptEULAButton");
     const AdditionalAuthenticationFactor = document.getElementById("AdditionalAuthenticationFactor");
+    if (window.location.search.length > 1) {
+        for (const element of window.location.search.substring(1).trim().split("&")) {
+            if (element.startsWith("redirect=")) {
+                redirectInputHidden.value = element.substring(9).trim();
+            }
+        }
+    }
     _login.onchange = () => {
         _login.value = _login.value.toLowerCase();
         ToogleSaveButton();

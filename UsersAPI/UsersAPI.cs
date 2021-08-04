@@ -18086,6 +18086,7 @@ namespace social.OpenData.UsersAPI
         public event OnOrganizationAddedDelegate OnOrganizationAdded;
 
 
+
         #region AddOrganization           (Organization,   ParentOrganization = null, CurrentUserId = null)
 
         /// <summary>
@@ -18339,6 +18340,7 @@ namespace social.OpenData.UsersAPI
                                                    updateOrganization_MessageType,
                                                    OldOrganization,
                                                    CurrentUserId);
+
                 Organization.CopyAllLinkedDataFrom(OldOrganization);
 
                 return _Organizations.AddAndReturnValue(Organization.Id, Organization);
@@ -18390,6 +18392,7 @@ namespace social.OpenData.UsersAPI
                                                    CurrentUserId);
 
                 NewOrganization.API = this;
+
                 _Organizations.Remove(OldOrganization.Id);
                 NewOrganization.CopyAllLinkedDataFrom(OldOrganization);
 

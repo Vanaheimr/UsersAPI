@@ -29,9 +29,9 @@ namespace social.OpenData.UsersAPI
     /// <summary>
     /// The unique identification of a service ticket.
     /// </summary>
-    public struct ServiceTicket_Id : IId,
-                                     IEquatable<ServiceTicket_Id>,
-                                     IComparable<ServiceTicket_Id>
+    public readonly struct ServiceTicket_Id : IId,
+                                              IEquatable<ServiceTicket_Id>,
+                                              IComparable<ServiceTicket_Id>
     {
 
         #region Data

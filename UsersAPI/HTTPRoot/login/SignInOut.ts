@@ -78,6 +78,7 @@ function VerifyLogin() {
 
     let acceptsEULA = false;
 
+    const redirectInputHidden             = document.getElementById("redirect")                        as HTMLInputElement;
     const loginform                       = document.getElementById("loginform")                       as HTMLFormElement;
     const _login                          = document.getElementById("_login")                          as HTMLInputElement;
     const _realm                          = document.getElementById("_realm")                          as HTMLInputElement;
@@ -89,6 +90,14 @@ function VerifyLogin() {
     const IAcceptDiv                      = document.getElementById("IAccept")                         as HTMLDivElement;
     const acceptEULAButton                = document.getElementById("acceptEULAButton")                as HTMLButtonElement;
     const AdditionalAuthenticationFactor  = document.getElementById("AdditionalAuthenticationFactor")  as HTMLDivElement;
+
+    if (window.location.search.length > 1) {
+        for (const element of window.location.search.substring(1).trim().split("&")) {
+            if (element.startsWith("redirect=")) {
+                redirectInputHidden.value = element.substring(9).trim();
+            }
+        }
+    }
 
     _login.onchange    = () => {
         _login.value = _login.value.toLowerCase();
