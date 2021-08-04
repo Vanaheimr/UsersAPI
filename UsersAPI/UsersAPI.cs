@@ -975,7 +975,7 @@ namespace social.OpenData.UsersAPI
         /// </summary>
         public  const             Languages                                     DefaultLanguage                 = Languages.en;
 
-        public  const             Byte                                          DefaultMinLoginLength           = 4;
+        public  const             Byte                                          DefaultMinUserIdLength           = 4;
         public  const             Byte                                          DefaultMinRealmLength           = 2;
         public  const             Byte                                          DefaultMinUserNameLength        = 4;
         public  static readonly   PasswordQualityCheckDelegate                  DefaultPasswordQualityCheck     = password => password.Length >= 8 ? 1.0f : 0;
@@ -1179,85 +1179,6 @@ namespace social.OpenData.UsersAPI
         public Languages Language { get; }
 
 
-        #region NewUserSignUpEMailCreator
-
-        /// <summary>
-        /// A delegate for sending a sign-up e-mail to a new user.
-        /// </summary>
-        public delegate EMail NewUserSignUpEMailCreatorDelegate(User_Id           UserId,
-                                                                EMailAddress      EMailAddress,
-                                                                String            Username,
-                                                                SecurityToken_Id  SecurityToken,
-                                                                Boolean           Use2FactorAuth,
-                                                                String            ServiceName,
-                                                                String            DNSHostname,
-                                                                Languages         Language);
-
-        /// <summary>
-        /// A delegate for sending a sign-up e-mail to a new user.
-        /// </summary>
-        public NewUserSignUpEMailCreatorDelegate NewUserSignUpEMailCreator { get; }
-
-        #endregion
-
-        #region NewUserWelcomeEMailCreator
-
-        /// <summary>
-        /// A delegate for sending a welcome e-mail to a new user.
-        /// </summary>
-        public delegate EMail NewUserWelcomeEMailCreatorDelegate(User_Id       UserId,
-                                                                 EMailAddress  EMail,
-                                                                 String        ServiceName,
-                                                                 String        DNSHostname,
-                                                                 Languages     Language);
-
-        /// <summary>
-        /// A delegate for sending a welcome e-mail to a new user.
-        /// </summary>
-        public NewUserWelcomeEMailCreatorDelegate NewUserWelcomeEMailCreator { get; }
-
-        #endregion
-
-        #region ResetPasswordEMailCreator
-
-        /// <summary>
-        /// A delegate for sending a reset password e-mail to a user.
-        /// </summary>
-        public delegate EMail ResetPasswordEMailCreatorDelegate(User_Id           UserId,
-                                                                EMailAddress      EMailAddress,
-                                                                String            Username,
-                                                                SecurityToken_Id  SecurityToken,
-                                                                Boolean           Use2FactorAuth,
-                                                                String            ServiceName,
-                                                                String            DNSHostname,
-                                                                Languages         Language);
-
-        /// <summary>
-        /// A delegate for sending a reset password e-mail to a user.
-        /// </summary>
-        public ResetPasswordEMailCreatorDelegate ResetPasswordEMailCreator { get; }
-
-        #endregion
-
-        #region PasswordChangedEMailCreator
-
-        /// <summary>
-        /// A delegate for sending a password changed e-mail to a user.
-        /// </summary>
-        public delegate EMail PasswordChangedEMailCreatorDelegate(User_Id       UserId,
-                                                                  EMailAddress  EMail,
-                                                                  String        Username,
-                                                                  String        ServiceName,
-                                                                  String        DNSHostname,
-                                                                  Languages     Language);
-
-        /// <summary>
-        /// A delegate for sending a password changed e-mail to a user.
-        /// </summary>
-        public PasswordChangedEMailCreatorDelegate PasswordChangedEMailCreator { get; }
-
-        #endregion
-
         #region SignInSessionLifetime
 
         public TimeSpan SignInSessionLifetime { get; }
@@ -1352,7 +1273,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="Timestamp">The timestamp of the request.</param>
         /// <param name="API">The HTTP API.</param>
         /// <param name="Request">A HTTP request.</param>
-        protected internal Task AddUsersRequest(DateTime     Timestamp,
+        protected internal Task AddUsersHTTPRequest(DateTime     Timestamp,
                                                 HTTPAPI      API,
                                                 HTTPRequest  Request)
 
@@ -1376,7 +1297,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="API">The HTTP API.</param>
         /// <param name="Request">A HTTP request.</param>
         /// <param name="Response">A HTTP response.</param>
-        protected internal Task AddUsersResponse(DateTime      Timestamp,
+        protected internal Task AddUsersHTTPResponse(DateTime      Timestamp,
                                                  HTTPAPI       API,
                                                  HTTPRequest   Request,
                                                  HTTPResponse  Response)
@@ -1389,12 +1310,12 @@ namespace social.OpenData.UsersAPI
         #endregion
 
 
-        #region (protected internal) AddUserRequest (Request)
+        #region (protected internal) AddUserHTTPRequest (Request)
 
         /// <summary>
         /// An event sent whenever add user request was received.
         /// </summary>
-        public HTTPRequestLogEvent OnAddUserRequest = new HTTPRequestLogEvent();
+        public HTTPRequestLogEvent OnAddUserHTTPRequest = new HTTPRequestLogEvent();
 
         /// <summary>
         /// An event sent whenever add user request was received.
@@ -1402,22 +1323,22 @@ namespace social.OpenData.UsersAPI
         /// <param name="Timestamp">The timestamp of the request.</param>
         /// <param name="API">The HTTP API.</param>
         /// <param name="Request">A HTTP request.</param>
-        protected internal Task AddUserRequest(DateTime     Timestamp,
-                                               HTTPAPI      API,
-                                               HTTPRequest  Request)
+        protected internal Task AddUserHTTPRequest(DateTime     Timestamp,
+                                                   HTTPAPI      API,
+                                                   HTTPRequest  Request)
 
-            => OnAddUserRequest?.WhenAll(Timestamp,
-                                         API ?? this,
-                                         Request);
+            => OnAddUserHTTPRequest?.WhenAll(Timestamp,
+                                             API ?? this,
+                                             Request);
 
         #endregion
 
-        #region (protected internal) AddUserResponse(Response)
+        #region (protected internal) AddUserHTTPResponse(Response)
 
         /// <summary>
         /// An event sent whenever a response on an add user request was sent.
         /// </summary>
-        public HTTPResponseLogEvent OnAddUserResponse = new HTTPResponseLogEvent();
+        public HTTPResponseLogEvent OnAddUserHTTPResponse = new HTTPResponseLogEvent();
 
         /// <summary>
         /// An event sent whenever a response on an add user request was sent.
@@ -1426,25 +1347,25 @@ namespace social.OpenData.UsersAPI
         /// <param name="API">The HTTP API.</param>
         /// <param name="Request">A HTTP request.</param>
         /// <param name="Response">A HTTP response.</param>
-        protected internal Task AddUserResponse(DateTime      Timestamp,
-                                                HTTPAPI       API,
-                                                HTTPRequest   Request,
-                                                HTTPResponse  Response)
+        protected internal Task AddUserHTTPResponse(DateTime      Timestamp,
+                                                    HTTPAPI       API,
+                                                    HTTPRequest   Request,
+                                                    HTTPResponse  Response)
 
-            => OnAddUserResponse?.WhenAll(Timestamp,
-                                          API ?? this,
-                                          Request,
-                                          Response);
+            => OnAddUserHTTPResponse?.WhenAll(Timestamp,
+                                              API ?? this,
+                                              Request,
+                                              Response);
 
         #endregion
 
 
-        #region (protected internal) SetUserRequest (Request)
+        #region (protected internal) SetUserHTTPRequest (Request)
 
         /// <summary>
         /// An event sent whenever set user request was received.
         /// </summary>
-        public HTTPRequestLogEvent OnSetUserRequest = new HTTPRequestLogEvent();
+        public HTTPRequestLogEvent OnSetUserHTTPRequest = new HTTPRequestLogEvent();
 
         /// <summary>
         /// An event sent whenever set user request was received.
@@ -1452,22 +1373,22 @@ namespace social.OpenData.UsersAPI
         /// <param name="Timestamp">The timestamp of the request.</param>
         /// <param name="API">The HTTP API.</param>
         /// <param name="Request">A HTTP request.</param>
-        protected internal Task SetUserRequest(DateTime     Timestamp,
-                                               HTTPAPI      API,
-                                               HTTPRequest  Request)
+        protected internal Task SetUserHTTPRequest(DateTime     Timestamp,
+                                                   HTTPAPI      API,
+                                                   HTTPRequest  Request)
 
-            => OnSetUserRequest?.WhenAll(Timestamp,
-                                         API ?? this,
-                                         Request);
+            => OnSetUserHTTPRequest?.WhenAll(Timestamp,
+                                             API ?? this,
+                                             Request);
 
         #endregion
 
-        #region (protected internal) SetUserResponse(Response)
+        #region (protected internal) SetUserHTTPResponse(Response)
 
         /// <summary>
         /// An event sent whenever a response on a set user request was sent.
         /// </summary>
-        public HTTPResponseLogEvent OnSetUserResponse = new HTTPResponseLogEvent();
+        public HTTPResponseLogEvent OnSetUserHTTPResponse = new HTTPResponseLogEvent();
 
         /// <summary>
         /// An event sent whenever a response on a set user request was sent.
@@ -1476,15 +1397,15 @@ namespace social.OpenData.UsersAPI
         /// <param name="API">The HTTP API.</param>
         /// <param name="Request">A HTTP request.</param>
         /// <param name="Response">A HTTP response.</param>
-        protected internal Task SetUserResponse(DateTime      Timestamp,
-                                                HTTPAPI       API,
-                                                HTTPRequest   Request,
-                                                HTTPResponse  Response)
+        protected internal Task SetUserHTTPResponse(DateTime      Timestamp,
+                                                    HTTPAPI       API,
+                                                    HTTPRequest   Request,
+                                                    HTTPResponse  Response)
 
-            => OnSetUserResponse?.WhenAll(Timestamp,
-                                          API ?? this,
-                                          Request,
-                                          Response);
+            => OnSetUserHTTPResponse?.WhenAll(Timestamp,
+                                              API ?? this,
+                                              Request,
+                                              Response);
 
         #endregion
 
@@ -1692,12 +1613,12 @@ namespace social.OpenData.UsersAPI
         // ---------------------------------------------------------------
 
 
-        #region (protected internal) AddOrganizationRequest (Request)
+        #region (protected internal) OnAddOrganizationHTTPRequest (Request)
 
         /// <summary>
         /// An event sent whenever add organization request was received.
         /// </summary>
-        public HTTPRequestLogEvent OnAddOrganizationRequest = new HTTPRequestLogEvent();
+        public HTTPRequestLogEvent OnAddOrganizationHTTPRequest = new HTTPRequestLogEvent();
 
         /// <summary>
         /// An event sent whenever add organization request was received.
@@ -1705,22 +1626,22 @@ namespace social.OpenData.UsersAPI
         /// <param name="Timestamp">The timestamp of the request.</param>
         /// <param name="API">The HTTP API.</param>
         /// <param name="Request">A HTTP request.</param>
-        protected internal Task AddOrganizationRequest(DateTime     Timestamp,
-                                                       HTTPAPI      API,
-                                                       HTTPRequest  Request)
+        protected internal Task AddOrganizationHTTPRequest(DateTime     Timestamp,
+                                                           HTTPAPI      API,
+                                                           HTTPRequest  Request)
 
-            => OnAddOrganizationRequest?.WhenAll(Timestamp,
-                                                 API ?? this,
-                                                 Request);
+            => OnAddOrganizationHTTPRequest?.WhenAll(Timestamp,
+                                                     API ?? this,
+                                                     Request);
 
         #endregion
 
-        #region (protected internal) AddOrganizationResponse(Response)
+        #region (protected internal) OnAddOrganizationHTTPResponse(Response)
 
         /// <summary>
         /// An event sent whenever a response on an add organization request was sent.
         /// </summary>
-        public HTTPResponseLogEvent OnAddOrganizationResponse = new HTTPResponseLogEvent();
+        public HTTPResponseLogEvent OnAddOrganizationHTTPResponse = new HTTPResponseLogEvent();
 
         /// <summary>
         /// An event sent whenever a response on an add organization request was sent.
@@ -1729,12 +1650,12 @@ namespace social.OpenData.UsersAPI
         /// <param name="API">The HTTP API.</param>
         /// <param name="Request">A HTTP request.</param>
         /// <param name="Response">A HTTP response.</param>
-        protected internal Task AddOrganizationResponse(DateTime      Timestamp,
-                                                        HTTPAPI       API,
-                                                        HTTPRequest   Request,
-                                                        HTTPResponse  Response)
+        protected internal Task AddOrganizationHTTPResponse(DateTime      Timestamp,
+                                                            HTTPAPI       API,
+                                                            HTTPRequest   Request,
+                                                            HTTPResponse  Response)
 
-            => OnAddOrganizationResponse?.WhenAll(Timestamp,
+            => OnAddOrganizationHTTPResponse?.WhenAll(Timestamp,
                                                   API ?? this,
                                                   Request,
                                                   Response);
@@ -1790,6 +1711,57 @@ namespace social.OpenData.UsersAPI
                                                       Response);
 
         #endregion
+
+
+        #region (protected internal) DeleteOrganizationHTTPRequest (Request)
+
+        /// <summary>
+        /// An event sent whenever delete organization request was received.
+        /// </summary>
+        public HTTPRequestLogEvent OnDeleteOrganizationHTTPRequest = new HTTPRequestLogEvent();
+
+        /// <summary>
+        /// An event sent whenever delete organization request was received.
+        /// </summary>
+        /// <param name="Timestamp">The timestamp of the request.</param>
+        /// <param name="API">The HTTP API.</param>
+        /// <param name="Request">A HTTP request.</param>
+        protected internal Task DeleteOrganizationHTTPRequest(DateTime     Timestamp,
+                                                              HTTPAPI      API,
+                                                              HTTPRequest  Request)
+
+            => OnDeleteOrganizationHTTPRequest?.WhenAll(Timestamp,
+                                                        API ?? this,
+                                                        Request);
+
+        #endregion
+
+        #region (protected internal) DeleteOrganizationHTTPResponse(Response)
+
+        /// <summary>
+        /// An event sent whenever a response on a delete organization request was sent.
+        /// </summary>
+        public HTTPResponseLogEvent OnDeleteOrganizationHTTPResponse = new HTTPResponseLogEvent();
+
+        /// <summary>
+        /// An event sent whenever a response on a delete organization request was sent.
+        /// </summary>
+        /// <param name="Timestamp">The timestamp of the request.</param>
+        /// <param name="API">The HTTP API.</param>
+        /// <param name="Request">A HTTP request.</param>
+        /// <param name="Response">A HTTP response.</param>
+        protected internal Task DeleteOrganizationHTTPResponse(DateTime      Timestamp,
+                                                               HTTPAPI       API,
+                                                               HTTPRequest   Request,
+                                                               HTTPResponse  Response)
+
+            => OnDeleteOrganizationHTTPResponse?.WhenAll(Timestamp,
+                                                         API ?? this,
+                                                         Request,
+                                                         Response);
+
+        #endregion
+
 
 
         #region (protected internal) SetOrganizationNotificationsRequest    (Request)
@@ -1891,56 +1863,6 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
-
-        #region (protected internal) DeleteOrganizationRequest (Request)
-
-        /// <summary>
-        /// An event sent whenever delete organization request was received.
-        /// </summary>
-        public HTTPRequestLogEvent OnDeleteOrganizationRequest = new HTTPRequestLogEvent();
-
-        /// <summary>
-        /// An event sent whenever delete organization request was received.
-        /// </summary>
-        /// <param name="Timestamp">The timestamp of the request.</param>
-        /// <param name="API">The HTTP API.</param>
-        /// <param name="Request">A HTTP request.</param>
-        protected internal Task DeleteOrganizationRequest(DateTime     Timestamp,
-                                                       HTTPAPI      API,
-                                                       HTTPRequest  Request)
-
-            => OnDeleteOrganizationRequest?.WhenAll(Timestamp,
-                                                 API ?? this,
-                                                 Request);
-
-        #endregion
-
-        #region (protected internal) DeleteOrganizationResponse(Response)
-
-        /// <summary>
-        /// An event sent whenever a response on a delete organization request was sent.
-        /// </summary>
-        public HTTPResponseLogEvent OnDeleteOrganizationResponse = new HTTPResponseLogEvent();
-
-        /// <summary>
-        /// An event sent whenever a response on a delete organization request was sent.
-        /// </summary>
-        /// <param name="Timestamp">The timestamp of the request.</param>
-        /// <param name="API">The HTTP API.</param>
-        /// <param name="Request">A HTTP request.</param>
-        /// <param name="Response">A HTTP response.</param>
-        protected internal Task DeleteOrganizationResponse(DateTime      Timestamp,
-                                                           HTTPAPI       API,
-                                                           HTTPRequest   Request,
-                                                           HTTPResponse  Response)
-
-            => OnDeleteOrganizationResponse?.WhenAll(Timestamp,
-                                                  API ?? this,
-                                                  Request,
-                                                  Response);
-
-        #endregion
-
         // ---------------------------------------------------------------------
 
         #region (protected internal) AddServiceTicketRequest (Request)
@@ -1991,6 +1913,7 @@ namespace social.OpenData.UsersAPI
                                                    Response);
 
         #endregion
+
 
         #region (protected internal) SetServiceTicketRequest (Request)
 
@@ -2184,10 +2107,6 @@ namespace social.OpenData.UsersAPI
                         HTTPCookieName?                      CookieName                         = null,
                         Boolean                              UseSecureCookies                   = true,
                         Languages?                           Language                           = null,
-                        NewUserSignUpEMailCreatorDelegate    NewUserSignUpEMailCreator          = null,
-                        NewUserWelcomeEMailCreatorDelegate   NewUserWelcomeEMailCreator         = null,
-                        ResetPasswordEMailCreatorDelegate    ResetPasswordEMailCreator          = null,
-                        PasswordChangedEMailCreatorDelegate  PasswordChangedEMailCreator        = null,
                         Byte?                                MinLoginLength                     = null,
                         Byte?                                MinRealmLength                     = null,
                         Byte?                                MinUserNameLength                  = null,
@@ -2262,10 +2181,6 @@ namespace social.OpenData.UsersAPI
                    CookieName,
                    UseSecureCookies,
                    Language,
-                   NewUserSignUpEMailCreator,
-                   NewUserWelcomeEMailCreator,
-                   ResetPasswordEMailCreator,
-                   PasswordChangedEMailCreator,
                    MinLoginLength,
                    MinRealmLength,
                    MinUserNameLength,
@@ -2322,10 +2237,6 @@ namespace social.OpenData.UsersAPI
         /// <param name="CookieName">The name of the HTTP Cookie for authentication.</param>
         /// <param name="UseSecureCookies">Force the web browser to send cookies only via HTTPS.</param>
         /// <param name="Language">The main language of the API.</param>
-        /// <param name="NewUserSignUpEMailCreator">A delegate for sending a sign-up e-mail to a new user.</param>
-        /// <param name="NewUserWelcomeEMailCreator">A delegate for sending a welcome e-mail to a new user.</param>
-        /// <param name="ResetPasswordEMailCreator">A delegate for sending a reset password e-mail to a user.</param>
-        /// <param name="PasswordChangedEMailCreator">A delegate for sending a password changed e-mail to a user.</param>
         /// <param name="MinUserNameLength">The minimal user name length.</param>
         /// <param name="MinRealmLength">The minimal realm length.</param>
         /// <param name="PasswordQualityCheck">A delegate to ensure a minimal password quality.</param>
@@ -2360,11 +2271,7 @@ namespace social.OpenData.UsersAPI
                            HTTPCookieName?                      CookieName                    = null,
                            Boolean                              UseSecureCookies              = true,
                            Languages?                           Language                      = null,
-                           NewUserSignUpEMailCreatorDelegate    NewUserSignUpEMailCreator     = null,
-                           NewUserWelcomeEMailCreatorDelegate   NewUserWelcomeEMailCreator    = null,
-                           ResetPasswordEMailCreatorDelegate    ResetPasswordEMailCreator     = null,
-                           PasswordChangedEMailCreatorDelegate  PasswordChangedEMailCreator   = null,
-                           Byte?                                MinLoginLength                = null,
+                           Byte?                                MinUserIdLength               = null,
                            Byte?                                MinRealmLength                = null,
                            Byte?                                MinUserNameLength             = null,
                            PasswordQualityCheckDelegate         PasswordQualityCheck          = null,
@@ -2396,7 +2303,7 @@ namespace social.OpenData.UsersAPI
 
             #region Inital checks
 
-            if (APIEMailAddress == null)
+            if (APIEMailAddress is null)
                 throw new ArgumentNullException(nameof(APIEMailAddress), "The given API e-mail address must not be null!");
 
             #endregion
@@ -2442,11 +2349,7 @@ namespace social.OpenData.UsersAPI
             this.SessionCookieName            = this.CookieName + "Session";
             this.UseSecureCookies             = UseSecureCookies;
             this.Language                     = Language                    ?? DefaultLanguage;
-            this.NewUserSignUpEMailCreator    = NewUserSignUpEMailCreator   ?? throw new ArgumentNullException(nameof(NewUserSignUpEMailCreator),   "NewUserSignUpEMailCreator!");
-            this.NewUserWelcomeEMailCreator   = NewUserWelcomeEMailCreator  ?? throw new ArgumentNullException(nameof(NewUserWelcomeEMailCreator),  "NewUserWelcomeEMailCreator!");
-            this.ResetPasswordEMailCreator    = ResetPasswordEMailCreator   ?? throw new ArgumentNullException(nameof(ResetPasswordEMailCreator),   "ResetPasswordEMailCreator!");
-            this.PasswordChangedEMailCreator  = PasswordChangedEMailCreator ?? throw new ArgumentNullException(nameof(PasswordChangedEMailCreator), "PasswordChangedEMailCreator!");
-            this.MinUserIdLength               = MinLoginLength              ?? DefaultMinLoginLength;
+            this.MinUserIdLength              = MinUserIdLength             ?? DefaultMinUserIdLength;
             this.MinRealmLength               = MinRealmLength              ?? DefaultMinRealmLength;
             this.MinUserNameLength            = MinUserNameLength           ?? DefaultMinUserNameLength;
             this.PasswordQualityCheck         = PasswordQualityCheck        ?? DefaultPasswordQualityCheck;
@@ -2914,106 +2817,6 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
-        #region E-Mail headers / footers
-
-        /// <summary>
-        /// The type of e-mails send.
-        /// This might influence the content of the common e-mail headers and footers.
-        /// </summary>
-        public enum EMailType
-        {
-
-            /// <summary>
-            /// A normal e-mail.
-            /// </summary>
-            Normal,
-
-            /// <summary>
-            /// A system e-mail.
-            /// </summary>
-            System,
-
-            /// <summary>
-            /// A notification e-mail.
-            /// </summary>
-            Notification
-
-        }
-
-        /// <summary>
-        /// The common header of HTML notification e-mails.
-        /// </summary>
-        public Func<String, HTTPPath?, EMailType, String>
-
-            HTMLEMailHeader = (ExternalDNSName,
-                               BasePath,
-                               EMailType)
-
-                => String.Concat("<!DOCTYPE html>\r\n",
-                                 "<html>\r\n",
-                                   "<head>\r\n",
-                                       "<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\" />\r\n",
-                                   "</head>\r\n",
-                                   "<body style=\"background-color: #ececec\">\r\n",
-                                     "<div style=\"width: 600px\">\r\n",
-                                       "<div style=\"border-bottom: 1px solid #AAAAAA; margin-bottom: 20px\">\r\n",
-                                           "<img src=\"", ExternalDNSName, (BasePath?.ToString() ?? ""), "\" style=\"width: 250px; padding-right: 10px\" alt=\"CardiLink\">\r\n",
-                                       "</div>\r\n",
-                                       "<div style=\"border-bottom: 1px solid #AAAAAA; padding-left: 6px; padding-bottom: 40px; margin-bottom: 10px;\">\r\n");
-
-        /// <summary>
-        /// The common footer of HTML notification e-mails.
-        /// </summary>
-        public Func<String, HTTPPath?, EMailType, String>
-
-            HTMLEMailFooter = (ExternalDNSName,
-                               BasePath,
-                               EMailType)
-
-                => String.Concat(      "</div>\r\n",
-                                       EMailType == EMailType.Notification
-                                           ? "<div style=\"color: #AAAAAA; font-size: 80%; padding-bottom: 10px\">\r\n" +
-                                                 "If you no longer wish to receive this kind of notification e-mails you can unsubscribe <a href=\"https://" + ExternalDNSName + (BasePath?.ToString() ?? "") + "/notifications\">here</a>.<br />\r\n" +
-                                             "</div>\r\n"
-                                           : "",
-                                       "<div style=\"color: #AAAAAA; font-size: 70%\">\r\n",
-                                           "(c) GraphDefined GmbH<br />\r\n",
-                                       "</div>\r\n",
-                                     "</div>\r\n",
-                                   "</body>\r\n",
-                                 "</html>\r\n\r\n");
-
-
-        /// <summary>
-        /// The common header of plain text notification e-mails.
-        /// </summary>
-        public Func<String, HTTPPath?, EMailType, String>
-
-            TextEMailHeader = (ExternalDNSName,
-                               BasePath,
-                               EMailType)
-
-                => String.Concat("GraphDefined Users API\r\n",
-                                 "----------------------\r\n\r\n");
-
-        /// <summary>
-        /// The common footer of plain text notification e-mails.
-        /// </summary>
-        public Func<String, HTTPPath?, EMailType, String>
-
-            TextEMailFooter = (ExternalDNSName,
-                               BasePath,
-                               EMailType)
-
-                => String.Concat("\r\n\r\n---------------------------------------------------------------\r\n",
-                                 EMailType == EMailType.Notification
-                                     ? "If you no longer wish to receive this kind of notification e-mails you can unsubscribe here: https://" + ExternalDNSName + (BasePath?.ToString() ?? "") + "/notifications.\r\n\r\n"
-                                     : "",
-                                 "Users API\r\n",
-                                 "(c) GraphDefined GmbH\r\n\r\n");
-
-        #endregion
-
         #region (private) RegisterNotifications()
 
         private async Task RegisterNotifications()
@@ -3054,7 +2857,156 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
-        #region E-Mail delegates
+        #region E-Mail headers / footers
+
+        /// <summary>
+        /// The type of e-mails send.
+        /// This might influence the content of the common e-mail headers and footers.
+        /// </summary>
+        public enum EMailType
+        {
+
+            /// <summary>
+            /// A normal e-mail.
+            /// </summary>
+            Normal,
+
+            /// <summary>
+            /// A system e-mail.
+            /// </summary>
+            System,
+
+            /// <summary>
+            /// A notification e-mail.
+            /// </summary>
+            Notification
+
+        }
+
+        /// <summary>
+        /// The common header of HTML notification e-mails.
+        /// </summary>
+        public virtual String HTMLEMailHeader(String     ExternalDNSName,
+                                              HTTPPath?  BasePath,
+                                              EMailType  EMailType)
+
+            => String.Concat("<!DOCTYPE html>\r\n",
+                             "<html>\r\n",
+                               "<head>\r\n",
+                                   "<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\" />\r\n",
+                               "</head>\r\n",
+                               "<body style=\"background-color: #ececec\">\r\n",
+                                 "<div style=\"width: 600px\">\r\n",
+                                   "<div style=\"border-bottom: 1px solid #AAAAAA; margin-bottom: 20px\">\r\n",
+                                       "<img src=\"", ExternalDNSName, (BasePath?.ToString() ?? ""), "\" style=\"width: 250px; padding-right: 10px\" alt=\"CardiLink\">\r\n",
+                                   "</div>\r\n",
+                                   "<div style=\"border-bottom: 1px solid #AAAAAA; padding-left: 6px; padding-bottom: 40px; margin-bottom: 10px;\">\r\n");
+
+
+        /// <summary>
+        /// The common footer of HTML notification e-mails.
+        /// </summary>
+        public virtual String HTMLEMailFooter(String     ExternalDNSName,
+                                              HTTPPath?  BasePath,
+                                              EMailType  EMailType)
+
+            => String.Concat(      "</div>\r\n",
+                                   EMailType == EMailType.Notification
+                                       ? "<div style=\"color: #AAAAAA; font-size: 80%; padding-bottom: 10px\">\r\n" +
+                                             "If you no longer wish to receive this kind of notification e-mails you can unsubscribe <a href=\"https://" + ExternalDNSName + (BasePath?.ToString() ?? "") + "/notifications\">here</a>.<br />\r\n" +
+                                         "</div>\r\n"
+                                       : "",
+                                   "<div style=\"color: #AAAAAA; font-size: 70%\">\r\n",
+                                       "(c) GraphDefined GmbH<br />\r\n",
+                                   "</div>\r\n",
+                                 "</div>\r\n",
+                               "</body>\r\n",
+                             "</html>\r\n\r\n");
+
+
+        /// <summary>
+        /// The common header of plain text notification e-mails.
+        /// </summary>
+        public virtual String TextEMailHeader(String     ExternalDNSName,
+                                              HTTPPath?  BasePath,
+                                              EMailType  EMailType)
+
+            => String.Concat("GraphDefined Users API\r\n",
+                             "----------------------\r\n\r\n");
+
+
+        /// <summary>
+        /// The common footer of plain text notification e-mails.
+        /// </summary>
+        public virtual String TextEMailFooter(String     ExternalDNSName,
+                                              HTTPPath?  BasePath,
+                                              EMailType  EMailType)
+
+            => String.Concat("\r\n\r\n---------------------------------------------------------------\r\n",
+                             EMailType == EMailType.Notification
+                                 ? "If you no longer wish to receive this kind of notification e-mails you can unsubscribe here: https://" + ExternalDNSName + (BasePath?.ToString() ?? "") + "/notifications.\r\n\r\n"
+                                 : "",
+                             "Users API\r\n",
+                             "(c) GraphDefined GmbH\r\n\r\n");
+
+        #endregion
+
+        #region E-Mail templates
+
+        /// <summary>
+        /// A delegate for sending a sign-up e-mail to a new user.
+        /// </summary>
+        public virtual EMail NewUserSignUpEMailCreator(User_Id           UserId,
+                                                       EMailAddress      EMailAddress,
+                                                       String            Username,
+                                                       SecurityToken_Id  SecurityToken,
+                                                       Boolean           Use2FactorAuth,
+                                                       String            ServiceName,
+                                                       Languages         Language)
+        {
+            return null;
+        }
+
+
+        /// <summary>
+        /// A delegate for sending a welcome e-mail to a new user.
+        /// </summary>
+        public virtual EMail NewUserWelcomeEMailCreator(String        Username,
+                                                        EMailAddress  EMailAddress,
+                                                        String        ServiceName,
+                                                        Languages     Language)
+        {
+            return null;
+        }
+
+
+        /// <summary>
+        /// A delegate for sending a reset password e-mail to a user.
+        /// </summary>
+        public virtual EMail ResetPasswordEMailCreator(User_Id           UserId,
+                                                       EMailAddress      EMailAddress,
+                                                       String            Username,
+                                                       SecurityToken_Id  SecurityToken,
+                                                       Boolean           Use2FactorAuth,
+                                                       String            ServiceName,
+                                                       Languages         Language)
+        {
+            return null;
+        }
+
+
+        /// <summary>
+        /// A delegate for sending a reset password e-mail to a user.
+        /// </summary>
+        public virtual EMail PasswordChangedEMailCreator(User_Id       UserId,
+                                                         EMailAddress  EMailAddress,
+                                                         String        Username,
+                                                         String        ServiceName,
+                                                         Languages     Language)
+        {
+            return null;
+        }
+
 
         #region NewServiceTicketMessageReceivedDelegate
 
@@ -3454,11 +3406,7 @@ namespace social.OpenData.UsersAPI
                                                HTTPCookieName?                      CookieName                    = null,
                                                Boolean                              UseSecureCookies              = true,
                                                Languages                            DefaultLanguage               = Languages.en,
-                                               NewUserSignUpEMailCreatorDelegate    NewUserSignUpEMailCreator     = null,
-                                               NewUserWelcomeEMailCreatorDelegate   NewUserWelcomeEMailCreator    = null,
-                                               ResetPasswordEMailCreatorDelegate    ResetPasswordEMailCreator     = null,
-                                               PasswordChangedEMailCreatorDelegate  PasswordChangedEMailCreator   = null,
-                                               Byte                                 MinLoginLength                = DefaultMinLoginLength,
+                                               Byte                                 MinLoginLength                = DefaultMinUserIdLength,
                                                Byte                                 MinRealmLength                = DefaultMinRealmLength,
                                                Byte                                 MinUserNameLength             = DefaultMinUserNameLength,
                                                PasswordQualityCheckDelegate         PasswordQualityCheck          = null,
@@ -3498,10 +3446,6 @@ namespace social.OpenData.UsersAPI
                             CookieName,
                             UseSecureCookies,
                             DefaultLanguage,
-                            NewUserSignUpEMailCreator,
-                            NewUserWelcomeEMailCreator,
-                            ResetPasswordEMailCreator,
-                            PasswordChangedEMailCreator,
                             MinLoginLength,
                             MinRealmLength,
                             MinUserNameLength,
@@ -4321,7 +4265,7 @@ namespace social.OpenData.UsersAPI
                                                           HTTPStatusCode  = HTTPStatusCode.NotFound,
                                                           Server          = HTTPServer.DefaultServerName,
                                                           ContentType     = HTTPContentType.HTML_UTF8,
-                                                          Content         = ("VerificationToken not found!").ToUTF8Bytes(),
+                                                          Content         = "VerificationToken not found!".ToUTF8Bytes(),
                                                           CacheControl    = "public",
                                                           Connection      = "close"
                                                       }.AsImmutable);
@@ -4332,7 +4276,7 @@ namespace social.OpenData.UsersAPI
                                                           HTTPStatusCode  = HTTPStatusCode.NotFound,
                                                           Server          = HTTPServer.DefaultServerName,
                                                           ContentType     = HTTPContentType.HTML_UTF8,
-                                                          Content         = ("Login not found!").ToUTF8Bytes(),
+                                                          Content         = "Login not found!".ToUTF8Bytes(),
                                                           CacheControl    = "public",
                                                           Connection      = "close"
                                                       }.AsImmutable);
@@ -4355,54 +4299,53 @@ namespace social.OpenData.UsersAPI
 
                                               var MailSentResult = MailSentStatus.failed;
 
-                                              var NewUserWelcomeEMailCreatorLocal = NewUserWelcomeEMailCreator;
-                                              if (NewUserWelcomeEMailCreatorLocal != null)
-                                              {
+                                              var NewUserMail = NewUserWelcomeEMailCreator(Username:      _User.Name,// VerificationToken.Login.ToString(),
+                                                                                           EMailAddress:  _User.EMail,
+                                                                                           ServiceName:   ServiceName,
+                                                                                           //DNSHostname:   "https://" + Request.Host.SimpleString,
+                                                                                           Language:      DefaultLanguage);
 
-                                                  var NewUserMail = NewUserWelcomeEMailCreatorLocal(UserId:        VerificationToken.Login,
-                                                                                                    EMail:        _User.EMail,
-                                                                                                    ServiceName:  ServiceName,
-                                                                                                    DNSHostname:  "https://" + Request.Host.SimpleString,
-                                                                                                    Language:     DefaultLanguage);
+                                             if (NewUserMail != null)
+                                             {
 
                                                   var MailResultTask = APISMTPClient.Send(NewUserMail);
 
                                                   if (MailResultTask.Wait(60000))
                                                       MailSentResult = MailResultTask.Result;
 
-                                              }
+                                                  if (MailSentResult == MailSentStatus.ok)
+                                                  {
 
-                                              if (MailSentResult == MailSentStatus.ok)
-                                              {
+                                                      #region Send Admin-Mail...
 
-                                                  #region Send Admin-Mail...
+                                                      var AdminMail = new TextEMailBuilder() {
+                                                          From        = Robot.EMail,
+                                                          To          = APIAdminEMails,
+                                                          Subject     = "New user activated: " + _User.Id.ToString() + " at " + DateTime.UtcNow.ToString(),
+                                                          Text        = "New user activated: " + _User.Id.ToString() + " at " + DateTime.UtcNow.ToString(),
+                                                          Passphrase  = APIPassphrase
+                                                      };
 
-                                                  var AdminMail = new TextEMailBuilder() {
-                                                      From        = Robot.EMail,
-                                                      To          = APIAdminEMails,
-                                                      Subject     = "New user activated: " + _User.Id.ToString() + " at " + DateTime.UtcNow.ToString(),
-                                                      Text        = "New user activated: " + _User.Id.ToString() + " at " + DateTime.UtcNow.ToString(),
-                                                      Passphrase  = APIPassphrase
-                                                  };
+                                                      var AdminMailResultTask = APISMTPClient.Send(AdminMail).Wait(30000);
 
-                                                  var MailResultTask = APISMTPClient.Send(AdminMail).Wait(30000);
+                                                      #endregion
 
-                                                  #endregion
+                                                      return Task.FromResult(
+                                                          new HTTPResponse.Builder(Request) {
+                                                              HTTPStatusCode  = HTTPStatusCode.Created,
+                                                              Server          = HTTPServer.DefaultServerName,
+                                                              ContentType     = HTTPContentType.JSON_UTF8,
+                                                              Content         = new JObject(
+                                                                                    new JProperty("@context", ""),
+                                                                                    new JProperty("@id",   _User.Id.   ToString()),
+                                                                                    new JProperty("email", _User.EMail.ToString())
+                                                                                ).ToString().ToUTF8Bytes(),
+                                                              CacheControl    = "public",
+                                                              //Expires         = "Mon, 25 Jun 2015 21:31:12 GMT",
+                                                              Connection      = "close"
+                                                          }.AsImmutable);
 
-                                                  return Task.FromResult(
-                                                      new HTTPResponse.Builder(Request) {
-                                                          HTTPStatusCode  = HTTPStatusCode.Created,
-                                                          Server          = HTTPServer.DefaultServerName,
-                                                          ContentType     = HTTPContentType.JSON_UTF8,
-                                                          Content         = new JObject(
-                                                                                new JProperty("@context", ""),
-                                                                                new JProperty("@id",   _User.Id.   ToString()),
-                                                                                new JProperty("email", _User.EMail.ToString())
-                                                                            ).ToString().ToUTF8Bytes(),
-                                                          CacheControl    = "public",
-                                                          //Expires         = "Mon, 25 Jun 2015 21:31:12 GMT",
-                                                          Connection      = "close"
-                                                      }.AsImmutable);
+                                                  }
 
                                               }
 
@@ -4844,7 +4787,7 @@ namespace social.OpenData.UsersAPI
                                                                                                                        PasswordReset.SecurityToken1,
                                                                                                                        user.MobilePhone.HasValue,
                                                                                                                        ServiceName,
-                                                                                                                       "https://" + Request.Host.SimpleString,
+                                                                                                                       //"https://" + Request.Host.SimpleString,
                                                                                                                        DefaultLanguage));
 
                                                      if (MailResultTask.Wait(60000))
@@ -5102,7 +5045,7 @@ namespace social.OpenData.UsersAPI
                                                                                                                      user.EMail,
                                                                                                                      user.Name,
                                                                                                                      ServiceName,
-                                                                                                                     "https://" + Request.Host.SimpleString,
+                                                                                                                     //"https://" + Request.Host.SimpleString,
                                                                                                                      DefaultLanguage));
 
                                                  if (MailResultTask.Wait(60000))
@@ -5284,8 +5227,8 @@ namespace social.OpenData.UsersAPI
                                           HTTPMethod.ADD,
                                           HTTPPath.Parse("/users"),
                                           HTTPContentType.JSON_UTF8,
-                                          HTTPRequestLogger:   AddUsersRequest,
-                                          HTTPResponseLogger:  AddUsersResponse,
+                                          HTTPRequestLogger:   AddUsersHTTPRequest,
+                                          HTTPResponseLogger:  AddUsersHTTPResponse,
                                           HTTPDelegate:        async Request => {
 
                                               #region Get HTTP user and its organizations
@@ -5743,7 +5686,7 @@ namespace social.OpenData.UsersAPI
                                                                                                                     SetPasswordRequest.SecurityToken1,
                                                                                                                     MobilePhone.HasValue,
                                                                                                                     ServiceName,
-                                                                                                                    "https://" + Request.Host.SimpleString,
+                                                                                                                    //"https://" + Request.Host.SimpleString,
                                                                                                                     DefaultLanguage));
 
                                                   if (MailResultTask.Wait(60000))
@@ -5880,8 +5823,8 @@ namespace social.OpenData.UsersAPI
                                           HTTPMethod.ADD,
                                           HTTPPath.Parse("/users/{UserId}"),
                                           HTTPContentType.JSON_UTF8,
-                                          HTTPRequestLogger:   AddUserRequest,
-                                          HTTPResponseLogger:  AddUserResponse,
+                                          HTTPRequestLogger:   AddUserHTTPRequest,
+                                          HTTPResponseLogger:  AddUserHTTPResponse,
                                           HTTPDelegate:        async Request => {
 
                                               #region Get HTTP user and its organizations
@@ -6274,7 +6217,7 @@ namespace social.OpenData.UsersAPI
                                                                                                                      SetPasswordRequest.SecurityToken1,
                                                                                                                      MobilePhone.HasValue,
                                                                                                                      ServiceName,
-                                                                                                                     "https://" + Request.Host.SimpleString,
+                                                                                                                     //"https://" + Request.Host.SimpleString,
                                                                                                                      DefaultLanguage));
 
                                                   if (MailResultTask.Wait(60000))
@@ -6679,8 +6622,8 @@ namespace social.OpenData.UsersAPI
                                          HTTPMethod.SET,
                                          URLPathPrefix + "users/{UserId}",
                                          HTTPContentType.JSON_UTF8,
-                                         HTTPRequestLogger:   SetUserRequest,
-                                         HTTPResponseLogger:  SetUserResponse,
+                                         HTTPRequestLogger:   SetUserHTTPRequest,
+                                         HTTPResponseLogger:  SetUserHTTPResponse,
                                          HTTPDelegate:        async Request => {
 
                                              #region Get HTTP user and its organizations
@@ -8084,7 +8027,7 @@ namespace social.OpenData.UsersAPI
                                                                                                                            HTTPUser.EMail,
                                                                                                                            HTTPUser.Name,
                                                                                                                            ServiceName,
-                                                                                                                           "https://" + Request.Host.SimpleString,
+                                                                                                                           //"https://" + Request.Host.SimpleString,
                                                                                                                            DefaultLanguage));
 
                                                  return new HTTPResponse.Builder(Request) {
@@ -8571,8 +8514,8 @@ namespace social.OpenData.UsersAPI
                                          HTTPMethod.ADD,
                                          URLPathPrefix + "organizations",
                                          HTTPContentType.JSON_UTF8,
-                                         HTTPRequestLogger:  AddOrganizationRequest,
-                                         HTTPResponseLogger: AddOrganizationResponse,
+                                         HTTPRequestLogger:  AddOrganizationHTTPRequest,
+                                         HTTPResponseLogger: AddOrganizationHTTPResponse,
                                          HTTPDelegate:       async Request => {
 
                                              #region Get HTTP user and its organizations
@@ -8934,8 +8877,8 @@ namespace social.OpenData.UsersAPI
                                          HTTPMethod.ADD,
                                          URLPathPrefix + "organizations/{organizationId}",
                                          HTTPContentType.JSON_UTF8,
-                                         HTTPRequestLogger:  AddOrganizationRequest,
-                                         HTTPResponseLogger: AddOrganizationResponse,
+                                         HTTPRequestLogger:  AddOrganizationHTTPRequest,
+                                         HTTPResponseLogger: AddOrganizationHTTPResponse,
                                          HTTPDelegate:       async Request => {
 
                                              #region Get HTTP user and its organizations
@@ -9313,8 +9256,8 @@ namespace social.OpenData.UsersAPI
                                          HTTPMethod.DELETE,
                                          URLPathPrefix + "organizations/{organizationId}",
                                          HTTPContentType.JSON_UTF8,
-                                         HTTPRequestLogger:  DeleteOrganizationRequest,
-                                         HTTPResponseLogger: DeleteOrganizationResponse,
+                                         HTTPRequestLogger:  DeleteOrganizationHTTPRequest,
+                                         HTTPResponseLogger: DeleteOrganizationHTTPResponse,
                                          HTTPDelegate:       async Request => {
 
                                              #region Get HTTP user and its organizations
@@ -14453,15 +14396,15 @@ namespace social.OpenData.UsersAPI
                                          Passphrase     = APIPassphrase,
                                          Subject        = String.Concat("User '" + User.Name + "' was successfully created."), // to Organization {Org_Name}."),
 
-                                         HTMLText       = String.Concat(HTMLEMailHeader,
-                                                                        "User <a href=\"https://", this.ExternalDNSName, this.BasePath, "/users/", User.Id, "\">", User.Name, "</a> was successfully created.",
-                                                                        HTMLEMailFooter),
+                                         HTMLText       = String.Concat(HTMLEMailHeader(ExternalDNSName, BasePath, EMailType.Notification),
+                                                                        "User <a href=\"https://", ExternalDNSName, BasePath, "/users/", User.Id, "\">", User.Name, "</a> was successfully created.",
+                                                                        HTMLEMailFooter(ExternalDNSName, BasePath, EMailType.Notification)),
 
-                                         PlainText      = String.Concat(TextEMailHeader,
+                                         PlainText      = String.Concat(TextEMailHeader(ExternalDNSName, BasePath, EMailType.Notification),
                                                                         "User '" + User.Name + "' was successfully created.\r\n",
                                                                         "https://", ExternalDNSName, BasePath, "/users/", User.Id, "\r\r\r\r",
                                                                         // to Organization {Org_Name}.\r\r\r\r",
-                                                                        TextEMailFooter),
+                                                                        TextEMailFooter(ExternalDNSName, BasePath, EMailType.Notification)),
 
                                          SecurityLevel  = EMailSecurity.sign
 
@@ -14478,15 +14421,15 @@ namespace social.OpenData.UsersAPI
                                          Passphrase     = APIPassphrase,
                                          Subject        = String.Concat("User '" + User.Name + "' information has been successfully updated."), // + {Updated information}  + link {User_ID_baseData page}."),
 
-                                         HTMLText       = String.Concat(HTMLEMailHeader,
+                                         HTMLText       = String.Concat(HTMLEMailHeader(ExternalDNSName, BasePath, EMailType.Notification),
                                                                         "User <a href=\"https://", ExternalDNSName, BasePath, "/users/", User.Id, "\">", User.Name, "</a> information has been successfully updated.", // + {Updated information}  + link {User_ID_baseData page}.",
-                                                                        HTMLEMailFooter),
+                                                                        HTMLEMailFooter(ExternalDNSName, BasePath, EMailType.Notification)),
 
-                                         PlainText      = String.Concat(TextEMailHeader,
+                                         PlainText      = String.Concat(TextEMailHeader(ExternalDNSName, BasePath, EMailType.Notification),
                                                                         "User '" + User.Name + "' information has been successfully updated.\r\n",
                                                                         "https://", ExternalDNSName, BasePath, "/users/", User.Id, "\r\r\r\r",
                                                                         // + {Updated information}
-                                                                        TextEMailFooter),
+                                                                        TextEMailFooter(ExternalDNSName, BasePath, EMailType.Notification)),
 
                                          SecurityLevel  = EMailSecurity.sign
 
@@ -14503,14 +14446,14 @@ namespace social.OpenData.UsersAPI
                                          Passphrase     = APIPassphrase,
                                          Subject        = String.Concat("User '" + User.Name + "' information has been removed."),
 
-                                         HTMLText       = String.Concat(HTMLEMailHeader,
+                                         HTMLText       = String.Concat(HTMLEMailHeader(ExternalDNSName, BasePath, EMailType.Notification),
                                                                         "User <a href=\"https://", ExternalDNSName, BasePath, "/users/", User.Id, "\">", User.Name, "</a> information has been removed. If you haven't approved this request, please contact support: <a href=\"mailto:support@cardi-link.com\">support@cardi-link.com</a>",
-                                                                        HTMLEMailFooter),
+                                                                        HTMLEMailFooter(ExternalDNSName, BasePath, EMailType.Notification)),
 
-                                         PlainText      = String.Concat(TextEMailHeader,
+                                         PlainText      = String.Concat(TextEMailHeader(ExternalDNSName, BasePath, EMailType.Notification),
                                                                         "User '" + User.Name + "' information has been removed.\r\n",
                                                                         "If you haven't approved this request, please contact support: support@cardi-link.com\r\r\r\r",
-                                                                        TextEMailFooter),
+                                                                        TextEMailFooter(ExternalDNSName, BasePath, EMailType.Notification)),
 
                                          SecurityLevel  = EMailSecurity.sign
 
@@ -14618,20 +14561,23 @@ namespace social.OpenData.UsersAPI
                                                               ToHashSet();
 
             if (newUserDefaultNotificationMessageGroups.Any())
-                await AddNotification(User,
-                                      new EMailNotification(User.EMail,
-                                                            "",
-                                                            "",
-                                                            "",
-                                                            newUserDefaultNotificationMessageGroups,
-                                                            "Default notifications for new users"),
-                                      CurrentUserId);
+                await _AddNotification(User,
+                                       new EMailNotification(User.EMail,
+                                                             "",
+                                                             "",
+                                                             "",
+                                                             newUserDefaultNotificationMessageGroups,
+                                                             "Default notifications for new users"),
+                                       CurrentUserId);
 
             #endregion
 
-            await OnUserAdded?.Invoke(DateTime.UtcNow,
-                                      User,
-                                      CurrentUserId);
+
+            var OnUserAddedLocal = OnUserAdded;
+            if (OnUserAddedLocal != null)
+                await OnUserAdded?.Invoke(DateTime.UtcNow,
+                                          User,
+                                          CurrentUserId);
 
             await SendNotifications(User,
                                     addUser_MessageType,
@@ -14790,9 +14736,11 @@ namespace social.OpenData.UsersAPI
 
             #endregion
 
-            await OnUserAdded?.Invoke(DateTime.UtcNow,
-                                        User,
-                                        CurrentUserId);
+            var OnUserAddedLocal = OnUserAdded;
+            if (OnUserAddedLocal != null)
+                await OnUserAdded?.Invoke(DateTime.UtcNow,
+                                          User,
+                                          CurrentUserId);
 
             await SendNotifications(User,
                                     addUserIfNotExists_MessageType,
@@ -16512,6 +16460,22 @@ namespace social.OpenData.UsersAPI
 
         #region AddNotification(User,           NotificationType,                           CurrentUserId = null)
 
+        protected async Task _AddNotification<T>(User      User,
+                                                 T         NotificationType,
+                                                 User_Id?  CurrentUserId  = null)
+
+            where T : ANotification
+
+        {
+
+            User.AddNotification(NotificationType,
+                                 async update => await WriteToDatabaseFile(NotificationMessageType.Parse("addNotification"),
+                                                                      update.ToJSON(false).AddFirstAndReturn(new JProperty("userId", User.Id.ToString())),
+                                                                      CurrentUserId));
+
+        }
+
+
         public async Task AddNotification<T>(User      User,
                                              T         NotificationType,
                                              User_Id?  CurrentUserId  = null)
@@ -16525,10 +16489,9 @@ namespace social.OpenData.UsersAPI
 
                 await UsersSemaphore.WaitAsync();
 
-                User.AddNotification(NotificationType,
-                                     async update => await WriteToDatabaseFile(NotificationMessageType.Parse("addNotification"),
-                                                                          update.ToJSON(false).AddFirstAndReturn(new JProperty("userId", User.Id.ToString())),
-                                                                          CurrentUserId));
+                await _AddNotification(User,
+                                       NotificationType,
+                                       CurrentUserId);
 
             }
             finally
@@ -17951,14 +17914,14 @@ namespace social.OpenData.UsersAPI
                                          Passphrase     = APIPassphrase,
                                          Subject        = String.Concat("Organization '", Organization.Name.FirstText(), "' was successfully created."),
 
-                                         HTMLText       = String.Concat(HTMLEMailHeader,
+                                         HTMLText       = String.Concat(HTMLEMailHeader(ExternalDNSName, BasePath, EMailType.Notification),
                                                                         "Organization <a href=\"https://", ExternalDNSName, BasePath, "/organizations/", Organization.Id, "\">", Organization.Name.FirstText(), "</a> was successfully created.",
-                                                                        HTMLEMailFooter),
+                                                                        HTMLEMailFooter(ExternalDNSName, BasePath, EMailType.Notification)),
 
-                                         PlainText      = String.Concat(TextEMailHeader,
+                                         PlainText      = String.Concat(TextEMailHeader(ExternalDNSName, BasePath, EMailType.Notification),
                                                                         "Organization '", Organization.Name.FirstText(), "' was successfully created.\r\n",
                                                                         "https://", ExternalDNSName, BasePath, "/organizations/", Organization.Id, "\r\r\r\r",
-                                                                        TextEMailFooter),
+                                                                        TextEMailFooter(ExternalDNSName, BasePath, EMailType.Notification)),
 
                                          SecurityLevel  = EMailSecurity.sign
 
@@ -17976,16 +17939,16 @@ namespace social.OpenData.UsersAPI
                                          Passphrase     = APIPassphrase,
                                          Subject        = String.Concat("Organization '", Organization.Name.FirstText(), "' information has been successfully updated."),
 
-                                         HTMLText       = String.Concat(HTMLEMailHeader,
+                                         HTMLText       = String.Concat(HTMLEMailHeader(ExternalDNSName, BasePath, EMailType.Notification),
                                                                         "Organization <a href=\"https://", ExternalDNSName, BasePath, "/organizations/", Organization.Id, "\">", Organization.Name.FirstText(), "</a> information has been successfully updated.",
                                                                         // + {Updated information}",
-                                                                        HTMLEMailFooter),
+                                                                        HTMLEMailFooter(ExternalDNSName, BasePath, EMailType.Notification)),
 
-                                         PlainText      = String.Concat(TextEMailHeader,
+                                         PlainText      = String.Concat(TextEMailHeader(ExternalDNSName, BasePath, EMailType.Notification),
                                                                         "Organization '", Organization.Name.FirstText(), "' information has been successfully updated.\r\n",
                                                                         "https://", ExternalDNSName, BasePath, "/organizations/", Organization.Id, "\r\r\r\r",
                                                                         // + {Updated information}",
-                                                                        TextEMailFooter),
+                                                                        TextEMailFooter(ExternalDNSName, BasePath, EMailType.Notification)),
 
                                          SecurityLevel  = EMailSecurity.sign
 
@@ -18002,15 +17965,15 @@ namespace social.OpenData.UsersAPI
                                          Passphrase     = APIPassphrase,
                                          Subject        = String.Concat("Organization '", Organization.Name.FirstText(), "' has been removed."),
 
-                                         HTMLText       = String.Concat(HTMLEMailHeader,
+                                         HTMLText       = String.Concat(HTMLEMailHeader(ExternalDNSName, BasePath, EMailType.Notification),
                                                                         "Organization <a href=\"https://", ExternalDNSName, BasePath, "/organizations/", Organization.Id, "\">", Organization.Name.FirstText(), "</a> has been removed.<br />",
                                                                         "If you haven't approved this request, please contact support: <a href=\"mailto:support@cardi-link.com\">support@cardi-link.com</a>",
-                                                                        HTMLEMailFooter),
+                                                                        HTMLEMailFooter(ExternalDNSName, BasePath, EMailType.Notification)),
 
-                                         PlainText      = String.Concat(TextEMailHeader,
+                                         PlainText      = String.Concat(TextEMailHeader(ExternalDNSName, BasePath, EMailType.Notification),
                                                                         "Organization '", Organization.Name.FirstText(), "' has been removed.\r\n",
                                                                         "If you haven't approved this request, please contact support: support@cardi-link.com\r\r\r\r",
-                                                                        TextEMailFooter),
+                                                                        TextEMailFooter(ExternalDNSName, BasePath, EMailType.Notification)),
 
                                          SecurityLevel  = EMailSecurity.sign
 
@@ -19553,15 +19516,15 @@ namespace social.OpenData.UsersAPI
                                          Passphrase     = APIPassphrase,
                                          Subject        = String.Concat("User '", User.Name, "' was added to organization '", Organization.Name.FirstText(), "'."),
 
-                                         HTMLText       = String.Concat(HTMLEMailHeader,
+                                         HTMLText       = String.Concat(HTMLEMailHeader(ExternalDNSName, BasePath, EMailType.Notification),
                                                                         "User <a href=\"https://", this.ExternalDNSName, this.BasePath, "/users/", User.Id, "\">", User.Name, "</a> had been added to organization <a href=\"https://", ExternalDNSName, BasePath, "/organizations/", Organization.Id, "\">", Organization.Name.FirstText(), "</a>.<br />",
                                                                         "If you haven't approved this request, please contact support: <a href=\"mailto:support@cardi-link.com\">support@cardi-link.com</a>",
-                                                                        HTMLEMailFooter),
+                                                                        HTMLEMailFooter(ExternalDNSName, BasePath, EMailType.Notification)),
 
-                                         PlainText      = String.Concat(TextEMailHeader,
+                                         PlainText      = String.Concat(TextEMailHeader(ExternalDNSName, BasePath, EMailType.Notification),
                                                                         "User '" + User.Name + "' had been added to organization '", Organization.Name.FirstText(), "'.\r\n",
                                                                         "If you haven't approved this request, please contact support: support@cardi-link.com\r\r\r\r",
-                                                                        TextEMailFooter),
+                                                                        TextEMailFooter(ExternalDNSName, BasePath, EMailType.Notification)),
 
                                          SecurityLevel  = EMailSecurity.sign
 
@@ -19578,15 +19541,15 @@ namespace social.OpenData.UsersAPI
                                          Passphrase     = APIPassphrase,
                                          Subject        = String.Concat("User '", User.Name, "' was removed from organization '", Organization.Name.FirstText(), "'."),
 
-                                         HTMLText       = String.Concat(HTMLEMailHeader,
+                                         HTMLText       = String.Concat(HTMLEMailHeader(ExternalDNSName, BasePath, EMailType.Notification),
                                                                         "User <a href=\"https://", this.ExternalDNSName, this.BasePath, "/users/", User.Id, "\">", User.Name, "</a> had been removed from organization <a href=\"https://", ExternalDNSName, BasePath, "/organizations/", Organization.Id, "\">", Organization.Name.FirstText(), "</a>.<br />",
                                                                         "If you haven't approved this request, please contact support: <a href=\"mailto:support@cardi-link.com\">support@cardi-link.com</a>",
-                                                                        HTMLEMailFooter),
+                                                                        HTMLEMailFooter(ExternalDNSName, BasePath, EMailType.Notification)),
 
-                                         PlainText      = String.Concat(TextEMailHeader,
+                                         PlainText      = String.Concat(TextEMailHeader(ExternalDNSName, BasePath, EMailType.Notification),
                                                                         "User '" + User.Name + "' had been removed from organization '", Organization.Name.FirstText(), "'.\r\n",
                                                                         "If you haven't approved this request, please contact support: support@cardi-link.com\r\r\r\r",
-                                                                        TextEMailFooter),
+                                                                        TextEMailFooter(ExternalDNSName, BasePath, EMailType.Notification)),
 
                                          SecurityLevel  = EMailSecurity.sign
 
@@ -19940,14 +19903,14 @@ namespace social.OpenData.UsersAPI
                                          Passphrase     = APIPassphrase,
                                          Subject        = String.Concat("Organization '", OrganizationOut.Name.FirstText(), "' was linked to organization '", OrganizationIn.Name.FirstText(), "'."),
 
-                                         HTMLText       = String.Concat(HTMLEMailHeader,
+                                         HTMLText       = String.Concat(HTMLEMailHeader(ExternalDNSName, BasePath, EMailType.Notification),
                                                                         "Organization <a href=\"https://", ExternalDNSName, BasePath, "/organizations/", OrganizationOut.Id, "\">", OrganizationOut.Name.FirstText(), "</a> had been linked to organization <a href=\"https://", ExternalDNSName, BasePath, "/organizations/", OrganizationIn.Id, "\">", OrganizationIn.Name.FirstText(), "</a>.<br />",
                                                                         "If you haven't approved this request, please contact support: <a href=\"mailto:support@cardi-link.com\">support@cardi-link.com</a>",
-                                                                        HTMLEMailFooter),
+                                                                        HTMLEMailFooter(ExternalDNSName, BasePath, EMailType.Notification)),
 
-                                         PlainText      = String.Concat(TextEMailHeader,
+                                         PlainText      = String.Concat(TextEMailHeader(ExternalDNSName, BasePath, EMailType.Notification),
                                                                         "Organization '" + OrganizationOut.Name.FirstText() + "' had been linked to organization '", OrganizationIn.Name.FirstText(), "'.\r\r\r\r",
-                                                                        TextEMailFooter),
+                                                                        TextEMailFooter(ExternalDNSName, BasePath, EMailType.Notification)),
 
                                          SecurityLevel  = EMailSecurity.sign
 
@@ -19964,15 +19927,15 @@ namespace social.OpenData.UsersAPI
                                          Passphrase     = APIPassphrase,
                                          Subject        = String.Concat("Organization '", OrganizationOut.Name.FirstText(), "' was unlinked from organization '", OrganizationIn.Name.FirstText(), "'."),
 
-                                         HTMLText       = String.Concat(HTMLEMailHeader,
+                                         HTMLText       = String.Concat(HTMLEMailHeader(ExternalDNSName, BasePath, EMailType.Notification),
                                                                         "Organization <a href=\"https://", ExternalDNSName, BasePath, "/organizations/", OrganizationOut.Id, "\">", OrganizationOut.Name.FirstText(), "</a> had been unlinked from organization <a href=\"https://", ExternalDNSName, BasePath, "/organizations/", OrganizationIn.Id, "\">", OrganizationIn.Name.FirstText(), "</a>.<br />",
                                                                         "If you haven't approved this request, please contact support: <a href=\"mailto:support@cardi-link.com\">support@cardi-link.com</a>",
-                                                                        HTMLEMailFooter),
+                                                                        HTMLEMailFooter(ExternalDNSName, BasePath, EMailType.Notification)),
 
-                                         PlainText      = String.Concat(TextEMailHeader,
+                                         PlainText      = String.Concat(TextEMailHeader(ExternalDNSName, BasePath, EMailType.Notification),
                                                                         "Organization '" + OrganizationOut.Name.FirstText() + "' had been unlinked from organization '", OrganizationIn.Name.FirstText(), "'.\r\n",
                                                                         "If you haven't approved this request, please contact support: support@cardi-link.com\r\r\r\r",
-                                                                        TextEMailFooter),
+                                                                        TextEMailFooter(ExternalDNSName, BasePath, EMailType.Notification)),
 
                                          SecurityLevel  = EMailSecurity.sign
 
