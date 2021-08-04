@@ -618,16 +618,28 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
-        #region Edges(Organization)
+        #region EdgeLabels(Organization)
 
         /// <summary>
         /// All organizations this user belongs to,
         /// filtered by the given edge label.
         /// </summary>
-        public IEnumerable<User2OrganizationEdgeTypes> Edges(Organization Organization)
+        public IEnumerable<User2OrganizationEdgeTypes> EdgeLabels(Organization Organization)
             => _User2Organization_OutEdges.
                    Where (edge => edge.Target == Organization).
                    Select(edge => edge.EdgeLabel);
+
+        #endregion
+
+        #region Edges     (Organization)
+
+        /// <summary>
+        /// All organizations this user belongs to,
+        /// filtered by the given edge label.
+        /// </summary>
+        public IEnumerable<User2OrganizationEdge> Edges(Organization Organization)
+            => _User2Organization_OutEdges.
+                   Where(edge => edge.Target == Organization);
 
         #endregion
 

@@ -20,7 +20,6 @@
 using System;
 
 using org.GraphDefined.Vanaheimr.Illias;
-using social.OpenData.UsersAPI;
 
 #endregion
 
@@ -58,7 +57,7 @@ namespace social.OpenData.UsersAPI
         /// The length of the security token identification.
         /// </summary>
         public UInt64 Length
-            => (UInt64) (InternalId.Length);
+            => (UInt64) InternalId?.Length;
 
         #endregion
 
@@ -68,9 +67,9 @@ namespace social.OpenData.UsersAPI
         /// Create a new unique security token identification based on the given text representation.
         /// </summary>
         /// <param name="String">The text representation of the security token identification.</param>
-        private SecurityToken_Id(String  String)
+        private SecurityToken_Id(String String)
         {
-            this.InternalId  = String;
+            this.InternalId = String;
         }
 
         #endregion
@@ -99,18 +98,11 @@ namespace social.OpenData.UsersAPI
         public static SecurityToken_Id Parse(String Text)
         {
 
-            #region Initial checks
-
-            if (Text != null)
-                Text = Text.Trim();
+            if (TryParse(Text, out SecurityToken_Id securityTokenId))
+                return securityTokenId;
 
             if (Text.IsNullOrEmpty())
                 throw new ArgumentNullException(nameof(Text), "The given text representation of a security token identification must not be null or empty!");
-
-            #endregion
-
-            if (TryParse(Text, out SecurityToken_Id securityTokenId))
-                return securityTokenId;
 
             throw new ArgumentException("The given text representation of a security token identification is invalid!", nameof(Text));
 
@@ -130,7 +122,7 @@ namespace social.OpenData.UsersAPI
             if (TryParse(Text, out SecurityToken_Id securityTokenId))
                 return securityTokenId;
 
-            return new SecurityToken_Id?();
+            return null;
 
         }
 
@@ -146,28 +138,21 @@ namespace social.OpenData.UsersAPI
         public static Boolean TryParse(String Text, out SecurityToken_Id SecurityTokenId)
         {
 
-            #region Initial checks
-
             Text = Text?.Trim();
 
-            if (Text.IsNullOrEmpty())
+            if (Text.IsNotNullOrEmpty())
             {
-                SecurityTokenId = default;
-                return false;
+                try
+                {
+                    SecurityTokenId = new SecurityToken_Id(Text);
+                    return true;
+                }
+                catch (Exception)
+                { }
             }
 
-            #endregion
-
-            try
-            {
-                SecurityTokenId = new SecurityToken_Id(Text);
-                return true;
-            }
-            catch (Exception)
-            {
-                SecurityTokenId = default;
-                return false;
-            }
+            SecurityTokenId = default;
+            return false;
 
         }
 
@@ -198,20 +183,10 @@ namespace social.OpenData.UsersAPI
         /// <param name="SecurityTokenId1">A security token identification.</param>
         /// <param name="SecurityTokenId2">Another security token identification.</param>
         /// <returns>true|false</returns>
-        public static Boolean operator == (SecurityToken_Id SecurityTokenId1, SecurityToken_Id SecurityTokenId2)
-        {
+        public static Boolean operator == (SecurityToken_Id SecurityTokenId1,
+                                           SecurityToken_Id SecurityTokenId2)
 
-            // If both are null, or both are same instance, return true.
-            if (Object.ReferenceEquals(SecurityTokenId1, SecurityTokenId2))
-                return true;
-
-            // If one is null, but not both, return false.
-            if (((Object) SecurityTokenId1 == null) || ((Object) SecurityTokenId2 == null))
-                return false;
-
-            return SecurityTokenId1.Equals(SecurityTokenId2);
-
-        }
+            => SecurityTokenId1.Equals(SecurityTokenId2);
 
         #endregion
 
@@ -223,7 +198,9 @@ namespace social.OpenData.UsersAPI
         /// <param name="SecurityTokenId1">A security token identification.</param>
         /// <param name="SecurityTokenId2">Another security token identification.</param>
         /// <returns>true|false</returns>
-        public static Boolean operator != (SecurityToken_Id SecurityTokenId1, SecurityToken_Id SecurityTokenId2)
+        public static Boolean operator != (SecurityToken_Id SecurityTokenId1,
+                                           SecurityToken_Id SecurityTokenId2)
+
             => !(SecurityTokenId1 == SecurityTokenId2);
 
         #endregion
@@ -236,15 +213,10 @@ namespace social.OpenData.UsersAPI
         /// <param name="SecurityTokenId1">A security token identification.</param>
         /// <param name="SecurityTokenId2">Another security token identification.</param>
         /// <returns>true|false</returns>
-        public static Boolean operator < (SecurityToken_Id SecurityTokenId1, SecurityToken_Id SecurityTokenId2)
-        {
+        public static Boolean operator < (SecurityToken_Id SecurityTokenId1,
+                                          SecurityToken_Id SecurityTokenId2)
 
-            if ((Object) SecurityTokenId1 == null)
-                throw new ArgumentNullException(nameof(SecurityTokenId1), "The given SecurityTokenId1 must not be null!");
-
-            return SecurityTokenId1.CompareTo(SecurityTokenId2) < 0;
-
-        }
+            => SecurityTokenId1.CompareTo(SecurityTokenId2) < 0;
 
         #endregion
 
@@ -256,8 +228,10 @@ namespace social.OpenData.UsersAPI
         /// <param name="SecurityTokenId1">A security token identification.</param>
         /// <param name="SecurityTokenId2">Another security token identification.</param>
         /// <returns>true|false</returns>
-        public static Boolean operator <= (SecurityToken_Id SecurityTokenId1, SecurityToken_Id SecurityTokenId2)
-            => !(SecurityTokenId1 > SecurityTokenId2);
+        public static Boolean operator <= (SecurityToken_Id SecurityTokenId1,
+                                           SecurityToken_Id SecurityTokenId2)
+
+            => SecurityTokenId1.CompareTo(SecurityTokenId2) <= 0;
 
         #endregion
 
@@ -269,15 +243,10 @@ namespace social.OpenData.UsersAPI
         /// <param name="SecurityTokenId1">A security token identification.</param>
         /// <param name="SecurityTokenId2">Another security token identification.</param>
         /// <returns>true|false</returns>
-        public static Boolean operator > (SecurityToken_Id SecurityTokenId1, SecurityToken_Id SecurityTokenId2)
-        {
+        public static Boolean operator > (SecurityToken_Id SecurityTokenId1,
+                                          SecurityToken_Id SecurityTokenId2)
 
-            if ((Object) SecurityTokenId1 == null)
-                throw new ArgumentNullException(nameof(SecurityTokenId1), "The given SecurityTokenId1 must not be null!");
-
-            return SecurityTokenId1.CompareTo(SecurityTokenId2) > 0;
-
-        }
+            => SecurityTokenId1.CompareTo(SecurityTokenId2) > 0;
 
         #endregion
 
@@ -289,14 +258,16 @@ namespace social.OpenData.UsersAPI
         /// <param name="SecurityTokenId1">A security token identification.</param>
         /// <param name="SecurityTokenId2">Another security token identification.</param>
         /// <returns>true|false</returns>
-        public static Boolean operator >= (SecurityToken_Id SecurityTokenId1, SecurityToken_Id SecurityTokenId2)
-            => !(SecurityTokenId1 < SecurityTokenId2);
+        public static Boolean operator >= (SecurityToken_Id SecurityTokenId1,
+                                           SecurityToken_Id SecurityTokenId2)
+
+            => SecurityTokenId1.CompareTo(SecurityTokenId2) >= 0;
 
         #endregion
 
         #endregion
 
-        #region IComparable<SecurityTokenId> Members
+        #region IComparable<SecurityToken_Id> Members
 
         #region CompareTo(Object)
 
@@ -305,42 +276,31 @@ namespace social.OpenData.UsersAPI
         /// </summary>
         /// <param name="Object">An object to compare with.</param>
         public Int32 CompareTo(Object Object)
-        {
 
-            if (Object == null)
-                throw new ArgumentNullException(nameof(Object), "The given object must not be null!");
-
-            if (!(Object is SecurityToken_Id SecurityTokenId))
-                throw new ArgumentException("The given object is not a security token identification!",
-                                            nameof(Object));
-
-            return CompareTo(SecurityTokenId);
-
-        }
+            => Object is SecurityToken_Id securityTokenId
+                   ? CompareTo(securityTokenId)
+                   : throw new ArgumentException("The given object is not a security token identification!",
+                                                 nameof(Object));
 
         #endregion
 
-        #region CompareTo(SecurityTokenId)
+        #region CompareTo(SecurityToken_Id)
 
         /// <summary>
         /// Compares two instances of this object.
         /// </summary>
-        /// <param name="SecurityTokenId">An object to compare with.</param>
-        public Int32 CompareTo(SecurityToken_Id SecurityTokenId)
-        {
+        /// <param name="SecurityToken_Id">An object to compare with.</param>
+        public Int32 CompareTo(SecurityToken_Id SecurityToken_Id)
 
-            if ((Object) SecurityTokenId == null)
-                throw new ArgumentNullException(nameof(SecurityTokenId),  "The given security token identification must not be null!");
-
-            return String.Compare(InternalId, SecurityTokenId.InternalId, StringComparison.Ordinal);
-
-        }
+            => String.Compare(InternalId,
+                              SecurityToken_Id.InternalId,
+                              StringComparison.Ordinal);
 
         #endregion
 
         #endregion
 
-        #region IEquatable<SecurityTokenId> Members
+        #region IEquatable<SecurityToken_Id> Members
 
         #region Equals(Object)
 
@@ -350,36 +310,24 @@ namespace social.OpenData.UsersAPI
         /// <param name="Object">An object to compare with.</param>
         /// <returns>true|false</returns>
         public override Boolean Equals(Object Object)
-        {
 
-            if (Object == null)
-                return false;
-
-            if (!(Object is SecurityToken_Id SecurityTokenId))
-                return false;
-
-            return Equals(SecurityTokenId);
-
-        }
+            => Object is SecurityToken_Id securityTokenId &&
+                   Equals(securityTokenId);
 
         #endregion
 
-        #region Equals(SecurityTokenId)
+        #region Equals(SecurityToken_Id)
 
         /// <summary>
         /// Compares two security token identifications for equality.
         /// </summary>
-        /// <param name="SecurityTokenId">An security token identification to compare with.</param>
+        /// <param name="SecurityToken_Id">An security token identification to compare with.</param>
         /// <returns>True if both match; False otherwise.</returns>
-        public Boolean Equals(SecurityToken_Id SecurityTokenId)
-        {
+        public Boolean Equals(SecurityToken_Id SecurityToken_Id)
 
-            if ((Object) SecurityTokenId == null)
-                return false;
-
-            return InternalId.Equals(SecurityTokenId.InternalId);
-
-        }
+            => String.Equals(InternalId,
+                             SecurityToken_Id.InternalId,
+                             StringComparison.Ordinal);
 
         #endregion
 
@@ -392,7 +340,8 @@ namespace social.OpenData.UsersAPI
         /// </summary>
         /// <returns>The HashCode of this object.</returns>
         public override Int32 GetHashCode()
-            => InternalId.GetHashCode();
+
+            => InternalId?.GetHashCode() ?? 0;
 
         #endregion
 
@@ -402,7 +351,8 @@ namespace social.OpenData.UsersAPI
         /// Return a text representation of this object.
         /// </summary>
         public override String ToString()
-            => InternalId;
+
+            => InternalId ?? "";
 
         #endregion
 

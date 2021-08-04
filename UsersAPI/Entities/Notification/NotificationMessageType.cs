@@ -29,9 +29,9 @@ namespace social.OpenData.UsersAPI.Notifications
     /// <summary>
     /// The unique identification of a notification message type.
     /// </summary>
-    public struct NotificationMessageType : IId,
-                                            IEquatable<NotificationMessageType>,
-                                            IComparable<NotificationMessageType>
+    public readonly struct NotificationMessageType : IId,
+                                                     IEquatable<NotificationMessageType>,
+                                                     IComparable<NotificationMessageType>
 
     {
 
@@ -66,9 +66,9 @@ namespace social.OpenData.UsersAPI.Notifications
         /// Create a new notification message type based on the given string.
         /// </summary>
         /// <param name="String">The string representation of the notification identification.</param>
-        private NotificationMessageType(String  String)
+        private NotificationMessageType(String String)
         {
-            this.InternalId  = String;
+            this.InternalId = String;
         }
 
         #endregion
@@ -83,17 +83,13 @@ namespace social.OpenData.UsersAPI.Notifications
         public static NotificationMessageType Parse(String Text)
         {
 
-            #region Initial checks
-
-            if (Text != null)
-                Text = Text.Trim();
+            if (TryParse(Text, out NotificationMessageType notificationMessageType))
+                return notificationMessageType;
 
             if (Text.IsNullOrEmpty())
-                throw new ArgumentNullException(nameof(Text), "The given text representation of a notification identification must not be null or empty!");
+                throw new ArgumentNullException(nameof(Text), "The given text representation of a notification message type must not be null or empty!");
 
-            #endregion
-
-            return new NotificationMessageType(Text);
+            throw new ArgumentException("The given text representation of a notification message type is invalid!", nameof(Text));
 
         }
 
@@ -108,55 +104,40 @@ namespace social.OpenData.UsersAPI.Notifications
         public static NotificationMessageType? TryParse(String Text)
         {
 
-            #region Initial checks
+            if (TryParse(Text, out NotificationMessageType notificationMessageType))
+                return notificationMessageType;
 
-            if (Text != null)
-                Text = Text.Trim();
-
-            if (Text.IsNullOrEmpty())
-                throw new ArgumentNullException(nameof(Text), "The given text representation of a notification identification must not be null or empty!");
-
-            #endregion
-
-            if (TryParse(Text, out NotificationMessageType notificationId))
-                return notificationId;
-
-            return new NotificationMessageType?();
+            return null;
 
         }
 
         #endregion
 
-        #region (static) TryParse(Text, out NotificationId)
+        #region (static) TryParse(Text, out NotificationMessageType)
 
         /// <summary>
         /// Try to parse the given string as a notification identification.
         /// </summary>
         /// <param name="Text">A text representation of a notification identification.</param>
-        /// <param name="NotificationId">The parsed notification identification.</param>
-        public static Boolean TryParse(String Text, out NotificationMessageType NotificationId)
+        /// <param name="NotificationMessageType">The parsed notification identification.</param>
+        public static Boolean TryParse(String Text, out NotificationMessageType NotificationMessageType)
         {
 
-            #region Initial checks
+            Text = Text?.Trim();
 
-            if (Text != null)
-                Text = Text.Trim();
-
-            if (Text.IsNullOrEmpty())
-                throw new ArgumentNullException(nameof(Text), "The given text representation of a notification identification must not be null or empty!");
-
-            #endregion
-
-            try
+            if (Text.IsNotNullOrEmpty())
             {
-                NotificationId = new NotificationMessageType(Text);
-                return true;
+                try
+                {
+                    NotificationMessageType = new NotificationMessageType(Text);
+                    return true;
+                }
+                catch (Exception)
+                { }
             }
-            catch (Exception)
-            {
-                NotificationId = default;
-                return false;
-            }
+
+            NotificationMessageType = default;
+            return false;
 
         }
 
@@ -168,120 +149,109 @@ namespace social.OpenData.UsersAPI.Notifications
         /// Clone this notification identification.
         /// </summary>
         public NotificationMessageType Clone
-            => new NotificationMessageType(new String(InternalId.ToCharArray()));
+
+            => new NotificationMessageType(
+                   new String(InternalId.ToCharArray())
+               );
 
         #endregion
 
 
         #region Operator overloading
 
-        #region Operator == (NotificationId1, NotificationId2)
+        #region Operator == (NotificationMessageType1, NotificationMessageType2)
 
         /// <summary>
         /// Compares two instances of this object.
         /// </summary>
-        /// <param name="NotificationId1">A notification identification.</param>
-        /// <param name="NotificationId2">Another notification identification.</param>
+        /// <param name="NotificationMessageType1">A notification identification.</param>
+        /// <param name="NotificationMessageType2">Another notification identification.</param>
         /// <returns>true|false</returns>
-        public static Boolean operator == (NotificationMessageType NotificationId1, NotificationMessageType NotificationId2)
-        {
+        public static Boolean operator == (NotificationMessageType NotificationMessageType1,
+                                           NotificationMessageType NotificationMessageType2)
 
-            // If both are null, or both are same instance, return true.
-            if (Object.ReferenceEquals(NotificationId1, NotificationId2))
-                return true;
-
-            // If one is null, but not both, return false.
-            if (((Object) NotificationId1 == null) || ((Object) NotificationId2 == null))
-                return false;
-
-            return NotificationId1.Equals(NotificationId2);
-
-        }
+            => NotificationMessageType1.Equals(NotificationMessageType2);
 
         #endregion
 
-        #region Operator != (NotificationId1, NotificationId2)
+        #region Operator != (NotificationMessageType1, NotificationMessageType2)
 
         /// <summary>
         /// Compares two instances of this object.
         /// </summary>
-        /// <param name="NotificationId1">A notification identification.</param>
-        /// <param name="NotificationId2">Another notification identification.</param>
+        /// <param name="NotificationMessageType1">A notification identification.</param>
+        /// <param name="NotificationMessageType2">Another notification identification.</param>
         /// <returns>true|false</returns>
-        public static Boolean operator != (NotificationMessageType NotificationId1, NotificationMessageType NotificationId2)
-            => !(NotificationId1 == NotificationId2);
+        public static Boolean operator != (NotificationMessageType NotificationMessageType1,
+                                           NotificationMessageType NotificationMessageType2)
+
+            => !(NotificationMessageType1 == NotificationMessageType2);
 
         #endregion
 
-        #region Operator <  (NotificationId1, NotificationId2)
+        #region Operator <  (NotificationMessageType1, NotificationMessageType2)
 
         /// <summary>
         /// Compares two instances of this object.
         /// </summary>
-        /// <param name="NotificationId1">A notification identification.</param>
-        /// <param name="NotificationId2">Another notification identification.</param>
+        /// <param name="NotificationMessageType1">A notification identification.</param>
+        /// <param name="NotificationMessageType2">Another notification identification.</param>
         /// <returns>true|false</returns>
-        public static Boolean operator < (NotificationMessageType NotificationId1, NotificationMessageType NotificationId2)
-        {
+        public static Boolean operator < (NotificationMessageType NotificationMessageType1,
+                                          NotificationMessageType NotificationMessageType2)
 
-            if ((Object) NotificationId1 == null)
-                throw new ArgumentNullException(nameof(NotificationId1), "The given NotificationId1 must not be null!");
-
-            return NotificationId1.CompareTo(NotificationId2) < 0;
-
-        }
+            => NotificationMessageType1.CompareTo(NotificationMessageType2) < 0;
 
         #endregion
 
-        #region Operator <= (NotificationId1, NotificationId2)
+        #region Operator <= (NotificationMessageType1, NotificationMessageType2)
 
         /// <summary>
         /// Compares two instances of this object.
         /// </summary>
-        /// <param name="NotificationId1">A notification identification.</param>
-        /// <param name="NotificationId2">Another notification identification.</param>
+        /// <param name="NotificationMessageType1">A notification identification.</param>
+        /// <param name="NotificationMessageType2">Another notification identification.</param>
         /// <returns>true|false</returns>
-        public static Boolean operator <= (NotificationMessageType NotificationId1, NotificationMessageType NotificationId2)
-            => !(NotificationId1 > NotificationId2);
+        public static Boolean operator <= (NotificationMessageType NotificationMessageType1,
+                                           NotificationMessageType NotificationMessageType2)
+
+            => NotificationMessageType1.CompareTo(NotificationMessageType2) <= 0;
 
         #endregion
 
-        #region Operator >  (NotificationId1, NotificationId2)
+        #region Operator >  (NotificationMessageType1, NotificationMessageType2)
 
         /// <summary>
         /// Compares two instances of this object.
         /// </summary>
-        /// <param name="NotificationId1">A notification identification.</param>
-        /// <param name="NotificationId2">Another notification identification.</param>
+        /// <param name="NotificationMessageType1">A notification identification.</param>
+        /// <param name="NotificationMessageType2">Another notification identification.</param>
         /// <returns>true|false</returns>
-        public static Boolean operator > (NotificationMessageType NotificationId1, NotificationMessageType NotificationId2)
-        {
+        public static Boolean operator > (NotificationMessageType NotificationMessageType1,
+                                          NotificationMessageType NotificationMessageType2)
 
-            if ((Object) NotificationId1 == null)
-                throw new ArgumentNullException(nameof(NotificationId1), "The given NotificationId1 must not be null!");
-
-            return NotificationId1.CompareTo(NotificationId2) > 0;
-
-        }
+            => NotificationMessageType1.CompareTo(NotificationMessageType2) > 0;
 
         #endregion
 
-        #region Operator >= (NotificationId1, NotificationId2)
+        #region Operator >= (NotificationMessageType1, NotificationMessageType2)
 
         /// <summary>
         /// Compares two instances of this object.
         /// </summary>
-        /// <param name="NotificationId1">A notification identification.</param>
-        /// <param name="NotificationId2">Another notification identification.</param>
+        /// <param name="NotificationMessageType1">A notification identification.</param>
+        /// <param name="NotificationMessageType2">Another notification identification.</param>
         /// <returns>true|false</returns>
-        public static Boolean operator >= (NotificationMessageType NotificationId1, NotificationMessageType NotificationId2)
-            => !(NotificationId1 < NotificationId2);
+        public static Boolean operator >= (NotificationMessageType NotificationMessageType1,
+                                           NotificationMessageType NotificationMessageType2)
+
+            => NotificationMessageType1.CompareTo(NotificationMessageType2) >= 0;
 
         #endregion
 
         #endregion
 
-        #region IComparable<NotificationId> Members
+        #region IComparable<NotificationMessageType> Members
 
         #region CompareTo(Object)
 
@@ -290,41 +260,31 @@ namespace social.OpenData.UsersAPI.Notifications
         /// </summary>
         /// <param name="Object">An object to compare with.</param>
         public Int32 CompareTo(Object Object)
-        {
 
-            if (Object == null)
-                throw new ArgumentNullException(nameof(Object), "The given object must not be null!");
-
-            if (!(Object is NotificationMessageType NotificationId))
-                throw new ArgumentException("The given object is not a notification identification!");
-
-            return CompareTo(NotificationId);
-
-        }
+            => Object is NotificationMessageType notificationMessageType
+                   ? CompareTo(notificationMessageType)
+                   : throw new ArgumentException("The given object is not a notification message type!",
+                                                 nameof(Object));
 
         #endregion
 
-        #region CompareTo(NotificationId)
+        #region CompareTo(NotificationMessageType)
 
         /// <summary>
         /// Compares two instances of this object.
         /// </summary>
-        /// <param name="NotificationId">An object to compare with.</param>
-        public Int32 CompareTo(NotificationMessageType NotificationId)
-        {
+        /// <param name="NotificationMessageType">An object to compare with.</param>
+        public Int32 CompareTo(NotificationMessageType NotificationMessageType)
 
-            if ((Object) NotificationId == null)
-                throw new ArgumentNullException(nameof(NotificationId),  "The given notification identification must not be null!");
-
-            return String.Compare(InternalId, NotificationId.InternalId, StringComparison.Ordinal);
-
-        }
+            => String.Compare(InternalId,
+                              NotificationMessageType.InternalId,
+                              StringComparison.OrdinalIgnoreCase);
 
         #endregion
 
         #endregion
 
-        #region IEquatable<NotificationId> Members
+        #region IEquatable<NotificationMessageType> Members
 
         #region Equals(Object)
 
@@ -334,36 +294,24 @@ namespace social.OpenData.UsersAPI.Notifications
         /// <param name="Object">An object to compare with.</param>
         /// <returns>true|false</returns>
         public override Boolean Equals(Object Object)
-        {
 
-            if (Object == null)
-                return false;
-
-            if (!(Object is NotificationMessageType NotificationId))
-                return false;
-
-            return Equals(NotificationId);
-
-        }
+            => Object is NotificationMessageType notificationMessageType &&
+                   Equals(notificationMessageType);
 
         #endregion
 
-        #region Equals(NotificationId)
+        #region Equals(NotificationMessageType)
 
         /// <summary>
         /// Compares two notification identifications for equality.
         /// </summary>
-        /// <param name="NotificationId">An notification identification to compare with.</param>
+        /// <param name="NotificationMessageType">An notification identification to compare with.</param>
         /// <returns>True if both match; False otherwise.</returns>
-        public Boolean Equals(NotificationMessageType NotificationId)
-        {
+        public Boolean Equals(NotificationMessageType NotificationMessageType)
 
-            if ((Object) NotificationId == null)
-                return false;
-
-            return InternalId.Equals(NotificationId.InternalId, StringComparison.OrdinalIgnoreCase);
-
-        }
+            => String.Equals(InternalId,
+                             NotificationMessageType.InternalId,
+                             StringComparison.OrdinalIgnoreCase);
 
         #endregion
 
@@ -376,7 +324,9 @@ namespace social.OpenData.UsersAPI.Notifications
         /// </summary>
         /// <returns>The HashCode of this object.</returns>
         public override Int32 GetHashCode()
-            => InternalId.ToLower().GetHashCode();
+
+            => InternalId?.ToLower().
+                           GetHashCode() ?? 0;
 
         #endregion
 
@@ -386,7 +336,8 @@ namespace social.OpenData.UsersAPI.Notifications
         /// Return a text representation of this object.
         /// </summary>
         public override String ToString()
-            => InternalId;
+
+            => InternalId ?? "";
 
         #endregion
 

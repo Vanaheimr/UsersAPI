@@ -39,6 +39,11 @@ namespace social.OpenData.UsersAPI.Notifications
         Guests
     }
 
+    public enum NotificationTag
+    {
+        NewUserDefault
+    }
+
 
     public class NotificationMessageGroup
     {
@@ -122,20 +127,51 @@ namespace social.OpenData.UsersAPI.Notifications
 
         public NotificationVisibility                Visibility     { get; }
 
+        public IEnumerable<NotificationTag>          Tags           { get; }
+
         public IEnumerable<NotificationMessageType>  Messages       { get; }
 
         #endregion
 
         #region Constructor(s)
 
-        public NotificationMessageDescription(I18NString               Title,
-                                              I18NString               Description,
-                                              NotificationVisibility   Visibility,
-                                              NotificationMessageType  Message)
+        public NotificationMessageDescription(I18NString                    Title,
+                                              I18NString                    Description,
+                                              NotificationVisibility        Visibility,
+                                              NotificationMessageType       Message)
 
             : this(Title,
                    Description,
                    Visibility,
+                   new NotificationTag[0],
+                   new NotificationMessageType[] { Message })
+
+        { }
+
+        public NotificationMessageDescription(I18NString                    Title,
+                                              I18NString                    Description,
+                                              NotificationVisibility        Visibility,
+                                              NotificationTag               Tag,
+                                              NotificationMessageType       Message)
+
+            : this(Title,
+                   Description,
+                   Visibility,
+                   new NotificationTag[] { Tag },
+                   new NotificationMessageType[] { Message })
+
+        { }
+
+        public NotificationMessageDescription(I18NString                    Title,
+                                              I18NString                    Description,
+                                              NotificationVisibility        Visibility,
+                                              IEnumerable<NotificationTag>  Tags,
+                                              NotificationMessageType       Message)
+
+            : this(Title,
+                   Description,
+                   Visibility,
+                   Tags,
                    new NotificationMessageType[] { Message })
 
         { }
@@ -143,18 +179,19 @@ namespace social.OpenData.UsersAPI.Notifications
         public NotificationMessageDescription(I18NString                            Title,
                                               I18NString                            Description,
                                               NotificationVisibility                Visibility,
+                                              IEnumerable<NotificationTag>          Tags,
                                               IEnumerable<NotificationMessageType>  Messages)
         {
 
             #region Initial checks
 
-            if (Title.IsNullOrEmpty())
-                throw new ArgumentNullException(nameof(Title),     "The given multi-language headline string must not be null or empty!");
+            if (Title.      IsNullOrEmpty())
+                throw new ArgumentNullException(nameof(Title),        "The given multi-language headline string must not be null or empty!");
 
-            if (Description == null)
+            if (Description.IsNullOrEmpty())
                 throw new ArgumentNullException(nameof(Description),  "The given multi-language description string must not be null or empty!");
 
-            if (Messages.IsNullOrEmpty())
+            if (Messages.   IsNullOrEmpty())
                 throw new ArgumentNullException(nameof(Messages),     "The given enumeration of notification messages must not be null or empty!");
 
             #endregion
@@ -162,6 +199,7 @@ namespace social.OpenData.UsersAPI.Notifications
             this.Title        = Title;
             this.Description  = Description;
             this.Visibility   = Visibility;
+            this.Tags         = Tags ?? new NotificationTag[0];
             this.Messages     = Messages;
 
         }
@@ -182,6 +220,10 @@ namespace social.OpenData.UsersAPI.Notifications
                        : null,
 
                          new JProperty("visibility",   Visibility.ToString().ToLower()),
+
+                   Tags.SafeAny()
+                       ? new JProperty("tags",         new JArray(Tags.Select(tag => tag.ToString())))
+                       : null,
 
                    Messages.SafeAny()
                        ? new JProperty("messages",     new JArray(Messages.Select(message => message.ToString())))
