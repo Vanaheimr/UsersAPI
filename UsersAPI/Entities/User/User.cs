@@ -631,7 +631,7 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
-        #region Edges(Organization)
+        #region Edges     (Organization)
 
         /// <summary>
         /// All organizations this user belongs to,

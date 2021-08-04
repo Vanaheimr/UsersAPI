@@ -26,7 +26,6 @@ using System.Diagnostics;
 using System.Net.Security;
 using System.Globalization;
 using System.Threading.Tasks;
-using System.Reflection;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.Collections.Concurrent;
@@ -40,6 +39,13 @@ using Newtonsoft.Json.Linq;
 
 using Telegram.Bot;
 
+using Org.BouncyCastle.Security;
+using Org.BouncyCastle.Crypto.Parameters;
+using Org.BouncyCastle.Crypto;
+using Org.BouncyCastle.X509;
+using Org.BouncyCastle.Asn1.Sec;
+using Org.BouncyCastle.Math;
+using Org.BouncyCastle.Asn1.X9;
 using Org.BouncyCastle.Bcpg.OpenPgp;
 
 using org.GraphDefined.Vanaheimr.Illias;
@@ -53,6 +59,7 @@ using org.GraphDefined.Vanaheimr.Hermod.Sockets.TCP;
 using org.GraphDefined.Vanaheimr.Hermod.Sockets;
 using org.GraphDefined.Vanaheimr.Aegir;
 using org.GraphDefined.Vanaheimr.Warden;
+using org.GraphDefined.Vanaheimr.BouncyCastle;
 
 using social.OpenData.UsersAPI;
 using social.OpenData.UsersAPI.Postings;
@@ -60,10 +67,6 @@ using social.OpenData.UsersAPI.Notifications;
 
 using com.GraphDefined.SMSApi.API;
 using com.GraphDefined.SMSApi.API.Response;
-
-using Org.BouncyCastle.Security;
-using Org.BouncyCastle.Crypto.Parameters;
-using org.GraphDefined.Vanaheimr.BouncyCastle;
 
 #endregion
 
@@ -898,7 +901,7 @@ namespace social.OpenData.UsersAPI
 
 
     /// <summary>
-    /// A library for managing users within and HTTP API or website.
+    /// Managing users and organizations within a HTTP API.
     /// </summary>
     public class UsersAPI : HTTPAPI
     {
@@ -932,12 +935,12 @@ namespace social.OpenData.UsersAPI
 
         #region Data
 
-        public  const             String                                        DefaultUsersAPI_LoggingPath        = "default";
-        public  const             String                                        DefaultUsersAPI_DatabaseFileName   = "UsersAPI.db";
-        public  const             String                                        DefaultUsersAPI_LogfileName        = "UsersAPI.log";
-        public  const             String                                        DefaultPasswordFile                = "passwords.db";
-        public  const             String                                        DefaultHTTPCookiesFile             = "HTTPCookies.db";
-        public  const             String                                        DefaultPasswordResetsFile          = "passwordResets.db";
+        public const String  DefaultUsersAPI_LoggingPath        = "default";
+        public const String  DefaultUsersAPI_DatabaseFileName   = "UsersAPI.db";
+        public const String  DefaultUsersAPI_LogfileName        = "UsersAPI.log";
+        public const String  DefaultPasswordFile                = "passwords.db";
+        public const String  DefaultHTTPCookiesFile             = "HTTPCookies.db";
+        public const String  DefaultPasswordResetsFile          = "passwordResets.db";
 
         /// <summary>
         /// The default maintenance interval.
@@ -1031,55 +1034,6 @@ namespace social.OpenData.UsersAPI
         protected static readonly     String[]                   Split3                             = { " " };
         protected static readonly     Char[]                     Split4                             = { ',' };
         protected static readonly     Char[]                     Split5                             = { '|' };
-
-        #endregion
-
-        #region (static) NotificationMessageTypes
-
-        public static NotificationMessageType addServiceTicket_MessageType             = NotificationMessageType.Parse("addServiceTicket");
-        public static NotificationMessageType addServiceTicketIfNotExists_MessageType  = NotificationMessageType.Parse("addServiceTicketIfNotExists");
-        public static NotificationMessageType addOrUpdateServiceTicket_MessageType     = NotificationMessageType.Parse("addOrUpdateServiceTicket");
-        public static NotificationMessageType updateServiceTicket_MessageType          = NotificationMessageType.Parse("updateServiceTicket");
-        public static NotificationMessageType removeServiceTicket_MessageType          = NotificationMessageType.Parse("removeServiceTicket");
-        public static NotificationMessageType changeServiceTicketStatus_MessageType    = NotificationMessageType.Parse("changeServiceTicketStatus");
-
-        public static NotificationMessageType addNewsPosting_MessageType               = NotificationMessageType.Parse("addNewsPosting");
-        public static NotificationMessageType addNewsPostingIfNotExists_MessageType    = NotificationMessageType.Parse("addNewsPostingIfNotExists");
-        public static NotificationMessageType addOrUpdateNewsPosting_MessageType       = NotificationMessageType.Parse("addOrUpdateNewsPosting");
-        public static NotificationMessageType updateNewsPosting_MessageType            = NotificationMessageType.Parse("updateNewsPosting");
-        public static NotificationMessageType removeNewsPosting_MessageType            = NotificationMessageType.Parse("removeNewsPosting");
-
-        public static NotificationMessageType addNewsBanner_MessageType                = NotificationMessageType.Parse("addNewsBanner");
-        public static NotificationMessageType addNewsBannerIfNotExists_MessageType     = NotificationMessageType.Parse("addNewsBannerIfNotExists");
-        public static NotificationMessageType addOrUpdateNewsBanner_MessageType        = NotificationMessageType.Parse("addOrUpdateNewsBanner");
-        public static NotificationMessageType updateNewsBanner_MessageType             = NotificationMessageType.Parse("updateNewsBanner");
-        public static NotificationMessageType removeNewsBanner_MessageType             = NotificationMessageType.Parse("removeNewsBanner");
-
-        public static NotificationMessageType addFAQ_MessageType                       = NotificationMessageType.Parse("addFAQ");
-        public static NotificationMessageType addFAQIfNotExists_MessageType            = NotificationMessageType.Parse("addFAQIfNotExists");
-        public static NotificationMessageType addOrUpdateFAQ_MessageType               = NotificationMessageType.Parse("addOrUpdateFAQ");
-        public static NotificationMessageType updateFAQ_MessageType                    = NotificationMessageType.Parse("updateFAQ");
-        public static NotificationMessageType removeFAQ_MessageType                    = NotificationMessageType.Parse("removeFAQ");
-        public static NotificationMessageType changeFAQAdminStatus_MessageType         = NotificationMessageType.Parse("changeFAQAdminStatus");
-        public static NotificationMessageType changeFAQStatus_MessageType              = NotificationMessageType.Parse("changeFAQStatus");
-
-        public static NotificationMessageType addUser_MessageType                      = NotificationMessageType.Parse("addUser");
-        public static NotificationMessageType addUserIfNotExists_MessageType           = NotificationMessageType.Parse("addUserIfNotExists");
-        public static NotificationMessageType addOrUpdateUser_MessageType              = NotificationMessageType.Parse("addOrUpdateUser");
-        public static NotificationMessageType updateUser_MessageType                   = NotificationMessageType.Parse("updateUser");
-        public static NotificationMessageType removeUser_MessageType                   = NotificationMessageType.Parse("removeUser");
-
-        public static NotificationMessageType addOrganization_MessageType              = NotificationMessageType.Parse("addOrganization");
-        public static NotificationMessageType addOrganizationIfNotExists_MessageType   = NotificationMessageType.Parse("addOrganizationIfNotExists");
-        public static NotificationMessageType addOrUpdateOrganization_MessageType      = NotificationMessageType.Parse("addOrUpdateOrganization");
-        public static NotificationMessageType updateOrganization_MessageType           = NotificationMessageType.Parse("updateOrganization");
-        public static NotificationMessageType removeOrganization_MessageType           = NotificationMessageType.Parse("removeOrganization");
-
-        public static NotificationMessageType addUserToOrganization_MessageType        = NotificationMessageType.Parse("addUserToOrganization");
-        public static NotificationMessageType removeUserFromOrganization_MessageType   = NotificationMessageType.Parse("removeUserFromOrganization");
-
-        public static NotificationMessageType linkOrganizations_MessageType            = NotificationMessageType.Parse("linkOrganizations");
-        public static NotificationMessageType unlinkOrganizations_MessageType          = NotificationMessageType.Parse("unlinkOrganizations");
 
         #endregion
 
@@ -1310,12 +1264,12 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
-        #region MinLoginLength
+        #region MinUserIdLength
 
         /// <summary>
-        /// The minimal login length.
+        /// The minimal user identification length.
         /// </summary>
-        public Byte MinLoginLength { get; }
+        public Byte MinUserIdLength { get; }
 
         #endregion
 
@@ -1376,168 +1330,6 @@ namespace social.OpenData.UsersAPI
         public ECPrivateKeyParameters    ServiceCheckPrivateKey         { get; set; }
 
         public ECPublicKeyParameters     ServiceCheckPublicKey          { get; set; }
-
-        #endregion
-
-        #region E-Mail delegates
-
-        #region E-Mail headers / footers
-
-        /// <summary>
-        /// The common header of HTML notification e-mails.
-        /// </summary>
-        public Func<String, HTTPPath?, String> HTMLEMailHeader = (ExternalDNSName, BasePath) => "";
-
-        /// <summary>
-        /// The common footer of HTML notification e-mails.
-        /// </summary>
-        public Func<String, HTTPPath?, String> HTMLEMailFooter = (ExternalDNSName, BasePath) => "";
-
-        /// <summary>
-        /// The common header of plain text notification e-mails.
-        /// </summary>
-        public Func<String, HTTPPath?, String> TextEMailHeader = (ExternalDNSName, BasePath) => "";
-
-        /// <summary>
-        /// The common footer of plain text notification e-mails.
-        /// </summary>
-        public Func<String, HTTPPath?, String> TextEMailFooter = (ExternalDNSName, BasePath) => "";
-
-        #endregion
-
-
-        //#region NewServiceTicketMessageReceivedDelegate
-
-        ///// <summary>
-        ///// A delegate for sending e-mail notifications about received service ticket messages to users.
-        ///// </summary>
-        //public delegate EMail NewServiceTicketMessageReceivedDelegate(ServiceTicket    ParsedMessage,
-        //                                                              EMailAddressList  EMailRecipients);
-
-        //private static readonly Func<String, HTTPPath?, EMailAddress, String, NewServiceTicketMessageReceivedDelegate>
-
-        //    __NewServiceTicketMessageReceivedDelegate = (ExternalDNSName,
-        //                                                 BasePath,
-        //                                                 APIEMailAddress,
-        //                                                 APIPassphrase)
-
-        //        => (ParsedMessage,
-        //            EMailRecipients)
-
-        //            =>  new HTMLEMailBuilder() {
-
-        //                    From            = APIEMailAddress,
-        //                    To              = EMailAddressListBuilder.Create(EMailRecipients),
-        //                    Passphrase      = APIPassphrase,
-        //                    Subject         = "...", //ParsedMessage.EMailSubject,
-
-        //                    HTMLText        = HTMLEMailHeader( +
-        //                                          //ParsedMessage.EMailBody.Replace("\r\n", "<br />\r\n") + Environment.NewLine +
-        //                                      HTMLEMailFooter,
-
-        //                    PlainText       = TextEMailHeader +
-        //                                          //ParsedMessage.EMailBody + Environment.NewLine +
-        //                                      TextEMailFooter,
-
-        //                    SecurityLevel   = EMailSecurity.sign
-
-        //                };
-
-        //#endregion
-
-        //#region ServiceTicketStatusChangedEMailDelegate
-
-        ///// <summary>
-        ///// A delegate for sending e-mail notifications about service ticket status changes to users.
-        ///// </summary>
-        //public delegate EMail ServiceTicketStatusChangedEMailDelegate(ServiceTicket                         ServiceTicket,
-        //                                                              Timestamped<ServiceTicketStatusTypes>  OldStatus,
-        //                                                              Timestamped<ServiceTicketStatusTypes>  NewStatus,
-        //                                                              EMailAddressList                       EMailRecipients);
-
-        //private static readonly Func<String, HTTPPath?, EMailAddress, String, ServiceTicketStatusChangedEMailDelegate>
-
-        //    __ServiceTicketStatusChangedEMailDelegate = (ExternalDNSName,
-        //                                                 BasePath,
-        //                                                 APIEMailAddress,
-        //                                                 APIPassphrase)
-
-        //        => (ServiceTicket,
-        //            OldStatus,
-        //            NewStatus,
-        //            EMailRecipients)
-
-        //            => new HTMLEMailBuilder() {
-
-        //                From           = APIEMailAddress,
-        //                To             = EMailAddressListBuilder.Create(EMailRecipients),
-        //                Passphrase     = APIPassphrase,
-        //                Subject        = String.Concat("ServiceTicket '",        ServiceTicket.Id,
-        //                                               "' status change from '", OldStatus.Value,
-        //                                               " to '",                  NewStatus.Value, "'!"),
-
-        //                HTMLText       = String.Concat(HTMLEMailHeader(ExternalDNSName, BasePath),
-        //                                               "The status of service ticket <b>'", ServiceTicket.Id, "'</b> (Owner: '", ServiceTicket.Author,
-        //                                               "'), changed from <i>'", OldStatus.Value, "'</i> (since ", OldStatus.Timestamp.ToIso8601(), ") ",
-        //                                               " to <i>'", NewStatus.Value, "'</i>!<br /><br />",
-        //                                               HTMLEMailFooter(ExternalDNSName, BasePath)),
-
-        //                PlainText      = String.Concat(TextEMailHeader(ExternalDNSName, BasePath),
-        //                                               "The status of service ticket '", ServiceTicket.Id, "' (Owner: '", ServiceTicket.Author,
-        //                                               "'), changed from '", OldStatus.Value, "' (since ", OldStatus.Timestamp.ToIso8601(), ") ",
-        //                                               " to '", NewStatus.Value, "'!\r\r\r\r",
-        //                                               TextEMailFooter(ExternalDNSName, BasePath)),
-
-        //                SecurityLevel  = EMailSecurity.sign
-
-        //            };
-
-        //#endregion
-
-        //#region ServiceTicketChangedEMailDelegate
-
-        ///// <summary>
-        ///// A delegate for sending e-mail notifications about service ticket changes to users.
-        ///// </summary>
-        //public delegate EMail ServiceTicketChangedEMailDelegate(ServiceTicket             ServiceTicket,
-        //                                                        NotificationMessageType    MessageType,
-        //                                                        NotificationMessageType[]  AdditionalMessageTypes,
-        //                                                        EMailAddressList           EMailRecipients);
-
-        //private static readonly Func<String, HTTPPath?, EMailAddress, String, ServiceTicketChangedEMailDelegate>
-
-        //    __ServiceTicketChangedEMailDelegate = (ExternalDNSName,
-        //                                           BasePath,
-        //                                           APIEMailAddress,
-        //                                           APIPassphrase)
-
-        //        => (ServiceTicket,
-        //            MessageType,
-        //            AdditionalMessageTypes,
-        //            EMailRecipients)
-
-        //            => new HTMLEMailBuilder() {
-
-        //                From           = APIEMailAddress,
-        //                To             = EMailAddressListBuilder.Create(EMailRecipients),
-        //                Passphrase     = APIPassphrase,
-        //                Subject        = String.Concat("ServiceTicket data '", ServiceTicket.Id, "' was changed'!"),
-
-        //                HTMLText       = String.Concat(HTMLEMailHeader,
-        //                                               "The data of service ticket <b>'", ServiceTicket.Id, "'</b> (Owner: '", ServiceTicket.Author,
-        //                                               "') was changed!<br /><br />",
-        //                                               HTMLEMailFooter),
-
-        //                PlainText      = String.Concat(TextEMailHeader,
-        //                                               "The data of service ticket '", ServiceTicket.Id, "' (Owner: '", ServiceTicket.Author,
-        //                                               "') was changed!\r\r\r\r",
-        //                                               TextEMailFooter),
-
-        //                SecurityLevel  = EMailSecurity.sign
-
-        //            };
-
-        //#endregion
 
         #endregion
 
@@ -2654,7 +2446,7 @@ namespace social.OpenData.UsersAPI
             this.NewUserWelcomeEMailCreator   = NewUserWelcomeEMailCreator  ?? throw new ArgumentNullException(nameof(NewUserWelcomeEMailCreator),  "NewUserWelcomeEMailCreator!");
             this.ResetPasswordEMailCreator    = ResetPasswordEMailCreator   ?? throw new ArgumentNullException(nameof(ResetPasswordEMailCreator),   "ResetPasswordEMailCreator!");
             this.PasswordChangedEMailCreator  = PasswordChangedEMailCreator ?? throw new ArgumentNullException(nameof(PasswordChangedEMailCreator), "PasswordChangedEMailCreator!");
-            this.MinLoginLength               = MinLoginLength              ?? DefaultMinLoginLength;
+            this.MinUserIdLength               = MinLoginLength              ?? DefaultMinLoginLength;
             this.MinRealmLength               = MinRealmLength              ?? DefaultMinRealmLength;
             this.MinUserNameLength            = MinUserNameLength           ?? DefaultMinUserNameLength;
             this.PasswordQualityCheck         = PasswordQualityCheck        ?? DefaultPasswordQualityCheck;
@@ -3011,6 +2803,601 @@ namespace social.OpenData.UsersAPI
         #endregion
 
 
+        #region (Timer) DoMaintenance(State)
+
+        private void DoMaintenance(Object State)
+        {
+
+            if (!DisableMaintenanceTasks)
+                DoMaintenanceAsync(State).Wait();
+
+            else
+                DebugX.LogT("Maintenance tasks are disabled!");
+
+        }
+
+        private async Task DoMaintenanceAsync(Object State)
+        {
+
+            // Do not wait! Skip this round if the previous is still busy!
+            var LockTaken = await MaintenanceLock.WaitAsync(0).ConfigureAwait(false);
+
+            try
+            {
+
+                if (LockTaken)
+                {
+
+                    DoSubmaintenanceTasks?.Invoke(State);
+
+                }
+
+            }
+            catch (Exception e)
+            {
+
+                while (e.InnerException != null)
+                    e = e.InnerException;
+
+                DebugX.LogT(GetType().Name + ".DoMaintenance() led to an exception: " + e.Message + Environment.NewLine + e.StackTrace);
+
+                //OnAPIException?.Invoke(DateTime.UtcNow,
+                //                       this,
+                //                       e);
+
+            }
+
+            finally
+            {
+
+                if (LockTaken)
+                    MaintenanceLock.Release();
+
+                else
+                    DebugX.LogT("Could not aquire the maintenance tasks lock!");
+
+            }
+
+        }
+
+        #endregion
+
+
+        #region Notifications...
+
+        #region (static) NotificationMessageTypes
+
+        public static NotificationMessageType addServiceTicket_MessageType             = NotificationMessageType.Parse("addServiceTicket");
+        public static NotificationMessageType addServiceTicketIfNotExists_MessageType  = NotificationMessageType.Parse("addServiceTicketIfNotExists");
+        public static NotificationMessageType addOrUpdateServiceTicket_MessageType     = NotificationMessageType.Parse("addOrUpdateServiceTicket");
+        public static NotificationMessageType updateServiceTicket_MessageType          = NotificationMessageType.Parse("updateServiceTicket");
+        public static NotificationMessageType removeServiceTicket_MessageType          = NotificationMessageType.Parse("removeServiceTicket");
+        public static NotificationMessageType changeServiceTicketStatus_MessageType    = NotificationMessageType.Parse("changeServiceTicketStatus");
+
+        public static NotificationMessageType addNewsPosting_MessageType               = NotificationMessageType.Parse("addNewsPosting");
+        public static NotificationMessageType addNewsPostingIfNotExists_MessageType    = NotificationMessageType.Parse("addNewsPostingIfNotExists");
+        public static NotificationMessageType addOrUpdateNewsPosting_MessageType       = NotificationMessageType.Parse("addOrUpdateNewsPosting");
+        public static NotificationMessageType updateNewsPosting_MessageType            = NotificationMessageType.Parse("updateNewsPosting");
+        public static NotificationMessageType removeNewsPosting_MessageType            = NotificationMessageType.Parse("removeNewsPosting");
+
+        public static NotificationMessageType addNewsBanner_MessageType                = NotificationMessageType.Parse("addNewsBanner");
+        public static NotificationMessageType addNewsBannerIfNotExists_MessageType     = NotificationMessageType.Parse("addNewsBannerIfNotExists");
+        public static NotificationMessageType addOrUpdateNewsBanner_MessageType        = NotificationMessageType.Parse("addOrUpdateNewsBanner");
+        public static NotificationMessageType updateNewsBanner_MessageType             = NotificationMessageType.Parse("updateNewsBanner");
+        public static NotificationMessageType removeNewsBanner_MessageType             = NotificationMessageType.Parse("removeNewsBanner");
+
+        public static NotificationMessageType addFAQ_MessageType                       = NotificationMessageType.Parse("addFAQ");
+        public static NotificationMessageType addFAQIfNotExists_MessageType            = NotificationMessageType.Parse("addFAQIfNotExists");
+        public static NotificationMessageType addOrUpdateFAQ_MessageType               = NotificationMessageType.Parse("addOrUpdateFAQ");
+        public static NotificationMessageType updateFAQ_MessageType                    = NotificationMessageType.Parse("updateFAQ");
+        public static NotificationMessageType removeFAQ_MessageType                    = NotificationMessageType.Parse("removeFAQ");
+        public static NotificationMessageType changeFAQAdminStatus_MessageType         = NotificationMessageType.Parse("changeFAQAdminStatus");
+        public static NotificationMessageType changeFAQStatus_MessageType              = NotificationMessageType.Parse("changeFAQStatus");
+
+        public static NotificationMessageType addUser_MessageType                      = NotificationMessageType.Parse("addUser");
+        public static NotificationMessageType addUserIfNotExists_MessageType           = NotificationMessageType.Parse("addUserIfNotExists");
+        public static NotificationMessageType addOrUpdateUser_MessageType              = NotificationMessageType.Parse("addOrUpdateUser");
+        public static NotificationMessageType updateUser_MessageType                   = NotificationMessageType.Parse("updateUser");
+        public static NotificationMessageType removeUser_MessageType                   = NotificationMessageType.Parse("removeUser");
+
+        public static NotificationMessageType addOrganization_MessageType              = NotificationMessageType.Parse("addOrganization");
+        public static NotificationMessageType addOrganizationIfNotExists_MessageType   = NotificationMessageType.Parse("addOrganizationIfNotExists");
+        public static NotificationMessageType addOrUpdateOrganization_MessageType      = NotificationMessageType.Parse("addOrUpdateOrganization");
+        public static NotificationMessageType updateOrganization_MessageType           = NotificationMessageType.Parse("updateOrganization");
+        public static NotificationMessageType removeOrganization_MessageType           = NotificationMessageType.Parse("removeOrganization");
+
+        public static NotificationMessageType addUserToOrganization_MessageType        = NotificationMessageType.Parse("addUserToOrganization");
+        public static NotificationMessageType removeUserFromOrganization_MessageType   = NotificationMessageType.Parse("removeUserFromOrganization");
+
+        public static NotificationMessageType linkOrganizations_MessageType            = NotificationMessageType.Parse("linkOrganizations");
+        public static NotificationMessageType unlinkOrganizations_MessageType          = NotificationMessageType.Parse("unlinkOrganizations");
+
+        #endregion
+
+        #region E-Mail headers / footers
+
+        /// <summary>
+        /// The type of e-mails send.
+        /// This might influence the content of the common e-mail headers and footers.
+        /// </summary>
+        public enum EMailType
+        {
+
+            /// <summary>
+            /// A normal e-mail.
+            /// </summary>
+            Normal,
+
+            /// <summary>
+            /// A system e-mail.
+            /// </summary>
+            System,
+
+            /// <summary>
+            /// A notification e-mail.
+            /// </summary>
+            Notification
+
+        }
+
+        /// <summary>
+        /// The common header of HTML notification e-mails.
+        /// </summary>
+        public Func<String, HTTPPath?, EMailType, String>
+
+            HTMLEMailHeader = (ExternalDNSName,
+                               BasePath,
+                               EMailType)
+
+                => String.Concat("<!DOCTYPE html>\r\n",
+                                 "<html>\r\n",
+                                   "<head>\r\n",
+                                       "<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\" />\r\n",
+                                   "</head>\r\n",
+                                   "<body style=\"background-color: #ececec\">\r\n",
+                                     "<div style=\"width: 600px\">\r\n",
+                                       "<div style=\"border-bottom: 1px solid #AAAAAA; margin-bottom: 20px\">\r\n",
+                                           "<img src=\"", ExternalDNSName, (BasePath?.ToString() ?? ""), "\" style=\"width: 250px; padding-right: 10px\" alt=\"CardiLink\">\r\n",
+                                       "</div>\r\n",
+                                       "<div style=\"border-bottom: 1px solid #AAAAAA; padding-left: 6px; padding-bottom: 40px; margin-bottom: 10px;\">\r\n");
+
+        /// <summary>
+        /// The common footer of HTML notification e-mails.
+        /// </summary>
+        public Func<String, HTTPPath?, EMailType, String>
+
+            HTMLEMailFooter = (ExternalDNSName,
+                               BasePath,
+                               EMailType)
+
+                => String.Concat(      "</div>\r\n",
+                                       EMailType == EMailType.Notification
+                                           ? "<div style=\"color: #AAAAAA; font-size: 80%; padding-bottom: 10px\">\r\n" +
+                                                 "If you no longer wish to receive this kind of notification e-mails you can unsubscribe <a href=\"https://" + ExternalDNSName + (BasePath?.ToString() ?? "") + "/notifications\">here</a>.<br />\r\n" +
+                                             "</div>\r\n"
+                                           : "",
+                                       "<div style=\"color: #AAAAAA; font-size: 70%\">\r\n",
+                                           "(c) GraphDefined GmbH<br />\r\n",
+                                       "</div>\r\n",
+                                     "</div>\r\n",
+                                   "</body>\r\n",
+                                 "</html>\r\n\r\n");
+
+
+        /// <summary>
+        /// The common header of plain text notification e-mails.
+        /// </summary>
+        public Func<String, HTTPPath?, EMailType, String>
+
+            TextEMailHeader = (ExternalDNSName,
+                               BasePath,
+                               EMailType)
+
+                => String.Concat("GraphDefined Users API\r\n",
+                                 "----------------------\r\n\r\n");
+
+        /// <summary>
+        /// The common footer of plain text notification e-mails.
+        /// </summary>
+        public Func<String, HTTPPath?, EMailType, String>
+
+            TextEMailFooter = (ExternalDNSName,
+                               BasePath,
+                               EMailType)
+
+                => String.Concat("\r\n\r\n---------------------------------------------------------------\r\n",
+                                 EMailType == EMailType.Notification
+                                     ? "If you no longer wish to receive this kind of notification e-mails you can unsubscribe here: https://" + ExternalDNSName + (BasePath?.ToString() ?? "") + "/notifications.\r\n\r\n"
+                                     : "",
+                                 "Users API\r\n",
+                                 "(c) GraphDefined GmbH\r\n\r\n");
+
+        #endregion
+
+        #region (private) RegisterNotifications()
+
+        private async Task RegisterNotifications()
+        {
+
+            await AddNotificationMessageGroup(new NotificationMessageGroup(
+                                                  I18NString.Create(Languages.en, "Service Tickets"),
+                                                  I18NString.Create(Languages.en, "Service Ticket notifications"),
+                                                  NotificationVisibility.Customers,
+                                                  new NotificationMessageDescription[] {
+                                                      new NotificationMessageDescription(I18NString.Create(Languages.en, "(New) service ticket added"),                  I18NString.Create(Languages.en, ""), NotificationVisibility.Customers, NotificationTag.NewUserDefault, addServiceTicket_MessageType),
+                                                      new NotificationMessageDescription(I18NString.Create(Languages.en, "(New) service ticket added (did not exist)"),  I18NString.Create(Languages.en, ""), NotificationVisibility.System,    NotificationTag.NewUserDefault, addServiceTicketIfNotExists_MessageType),
+                                                      new NotificationMessageDescription(I18NString.Create(Languages.en, "(New) service ticket added or updated"),       I18NString.Create(Languages.en, ""), NotificationVisibility.System,    NotificationTag.NewUserDefault, addOrUpdateServiceTicket_MessageType),
+                                                      new NotificationMessageDescription(I18NString.Create(Languages.en, "ServiceTicket updated"),                       I18NString.Create(Languages.en, ""), NotificationVisibility.Customers, NotificationTag.NewUserDefault, updateServiceTicket_MessageType),
+                                                      new NotificationMessageDescription(I18NString.Create(Languages.en, "ServiceTicket removed"),                       I18NString.Create(Languages.en, ""), NotificationVisibility.Customers, NotificationTag.NewUserDefault, removeServiceTicket_MessageType),
+                                                      new NotificationMessageDescription(I18NString.Create(Languages.en, "ServiceTicket status changed"),                I18NString.Create(Languages.en, ""), NotificationVisibility.Customers, NotificationTag.NewUserDefault, changeServiceTicketStatus_MessageType)
+                                                  }));
+
+            await AddNotificationMessageGroup(new NotificationMessageGroup(
+                                                  I18NString.Create(Languages.en, "Users Management"),
+                                                  I18NString.Create(Languages.en, "Users Management notifications"),
+                                                  NotificationVisibility.Customers,
+                                                  new NotificationMessageDescription[] {
+                                                      new NotificationMessageDescription(I18NString.Create(Languages.en, "New user created"),                 I18NString.Create(Languages.en, "A new user was added to portal."),             NotificationVisibility.Admins,     addUser_MessageType),
+                                                      new NotificationMessageDescription(I18NString.Create(Languages.en, "User added to organization"),       I18NString.Create(Languages.en, "The user was added to an organization."),      NotificationVisibility.Customers,  addUserToOrganization_MessageType),
+                                                      new NotificationMessageDescription(I18NString.Create(Languages.en, "User information updated"),         I18NString.Create(Languages.en, "The user information was updated."),           NotificationVisibility.Customers,  updateUser_MessageType),
+                                                      new NotificationMessageDescription(I18NString.Create(Languages.en, "User removed from portal"),         I18NString.Create(Languages.en, "The user was removed from the portal."),       NotificationVisibility.Admins,     removeUser_MessageType),
+                                                      new NotificationMessageDescription(I18NString.Create(Languages.en, "User removed from organization"),   I18NString.Create(Languages.en, "The user was removed from an organization."),  NotificationVisibility.Customers,  removeUserFromOrganization_MessageType),
+
+                                                      new NotificationMessageDescription(I18NString.Create(Languages.en, "New organization created"),         I18NString.Create(Languages.en, "A new organization was created."),             NotificationVisibility.Admins,     addOrganization_MessageType),
+                                                      new NotificationMessageDescription(I18NString.Create(Languages.en, "New sub organization created"),     I18NString.Create(Languages.en, "A new sub organization was created."),         NotificationVisibility.Customers,  linkOrganizations_MessageType),
+                                                      new NotificationMessageDescription(I18NString.Create(Languages.en, "Organization information updated"), I18NString.Create(Languages.en, "An organization information was updated."),    NotificationVisibility.Customers,  updateOrganization_MessageType),
+                                                      new NotificationMessageDescription(I18NString.Create(Languages.en, "Organization removed"),             I18NString.Create(Languages.en, "An organization was removed."),                NotificationVisibility.Admins,     removeOrganization_MessageType),
+                                                      new NotificationMessageDescription(I18NString.Create(Languages.en, "Sub organization removed"),         I18NString.Create(Languages.en, "Sub organization was removed."),               NotificationVisibility.Customers,  unlinkOrganizations_MessageType),
+                                                  }));
+
+        }
+
+        #endregion
+
+        #region E-Mail delegates
+
+        #region NewServiceTicketMessageReceivedDelegate
+
+        ///// <summary>
+        ///// A delegate for sending e-mail notifications about received service ticket messages to users.
+        ///// </summary>
+        //public delegate EMail NewServiceTicketMessageReceivedDelegate(ServiceTicket    ParsedMessage,
+        //                                                              EMailAddressList  EMailRecipients);
+
+        //private static readonly Func<String, EMailAddress, String, NewServiceTicketMessageReceivedDelegate>
+
+        //    __NewServiceTicketMessageReceivedDelegate = (BaseURL,
+        //                                                 APIEMailAddress,
+        //                                                 APIPassphrase)
+
+        //        => (ParsedMessage,
+        //            EMailRecipients)
+
+        //            =>  new HTMLEMailBuilder() {
+
+        //                    From            = APIEMailAddress,
+        //                    To              = EMailAddressListBuilder.Create(EMailRecipients),
+        //                    Passphrase      = APIPassphrase,
+        //                    Subject         = "...", //ParsedMessage.EMailSubject,
+
+        //                    HTMLText        = HTMLEMailHeader +
+        //                                          //ParsedMessage.EMailBody.Replace("\r\n", "<br />\r\n") + Environment.NewLine +
+        //                                      HTMLEMailFooter,
+
+        //                    PlainText       = TextEMailHeader +
+        //                                          //ParsedMessage.EMailBody + Environment.NewLine +
+        //                                      TextEMailFooter,
+
+        //                    SecurityLevel   = EMailSecurity.sign
+
+        //                };
+
+        #endregion
+
+        #region ServiceTicketStatusChangedEMailDelegate
+
+        ///// <summary>
+        ///// A delegate for sending e-mail notifications about service ticket status changes to users.
+        ///// </summary>
+        //public delegate EMail ServiceTicketStatusChangedEMailDelegate(ServiceTicket                         ServiceTicket,
+        //                                                              Timestamped<ServiceTicketStatusTypes>  OldStatus,
+        //                                                              Timestamped<ServiceTicketStatusTypes>  NewStatus,
+        //                                                              EMailAddressList                       EMailRecipients);
+
+        //private static readonly Func<String, EMailAddress, String, ServiceTicketStatusChangedEMailDelegate>
+
+        //    __ServiceTicketStatusChangedEMailDelegate = (BaseURL,
+        //                                                 APIEMailAddress,
+        //                                                 APIPassphrase)
+
+        //        => (ServiceTicket,
+        //            OldStatus,
+        //            NewStatus,
+        //            EMailRecipients)
+
+        //            => new HTMLEMailBuilder() {
+
+        //                From           = APIEMailAddress,
+        //                To             = EMailAddressListBuilder.Create(EMailRecipients),
+        //                Passphrase     = APIPassphrase,
+        //                Subject        = String.Concat("ServiceTicket '",        ServiceTicket.Id,
+        //                                               "' status change from '", OldStatus.Value,
+        //                                               " to '",                  NewStatus.Value, "'!"),
+
+        //                HTMLText       = String.Concat(HTMLEMailHeader,
+        //                                               "The status of service ticket <b>'", ServiceTicket.Id, "'</b> (Owner: '", ServiceTicket.Author,
+        //                                               "'), changed from <i>'", OldStatus.Value, "'</i> (since ", OldStatus.Timestamp.ToIso8601(), ") ",
+        //                                               " to <i>'", NewStatus.Value, "'</i>!<br /><br />",
+        //                                               HTMLEMailFooter),
+
+        //                PlainText      = String.Concat(TextEMailHeader,
+        //                                               "The status of service ticket '", ServiceTicket.Id, "' (Owner: '", ServiceTicket.Author,
+        //                                               "'), changed from '", OldStatus.Value, "' (since ", OldStatus.Timestamp.ToIso8601(), ") ",
+        //                                               " to '", NewStatus.Value, "'!\r\r\r\r",
+        //                                               TextEMailFooter),
+
+        //                SecurityLevel  = EMailSecurity.sign
+
+        //            };
+
+        #endregion
+
+        #region ServiceTicketChangedEMailDelegate
+
+        ///// <summary>
+        ///// A delegate for sending e-mail notifications about service ticket changes to users.
+        ///// </summary>
+        //public delegate EMail ServiceTicketChangedEMailDelegate(ServiceTicket             ServiceTicket,
+        //                                                        NotificationMessageType    MessageType,
+        //                                                        NotificationMessageType[]  AdditionalMessageTypes,
+        //                                                        EMailAddressList           EMailRecipients);
+
+        //private static readonly Func<String, EMailAddress, String, ServiceTicketChangedEMailDelegate>
+
+        //    __ServiceTicketChangedEMailDelegate = (BaseURL,
+        //                                           APIEMailAddress,
+        //                                           APIPassphrase)
+
+        //        => (ServiceTicket,
+        //            MessageType,
+        //            AdditionalMessageTypes,
+        //            EMailRecipients)
+
+        //            => new HTMLEMailBuilder() {
+
+        //                From           = APIEMailAddress,
+        //                To             = EMailAddressListBuilder.Create(EMailRecipients),
+        //                Passphrase     = APIPassphrase,
+        //                Subject        = String.Concat("ServiceTicket data '", ServiceTicket.Id, "' was changed'!"),
+
+        //                HTMLText       = String.Concat(HTMLEMailHeader,
+        //                                               "The data of service ticket <b>'", ServiceTicket.Id, "'</b> (Owner: '", ServiceTicket.Author,
+        //                                               "') was changed!<br /><br />",
+        //                                               HTMLEMailFooter),
+
+        //                PlainText      = String.Concat(TextEMailHeader,
+        //                                               "The data of service ticket '", ServiceTicket.Id, "' (Owner: '", ServiceTicket.Author,
+        //                                               "') was changed!\r\r\r\r",
+        //                                               TextEMailFooter),
+
+        //                SecurityLevel  = EMailSecurity.sign
+
+        //            };
+
+        #endregion
+
+        #endregion
+
+        #region (protected) SendSMS(Text, To, Sender = null)
+
+        /// <summary>
+        /// Send a SMS to the given phone number.
+        /// </summary>
+        /// <param name="Text">The text of the SMS.</param>
+        /// <param name="To">The phone number of the recipient.</param>
+        /// <param name="Sender">An optional sender name.</param>
+        protected virtual SMSAPIResponseStatus SendSMS(String  Text,
+                                                       String  To,
+                                                       String  Sender  = null)
+        {
+
+            if (_SMSAPI != null)
+                return _SMSAPI.Send(Text,
+                                    To).
+                               SetSender(Sender ?? SMSSenderName).
+                               Execute();
+
+            return SMSAPIResponseStatus.Failed("No SMSAPI defined!");
+
+        }
+
+        /// <summary>
+        /// Send a SMS to the given phone number.
+        /// </summary>
+        /// <param name="Text">The text of the SMS.</param>
+        /// <param name="To">The phone numbers of the recipients.</param>
+        /// <param name="Sender">An optional sender name.</param>
+        protected SMSAPIResponseStatus SendSMS(String    Text,
+                                               String[]  To,
+                                               String    Sender  = null)
+        {
+
+            if (_SMSAPI != null)
+                return _SMSAPI.Send(Text,
+                                    To).
+                               SetSender(Sender ?? SMSSenderName).
+                               Execute();
+
+            return SMSAPIResponseStatus.Failed("No SMSAPI defined!");
+
+        }
+
+        #endregion
+
+        #region (protected) SendHTTPSNotifications(AllNotificationURLs, JSONNotification)
+
+        protected async Task SendHTTPSNotifications(IEnumerable<HTTPSNotification>  AllNotificationURLs,
+                                                    JObject                         JSONNotification)
+        {
+
+            if (!DisableNotifications)
+            {
+
+                try
+                {
+
+                    foreach (var notificationURL in AllNotificationURLs)
+                    {
+
+                        HTTPRequest  request     = null;
+                        HTTPResponse result      = HTTPResponse.ClientError(request);
+                        Byte TransmissionRetry   = 0;
+                        Byte MaxNumberOfRetries  = 3;
+
+                        do
+                        {
+
+                            try
+                            {
+
+                                String       protocol;
+                                HTTPPath      URL;
+                                HTTPHostname hostname;
+
+                                if (notificationURL.URL.Contains("://"))
+                                {
+                                    protocol = notificationURL.URL.Substring(0, notificationURL.URL.IndexOf("://"));
+                                    var url  = notificationURL.URL.Substring(notificationURL.URL.IndexOf("://") + 3);
+                                    hostname = HTTPHostname.Parse(url.Substring(0, url.IndexOf('/')));
+                                    URL      = HTTPPath.Parse(url.Substring(url.IndexOf('/')));
+                                }
+                                else
+                                {
+                                    protocol = "https";
+                                    hostname = HTTPHostname.Parse(notificationURL.URL.Substring(0, notificationURL.URL.IndexOf('/')));
+                                    URL      = HTTPPath.Parse(notificationURL.URL.Substring(notificationURL.URL.IndexOf('/')));
+                                }
+
+                                using (var _HTTPSClient = new HTTPSClient(hostname,
+                                                                          //HTTPVirtualHost:
+                                                                          RemoteCertificateValidator: (Object                                                         sender,
+                                                                                                       System.Security.Cryptography.X509Certificates.X509Certificate  certificate,
+                                                                                                       X509Chain                                                      chain,
+                                                                                                       SslPolicyErrors                                                sslPolicyErrors) => true,
+                                                                          ClientCertificateSelector:   null,
+                                                                          ClientCert:                  null,
+                                                                          RemotePort:                  notificationURL.RemotePort,
+                                                                          HTTPUserAgent:               null,
+                                                                          RequestTimeout:              null,
+                                                                          DNSClient:                   this.DNSClient))
+                                {
+
+                                    Console.WriteLine("Sending HTTPS-notification to: " + hostname.Name);
+
+                                    request  = new HTTPRequest.Builder(_HTTPSClient) {
+                                                   HTTPMethod     = notificationURL.Method,
+                                                   Host           = hostname,
+                                                   Path           = URL,
+                                                   Content        = new JArray(JSONNotification).ToUTF8Bytes(),
+                                                   ContentType    = HTTPContentType.JSON_UTF8,
+                                                   UserAgent      = "CardiCloud Notification API",
+                                                   API_Key        = notificationURL.APIKey.IsNotNullOrEmpty()
+                                                                        ? notificationURL.APIKey
+                                                                        : null,
+                                                   Authorization  = notificationURL.BasicAuth_Login.   IsNotNullOrEmpty() &&
+                                                                    notificationURL.BasicAuth_Password.IsNotNullOrEmpty()
+                                                                        ? new HTTPBasicAuthentication(notificationURL.BasicAuth_Login,
+                                                                                                      notificationURL.BasicAuth_Password)
+                                                                        : null
+                                    };
+
+                                    result   = await _HTTPSClient.Execute(Request:              request,
+                                                                          RequestLogDelegate:   (timestamp, client, req)       => LogRequest (timestamp, client, hostname.Name, req),
+                                                                          ResponseLogDelegate:  (timestamp, client, req, resp) => LogResponse(timestamp, client, hostname.Name, req, resp),
+
+                                                                          CancellationToken:    null,
+                                                                          EventTrackingId:      EventTracking_Id.New,
+                                                                          RequestTimeout:       notificationURL.RequestTimeout,
+                                                                          NumberOfRetry:        TransmissionRetry++);
+
+                                    Console.WriteLine("Result: " + result);
+
+                                }
+
+                                if (result == null)
+                                    result = HTTPResponse.ClientError(request);
+
+                            }
+                            catch (Exception e)
+                            {
+                                Console.WriteLine(e);
+                            }
+
+                        }
+                        // Try to resend the HTTP message, when there had been networking errors...
+                        while (result.HTTPStatusCode == HTTPStatusCode.RequestTimeout &&
+                               TransmissionRetry++ < MaxNumberOfRetries);
+
+                        // If it failed: Write entire message on disc/logfile
+                        //               Reread the logfile later and try to resend the message!
+
+                    }
+
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e);
+                }
+
+            }
+
+        }
+
+        #endregion
+
+        #region ReceiveTelegramMessage(Sender, e)
+
+        async void ReceiveTelegramMessage(Object Sender, Telegram.Bot.Args.MessageEventArgs e)
+        {
+
+            var messageText = e?.Message?.Text;
+
+            if (messageText.IsNeitherNullNorEmpty())
+                messageText.Trim();
+
+            if (messageText.IsNotNullOrEmpty())
+            {
+
+                var command = messageText.Split(' ');
+
+                switch (command[0])
+                {
+
+                    case "/system":
+                        await this.TelegramAPI.SendTextMessageAsync(
+                            ChatId:  e.Message.Chat,
+                            Text:    "I'm running on: " + Environment.MachineName + " and use " + (Environment.WorkingSet / 1024 /1024) + " MBytes RAM"
+                        );
+                        break;
+
+                    case "/echo":
+                        await this.TelegramAPI.SendTextMessageAsync(
+                            ChatId:  e.Message.Chat,
+                            Text:    "Hello " + e.Message.From.FirstName + " " + e.Message.From.LastName + "!\nYou said:\n" + e.Message.Text
+                        );
+                        break;
+
+                }
+
+            }
+        }
+
+        #endregion
+
+        #endregion
+
+        #region HTTP URL Templates...
+
         #region (static) AttachToHTTPAPI(HTTPServer, URLPrefix = "/", ...)
 
         /// <summary>
@@ -3133,524 +3520,58 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
+        #region Manage HTTP Resources
 
-        #region (Timer) DoMaintenance(State)
+        #region (private) GetResourceStream      (ResourceName)
 
-        private void DoMaintenance(Object State)
-        {
+        private Stream GetResourceStream(String ResourceName)
 
-            if (!DisableMaintenanceTasks)
-                DoMaintenanceAsync(State).Wait();
-
-            else
-                DebugX.LogT("Maintenance tasks are disabled!");
-
-        }
-
-        private async Task DoMaintenanceAsync(Object State)
-        {
-
-            // Do not wait! Skip this round if the previous is still busy!
-            var LockTaken = await MaintenanceLock.WaitAsync(0).ConfigureAwait(false);
-
-            try
-            {
-
-                if (LockTaken)
-                {
-
-                    DoSubmaintenanceTasks?.Invoke(State);
-
-                }
-
-            }
-            catch (Exception e)
-            {
-
-                while (e.InnerException != null)
-                    e = e.InnerException;
-
-                DebugX.LogT(GetType().Name + ".DoMaintenance() led to an exception: " + e.Message + Environment.NewLine + e.StackTrace);
-
-                //OnAPIException?.Invoke(DateTime.UtcNow,
-                //                       this,
-                //                       e);
-
-            }
-
-            finally
-            {
-
-                if (LockTaken)
-                    MaintenanceLock.Release();
-
-                else
-                    DebugX.LogT("Could not aquire the maintenance tasks lock!");
-
-            }
-
-        }
+            => GetResourceStream(typeof(UsersAPI).Assembly, ResourceName);
 
         #endregion
 
+        #region (private) GetResourceMemoryStream(ResourceName)
 
-        #region (protected) GetUserSerializator             (Request, User)
+        private MemoryStream GetResourceMemoryStream(String ResourceName)
 
-        protected UserToJSONDelegate GetUserSerializator(HTTPRequest  Request,
-                                                         User         User)
-        {
-
-            switch (User?.Id.ToString())
-            {
-
-                //case __issapi:
-                //    return ISSNotificationExtentions.ToISSJSON;
-
-                default:
-                    return (user,
-                            embedded,
-                            includeCryptoHash)
-
-                            => user.ToJSON(embedded,
-                                           includeCryptoHash);
-
-            }
-
-        }
+            => GetResourceMemoryStream(typeof(UsersAPI).Assembly, ResourceName);
 
         #endregion
 
-        #region (protected) GetUserGroupSerializator        (Request, User)
+        #region (private) GetResourceString      (ResourceName)
 
-        protected UserGroupToJSONDelegate GetUserGroupSerializator(HTTPRequest  Request,
-                                                                   User         User)
-        {
+        private String GetResourceString(String ResourceName)
 
-            switch (User?.Id.ToString())
-            {
-
-                //case __issapi:
-                //    return ISSNotificationExtentions.ToISSJSON;
-
-                default:
-                    return (userGroup,
-                            embedded,
-                            expandUsers,
-                            expandParentGroup,
-                            expandSubgroups,
-                            expandAttachedFiles,
-                            includeAttachedFileSignatures,
-                            includeCryptoHash)
-
-                            => userGroup.ToJSON(embedded,
-                                                expandUsers,
-                                                expandParentGroup,
-                                                expandSubgroups,
-                                                expandAttachedFiles,
-                                                includeAttachedFileSignatures,
-                                                includeCryptoHash);
-
-            }
-
-        }
+            => GetResourceString(typeof(UsersAPI).Assembly, ResourceName);
 
         #endregion
 
-        #region (protected) GetOrganizationSerializator     (Request, User)
+        #region (private) GetResourceBytes       (ResourceName)
+        private Byte[] GetResourceBytes(String ResourceName)
 
-        protected OrganizationToJSONDelegate GetOrganizationSerializator(HTTPRequest  Request,
-                                                                         User         User)
-        {
-
-            switch (User?.Id.ToString())
-            {
-
-                //case __issapi:
-                //    return ISSNotificationExtentions.ToISSJSON;
-
-                default:
-                    return (organization,
-                            embedded,
-                            expandMembers,
-                            expandParents,
-                            expandSubOrganizations,
-                            expandTags,
-                            includeCryptoHash)
-
-                            => organization.ToJSON(embedded,
-                                                   expandMembers,
-                                                   expandParents,
-                                                   expandSubOrganizations,
-                                                   expandTags,
-                                                   includeCryptoHash);
-
-            }
-
-        }
+            => GetResourceBytes(typeof(UsersAPI).Assembly, ResourceName);
 
         #endregion
 
-        #region (protected) GetOrganizationGroupSerializator(Request, User)
+        #region (private) MixWithHTMLTemplate    (ResourceName)
 
-        protected OrganizationGroupToJSONDelegate GetOrganizationGroupSerializator(HTTPRequest  Request,
-                                                                                   User         User)
-        {
+        protected virtual String MixWithHTMLTemplate(String ResourceName)
 
-            switch (User?.Id.ToString())
-            {
-
-                //case __issapi:
-                //    return ISSNotificationExtentions.ToISSJSON;
-
-                default:
-                    return (organizationGroup,
-                            embedded,
-                            expandOrganizations,
-                            expandParentGroup,
-                            expandSubgroups,
-                            expandAttachedFiles,
-                            includeAttachedFileSignatures,
-                            includeCryptoHash)
-
-                            => organizationGroup.ToJSON(embedded,
-                                                        expandOrganizations,
-                                                        expandParentGroup,
-                                                        expandSubgroups,
-                                                        expandAttachedFiles,
-                                                        includeAttachedFileSignatures,
-                                                        includeCryptoHash);
-
-            }
-
-        }
+            => MixWithHTMLTemplate(ResourceName,
+                                   new Tuple<String, System.Reflection.Assembly>(UsersAPI.HTTPRoot, typeof(UsersAPI).    Assembly));
 
         #endregion
 
-        #region (protected) GetBlogPostingSerializator      (Request, User)
-
-        protected BlogPostingToJSONDelegate GetBlogPostingSerializator(HTTPRequest  Request,
-                                                                       User         User)
-        {
-
-            switch (User?.Id.ToString())
-            {
-
-                //case __issapi:
-                //    return ISSNotificationExtentions.ToISSJSON;
-
-                default:
-                    return (BlogPosting,
-                            Embedded,
-                            ExpandTags,
-                            IncludeCryptoHash)
-
-                            => BlogPosting.ToJSON(Embedded,
-                                                  ExpandTags,
-                                                  IncludeCryptoHash);
-
-            }
-
-        }
-
-        #endregion
-
-
-        #region (private) CheckImpersonate(currentOrg, Astronaut, AstronautFound, Member, VetoUsers)
-
-        private Boolean? CheckImpersonate(Organization   currentOrg,
-                                          User           Astronaut,
-                                          Boolean        AstronautFound,
-                                          User           Member,
-                                          HashSet<User>  VetoUsers)
-        {
-
-            var currentUsers = new HashSet<User>(currentOrg.User2OrganizationEdges.Select(edge => edge.Source));
-
-            AstronautFound |= currentUsers.Contains(Astronaut);
-
-            if (!AstronautFound)
-            {
-
-                // Fail early!
-                if (currentUsers.Contains(Member))
-                    return false;
-
-            }
-
-            else if (currentUsers.Contains(Member))
-            {
-
-                // Astronaut and member are on the same level, e.g. both admin of the same organization!
-                if (currentUsers.Contains(Astronaut))
-                {
-                    // Currently this is allowed!
-                }
-
-                return !VetoUsers.Contains(Member);
-
-            }
-
-            // Everyone found so far can no longer be impersonated!
-            foreach (var currentUser in currentUsers)
-                VetoUsers.Add(currentUser);
-
-
-
-            var childResults = currentOrg.Organization2OrganizationInEdges.Where(edge => edge.EdgeLabel == Organization2OrganizationEdgeTypes.IsChildOf).
-                                          Select(edge => CheckImpersonate(edge.Source, Astronaut, AstronautFound, Member, new HashSet<User>(VetoUsers))).ToArray();
-
-            return childResults.Any(result => result == true);
-
-        }
-
-        #endregion
-
-        #region CanImpersonate(Astronaut, Member)
-
-        public Boolean CanImpersonate(User  Astronaut,
-                                      User  Member)
-        {
-
-            if (Astronaut == Member)
-                return false;
-
-            // API admins can impersonate everyone! Except other API Admins!
-            if (Admins.InEdges(Astronaut).Any())
-                return !Admins.InEdges(Member).Any();
-
-            // API admins can never be impersonated!
-            if (Admins.InEdges(Member).Any())
-                return false;
-
-            // An astronaut must be at least an admin of some parent organization!
-            if (!Astronaut.User2Organization_OutEdges.Any(edge => edge.EdgeLabel == User2OrganizationEdgeTypes.IsAdmin))
-                return false;
-
-            var VetoUsers             = new HashSet<User>();
-            var AstronautFound        = false;
-            var CurrentOrganizations  = new HashSet<Organization>(Organizations.Where(org => !org.Organization2OrganizationOutEdges.
-                                                                                                  Any(edge => edge.EdgeLabel == Organization2OrganizationEdgeTypes.IsChildOf)));
-
-            var childResults = CurrentOrganizations.Select(org => CheckImpersonate(org, Astronaut, AstronautFound, Member, VetoUsers)).ToArray();
-
-            return childResults.Any(result => result == true);
-
-
-            do
-            {
-
-                var NextOrgs  = new HashSet<Organization>(CurrentOrganizations.SelectMany(org => org.Organization2OrganizationInEdges.Where(edge => edge.EdgeLabel == Organization2OrganizationEdgeTypes.IsChildOf)).Select(edge => edge.Source));
-
-                foreach (var currentOrg in NextOrgs)
-                {
-
-                    var currentUsers = new HashSet<User>(currentOrg.User2OrganizationEdges.Select(edge => edge.Source));
-
-                    AstronautFound |= currentUsers.Contains(Astronaut);
-
-                    if (!AstronautFound)
-                    {
-
-                        // Fail early!
-                        if (currentUsers.Contains(Member))
-                            return false;
-
-                    }
-
-                    else if (currentUsers.Contains(Member))
-                    {
-
-                        // Astronaut and member are on the same level, e.g. both admin of the same organization!
-                        if (currentUsers.Contains(Astronaut))
-                        {
-                            // Currently this is allowed!
-                        }
-
-                        return !VetoUsers.Contains(Member);
-
-                    }
-
-                    // Everyone found so far can no longer be impersonated!
-                    currentUsers.ForEach(user => VetoUsers.Add(user));
-
-                }
-
-                CurrentOrganizations.Clear();
-                NextOrgs.ForEach(org => CurrentOrganizations.Add(org));
-
-            }
-            while (CurrentOrganizations.Count > 0);
-
-            // The member was not found within the organizational hierarchy!
-            return false;
-
-        }
-
-        #endregion
-
-
-        #region SendSMS(Text, To, Sender = null)
+        #region (protected) GetUsersAPIRessource(Ressource)
 
         /// <summary>
-        /// Send a SMS to the given phone number.
+        /// Get an embedded ressource of the UsersAPI.
         /// </summary>
-        /// <param name="Text">The text of the SMS.</param>
-        /// <param name="To">The phone number of the recipient.</param>
-        /// <param name="Sender">An optional sender name.</param>
-        public virtual SMSAPIResponseStatus SendSMS(String  Text,
-                                                    String  To,
-                                                    String  Sender  = null)
-        {
-
-            if (_SMSAPI != null)
-                return _SMSAPI.Send(Text,
-                                    To).
-                               SetSender(Sender ?? SMSSenderName).
-                               Execute();
-
-            return SMSAPIResponseStatus.Failed("No SMSAPI defined!");
-
-        }
-
-        /// <summary>
-        /// Send a SMS to the given phone number.
-        /// </summary>
-        /// <param name="Text">The text of the SMS.</param>
-        /// <param name="To">The phone numbers of the recipients.</param>
-        /// <param name="Sender">An optional sender name.</param>
-        public SMSAPIResponseStatus SendSMS(String    Text,
-                                            String[]  To,
-                                            String    Sender  = null)
-        {
-
-            if (_SMSAPI != null)
-                return _SMSAPI.Send(Text,
-                                    To).
-                               SetSender(Sender ?? SMSSenderName).
-                               Execute();
-
-            return SMSAPIResponseStatus.Failed("No SMSAPI defined!");
-
-        }
+        /// <param name="Ressource">The path and name of the ressource to load.</param>
+        protected Stream GetUsersAPIRessource(String Ressource)
+            => GetType().Assembly.GetManifestResourceStream(HTTPRoot + Ressource);
 
         #endregion
-
-
-        #region (protected) SendHTTPSNotifications(AllNotificationURLs, JSONNotification)
-
-        protected async Task SendHTTPSNotifications(IEnumerable<HTTPSNotification>  AllNotificationURLs,
-                                                    JObject                         JSONNotification)
-        {
-
-            if (!DisableNotifications)
-            {
-
-                try
-                {
-
-                    foreach (var notificationURL in AllNotificationURLs)
-                    {
-
-                        HTTPRequest  request     = null;
-                        HTTPResponse result      = HTTPResponse.ClientError(request);
-                        Byte TransmissionRetry   = 0;
-                        Byte MaxNumberOfRetries  = 3;
-
-                        do
-                        {
-
-                            try
-                            {
-
-                                String       protocol;
-                                HTTPPath      URL;
-                                HTTPHostname hostname;
-
-                                if (notificationURL.URL.Contains("://"))
-                                {
-                                    protocol = notificationURL.URL.Substring(0, notificationURL.URL.IndexOf("://"));
-                                    var url  = notificationURL.URL.Substring(notificationURL.URL.IndexOf("://") + 3);
-                                    hostname = HTTPHostname.Parse(url.Substring(0, url.IndexOf('/')));
-                                    URL      = HTTPPath.Parse(url.Substring(url.IndexOf('/')));
-                                }
-                                else
-                                {
-                                    protocol = "https";
-                                    hostname = HTTPHostname.Parse(notificationURL.URL.Substring(0, notificationURL.URL.IndexOf('/')));
-                                    URL      = HTTPPath.Parse(notificationURL.URL.Substring(notificationURL.URL.IndexOf('/')));
-                                }
-
-                                using (var _HTTPSClient = new HTTPSClient(hostname,
-                                                                          //HTTPVirtualHost:
-                                                                          RemoteCertificateValidator: (Object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors sslPolicyErrors) => true,
-                                                                          ClientCertificateSelector:   null,
-                                                                          ClientCert:                  null,
-                                                                          RemotePort:                  notificationURL.RemotePort,
-                                                                          HTTPUserAgent:               null,
-                                                                          RequestTimeout:              null,
-                                                                          DNSClient:                   this.DNSClient))
-                                {
-
-                                    Console.WriteLine("Sending HTTPS-notification to: " + hostname.Name);
-
-                                    request  = new HTTPRequest.Builder(_HTTPSClient) {
-                                                   HTTPMethod     = notificationURL.Method,
-                                                   Host           = hostname,
-                                                   Path           = URL,
-                                                   Content        = new JArray(JSONNotification).ToUTF8Bytes(),
-                                                   ContentType    = HTTPContentType.JSON_UTF8,
-                                                   UserAgent      = "CardiCloud Notification API",
-                                                   API_Key        = notificationURL.APIKey.IsNotNullOrEmpty()
-                                                                        ? notificationURL.APIKey
-                                                                        : null,
-                                                   Authorization  = notificationURL.BasicAuth_Login.   IsNotNullOrEmpty() &&
-                                                                    notificationURL.BasicAuth_Password.IsNotNullOrEmpty()
-                                                                        ? new HTTPBasicAuthentication(notificationURL.BasicAuth_Login,
-                                                                                                      notificationURL.BasicAuth_Password)
-                                                                        : null
-                                    };
-
-                                    result   = await _HTTPSClient.Execute(Request:              request,
-                                                                          RequestLogDelegate:   (timestamp, client, req)       => LogRequest (timestamp, client, hostname.Name, req),
-                                                                          ResponseLogDelegate:  (timestamp, client, req, resp) => LogResponse(timestamp, client, hostname.Name, req, resp),
-
-                                                                          CancellationToken:    null,
-                                                                          EventTrackingId:      EventTracking_Id.New,
-                                                                          RequestTimeout:       notificationURL.RequestTimeout,
-                                                                          NumberOfRetry:        TransmissionRetry++);
-
-                                    Console.WriteLine("Result: " + result);
-
-                                }
-
-                                if (result == null)
-                                    result = HTTPResponse.ClientError(request);
-
-                            }
-                            catch (Exception e)
-                            {
-                                Console.WriteLine(e);
-                            }
-
-                        }
-                        // Try to resend the HTTP message, when there had been networking errors...
-                        while (result.HTTPStatusCode == HTTPStatusCode.RequestTimeout &&
-                               TransmissionRetry++ < MaxNumberOfRetries);
-
-                        // If it failed: Write entire message on disc/logfile
-                        //               Reread the logfile later and try to resend the message!
-
-                    }
-
-                }
-                catch (Exception e)
-                {
-                    Console.WriteLine(e);
-                }
-
-            }
-
-        }
 
         #endregion
 
@@ -3703,104 +3624,18 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
-
-        #region HTTP Resources
-
-        #region (private) GetResourceStream      (ResourceName)
-
-        private Stream GetResourceStream(String ResourceName)
-
-            => GetResourceStream(typeof(UsersAPI).Assembly, ResourceName);
-
-        #endregion
-
-        #region (private) GetResourceMemoryStream(ResourceName)
-
-        private MemoryStream GetResourceMemoryStream(String ResourceName)
-
-            => GetResourceMemoryStream(typeof(UsersAPI).Assembly, ResourceName);
-
-        #endregion
-
-        #region (private) GetResourceString      (ResourceName)
-
-        private String GetResourceString(String ResourceName)
-
-            => GetResourceString(typeof(UsersAPI).Assembly, ResourceName);
-
-        #endregion
-
-        #region (private) GetResourceBytes       (ResourceName)
-        private Byte[] GetResourceBytes(String ResourceName)
-
-            => GetResourceBytes(typeof(UsersAPI).Assembly, ResourceName);
-
-        #endregion
-
-        #region (private) MixWithHTMLTemplate    (ResourceName)
-
-        protected virtual String MixWithHTMLTemplate(String ResourceName)
-
-            => MixWithHTMLTemplate(ResourceName,
-                                   new Tuple<String, System.Reflection.Assembly>(UsersAPI.HTTPRoot, typeof(UsersAPI).    Assembly));
-
-        #endregion
-
-        #endregion
-
-
-        #region (private) RegisterNotifications()
-
-        private async Task RegisterNotifications()
-        {
-
-            await AddNotificationMessageGroup(new NotificationMessageGroup(
-                                                  I18NString.Create(Languages.en, "Service Tickets"),
-                                                  I18NString.Create(Languages.en, "Service Ticket notifications"),
-                                                  NotificationVisibility.Customers,
-                                                  new NotificationMessageDescription[] {
-                                                      new NotificationMessageDescription(I18NString.Create(Languages.en, "(New) service ticket added"),                  I18NString.Create(Languages.en, ""), NotificationVisibility.Customers, NotificationTag.NewUserDefault, addServiceTicket_MessageType),
-                                                      new NotificationMessageDescription(I18NString.Create(Languages.en, "(New) service ticket added (did not exist)"),  I18NString.Create(Languages.en, ""), NotificationVisibility.System,    NotificationTag.NewUserDefault, addServiceTicketIfNotExists_MessageType),
-                                                      new NotificationMessageDescription(I18NString.Create(Languages.en, "(New) service ticket added or updated"),       I18NString.Create(Languages.en, ""), NotificationVisibility.System,    NotificationTag.NewUserDefault, addOrUpdateServiceTicket_MessageType),
-                                                      new NotificationMessageDescription(I18NString.Create(Languages.en, "ServiceTicket updated"),                       I18NString.Create(Languages.en, ""), NotificationVisibility.Customers, NotificationTag.NewUserDefault, updateServiceTicket_MessageType),
-                                                      new NotificationMessageDescription(I18NString.Create(Languages.en, "ServiceTicket removed"),                       I18NString.Create(Languages.en, ""), NotificationVisibility.Customers, NotificationTag.NewUserDefault, removeServiceTicket_MessageType),
-                                                      new NotificationMessageDescription(I18NString.Create(Languages.en, "ServiceTicket status changed"),                I18NString.Create(Languages.en, ""), NotificationVisibility.Customers, NotificationTag.NewUserDefault, changeServiceTicketStatus_MessageType)
-                                                  }));
-
-            await AddNotificationMessageGroup(new NotificationMessageGroup(
-                                                  I18NString.Create(Languages.en, "Users Management"),
-                                                  I18NString.Create(Languages.en, "Users Management notifications"),
-                                                  NotificationVisibility.Customers,
-                                                  new NotificationMessageDescription[] {
-                                                      new NotificationMessageDescription(I18NString.Create(Languages.en, "New user created"),                 I18NString.Create(Languages.en, "A new user was added to portal."),             NotificationVisibility.Admins,     addUser_MessageType),
-                                                      new NotificationMessageDescription(I18NString.Create(Languages.en, "User added to organization"),       I18NString.Create(Languages.en, "The user was added to an organization."),      NotificationVisibility.Customers,  addUserToOrganization_MessageType),
-                                                      new NotificationMessageDescription(I18NString.Create(Languages.en, "User information updated"),         I18NString.Create(Languages.en, "The user information was updated."),           NotificationVisibility.Customers,  updateUser_MessageType),
-                                                      new NotificationMessageDescription(I18NString.Create(Languages.en, "User removed from portal"),         I18NString.Create(Languages.en, "The user was removed from the portal."),       NotificationVisibility.Admins,     removeUser_MessageType),
-                                                      new NotificationMessageDescription(I18NString.Create(Languages.en, "User removed from organization"),   I18NString.Create(Languages.en, "The user was removed from an organization."),  NotificationVisibility.Customers,  removeUserFromOrganization_MessageType),
-
-                                                      new NotificationMessageDescription(I18NString.Create(Languages.en, "New organization created"),         I18NString.Create(Languages.en, "A new organization was created."),             NotificationVisibility.Admins,     addOrganization_MessageType),
-                                                      new NotificationMessageDescription(I18NString.Create(Languages.en, "New sub organization created"),     I18NString.Create(Languages.en, "A new sub organization was created."),         NotificationVisibility.Customers,  linkOrganizations_MessageType),
-                                                      new NotificationMessageDescription(I18NString.Create(Languages.en, "Organization information updated"), I18NString.Create(Languages.en, "An organization information was updated."),    NotificationVisibility.Customers,  updateOrganization_MessageType),
-                                                      new NotificationMessageDescription(I18NString.Create(Languages.en, "Organization removed"),             I18NString.Create(Languages.en, "An organization was removed."),                NotificationVisibility.Admins,     removeOrganization_MessageType),
-                                                      new NotificationMessageDescription(I18NString.Create(Languages.en, "Sub organization removed"),         I18NString.Create(Languages.en, "Sub organization was removed."),               NotificationVisibility.Customers,  unlinkOrganizations_MessageType),
-                                                  }));
-
-        }
-
-        #endregion
-
         #region (private) GenerateCookieUserData(ValidUser, Astronaut = null)
 
         private String GenerateCookieUserData(User  User,
                                               User  Astronaut  = null)
 
-            => String.Concat("=login=",            User.     Id.      ToString().EncodeBase64(),
+            => String.Concat("=login=",            User.     Id.      ToString().ToBase64(),
                              Astronaut != null
-                                 ? ":astronaut=" + Astronaut.Id.      ToString().EncodeBase64()
+                                 ? ":astronaut=" + Astronaut.Id.      ToString().ToBase64()
                                  : "",
-                             ":username=",         User.Name.                    EncodeBase64(),
-                             ":email=",            User.EMail.Address.ToString().EncodeBase64(),
-                             ":language=",         User.UserLanguage. AsText().  EncodeBase64(),
+                             ":username=",         User.Name.                    ToBase64(),
+                             ":email=",            User.EMail.Address.ToString().ToBase64(),
+                             ":language=",         User.UserLanguage. AsText().  ToBase64(),
                              IsAdmin(User) == Access_Levels.ReadOnly  ? ":isAdminRO" : "",
                              IsAdmin(User) == Access_Levels.ReadWrite ? ":isAdminRW" : "");
 
@@ -3820,6 +3655,588 @@ namespace social.OpenData.UsersAPI
                              UseSecureCookies
                                  ? "; secure"
                                  : "");
+
+        #endregion
+
+        #region (protected) TryGetSecurityTokenFromCookie(Request)
+
+        protected SecurityToken_Id? TryGetSecurityTokenFromCookie(HTTPRequest Request)
+        {
+
+            if (Request.Cookies == null)
+                return null;
+
+            if (Request.Cookies. TryGet  (SessionCookieName,           out HTTPCookie       Cookie) &&
+                SecurityToken_Id.TryParse(Cookie.FirstOrDefault().Key, out SecurityToken_Id SecurityTokenId))
+            {
+                return SecurityTokenId;
+            }
+
+            return null;
+
+        }
+
+        #endregion
+
+        #region (protected) TryGetSecurityTokenFromCookie(Request, SecurityTokenId)
+
+        protected Boolean TryGetSecurityTokenFromCookie(HTTPRequest Request, out SecurityToken_Id SecurityTokenId)
+        {
+
+            if (Request.Cookies  != null &&
+                Request.Cookies. TryGet  (SessionCookieName,           out HTTPCookie Cookie) &&
+                SecurityToken_Id.TryParse(Cookie.FirstOrDefault().Key, out            SecurityTokenId))
+            {
+                return true;
+            }
+
+            SecurityTokenId = default;
+            return false;
+
+        }
+
+        #endregion
+
+        #region (protected) TryGetHTTPUser (Request, out User)
+
+        protected Boolean TryGetHTTPUser(HTTPRequest Request, out User User)
+        {
+
+            #region Get user from cookie...
+
+            if (Request.Cookies != null                                                                             &&
+                Request.Cookies. TryGet     (SessionCookieName,           out HTTPCookie       Cookie)              &&
+                SecurityToken_Id.TryParse   (Cookie.FirstOrDefault().Key, out SecurityToken_Id SecurityTokenId)     &&
+                HTTPCookies.     TryGetValue(SecurityTokenId,             out SecurityToken    SecurityInformation) &&
+                DateTime.UtcNow < SecurityInformation.Expires                                                       &&
+                TryGetUser(SecurityInformation.UserId, out User))
+            {
+                return true;
+            }
+
+            #endregion
+
+            #region Get user from Basic-Auth...
+
+            if (Request.Authorization is HTTPBasicAuthentication basicAuth)
+            {
+
+                #region Find username or e-mail addresses...
+
+                var possibleUsers = new HashSet<User>();
+                var validUsers    = new HashSet<User>();
+
+                if (User_Id.TryParse   (basicAuth.Username, out User_Id _UserId) &&
+                    _Users. TryGetValue(_UserId,            out User    _User))
+                {
+                    possibleUsers.Add(_User);
+                }
+
+                if (possibleUsers.Count == 0)
+                {
+                    foreach (var user in _Users.Values)
+                    {
+                        if (String.Equals(basicAuth.Username,
+                                          user.EMail.Address.ToString(),
+                                          StringComparison.OrdinalIgnoreCase))
+                        {
+                            possibleUsers.Add(user);
+                        }
+                    }
+                }
+
+                if (possibleUsers.Count > 0)
+                {
+                    foreach (var possibleUser in possibleUsers)
+                    {
+                        if (_LoginPasswords.TryGetValue(possibleUser.Id, out LoginPassword loginPassword) &&
+                            loginPassword.VerifyPassword(basicAuth.Password))
+                        {
+                            validUsers.Add(possibleUser);
+                        }
+                    }
+                }
+
+                #endregion
+
+                #region HTTP Basic Auth is ok!
+
+                if (validUsers.Count == 1 &&
+                    validUsers.First().AcceptedEULA.HasValue &&
+                    validUsers.First().AcceptedEULA.Value < DateTime.UtcNow)
+                {
+                    User = validUsers.First();
+                    return true;
+                }
+
+                #endregion
+
+            }
+
+            #endregion
+
+            #region Get user from API Key...
+
+            if (Request.API_Key.HasValue &&
+                TryGetAPIKeyInfo(Request.API_Key.Value, out APIKeyInfo apiKeyInfo) &&
+                (!apiKeyInfo.NotAfter.HasValue || DateTime.UtcNow < apiKeyInfo.NotAfter) &&
+                 !apiKeyInfo.IsDisabled)
+            {
+                User = apiKeyInfo.User;
+                return true;
+            }
+
+            #endregion
+
+            User = null;
+            return false;
+
+        }
+
+        #endregion
+
+        #region (protected) TryGetAstronaut(Request, out User)
+
+        protected Boolean TryGetAstronaut(HTTPRequest Request, out User User)
+        {
+
+            #region Get user from cookie...
+
+            if (Request.Cookies != null                                                                             &&
+                Request.Cookies. TryGet     (SessionCookieName,           out HTTPCookie       Cookie)              &&
+                SecurityToken_Id.TryParse   (Cookie.FirstOrDefault().Key, out SecurityToken_Id SecurityTokenId)     &&
+                HTTPCookies.     TryGetValue(SecurityTokenId,             out SecurityToken    SecurityInformation) &&
+                DateTime.UtcNow < SecurityInformation.Expires                                                       &&
+                TryGetUser(SecurityInformation.Astronaut ?? SecurityInformation.UserId, out User))
+            {
+                return true;
+            }
+
+            #endregion
+
+            User = null;
+            return false;
+
+        }
+
+        #endregion
+
+        #region (protected) TryGetHTTPUser (Request, User, Organizations, Response, AccessLevel = ReadOnly, Recursive = false)
+
+        protected Boolean TryGetHTTPUser(HTTPRequest                Request,
+                                         out User                   User,
+                                         out HashSet<Organization>  Organizations,
+                                         out HTTPResponse.Builder   Response,
+                                         Access_Levels              AccessLevel  = Access_Levels.ReadOnly,
+                                         Boolean                    Recursive    = false)
+        {
+
+            if (!TryGetHTTPUser(Request, out User))
+            {
+
+                //if (Request.RemoteSocket.IPAddress.IsIPv4 &&
+                //    Request.RemoteSocket.IPAddress.IsLocalhost)
+                //{
+                //    User           = Admins.User2GroupInEdges(edgelabel => edgelabel == User2GroupEdges.IsAdmin).FirstOrDefault()?.Source;
+                //    Organizations  = User.Organizations(RequireReadWriteAccess, Recursive);
+                //    Response       = null;
+                //    return true;
+                //}
+
+                Organizations  = new HashSet<Organization>();
+
+                Response       = new HTTPResponse.Builder(Request) {
+                                     HTTPStatusCode  = HTTPStatusCode.Unauthorized,
+                                     Location        = URLPathPrefix + "login",
+                                     Date            = DateTime.Now,
+                                     Server          = HTTPServer.DefaultServerName,
+                                     CacheControl    = "private, max-age=0, no-cache",
+                                     Connection      = "close"
+                                 };
+
+                return false;
+
+            }
+
+            Organizations  = User != null
+                                 ? new HashSet<Organization>(User.Organizations(AccessLevel, Recursive))
+                                 : new HashSet<Organization>();
+
+            Response       = null;
+
+            return true;
+
+        }
+
+        #endregion
+
+        #region (protected) TryGetAstronaut(Request, User, Organizations, Response, AccessLevel = ReadOnly, Recursive = false)
+
+        protected Boolean TryGetAstronaut(HTTPRequest                    Request,
+                                          out User                       User,
+                                          out IEnumerable<Organization>  Organizations,
+                                          out HTTPResponse.Builder       Response,
+                                          Access_Levels                  AccessLevel  = Access_Levels.ReadOnly,
+                                          Boolean                        Recursive    = false)
+        {
+
+            if (!TryGetAstronaut(Request, out User))
+            {
+
+                //if (Request.RemoteSocket.IPAddress.IsIPv4 &&
+                //    Request.RemoteSocket.IPAddress.IsLocalhost)
+                //{
+                //    User           = Admins.User2GroupInEdges(edgelabel => edgelabel == User2GroupEdges.IsAdmin).FirstOrDefault()?.Source;
+                //    Organizations  = User.Organizations(RequireReadWriteAccess, Recursive);
+                //    Response       = null;
+                //    return true;
+                //}
+
+                Organizations  = new Organization[0];
+                Response       = new HTTPResponse.Builder(Request) {
+                                     HTTPStatusCode  = HTTPStatusCode.Unauthorized,
+                                     Location        = URLPathPrefix + "login",
+                                     Date            = DateTime.Now,
+                                     Server          = HTTPServer.DefaultServerName,
+                                     CacheControl    = "private, max-age=0, no-cache",
+                                     Connection      = "close"
+                                 };
+
+                return false;
+
+            }
+
+            Organizations = User?.Organizations(AccessLevel, Recursive) ?? new Organization[0];
+            Response      = null;
+            return true;
+
+        }
+
+        #endregion
+
+        #region (protected) TryGetHTTPUser (Request, User, Organizations,           AccessLevel = ReadOnly, Recursive = false)
+
+        protected void TryGetHTTPUser(HTTPRequest                Request,
+                                      out User                   User,
+                                      out HashSet<Organization>  Organizations,
+                                      Access_Levels              AccessLevel  = Access_Levels.ReadOnly,
+                                      Boolean                    Recursive    = false)
+        {
+
+            if (!TryGetHTTPUser(Request, out User))
+            {
+
+                if (Request.HTTPSource.IPAddress.IsIPv4 &&
+                    Request.HTTPSource.IPAddress.IsLocalhost)
+                {
+                    User           = Admins.User2GroupInEdges(edgelabel => edgelabel == User2GroupEdgeTypes.IsAdmin).FirstOrDefault()?.Source;
+                    Organizations  = new HashSet<Organization>(User.Organizations(AccessLevel, Recursive));
+                    return;
+                }
+
+                Organizations  = null;
+                return;
+
+            }
+
+            Organizations  = User != null
+                                 ? new HashSet<Organization>(User.Organizations(AccessLevel, Recursive))
+                                 : new HashSet<Organization>();
+
+        }
+
+        #endregion
+
+        #region AddEventSource(HTTPEventSourceId, URLTemplate, IncludeFilterAtRuntime, CreateState, ...)
+
+        public void AddEventSource<TData, TState>(HTTPEventSource_Id                             HTTPEventSourceId,
+                                                  HTTPPath                                       URLTemplate,
+
+                                                  Func<TState, User, HTTPEvent<TData>, Boolean>  IncludeFilterAtRuntime,
+                                                  Func<TState>                                   CreatePerRequestState,
+
+                                                  HTTPHostname?                                  Hostname                   = null,
+                                                  HTTPMethod?                                    HttpMethod                 = null,
+                                                  HTTPContentType                                HTTPContentType            = null,
+
+                                                  HTTPAuthentication                             URLAuthentication          = null,
+                                                  HTTPAuthentication                             HTTPMethodAuthentication   = null,
+
+                                                  HTTPDelegate                                   DefaultErrorHandler        = null)
+        {
+
+            if (IncludeFilterAtRuntime == null)
+                IncludeFilterAtRuntime = (s, u, e) => true;
+
+            if (TryGet(HTTPEventSourceId, out IHTTPEventSource<TData> _EventSource))
+            {
+
+                HTTPServer.AddMethodCallback(Hostname        ?? HTTPHostname.Any,
+                                             HttpMethod      ?? HTTPMethod.GET,
+                                             URLTemplate,
+                                             HTTPContentType ?? HTTPContentType.EVENTSTREAM,
+                                             URLAuthentication:         URLAuthentication,
+                                             HTTPMethodAuthentication:  HTTPMethodAuthentication,
+                                             DefaultErrorHandler:       DefaultErrorHandler,
+                                             HTTPDelegate:              Request => {
+
+                                                 #region Get HTTP user and its organizations
+
+                                                 // Will return HTTP 401 Unauthorized, when the HTTP user is unknown!
+                                                 if (!TryGetHTTPUser(Request,
+                                                                     out User                   HTTPUser,
+                                                                     out HashSet<Organization>  HTTPOrganizations,
+                                                                     out HTTPResponse.Builder   Response,
+                                                                     AccessLevel:               Access_Levels.ReadWrite,
+                                                                     Recursive:                 true))
+                                                 {
+                                                     return Task.FromResult(Response.AsImmutable);
+                                                 }
+
+                                                 #endregion
+
+                                                 var State        = CreatePerRequestState != null ? CreatePerRequestState() : default(TState);
+                                                 var _HTTPEvents  = _EventSource.GetAllEventsGreater(Request.GetHeaderField_UInt64("Last-Event-ID")).
+                                                                                 Where  (_event => IncludeFilterAtRuntime(State,
+                                                                                                                          HTTPUser,
+                                                                                                                          _event)).
+                                                                                 Reverse().
+                                                                                 Skip   (Request.QueryString.GetUInt64("skip")).
+                                                                                 Take   (Request.QueryString.GetUInt64("take")).
+                                                                                 Reverse().
+                                                                                 Aggregate(new StringBuilder(),
+                                                                                           (stringBuilder, httpEvent) => stringBuilder.Append(httpEvent.SerializedHeader).
+                                                                                                                                       AppendLine(httpEvent.SerializedData).
+                                                                                                                                       AppendLine()).
+                                                                                 Append(Environment.NewLine).
+                                                                                 Append("retry: ").Append((UInt32) _EventSource.RetryIntervall.TotalMilliseconds).
+                                                                                 Append(Environment.NewLine).
+                                                                                 Append(Environment.NewLine).
+                                                                                 ToString();
+
+                                                 return Task.FromResult(
+                                                     new HTTPResponse.Builder(Request) {
+                                                         HTTPStatusCode  = HTTPStatusCode.OK,
+                                                         Server          = HTTPServer.DefaultHTTPServerName,
+                                                         ContentType     = HTTPContentType.EVENTSTREAM,
+                                                         CacheControl    = "no-cache",
+                                                         Connection      = "keep-alive",
+                                                         KeepAlive       = new KeepAliveType(TimeSpan.FromSeconds(2 * _EventSource.RetryIntervall.TotalSeconds)),
+                                                         Content         = _HTTPEvents.ToUTF8Bytes()
+                                                     }.AsImmutable);
+
+                                             });
+
+
+                HTTPServer.AddMethodCallback(Hostname        ?? HTTPHostname.Any,
+                                             HttpMethod      ?? HTTPMethod.GET,
+                                             URLTemplate,
+                                             HTTPContentType ?? HTTPContentType.JSON_UTF8,
+                                             URLAuthentication:         URLAuthentication,
+                                             HTTPMethodAuthentication:  HTTPMethodAuthentication,
+                                             DefaultErrorHandler:       DefaultErrorHandler,
+                                             HTTPDelegate:              Request => {
+
+                                                 #region Get HTTP user and its organizations
+
+                                                 // Will return HTTP 401 Unauthorized, when the HTTP user is unknown!
+                                                 if (!TryGetHTTPUser(Request,
+                                                                     out User                   HTTPUser,
+                                                                     out HashSet<Organization>  HTTPOrganizations,
+                                                                     out HTTPResponse.Builder   Response,
+                                                                     AccessLevel:               Access_Levels.ReadWrite,
+                                                                     Recursive:                 true))
+                                                 {
+                                                     return Task.FromResult(Response.AsImmutable);
+                                                 }
+
+                                                 #endregion
+
+                                                 var State        = CreatePerRequestState != null ? CreatePerRequestState() : default(TState);
+                                                 var _HTTPEvents  = _EventSource.Where(httpEvent => IncludeFilterAtRuntime(State,
+                                                                                                                           HTTPUser,
+                                                                                                                           httpEvent)).
+                                                                                 Skip (Request.QueryString.GetUInt64("skip")).
+                                                                                 Take (Request.QueryString.GetUInt64("take")).
+                                                                                 Aggregate(new StringBuilder().AppendLine("["),
+                                                                                           (stringBuilder, httpEvent) => stringBuilder.Append    (@"[""").
+                                                                                                                                       Append    (httpEvent.Subevent ?? "").
+                                                                                                                                       Append    (@""",").
+                                                                                                                                       Append    (httpEvent.SerializedData).
+                                                                                                                                       AppendLine("],")).
+                                                                                 ToString().
+                                                                                 TrimEnd();
+
+
+                                                 return Task.FromResult(
+                                                     new HTTPResponse.Builder(Request) {
+                                                         HTTPStatusCode  = HTTPStatusCode.OK,
+                                                         Server          = HTTPServer.DefaultHTTPServerName,
+                                                         ContentType     = HTTPContentType.JSON_UTF8,
+                                                         CacheControl    = "no-cache",
+                                                         Connection      = "keep-alive",
+                                                         KeepAlive       = new KeepAliveType(TimeSpan.FromSeconds(2 * _EventSource.RetryIntervall.TotalSeconds)),
+                                                         Content         = (_HTTPEvents.Length > 1
+                                                                                ? _HTTPEvents.Remove(_HTTPEvents.Length - 1, 1) + Environment.NewLine + "]"
+                                                                                : "]").ToUTF8Bytes()
+                                                     }.AsImmutable);
+
+                                             });
+
+            }
+
+            else
+                throw new ArgumentException("Event source '" + HTTPEventSourceId + "' could not be found!", nameof(HTTPEventSourceId));
+
+        }
+
+        #endregion
+
+        #region AddEventSource(HTTPEventSourceId, URLTemplate, IncludeFilterAtRuntime, CreateState, ...)
+
+        public void AddEventSource<TData, TState>(HTTPEventSource_Id                                                        HTTPEventSourceId,
+                                                  HTTPPath                                                                  URLTemplate,
+
+                                                  Func<TState, User, IEnumerable<Organization>, HTTPEvent<TData>, Boolean>  IncludeFilterAtRuntime,
+                                                  Func<TState>                                                              CreatePerRequestState,
+
+                                                  HTTPHostname?                                                             Hostname                   = null,
+                                                  HTTPMethod?                                                               HttpMethod                 = null,
+                                                  HTTPContentType                                                           HTTPContentType            = null,
+
+                                                  HTTPAuthentication                                                        URLAuthentication          = null,
+                                                  HTTPAuthentication                                                        HTTPMethodAuthentication   = null,
+
+                                                  HTTPDelegate                                                              DefaultErrorHandler        = null)
+        {
+
+            if (IncludeFilterAtRuntime == null)
+                IncludeFilterAtRuntime = (s, u, o, e) => true;
+
+            if (TryGet<TData>(HTTPEventSourceId, out IHTTPEventSource<TData> _EventSource))
+            {
+
+                HTTPServer.AddMethodCallback(Hostname        ?? HTTPHostname.Any,
+                                             HttpMethod      ?? HTTPMethod.GET,
+                                             URLTemplate,
+                                             HTTPContentType ?? HTTPContentType.EVENTSTREAM,
+                                             URLAuthentication:         URLAuthentication,
+                                             HTTPMethodAuthentication:  HTTPMethodAuthentication,
+                                             DefaultErrorHandler:       DefaultErrorHandler,
+                                             HTTPDelegate:              Request => {
+
+                                                 #region Get HTTP user and its organizations
+
+                                                 // Will return HTTP 401 Unauthorized, when the HTTP user is unknown!
+                                                 if (!TryGetHTTPUser(Request,
+                                                                     out User                   HTTPUser,
+                                                                     out HashSet<Organization>  HTTPOrganizations,
+                                                                     out HTTPResponse.Builder   Response,
+                                                                     AccessLevel:               Access_Levels.ReadWrite,
+                                                                     Recursive:                 true))
+                                                 {
+                                                     return Task.FromResult(Response.AsImmutable);
+                                                 }
+
+                                                 #endregion
+
+                                                 var State        = CreatePerRequestState != null ? CreatePerRequestState() : default;
+                                                 var _HTTPEvents  = _EventSource.GetAllEventsGreater(Request.GetHeaderField_UInt64("Last-Event-ID")).
+                                                                                 Where  (httpEvent => IncludeFilterAtRuntime(State,
+                                                                                                                             HTTPUser,
+                                                                                                                             HTTPOrganizations,
+                                                                                                                             httpEvent)).
+                                                                                 Reverse().
+                                                                                 Skip   (Request.QueryString.GetUInt64("skip")).
+                                                                                 Take   (Request.QueryString.GetUInt64("take")).
+                                                                                 Reverse().
+                                                                                 Aggregate(new StringBuilder(),
+                                                                                           (stringBuilder, httpEvent) => stringBuilder.Append(httpEvent.SerializedHeader).
+                                                                                                                                       AppendLine(httpEvent.SerializedData).
+                                                                                                                                       AppendLine()).
+                                                                                 Append(Environment.NewLine).
+                                                                                 Append("retry: ").Append((UInt32) _EventSource.RetryIntervall.TotalMilliseconds).
+                                                                                 Append(Environment.NewLine).
+                                                                                 Append(Environment.NewLine).
+                                                                                 ToString();
+
+                                                 return Task.FromResult(
+                                                     new HTTPResponse.Builder(Request) {
+                                                         HTTPStatusCode  = HTTPStatusCode.OK,
+                                                         Server          = HTTPServer.DefaultHTTPServerName,
+                                                         ContentType     = HTTPContentType.EVENTSTREAM,
+                                                         CacheControl    = "no-cache",
+                                                         Connection      = "keep-alive",
+                                                         KeepAlive       = new KeepAliveType(TimeSpan.FromSeconds(2 * _EventSource.RetryIntervall.TotalSeconds)),
+                                                         Content         = _HTTPEvents.ToUTF8Bytes()
+                                                     }.AsImmutable);
+
+                                             });
+
+
+
+                HTTPServer.AddMethodCallback(Hostname        ?? HTTPHostname.Any,
+                                             HttpMethod      ?? HTTPMethod.GET,
+                                             URLTemplate,
+                                             HTTPContentType ?? HTTPContentType.JSON_UTF8,
+                                             URLAuthentication:         URLAuthentication,
+                                             HTTPMethodAuthentication:  HTTPMethodAuthentication,
+                                             DefaultErrorHandler:       DefaultErrorHandler,
+                                             HTTPDelegate:              Request => {
+
+                                                 #region Get HTTP user and its organizations
+
+                                                 // Will return HTTP 401 Unauthorized, when the HTTP user is unknown!
+                                                 if (!TryGetHTTPUser(Request,
+                                                                     out User                   HTTPUser,
+                                                                     out HashSet<Organization>  HTTPOrganizations,
+                                                                     out HTTPResponse.Builder   Response,
+                                                                     AccessLevel:               Access_Levels.ReadWrite,
+                                                                     Recursive:                 true))
+                                                 {
+                                                     return Task.FromResult(Response.AsImmutable);
+                                                 }
+
+                                                 #endregion
+
+                                                 var State        = CreatePerRequestState != null ? CreatePerRequestState() : default(TState);
+                                                 var _HTTPEvents  = _EventSource.Where(httpEvent => IncludeFilterAtRuntime(State,
+                                                                                                                           HTTPUser,
+                                                                                                                           HTTPOrganizations,
+                                                                                                                           httpEvent)).
+                                                                                 Skip (Request.QueryString.GetUInt64("skip")).
+                                                                                 Take (Request.QueryString.GetUInt64("take")).
+                                                                                 Aggregate(new StringBuilder().AppendLine("["),
+                                                                                           (stringBuilder, httpEvent) => stringBuilder.Append(@"[""").
+                                                                                                                                       Append(httpEvent.Subevent ?? "").
+                                                                                                                                       Append(@""",").
+                                                                                                                                       Append(httpEvent.SerializedData).
+                                                                                                                                       AppendLine("],")).
+                                                                                 ToString().
+                                                                                 TrimEnd();
+
+
+                                                 return Task.FromResult(
+                                                     new HTTPResponse.Builder(Request) {
+                                                         HTTPStatusCode  = HTTPStatusCode.OK,
+                                                         Server          = HTTPServer.DefaultHTTPServerName,
+                                                         ContentType     = HTTPContentType.JSON_UTF8,
+                                                         CacheControl    = "no-cache",
+                                                         Connection      = "keep-alive",
+                                                         KeepAlive       = new KeepAliveType(TimeSpan.FromSeconds(2 * _EventSource.RetryIntervall.TotalSeconds)),
+                                                         Content         = (_HTTPEvents.Length > 1
+                                                                                ? _HTTPEvents.Remove(_HTTPEvents.Length - 1, 1) + Environment.NewLine + "]"
+                                                                                : "]").ToUTF8Bytes()
+                                                     }.AsImmutable);
+
+                                             });
+
+            }
+
+            else
+                throw new ArgumentException("Event source '" + HTTPEventSourceId + "' could not be found!", nameof(HTTPEventSourceId));
+
+        }
 
         #endregion
 
@@ -4058,7 +4475,7 @@ namespace social.OpenData.UsersAPI
 
                                               Login = HTTPTools.URLDecode(Login);
 
-                                              if (Login.Length < MinLoginLength)
+                                              if (Login.Length < MinUserIdLength)
                                               {
 
                                                   return Task.FromResult(
@@ -4138,7 +4555,7 @@ namespace social.OpenData.UsersAPI
 
                                               #region Get RedirectURL
 
-                                              LoginData.TryGetValue("RedirectURL", out String RedirectURL);
+                                              LoginData.TryGetValue("redirect", out String RedirectURL);
 
                                               if (RedirectURL.IsNotNullOrEmpty())
                                                  RedirectURL = HTTPTools.URLDecode(RedirectURL);
@@ -4946,7 +5363,7 @@ namespace social.OpenData.UsersAPI
                                               if (UserId.HasValue)
                                               {
 
-                                                  if (UserId.Value.Length < MinLoginLength)
+                                                  if (UserId.Value.Length < MinUserIdLength)
                                                   {
 
                                                       return new HTTPResponse.Builder(Request) {
@@ -5307,26 +5724,6 @@ namespace social.OpenData.UsersAPI
 
                                               #endregion
 
-                                              #region Register 'New User Default'-Notifications
-
-                                              var newUserDefaultNotificationMessageGroups = _NotificationMessageGroups.
-                                                                                                SelectMany(group       => group.Notifications).
-                                                                                                Where     (description => description.Tags.Contains(NotificationTag.NewUserDefault)).
-                                                                                                SelectMany(description => description.Messages).
-                                                                                                ToHashSet();
-
-                                              if (newUserDefaultNotificationMessageGroups.Any())
-                                                  await AddNotification(newUser,
-                                                                        new EMailNotification(newUser.EMail,
-                                                                                              "",
-                                                                                              "",
-                                                                                              "",
-                                                                                              newUserDefaultNotificationMessageGroups,
-                                                                                              "Default notifications for new users"),
-                                                                        HTTPUser.Id);
-
-                                              #endregion
-
                                               #region Send 'new user' e-mail
 
                                               var MailSentResult = MailSentStatus.failed;
@@ -5574,7 +5971,7 @@ namespace social.OpenData.UsersAPI
                                               }
 
                                               if (!User_Id.TryParse(Request.ParsedURLParameters[0], out User_Id UserId) ||
-                                                   UserId.Length < MinLoginLength)
+                                                   UserId.Length < MinUserIdLength)
                                               {
 
                                                   return new HTTPResponse.Builder(Request) {
@@ -6418,7 +6815,7 @@ namespace social.OpenData.UsersAPI
                                               // The login is taken from the URL, not from the JSON!
                                               var Login = Request.ParsedURLParameters[0];
 
-                                              if (Login.Length < MinLoginLength)
+                                              if (Login.Length < MinUserIdLength)
                                               {
 
                                                   return new HTTPResponse.Builder(Request) {
@@ -11567,6 +11964,9 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
+        #endregion
+
+        #region Database file...
 
         #region (protected) ReadDatabaseFile(ProcessEventDelegate, DatabaseFileName = null)
 
@@ -12692,7 +13092,6 @@ namespace social.OpenData.UsersAPI
 
                     U2G_Group.AddIncomingEdge(U2G_User.AddOutgoingEdge(U2G_EdgeLabel,
                                                                        U2G_Group));
-                                                                       //Data.ParseMandatory_PrivacyLevel()));
 
                     break;
 
@@ -13043,1548 +13442,6 @@ namespace social.OpenData.UsersAPI
         #endregion
 
 
-        #region (protected) GetUsersAPIRessource(Ressource)
-
-        /// <summary>
-        /// Get an embedded ressource of the UsersAPI.
-        /// </summary>
-        /// <param name="Ressource">The path and name of the ressource to load.</param>
-        protected Stream GetUsersAPIRessource(String Ressource)
-            => GetType().Assembly.GetManifestResourceStream(HTTPRoot + Ressource);
-
-        #endregion
-
-
-        #region ReceiveTelegramMessage(Sender, e)
-
-        async void ReceiveTelegramMessage(Object Sender, Telegram.Bot.Args.MessageEventArgs e)
-        {
-
-            var messageText = e?.Message?.Text;
-
-            if (messageText.IsNeitherNullNorEmpty())
-                messageText.Trim();
-
-            if (messageText.IsNotNullOrEmpty())
-            {
-
-                var command = messageText.Split(' ');
-
-                switch (command[0])
-                {
-
-                    case "/system":
-                        await this.TelegramAPI.SendTextMessageAsync(
-                            ChatId:  e.Message.Chat,
-                            Text:    "I'm running on: " + Environment.MachineName + " and use " + (Environment.WorkingSet / 1024 /1024) + " MBytes RAM"
-                        );
-                        break;
-
-                    case "/echo":
-                        await this.TelegramAPI.SendTextMessageAsync(
-                            ChatId:  e.Message.Chat,
-                            Text:    "Hello " + e.Message.From.FirstName + " " + e.Message.From.LastName + "!\nYou said:\n" + e.Message.Text
-                        );
-                        break;
-
-                }
-
-            }
-        }
-
-        #endregion
-
-
-        #region (protected) TryGetSecurityTokenFromCookie(Request)
-
-        protected SecurityToken_Id? TryGetSecurityTokenFromCookie(HTTPRequest Request)
-        {
-
-            if (Request.Cookies == null)
-                return null;
-
-            if (Request. Cookies.TryGet  (SessionCookieName,            out HTTPCookie        Cookie) &&
-                         Cookie. TryGet  (SessionCookieName.ToString(), out String            Value)  &&
-                SecurityToken_Id.TryParse(Value,                        out SecurityToken_Id  SecurityTokenId))
-            {
-                return SecurityTokenId;
-            }
-
-            return null;
-
-        }
-
-        #endregion
-
-        #region (protected) TryGetSecurityTokenFromCookie(Request, SecurityTokenId)
-
-        protected Boolean TryGetSecurityTokenFromCookie(HTTPRequest Request, out SecurityToken_Id SecurityTokenId)
-        {
-
-            if (Request.Cookies  != null &&
-                Request.Cookies. TryGet  (SessionCookieName,            out HTTPCookie  Cookie) &&
-                        Cookie.  TryGet  (SessionCookieName.ToString(), out String      Value)  &&
-                SecurityToken_Id.TryParse(Value,                        out             SecurityTokenId))
-            {
-                return true;
-            }
-
-            SecurityTokenId = default;
-            return false;
-
-        }
-
-        #endregion
-
-        #region (protected) TryGetHTTPUser (Request, out User)
-
-        protected Boolean TryGetHTTPUser(HTTPRequest Request, out User User)
-        {
-
-            #region Get user from cookie...
-
-            if (Request.Cookies != null                                                                               &&
-                Request. Cookies.TryGet     (SessionCookieName,            out HTTPCookie        Cookie)              &&
-                         Cookie. TryGet     (SessionCookieName.ToString(), out String            Value)               &&
-                SecurityToken_Id.TryParse   (Value,                        out SecurityToken_Id  SecurityTokenId)     &&
-                HTTPCookies.     TryGetValue(SecurityTokenId,              out SecurityToken     SecurityInformation) &&
-                DateTime.UtcNow < SecurityInformation.Expires                                                         &&
-                TryGetUser(SecurityInformation.UserId, out User))
-            {
-                return true;
-            }
-
-            #endregion
-
-            #region Get user from Basic-Auth...
-
-            if (Request.Authorization is HTTPBasicAuthentication basicAuth)
-            {
-
-                #region Find username or e-mail addresses...
-
-                var possibleUsers = new HashSet<User>();
-                var validUsers    = new HashSet<User>();
-
-                if (User_Id.TryParse   (basicAuth.Username, out User_Id _UserId) &&
-                    _Users. TryGetValue(_UserId,            out User    _User))
-                {
-                    possibleUsers.Add(_User);
-                }
-
-                if (possibleUsers.Count == 0)
-                {
-                    foreach (var user in _Users.Values)
-                    {
-                        if (String.Equals(basicAuth.Username,
-                                          user.EMail.Address.ToString(),
-                                          StringComparison.OrdinalIgnoreCase))
-                        {
-                            possibleUsers.Add(user);
-                        }
-                    }
-                }
-
-                if (possibleUsers.Count > 0)
-                {
-                    foreach (var possibleUser in possibleUsers)
-                    {
-                        if (_LoginPasswords.TryGetValue(possibleUser.Id, out LoginPassword loginPassword) &&
-                            loginPassword.VerifyPassword(basicAuth.Password))
-                        {
-                            validUsers.Add(possibleUser);
-                        }
-                    }
-                }
-
-                #endregion
-
-                #region HTTP Basic Auth is ok!
-
-                if (validUsers.Count == 1 &&
-                    validUsers.First().AcceptedEULA.HasValue &&
-                    validUsers.First().AcceptedEULA.Value < DateTime.UtcNow)
-                {
-                    User = validUsers.First();
-                    return true;
-                }
-
-                #endregion
-
-            }
-
-            #endregion
-
-            #region Get user from API Key...
-
-            if (Request.API_Key.HasValue &&
-                TryGetAPIKeyInfo(Request.API_Key.Value, out APIKeyInfo apiKeyInfo) &&
-                (!apiKeyInfo.NotAfter.HasValue || DateTime.UtcNow < apiKeyInfo.NotAfter) &&
-                 !apiKeyInfo.IsDisabled)
-            {
-                User = apiKeyInfo.User;
-                return true;
-            }
-
-            #endregion
-
-            User = null;
-            return false;
-
-        }
-
-        #endregion
-
-        #region (protected) TryGetAstronaut(Request, out User)
-
-        protected Boolean TryGetAstronaut(HTTPRequest Request, out User User)
-        {
-
-            #region Get user from cookie...
-
-            if (Request.Cookies != null                                                                               &&
-                Request. Cookies.TryGet     (SessionCookieName,            out HTTPCookie        Cookie)              &&
-                         Cookie. TryGet     (SessionCookieName.ToString(), out String            Value)               &&
-                SecurityToken_Id.TryParse   (Value,                        out SecurityToken_Id  SecurityTokenId)     &&
-                HTTPCookies.     TryGetValue(SecurityTokenId,              out SecurityToken     SecurityInformation) &&
-                DateTime.UtcNow < SecurityInformation.Expires                                                         &&
-                TryGetUser(SecurityInformation.Astronaut ?? SecurityInformation.UserId, out User))
-            {
-                return true;
-            }
-
-            #endregion
-
-            User = null;
-            return false;
-
-        }
-
-        #endregion
-
-        #region (protected) TryGetHTTPUser (Request, User, Organizations, Response, AccessLevel = ReadOnly, Recursive = false)
-
-        protected Boolean TryGetHTTPUser(HTTPRequest                Request,
-                                         out User                   User,
-                                         out HashSet<Organization>  Organizations,
-                                         out HTTPResponse.Builder   Response,
-                                         Access_Levels              AccessLevel  = Access_Levels.ReadOnly,
-                                         Boolean                    Recursive    = false)
-        {
-
-            if (!TryGetHTTPUser(Request, out User))
-            {
-
-                //if (Request.RemoteSocket.IPAddress.IsIPv4 &&
-                //    Request.RemoteSocket.IPAddress.IsLocalhost)
-                //{
-                //    User           = Admins.User2GroupInEdges(edgelabel => edgelabel == User2GroupEdges.IsAdmin).FirstOrDefault()?.Source;
-                //    Organizations  = User.Organizations(RequireReadWriteAccess, Recursive);
-                //    Response       = null;
-                //    return true;
-                //}
-
-                Organizations  = new HashSet<Organization>();
-
-                Response       = new HTTPResponse.Builder(Request) {
-                                     HTTPStatusCode  = HTTPStatusCode.Unauthorized,
-                                     Location        = URLPathPrefix + "login",
-                                     Date            = DateTime.Now,
-                                     Server          = HTTPServer.DefaultServerName,
-                                     CacheControl    = "private, max-age=0, no-cache",
-                                     Connection      = "close"
-                                 };
-
-                return false;
-
-            }
-
-            Organizations  = User != null
-                                 ? new HashSet<Organization>(User.Organizations(AccessLevel, Recursive))
-                                 : new HashSet<Organization>();
-
-            Response       = null;
-
-            return true;
-
-        }
-
-        #endregion
-
-        #region (protected) TryGetAstronaut(Request, User, Organizations, Response, AccessLevel = ReadOnly, Recursive = false)
-
-        protected Boolean TryGetAstronaut(HTTPRequest                    Request,
-                                          out User                       User,
-                                          out IEnumerable<Organization>  Organizations,
-                                          out HTTPResponse.Builder       Response,
-                                          Access_Levels                  AccessLevel  = Access_Levels.ReadOnly,
-                                          Boolean                        Recursive    = false)
-        {
-
-            if (!TryGetAstronaut(Request, out User))
-            {
-
-                //if (Request.RemoteSocket.IPAddress.IsIPv4 &&
-                //    Request.RemoteSocket.IPAddress.IsLocalhost)
-                //{
-                //    User           = Admins.User2GroupInEdges(edgelabel => edgelabel == User2GroupEdges.IsAdmin).FirstOrDefault()?.Source;
-                //    Organizations  = User.Organizations(RequireReadWriteAccess, Recursive);
-                //    Response       = null;
-                //    return true;
-                //}
-
-                Organizations  = new Organization[0];
-                Response       = new HTTPResponse.Builder(Request) {
-                                     HTTPStatusCode  = HTTPStatusCode.Unauthorized,
-                                     Location        = URLPathPrefix + "login",
-                                     Date            = DateTime.Now,
-                                     Server          = HTTPServer.DefaultServerName,
-                                     CacheControl    = "private, max-age=0, no-cache",
-                                     Connection      = "close"
-                                 };
-
-                return false;
-
-            }
-
-            Organizations = User?.Organizations(AccessLevel, Recursive) ?? new Organization[0];
-            Response      = null;
-            return true;
-
-        }
-
-        #endregion
-
-        #region (protected) TryGetHTTPUser (Request, User, Organizations,           AccessLevel = ReadOnly, Recursive = false)
-
-        protected void TryGetHTTPUser(HTTPRequest                Request,
-                                      out User                   User,
-                                      out HashSet<Organization>  Organizations,
-                                      Access_Levels              AccessLevel  = Access_Levels.ReadOnly,
-                                      Boolean                    Recursive    = false)
-        {
-
-            if (!TryGetHTTPUser(Request, out User))
-            {
-
-                if (Request.HTTPSource.IPAddress.IsIPv4 &&
-                    Request.HTTPSource.IPAddress.IsLocalhost)
-                {
-                    User           = Admins.User2GroupInEdges(edgelabel => edgelabel == User2GroupEdgeTypes.IsAdmin).FirstOrDefault()?.Source;
-                    Organizations  = new HashSet<Organization>(User.Organizations(AccessLevel, Recursive));
-                    return;
-                }
-
-                Organizations  = null;
-                return;
-
-            }
-
-            Organizations  = User != null
-                                 ? new HashSet<Organization>(User.Organizations(AccessLevel, Recursive))
-                                 : new HashSet<Organization>();
-
-        }
-
-        #endregion
-
-
-        #region WriteToLogfileAndNotify(User, MessageType, OldUser = null, CurrentUserId = null)
-
-        public async Task WriteToLogfileAndNotify<TUser>(TUser                    User,
-                                                         NotificationMessageType  MessageType,
-                                                         User                     OldUser        = null,
-                                                         User_Id?                 CurrentUserId  = null)
-
-            where TUser : User
-
-        {
-
-            if (User == null)
-                return;
-
-            await WriteToDatabaseFile(MessageType,
-                                      User.ToJSON(false, true),
-                                      CurrentUserId);
-
-            await Notify(User,
-                         MessageType,
-                         OldUser,
-                         CurrentUserId);
-
-        }
-
-        #endregion
-
-        #region Notify(User, MessageType, OldUser = null, CurrentUserId = null)
-
-        public async Task Notify<TUser>(TUser                    User,
-                                        NotificationMessageType  MessageType,
-                                        User                     OldUser        = null,
-                                        User_Id?                 CurrentUserId  = null)
-
-            where TUser : User
-
-        {
-
-            if (User == null)
-                return;
-
-            var _MessageTypes = new HashSet<NotificationMessageType>() { MessageType };
-
-            if (MessageType == addUserIfNotExists_MessageType)
-            {
-                _MessageTypes.Add(addUser_MessageType);
-            }
-
-            else if (MessageType == addOrUpdateUser_MessageType)
-            {
-                if (OldUser == null)
-                    _MessageTypes.Add(addUser_MessageType);
-                else
-                    _MessageTypes.Add(updateUser_MessageType);
-            }
-
-            var MessageTypes = _MessageTypes.ToArray();
-
-
-            #region Get notification settings from his organisations and higher-level organizations
-
-            var allHisOrganizations = User.User2Organization_OutEdges.
-                                           Where (edge => edge.EdgeLabel == User2OrganizationEdgeTypes.IsAdmin ||
-                                                          edge.EdgeLabel == User2OrganizationEdgeTypes.IsMember).
-                                           Select(edge => edge.Target).
-                                           ToHashSet();
-
-            // Limit the number of levels, or people will get overwhelmed by e-mails...
-            for (var i = 0; i <= 2; i++)
-            {
-                foreach (var higherLevelOrganization in allHisOrganizations.ToArray().
-                                                                            SelectMany(org => org.Organization2OrganizationOutEdges.
-                                                                                                  Where (edge => edge.EdgeLabel == Organization2OrganizationEdgeTypes.IsChildOf).
-                                                                                                  Select(edge => edge.Target)))
-                {
-                    if (higherLevelOrganization != NoOwner)
-                        allHisOrganizations.Add(higherLevelOrganization);
-                }
-            }
-
-            #endregion
-
-
-            if (!DisableNotifications)
-            {
-
-                #region Telegram Notifications
-
-                try
-                {
-
-                    var AllTelegramNotifications  = this.GetTelegramNotifications(User, MessageTypes).
-                                                         ToHashSet();
-
-                    foreach (var telegramNotification in allHisOrganizations.SelectMany(org => this.GetTelegramNotifications(org, MessageTypes)))
-                        AllTelegramNotifications.Add(telegramNotification);
-
-
-                    if (DevMachines.Contains(Environment.MachineName))
-                    {
-                        AllTelegramNotifications.Clear();
-                    }
-
-                    if (AllTelegramNotifications.Count > 0)
-                    {
-
-                        if (_MessageTypes.Contains(addUser_MessageType))
-                        {
-                            await TelegramStore.SendTelegrams(String.Concat("User '", User.Name, "' was successfully added. ",
-                                                                            "https://", ExternalDNSName, BasePath, "/users/", User.Id),
-                                                                            // to Organization {Org_Name}.",
-                                                              AllTelegramNotifications.Select(TelegramNotification => TelegramNotification.Username));
-                        }
-
-                        if (_MessageTypes.Contains(updateUser_MessageType))
-                        {
-                            await TelegramStore.SendTelegrams(String.Concat("User '", User.Name, "' information has been successfully updated. ",
-                                                                            "https://", ExternalDNSName, BasePath, "/users/", User.Id),
-                                                                            // + {Updated information}
-                                                              AllTelegramNotifications.Select(TelegramNotification => TelegramNotification.Username));
-                        }
-
-                        if (_MessageTypes.Contains(removeUser_MessageType))
-                        {
-                            await TelegramStore.SendTelegrams(String.Concat("User '", User.Name, "' information has been removed. ",
-                                                                            "If you haven't approved this request, please contact support: support@cardi-link.com"),
-                                                              AllTelegramNotifications.Select(TelegramNotification => TelegramNotification.Username));
-                        }
-
-                    }
-
-                }
-                catch (Exception e)
-                {
-                    Console.WriteLine(e);
-                }
-
-                #endregion
-
-                #region SMS Notifications
-
-                try
-                {
-
-                    var AllSMSNotifications  = this.GetSMSNotifications(User, MessageTypes).
-                                                    ToHashSet();
-
-                    foreach (var SMSNotification in allHisOrganizations.SelectMany(org => this.GetSMSNotifications(org, MessageTypes)))
-                        AllSMSNotifications.Add(SMSNotification);
-
-
-                    if (DevMachines.Contains(Environment.MachineName))
-                    {
-                        AllSMSNotifications.Clear();
-                    }
-
-                    if (AllSMSNotifications.Count > 0)
-                    {
-
-                        if (_MessageTypes.Contains(addUser_MessageType))
-                        {
-                            SendSMS(String.Concat("User '", User.Name, "' was successfully added. ",
-                                                  "https://", ExternalDNSName, BasePath, "/users/", User.Id),
-                                                  // to Organization {Org_Name}.",
-                                    AllSMSNotifications.Select(smsPhoneNumber => smsPhoneNumber.PhoneNumber.ToString()).ToArray(),
-                                    "CardiCloud");
-                        }
-
-                        if (_MessageTypes.Contains(updateUser_MessageType))
-                        {
-                            SendSMS(String.Concat("User '", User.Name, "' information has been successfully updated. ",
-                                                  "https://", ExternalDNSName, BasePath, "/users/", User.Id),
-                                                  // + {Updated information}
-                                    AllSMSNotifications.Select(smsPhoneNumber => smsPhoneNumber.PhoneNumber.ToString()).ToArray(),
-                                    "CardiCloud");
-                        }
-
-                        if (_MessageTypes.Contains(removeUser_MessageType))
-                        {
-                            SendSMS(String.Concat("User '", User.Name, "' information has been removed. ",
-                                                  "If you haven't approved this request, please contact support: support@cardi-link.com"),
-                                    AllSMSNotifications.Select(smsPhoneNumber => smsPhoneNumber.PhoneNumber.ToString()).ToArray(),
-                                    "CardiCloud");
-                        }
-
-                    }
-
-                }
-                catch (Exception e)
-                {
-                    Console.WriteLine(e);
-                }
-
-                #endregion
-
-                #region HTTPS Notifications
-
-                try
-                {
-
-                    var AllHTTPSNotifications  = this.GetHTTPSNotifications(User, MessageTypes).
-                                                      ToHashSet();
-
-                    foreach (var HTTPSNotification in allHisOrganizations.SelectMany(org => this.GetHTTPSNotifications(org, MessageTypes)))
-                        AllHTTPSNotifications.Add(HTTPSNotification);
-
-
-                    if (DevMachines.Contains(Environment.MachineName))
-                        AllHTTPSNotifications.Clear();
-
-                    if (AllHTTPSNotifications.Count > 0)
-                    {
-
-                        if (_MessageTypes.Contains(addUser_MessageType))
-                        {
-                            await SendHTTPSNotifications(AllHTTPSNotifications,
-                                                         new JObject(
-                                                             new JProperty("userCreated",
-                                                                 User.ToJSON()
-                                                             ),
-                                                             new JProperty("timestamp", DateTime.UtcNow.ToIso8601())
-                                                         ));
-                        }
-
-                        if (_MessageTypes.Contains(updateUser_MessageType))
-                        {
-                            await SendHTTPSNotifications(AllHTTPSNotifications,
-                                                         new JObject(
-                                                             new JProperty("userUpdated",
-                                                                 User.ToJSON()
-                                                             ),
-                                                             new JProperty("timestamp", DateTime.UtcNow.ToIso8601())
-                                                         ));
-                        }
-
-                        if (_MessageTypes.Contains(removeUser_MessageType))
-                        {
-                            await SendHTTPSNotifications(AllHTTPSNotifications,
-                                                         new JObject(
-                                                             new JProperty("userRemoved",
-                                                                 User.ToJSON()
-                                                             ),
-                                                             new JProperty("timestamp", DateTime.UtcNow.ToIso8601())
-                                                         ));
-                        }
-
-                    }
-
-                }
-                catch (Exception e)
-                {
-                    Console.WriteLine(e);
-                }
-
-                #endregion
-
-                #region EMailNotifications
-
-                try
-                {
-
-                    var AllEMailNotifications  = this.GetEMailNotifications(User, MessageTypes).
-                                                      ToHashSet();
-
-                    foreach (var eMailNotification in allHisOrganizations.SelectMany(org => this.GetEMailNotifications(org, MessageTypes)))
-                        AllEMailNotifications.Add(eMailNotification);
-
-
-                    if (DevMachines.Contains(Environment.MachineName))
-                    {
-                        AllEMailNotifications.Clear();
-                    }
-
-                    if (AllEMailNotifications.Count > 0)
-                    {
-
-                        if (_MessageTypes.Contains(addUser_MessageType))
-                        {
-                            await APISMTPClient.Send(
-                                     new HTMLEMailBuilder() {
-
-                                         From           = Robot.EMail,
-                                         To             = EMailAddressListBuilder.Create(EMailAddressList.Create(AllEMailNotifications.Select(emailnotification => emailnotification.EMailAddress))),
-                                         Passphrase     = APIPassphrase,
-                                         Subject        = String.Concat("User '" + User.Name + "' was successfully created."), // to Organization {Org_Name}."),
-
-                                         HTMLText       = String.Concat(HTMLEMailHeader,
-                                                                        "User <a href=\"https://", this.ExternalDNSName, this.BasePath, "/users/", User.Id, "\">", User.Name, "</a> was successfully created.", // to Organization {Org_Name}.",
-                                                                        HTMLEMailFooter),
-
-                                         PlainText      = String.Concat(TextEMailHeader,
-                                                                        "User '" + User.Name + "' was successfully created.\r\n",
-                                                                        "https://", ExternalDNSName, BasePath, "/users/", User.Id, "\r\r\r\r",
-                                                                        // to Organization {Org_Name}.\r\r\r\r",
-                                                                        TextEMailFooter),
-
-                                         SecurityLevel  = EMailSecurity.sign
-
-                                     });
-                        }
-
-                        if (_MessageTypes.Contains(updateUser_MessageType))
-                        {
-                            await APISMTPClient.Send(
-                                     new HTMLEMailBuilder() {
-
-                                         From           = Robot.EMail,
-                                         To             = EMailAddressListBuilder.Create(EMailAddressList.Create(AllEMailNotifications.Select(emailnotification => emailnotification.EMailAddress))),
-                                         Passphrase     = APIPassphrase,
-                                         Subject        = String.Concat("User '" + User.Name + "' information has been successfully updated."), // + {Updated information}  + link {User_ID_baseData page}."),
-
-                                         HTMLText       = String.Concat(HTMLEMailHeader,
-                                                                        "User <a href=\"https://", ExternalDNSName, BasePath, "/users/", User.Id, "\">", User.Name, "</a> information has been successfully updated.", // + {Updated information}  + link {User_ID_baseData page}.",
-                                                                        HTMLEMailFooter),
-
-                                         PlainText      = String.Concat(TextEMailHeader,
-                                                                        "User '" + User.Name + "' information has been successfully updated.\r\n",
-                                                                        "https://", ExternalDNSName, BasePath, "/users/", User.Id, "\r\r\r\r",
-                                                                        // + {Updated information}
-                                                                        TextEMailFooter),
-
-                                         SecurityLevel  = EMailSecurity.sign
-
-                                     });
-                        }
-
-                        if (_MessageTypes.Contains(removeUser_MessageType))
-                        {
-                            await APISMTPClient.Send(
-                                     new HTMLEMailBuilder() {
-
-                                         From           = Robot.EMail,
-                                         To             = EMailAddressListBuilder.Create(EMailAddressList.Create(AllEMailNotifications.Select(emailnotification => emailnotification.EMailAddress))),
-                                         Passphrase     = APIPassphrase,
-                                         Subject        = String.Concat("User '" + User.Name + "' information has been removed."),
-
-                                         HTMLText       = String.Concat(HTMLEMailHeader,
-                                                                        "User <a href=\"https://", ExternalDNSName, BasePath, "/users/", User.Id, "\">", User.Name, "</a> information has been removed. If you haven't approved this request, please contact support: <a href=\"mailto:support@cardi-link.com\">support@cardi-link.com</a>",
-                                                                        HTMLEMailFooter),
-
-                                         PlainText      = String.Concat(TextEMailHeader,
-                                                                        "User '" + User.Name + "' information has been removed.\r\n",
-                                                                        "If you haven't approved this request, please contact support: support@cardi-link.com\r\r\r\r",
-                                                                        TextEMailFooter),
-
-                                         SecurityLevel  = EMailSecurity.sign
-
-                                     });
-                        }
-
-                    }
-
-                }
-                catch (Exception e)
-                {
-                    Console.WriteLine(e);
-                }
-
-                #endregion
-
-            }
-
-        }
-
-        #endregion
-
-        #region WriteToLogfileAndNotify(Organization, MessageType, OldOrganization = null, CurrentUserId = null)
-
-        public async Task WriteToLogfileAndNotify<TOrganization>(TOrganization            Organization,
-                                                                 NotificationMessageType  MessageType,
-                                                                 Organization             OldOrganization   = null,
-                                                                 User_Id?                 CurrentUserId     = null)
-
-            where TOrganization : Organization
-
-        {
-
-            if (Organization == null)
-                return;
-
-            await WriteToDatabaseFile(MessageType,
-                                      Organization.ToJSON(false, true),
-                                      CurrentUserId);
-
-            await Notify(Organization,
-                         MessageType,
-                         OldOrganization,
-                         CurrentUserId);
-
-        }
-
-        #endregion
-
-        #region Notify(Organization, MessageType, OldOrganization = null, CurrentUserId = null)
-
-        public async Task Notify<TOrganization>(TOrganization            Organization,
-                                                NotificationMessageType  MessageType,
-                                                Organization             OldOrganization  = null,
-                                                User_Id?                 CurrentUserId    = null)
-
-            where TOrganization : Organization
-
-        {
-
-            if (Organization == null)
-                return;
-
-            var _MessageTypes = new HashSet<NotificationMessageType>() { MessageType };
-
-            if (MessageType == addOrganizationIfNotExists_MessageType)
-            {
-                _MessageTypes.Add(addOrganization_MessageType);
-            }
-
-            else if (MessageType == addOrUpdateOrganization_MessageType)
-            {
-                if (OldOrganization == null)
-                    _MessageTypes.Add(addOrganization_MessageType);
-                else
-                    _MessageTypes.Add(updateOrganization_MessageType);
-            }
-
-            var MessageTypes = _MessageTypes.ToArray();
-
-
-            if (!DisableNotifications)
-            {
-
-                #region Telegram Notifications
-
-                try
-                {
-
-                    var AllTelegramNotifications  = this.GetTelegramNotifications(Organization, MessageTypes).
-                                                         ToHashSet();
-
-                    if (DevMachines.Contains(Environment.MachineName))
-                    {
-                        AllTelegramNotifications.Clear();
-                    }
-
-                    if (AllTelegramNotifications.Count > 0)
-                    {
-
-                        if (_MessageTypes.Contains(addOrganization_MessageType))
-                        {
-                            await TelegramStore.SendTelegrams(String.Concat("Organization '", Organization.Name.FirstText(), "' was successfully created. ",
-                                                                            "https://", ExternalDNSName, BasePath, "/organizations/", Organization.Id),
-                                                              AllTelegramNotifications.Select(TelegramNotification => TelegramNotification.Username));
-                        }
-
-                        if (_MessageTypes.Contains(updateOrganization_MessageType))
-                        {
-                            await TelegramStore.SendTelegrams(String.Concat("Organization '", Organization.Name.FirstText(), "' information has been successfully updated. ",
-                                                                            "https://", ExternalDNSName, BasePath, "/organizations/", Organization.Id),
-                                                                            // + {Updated information}
-                                                              AllTelegramNotifications.Select(TelegramNotification => TelegramNotification.Username));
-                        }
-
-                        if (_MessageTypes.Contains(removeOrganization_MessageType))
-                        {
-                            await TelegramStore.SendTelegrams(String.Concat("Organization '", Organization.Name.FirstText(), "' has been removed. ",
-                                                                            "If you haven't approved this request, please contact support: support@cardi-link.com"),
-                                                              AllTelegramNotifications.Select(TelegramNotification => TelegramNotification.Username));
-                        }
-
-                    }
-
-                }
-                catch (Exception e)
-                {
-                    Console.WriteLine(e);
-                }
-
-                #endregion
-
-                #region SMS Notifications
-
-                try
-                {
-
-                    var AllSMSNotifications  = this.GetSMSNotifications(Organization, MessageTypes).
-                                                    ToHashSet();
-
-                    if (DevMachines.Contains(Environment.MachineName))
-                    {
-                        AllSMSNotifications.Clear();
-                    }
-
-                    if (AllSMSNotifications.Count > 0)
-                    {
-
-                        if (_MessageTypes.Contains(addOrganization_MessageType))
-                        {
-                            SendSMS(String.Concat("Organization '", Organization.Name.FirstText(), "' was successfully created. ",
-                                                  "https://", ExternalDNSName, BasePath, "/organizations/", Organization.Id),
-                                    AllSMSNotifications.Select(smsPhoneNumber => smsPhoneNumber.PhoneNumber.ToString()).ToArray(),
-                                    "CardiCloud");
-                        }
-
-                        if (_MessageTypes.Contains(updateOrganization_MessageType))
-                        {
-                            SendSMS(String.Concat("Organization '", Organization.Name.FirstText(), "' information has been successfully updated. ",
-                                                  "https://", ExternalDNSName, BasePath, "/organizations/", Organization.Id),
-                                                  // + {Updated information}
-                                    AllSMSNotifications.Select(smsPhoneNumber => smsPhoneNumber.PhoneNumber.ToString()).ToArray(),
-                                    "CardiCloud");
-                        }
-
-                        if (_MessageTypes.Contains(removeOrganization_MessageType))
-                        {
-                            SendSMS(String.Concat("Organization '", Organization.Name.FirstText(), "' has been removed."),
-                                    AllSMSNotifications.Select(smsPhoneNumber => smsPhoneNumber.PhoneNumber.ToString()).ToArray(),
-                                    "CardiCloud");
-                        }
-
-                    }
-
-                }
-                catch (Exception e)
-                {
-                    Console.WriteLine(e);
-                }
-
-                #endregion
-
-                #region HTTPS Notifications
-
-                try
-                {
-
-                    var AllHTTPSNotifications  = this.GetHTTPSNotifications(Organization, MessageTypes).
-                                                      ToHashSet();
-
-                    if (DevMachines.Contains(Environment.MachineName))
-                        AllHTTPSNotifications.Clear();
-
-                    if (AllHTTPSNotifications.Count > 0)
-                    {
-
-                        if (_MessageTypes.Contains(addOrganization_MessageType))
-                        {
-
-                            await SendHTTPSNotifications(AllHTTPSNotifications,
-                                                         new JObject(
-                                                             new JProperty("organizationCreated",
-                                                                 Organization.ToJSON()
-                                                             ),
-                                                             new JProperty("timestamp", DateTime.UtcNow.ToIso8601())
-                                                         ));
-
-                        }
-
-                        if (_MessageTypes.Contains(updateOrganization_MessageType))
-                        {
-
-                            await SendHTTPSNotifications(AllHTTPSNotifications,
-                                                         new JObject(
-                                                             new JProperty("organizationUpdated",
-                                                                 Organization.ToJSON()
-                                                             ),
-                                                             new JProperty("timestamp", DateTime.UtcNow.ToIso8601())
-                                                         ));
-
-                        }
-
-                        if (_MessageTypes.Contains(removeOrganization_MessageType))
-                        {
-
-                            await SendHTTPSNotifications(AllHTTPSNotifications,
-                                                         new JObject(
-                                                             new JProperty("organizationRemoved",
-                                                                 Organization.ToJSON()
-                                                             ),
-                                                             new JProperty("timestamp", DateTime.UtcNow.ToIso8601())
-                                                         ));
-
-                        }
-
-                    }
-
-                }
-                catch (Exception e)
-                {
-                    Console.WriteLine(e);
-                }
-
-                #endregion
-
-                #region EMailNotifications
-
-                try
-                {
-
-                    var AllEMailNotifications  = this.GetEMailNotifications(Organization, MessageTypes).
-                                                      ToHashSet();
-
-                    if (DevMachines.Contains(Environment.MachineName))
-                    {
-                        AllEMailNotifications.Clear();
-                    }
-
-                    if (AllEMailNotifications.Count > 0)
-                    {
-
-                        if (_MessageTypes.Contains(addOrganization_MessageType))
-                        {
-
-                            await APISMTPClient.Send(
-                                     new HTMLEMailBuilder() {
-
-                                         From           = Robot.EMail,
-                                         To             = EMailAddressListBuilder.Create(EMailAddressList.Create(AllEMailNotifications.Select(emailnotification => emailnotification.EMailAddress))),
-                                         Passphrase     = APIPassphrase,
-                                         Subject        = String.Concat("Organization '", Organization.Name.FirstText(), "' was successfully created."),
-
-                                         HTMLText       = String.Concat(HTMLEMailHeader,
-                                                                        "Organization <a href=\"https://", ExternalDNSName, BasePath, "/organizations/", Organization.Id, "\">", Organization.Name.FirstText(), "</a> was successfully created.",
-                                                                        HTMLEMailFooter),
-
-                                         PlainText      = String.Concat(TextEMailHeader,
-                                                                        "Organization '", Organization.Name.FirstText(), "' was successfully created.\r\n",
-                                                                        "https://", ExternalDNSName, BasePath, "/organizations/", Organization.Id, "\r\r\r\r",
-                                                                        TextEMailFooter),
-
-                                         SecurityLevel  = EMailSecurity.sign
-
-                                     });
-
-                        }
-
-                        if (_MessageTypes.Contains(updateOrganization_MessageType))
-                        {
-                            await APISMTPClient.Send(
-                                     new HTMLEMailBuilder() {
-
-                                         From           = Robot.EMail,
-                                         To             = EMailAddressListBuilder.Create(EMailAddressList.Create(AllEMailNotifications.Select(emailnotification => emailnotification.EMailAddress))),
-                                         Passphrase     = APIPassphrase,
-                                         Subject        = String.Concat("Organization '", Organization.Name.FirstText(), "' information has been successfully updated."),
-
-                                         HTMLText       = String.Concat(HTMLEMailHeader,
-                                                                        "Organization <a href=\"https://", ExternalDNSName, BasePath, "/organizations/", Organization.Id, "\">", Organization.Name.FirstText(), "</a> information has been successfully updated.",
-                                                                        // + {Updated information}",
-                                                                        HTMLEMailFooter),
-
-                                         PlainText      = String.Concat(TextEMailHeader,
-                                                                        "Organization '", Organization.Name.FirstText(), "' information has been successfully updated.\r\n",
-                                                                        "https://", ExternalDNSName, BasePath, "/organizations/", Organization.Id, "\r\r\r\r",
-                                                                        // + {Updated information}",
-                                                                        TextEMailFooter),
-
-                                         SecurityLevel  = EMailSecurity.sign
-
-                                     });
-                        }
-
-                        if (_MessageTypes.Contains(removeOrganization_MessageType))
-                        {
-                            await APISMTPClient.Send(
-                                     new HTMLEMailBuilder() {
-
-                                         From           = Robot.EMail,
-                                         To             = EMailAddressListBuilder.Create(EMailAddressList.Create(AllEMailNotifications.Select(emailnotification => emailnotification.EMailAddress))),
-                                         Passphrase     = APIPassphrase,
-                                         Subject        = String.Concat("Organization '", Organization.Name.FirstText(), "' has been removed."),
-
-                                         HTMLText       = String.Concat(HTMLEMailHeader,
-                                                                        "Organization <a href=\"https://", ExternalDNSName, BasePath, "/organizations/", Organization.Id, "\">", Organization.Name.FirstText(), "</a> has been removed.<br />",
-                                                                        "If you haven't approved this request, please contact support: <a href=\"mailto:support@cardi-link.com\">support@cardi-link.com</a>",
-                                                                        HTMLEMailFooter),
-
-                                         PlainText      = String.Concat(TextEMailHeader,
-                                                                        "Organization '", Organization.Name.FirstText(), "' has been removed.\r\n",
-                                                                        "If you haven't approved this request, please contact support: support@cardi-link.com\r\r\r\r",
-                                                                        TextEMailFooter),
-
-                                         SecurityLevel  = EMailSecurity.sign
-
-                                     });
-                        }
-
-                    }
-
-                }
-                catch (Exception e)
-                {
-                    Console.WriteLine(e);
-                }
-
-                #endregion
-
-            }
-
-        }
-
-        #endregion
-
-        #region Notify(Organization, User, MessageType, CurrentUserId = null)
-
-        public async Task Notify<TOrganization, TUser>(TOrganization            Organization,
-                                                       TUser                    User,
-                                                       NotificationMessageType  MessageType,
-                                                       User_Id?                 CurrentUserId    = null)
-
-            where TOrganization : Organization
-            where TUser:          User
-
-        {
-
-            if (Organization == null || User == null)
-                return;
-
-            var _MessageTypes = new HashSet<NotificationMessageType>() { MessageType };
-
-            //if (MessageType == addOrganizationIfNotExists_MessageType)
-            //{
-            //    _MessageTypes.Add(addOrganization_MessageType);
-            //}
-
-            //else if (MessageType == addOrUpdateOrganization_MessageType)
-            //{
-            //    if (OldOrganization == null)
-            //        _MessageTypes.Add(addOrganization_MessageType);
-            //    else
-            //        _MessageTypes.Add(updateOrganization_MessageType);
-            //}
-
-            var MessageTypes = _MessageTypes.ToArray();
-
-
-            if (!DisableNotifications)
-            {
-
-                #region Telegram Notifications
-
-                try
-                {
-
-                    var AllTelegramNotifications  = this.GetTelegramNotifications(Organization, MessageTypes).
-                                                         ToHashSet();
-
-                    if (DevMachines.Contains(Environment.MachineName))
-                    {
-                        AllTelegramNotifications.Clear();
-                    }
-
-                    if (AllTelegramNotifications.Count > 0)
-                    {
-
-                        if (_MessageTypes.Contains(addUserToOrganization_MessageType))
-                        {
-                            await TelegramStore.SendTelegrams(String.Concat("User '", User.Name, "' was added to organization '", Organization.Name.FirstText(), "'."),
-                                                              AllTelegramNotifications.Select(TelegramNotification => TelegramNotification.Username));
-                        }
-
-                        if (_MessageTypes.Contains(removeUserFromOrganization_MessageType))
-                        {
-                            await TelegramStore.SendTelegrams(String.Concat("User '", User.Name, "' was removed from organization '", Organization.Name.FirstText(), "'."),
-                                                              AllTelegramNotifications.Select(TelegramNotification => TelegramNotification.Username));
-                        }
-
-                    }
-
-                }
-                catch (Exception e)
-                {
-                    Console.WriteLine(e);
-                }
-
-                #endregion
-
-                #region SMS Notifications
-
-                try
-                {
-
-                    var AllSMSNotifications  = this.GetSMSNotifications(Organization, MessageTypes).
-                                                    ToHashSet();
-
-                    if (DevMachines.Contains(Environment.MachineName))
-                    {
-                        AllSMSNotifications.Clear();
-                    }
-
-                    if (AllSMSNotifications.Count > 0)
-                    {
-
-                        if (_MessageTypes.Contains(addUserToOrganization_MessageType))
-                        {
-                            SendSMS(String.Concat("User '", User.Name, "' was added to organization '", Organization.Name.FirstText(), "'."),
-                                    AllSMSNotifications.Select(smsPhoneNumber => smsPhoneNumber.PhoneNumber.ToString()).ToArray(),
-                                    "CardiCloud");
-                        }
-
-                        if (_MessageTypes.Contains(removeUserFromOrganization_MessageType))
-                        {
-                            SendSMS(String.Concat("User '", User.Name, "' was removed from organization '", Organization.Name.FirstText(), "'."),
-                                    AllSMSNotifications.Select(smsPhoneNumber => smsPhoneNumber.PhoneNumber.ToString()).ToArray(),
-                                    "CardiCloud");
-                        }
-
-                    }
-
-                }
-                catch (Exception e)
-                {
-                    Console.WriteLine(e);
-                }
-
-                #endregion
-
-                #region HTTPS Notifications
-
-                try
-                {
-
-                    var AllHTTPSNotifications  = this.GetHTTPSNotifications(Organization, MessageTypes).
-                                                      ToHashSet();
-
-                    if (DevMachines.Contains(Environment.MachineName))
-                        AllHTTPSNotifications.Clear();
-
-                    if (AllHTTPSNotifications.Count > 0)
-                    {
-
-                        if (_MessageTypes.Contains(addUserToOrganization_MessageType))
-                        {
-
-                            await SendHTTPSNotifications(AllHTTPSNotifications,
-                                                         new JObject(
-                                                             new JProperty("addUserToOrganization",
-                                                                 new JObject(
-                                                                     new JProperty("organization", Organization.ToJSON()),
-                                                                     new JProperty("user",         User.        ToJSON())
-                                                                 )
-                                                             ),
-                                                             new JProperty("timestamp", DateTime.UtcNow.ToIso8601())
-                                                         ));
-
-                        }
-
-                        if (_MessageTypes.Contains(removeUserFromOrganization_MessageType))
-                        {
-
-                            await SendHTTPSNotifications(AllHTTPSNotifications,
-                                                         new JObject(
-                                                             new JProperty("removeUserFromOrganization",
-                                                                 new JObject(
-                                                                     new JProperty("organization", Organization.ToJSON()),
-                                                                     new JProperty("user",         User.        ToJSON())
-                                                                 )
-                                                             ),
-                                                             new JProperty("timestamp", DateTime.UtcNow.ToIso8601())
-                                                         ));
-
-                        }
-
-                    }
-
-                }
-                catch (Exception e)
-                {
-                    Console.WriteLine(e);
-                }
-
-                #endregion
-
-                #region EMailNotifications
-
-                try
-                {
-
-                    var AllEMailNotifications  = this.GetEMailNotifications(Organization, MessageTypes).
-                                                      ToHashSet();
-
-                    if (DevMachines.Contains(Environment.MachineName))
-                    {
-                        AllEMailNotifications.Clear();
-                    }
-
-                    if (AllEMailNotifications.Count > 0)
-                    {
-
-                        if (_MessageTypes.Contains(addUserToOrganization_MessageType))
-                        {
-                            await APISMTPClient.Send(
-                                     new HTMLEMailBuilder() {
-
-                                         From           = Robot.EMail,
-                                         To             = EMailAddressListBuilder.Create(EMailAddressList.Create(AllEMailNotifications.Select(emailnotification => emailnotification.EMailAddress))),
-                                         Passphrase     = APIPassphrase,
-                                         Subject        = String.Concat("User '", User.Name, "' was added to organization '", Organization.Name.FirstText(), "'."),
-
-                                         HTMLText       = String.Concat(HTMLEMailHeader,
-                                                                        "User <a href=\"https://", this.ExternalDNSName, this.BasePath, "/users/", User.Id, "\">", User.Name, "</a> had been added to organization <a href=\"https://", ExternalDNSName, BasePath, "/organizations/", Organization.Id, "\">", Organization.Name.FirstText(), "</a>.<br />",
-                                                                        "If you haven't approved this request, please contact support: <a href=\"mailto:support@cardi-link.com\">support@cardi-link.com</a>",
-                                                                        HTMLEMailFooter),
-
-                                         PlainText      = String.Concat(TextEMailHeader,
-                                                                        "User '" + User.Name + "' had been added to organization '", Organization.Name.FirstText(), "'.\r\n",
-                                                                        "If you haven't approved this request, please contact support: support@cardi-link.com\r\r\r\r",
-                                                                        TextEMailFooter),
-
-                                         SecurityLevel  = EMailSecurity.sign
-
-                                     });
-                        }
-
-                        if (_MessageTypes.Contains(removeUserFromOrganization_MessageType))
-                        {
-                            await APISMTPClient.Send(
-                                     new HTMLEMailBuilder() {
-
-                                         From           = Robot.EMail,
-                                         To             = EMailAddressListBuilder.Create(EMailAddressList.Create(AllEMailNotifications.Select(emailnotification => emailnotification.EMailAddress))),
-                                         Passphrase     = APIPassphrase,
-                                         Subject        = String.Concat("User '", User.Name, "' was removed from organization '", Organization.Name.FirstText(), "'."),
-
-                                         HTMLText       = String.Concat(HTMLEMailHeader,
-                                                                        "User <a href=\"https://", this.ExternalDNSName, this.BasePath, "/users/", User.Id, "\">", User.Name, "</a> had been removed from organization <a href=\"https://", ExternalDNSName, BasePath, "/organizations/", Organization.Id, "\">", Organization.Name.FirstText(), "</a>.<br />",
-                                                                        "If you haven't approved this request, please contact support: <a href=\"mailto:support@cardi-link.com\">support@cardi-link.com</a>",
-                                                                        HTMLEMailFooter),
-
-                                         PlainText      = String.Concat(TextEMailHeader,
-                                                                        "User '" + User.Name + "' had been removed from organization '", Organization.Name.FirstText(), "'.\r\n",
-                                                                        "If you haven't approved this request, please contact support: support@cardi-link.com\r\r\r\r",
-                                                                        TextEMailFooter),
-
-                                         SecurityLevel  = EMailSecurity.sign
-
-                                     });
-                        }
-
-                    }
-
-                }
-                catch (Exception e)
-                {
-                    Console.WriteLine(e);
-                }
-
-                #endregion
-
-            }
-
-        }
-
-        #endregion
-
-        #region Notify(OrganizationOut, OrganizationIn, MessageType, CurrentUserId = null)
-
-        public async Task Notify<TOrganization>(TOrganization            OrganizationOut,
-                                                TOrganization            OrganizationIn,
-                                                NotificationMessageType  MessageType,
-                                                User_Id?                 CurrentUserId    = null)
-
-            where TOrganization : Organization
-
-        {
-
-            if (OrganizationOut == null || OrganizationIn == null)
-                return;
-
-            var _MessageTypes = new HashSet<NotificationMessageType>() { MessageType };
-
-            //if (MessageType == addOrganizationIfNotExists_MessageType)
-            //{
-            //    _MessageTypes.Add(addOrganization_MessageType);
-            //}
-
-            var MessageTypes = _MessageTypes.ToArray();
-
-
-            if (!DisableNotifications)
-            {
-
-                #region Telegram Notifications
-
-                try
-                {
-
-                    var AllTelegramNotifications  = this.GetTelegramNotifications(OrganizationIn,  MessageTypes).Concat(
-                                                    this.GetTelegramNotifications(OrganizationOut, MessageTypes)).
-                                                    ToHashSet();
-
-                    if (DevMachines.Contains(Environment.MachineName))
-                    {
-                        AllTelegramNotifications.Clear();
-                    }
-
-                    if (AllTelegramNotifications.Count > 0)
-                    {
-
-                        if (_MessageTypes.Contains(linkOrganizations_MessageType))
-                        {
-                            await TelegramStore.SendTelegrams(String.Concat("Organization '", OrganizationOut.Name.FirstText(), "' was linked to organization '", OrganizationIn.Name.FirstText(), "'."),
-                                                              AllTelegramNotifications.Select(TelegramNotification => TelegramNotification.Username));
-                        }
-
-                        if (_MessageTypes.Contains(unlinkOrganizations_MessageType))
-                        {
-                            await TelegramStore.SendTelegrams(String.Concat("Organization '", OrganizationOut.Name.FirstText(), "' was unlinked from organization '", OrganizationIn.Name.FirstText(), "'."),
-                                                              AllTelegramNotifications.Select(TelegramNotification => TelegramNotification.Username));
-                        }
-
-                    }
-
-                }
-                catch (Exception e)
-                {
-                    Console.WriteLine(e);
-                }
-
-                #endregion
-
-                #region SMS Notifications
-
-                try
-                {
-
-                    var AllSMSNotifications  = this.GetSMSNotifications(OrganizationIn,  MessageTypes).Concat(
-                                               this.GetSMSNotifications(OrganizationOut, MessageTypes)).
-                                               ToHashSet();
-
-                    if (DevMachines.Contains(Environment.MachineName))
-                    {
-                        AllSMSNotifications.Clear();
-                    }
-
-                    if (AllSMSNotifications.Count > 0)
-                    {
-
-                        if (_MessageTypes.Contains(linkOrganizations_MessageType))
-                        {
-                            SendSMS(String.Concat("Organization '", OrganizationOut.Name.FirstText(), "' was linked to organization '", OrganizationIn.Name.FirstText(), "'."),
-                                    AllSMSNotifications.Select(smsPhoneNumber => smsPhoneNumber.PhoneNumber.ToString()).ToArray(),
-                                    "CardiCloud");
-                        }
-
-                        if (_MessageTypes.Contains(unlinkOrganizations_MessageType))
-                        {
-                            SendSMS(String.Concat("Organization '", OrganizationOut.Name.FirstText(), "' was unlinked from organization '", OrganizationIn.Name.FirstText(), "'."),
-                                    AllSMSNotifications.Select(smsPhoneNumber => smsPhoneNumber.PhoneNumber.ToString()).ToArray(),
-                                    "CardiCloud");
-                        }
-
-                    }
-
-                }
-                catch (Exception e)
-                {
-                    Console.WriteLine(e);
-                }
-
-                #endregion
-
-                #region HTTPS Notifications
-
-                try
-                {
-
-                    var AllHTTPSNotifications  = this.GetHTTPSNotifications(OrganizationIn,  MessageTypes).Concat(
-                                                 this.GetHTTPSNotifications(OrganizationOut, MessageTypes)).
-                                                 ToHashSet();
-
-                    if (DevMachines.Contains(Environment.MachineName))
-                        AllHTTPSNotifications.Clear();
-
-                    if (AllHTTPSNotifications.Count > 0)
-                    {
-
-                        if (_MessageTypes.Contains(linkOrganizations_MessageType))
-                        {
-
-                            await SendHTTPSNotifications(AllHTTPSNotifications,
-                                                         new JObject(
-                                                             new JProperty("linkOrganizations",
-                                                                 new JObject(
-                                                                     new JProperty("organization",       OrganizationOut.      ToJSON()),
-                                                                     new JProperty("parentOrganization", OrganizationIn.ToJSON())
-                                                                 )
-                                                             ),
-                                                             new JProperty("timestamp", DateTime.UtcNow.ToIso8601())
-                                                         ));
-
-                        }
-
-                        if (_MessageTypes.Contains(unlinkOrganizations_MessageType))
-                        {
-
-                            await SendHTTPSNotifications(AllHTTPSNotifications,
-                                                         new JObject(
-                                                             new JProperty("unlinkOrganizations",
-                                                                 new JObject(
-                                                                     new JProperty("organization",       OrganizationOut.      ToJSON()),
-                                                                     new JProperty("parentOrganization", OrganizationIn.ToJSON())
-                                                                 )
-                                                             ),
-                                                             new JProperty("timestamp", DateTime.UtcNow.ToIso8601())
-                                                         ));
-
-                        }
-
-                    }
-
-                }
-                catch (Exception e)
-                {
-                    Console.WriteLine(e);
-                }
-
-                #endregion
-
-                #region EMailNotifications
-
-                try
-                {
-
-                    var AllEMailNotifications  = this.GetEMailNotifications(OrganizationIn,  MessageTypes).Concat(
-                                                 this.GetEMailNotifications(OrganizationOut, MessageTypes)).
-                                                 ToHashSet();
-
-                    if (DevMachines.Contains(Environment.MachineName))
-                    {
-                        AllEMailNotifications.Clear();
-                    }
-
-                    if (AllEMailNotifications.Count > 0)
-                    {
-
-                        if (_MessageTypes.Contains(linkOrganizations_MessageType))
-                        {
-                            await APISMTPClient.Send(
-                                     new HTMLEMailBuilder() {
-
-                                         From           = Robot.EMail,
-                                         To             = EMailAddressListBuilder.Create(EMailAddressList.Create(AllEMailNotifications.Select(emailnotification => emailnotification.EMailAddress))),
-                                         Passphrase     = APIPassphrase,
-                                         Subject        = String.Concat("Organization '", OrganizationOut.Name.FirstText(), "' was linked to organization '", OrganizationIn.Name.FirstText(), "'."),
-
-                                         HTMLText       = String.Concat(HTMLEMailHeader,
-                                                                        "Organization <a href=\"https://", ExternalDNSName, BasePath, "/organizations/", OrganizationOut.Id, "\">", OrganizationOut.Name.FirstText(), "</a> had been linked to organization <a href=\"https://", ExternalDNSName, BasePath, "/organizations/", OrganizationIn.Id, "\">", OrganizationIn.Name.FirstText(), "</a>.<br />",
-                                                                        "If you haven't approved this request, please contact support: <a href=\"mailto:support@cardi-link.com\">support@cardi-link.com</a>",
-                                                                        HTMLEMailFooter),
-
-                                         PlainText      = String.Concat(TextEMailHeader,
-                                                                        "Organization '" + OrganizationOut.Name.FirstText() + "' had been linked to organization '", OrganizationIn.Name.FirstText(), "'.\r\r\r\r",
-                                                                        TextEMailFooter),
-
-                                         SecurityLevel  = EMailSecurity.sign
-
-                                     });
-                        }
-
-                        if (_MessageTypes.Contains(unlinkOrganizations_MessageType))
-                        {
-                            await APISMTPClient.Send(
-                                     new HTMLEMailBuilder() {
-
-                                         From           = Robot.EMail,
-                                         To             = EMailAddressListBuilder.Create(EMailAddressList.Create(AllEMailNotifications.Select(emailnotification => emailnotification.EMailAddress))),
-                                         Passphrase     = APIPassphrase,
-                                         Subject        = String.Concat("Organization '", OrganizationOut.Name.FirstText(), "' was unlinked from organization '", OrganizationIn.Name.FirstText(), "'."),
-
-                                         HTMLText       = String.Concat(HTMLEMailHeader,
-                                                                        "Organization <a href=\"https://", ExternalDNSName, BasePath, "/organizations/", OrganizationOut.Id, "\">", OrganizationOut.Name.FirstText(), "</a> had been unlinked from organization <a href=\"https://", ExternalDNSName, BasePath, "/organizations/", OrganizationIn.Id, "\">", OrganizationIn.Name.FirstText(), "</a>.<br />",
-                                                                        "If you haven't approved this request, please contact support: <a href=\"mailto:support@cardi-link.com\">support@cardi-link.com</a>",
-                                                                        HTMLEMailFooter),
-
-                                         PlainText      = String.Concat(TextEMailHeader,
-                                                                        "Organization '" + OrganizationOut.Name.FirstText() + "' had been unlinked from organization '", OrganizationIn.Name.FirstText(), "'.\r\n",
-                                                                        "If you haven't approved this request, please contact support: support@cardi-link.com\r\r\r\r",
-                                                                        TextEMailFooter),
-
-                                         SecurityLevel  = EMailSecurity.sign
-
-                                     });
-                        }
-
-                    }
-
-                }
-                catch (Exception e)
-                {
-                    Console.WriteLine(e);
-                }
-
-                #endregion
-
-            }
-
-        }
-
-        #endregion
-
 
         #region WriteToDatabaseFile(MessageType, JSONData,                                 CurrentUserId = null)
 
@@ -14856,297 +13713,403 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
+        #endregion
 
-        #region AddEventSource(HTTPEventSourceId, URLTemplate, IncludeFilterAtRuntime, CreateState, ...)
+        #region ECC cryptography...
 
-        public void AddEventSource<TData, TState>(HTTPEventSource_Id                             HTTPEventSourceId,
-                                                  HTTPPath                                       URLTemplate,
+        #region GenerateKeys(ECParameters)
 
-                                                  Func<TState, User, HTTPEvent<TData>, Boolean>  IncludeFilterAtRuntime,
-                                                  Func<TState>                                   CreatePerRequestState,
-
-                                                  HTTPHostname?                                  Hostname                   = null,
-                                                  HTTPMethod?                                    HttpMethod                 = null,
-                                                  HTTPContentType                                HTTPContentType            = null,
-
-                                                  HTTPAuthentication                             URLAuthentication          = null,
-                                                  HTTPAuthentication                             HTTPMethodAuthentication   = null,
-
-                                                  HTTPDelegate                                   DefaultErrorHandler        = null)
+        public AsymmetricCipherKeyPair GenerateKeys(X9ECParameters ECParameters)
         {
 
-            if (IncludeFilterAtRuntime == null)
-                IncludeFilterAtRuntime = (s, u, e) => true;
+            var EllipticCurveSpec = new ECDomainParameters(ECParameters.Curve,
+                                                           ECParameters.G,
+                                                           ECParameters.N,
+                                                           ECParameters.H,
+                                                           ECParameters.GetSeed());
 
-            if (TryGet(HTTPEventSourceId, out IHTTPEventSource<TData> _EventSource))
-            {
+            var g = GeneratorUtilities.GetKeyPairGenerator("ECDH");
+            g.Init(new ECKeyGenerationParameters(EllipticCurveSpec, new SecureRandom()));
 
-                HTTPServer.AddMethodCallback(Hostname        ?? HTTPHostname.Any,
-                                             HttpMethod      ?? HTTPMethod.GET,
-                                             URLTemplate,
-                                             HTTPContentType ?? HTTPContentType.EVENTSTREAM,
-                                             URLAuthentication:         URLAuthentication,
-                                             HTTPMethodAuthentication:  HTTPMethodAuthentication,
-                                             DefaultErrorHandler:       DefaultErrorHandler,
-                                             HTTPDelegate:              Request => {
-
-                                                 #region Get HTTP user and its organizations
-
-                                                 // Will return HTTP 401 Unauthorized, when the HTTP user is unknown!
-                                                 if (!TryGetHTTPUser(Request,
-                                                                     out User                   HTTPUser,
-                                                                     out HashSet<Organization>  HTTPOrganizations,
-                                                                     out HTTPResponse.Builder   Response,
-                                                                     AccessLevel:               Access_Levels.ReadWrite,
-                                                                     Recursive:                 true))
-                                                 {
-                                                     return Task.FromResult(Response.AsImmutable);
-                                                 }
-
-                                                 #endregion
-
-                                                 var State        = CreatePerRequestState != null ? CreatePerRequestState() : default(TState);
-                                                 var _HTTPEvents  = _EventSource.GetAllEventsGreater(Request.GetHeaderField_UInt64("Last-Event-ID")).
-                                                                                 Where  (_event => IncludeFilterAtRuntime(State,
-                                                                                                                          HTTPUser,
-                                                                                                                          _event)).
-                                                                                 Reverse().
-                                                                                 Skip   (Request.QueryString.GetUInt64("skip")).
-                                                                                 Take   (Request.QueryString.GetUInt64("take")).
-                                                                                 Reverse().
-                                                                                 Aggregate(new StringBuilder(),
-                                                                                           (stringBuilder, httpEvent) => stringBuilder.Append(httpEvent.SerializedHeader).
-                                                                                                                                       AppendLine(httpEvent.SerializedData).
-                                                                                                                                       AppendLine()).
-                                                                                 Append(Environment.NewLine).
-                                                                                 Append("retry: ").Append((UInt32) _EventSource.RetryIntervall.TotalMilliseconds).
-                                                                                 Append(Environment.NewLine).
-                                                                                 Append(Environment.NewLine).
-                                                                                 ToString();
-
-                                                 return Task.FromResult(
-                                                     new HTTPResponse.Builder(Request) {
-                                                         HTTPStatusCode  = HTTPStatusCode.OK,
-                                                         Server          = HTTPServer.DefaultHTTPServerName,
-                                                         ContentType     = HTTPContentType.EVENTSTREAM,
-                                                         CacheControl    = "no-cache",
-                                                         Connection      = "keep-alive",
-                                                         KeepAlive       = new KeepAliveType(TimeSpan.FromSeconds(2 * _EventSource.RetryIntervall.TotalSeconds)),
-                                                         Content         = _HTTPEvents.ToUTF8Bytes()
-                                                     }.AsImmutable);
-
-                                             });
-
-
-                HTTPServer.AddMethodCallback(Hostname        ?? HTTPHostname.Any,
-                                             HttpMethod      ?? HTTPMethod.GET,
-                                             URLTemplate,
-                                             HTTPContentType ?? HTTPContentType.JSON_UTF8,
-                                             URLAuthentication:         URLAuthentication,
-                                             HTTPMethodAuthentication:  HTTPMethodAuthentication,
-                                             DefaultErrorHandler:       DefaultErrorHandler,
-                                             HTTPDelegate:              Request => {
-
-                                                 #region Get HTTP user and its organizations
-
-                                                 // Will return HTTP 401 Unauthorized, when the HTTP user is unknown!
-                                                 if (!TryGetHTTPUser(Request,
-                                                                     out User                   HTTPUser,
-                                                                     out HashSet<Organization>  HTTPOrganizations,
-                                                                     out HTTPResponse.Builder   Response,
-                                                                     AccessLevel:               Access_Levels.ReadWrite,
-                                                                     Recursive:                 true))
-                                                 {
-                                                     return Task.FromResult(Response.AsImmutable);
-                                                 }
-
-                                                 #endregion
-
-                                                 var State        = CreatePerRequestState != null ? CreatePerRequestState() : default(TState);
-                                                 var _HTTPEvents  = _EventSource.Where(httpEvent => IncludeFilterAtRuntime(State,
-                                                                                                                           HTTPUser,
-                                                                                                                           httpEvent)).
-                                                                                 Skip (Request.QueryString.GetUInt64("skip")).
-                                                                                 Take (Request.QueryString.GetUInt64("take")).
-                                                                                 Aggregate(new StringBuilder().AppendLine("["),
-                                                                                           (stringBuilder, httpEvent) => stringBuilder.Append    (@"[""").
-                                                                                                                                       Append    (httpEvent.Subevent ?? "").
-                                                                                                                                       Append    (@""",").
-                                                                                                                                       Append    (httpEvent.SerializedData).
-                                                                                                                                       AppendLine("],")).
-                                                                                 ToString().
-                                                                                 TrimEnd();
-
-
-                                                 return Task.FromResult(
-                                                     new HTTPResponse.Builder(Request) {
-                                                         HTTPStatusCode  = HTTPStatusCode.OK,
-                                                         Server          = HTTPServer.DefaultHTTPServerName,
-                                                         ContentType     = HTTPContentType.JSON_UTF8,
-                                                         CacheControl    = "no-cache",
-                                                         Connection      = "keep-alive",
-                                                         KeepAlive       = new KeepAliveType(TimeSpan.FromSeconds(2 * _EventSource.RetryIntervall.TotalSeconds)),
-                                                         Content         = (_HTTPEvents.Length > 1
-                                                                                ? _HTTPEvents.Remove(_HTTPEvents.Length - 1, 1) + Environment.NewLine + "]"
-                                                                                : "]").ToUTF8Bytes()
-                                                     }.AsImmutable);
-
-                                             });
-
-            }
-
-            else
-                throw new ArgumentException("Event source '" + HTTPEventSourceId + "' could not be found!", nameof(HTTPEventSourceId));
+            return g.GenerateKeyPair();
 
         }
 
         #endregion
 
-        #region AddEventSource(HTTPEventSourceId, URLTemplate, IncludeFilterAtRuntime, CreateState, ...)
 
-        public void AddEventSource<TData, TState>(HTTPEventSource_Id                                                        HTTPEventSourceId,
-                                                  HTTPPath                                                                  URLTemplate,
+        #region SerializePrivateKey (PrivateKey)
 
-                                                  Func<TState, User, IEnumerable<Organization>, HTTPEvent<TData>, Boolean>  IncludeFilterAtRuntime,
-                                                  Func<TState>                                                              CreatePerRequestState,
+        public Byte[] SerializePrivateKey(ECPrivateKeyParameters PrivateKey)
+            => PrivateKey.D.ToByteArray();
 
-                                                  HTTPHostname?                                                             Hostname                   = null,
-                                                  HTTPMethod?                                                               HttpMethod                 = null,
-                                                  HTTPContentType                                                           HTTPContentType            = null,
+        #endregion
 
-                                                  HTTPAuthentication                                                        URLAuthentication          = null,
-                                                  HTTPAuthentication                                                        HTTPMethodAuthentication   = null,
+        #region SerializePublicKey  (PublicKey)
 
-                                                  HTTPDelegate                                                              DefaultErrorHandler        = null)
+        public Byte[] SerializePublicKey(ECPublicKeyParameters PublicKey)
+
+            => PublicKey.Q.GetEncoded();
+
+        #endregion
+
+        #region SerializePublicKeyXY(PublicKey)
+
+        public Tuple<Byte[], Byte[]> SerializePublicKeyXY(ECPublicKeyParameters PublicKey)
+
+            => new Tuple<Byte[], Byte[]>(PublicKey.Q.XCoord.ToBigInteger().ToByteArray(),
+                                         PublicKey.Q.YCoord.ToBigInteger().ToByteArray());
+
+        #endregion
+
+
+        #region ParsePrivateKeyBytes (ECParameters,      PrivateKeyBytes)
+
+        public ECPrivateKeyParameters ParsePrivateKeyBytes(X9ECParameters  ECParameters,
+                                                           Byte[]          PrivateKeyBytes)
+
+            => ParsePrivateKeyBytes(new ECDomainParameters(ECParameters.Curve,
+                                                           ECParameters.G,
+                                                           ECParameters.N,
+                                                           ECParameters.H,
+                                                           ECParameters.GetSeed()),
+                                    PrivateKeyBytes);
+
+        #endregion
+
+        #region ParsePrivateKeyBytes (EllipticCurveSpec, PrivateKeyBytes)
+
+        public ECPrivateKeyParameters ParsePrivateKeyBytes(ECDomainParameters  EllipticCurveSpec,
+                                                           Byte[]              PrivateKeyBytes)
+
+            => new ECPrivateKeyParameters(
+                   new BigInteger(PrivateKeyBytes),
+                   EllipticCurveSpec);
+
+
+        #endregion
+
+        #region ParsePrivateKeyHEX   (ECParameters,      PrivateKeyHEX)
+
+        public ECPrivateKeyParameters ParsePrivateKeyHEX(X9ECParameters  ECParameters,
+                                                         String          PrivateKeyHEX)
+
+            => ParsePrivateKeyHEX(new ECDomainParameters(ECParameters.Curve,
+                                                         ECParameters.G,
+                                                         ECParameters.N,
+                                                         ECParameters.H,
+                                                         ECParameters.GetSeed()),
+                                  PrivateKeyHEX);
+
+        #endregion
+
+        #region ParsePrivateKeyHEX   (EllipticCurveSpec, PrivateKeyHEX)
+
+        public ECPrivateKeyParameters ParsePrivateKeyHEX(ECDomainParameters  EllipticCurveSpec,
+                                                         String              PrivateKeyHEX)
+
+            => new ECPrivateKeyParameters(
+                   new BigInteger(PrivateKeyHEX, 16),
+                   EllipticCurveSpec);
+
+
+        #endregion
+
+        #region ParsePrivateKeyBase64(ECParameters,      PrivateKeyBase64)
+
+        public ECPrivateKeyParameters ParsePrivateKeyBase64(X9ECParameters  ECParameters,
+                                                            String          PrivateKeyBase64)
+
+            => ParsePrivateKeyBase64(new ECDomainParameters(ECParameters.Curve,
+                                                            ECParameters.G,
+                                                            ECParameters.N,
+                                                            ECParameters.H,
+                                                            ECParameters.GetSeed()),
+                                     PrivateKeyBase64);
+
+        #endregion
+
+        #region ParsePrivateKeyBase64(EllipticCurveSpec, PrivateKeyBase64)
+
+        public ECPrivateKeyParameters ParsePrivateKeyBase64(ECDomainParameters  EllipticCurveSpec,
+                                                            String              PrivateKeyBase64)
+
+            => new ECPrivateKeyParameters(
+                   new BigInteger(PrivateKeyBase64.FromBase64()),
+                   EllipticCurveSpec);
+
+        #endregion
+
+
+        #region ParsePublicKey       (ECParameters,      PublicKey)
+
+        public ECPublicKeyParameters ParsePublicKey(X9ECParameters  ECParameters,
+                                                    Byte[]          PublicKey)
+
+            => new ECPublicKeyParameters("ECDSA",
+                                         ECParameters.Curve.DecodePoint(PublicKey),
+                                         new ECDomainParameters(ECParameters.Curve,
+                                                                ECParameters.G,
+                                                                ECParameters.N,
+                                                                ECParameters.H,
+                                                                ECParameters.GetSeed()));
+
+        #endregion
+
+        #region ParsePublicKey       (EllipticCurveSpec, PublicKey)
+
+        public ECPublicKeyParameters ParsePublicKey(ECDomainParameters  EllipticCurveSpec,
+                                                    Byte[]              PublicKey)
+
+            => new ECPublicKeyParameters("ECDSA",
+                                         EllipticCurveSpec.Curve.DecodePoint(PublicKey),
+                                         EllipticCurveSpec);
+
+        #endregion
+
+        #region ParsePublicKeyHEX    (ECParameters,      PublicKeyHEX)
+
+        public ECPublicKeyParameters ParsePublicKeyHEX(X9ECParameters ECParameters,
+                                                       String         PublicKeyHEX)
+
+            => new ECPublicKeyParameters("ECDSA",
+                                         ECParameters.Curve.DecodePoint(PublicKeyHEX.HexStringToByteArray()),
+                                         new ECDomainParameters(ECParameters.Curve,
+                                                                ECParameters.G,
+                                                                ECParameters.N,
+                                                                ECParameters.H,
+                                                                ECParameters.GetSeed()));
+
+        #endregion
+
+        #region ParsePublicKeyHEX    (EllipticCurveSpec, PublicKeyHEX)
+
+        public ECPublicKeyParameters ParsePublicKeyHEX(ECDomainParameters  EllipticCurveSpec,
+                                                       String              PublicKeyHEX)
+
+            => new ECPublicKeyParameters("ECDSA",
+                                         EllipticCurveSpec.Curve.DecodePoint(PublicKeyHEX.HexStringToByteArray()),
+                                         EllipticCurveSpec);
+
+        #endregion
+
+        #region ParsePublicKeyBase64 (ECParameters,      PublicKeyBase64)
+
+        public ECPublicKeyParameters ParsePublicKeyBase64(X9ECParameters ECParameters,
+                                                          String         PublicKeyBase64)
+
+            => new ECPublicKeyParameters("ECDSA",
+                                         ECParameters.Curve.DecodePoint(PublicKeyBase64.FromBase64()),
+                                         new ECDomainParameters(ECParameters.Curve,
+                                                                ECParameters.G,
+                                                                ECParameters.N,
+                                                                ECParameters.H,
+                                                                ECParameters.GetSeed()));
+
+        #endregion
+
+        #region ParsePublicKeyBase64 (EllipticCurveSpec, PublicKeyBase64)
+
+        public ECPublicKeyParameters ParsePublicKeyBase64(ECDomainParameters  EllipticCurveSpec,
+                                                          String              PublicKeyBase64)
+
+            => new ECPublicKeyParameters("ECDSA",
+                                         EllipticCurveSpec.Curve.DecodePoint(PublicKeyBase64.FromBase64()),
+                                         EllipticCurveSpec);
+
+        #endregion
+
+
+        #region CalculatePublicKey(PrivateKey)
+
+        /// <summary>
+        /// Calculate the public key only using domainParams.getG() and private key.
+        /// </summary>
+        /// <param name="PrivateKey"></param>
+        public ECPublicKeyParameters CalculatePublicKey(ECPrivateKeyParameters PrivateKey)
+
+            => new ECPublicKeyParameters("ECDSA",
+                                         PrivateKey.Parameters.Curve.DecodePoint(
+                                             PrivateKey.Parameters.G.Multiply(
+                                                 new BigInteger(PrivateKey.D.ToByteArray()
+                                             )
+                                         ).GetEncoded()),
+                                         PrivateKey.Parameters);
+
+        #endregion
+
+
+        #region VerifyMessageSignatures(JObject JSONMessage)
+
+        public Boolean VerifyMessageSignatures(JObject JSONMessage)
         {
 
-            if (IncludeFilterAtRuntime == null)
-                IncludeFilterAtRuntime = (s, u, o, e) => true;
+            if (JSONMessage == null)
+                return false;
 
-            if (TryGet<TData>(HTTPEventSourceId, out IHTTPEventSource<TData> _EventSource))
+            if (!(JSONMessage["signatures"] is JArray signaturesJSON) || signaturesJSON.Type != JTokenType.Array || signaturesJSON.Count < 1)
+                return false;
+
+            JObject JSONMessageCopy = JObject.Parse(JSONMessage.ToString(Newtonsoft.Json.Formatting.None));
+            JSONMessageCopy.Remove("signatures");
+            var plainText           = JSONMessageCopy.ToString(Newtonsoft.Json.Formatting.None)?.ToUTF8Bytes();
+
+
+            // loop!
+
+            var signatureJSON = signaturesJSON.First;
+
+            if (!(signatureJSON is JObject) || signatureJSON.Type != JTokenType.Object)
+                return false;
+
+            var publicKey  = signatureJSON["publicKey"]?.Value<String>()?.FromBase64();
+            var signature  = signatureJSON["signature"]?.Value<String>()?.FromBase64();
+
+            if (publicKey.IsNullOrEmpty() || signature.IsNullOrEmpty())
+                return false;
+
+
+            Byte[] pubKey = publicKey;
+            //var aa = new X509EncodedKeySpec(signaturePublicKey);
+            //var input = new Asn1InputStream(signaturePublicKey);
+
+            //Byte[] pubKey = null;
+
+            //Asn1Object p;
+            //while ((p = input.ReadObject()) != null)
+            //{
+            //    pubKey = ((p.ToAsn1Object() as Asn1Sequence)[1] as DerBitString).GetBytes();
+            //    Console.WriteLine(p.ToString());
+            //}
+
+            var ecp           = SecNamedCurves.GetByName("secp256r1");
+            var ecParams      = new ECDomainParameters(ecp.Curve, ecp.G, ecp.N, ecp.H, ecp.GetSeed());
+            var pubKeyParams  = new ECPublicKeyParameters("ECDSA", ecParams.Curve.DecodePoint(pubKey), ecParams);
+
+            var SHA256Hash    = new SHA256Managed().ComputeHash(plainText);
+            var BlockSize     = 32;
+
+            var verifier      = SignerUtilities.GetSigner("NONEwithECDSA");
+            verifier.Init(false, pubKeyParams);
+            verifier.BlockUpdate(SHA256Hash, 0, BlockSize);
+            var result        = verifier.VerifySignature(signature);
+
+            return result;
+
+        }
+
+        #endregion
+
+        #region SignMessage(JObject JSONMessage, params KeyPairs)
+
+        public Boolean SignMessage(JObject JSONMessage, params AsymmetricCipherKeyPair[] KeyPairs)
+        {
+
+            if (JSONMessage == null || KeyPairs == null || !KeyPairs.Any())
+                return false;
+
+            foreach (var KeyPair in KeyPairs)
             {
 
-                HTTPServer.AddMethodCallback(Hostname        ?? HTTPHostname.Any,
-                                             HttpMethod      ?? HTTPMethod.GET,
-                                             URLTemplate,
-                                             HTTPContentType ?? HTTPContentType.EVENTSTREAM,
-                                             URLAuthentication:         URLAuthentication,
-                                             HTTPMethodAuthentication:  HTTPMethodAuthentication,
-                                             DefaultErrorHandler:       DefaultErrorHandler,
-                                             HTTPDelegate:              Request => {
+                if (KeyPair == null)
+                    continue;
 
-                                                 #region Get HTTP user and its organizations
+                var privateKey  = KeyPair?.Private as ECPrivateKeyParameters;
+                var publicKey   = KeyPair?.Public  as ECPublicKeyParameters;
 
-                                                 // Will return HTTP 401 Unauthorized, when the HTTP user is unknown!
-                                                 if (!TryGetHTTPUser(Request,
-                                                                     out User                   HTTPUser,
-                                                                     out HashSet<Organization>  HTTPOrganizations,
-                                                                     out HTTPResponse.Builder   Response,
-                                                                     AccessLevel:               Access_Levels.ReadWrite,
-                                                                     Recursive:                 true))
-                                                 {
-                                                     return Task.FromResult(Response.AsImmutable);
-                                                 }
+                if (privateKey == null)
+                    continue;
 
-                                                 #endregion
-
-                                                 var State        = CreatePerRequestState != null ? CreatePerRequestState() : default;
-                                                 var _HTTPEvents  = _EventSource.GetAllEventsGreater(Request.GetHeaderField_UInt64("Last-Event-ID")).
-                                                                                 Where  (httpEvent => IncludeFilterAtRuntime(State,
-                                                                                                                             HTTPUser,
-                                                                                                                             HTTPOrganizations,
-                                                                                                                             httpEvent)).
-                                                                                 Reverse().
-                                                                                 Skip   (Request.QueryString.GetUInt64("skip")).
-                                                                                 Take   (Request.QueryString.GetUInt64("take")).
-                                                                                 Reverse().
-                                                                                 Aggregate(new StringBuilder(),
-                                                                                           (stringBuilder, httpEvent) => stringBuilder.Append(httpEvent.SerializedHeader).
-                                                                                                                                       AppendLine(httpEvent.SerializedData).
-                                                                                                                                       AppendLine()).
-                                                                                 Append(Environment.NewLine).
-                                                                                 Append("retry: ").Append((UInt32) _EventSource.RetryIntervall.TotalMilliseconds).
-                                                                                 Append(Environment.NewLine).
-                                                                                 Append(Environment.NewLine).
-                                                                                 ToString();
-
-                                                 return Task.FromResult(
-                                                     new HTTPResponse.Builder(Request) {
-                                                         HTTPStatusCode  = HTTPStatusCode.OK,
-                                                         Server          = HTTPServer.DefaultHTTPServerName,
-                                                         ContentType     = HTTPContentType.EVENTSTREAM,
-                                                         CacheControl    = "no-cache",
-                                                         Connection      = "keep-alive",
-                                                         KeepAlive       = new KeepAliveType(TimeSpan.FromSeconds(2 * _EventSource.RetryIntervall.TotalSeconds)),
-                                                         Content         = _HTTPEvents.ToUTF8Bytes()
-                                                     }.AsImmutable);
-
-                                             });
+                if (publicKey == null)
+                    continue;
 
 
+                if (JSONMessage["signatures"] != null && JSONMessage["signatures"].Type != JTokenType.Array)
+                    return false;
 
-                HTTPServer.AddMethodCallback(Hostname        ?? HTTPHostname.Any,
-                                             HttpMethod      ?? HTTPMethod.GET,
-                                             URLTemplate,
-                                             HTTPContentType ?? HTTPContentType.JSON_UTF8,
-                                             URLAuthentication:         URLAuthentication,
-                                             HTTPMethodAuthentication:  HTTPMethodAuthentication,
-                                             DefaultErrorHandler:       DefaultErrorHandler,
-                                             HTTPDelegate:              Request => {
+                var messageText  = JSONMessage.ToString(Newtonsoft.Json.Formatting.None);
+                var messageJSON  = JObject.Parse(messageText);
+                messageJSON.Remove("signatures");
 
-                                                 #region Get HTTP user and its organizations
+                var cc = new Newtonsoft.Json.Converters.IsoDateTimeConverter {
+                    DateTimeFormat = "yyyy'-'MM'-'dd'T'HH':'mm':'ss.fffZ"
+                };
 
-                                                 // Will return HTTP 401 Unauthorized, when the HTTP user is unknown!
-                                                 if (!TryGetHTTPUser(Request,
-                                                                     out User                   HTTPUser,
-                                                                     out HashSet<Organization>  HTTPOrganizations,
-                                                                     out HTTPResponse.Builder   Response,
-                                                                     AccessLevel:               Access_Levels.ReadWrite,
-                                                                     Recursive:                 true))
-                                                 {
-                                                     return Task.FromResult(Response.AsImmutable);
-                                                 }
+                var plainText    = messageJSON.ToString(Newtonsoft.Json.Formatting.None, cc);
+                var SHA256Hash   = new SHA256Managed().ComputeHash(plainText.ToUTF8Bytes());
+                var BlockSize    = 32;
 
-                                                 #endregion
+                if (!(JSONMessage["signatures"] is JArray signaturesJSON))
+                {
+                    signaturesJSON = new JArray();
+                    JSONMessage.Add("signatures", signaturesJSON);
+                }
 
-                                                 var State        = CreatePerRequestState != null ? CreatePerRequestState() : default(TState);
-                                                 var _HTTPEvents  = _EventSource.Where(httpEvent => IncludeFilterAtRuntime(State,
-                                                                                                                           HTTPUser,
-                                                                                                                           HTTPOrganizations,
-                                                                                                                           httpEvent)).
-                                                                                 Skip (Request.QueryString.GetUInt64("skip")).
-                                                                                 Take (Request.QueryString.GetUInt64("take")).
-                                                                                 Aggregate(new StringBuilder().AppendLine("["),
-                                                                                           (stringBuilder, httpEvent) => stringBuilder.Append(@"[""").
-                                                                                                                                       Append(httpEvent.Subevent ?? "").
-                                                                                                                                       Append(@""",").
-                                                                                                                                       Append(httpEvent.SerializedData).
-                                                                                                                                       AppendLine("],")).
-                                                                                 ToString().
-                                                                                 TrimEnd();
+                var signatureJSON = new JObject();
+                signaturesJSON.Add(signatureJSON);
 
 
-                                                 return Task.FromResult(
-                                                     new HTTPResponse.Builder(Request) {
-                                                         HTTPStatusCode  = HTTPStatusCode.OK,
-                                                         Server          = HTTPServer.DefaultHTTPServerName,
-                                                         ContentType     = HTTPContentType.JSON_UTF8,
-                                                         CacheControl    = "no-cache",
-                                                         Connection      = "keep-alive",
-                                                         KeepAlive       = new KeepAliveType(TimeSpan.FromSeconds(2 * _EventSource.RetryIntervall.TotalSeconds)),
-                                                         Content         = (_HTTPEvents.Length > 1
-                                                                                ? _HTTPEvents.Remove(_HTTPEvents.Length - 1, 1) + Environment.NewLine + "]"
-                                                                                : "]").ToUTF8Bytes()
-                                                     }.AsImmutable);
+                var publicKey_Bytes = SubjectPublicKeyInfoFactory.CreateSubjectPublicKeyInfo(publicKey).PublicKeyData.GetBytes();
+                signatureJSON.Add(new JProperty("publicKey",     Convert.ToBase64String(publicKey_Bytes)));
+                signatureJSON.Add(new JProperty("publicKeyHEX",  publicKey_Bytes.ToHexString()));
 
-                                             });
+                var signer       = SignerUtilities.GetSigner("NONEwithECDSA");
+                signer.Init(true, privateKey);
+                signer.BlockUpdate(SHA256Hash, 0, BlockSize);
+                var signature    = signer.GenerateSignature();
+                signatureJSON.Add(new JProperty("signature",    Convert.ToBase64String(signature)));
+                signatureJSON.Add(new JProperty("signatureHEX", signature.ToHexString()));
+
+
+                Console.WriteLine();
+                Console.WriteLine("Response: "  + JSONMessage.ToString(Newtonsoft.Json.Formatting.None));
+                Console.WriteLine("PlainText: " + plainText);
+                Console.WriteLine("sha256: "    + SHA256Hash.ToHexString());
+
+                //// Re-Verify...
+                //{
+                //    var verifier = SignerUtilities.GetSigner("NONEwithECDSA");
+                //    verifier.Init(false, publicKey);
+                //    verifier.BlockUpdate(SHA256Hash, 0, BlockSize);
+                //    Console.WriteLine("Signature Verification(1): " + (verifier.VerifySignature(signature) ? "ok" : "failed!"));
+                //}
+
+                {
+                    var ecp           = SecNamedCurves.GetByName("secp256r1");
+                    var ecParams      = new ECDomainParameters(ecp.Curve, ecp.G, ecp.N, ecp.H, ecp.GetSeed());
+                    var pubKeyParams  = new ECPublicKeyParameters("ECDSA", ecParams.Curve.DecodePoint(publicKey_Bytes), ecParams);
+                    var verifier      = SignerUtilities.GetSigner("NONEwithECDSA");
+                    verifier.Init(false, pubKeyParams);
+                    verifier.BlockUpdate(SHA256Hash, 0, BlockSize);
+                    Console.WriteLine("Signature Verification(2): " + (verifier.VerifySignature(signature) ? "ok" : "failed!"));
+                }
+
+                Console.WriteLine();
 
             }
 
-            else
-                throw new ArgumentException("Event source '" + HTTPEventSourceId + "' could not be found!", nameof(HTTPEventSourceId));
+            return true;
 
         }
+
+        #endregion
+
+
+        //// key agreement protocol => ConcatenationKDFGenerator?
+        //var keyAgreement  = AgreementUtilities.GetBasicAgreement("ECDH");
+        //keyAgreement.Init(backendAPIPrivateKey);
+        //var sharedSecret  = keyAgreement.CalculateAgreement(ownerPublicKey).
+        //                                 ToByteArrayUnsigned();
+
+        //var sha256Digest  = DigestUtilities.GetDigest("SHA256");
+        //var keySize       = 32; // sha256Digest.GetDigestSize()
+        //var kdf           = new ECDHKekGenerator(sha256Digest);
+        //kdf.Init(new DHKdfParameters(NistObjectIdentifiers.Aes,
+        //                             sharedSecret.Length,
+        //                             sharedSecret));
+        //var symmetricKey  = new Byte[keySize];
+        //kdf.GenerateBytes(symmetricKey, 0, keySize);
+        //var bigInt        = new BigInteger(1, symmetricKey);
 
         #endregion
 
@@ -15180,7 +14143,442 @@ namespace social.OpenData.UsersAPI
         #endregion
 
 
+        #region WriteToDatabaseFileAndNotify(User, MessageType,  OldUser = null, CurrentUserId = null)
+
+        public async Task WriteToDatabaseFileAndNotify<TUser>(TUser                    User,
+                                                              NotificationMessageType  MessageType,
+                                                              User                     OldUser        = null,
+                                                              User_Id?                 CurrentUserId  = null)
+
+            where TUser : User
+
+        {
+
+            if (User == null)
+                return;
+
+            await WriteToDatabaseFile(MessageType,
+                                      User.ToJSON(false, true),
+                                      CurrentUserId);
+
+            await SendNotifications(User,
+                                    MessageType,
+                                    OldUser,
+                                    CurrentUserId);
+
+        }
+
+        #endregion
+
+        #region SendNotifications           (User, MessageTypes, OldUser = null, CurrentUserId = null)
+
+        /// <summary>
+        /// Send user notifications.
+        /// </summary>
+        /// <typeparam name="TUser">The type of the user.</typeparam>
+        /// <param name="User">The user.</param>
+        /// <param name="MessageType">The user notification.</param>
+        /// <param name="OldUser">The old/updated user.</param>
+        /// <param name="CurrentUserId">The invoking user identification</param>
+        public Task SendNotifications<TUser>(TUser                    User,
+                                             NotificationMessageType  MessageType,
+                                             User                     OldUser        = null,
+                                             User_Id?                 CurrentUserId  = null)
+
+            where TUser : User
+
+            => SendNotifications(User,
+                                 new NotificationMessageType[] { MessageType },
+                                 OldUser,
+                                 CurrentUserId);
+
+
+        /// <summary>
+        /// Send user notifications.
+        /// </summary>
+        /// <typeparam name="TUser">The type of the user.</typeparam>
+        /// <param name="User">The user.</param>
+        /// <param name="MessageTypes">The user notifications.</param>
+        /// <param name="OldUser">The old/updated user.</param>
+        /// <param name="CurrentUserId">The invoking user identification</param>
+        public async Task SendNotifications<TUser>(TUser                                 User,
+                                                   IEnumerable<NotificationMessageType>  MessageTypes,
+                                                   User                                  OldUser        = null,
+                                                   User_Id?                              CurrentUserId  = null)
+
+            where TUser : User
+
+        {
+
+            if (User is null || MessageTypes.IsNullOrEmpty())
+                return;
+
+            var messageTypesHash = new HashSet<NotificationMessageType>(MessageTypes);
+
+            if (messageTypesHash.Contains(addUserIfNotExists_MessageType))
+                messageTypesHash.Add(addUser_MessageType);
+
+            if (messageTypesHash.Contains(addOrUpdateUser_MessageType))
+                messageTypesHash.Add(OldUser == null
+                                       ? addUser_MessageType
+                                       : updateUser_MessageType);
+
+            var messageTypes = messageTypesHash.ToArray();
+
+
+            #region Get notification settings from his organisations and higher-level organizations
+
+            var allHisOrganizations = User.User2Organization_OutEdges.
+                                           Where (edge => edge.EdgeLabel == User2OrganizationEdgeTypes.IsAdmin ||
+                                                          edge.EdgeLabel == User2OrganizationEdgeTypes.IsMember).
+                                           Select(edge => edge.Target).
+                                           ToHashSet();
+
+            // Limit the number of levels, or people will get overwhelmed by e-mails...
+            for (var i = 0; i <= 2; i++)
+            {
+                foreach (var higherLevelOrganization in allHisOrganizations.ToArray().
+                                                                            SelectMany(org => org.Organization2OrganizationOutEdges.
+                                                                                                  Where (edge => edge.EdgeLabel == Organization2OrganizationEdgeTypes.IsChildOf).
+                                                                                                  Select(edge => edge.Target)))
+                {
+                    if (higherLevelOrganization != NoOwner)
+                        allHisOrganizations.Add(higherLevelOrganization);
+                }
+            }
+
+            #endregion
+
+
+            if (!DisableNotifications)
+            {
+
+                #region Telegram Notifications
+
+                try
+                {
+
+                    var AllTelegramNotifications  = this.GetTelegramNotifications(User, messageTypes).
+                                                         ToHashSet();
+
+                    foreach (var telegramNotification in allHisOrganizations.SelectMany(org => this.GetTelegramNotifications(org, messageTypes)))
+                        AllTelegramNotifications.Add(telegramNotification);
+
+
+                    if (DevMachines.Contains(Environment.MachineName))
+                    {
+                        AllTelegramNotifications.Clear();
+                    }
+
+                    if (AllTelegramNotifications.Count > 0)
+                    {
+
+                        if (messageTypes.Contains(addUser_MessageType))
+                        {
+                            await TelegramStore.SendTelegrams(String.Concat("User '", User.Name, "' was successfully added. ",
+                                                                            "https://", ExternalDNSName, BasePath, "/users/", User.Id),
+                                                                            // to Organization {Org_Name}.",
+                                                              AllTelegramNotifications.Select(TelegramNotification => TelegramNotification.Username));
+                        }
+
+                        if (messageTypes.Contains(updateUser_MessageType))
+                        {
+                            await TelegramStore.SendTelegrams(String.Concat("User '", User.Name, "' information has been successfully updated. ",
+                                                                            "https://", ExternalDNSName, BasePath, "/users/", User.Id),
+                                                                            // + {Updated information}
+                                                              AllTelegramNotifications.Select(TelegramNotification => TelegramNotification.Username));
+                        }
+
+                        if (messageTypes.Contains(removeUser_MessageType))
+                        {
+                            await TelegramStore.SendTelegrams(String.Concat("User '", User.Name, "' information has been removed. ",
+                                                                            "If you haven't approved this request, please contact support: support@cardi-link.com"),
+                                                              AllTelegramNotifications.Select(TelegramNotification => TelegramNotification.Username));
+                        }
+
+                    }
+
+                }
+                catch (Exception e)
+                {
+                    DebugX.Log(e.Message);
+                }
+
+                #endregion
+
+                #region SMS Notifications
+
+                try
+                {
+
+                    var AllSMSNotifications  = this.GetSMSNotifications(User, messageTypes).
+                                                    ToHashSet();
+
+                    foreach (var SMSNotification in allHisOrganizations.SelectMany(org => this.GetSMSNotifications(org, messageTypes)))
+                        AllSMSNotifications.Add(SMSNotification);
+
+
+                    if (DevMachines.Contains(Environment.MachineName))
+                    {
+                        AllSMSNotifications.Clear();
+                    }
+
+                    if (AllSMSNotifications.Count > 0)
+                    {
+
+                        if (messageTypes.Contains(addUser_MessageType))
+                        {
+                            SendSMS(String.Concat("User '", User.Name, "' was successfully added. ",
+                                                  "https://", ExternalDNSName, BasePath, "/users/", User.Id),
+                                                  // to Organization {Org_Name}.",
+                                    AllSMSNotifications.Select(smsPhoneNumber => smsPhoneNumber.PhoneNumber.ToString()).ToArray(),
+                                    "CardiCloud");
+                        }
+
+                        if (messageTypes.Contains(updateUser_MessageType))
+                        {
+                            SendSMS(String.Concat("User '", User.Name, "' information has been successfully updated. ",
+                                                  "https://", ExternalDNSName, BasePath, "/users/", User.Id),
+                                                  // + {Updated information}
+                                    AllSMSNotifications.Select(smsPhoneNumber => smsPhoneNumber.PhoneNumber.ToString()).ToArray(),
+                                    "CardiCloud");
+                        }
+
+                        if (messageTypes.Contains(removeUser_MessageType))
+                        {
+                            SendSMS(String.Concat("User '", User.Name, "' information has been removed. ",
+                                                  "If you haven't approved this request, please contact support: support@cardi-link.com"),
+                                    AllSMSNotifications.Select(smsPhoneNumber => smsPhoneNumber.PhoneNumber.ToString()).ToArray(),
+                                    "CardiCloud");
+                        }
+
+                    }
+
+                }
+                catch (Exception e)
+                {
+                    DebugX.Log(e.Message);
+                }
+
+                #endregion
+
+                #region HTTPS Notifications
+
+                try
+                {
+
+                    var AllHTTPSNotifications  = this.GetHTTPSNotifications(User, messageTypes).
+                                                      ToHashSet();
+
+                    foreach (var HTTPSNotification in allHisOrganizations.SelectMany(org => this.GetHTTPSNotifications(org, messageTypes)))
+                        AllHTTPSNotifications.Add(HTTPSNotification);
+
+
+                    if (DevMachines.Contains(Environment.MachineName))
+                        AllHTTPSNotifications.Clear();
+
+                    if (AllHTTPSNotifications.Count > 0)
+                    {
+
+                        if (messageTypes.Contains(addUser_MessageType))
+                        {
+                            await SendHTTPSNotifications(AllHTTPSNotifications,
+                                                         new JObject(
+                                                             new JProperty("userCreated",
+                                                                 User.ToJSON()
+                                                             ),
+                                                             new JProperty("timestamp", DateTime.UtcNow.ToIso8601())
+                                                         ));
+                        }
+
+                        if (messageTypes.Contains(updateUser_MessageType))
+                        {
+                            await SendHTTPSNotifications(AllHTTPSNotifications,
+                                                         new JObject(
+                                                             new JProperty("userUpdated",
+                                                                 User.ToJSON()
+                                                             ),
+                                                             new JProperty("timestamp", DateTime.UtcNow.ToIso8601())
+                                                         ));
+                        }
+
+                        if (messageTypes.Contains(removeUser_MessageType))
+                        {
+                            await SendHTTPSNotifications(AllHTTPSNotifications,
+                                                         new JObject(
+                                                             new JProperty("userRemoved",
+                                                                 User.ToJSON()
+                                                             ),
+                                                             new JProperty("timestamp", DateTime.UtcNow.ToIso8601())
+                                                         ));
+                        }
+
+                    }
+
+                }
+                catch (Exception e)
+                {
+                    DebugX.Log(e.Message);
+                }
+
+                #endregion
+
+                #region E-Mail Notifications
+
+                try
+                {
+
+                    var AllEMailNotifications  = this.GetEMailNotifications(User, messageTypes).
+                                                      ToHashSet();
+
+                    foreach (var eMailNotification in allHisOrganizations.SelectMany(org => this.GetEMailNotifications(org, messageTypes)))
+                        AllEMailNotifications.Add(eMailNotification);
+
+
+                    if (DevMachines.Contains(Environment.MachineName))
+                    {
+                        AllEMailNotifications.Clear();
+                    }
+
+                    if (AllEMailNotifications.Count > 0)
+                    {
+
+                        if (messageTypes.Contains(addUser_MessageType))
+                        {
+                            await APISMTPClient.Send(
+                                     new HTMLEMailBuilder() {
+
+                                         From           = Robot.EMail,
+                                         To             = EMailAddressListBuilder.Create(EMailAddressList.Create(AllEMailNotifications.Select(emailnotification => emailnotification.EMailAddress))),
+                                         Passphrase     = APIPassphrase,
+                                         Subject        = String.Concat("User '" + User.Name + "' was successfully created."), // to Organization {Org_Name}."),
+
+                                         HTMLText       = String.Concat(HTMLEMailHeader,
+                                                                        "User <a href=\"https://", this.ExternalDNSName, this.BasePath, "/users/", User.Id, "\">", User.Name, "</a> was successfully created.",
+                                                                        HTMLEMailFooter),
+
+                                         PlainText      = String.Concat(TextEMailHeader,
+                                                                        "User '" + User.Name + "' was successfully created.\r\n",
+                                                                        "https://", ExternalDNSName, BasePath, "/users/", User.Id, "\r\r\r\r",
+                                                                        // to Organization {Org_Name}.\r\r\r\r",
+                                                                        TextEMailFooter),
+
+                                         SecurityLevel  = EMailSecurity.sign
+
+                                     });
+                        }
+
+                        if (messageTypes.Contains(updateUser_MessageType))
+                        {
+                            await APISMTPClient.Send(
+                                     new HTMLEMailBuilder() {
+
+                                         From           = Robot.EMail,
+                                         To             = EMailAddressListBuilder.Create(EMailAddressList.Create(AllEMailNotifications.Select(emailnotification => emailnotification.EMailAddress))),
+                                         Passphrase     = APIPassphrase,
+                                         Subject        = String.Concat("User '" + User.Name + "' information has been successfully updated."), // + {Updated information}  + link {User_ID_baseData page}."),
+
+                                         HTMLText       = String.Concat(HTMLEMailHeader,
+                                                                        "User <a href=\"https://", ExternalDNSName, BasePath, "/users/", User.Id, "\">", User.Name, "</a> information has been successfully updated.", // + {Updated information}  + link {User_ID_baseData page}.",
+                                                                        HTMLEMailFooter),
+
+                                         PlainText      = String.Concat(TextEMailHeader,
+                                                                        "User '" + User.Name + "' information has been successfully updated.\r\n",
+                                                                        "https://", ExternalDNSName, BasePath, "/users/", User.Id, "\r\r\r\r",
+                                                                        // + {Updated information}
+                                                                        TextEMailFooter),
+
+                                         SecurityLevel  = EMailSecurity.sign
+
+                                     });
+                        }
+
+                        if (messageTypes.Contains(removeUser_MessageType))
+                        {
+                            await APISMTPClient.Send(
+                                     new HTMLEMailBuilder() {
+
+                                         From           = Robot.EMail,
+                                         To             = EMailAddressListBuilder.Create(EMailAddressList.Create(AllEMailNotifications.Select(emailnotification => emailnotification.EMailAddress))),
+                                         Passphrase     = APIPassphrase,
+                                         Subject        = String.Concat("User '" + User.Name + "' information has been removed."),
+
+                                         HTMLText       = String.Concat(HTMLEMailHeader,
+                                                                        "User <a href=\"https://", ExternalDNSName, BasePath, "/users/", User.Id, "\">", User.Name, "</a> information has been removed. If you haven't approved this request, please contact support: <a href=\"mailto:support@cardi-link.com\">support@cardi-link.com</a>",
+                                                                        HTMLEMailFooter),
+
+                                         PlainText      = String.Concat(TextEMailHeader,
+                                                                        "User '" + User.Name + "' information has been removed.\r\n",
+                                                                        "If you haven't approved this request, please contact support: support@cardi-link.com\r\r\r\r",
+                                                                        TextEMailFooter),
+
+                                         SecurityLevel  = EMailSecurity.sign
+
+                                     });
+                        }
+
+                    }
+
+                }
+                catch (Exception e)
+                {
+                    DebugX.Log(e.Message);
+                }
+
+                #endregion
+
+            }
+
+        }
+
+        #endregion
+
+        #region (protected) GetUserSerializator             (Request, User)
+
+        protected UserToJSONDelegate GetUserSerializator(HTTPRequest  Request,
+                                                         User         User)
+        {
+
+            switch (User?.Id.ToString())
+            {
+
+                //case __issapi:
+                //    return ISSNotificationExtentions.ToISSJSON;
+
+                default:
+                    return (user,
+                            embedded,
+                            includeCryptoHash)
+
+                            => user.ToJSON(embedded,
+                                           includeCryptoHash);
+
+            }
+
+        }
+
+        #endregion
+
+
         #region AddUser           (User,   OnAdded = null,                   CurrentUserId = null)
+
+        /// <summary>
+        /// A delegate called whenever a user was added.
+        /// </summary>
+        /// <param name="Timestamp">The timestamp when the user was added.</param>
+        /// <param name="User">The added user.</param>
+        /// <param name="CurrentUserId">The invoking user identification</param>
+        public delegate Task OnUserAddedDelegate(DateTime  Timestamp,
+                                                 User      User,
+                                                 User_Id?  CurrentUserId  = null);
+
+        /// <summary>
+        /// An event fired whenever a user was added.
+        /// </summary>
+        public event OnUserAddedDelegate OnUserAdded;
+
+
+        #region (protected) _AddUser(User,                                OnAdded = null, CurrentUserId = null)
 
         /// <summary>
         /// Add the given user to the API.
@@ -15188,11 +14586,77 @@ namespace social.OpenData.UsersAPI
         /// <param name="User">A new user to be added to this API.</param>
         /// <param name="OnAdded">A delegate run whenever the user had been added successfully.</param>
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
-        public async Task<User> AddUser(User                         User,
-                                        User2OrganizationEdgeTypes?  EdgeLabel            = null,
-                                        Organization                 ParentOrganization   = null,
-                                        Action<User>                 OnAdded              = null,
-                                        User_Id?                     CurrentUserId        = null)
+        protected async Task<User> _AddUser(User          User,
+                                            Action<User>  OnAdded        = null,
+                                            User_Id?      CurrentUserId  = null)
+        {
+
+            if (User.API != null && User.API != this)
+                throw new ArgumentException(nameof(User), "The given user is already attached to another API!");
+
+            if (_Users.ContainsKey(User.Id))
+                throw new ArgumentException(nameof(User), "User identification '" + User.Id + "' already exists!");
+
+            if (User.Id.Length < MinUserIdLength)
+                throw new ArgumentException(nameof(User), "User identification '" + User.Id + "' is too short!");
+
+            User.API = this;
+
+
+            await WriteToDatabaseFile(addUser_MessageType,
+                                      User.ToJSON(false, true),
+                                      CurrentUserId);
+
+            _Users.Add(User.Id, User);
+
+            #region Register 'New User Default'-Notifications
+
+            var newUserDefaultNotificationMessageGroups = _NotificationMessageGroups.
+                                                              SelectMany(group       => group.Notifications).
+                                                              Where     (description => description.Tags.Contains(NotificationTag.NewUserDefault)).
+                                                              SelectMany(description => description.Messages).
+                                                              ToHashSet();
+
+            if (newUserDefaultNotificationMessageGroups.Any())
+                await AddNotification(User,
+                                      new EMailNotification(User.EMail,
+                                                            "",
+                                                            "",
+                                                            "",
+                                                            newUserDefaultNotificationMessageGroups,
+                                                            "Default notifications for new users"),
+                                      CurrentUserId);
+
+            #endregion
+
+            await OnUserAdded?.Invoke(DateTime.UtcNow,
+                                      User,
+                                      CurrentUserId);
+
+            await SendNotifications(User,
+                                    addUser_MessageType,
+                                    null,
+                                    CurrentUserId);
+
+            OnAdded?.Invoke(User);
+
+            return User;
+
+        }
+
+        #endregion
+
+        #region AddUser             (User,                                OnAdded = null, CurrentUserId = null)
+
+        /// <summary>
+        /// Add the given user.
+        /// </summary>
+        /// <param name="User">A new user.</param>
+        /// <param name="OnAdded">A delegate run whenever the user had been added successfully.</param>
+        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
+        public async Task<User> AddUser(User          User,
+                                        Action<User>  OnAdded        = null,
+                                        User_Id?      CurrentUserId  = null)
         {
 
             try
@@ -15200,49 +14664,9 @@ namespace social.OpenData.UsersAPI
 
                 await UsersSemaphore.WaitAsync();
 
-                if (User.API != null && User.API != this)
-                    throw new ArgumentException(nameof(User), "The given user is already attached to another API!");
-
-                if (_Users.ContainsKey(User.Id))
-                    throw new Exception("User '" + User.Id + "' already exists in this API!");
-
-                if (User.Id.Length < MinLoginLength)
-                    throw new Exception("User '" + User.Id + "' is too short!");
-
-                User.API = this;
-
-
-                // The new user does not yet have an organization,
-                // therefore notifications do not work here now!
-                await WriteToDatabaseFile(addUser_MessageType,
-                                          User.ToJSON(false, true),
-                                          CurrentUserId);
-
-                await Notify(User,
-                             addUser_MessageType,
-                             null,
-                             CurrentUserId);
-
-                _Users.Add(User.Id, User);
-
-                OnAdded?.Invoke(User);
-
-                if (ParentOrganization != null && EdgeLabel != null)
-                {
-
-                    await _AddToOrganization(User,
-                                             EdgeLabel.Value,
-                                             ParentOrganization,
-                                             CurrentUserId);
-
-                    await Notify(ParentOrganization,
-                                 addUser_MessageType,
-                                 null,
-                                 CurrentUserId);
-
-                }
-
-                return User;
+                return await _AddUser(User,
+                                      OnAdded,
+                                      CurrentUserId);
 
             }
             finally
@@ -15254,12 +14678,141 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
+        #region AddUser             (User, EdgeLabel, ParentOrganization, OnAdded = null, CurrentUserId = null)
+
+        /// <summary>
+        /// Add the given user and add him/her to the given organization.
+        /// </summary>
+        /// <param name="User">A new user.</param>
+        /// <param name="EdgeLabel"></param>
+        /// <param name="ParentOrganization"></param>
+        /// <param name="OnAdded">A delegate run whenever the user had been added successfully.</param>
+        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
+        public async Task<User> AddUser(User                         User,
+                                        User2OrganizationEdgeTypes   EdgeLabel,
+                                        Organization                 ParentOrganization,
+                                        Action<User>                 OnAdded              = null,
+                                        User_Id?                     CurrentUserId        = null)
+        {
+
+            if (User is null)
+                throw new ArgumentNullException(nameof(User),                "The given user must not be null!");
+
+            if (ParentOrganization is null)
+                throw new ArgumentNullException(nameof(ParentOrganization),  "The given parent organization must not be null!");
+
+            if (ParentOrganization.API != this)
+                throw new ArgumentException    (nameof(ParentOrganization),  "The given parent organization is not attached to this API!");
+
+            try
+            {
+
+                await UsersSemaphore.        WaitAsync();
+                await OrganizationsSemaphore.WaitAsync();
+
+                // The new user does not yet have an organization,
+                // therefore organization notifications do not work here yet!
+                return await _AddUser(User,
+                                      async user => {
+                                          await _AddToOrganization(User,
+                                                                   EdgeLabel,
+                                                                   ParentOrganization,
+                                                                   CurrentUserId);
+                                          OnAdded(user);
+                                      },
+                                      CurrentUserId);
+
+            }
+            finally
+            {
+                OrganizationsSemaphore.Release();
+                UsersSemaphore.        Release();
+            }
+
+        }
+
+        #endregion
+
+        #endregion
+
         #region AddUserIfNotExists(User,   OnAdded = null,                   CurrentUserId = null)
+
+        #region (protected) _AddUserIfNotExists(User,                                OnAdded = null, CurrentUserId = null)
 
         /// <summary>
         /// When it has not been created before, add the given user to the API.
         /// </summary>
         /// <param name="User">A new user to be added to this API.</param>
+        /// <param name="OnAdded">A delegate run whenever the user had been added successfully.</param>
+        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
+        protected async Task<User> _AddUserIfNotExists(User          User,
+                                                       Action<User>  OnAdded        = null,
+                                                       User_Id?      CurrentUserId  = null)
+        {
+
+            await UsersSemaphore.WaitAsync();
+
+            if (User.API != null && User.API != this)
+                throw new ArgumentException(nameof(User), "The given user is already attached to another API!");
+
+            if (_Users.ContainsKey(User.Id))
+                return _Users[User.Id];
+
+            if (User.Id.Length < MinUserIdLength)
+                throw new ArgumentException(nameof(User), "User identification '" + User.Id + "' is too short!");
+
+            User.API = this;
+
+
+            await WriteToDatabaseFile(addUserIfNotExists_MessageType,
+                                        User.ToJSON(false, true),
+                                        CurrentUserId);
+
+            _Users.Add(User.Id, User);
+
+            #region Register 'New User Default'-Notifications
+
+            var newUserDefaultNotificationMessageGroups = _NotificationMessageGroups.
+                                                                SelectMany(group       => group.Notifications).
+                                                                Where     (description => description.Tags.Contains(NotificationTag.NewUserDefault)).
+                                                                SelectMany(description => description.Messages).
+                                                                ToHashSet();
+
+            if (newUserDefaultNotificationMessageGroups.Any())
+                await AddNotification(User,
+                                        new EMailNotification(User.EMail,
+                                                            "",
+                                                            "",
+                                                            "",
+                                                            newUserDefaultNotificationMessageGroups,
+                                                            "Default notifications for new users"),
+                                        CurrentUserId);
+
+            #endregion
+
+            await OnUserAdded?.Invoke(DateTime.UtcNow,
+                                        User,
+                                        CurrentUserId);
+
+            await SendNotifications(User,
+                                    addUserIfNotExists_MessageType,
+                                    null,
+                                    CurrentUserId);
+
+            OnAdded?.Invoke(User);
+
+            return User;
+
+        }
+
+        #endregion
+
+        #region AddUserIfNotExists             (User,                                OnAdded = null, CurrentUserId = null)
+
+        /// <summary>
+        /// Add the given user.
+        /// </summary>
+        /// <param name="User">A new user.</param>
         /// <param name="OnAdded">A delegate run whenever the user had been added successfully.</param>
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
         public async Task<User> AddUserIfNotExists(User          User,
@@ -15272,26 +14825,9 @@ namespace social.OpenData.UsersAPI
 
                 await UsersSemaphore.WaitAsync();
 
-                if (User.API != null && User.API != this)
-                    throw new ArgumentException(nameof(User), "The given user is already attached to another API!");
-
-                if (_Users.ContainsKey(User.Id))
-                    return _Users[User.Id];
-
-                if (User.Id.Length < MinLoginLength)
-                    throw new Exception("User '" + User.Id + "' is too short!");
-
-                User.API = this;
-
-                await WriteToLogfileAndNotify(User,
-                                              addUser_MessageType,
-                                              CurrentUserId: CurrentUserId);
-
-                _Users.Add(User.Id, User);
-
-                OnAdded?.Invoke(User);
-
-                return User;
+                return await _AddUser(User,
+                                      OnAdded,
+                                      CurrentUserId);
 
             }
             finally
@@ -15300,6 +14836,63 @@ namespace social.OpenData.UsersAPI
             }
 
         }
+
+        #endregion
+
+        #region AddUserIfNotExists             (User, EdgeLabel, ParentOrganization, OnAdded = null, CurrentUserId = null)
+
+        /// <summary>
+        /// Add the given user and add him/her to the given organization.
+        /// </summary>
+        /// <param name="User">A new user.</param>
+        /// <param name="EdgeLabel"></param>
+        /// <param name="ParentOrganization"></param>
+        /// <param name="OnAdded">A delegate run whenever the user had been added successfully.</param>
+        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
+        public async Task<User> AddUserIfNotExists(User                         User,
+                                                   User2OrganizationEdgeTypes   EdgeLabel,
+                                                   Organization                 ParentOrganization,
+                                                   Action<User>                 OnAdded              = null,
+                                                   User_Id?                     CurrentUserId        = null)
+        {
+
+            if (User is null)
+                throw new ArgumentNullException(nameof(User),                "The given user must not be null!");
+
+            if (ParentOrganization is null)
+                throw new ArgumentNullException(nameof(ParentOrganization),  "The given parent organization must not be null!");
+
+            if (ParentOrganization.API != this)
+                throw new ArgumentException    (nameof(ParentOrganization),  "The given parent organization is not attached to this API!");
+
+            try
+            {
+
+                await UsersSemaphore.        WaitAsync();
+                await OrganizationsSemaphore.WaitAsync();
+
+                // The new user does not yet have an organization,
+                // therefore organization notifications do not work here yet!
+                return await _AddUserIfNotExists(User,
+                                                 async user => {
+                                                     await _AddToOrganization(User,
+                                                                              EdgeLabel,
+                                                                              ParentOrganization,
+                                                                              CurrentUserId);
+                                                     OnAdded(user);
+                                                 },
+                                                 CurrentUserId);
+
+            }
+            finally
+            {
+                OrganizationsSemaphore.Release();
+                UsersSemaphore.        Release();
+            }
+
+        }
+
+        #endregion
 
         #endregion
 
@@ -15326,10 +14919,10 @@ namespace social.OpenData.UsersAPI
                 if (User.API != null && User.API != this)
                     throw new ArgumentException(nameof(User), "The given user is already attached to another API!");
 
-                if (User.Id.Length < MinLoginLength)
+                if (User.Id.Length < MinUserIdLength)
                     throw new Exception("User '" + User.Id + "' is too short!");
 
-                await WriteToDatabaseFile(NotificationMessageType.Parse("addOrUpdateUser"),
+                await WriteToDatabaseFile(addOrUpdateUser_MessageType,
                                           User.ToJSON(),
                                           CurrentUserId);
 
@@ -15345,16 +14938,16 @@ namespace social.OpenData.UsersAPI
 
                 if (OldUser != null)
                 {
-                    await WriteToLogfileAndNotify(User,
-                                                  updateUser_MessageType,
-                                                  CurrentUserId: CurrentUserId);
+                    await SendNotifications(User,
+                                            updateUser_MessageType,
+                                            CurrentUserId: CurrentUserId);
                     OnUpdated?.Invoke(User);
                 }
                 else
                 {
-                    await WriteToLogfileAndNotify(User,
-                                                  addUser_MessageType,
-                                                  CurrentUserId: CurrentUserId);
+                    await SendNotifications(User,
+                                            addUser_MessageType,
+                                            CurrentUserId: CurrentUserId);
                     OnAdded?.Invoke(User);
                 }
 
@@ -15369,6 +14962,24 @@ namespace social.OpenData.UsersAPI
         }
 
         #endregion
+
+        #region UpdateUser        (User,                                     CurrentUserId = null)
+
+        /// <summary>
+        /// A delegate called whenever a user was updated.
+        /// </summary>
+        /// <param name="Timestamp">The timestamp when the user was updated.</param>
+        /// <param name="User">The updated user.</param>
+        /// <param name="CurrentUserId">The invoking user identification</param>
+        public delegate Task OnUserUpdatedDelegate(DateTime  Timestamp,
+                                                   User      User,
+                                                   User_Id?  CurrentUserId  = null);
+
+        /// <summary>
+        /// An event fired whenever a user was updated.
+        /// </summary>
+        public event OnUserUpdatedDelegate OnUserUpdated;
+
 
         #region UpdateUser        (User,                                     CurrentUserId = null)
 
@@ -15392,13 +15003,13 @@ namespace social.OpenData.UsersAPI
                 if (!_Users.TryGetValue(User.Id, out User OldUser))
                     throw new Exception("User '" + User.Id + "' does not exists in this API!");
 
-                if (User.Id.Length < MinLoginLength)
+                if (User.Id.Length < MinUserIdLength)
                     throw new Exception("User '" + User.Id + "' is too short!");
 
 
-                await WriteToLogfileAndNotify(User,
-                                              updateUser_MessageType,
-                                              CurrentUserId: CurrentUserId);
+                await WriteToDatabaseFileAndNotify(User,
+                                                   updateUser_MessageType,
+                                                   CurrentUserId: CurrentUserId);
 
                 User.API = this;
 
@@ -15445,10 +15056,10 @@ namespace social.OpenData.UsersAPI
                 UpdateDelegate(Builder);
                 var NewUser = Builder.ToImmutable;
 
-                await WriteToLogfileAndNotify(NewUser,
-                                              updateUser_MessageType,
-                                              OldUser:        OldUser,
-                                              CurrentUserId:  CurrentUserId);
+                await WriteToDatabaseFileAndNotify(NewUser,
+                                                   updateUser_MessageType,
+                                                   OldUser:        OldUser,
+                                                   CurrentUserId:  CurrentUserId);
 
                 NewUser.API = this;
 
@@ -15464,6 +15075,8 @@ namespace social.OpenData.UsersAPI
             }
 
         }
+
+        #endregion
 
         #endregion
 
@@ -15491,27 +15104,26 @@ namespace social.OpenData.UsersAPI
         /// <param name="IsDisabled">The user will be shown in user listings.</param>
         /// <param name="DataSource">The source of all this data, e.g. an automatic importer.</param>
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
-        public async Task<User> CreateUser(User_Id                      Id,
-                                           SimpleEMailAddress           EMail,
-                                           Password?                    Password             = null,
-                                           String                       Name                 = null,
-                                           I18NString                   Description          = null,
-                                           PgpPublicKeyRing             PublicKeyRing        = null,
-                                           PgpSecretKeyRing             SecretKeyRing        = null,
-                                           Languages                    UserLanguage         = Languages.en,
-                                           PhoneNumber?                 Telephone            = null,
-                                           PhoneNumber?                 MobilePhone          = null,
-                                           String                       Telegram             = null,
-                                           String                       Homepage             = null,
-                                           GeoCoordinate?               GeoLocation          = null,
-                                           Address                      Address              = null,
-                                           DateTime?                    AcceptedEULA         = null,
-                                           Boolean                      IsAuthenticated      = false,
-                                           Boolean                      IsDisabled           = false,
-                                           User2OrganizationEdgeTypes?  EdgeLabel            = null,
-                                           Organization                 ParentOrganization   = null,
-                                           String                       DataSource           = "",
-                                           User_Id?                     CurrentUserId        = null)
+        public async Task<User> CreateUser(User_Id                     Id,
+                                           SimpleEMailAddress          EMail,
+                                           Password?                   Password             = null,
+                                           String                      Name                 = null,
+                                           I18NString                  Description          = null,
+                                           PgpPublicKeyRing            PublicKeyRing        = null,
+                                           PgpSecretKeyRing            SecretKeyRing        = null,
+                                           Languages                   UserLanguage         = Languages.en,
+                                           PhoneNumber?                Telephone            = null,
+                                           PhoneNumber?                MobilePhone          = null,
+                                           String                      Telegram             = null,
+                                           String                      Homepage             = null,
+                                           GeoCoordinate?              GeoLocation          = null,
+                                           Address                     Address              = null,
+                                           DateTime?                   AcceptedEULA         = null,
+                                           Boolean                     IsAuthenticated      = false,
+                                           Boolean                     IsDisabled           = false,
+                                           
+                                           String                      DataSource           = "",
+                                           User_Id?                    CurrentUserId        = null)
 
             => await AddUser(new User(Id,
                                       EMail,
@@ -15531,23 +15143,104 @@ namespace social.OpenData.UsersAPI
                                       IsDisabled,
                                       DataSource: DataSource),
 
-                         EdgeLabel,
-                         ParentOrganization,
+                             user => {
 
-                         user => {
+                                 if (Password.HasValue &&
+                                     !_TryChangePassword(user.Id,
+                                                         Password.Value,
+                                                         null,
+                                                         CurrentUserId).Result)
+                                 {
+                                     throw new ApplicationException("The password for '" + user.Id + "' could not be changed, as the given current password does not match!");
+                                 }
 
-                             if (Password.HasValue &&
-                                 !_TryChangePassword(user.Id,
-                                                     Password.Value,
-                                                     null,
-                                                     CurrentUserId).Result)
-                             {
-                                 throw new ApplicationException("The password for '" + user.Id + "' could not be changed, as the given current password does not match!");
-                             }
+                             },
 
-                         },
+                             CurrentUserId);
 
-                         CurrentUserId);
+        #endregion
+
+        #region CreateUser           (Id, EMail, Password, Name = null, Description = null, PublicKeyRing = null, SecretKeyRing = null, MobilePhone = null, IsPublic = true, IsDisabled = false, IsAuthenticated = false)
+
+        /// <summary>
+        /// Create a new user.
+        /// </summary>
+        /// <param name="Id">The unique identification of the user.</param>
+        /// <param name="EMail">The primary e-mail of the user.</param>
+        /// <param name="Password">An optional password of the user.</param>
+        /// <param name="Name">An offical (multi-language) name of the user.</param>
+        /// <param name="Description">An optional (multi-language) description of the user.</param>
+        /// <param name="PublicKeyRing">An optional PGP/GPG public keyring of the user.</param>
+        /// <param name="SecretKeyRing">An optional PGP/GPG secret keyring of the user.</param>
+        /// <param name="UserLanguage">The language setting of the user.</param>
+        /// <param name="Telephone">An optional telephone number of the user.</param>
+        /// <param name="MobilePhone">An optional mobile telephone number of the user.</param>
+        /// <param name="Homepage">The homepage of the user.</param>
+        /// <param name="GeoLocation">An optional geographical location of the user.</param>
+        /// <param name="Address">An optional address of the user.</param>
+        /// <param name="AcceptedEULA">Timestamp when the user accepted the End-User-License-Agreement.</param>
+        /// <param name="IsAuthenticated">The user will not be shown in user listings, as its primary e-mail address is not yet authenticated.</param>
+        /// <param name="IsDisabled">The user will be shown in user listings.</param>
+        /// <param name="DataSource">The source of all this data, e.g. an automatic importer.</param>
+        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
+        public async Task<User> CreateUser(User_Id                     Id,
+                                           SimpleEMailAddress          EMail,
+                                           User2OrganizationEdgeTypes  EdgeLabel,
+                                           Organization                ParentOrganization,
+                                           Password?                   Password             = null,
+                                           String                      Name                 = null,
+                                           I18NString                  Description          = null,
+                                           PgpPublicKeyRing            PublicKeyRing        = null,
+                                           PgpSecretKeyRing            SecretKeyRing        = null,
+                                           Languages                   UserLanguage         = Languages.en,
+                                           PhoneNumber?                Telephone            = null,
+                                           PhoneNumber?                MobilePhone          = null,
+                                           String                      Telegram             = null,
+                                           String                      Homepage             = null,
+                                           GeoCoordinate?              GeoLocation          = null,
+                                           Address                     Address              = null,
+                                           DateTime?                   AcceptedEULA         = null,
+                                           Boolean                     IsAuthenticated      = false,
+                                           Boolean                     IsDisabled           = false,
+                                           
+                                           String                      DataSource           = "",
+                                           User_Id?                    CurrentUserId        = null)
+
+            => await AddUser(new User(Id,
+                                      EMail,
+                                      Name,
+                                      Description,
+                                      PublicKeyRing,
+                                      SecretKeyRing,
+                                      UserLanguage,
+                                      Telephone,
+                                      MobilePhone,
+                                      Telegram,
+                                      Homepage,
+                                      GeoLocation,
+                                      Address,
+                                      AcceptedEULA,
+                                      IsAuthenticated,
+                                      IsDisabled,
+                                      DataSource: DataSource),
+
+                             EdgeLabel,
+                             ParentOrganization,
+
+                             user => {
+
+                                 if (Password.HasValue &&
+                                     !_TryChangePassword(user.Id,
+                                                         Password.Value,
+                                                         null,
+                                                         CurrentUserId).Result)
+                                 {
+                                     throw new ApplicationException("The password for '" + user.Id + "' could not be changed, as the given current password does not match!");
+                                 }
+
+                             },
+
+                             CurrentUserId);
 
         #endregion
 
@@ -15844,6 +15537,43 @@ namespace social.OpenData.UsersAPI
                 }
 
             }
+        }
+
+        #endregion
+
+
+        #region (protected) GetUserGroupSerializator        (Request, User)
+
+        protected UserGroupToJSONDelegate GetUserGroupSerializator(HTTPRequest  Request,
+                                                                   User         User)
+        {
+
+            switch (User?.Id.ToString())
+            {
+
+                //case __issapi:
+                //    return ISSNotificationExtentions.ToISSJSON;
+
+                default:
+                    return (userGroup,
+                            embedded,
+                            expandUsers,
+                            expandParentGroup,
+                            expandSubgroups,
+                            expandAttachedFiles,
+                            includeAttachedFileSignatures,
+                            includeCryptoHash)
+
+                            => userGroup.ToJSON(embedded,
+                                                expandUsers,
+                                                expandParentGroup,
+                                                expandSubgroups,
+                                                expandAttachedFiles,
+                                                includeAttachedFileSignatures,
+                                                includeCryptoHash);
+
+            }
+
         }
 
         #endregion
@@ -16249,7 +15979,7 @@ namespace social.OpenData.UsersAPI
             try
             {
 
-                if (UserId.Length < MinLoginLength)
+                if (UserId.Length < MinUserIdLength)
                     throw new Exception("UserId '" + UserId + "' is too short!");
 
                 await UsersSemaphore.WaitAsync();
@@ -16280,7 +16010,7 @@ namespace social.OpenData.UsersAPI
                                                          User_Id?  CurrentUserId    = null)
         {
 
-            if (UserId.Length < MinLoginLength)
+            if (UserId.Length < MinUserIdLength)
                 throw new Exception("UserId '" + UserId + "' is too short!");
 
             #region AddPassword
@@ -16375,7 +16105,7 @@ namespace social.OpenData.UsersAPI
             try
             {
 
-                if (UserId.Length < MinLoginLength)
+                if (UserId.Length < MinUserIdLength)
                     throw new Exception("UserId '" + UserId + "' is too short!");
 
                 UsersSemaphore.Wait();
@@ -17971,6 +17701,391 @@ namespace social.OpenData.UsersAPI
         #endregion
 
 
+        #region WriteToDatabaseFileAndNotify(Organization, MessageType, OldOrganization = null, CurrentUserId = null)
+
+        public async Task WriteToDatabaseFileAndNotify<TOrganization>(TOrganization            Organization,
+                                                                      NotificationMessageType  MessageType,
+                                                                      Organization             OldOrganization   = null,
+                                                                      User_Id?                 CurrentUserId     = null)
+
+            where TOrganization : Organization
+
+        {
+
+            if (Organization == null)
+                return;
+
+            await WriteToDatabaseFile(MessageType,
+                                      Organization.ToJSON(false, true),
+                                      CurrentUserId);
+
+            await Notify(Organization,
+                         MessageType,
+                         OldOrganization,
+                         CurrentUserId);
+
+        }
+
+        #endregion
+
+        #region Notify(Organization, MessageType, OldOrganization = null, CurrentUserId = null)
+
+        public async Task Notify<TOrganization>(TOrganization            Organization,
+                                                NotificationMessageType  MessageType,
+                                                Organization             OldOrganization  = null,
+                                                User_Id?                 CurrentUserId    = null)
+
+            where TOrganization : Organization
+
+        {
+
+            if (Organization == null)
+                return;
+
+            var _MessageTypes = new HashSet<NotificationMessageType>() { MessageType };
+
+            if (MessageType == addOrganizationIfNotExists_MessageType)
+            {
+                _MessageTypes.Add(addOrganization_MessageType);
+            }
+
+            else if (MessageType == addOrUpdateOrganization_MessageType)
+            {
+                if (OldOrganization == null)
+                    _MessageTypes.Add(addOrganization_MessageType);
+                else
+                    _MessageTypes.Add(updateOrganization_MessageType);
+            }
+
+            var MessageTypes = _MessageTypes.ToArray();
+
+
+            if (!DisableNotifications)
+            {
+
+                #region Telegram Notifications
+
+                try
+                {
+
+                    var AllTelegramNotifications  = this.GetTelegramNotifications(Organization, MessageTypes).
+                                                         ToHashSet();
+
+                    if (DevMachines.Contains(Environment.MachineName))
+                    {
+                        AllTelegramNotifications.Clear();
+                    }
+
+                    if (AllTelegramNotifications.Count > 0)
+                    {
+
+                        if (_MessageTypes.Contains(addOrganization_MessageType))
+                        {
+                            await TelegramStore.SendTelegrams(String.Concat("Organization '", Organization.Name.FirstText(), "' was successfully created. ",
+                                                                            "https://", ExternalDNSName, BasePath, "/organizations/", Organization.Id),
+                                                              AllTelegramNotifications.Select(TelegramNotification => TelegramNotification.Username));
+                        }
+
+                        if (_MessageTypes.Contains(updateOrganization_MessageType))
+                        {
+                            await TelegramStore.SendTelegrams(String.Concat("Organization '", Organization.Name.FirstText(), "' information has been successfully updated. ",
+                                                                            "https://", ExternalDNSName, BasePath, "/organizations/", Organization.Id),
+                                                                            // + {Updated information}
+                                                              AllTelegramNotifications.Select(TelegramNotification => TelegramNotification.Username));
+                        }
+
+                        if (_MessageTypes.Contains(removeOrganization_MessageType))
+                        {
+                            await TelegramStore.SendTelegrams(String.Concat("Organization '", Organization.Name.FirstText(), "' has been removed. ",
+                                                                            "If you haven't approved this request, please contact support: support@cardi-link.com"),
+                                                              AllTelegramNotifications.Select(TelegramNotification => TelegramNotification.Username));
+                        }
+
+                    }
+
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e);
+                }
+
+                #endregion
+
+                #region SMS Notifications
+
+                try
+                {
+
+                    var AllSMSNotifications  = this.GetSMSNotifications(Organization, MessageTypes).
+                                                    ToHashSet();
+
+                    if (DevMachines.Contains(Environment.MachineName))
+                    {
+                        AllSMSNotifications.Clear();
+                    }
+
+                    if (AllSMSNotifications.Count > 0)
+                    {
+
+                        if (_MessageTypes.Contains(addOrganization_MessageType))
+                        {
+                            SendSMS(String.Concat("Organization '", Organization.Name.FirstText(), "' was successfully created. ",
+                                                  "https://", ExternalDNSName, BasePath, "/organizations/", Organization.Id),
+                                    AllSMSNotifications.Select(smsPhoneNumber => smsPhoneNumber.PhoneNumber.ToString()).ToArray(),
+                                    "CardiCloud");
+                        }
+
+                        if (_MessageTypes.Contains(updateOrganization_MessageType))
+                        {
+                            SendSMS(String.Concat("Organization '", Organization.Name.FirstText(), "' information has been successfully updated. ",
+                                                  "https://", ExternalDNSName, BasePath, "/organizations/", Organization.Id),
+                                                  // + {Updated information}
+                                    AllSMSNotifications.Select(smsPhoneNumber => smsPhoneNumber.PhoneNumber.ToString()).ToArray(),
+                                    "CardiCloud");
+                        }
+
+                        if (_MessageTypes.Contains(removeOrganization_MessageType))
+                        {
+                            SendSMS(String.Concat("Organization '", Organization.Name.FirstText(), "' has been removed."),
+                                    AllSMSNotifications.Select(smsPhoneNumber => smsPhoneNumber.PhoneNumber.ToString()).ToArray(),
+                                    "CardiCloud");
+                        }
+
+                    }
+
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e);
+                }
+
+                #endregion
+
+                #region HTTPS Notifications
+
+                try
+                {
+
+                    var AllHTTPSNotifications  = this.GetHTTPSNotifications(Organization, MessageTypes).
+                                                      ToHashSet();
+
+                    if (DevMachines.Contains(Environment.MachineName))
+                        AllHTTPSNotifications.Clear();
+
+                    if (AllHTTPSNotifications.Count > 0)
+                    {
+
+                        if (_MessageTypes.Contains(addOrganization_MessageType))
+                        {
+
+                            await SendHTTPSNotifications(AllHTTPSNotifications,
+                                                         new JObject(
+                                                             new JProperty("organizationCreated",
+                                                                 Organization.ToJSON()
+                                                             ),
+                                                             new JProperty("timestamp", DateTime.UtcNow.ToIso8601())
+                                                         ));
+
+                        }
+
+                        if (_MessageTypes.Contains(updateOrganization_MessageType))
+                        {
+
+                            await SendHTTPSNotifications(AllHTTPSNotifications,
+                                                         new JObject(
+                                                             new JProperty("organizationUpdated",
+                                                                 Organization.ToJSON()
+                                                             ),
+                                                             new JProperty("timestamp", DateTime.UtcNow.ToIso8601())
+                                                         ));
+
+                        }
+
+                        if (_MessageTypes.Contains(removeOrganization_MessageType))
+                        {
+
+                            await SendHTTPSNotifications(AllHTTPSNotifications,
+                                                         new JObject(
+                                                             new JProperty("organizationRemoved",
+                                                                 Organization.ToJSON()
+                                                             ),
+                                                             new JProperty("timestamp", DateTime.UtcNow.ToIso8601())
+                                                         ));
+
+                        }
+
+                    }
+
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e);
+                }
+
+                #endregion
+
+                #region EMailNotifications
+
+                try
+                {
+
+                    var AllEMailNotifications  = this.GetEMailNotifications(Organization, MessageTypes).
+                                                      ToHashSet();
+
+                    if (DevMachines.Contains(Environment.MachineName))
+                    {
+                        AllEMailNotifications.Clear();
+                    }
+
+                    if (AllEMailNotifications.Count > 0)
+                    {
+
+                        if (_MessageTypes.Contains(addOrganization_MessageType))
+                        {
+
+                            await APISMTPClient.Send(
+                                     new HTMLEMailBuilder() {
+
+                                         From           = Robot.EMail,
+                                         To             = EMailAddressListBuilder.Create(EMailAddressList.Create(AllEMailNotifications.Select(emailnotification => emailnotification.EMailAddress))),
+                                         Passphrase     = APIPassphrase,
+                                         Subject        = String.Concat("Organization '", Organization.Name.FirstText(), "' was successfully created."),
+
+                                         HTMLText       = String.Concat(HTMLEMailHeader,
+                                                                        "Organization <a href=\"https://", ExternalDNSName, BasePath, "/organizations/", Organization.Id, "\">", Organization.Name.FirstText(), "</a> was successfully created.",
+                                                                        HTMLEMailFooter),
+
+                                         PlainText      = String.Concat(TextEMailHeader,
+                                                                        "Organization '", Organization.Name.FirstText(), "' was successfully created.\r\n",
+                                                                        "https://", ExternalDNSName, BasePath, "/organizations/", Organization.Id, "\r\r\r\r",
+                                                                        TextEMailFooter),
+
+                                         SecurityLevel  = EMailSecurity.sign
+
+                                     });
+
+                        }
+
+                        if (_MessageTypes.Contains(updateOrganization_MessageType))
+                        {
+                            await APISMTPClient.Send(
+                                     new HTMLEMailBuilder() {
+
+                                         From           = Robot.EMail,
+                                         To             = EMailAddressListBuilder.Create(EMailAddressList.Create(AllEMailNotifications.Select(emailnotification => emailnotification.EMailAddress))),
+                                         Passphrase     = APIPassphrase,
+                                         Subject        = String.Concat("Organization '", Organization.Name.FirstText(), "' information has been successfully updated."),
+
+                                         HTMLText       = String.Concat(HTMLEMailHeader,
+                                                                        "Organization <a href=\"https://", ExternalDNSName, BasePath, "/organizations/", Organization.Id, "\">", Organization.Name.FirstText(), "</a> information has been successfully updated.",
+                                                                        // + {Updated information}",
+                                                                        HTMLEMailFooter),
+
+                                         PlainText      = String.Concat(TextEMailHeader,
+                                                                        "Organization '", Organization.Name.FirstText(), "' information has been successfully updated.\r\n",
+                                                                        "https://", ExternalDNSName, BasePath, "/organizations/", Organization.Id, "\r\r\r\r",
+                                                                        // + {Updated information}",
+                                                                        TextEMailFooter),
+
+                                         SecurityLevel  = EMailSecurity.sign
+
+                                     });
+                        }
+
+                        if (_MessageTypes.Contains(removeOrganization_MessageType))
+                        {
+                            await APISMTPClient.Send(
+                                     new HTMLEMailBuilder() {
+
+                                         From           = Robot.EMail,
+                                         To             = EMailAddressListBuilder.Create(EMailAddressList.Create(AllEMailNotifications.Select(emailnotification => emailnotification.EMailAddress))),
+                                         Passphrase     = APIPassphrase,
+                                         Subject        = String.Concat("Organization '", Organization.Name.FirstText(), "' has been removed."),
+
+                                         HTMLText       = String.Concat(HTMLEMailHeader,
+                                                                        "Organization <a href=\"https://", ExternalDNSName, BasePath, "/organizations/", Organization.Id, "\">", Organization.Name.FirstText(), "</a> has been removed.<br />",
+                                                                        "If you haven't approved this request, please contact support: <a href=\"mailto:support@cardi-link.com\">support@cardi-link.com</a>",
+                                                                        HTMLEMailFooter),
+
+                                         PlainText      = String.Concat(TextEMailHeader,
+                                                                        "Organization '", Organization.Name.FirstText(), "' has been removed.\r\n",
+                                                                        "If you haven't approved this request, please contact support: support@cardi-link.com\r\r\r\r",
+                                                                        TextEMailFooter),
+
+                                         SecurityLevel  = EMailSecurity.sign
+
+                                     });
+                        }
+
+                    }
+
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e);
+                }
+
+                #endregion
+
+            }
+
+        }
+
+        #endregion
+
+        #region (protected) GetOrganizationSerializator     (Request, User)
+
+        protected OrganizationToJSONDelegate GetOrganizationSerializator(HTTPRequest  Request,
+                                                                         User         User)
+        {
+
+            switch (User?.Id.ToString())
+            {
+
+                //case __issapi:
+                //    return ISSNotificationExtentions.ToISSJSON;
+
+                default:
+                    return (organization,
+                            embedded,
+                            expandMembers,
+                            expandParents,
+                            expandSubOrganizations,
+                            expandTags,
+                            includeCryptoHash)
+
+                            => organization.ToJSON(embedded,
+                                                   expandMembers,
+                                                   expandParents,
+                                                   expandSubOrganizations,
+                                                   expandTags,
+                                                   includeCryptoHash);
+
+            }
+
+        }
+
+        #endregion
+
+
+        #region AddOrganization           (Organization,   ParentOrganization = null, CurrentUserId = null)
+
+        /// <summary>
+        /// A delegate called whenever an organization was added.
+        /// </summary>
+        /// <param name="Timestamp">The timestamp when the organization was added.</param>
+        /// <param name="Organization">The added organization.</param>
+        /// <param name="CurrentUserId">The invoking user identification</param>
+        public delegate Task OnOrganizationAddedDelegate(DateTime      Timestamp,
+                                                         Organization  Organization,
+                                                         User_Id?      CurrentUserId  = null);
+
+        /// <summary>
+        /// An event fired whenever an organization was added.
+        /// </summary>
+        public event OnOrganizationAddedDelegate OnOrganizationAdded;
+
+
         #region AddOrganization           (Organization,   ParentOrganization = null, CurrentUserId = null)
 
         /// <summary>
@@ -17993,13 +18108,13 @@ namespace social.OpenData.UsersAPI
                     throw new ArgumentException(nameof(Organization), "The given organization is already attached to another API!");
 
                 if (_Organizations.ContainsKey(Organization.Id))
-                    throw new Exception("Organization '" + Organization.Id + "' already exists in this API!");
+                    throw new ArgumentException(nameof(Organization), "Organization identification '" + Organization.Id + "' already exists!");
 
                 if (ParentOrganization == null)
                     ParentOrganization = NoOwner;
 
-                //if (ParentOrganization != null && !_Organizations.ContainsKey(ParentOrganization.Id))
-                //    throw new Exception("Parent organization '" + ParentOrganization.Id + "' does not exists in this API!");
+                if (ParentOrganization != null && !_Organizations.ContainsKey(ParentOrganization.Id))
+                    throw new Exception("Parent organization '" + ParentOrganization.Id + "' does not exists in this API!");
 
                 Organization.API = this;
 
@@ -18051,6 +18166,8 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
+        #endregion
+
         #region AddOrganizationIfNotExists(Organization,   ParentOrganization = null, CurrentUserId = null)
 
         /// <summary>
@@ -18078,15 +18195,15 @@ namespace social.OpenData.UsersAPI
                 if (ParentOrganization == null)
                     ParentOrganization = NoOwner;
 
-                //if (ParentOrganization != null && !_Organizations.ContainsKey(ParentOrganization.Id))
-                //    throw new Exception("Parent organization '" + ParentOrganization.Id + "' does not exists in this API!");
+                if (ParentOrganization != null && !_Organizations.ContainsKey(ParentOrganization.Id))
+                    throw new Exception("Parent organization '" + ParentOrganization.Id + "' does not exists in this API!");
 
                 Organization.API = this;
 
-                await WriteToLogfileAndNotify(Organization,
-                                              addOrganizationIfNotExists_MessageType,
-                                              null,
-                                              CurrentUserId);
+                await WriteToDatabaseFileAndNotify(Organization,
+                                                   addOrganizationIfNotExists_MessageType,
+                                                   null,
+                                                   CurrentUserId);
 
                 _Organizations.Add(Organization.Id, Organization);
 
@@ -18141,8 +18258,8 @@ namespace social.OpenData.UsersAPI
                 if (ParentOrganization == null)
                     ParentOrganization = NoOwner;
 
-                //if (ParentOrganization != null && !_Organizations.ContainsKey(ParentOrganization.Id))
-                //    throw new Exception("Parent organization '" + ParentOrganization.Id + "' does not exists in this API!");
+                if (ParentOrganization != null && !_Organizations.ContainsKey(ParentOrganization.Id))
+                    throw new Exception("Parent organization '" + ParentOrganization.Id + "' does not exists in this API!");
 
                 if (_Organizations.TryGetValue(Organization.Id, out Organization OldOrganization))
                 {
@@ -18152,10 +18269,10 @@ namespace social.OpenData.UsersAPI
 
                 Organization.API = this;
 
-                await WriteToLogfileAndNotify(Organization,
-                                              addOrUpdateOrganization_MessageType,
-                                              OldOrganization,
-                                              CurrentUserId);
+                await WriteToDatabaseFileAndNotify(Organization,
+                                                   addOrUpdateOrganization_MessageType,
+                                                   OldOrganization,
+                                                   CurrentUserId);
 
                 _Organizations.AddAndReturnValue(Organization.Id, Organization);
 
@@ -18218,10 +18335,11 @@ namespace social.OpenData.UsersAPI
                 Organization.API = this;
                 Organization.CopyAllLinkedDataFrom(OldOrganization);
 
-                await WriteToLogfileAndNotify(Organization,
-                                              updateOrganization_MessageType,
-                                              OldOrganization,
-                                              CurrentUserId);
+                await WriteToDatabaseFileAndNotify(Organization,
+                                                   updateOrganization_MessageType,
+                                                   OldOrganization,
+                                                   CurrentUserId);
+                Organization.CopyAllLinkedDataFrom(OldOrganization);
 
                 return _Organizations.AddAndReturnValue(Organization.Id, Organization);
 
@@ -18266,12 +18384,14 @@ namespace social.OpenData.UsersAPI
                 NewOrganization.API = this;
                 NewOrganization.CopyAllLinkedDataFrom(OldOrganization);
 
-                await WriteToLogfileAndNotify(NewOrganization,
-                                              updateOrganization_MessageType,
-                                              OldOrganization,
-                                              CurrentUserId);
+                await WriteToDatabaseFileAndNotify(NewOrganization,
+                                                   updateOrganization_MessageType,
+                                                   OldOrganization,
+                                                   CurrentUserId);
 
+                NewOrganization.API = this;
                 _Organizations.Remove(OldOrganization.Id);
+                NewOrganization.CopyAllLinkedDataFrom(OldOrganization);
 
                 return _Organizations.AddAndReturnValue(NewOrganization.Id, NewOrganization);
 
@@ -18723,6 +18843,43 @@ namespace social.OpenData.UsersAPI
         #endregion
 
 
+        #region (protected) GetOrganizationGroupSerializator(Request, User)
+
+        protected OrganizationGroupToJSONDelegate GetOrganizationGroupSerializator(HTTPRequest  Request,
+                                                                                   User         User)
+        {
+
+            switch (User?.Id.ToString())
+            {
+
+                //case __issapi:
+                //    return ISSNotificationExtentions.ToISSJSON;
+
+                default:
+                    return (organizationGroup,
+                            embedded,
+                            expandOrganizations,
+                            expandParentGroup,
+                            expandSubgroups,
+                            expandAttachedFiles,
+                            includeAttachedFileSignatures,
+                            includeCryptoHash)
+
+                            => organizationGroup.ToJSON(embedded,
+                                                        expandOrganizations,
+                                                        expandParentGroup,
+                                                        expandSubgroups,
+                                                        expandAttachedFiles,
+                                                        includeAttachedFileSignatures,
+                                                        includeCryptoHash);
+
+            }
+
+        }
+
+        #endregion
+
+
         #region CreateOrganizationGroup           (Id, Name = null, Description = null)
 
         public async Task<OrganizationGroup> CreateOrganizationGroup(OrganizationGroup_Id  Id,
@@ -19063,7 +19220,394 @@ namespace social.OpenData.UsersAPI
 
         #region Users <> Organizations
 
-        #region AddToOrganization     (User, EdgeLabel, Organization, CurrentUserId  = null)
+        #region (private) CheckImpersonate(currentOrg, Astronaut, AstronautFound, Member, VetoUsers)
+
+        private Boolean? CheckImpersonate(Organization   currentOrg,
+                                          User           Astronaut,
+                                          Boolean        AstronautFound,
+                                          User           Member,
+                                          HashSet<User>  VetoUsers)
+        {
+
+            var currentUsers = new HashSet<User>(currentOrg.User2OrganizationEdges.Select(edge => edge.Source));
+
+            AstronautFound |= currentUsers.Contains(Astronaut);
+
+            if (!AstronautFound)
+            {
+
+                // Fail early!
+                if (currentUsers.Contains(Member))
+                    return false;
+
+            }
+
+            else if (currentUsers.Contains(Member))
+            {
+
+                // Astronaut and member are on the same level, e.g. both admin of the same organization!
+                if (currentUsers.Contains(Astronaut))
+                {
+                    // Currently this is allowed!
+                }
+
+                return !VetoUsers.Contains(Member);
+
+            }
+
+            // Everyone found so far can no longer be impersonated!
+            foreach (var currentUser in currentUsers)
+                VetoUsers.Add(currentUser);
+
+
+
+            var childResults = currentOrg.Organization2OrganizationInEdges.Where(edge => edge.EdgeLabel == Organization2OrganizationEdgeTypes.IsChildOf).
+                                          Select(edge => CheckImpersonate(edge.Source, Astronaut, AstronautFound, Member, new HashSet<User>(VetoUsers))).ToArray();
+
+            return childResults.Any(result => result == true);
+
+        }
+
+        #endregion
+
+        #region CanImpersonate(Astronaut, Member)
+
+        public Boolean CanImpersonate(User  Astronaut,
+                                      User  Member)
+        {
+
+            if (Astronaut == Member)
+                return false;
+
+            // API admins can impersonate everyone! Except other API Admins!
+            if (Admins.InEdges(Astronaut).Any())
+                return !Admins.InEdges(Member).Any();
+
+            // API admins can never be impersonated!
+            if (Admins.InEdges(Member).Any())
+                return false;
+
+            // An astronaut must be at least an admin of some parent organization!
+            if (!Astronaut.User2Organization_OutEdges.Any(edge => edge.EdgeLabel == User2OrganizationEdgeTypes.IsAdmin))
+                return false;
+
+            var VetoUsers             = new HashSet<User>();
+            var AstronautFound        = false;
+            var CurrentOrganizations  = new HashSet<Organization>(Organizations.Where(org => !org.Organization2OrganizationOutEdges.
+                                                                                                  Any(edge => edge.EdgeLabel == Organization2OrganizationEdgeTypes.IsChildOf)));
+
+            var childResults = CurrentOrganizations.Select(org => CheckImpersonate(org, Astronaut, AstronautFound, Member, VetoUsers)).ToArray();
+
+            return childResults.Any(result => result == true);
+
+
+            do
+            {
+
+                var NextOrgs  = new HashSet<Organization>(CurrentOrganizations.SelectMany(org => org.Organization2OrganizationInEdges.Where(edge => edge.EdgeLabel == Organization2OrganizationEdgeTypes.IsChildOf)).Select(edge => edge.Source));
+
+                foreach (var currentOrg in NextOrgs)
+                {
+
+                    var currentUsers = new HashSet<User>(currentOrg.User2OrganizationEdges.Select(edge => edge.Source));
+
+                    AstronautFound |= currentUsers.Contains(Astronaut);
+
+                    if (!AstronautFound)
+                    {
+
+                        // Fail early!
+                        if (currentUsers.Contains(Member))
+                            return false;
+
+                    }
+
+                    else if (currentUsers.Contains(Member))
+                    {
+
+                        // Astronaut and member are on the same level, e.g. both admin of the same organization!
+                        if (currentUsers.Contains(Astronaut))
+                        {
+                            // Currently this is allowed!
+                        }
+
+                        return !VetoUsers.Contains(Member);
+
+                    }
+
+                    // Everyone found so far can no longer be impersonated!
+                    currentUsers.ForEach(user => VetoUsers.Add(user));
+
+                }
+
+                CurrentOrganizations.Clear();
+                NextOrgs.ForEach(org => CurrentOrganizations.Add(org));
+
+            }
+            while (CurrentOrganizations.Count > 0);
+
+            // The member was not found within the organizational hierarchy!
+            return false;
+
+        }
+
+        #endregion
+
+
+        #region Notify(Organization, User, MessageType, CurrentUserId = null)
+
+        public async Task Notify<TOrganization, TUser>(TOrganization            Organization,
+                                                       TUser                    User,
+                                                       NotificationMessageType  MessageType,
+                                                       User_Id?                 CurrentUserId    = null)
+
+            where TOrganization : Organization
+            where TUser:          User
+
+        {
+
+            if (Organization == null || User == null)
+                return;
+
+            var _MessageTypes = new HashSet<NotificationMessageType>() { MessageType };
+
+            //if (MessageType == addOrganizationIfNotExists_MessageType)
+            //{
+            //    _MessageTypes.Add(addOrganization_MessageType);
+            //}
+
+            //else if (MessageType == addOrUpdateOrganization_MessageType)
+            //{
+            //    if (OldOrganization == null)
+            //        _MessageTypes.Add(addOrganization_MessageType);
+            //    else
+            //        _MessageTypes.Add(updateOrganization_MessageType);
+            //}
+
+            var MessageTypes = _MessageTypes.ToArray();
+
+
+            if (!DisableNotifications)
+            {
+
+                #region Telegram Notifications
+
+                try
+                {
+
+                    var AllTelegramNotifications  = this.GetTelegramNotifications(Organization, MessageTypes).
+                                                         ToHashSet();
+
+                    if (DevMachines.Contains(Environment.MachineName))
+                    {
+                        AllTelegramNotifications.Clear();
+                    }
+
+                    if (AllTelegramNotifications.Count > 0)
+                    {
+
+                        if (_MessageTypes.Contains(addUserToOrganization_MessageType))
+                        {
+                            await TelegramStore.SendTelegrams(String.Concat("User '", User.Name, "' was added to organization '", Organization.Name.FirstText(), "'."),
+                                                              AllTelegramNotifications.Select(TelegramNotification => TelegramNotification.Username));
+                        }
+
+                        if (_MessageTypes.Contains(removeUserFromOrganization_MessageType))
+                        {
+                            await TelegramStore.SendTelegrams(String.Concat("User '", User.Name, "' was removed from organization '", Organization.Name.FirstText(), "'."),
+                                                              AllTelegramNotifications.Select(TelegramNotification => TelegramNotification.Username));
+                        }
+
+                    }
+
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e);
+                }
+
+                #endregion
+
+                #region SMS Notifications
+
+                try
+                {
+
+                    var AllSMSNotifications  = this.GetSMSNotifications(Organization, MessageTypes).
+                                                    ToHashSet();
+
+                    if (DevMachines.Contains(Environment.MachineName))
+                    {
+                        AllSMSNotifications.Clear();
+                    }
+
+                    if (AllSMSNotifications.Count > 0)
+                    {
+
+                        if (_MessageTypes.Contains(addUserToOrganization_MessageType))
+                        {
+                            SendSMS(String.Concat("User '", User.Name, "' was added to organization '", Organization.Name.FirstText(), "'."),
+                                    AllSMSNotifications.Select(smsPhoneNumber => smsPhoneNumber.PhoneNumber.ToString()).ToArray(),
+                                    "CardiCloud");
+                        }
+
+                        if (_MessageTypes.Contains(removeUserFromOrganization_MessageType))
+                        {
+                            SendSMS(String.Concat("User '", User.Name, "' was removed from organization '", Organization.Name.FirstText(), "'."),
+                                    AllSMSNotifications.Select(smsPhoneNumber => smsPhoneNumber.PhoneNumber.ToString()).ToArray(),
+                                    "CardiCloud");
+                        }
+
+                    }
+
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e);
+                }
+
+                #endregion
+
+                #region HTTPS Notifications
+
+                try
+                {
+
+                    var AllHTTPSNotifications  = this.GetHTTPSNotifications(Organization, MessageTypes).
+                                                      ToHashSet();
+
+                    if (DevMachines.Contains(Environment.MachineName))
+                        AllHTTPSNotifications.Clear();
+
+                    if (AllHTTPSNotifications.Count > 0)
+                    {
+
+                        if (_MessageTypes.Contains(addUserToOrganization_MessageType))
+                        {
+
+                            await SendHTTPSNotifications(AllHTTPSNotifications,
+                                                         new JObject(
+                                                             new JProperty("addUserToOrganization",
+                                                                 new JObject(
+                                                                     new JProperty("organization", Organization.ToJSON()),
+                                                                     new JProperty("user",         User.        ToJSON())
+                                                                 )
+                                                             ),
+                                                             new JProperty("timestamp", DateTime.UtcNow.ToIso8601())
+                                                         ));
+
+                        }
+
+                        if (_MessageTypes.Contains(removeUserFromOrganization_MessageType))
+                        {
+
+                            await SendHTTPSNotifications(AllHTTPSNotifications,
+                                                         new JObject(
+                                                             new JProperty("removeUserFromOrganization",
+                                                                 new JObject(
+                                                                     new JProperty("organization", Organization.ToJSON()),
+                                                                     new JProperty("user",         User.        ToJSON())
+                                                                 )
+                                                             ),
+                                                             new JProperty("timestamp", DateTime.UtcNow.ToIso8601())
+                                                         ));
+
+                        }
+
+                    }
+
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e);
+                }
+
+                #endregion
+
+                #region EMailNotifications
+
+                try
+                {
+
+                    var AllEMailNotifications  = this.GetEMailNotifications(Organization, MessageTypes).
+                                                      ToHashSet();
+
+                    if (DevMachines.Contains(Environment.MachineName))
+                    {
+                        AllEMailNotifications.Clear();
+                    }
+
+                    if (AllEMailNotifications.Count > 0)
+                    {
+
+                        if (_MessageTypes.Contains(addUserToOrganization_MessageType))
+                        {
+                            await APISMTPClient.Send(
+                                     new HTMLEMailBuilder() {
+
+                                         From           = Robot.EMail,
+                                         To             = EMailAddressListBuilder.Create(EMailAddressList.Create(AllEMailNotifications.Select(emailnotification => emailnotification.EMailAddress))),
+                                         Passphrase     = APIPassphrase,
+                                         Subject        = String.Concat("User '", User.Name, "' was added to organization '", Organization.Name.FirstText(), "'."),
+
+                                         HTMLText       = String.Concat(HTMLEMailHeader,
+                                                                        "User <a href=\"https://", this.ExternalDNSName, this.BasePath, "/users/", User.Id, "\">", User.Name, "</a> had been added to organization <a href=\"https://", ExternalDNSName, BasePath, "/organizations/", Organization.Id, "\">", Organization.Name.FirstText(), "</a>.<br />",
+                                                                        "If you haven't approved this request, please contact support: <a href=\"mailto:support@cardi-link.com\">support@cardi-link.com</a>",
+                                                                        HTMLEMailFooter),
+
+                                         PlainText      = String.Concat(TextEMailHeader,
+                                                                        "User '" + User.Name + "' had been added to organization '", Organization.Name.FirstText(), "'.\r\n",
+                                                                        "If you haven't approved this request, please contact support: support@cardi-link.com\r\r\r\r",
+                                                                        TextEMailFooter),
+
+                                         SecurityLevel  = EMailSecurity.sign
+
+                                     });
+                        }
+
+                        if (_MessageTypes.Contains(removeUserFromOrganization_MessageType))
+                        {
+                            await APISMTPClient.Send(
+                                     new HTMLEMailBuilder() {
+
+                                         From           = Robot.EMail,
+                                         To             = EMailAddressListBuilder.Create(EMailAddressList.Create(AllEMailNotifications.Select(emailnotification => emailnotification.EMailAddress))),
+                                         Passphrase     = APIPassphrase,
+                                         Subject        = String.Concat("User '", User.Name, "' was removed from organization '", Organization.Name.FirstText(), "'."),
+
+                                         HTMLText       = String.Concat(HTMLEMailHeader,
+                                                                        "User <a href=\"https://", this.ExternalDNSName, this.BasePath, "/users/", User.Id, "\">", User.Name, "</a> had been removed from organization <a href=\"https://", ExternalDNSName, BasePath, "/organizations/", Organization.Id, "\">", Organization.Name.FirstText(), "</a>.<br />",
+                                                                        "If you haven't approved this request, please contact support: <a href=\"mailto:support@cardi-link.com\">support@cardi-link.com</a>",
+                                                                        HTMLEMailFooter),
+
+                                         PlainText      = String.Concat(TextEMailHeader,
+                                                                        "User '" + User.Name + "' had been removed from organization '", Organization.Name.FirstText(), "'.\r\n",
+                                                                        "If you haven't approved this request, please contact support: support@cardi-link.com\r\r\r\r",
+                                                                        TextEMailFooter),
+
+                                         SecurityLevel  = EMailSecurity.sign
+
+                                     });
+                        }
+
+                    }
+
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e);
+                }
+
+                #endregion
+
+            }
+
+        }
+
+        #endregion
+
+
+        #region (protected) _AddToOrganization(User, EdgeLabel, Organization, CurrentUserId  = null)
 
         protected async Task<Boolean> _AddToOrganization(User                        User,
                                                          User2OrganizationEdgeTypes  EdgeLabel,
@@ -19100,6 +19644,10 @@ namespace social.OpenData.UsersAPI
 
         }
 
+        #endregion
+
+        #region AddToOrganization(User, EdgeLabel, Organization, CurrentUserId  = null)
+
         public async Task<Boolean> AddToOrganization(User                        User,
                                                      User2OrganizationEdgeTypes  Edge,
                                                      Organization                Organization,
@@ -19128,7 +19676,8 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
-        #region RemoveFromOrganization(User, EdgeLabel, Organization, CurrentUserId = null)
+
+        #region (protected) _RemoveFromOrganization(User, EdgeLabel, Organization, CurrentUserId = null)
 
         protected async Task<Boolean> _RemoveFromOrganization(User                        User,
                                                               User2OrganizationEdgeTypes  EdgeLabel,
@@ -19160,6 +19709,10 @@ namespace social.OpenData.UsersAPI
             return true;
 
         }
+
+        #endregion
+
+        #region RemoveFromOrganization(User, EdgeLabel, Organization, CurrentUserId = null)
 
         public async Task<Boolean> RemoveFromOrganization(User                        User,
                                                           User2OrganizationEdgeTypes  Edge,
@@ -19193,7 +19746,254 @@ namespace social.OpenData.UsersAPI
 
         #region Organizations <> Organizations
 
-        #region LinkOrganizations  (OrganizationOut, EdgeLabel, OrganizationIn, Privacy = Public, CurrentUserId = null)
+        #region Notify(OrganizationOut, OrganizationIn, MessageType, CurrentUserId = null)
+
+        public async Task Notify<TOrganization>(TOrganization            OrganizationOut,
+                                                TOrganization            OrganizationIn,
+                                                NotificationMessageType  MessageType,
+                                                User_Id?                 CurrentUserId    = null)
+
+            where TOrganization : Organization
+
+        {
+
+            if (OrganizationOut == null || OrganizationIn == null)
+                return;
+
+            var _MessageTypes = new HashSet<NotificationMessageType>() { MessageType };
+
+            //if (MessageType == addOrganizationIfNotExists_MessageType)
+            //{
+            //    _MessageTypes.Add(addOrganization_MessageType);
+            //}
+
+            var MessageTypes = _MessageTypes.ToArray();
+
+
+            if (!DisableNotifications)
+            {
+
+                #region Telegram Notifications
+
+                try
+                {
+
+                    var AllTelegramNotifications  = this.GetTelegramNotifications(OrganizationIn,  MessageTypes).Concat(
+                                                    this.GetTelegramNotifications(OrganizationOut, MessageTypes)).
+                                                    ToHashSet();
+
+                    if (DevMachines.Contains(Environment.MachineName))
+                    {
+                        AllTelegramNotifications.Clear();
+                    }
+
+                    if (AllTelegramNotifications.Count > 0)
+                    {
+
+                        if (_MessageTypes.Contains(linkOrganizations_MessageType))
+                        {
+                            await TelegramStore.SendTelegrams(String.Concat("Organization '", OrganizationOut.Name.FirstText(), "' was linked to organization '", OrganizationIn.Name.FirstText(), "'."),
+                                                              AllTelegramNotifications.Select(TelegramNotification => TelegramNotification.Username));
+                        }
+
+                        if (_MessageTypes.Contains(unlinkOrganizations_MessageType))
+                        {
+                            await TelegramStore.SendTelegrams(String.Concat("Organization '", OrganizationOut.Name.FirstText(), "' was unlinked from organization '", OrganizationIn.Name.FirstText(), "'."),
+                                                              AllTelegramNotifications.Select(TelegramNotification => TelegramNotification.Username));
+                        }
+
+                    }
+
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e);
+                }
+
+                #endregion
+
+                #region SMS Notifications
+
+                try
+                {
+
+                    var AllSMSNotifications  = this.GetSMSNotifications(OrganizationIn,  MessageTypes).Concat(
+                                               this.GetSMSNotifications(OrganizationOut, MessageTypes)).
+                                               ToHashSet();
+
+                    if (DevMachines.Contains(Environment.MachineName))
+                    {
+                        AllSMSNotifications.Clear();
+                    }
+
+                    if (AllSMSNotifications.Count > 0)
+                    {
+
+                        if (_MessageTypes.Contains(linkOrganizations_MessageType))
+                        {
+                            SendSMS(String.Concat("Organization '", OrganizationOut.Name.FirstText(), "' was linked to organization '", OrganizationIn.Name.FirstText(), "'."),
+                                    AllSMSNotifications.Select(smsPhoneNumber => smsPhoneNumber.PhoneNumber.ToString()).ToArray(),
+                                    "CardiCloud");
+                        }
+
+                        if (_MessageTypes.Contains(unlinkOrganizations_MessageType))
+                        {
+                            SendSMS(String.Concat("Organization '", OrganizationOut.Name.FirstText(), "' was unlinked from organization '", OrganizationIn.Name.FirstText(), "'."),
+                                    AllSMSNotifications.Select(smsPhoneNumber => smsPhoneNumber.PhoneNumber.ToString()).ToArray(),
+                                    "CardiCloud");
+                        }
+
+                    }
+
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e);
+                }
+
+                #endregion
+
+                #region HTTPS Notifications
+
+                try
+                {
+
+                    var AllHTTPSNotifications  = this.GetHTTPSNotifications(OrganizationIn,  MessageTypes).Concat(
+                                                 this.GetHTTPSNotifications(OrganizationOut, MessageTypes)).
+                                                 ToHashSet();
+
+                    if (DevMachines.Contains(Environment.MachineName))
+                        AllHTTPSNotifications.Clear();
+
+                    if (AllHTTPSNotifications.Count > 0)
+                    {
+
+                        if (_MessageTypes.Contains(linkOrganizations_MessageType))
+                        {
+
+                            await SendHTTPSNotifications(AllHTTPSNotifications,
+                                                         new JObject(
+                                                             new JProperty("linkOrganizations",
+                                                                 new JObject(
+                                                                     new JProperty("organization",       OrganizationOut.      ToJSON()),
+                                                                     new JProperty("parentOrganization", OrganizationIn.ToJSON())
+                                                                 )
+                                                             ),
+                                                             new JProperty("timestamp", DateTime.UtcNow.ToIso8601())
+                                                         ));
+
+                        }
+
+                        if (_MessageTypes.Contains(unlinkOrganizations_MessageType))
+                        {
+
+                            await SendHTTPSNotifications(AllHTTPSNotifications,
+                                                         new JObject(
+                                                             new JProperty("unlinkOrganizations",
+                                                                 new JObject(
+                                                                     new JProperty("organization",       OrganizationOut.      ToJSON()),
+                                                                     new JProperty("parentOrganization", OrganizationIn.ToJSON())
+                                                                 )
+                                                             ),
+                                                             new JProperty("timestamp", DateTime.UtcNow.ToIso8601())
+                                                         ));
+
+                        }
+
+                    }
+
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e);
+                }
+
+                #endregion
+
+                #region EMailNotifications
+
+                try
+                {
+
+                    var AllEMailNotifications  = this.GetEMailNotifications(OrganizationIn,  MessageTypes).Concat(
+                                                 this.GetEMailNotifications(OrganizationOut, MessageTypes)).
+                                                 ToHashSet();
+
+                    if (DevMachines.Contains(Environment.MachineName))
+                    {
+                        AllEMailNotifications.Clear();
+                    }
+
+                    if (AllEMailNotifications.Count > 0)
+                    {
+
+                        if (_MessageTypes.Contains(linkOrganizations_MessageType))
+                        {
+                            await APISMTPClient.Send(
+                                     new HTMLEMailBuilder() {
+
+                                         From           = Robot.EMail,
+                                         To             = EMailAddressListBuilder.Create(EMailAddressList.Create(AllEMailNotifications.Select(emailnotification => emailnotification.EMailAddress))),
+                                         Passphrase     = APIPassphrase,
+                                         Subject        = String.Concat("Organization '", OrganizationOut.Name.FirstText(), "' was linked to organization '", OrganizationIn.Name.FirstText(), "'."),
+
+                                         HTMLText       = String.Concat(HTMLEMailHeader,
+                                                                        "Organization <a href=\"https://", ExternalDNSName, BasePath, "/organizations/", OrganizationOut.Id, "\">", OrganizationOut.Name.FirstText(), "</a> had been linked to organization <a href=\"https://", ExternalDNSName, BasePath, "/organizations/", OrganizationIn.Id, "\">", OrganizationIn.Name.FirstText(), "</a>.<br />",
+                                                                        "If you haven't approved this request, please contact support: <a href=\"mailto:support@cardi-link.com\">support@cardi-link.com</a>",
+                                                                        HTMLEMailFooter),
+
+                                         PlainText      = String.Concat(TextEMailHeader,
+                                                                        "Organization '" + OrganizationOut.Name.FirstText() + "' had been linked to organization '", OrganizationIn.Name.FirstText(), "'.\r\r\r\r",
+                                                                        TextEMailFooter),
+
+                                         SecurityLevel  = EMailSecurity.sign
+
+                                     });
+                        }
+
+                        if (_MessageTypes.Contains(unlinkOrganizations_MessageType))
+                        {
+                            await APISMTPClient.Send(
+                                     new HTMLEMailBuilder() {
+
+                                         From           = Robot.EMail,
+                                         To             = EMailAddressListBuilder.Create(EMailAddressList.Create(AllEMailNotifications.Select(emailnotification => emailnotification.EMailAddress))),
+                                         Passphrase     = APIPassphrase,
+                                         Subject        = String.Concat("Organization '", OrganizationOut.Name.FirstText(), "' was unlinked from organization '", OrganizationIn.Name.FirstText(), "'."),
+
+                                         HTMLText       = String.Concat(HTMLEMailHeader,
+                                                                        "Organization <a href=\"https://", ExternalDNSName, BasePath, "/organizations/", OrganizationOut.Id, "\">", OrganizationOut.Name.FirstText(), "</a> had been unlinked from organization <a href=\"https://", ExternalDNSName, BasePath, "/organizations/", OrganizationIn.Id, "\">", OrganizationIn.Name.FirstText(), "</a>.<br />",
+                                                                        "If you haven't approved this request, please contact support: <a href=\"mailto:support@cardi-link.com\">support@cardi-link.com</a>",
+                                                                        HTMLEMailFooter),
+
+                                         PlainText      = String.Concat(TextEMailHeader,
+                                                                        "Organization '" + OrganizationOut.Name.FirstText() + "' had been unlinked from organization '", OrganizationIn.Name.FirstText(), "'.\r\n",
+                                                                        "If you haven't approved this request, please contact support: support@cardi-link.com\r\r\r\r",
+                                                                        TextEMailFooter),
+
+                                         SecurityLevel  = EMailSecurity.sign
+
+                                     });
+                        }
+
+                    }
+
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e);
+                }
+
+                #endregion
+
+            }
+
+        }
+
+        #endregion
+
+
+        #region (protected) _LinkOrganizations  (OrganizationOut, EdgeLabel, OrganizationIn, Privacy = Public, CurrentUserId = null)
 
         protected async Task<Boolean> _LinkOrganizations(Organization                        OrganizationOut,
                                                          Organization2OrganizationEdgeTypes  EdgeLabel,
@@ -19240,6 +20040,10 @@ namespace social.OpenData.UsersAPI
 
         }
 
+        #endregion
+
+        #region LinkOrganizations  (OrganizationOut, EdgeLabel, OrganizationIn, Privacy = Public, CurrentUserId = null)
+
         public async Task<Boolean> LinkOrganizations(Organization                        OrganizationOut,
                                                      Organization2OrganizationEdgeTypes  EdgeLabel,
                                                      Organization                        OrganizationIn,
@@ -19268,7 +20072,8 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
-        #region UnlinkOrganizations(OrganizationOut, EdgeLabel, OrganizationIn,                   CurrentUserId = null)
+
+        #region (protected) _UnlinkOrganizations(OrganizationOut, EdgeLabel, OrganizationIn,                   CurrentUserId = null)
 
         protected async Task<Boolean> _UnlinkOrganizations(Organization                        OrganizationOut,
                                                            Organization2OrganizationEdgeTypes  EdgeLabel,
@@ -19313,6 +20118,10 @@ namespace social.OpenData.UsersAPI
 
         }
 
+        #endregion
+
+        #region UnlinkOrganizations(OrganizationOut, EdgeLabel, OrganizationIn,                   CurrentUserId = null)
+
         public async Task<Boolean> UnlinkOrganizations(Organization                        OrganizationOut,
                                                        Organization2OrganizationEdgeTypes  EdgeLabel,
                                                        Organization                        OrganizationIn,
@@ -19341,6 +20150,34 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
+
+        #region (protected) GetBlogPostingSerializator      (Request, User)
+
+        protected BlogPostingToJSONDelegate GetBlogPostingSerializator(HTTPRequest  Request,
+                                                                       User         User)
+        {
+
+            switch (User?.Id.ToString())
+            {
+
+                //case __issapi:
+                //    return ISSNotificationExtentions.ToISSJSON;
+
+                default:
+                    return (BlogPosting,
+                            Embedded,
+                            ExpandTags,
+                            IncludeCryptoHash)
+
+                            => BlogPosting.ToJSON(Embedded,
+                                                  ExpandTags,
+                                                  IncludeCryptoHash);
+
+            }
+
+        }
+
+        #endregion
 
         #region ServiceTickets
 
@@ -20171,7 +21008,6 @@ namespace social.OpenData.UsersAPI
         public event ServiceTicketStatusChangedDelegate       OnServiceTicketStatusChanged;
 
         #endregion
-
 
         #region NewsPostings
 
