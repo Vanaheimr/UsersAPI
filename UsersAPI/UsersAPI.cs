@@ -2956,12 +2956,10 @@ namespace social.OpenData.UsersAPI
         /// <summary>
         /// A delegate for sending a sign-up e-mail to a new user.
         /// </summary>
-        public virtual EMail NewUserSignUpEMailCreator(User_Id           UserId,
-                                                       EMailAddress      EMailAddress,
-                                                       String            Username,
+        public virtual EMail NewUserSignUpEMailCreator(User              User,
+                                                       EMailAddressList  EMailRecipients,
                                                        SecurityToken_Id  SecurityToken,
                                                        Boolean           Use2FactorAuth,
-                                                       String            ServiceName,
                                                        Languages         Language)
         {
             return null;
@@ -2971,10 +2969,9 @@ namespace social.OpenData.UsersAPI
         /// <summary>
         /// A delegate for sending a welcome e-mail to a new user.
         /// </summary>
-        public virtual EMail NewUserWelcomeEMailCreator(String        Username,
-                                                        EMailAddress  EMailAddress,
-                                                        String        ServiceName,
-                                                        Languages     Language)
+        public virtual EMail NewUserWelcomeEMailCreator(User              User,
+                                                        EMailAddressList  EMailRecipients,
+                                                        Languages         Language)
         {
             return null;
         }
@@ -2983,12 +2980,10 @@ namespace social.OpenData.UsersAPI
         /// <summary>
         /// A delegate for sending a reset password e-mail to a user.
         /// </summary>
-        public virtual EMail ResetPasswordEMailCreator(User_Id           UserId,
-                                                       EMailAddress      EMailAddress,
-                                                       String            Username,
+        public virtual EMail ResetPasswordEMailCreator(User              User,
+                                                       EMailAddressList  EMailRecipients,
                                                        SecurityToken_Id  SecurityToken,
                                                        Boolean           Use2FactorAuth,
-                                                       String            ServiceName,
                                                        Languages         Language)
         {
             return null;
@@ -2998,11 +2993,9 @@ namespace social.OpenData.UsersAPI
         /// <summary>
         /// A delegate for sending a reset password e-mail to a user.
         /// </summary>
-        public virtual EMail PasswordChangedEMailCreator(User_Id       UserId,
-                                                         EMailAddress  EMailAddress,
-                                                         String        Username,
-                                                         String        ServiceName,
-                                                         Languages     Language)
+        public virtual EMail PasswordChangedEMailCreator(User              User,
+                                                         EMailAddressList  EMailRecipients,
+                                                         Languages         Language)
         {
             return null;
         }
@@ -4299,11 +4292,10 @@ namespace social.OpenData.UsersAPI
 
                                               var MailSentResult = MailSentStatus.failed;
 
-                                              var NewUserMail = NewUserWelcomeEMailCreator(Username:      _User.Name,// VerificationToken.Login.ToString(),
-                                                                                           EMailAddress:  _User.EMail,
-                                                                                           ServiceName:   ServiceName,
-                                                                                           //DNSHostname:   "https://" + Request.Host.SimpleString,
-                                                                                           Language:      DefaultLanguage);
+                                              var NewUserMail = NewUserWelcomeEMailCreator(User:             _User,// VerificationToken.Login.ToString(),
+                                                                                           EMailRecipients:  _User.EMail,
+                                                                                           //DNSHostname:       "https://" + Request.Host.SimpleString,
+                                                                                           Language:          DefaultLanguage);
 
                                              if (NewUserMail != null)
                                              {
@@ -4781,12 +4773,10 @@ namespace social.OpenData.UsersAPI
 
                                                      #region Send e-mail...
 
-                                                     var MailResultTask = APISMTPClient.Send(ResetPasswordEMailCreator(user.Id,
+                                                     var MailResultTask = APISMTPClient.Send(ResetPasswordEMailCreator(user,
                                                                                                                        user.EMail,
-                                                                                                                       user.Name,
                                                                                                                        PasswordReset.SecurityToken1,
                                                                                                                        user.MobilePhone.HasValue,
-                                                                                                                       ServiceName,
                                                                                                                        //"https://" + Request.Host.SimpleString,
                                                                                                                        DefaultLanguage));
 
@@ -5041,10 +5031,8 @@ namespace social.OpenData.UsersAPI
                                                  var MailSentResult = MailSentStatus.failed;
                                                  var user           = await GetUser(userId);
 
-                                                 var MailResultTask = APISMTPClient.Send(PasswordChangedEMailCreator(user.Id,
+                                                 var MailResultTask = APISMTPClient.Send(PasswordChangedEMailCreator(user,
                                                                                                                      user.EMail,
-                                                                                                                     user.Name,
-                                                                                                                     ServiceName,
                                                                                                                      //"https://" + Request.Host.SimpleString,
                                                                                                                      DefaultLanguage));
 
@@ -5210,26 +5198,18 @@ namespace social.OpenData.UsersAPI
 
             #endregion
 
-            // -------------------------------------------------------------------
-            // curl -v -H "Accept: application/json" http://127.0.0.1:2100/users
-            // -------------------------------------------------------------------
-            //HTTPServer.ITEMS_GET(UriTemplate: URLPathPrefix + "users",
-            //                     Dictionary: _Users,
-            //                     Filter: user => user.PrivacyLevel == PrivacyLevel.World,
-            //                     ToJSONDelegate: JSON_IO.ToJSON);
-
             #region ADD         ~/users
 
             // --------------------------------------------------------------------------
             // curl -v -X ADD -H "Accept: application/json" http://127.0.0.1:2100/users
             // --------------------------------------------------------------------------
             HTTPServer.AddMethodCallback(HTTPHostname.Any,
-                                          HTTPMethod.ADD,
-                                          HTTPPath.Parse("/users"),
-                                          HTTPContentType.JSON_UTF8,
-                                          HTTPRequestLogger:   AddUsersHTTPRequest,
-                                          HTTPResponseLogger:  AddUsersHTTPResponse,
-                                          HTTPDelegate:        async Request => {
+                                         HTTPMethod.ADD,
+                                         HTTPPath.Parse("/users"),
+                                         HTTPContentType.JSON_UTF8,
+                                         HTTPRequestLogger:   AddUsersHTTPRequest,
+                                         HTTPResponseLogger:  AddUsersHTTPResponse,
+                                         HTTPDelegate:        async Request => {
 
                                               #region Get HTTP user and its organizations
 
@@ -5678,14 +5658,12 @@ namespace social.OpenData.UsersAPI
                                                                                                SecurityToken_Id.Random(40, _Random),
                                                                                                SecurityToken_Id.Parse(_Random.RandomString(5) + "-" + _Random.RandomString(5)));
 
-                                                  var MailResultTask = APISMTPClient.Send(NewUserSignUpEMailCreator(newUser.Id,
+                                                  var MailResultTask = APISMTPClient.Send(NewUserSignUpEMailCreator(newUser,
                                                                                                                     new EMailAddress(OwnerName:           Username,
                                                                                                                                      SimpleEMailAddress:  EMail,
                                                                                                                                      PublicKeyRing:       null),
-                                                                                                                    Username,
                                                                                                                     SetPasswordRequest.SecurityToken1,
                                                                                                                     MobilePhone.HasValue,
-                                                                                                                    ServiceName,
                                                                                                                     //"https://" + Request.Host.SimpleString,
                                                                                                                     DefaultLanguage));
 
@@ -6203,20 +6181,26 @@ namespace social.OpenData.UsersAPI
                                               try
                                               {
 
+                                                  var NewUser = await CreateUser(Id:             UserId,
+                                                                                 Name:           Name,
+                                                                                 EMail:          UserEMail,
+                                                                                 MobilePhone:    MobilePhone,
+                                                                                 Description:    Description,
+                                                                                 PublicKeyRing:  _PublicKeyRing,
+                                                                                 CurrentUserId:  HTTPUser.Id);
+
                                                   var SetPasswordRequest  = await ResetPassword(UserIdURL.Value,
                                                                                                 SecurityToken_Id.Random(40, _Random),
                                                                                                 SecurityToken_Id.Parse(_Random.RandomString(5) + "-" + _Random.RandomString(5)));
 
                                                   #region Send e-mail...
 
-                                                  var MailResultTask  = APISMTPClient.Send(NewUserSignUpEMailCreator(UserIdURL.Value,
-                                                                                                                     new EMailAddress(Name,
+                                                  var MailResultTask  = APISMTPClient.Send(NewUserSignUpEMailCreator(NewUser,
+                                                                                                                     new EMailAddress(NewUser.Name,
                                                                                                                                       UserEMail,
                                                                                                                                       _PublicKeyRing),
-                                                                                                                     Name,
                                                                                                                      SetPasswordRequest.SecurityToken1,
                                                                                                                      MobilePhone.HasValue,
-                                                                                                                     ServiceName,
                                                                                                                      //"https://" + Request.Host.SimpleString,
                                                                                                                      DefaultLanguage));
 
@@ -6244,13 +6228,7 @@ namespace social.OpenData.UsersAPI
                                                   if (MailSentResult == MailSentStatus.ok) //ToDo: Verify SMS!
                                                   {
 
-                                                      var NewUser = await CreateUser(Id:             UserId,
-                                                                                     Name:           Name,
-                                                                                     EMail:          UserEMail,
-                                                                                     MobilePhone:    MobilePhone,
-                                                                                     Description:    Description,
-                                                                                     PublicKeyRing:  _PublicKeyRing,
-                                                                                     CurrentUserId:  HTTPUser.Id);
+
 
                                                       if (_Organization != null)
                                                       {
@@ -8023,10 +8001,8 @@ namespace social.OpenData.UsersAPI
                                                                    HTTPUser.Id).Result)
                                              {
 
-                                                 var MailSentResult = await APISMTPClient.Send(PasswordChangedEMailCreator(HTTPUser.Id,
+                                                 var MailSentResult = await APISMTPClient.Send(PasswordChangedEMailCreator(HTTPUser,
                                                                                                                            HTTPUser.EMail,
-                                                                                                                           HTTPUser.Name,
-                                                                                                                           ServiceName,
                                                                                                                            //"https://" + Request.Host.SimpleString,
                                                                                                                            DefaultLanguage));
 
