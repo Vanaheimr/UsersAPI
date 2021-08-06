@@ -3803,13 +3803,13 @@ namespace social.OpenData.UsersAPI
         private String GenerateCookieUserData(User  User,
                                               User  Astronaut  = null)
 
-            => String.Concat("=login=",            User.     Id.      ToString().EncodeBase64(),
+            => String.Concat("=login=",            User.     Id.      ToString().ToBase64(),
                              Astronaut != null
-                                 ? ":astronaut=" + Astronaut.Id.      ToString().EncodeBase64()
+                                 ? ":astronaut=" + Astronaut.Id.      ToString().ToBase64()
                                  : "",
-                             ":username=",         User.Name.                    EncodeBase64(),
-                             ":email=",            User.EMail.Address.ToString().EncodeBase64(),
-                             ":language=",         User.UserLanguage. AsText().  EncodeBase64(),
+                             ":username=",         User.Name.                    ToBase64(),
+                             ":email=",            User.EMail.Address.ToString().ToBase64(),
+                             ":language=",         User.UserLanguage. AsText().  ToBase64(),
                              IsAdmin(User) == Access_Levels.ReadOnly  ? ":isAdminRO" : "",
                              IsAdmin(User) == Access_Levels.ReadWrite ? ":isAdminRW" : "");
 
@@ -15354,16 +15354,16 @@ namespace social.OpenData.UsersAPI
 
                 if (OldUser != null)
                 {
-                    await WriteToLogfileAndNotify(User,
-                                                  updateUser_MessageType,
-                                                  CurrentUserId: CurrentUserId);
+                    await Notify(User,
+                                 updateUser_MessageType,
+                                 CurrentUserId: CurrentUserId);
                     OnUpdated?.Invoke(User);
                 }
                 else
                 {
-                    await WriteToLogfileAndNotify(User,
-                                                  addUser_MessageType,
-                                                  CurrentUserId: CurrentUserId);
+                    await Notify(User,
+                                 addUser_MessageType,
+                                 CurrentUserId: CurrentUserId);
                     OnAdded?.Invoke(User);
                 }
 
