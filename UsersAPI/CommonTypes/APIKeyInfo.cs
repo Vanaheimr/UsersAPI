@@ -25,7 +25,6 @@ using System.Security.Cryptography;
 using Newtonsoft.Json.Linq;
 
 using org.GraphDefined.Vanaheimr.Illias;
-using org.GraphDefined.Vanaheimr.Hermod;
 using org.GraphDefined.Vanaheimr.Hermod.HTTP;
 
 #endregion
@@ -399,7 +398,7 @@ namespace social.OpenData.UsersAPI
                 return true;
 
             // If one is null, but not both, return false.
-            if (((Object) APIKeyInfo1 == null) || ((Object) APIKeyInfo2 == null))
+            if (APIKeyInfo1 is null || APIKeyInfo2 is null)
                 return false;
 
             return APIKeyInfo1.Equals(APIKeyInfo2);
@@ -421,6 +420,72 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
+        #region Operator <  (APIKeyInfo1, APIKeyInfo2)
+
+        /// <summary>
+        /// Compares two instances of this object.
+        /// </summary>
+        /// <param name="APIKeyInfo1">An API key.</param>
+        /// <param name="APIKeyInfo2">Another API key.</param>
+        /// <returns>true|false</returns>
+        public static Boolean operator < (APIKeyInfo APIKeyInfo1, APIKeyInfo APIKeyInfo2)
+        {
+
+            if (APIKeyInfo1 is null)
+                throw new ArgumentNullException(nameof(APIKeyInfo1), "The given APIKeyInfo1 must not be null!");
+
+            return APIKeyInfo1.CompareTo(APIKeyInfo2) < 0;
+
+        }
+
+        #endregion
+
+        #region Operator <= (APIKeyInfo1, APIKeyInfo2)
+
+        /// <summary>
+        /// Compares two instances of this object.
+        /// </summary>
+        /// <param name="APIKeyInfo1">An API key.</param>
+        /// <param name="APIKeyInfo2">Another API key.</param>
+        /// <returns>true|false</returns>
+        public static Boolean operator <= (APIKeyInfo APIKeyInfo1, APIKeyInfo APIKeyInfo2)
+            => !(APIKeyInfo1 > APIKeyInfo2);
+
+        #endregion
+
+        #region Operator >  (APIKeyInfo1, APIKeyInfo2)
+
+        /// <summary>
+        /// Compares two instances of this object.
+        /// </summary>
+        /// <param name="APIKeyInfo1">An API key.</param>
+        /// <param name="APIKeyInfo2">Another API key.</param>
+        /// <returns>true|false</returns>
+        public static Boolean operator > (APIKeyInfo APIKeyInfo1, APIKeyInfo APIKeyInfo2)
+        {
+
+            if (APIKeyInfo1 is null)
+                throw new ArgumentNullException(nameof(APIKeyInfo1), "The given APIKeyInfo1 must not be null!");
+
+            return APIKeyInfo1.CompareTo(APIKeyInfo2) > 0;
+
+        }
+
+        #endregion
+
+        #region Operator >= (APIKeyInfo1, APIKeyInfo2)
+
+        /// <summary>
+        /// Compares two instances of this object.
+        /// </summary>
+        /// <param name="APIKeyInfo1">An API key.</param>
+        /// <param name="APIKeyInfo2">Another API key.</param>
+        /// <returns>true|false</returns>
+        public static Boolean operator >= (APIKeyInfo APIKeyInfo1, APIKeyInfo APIKeyInfo2)
+            => !(APIKeyInfo1 < APIKeyInfo2);
+
+        #endregion
+
         #endregion
 
         #region IComparable<APIKeyInfo> Members
@@ -432,18 +497,10 @@ namespace social.OpenData.UsersAPI
         /// </summary>
         /// <param name="Object">An object to compare with.</param>
         public Int32 CompareTo(Object Object)
-        {
 
-            if (Object == null)
-                throw new ArgumentNullException(nameof(Object), "The given object must not be null!");
-
-            if (!(Object is APIKeyInfo))
-                throw new ArgumentException("The given object is not an API key info!",
-                                            nameof(Object));
-
-            return CompareTo((APIKeyInfo) Object);
-
-        }
+            => Object is APIKeyInfo apiKeyInfo
+                   ? CompareTo(apiKeyInfo)
+                   : throw new ArgumentException("The given object is not an API key info!", nameof(Object));
 
         #endregion
 
@@ -454,14 +511,10 @@ namespace social.OpenData.UsersAPI
         /// </summary>
         /// <param name="APIKeyInfo">An object to compare with.</param>
         public Int32 CompareTo(APIKeyInfo APIKeyInfo)
-        {
 
-            if ((Object) APIKeyInfo == null)
-                throw new ArgumentNullException(nameof(APIKeyInfo),  "The given API key info must not be null!");
-
-            return APIKey.CompareTo(APIKeyInfo.APIKey);
-
-        }
+            => APIKeyInfo is APIKeyInfo
+                   ? APIKey.CompareTo(APIKeyInfo.APIKey)
+                   : throw new ArgumentException("The given object is not an API key info!", nameof(Object));
 
         #endregion
 
@@ -477,17 +530,9 @@ namespace social.OpenData.UsersAPI
         /// <param name="Object">An object to compare with.</param>
         /// <returns>true|false</returns>
         public override Boolean Equals(Object Object)
-        {
 
-            if (Object == null)
-                return false;
-
-            if (!(Object is APIKeyInfo))
-                return false;
-
-            return Equals((APIKeyInfo) Object);
-
-        }
+            => Object is APIKeyInfo apiKeyInfo &&
+                  Equals(apiKeyInfo);
 
         #endregion
 
@@ -499,14 +544,9 @@ namespace social.OpenData.UsersAPI
         /// <param name="APIKeyInfo">An API key information to compare with.</param>
         /// <returns>True if both match; False otherwise.</returns>
         public Boolean Equals(APIKeyInfo APIKeyInfo)
-        {
 
-            if ((Object) APIKeyInfo == null)
-                return false;
-
-            return APIKey.Equals(APIKeyInfo.APIKey);
-
-        }
+            => APIKeyInfo is APIKeyInfo &&
+                   APIKey.Equals(APIKeyInfo.APIKey);
 
         #endregion
 

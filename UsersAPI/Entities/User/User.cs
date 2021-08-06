@@ -1414,7 +1414,7 @@ namespace social.OpenData.UsersAPI
                 return true;
 
             // If one is null, but not both, return false.
-            if (((Object) UserId1 == null) || ((Object) UserId2 == null))
+            if (UserId1 is null || UserId2 is null)
                 return false;
 
             return UserId1.Equals(UserId2);
@@ -1447,7 +1447,7 @@ namespace social.OpenData.UsersAPI
         public static Boolean operator < (User UserId1, User UserId2)
         {
 
-            if ((Object) UserId1 == null)
+            if (UserId1 is null)
                 throw new ArgumentNullException(nameof(UserId1), "The given UserId1 must not be null!");
 
             return UserId1.CompareTo(UserId2) < 0;
@@ -1480,7 +1480,7 @@ namespace social.OpenData.UsersAPI
         public static Boolean operator > (User UserId1, User UserId2)
         {
 
-            if ((Object) UserId1 == null)
+            if (UserId1 is null)
                 throw new ArgumentNullException(nameof(UserId1), "The given UserId1 must not be null!");
 
             return UserId1.CompareTo(UserId2) > 0;

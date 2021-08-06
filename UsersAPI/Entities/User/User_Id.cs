@@ -32,15 +32,9 @@ namespace social.OpenData.UsersAPI
     public readonly struct User_Id : IId,
                                      IEquatable<User_Id>,
                                      IComparable<User_Id>
-
     {
 
         #region Data
-
-        /// <summary>
-        /// Private non-cryptographic random number generator.
-        /// </summary>
-        private static readonly Random _random = new Random(DateTime.Now.Millisecond);
 
         /// <summary>
         /// The internal identification.
@@ -51,6 +45,11 @@ namespace social.OpenData.UsersAPI
         /// The internal realm.
         /// </summary>
         private readonly String  Realm;
+
+        /// <summary>
+        /// Private non-cryptographic random number generator.
+        /// </summary>
+        private static readonly Random _random = new Random(DateTime.Now.Millisecond);
 
         #endregion
 
@@ -69,7 +68,7 @@ namespace social.OpenData.UsersAPI
 
             => Realm.IsNotNullOrEmpty()
                    ? (UInt64) (InternalId.Length + 1 + Realm.Length)
-                   : (UInt64) (InternalId.Length);
+                   : (UInt64)  InternalId.Length;
 
         #endregion
 
