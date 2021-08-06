@@ -887,6 +887,8 @@ namespace social.OpenData.UsersAPI
         private readonly Timer MaintenanceTimer;
 
 
+        private static readonly TimeSpan       SemaphoreSlimTimeout            = TimeSpan.FromSeconds(5);
+
         private static readonly SemaphoreSlim  MaintenanceLock                 = new SemaphoreSlim(1, 1);
         private static readonly SemaphoreSlim  ServiceTicketsSemaphore         = new SemaphoreSlim(1, 1);
         private static readonly SemaphoreSlim  SMTPLogSemaphore                = new SemaphoreSlim(1, 1);
@@ -914,7 +916,7 @@ namespace social.OpenData.UsersAPI
         /// </summary>
         public  const             Languages                                     DefaultLanguage                 = Languages.en;
 
-        public  const             Byte                                          DefaultMinUserIdLength           = 4;
+        public  const             Byte                                          DefaultMinUserIdLength          = 4;
         public  const             Byte                                          DefaultMinRealmLength           = 2;
         public  const             Byte                                          DefaultMinUserNameLength        = 4;
         public  static readonly   PasswordQualityCheckDelegate                  DefaultPasswordQualityCheck     = password => password.Length >= 8 ? 1.0f : 0;
@@ -963,16 +965,12 @@ namespace social.OpenData.UsersAPI
         /// </summary>
         protected readonly        Dictionary<SecurityToken_Id, PasswordReset>   PasswordResets;
 
-        //private readonly Queue<NotificationMessage> _NotificationMessages;
 
-        //public IEnumerable<NotificationMessage> NotificationMessages
-        //    => _NotificationMessages;
-
-        protected static readonly     String[]                   Split1                             = { "\r\n" };
-        protected static readonly     String[]                   Split2                             = { ": " };
-        protected static readonly     String[]                   Split3                             = { " " };
-        protected static readonly     Char[]                     Split4                             = { ',' };
-        protected static readonly     Char[]                     Split5                             = { '|' };
+        protected static readonly String[]  Split1  = { "\r\n" };
+        protected static readonly String[]  Split2  = { ": " };
+        protected static readonly String[]  Split3  = { " " };
+        protected static readonly Char[]    Split4  = { ',' };
+        protected static readonly Char[]    Split5  = { '|' };
 
         #endregion
 
@@ -1007,11 +1005,6 @@ namespace social.OpenData.UsersAPI
         public String                    TelegramLoggingPath                { get; }
         public String                    SMSAPILoggingPath                  { get; }
 
-
-        /// <summary>
-        /// The current async local user identification to simplify API usage.
-        /// </summary>
-        protected internal static AsyncLocal<User_Id?> CurrentAsyncLocalUserId = new AsyncLocal<User_Id?>();
 
         /// <summary>
         /// The mother of all organizations.
@@ -1115,7 +1108,7 @@ namespace social.OpenData.UsersAPI
         /// <summary>
         /// The main language of this API.
         /// </summary>
-        public Languages Language { get; }
+        public Languages                 Language                       { get; }
 
 
         #region SignInSessionLifetime
@@ -14107,14 +14100,19 @@ namespace social.OpenData.UsersAPI
             {
                 try
                 {
-                    UsersSemaphore.Wait();
-                    return _Users.Values.ToArray();
+                    return UsersSemaphore.Wait(SemaphoreSlimTimeout)
+                               ? _Users.Values.ToArray()
+                               : new User[0];
                 }
                 finally
                 {
-                    UsersSemaphore.Release();
+                    try
+                    {
+                        UsersSemaphore.Release();
+                    }
+                    catch
+                    { }
                 }
-
             }
         }
 
@@ -14123,22 +14121,37 @@ namespace social.OpenData.UsersAPI
 
         #region (class) UserContext
 
+        /// <summary>
+        /// A user context to simplify API usage.
+        /// </summary>
         public class UserContext : IDisposable
         {
 
+            /// <summary>
+            /// The current user identification.
+            /// </summary>
             public User_Id  Current    { get; }
+
+            /// <summary>
+            /// The privious user identification.
+            /// </summary>
             public User_Id? Previous   { get; }
 
 
+            /// <summary>
+            /// Create a new user context.
+            /// </summary>
+            /// <param name="UserId">The new user identification.</param>
             public UserContext(User_Id UserId)
             {
-
-                this.Previous                  = CurrentAsyncLocalUserId.Value;
-                this.Current                   = UserId;
+                Previous                       = CurrentAsyncLocalUserId.Value;
+                Current                        = UserId;
                 CurrentAsyncLocalUserId.Value  = UserId;
-
             }
 
+            /// <summary>
+            /// Dispose this object.
+            /// </summary>
             public void Dispose()
             {
                 CurrentAsyncLocalUserId.Value = Previous;
@@ -14150,16 +14163,38 @@ namespace social.OpenData.UsersAPI
 
         #region SetUserContext
 
+        /// <summary>
+        /// Set the current user context.
+        /// </summary>
+        /// <remarks>Wrap this into a using statement.</remarks>
+        /// <param name="User">A user.</param>
         public UserContext SetUserContext(User User)
+
             => new UserContext(User.Id);
 
+
+        /// <summary>
+        /// Set the current user context.
+        /// </summary>
+        /// <remarks>Wrap this into a using statement.</remarks>
+        /// <param name="UserId">A user identification.</param>
         public UserContext SetUserContext(User_Id UserId)
+
             => new UserContext(UserId);
 
         #endregion
 
+        #region CurrentAsyncLocalUserId
 
-        #region WriteToDatabaseFileAndNotify(User, MessageType,  OldUser = null, CurrentUserId = null)
+        /// <summary>
+        /// The current async local user identification.
+        /// </summary>
+        protected internal static AsyncLocal<User_Id?> CurrentAsyncLocalUserId = new AsyncLocal<User_Id?>();
+
+        #endregion
+
+
+        #region (protected) WriteToDatabaseFileAndNotify(User, MessageType,  OldUser = null, CurrentUserId = null)
 
         /// <summary>
         /// Write the given user to the database and send out notifications.
@@ -14169,10 +14204,10 @@ namespace social.OpenData.UsersAPI
         /// <param name="MessageType">The user notification.</param>
         /// <param name="OldUser">The old/updated user.</param>
         /// <param name="CurrentUserId">The invoking user identification</param>
-        public async Task WriteToDatabaseFileAndNotify<TUser>(TUser                    User,
-                                                              NotificationMessageType  MessageType,
-                                                              User                     OldUser         = null,
-                                                              User_Id?                 CurrentUserId   = null)
+        protected async Task WriteToDatabaseFileAndNotify<TUser>(TUser                    User,
+                                                                 NotificationMessageType  MessageType,
+                                                                 User                     OldUser         = null,
+                                                                 User_Id?                 CurrentUserId   = null)
 
             where TUser : User
 
@@ -14198,7 +14233,7 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
-        #region SendNotifications           (User, MessageTypes, OldUser = null, CurrentUserId = null)
+        #region (protected) SendNotifications           (User, MessageTypes, OldUser = null, CurrentUserId = null)
 
         /// <summary>
         /// Send user notifications.
@@ -14208,10 +14243,10 @@ namespace social.OpenData.UsersAPI
         /// <param name="MessageType">The user notification.</param>
         /// <param name="OldUser">The old/updated user.</param>
         /// <param name="CurrentUserId">The invoking user identification</param>
-        public async Task SendNotifications<TUser>(TUser                    User,
-                                                   NotificationMessageType  MessageType,
-                                                   User                     OldUser         = null,
-                                                   User_Id?                 CurrentUserId   = null)
+        protected async Task SendNotifications<TUser>(TUser                    User,
+                                                      NotificationMessageType  MessageType,
+                                                      User                     OldUser         = null,
+                                                      User_Id?                 CurrentUserId   = null)
 
             where TUser : User
 
@@ -14240,10 +14275,10 @@ namespace social.OpenData.UsersAPI
         /// <param name="MessageTypes">The user notifications.</param>
         /// <param name="OldUser">The old/updated user.</param>
         /// <param name="CurrentUserId">The invoking user identification</param>
-        public async Task SendNotifications<TUser>(TUser                                 User,
-                                                   IEnumerable<NotificationMessageType>  MessageTypes,
-                                                   User                                  OldUser         = null,
-                                                   User_Id?                              CurrentUserId   = null)
+        protected async Task SendNotifications<TUser>(TUser                                 User,
+                                                      IEnumerable<NotificationMessageType>  MessageTypes,
+                                                      User                                  OldUser         = null,
+                                                      User_Id?                              CurrentUserId   = null)
 
             where TUser : User
 
@@ -14710,16 +14745,23 @@ namespace social.OpenData.UsersAPI
             try
             {
 
-                await UsersSemaphore.WaitAsync();
+                return (await UsersSemaphore.WaitAsync(SemaphoreSlimTimeout))
 
-                return await _AddUser(User,
-                                      OnAdded,
-                                      CurrentUserId);
+                            ? await _AddUser(User,
+                                             OnAdded,
+                                             CurrentUserId)
+
+                            : null;
 
             }
             finally
             {
-                UsersSemaphore.Release();
+                try
+                {
+                    UsersSemaphore.Release();
+                }
+                catch
+                { }
             }
 
         }
@@ -14755,26 +14797,33 @@ namespace social.OpenData.UsersAPI
             try
             {
 
-                await UsersSemaphore.        WaitAsync();
-                await OrganizationsSemaphore.WaitAsync();
-
                 // The new user does not yet have an organization,
                 // therefore organization notifications do not work here yet!
-                return await _AddUser(User,
-                                      async user => {
-                                          await _AddToOrganization(User,
-                                                                   EdgeLabel,
-                                                                   ParentOrganization,
-                                                                   CurrentUserId);
-                                          OnAdded(user);
-                                      },
-                                      CurrentUserId);
+                return ((await UsersSemaphore.        WaitAsync(SemaphoreSlimTimeout)) &&
+                        (await OrganizationsSemaphore.WaitAsync(SemaphoreSlimTimeout)))
+
+                             ? await _AddUser(User,
+                                              async user => {
+                                                  await _AddToOrganization(User,
+                                                                           EdgeLabel,
+                                                                           ParentOrganization,
+                                                                           CurrentUserId);
+                                                  OnAdded(user);
+                                              },
+                                              CurrentUserId)
+
+                             : null;
 
             }
             finally
             {
-                OrganizationsSemaphore.Release();
-                UsersSemaphore.        Release();
+                try
+                {
+                    OrganizationsSemaphore.Release();
+                    UsersSemaphore.        Release();
+                }
+                catch
+                { }
             }
 
         }
@@ -14874,16 +14923,23 @@ namespace social.OpenData.UsersAPI
             try
             {
 
-                await UsersSemaphore.WaitAsync();
+                return (await UsersSemaphore.WaitAsync(SemaphoreSlimTimeout))
 
-                return await _AddUser(User,
-                                      OnAdded,
-                                      CurrentUserId);
+                            ? await _AddUser(User,
+                                             OnAdded,
+                                             CurrentUserId)
+
+                            : null;
 
             }
             finally
             {
-                UsersSemaphore.Release();
+                try
+                {
+                    UsersSemaphore.Release();
+                }
+                catch
+                { }
             }
 
         }
@@ -14919,26 +14975,33 @@ namespace social.OpenData.UsersAPI
             try
             {
 
-                await UsersSemaphore.        WaitAsync();
-                await OrganizationsSemaphore.WaitAsync();
-
                 // The new user does not yet have an organization,
                 // therefore organization notifications do not work here yet!
-                return await _AddUserIfNotExists(User,
-                                                 async user => {
-                                                     await _AddToOrganization(User,
-                                                                              EdgeLabel,
-                                                                              ParentOrganization,
-                                                                              CurrentUserId);
-                                                     OnAdded(user);
-                                                 },
-                                                 CurrentUserId);
+                return ((await UsersSemaphore.        WaitAsync(SemaphoreSlimTimeout)) &&
+                        (await OrganizationsSemaphore.WaitAsync(SemaphoreSlimTimeout)))
+
+                             ? await _AddUserIfNotExists(User,
+                                                         async user => {
+                                                             await _AddToOrganization(User,
+                                                                                      EdgeLabel,
+                                                                                      ParentOrganization,
+                                                                                      CurrentUserId);
+                                                             OnAdded(user);
+                                                         },
+                                                         CurrentUserId)
+
+                             : null;
 
             }
             finally
             {
-                OrganizationsSemaphore.Release();
-                UsersSemaphore.        Release();
+                try
+                {
+                    OrganizationsSemaphore.Release();
+                    UsersSemaphore.        Release();
+                }
+                catch
+                { }
             }
 
         }
@@ -15071,17 +15134,24 @@ namespace social.OpenData.UsersAPI
             try
             {
 
-                await UsersSemaphore.WaitAsync();
+                return (await UsersSemaphore.WaitAsync(SemaphoreSlimTimeout))
 
-                return await _AddOrUpdateUser(User,
-                                              OnAdded,
-                                              OnUpdated,
-                                              CurrentUserId);
+                            ? await _AddOrUpdateUser(User,
+                                                     OnAdded,
+                                                     OnUpdated,
+                                                     CurrentUserId)
+
+                            : null;
 
             }
             finally
             {
-                UsersSemaphore.Release();
+                try
+                {
+                    UsersSemaphore.Release();
+                }
+                catch
+                { }
             }
 
         }
@@ -15178,16 +15248,23 @@ namespace social.OpenData.UsersAPI
             try
             {
 
-                await UsersSemaphore.WaitAsync();
+                return (await UsersSemaphore.WaitAsync(SemaphoreSlimTimeout))
 
-                return await _UpdateUser(User,
-                                         OnUpdated,
-                                         CurrentUserId);
+                            ? await _UpdateUser(User,
+                                                OnUpdated,
+                                                CurrentUserId)
+
+                            : null;
 
             }
             finally
             {
-                UsersSemaphore.Release();
+                try
+                {
+                    UsersSemaphore.Release();
+                }
+                catch
+                { }
             }
 
         }
@@ -15270,17 +15347,24 @@ namespace social.OpenData.UsersAPI
             try
             {
 
-                await UsersSemaphore.WaitAsync();
+                return (await UsersSemaphore.WaitAsync(SemaphoreSlimTimeout))
 
-                return await _UpdateUser(UserId,
-                                         UpdateDelegate,
-                                         OnUpdated,
-                                         CurrentUserId);
+                            ? await _UpdateUser(UserId,
+                                                UpdateDelegate,
+                                                OnUpdated,
+                                                CurrentUserId)
+
+                            : null;
 
             }
             finally
             {
-                UsersSemaphore.Release();
+                try
+                {
+                    UsersSemaphore.Release();
+                }
+                catch
+                { }
             }
 
         }
@@ -15570,17 +15654,22 @@ namespace social.OpenData.UsersAPI
             try
             {
 
-                await UsersSemaphore.WaitAsync();
+                return (await UsersSemaphore.WaitAsync(SemaphoreSlimTimeout) &&
+                        _Users.TryGetValue(UserId, out User User))
 
-                if (_Users.TryGetValue(UserId, out User User))
-                    return User;
+                            ? User
 
-                return null;
+                            : null;
 
             }
             finally
             {
-                UsersSemaphore.Release();
+                try
+                {
+                    UsersSemaphore.Release();
+                }
+                catch
+                { }
             }
 
         }
@@ -15608,14 +15697,18 @@ namespace social.OpenData.UsersAPI
             try
             {
 
-                UsersSemaphore.Wait();
-
-                return _Users.ContainsKey(UserId);
+                return UsersSemaphore.Wait(SemaphoreSlimTimeout) &&
+                       _Users.ContainsKey(UserId);
 
             }
             finally
             {
-                UsersSemaphore.Release();
+                try
+                {
+                    UsersSemaphore.Release();
+                }
+                catch
+                { }
             }
 
         }
@@ -15646,15 +15739,26 @@ namespace social.OpenData.UsersAPI
             try
             {
 
-                UsersSemaphore.Wait();
-
-                return _Users.TryGetValue(UserId, out User);
+                if (UsersSemaphore.Wait(SemaphoreSlimTimeout) &&
+                    _Users.TryGetValue(UserId, out User user))
+                {
+                    User = user;
+                    return true;
+                }
 
             }
             finally
             {
-                UsersSemaphore.Release();
+                try
+                {
+                    UsersSemaphore.Release();
+                }
+                catch
+                { }
             }
+
+            User = null;
+            return false;
 
         }
 
@@ -15682,14 +15786,19 @@ namespace social.OpenData.UsersAPI
             try
             {
 
-                UsersSemaphore.Wait();
-
-                return _SearchUsersByName(Username);
+                return UsersSemaphore.Wait(SemaphoreSlimTimeout)
+                           ? _SearchUsersByName(Username)
+                           : new User[0];
 
             }
             finally
             {
-                UsersSemaphore.Release();
+                try
+                {
+                    UsersSemaphore.Release();
+                }
+                catch
+                { }
             }
 
         }
@@ -15730,15 +15839,26 @@ namespace social.OpenData.UsersAPI
             try
             {
 
-                UsersSemaphore.Wait();
-
-                return _TrySearchUsersByName(Username, out Users);
+                if (UsersSemaphore.Wait(SemaphoreSlimTimeout) &&
+                    _TrySearchUsersByName(Username, out IEnumerable<User> users))
+                {
+                    Users = users;
+                    return true;
+                }
 
             }
             finally
             {
-                UsersSemaphore.Release();
+                try
+                {
+                    UsersSemaphore.Release();
+                }
+                catch
+                { }
             }
+
+            Users = null;
+            return false;
 
         }
 
@@ -15890,16 +16010,23 @@ namespace social.OpenData.UsersAPI
             try
             {
 
-                await UsersSemaphore.WaitAsync();
+                return (await UsersSemaphore.WaitAsync(SemaphoreSlimTimeout))
 
-                return await _RemoveUser(User,
-                                         OnRemoved,
-                                         CurrentUserId);
+                            ? await _RemoveUser(User,
+                                                OnRemoved,
+                                                CurrentUserId)
+
+                            : null;
 
             }
             finally
             {
-                UsersSemaphore.Release();
+                try
+                {
+                    UsersSemaphore.Release();
+                }
+                catch
+                { }
             }
 
         }
@@ -15914,10 +16041,13 @@ namespace social.OpenData.UsersAPI
 
         #region Data
 
+        /// <summary>
+        /// An enumeration of all groups.
+        /// </summary>
         protected readonly Dictionary<UserGroup_Id, UserGroup> _UserGroups;
 
         /// <summary>
-        /// Return an enumeration of all groups.
+        /// An enumeration of all groups.
         /// </summary>
         public IEnumerable<UserGroup> UserGroups
         {
@@ -15925,14 +16055,19 @@ namespace social.OpenData.UsersAPI
             {
                 try
                 {
-                    UserGroupsSemaphore.Wait();
-                    return _UserGroups.Values.ToArray();
+                    return UserGroupsSemaphore.Wait(SemaphoreSlimTimeout)
+                               ? _UserGroups.Values.ToArray()
+                               : new UserGroup[0];
                 }
                 finally
                 {
-                    UserGroupsSemaphore.Release();
+                    try
+                    {
+                        UserGroupsSemaphore.Release();
+                    }
+                    catch
+                    { }
                 }
-
             }
         }
 
@@ -16620,26 +16755,31 @@ namespace social.OpenData.UsersAPI
             {
                 try
                 {
-                    APIKeysSemaphore.Wait();
-                    return _APIKeys.Values.ToArray();
+                    return APIKeysSemaphore.Wait(SemaphoreSlimTimeout)
+                               ? _APIKeys.Values.ToArray()
+                               : new APIKeyInfo[0];
                 }
                 finally
                 {
-                    APIKeysSemaphore.Release();
+                    try
+                    {
+                        APIKeysSemaphore.Release();
+                    }
+                    catch
+                    { }
                 }
-
             }
         }
 
         #endregion
 
 
-        #region WriteToDatabaseFileAndNotify(APIKeyInfo, MessageType,  OldAPIKeyInfo = null, CurrentUserId = null)
+        #region (protected) WriteToDatabaseFileAndNotify(APIKeyInfo, MessageType,  OldAPIKeyInfo = null, CurrentUserId = null)
 
-        public async Task WriteToDatabaseFileAndNotify(APIKeyInfo               APIKeyInfo,
-                                                       NotificationMessageType  MessageType,
-                                                       APIKeyInfo               OldAPIKeyInfo   = null,
-                                                       User_Id?                 CurrentUserId   = null)
+        protected async Task WriteToDatabaseFileAndNotify(APIKeyInfo               APIKeyInfo,
+                                                          NotificationMessageType  MessageType,
+                                                          APIKeyInfo               OldAPIKeyInfo   = null,
+                                                          User_Id?                 CurrentUserId   = null)
         {
 
             if (APIKeyInfo == null)
@@ -16658,7 +16798,7 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
-        #region SendNotifications           (APIKeyInfo, MessageTypes, OldAPIKeyInfo = null, CurrentUserId = null)
+        #region (protected) SendNotifications           (APIKeyInfo, MessageTypes, OldAPIKeyInfo = null, CurrentUserId = null)
 
         /// <summary>
         /// Send user notifications.
@@ -16667,10 +16807,10 @@ namespace social.OpenData.UsersAPI
         /// <param name="MessageType">The API key notification.</param>
         /// <param name="OldAPIKeyInfo">The old/updated API key.</param>
         /// <param name="CurrentUserId">The invoking user identification</param>
-        public Task SendNotifications(APIKeyInfo               APIKeyInfo,
-                                      NotificationMessageType  MessageType,
-                                      APIKeyInfo               OldAPIKeyInfo   = null,
-                                      User_Id?                 CurrentUserId   = null)
+        protected Task SendNotifications(APIKeyInfo               APIKeyInfo,
+                                         NotificationMessageType  MessageType,
+                                         APIKeyInfo               OldAPIKeyInfo   = null,
+                                         User_Id?                 CurrentUserId   = null)
 
             => SendNotifications(APIKeyInfo,
                                  new NotificationMessageType[] { MessageType },
@@ -16685,10 +16825,10 @@ namespace social.OpenData.UsersAPI
         /// <param name="MessageTypes">The API key notifications.</param>
         /// <param name="OldAPIKeyInfo">The old/updated API key.</param>
         /// <param name="CurrentUserId">The invoking user identification</param>
-        public async Task SendNotifications(APIKeyInfo                            APIKeyInfo,
-                                            IEnumerable<NotificationMessageType>  MessageTypes,
-                                            APIKeyInfo                            OldAPIKeyInfo   = null,
-                                            User_Id?                              CurrentUserId   = null)
+        protected async Task SendNotifications(APIKeyInfo                            APIKeyInfo,
+                                               IEnumerable<NotificationMessageType>  MessageTypes,
+                                               APIKeyInfo                            OldAPIKeyInfo   = null,
+                                               User_Id?                              CurrentUserId   = null)
         {
 
             if (APIKeyInfo is null || MessageTypes.IsNullOrEmpty())
@@ -17388,14 +17528,19 @@ namespace social.OpenData.UsersAPI
             {
                 try
                 {
-                    MessagesSemaphore.Wait();
-                    return _Messages.Values.ToArray();
+                    return MessagesSemaphore.Wait(SemaphoreSlimTimeout)
+                               ? _Messages.Values.ToArray()
+                               : new Message[0];
                 }
                 finally
                 {
-                    MessagesSemaphore.Release();
+                    try
+                    {
+                        MessagesSemaphore.Release();
+                    }
+                    catch
+                    { }
                 }
-
             }
         }
 
@@ -18348,14 +18493,19 @@ namespace social.OpenData.UsersAPI
             {
                 try
                 {
-                    DashboardsSemaphore.Wait();
-                    return _Dashboards.Values.ToArray();
+                    return DashboardsSemaphore.Wait(SemaphoreSlimTimeout)
+                               ? _Dashboards.Values.ToArray()
+                               : new Dashboard[0];
                 }
                 finally
                 {
-                    DashboardsSemaphore.Release();
+                    try
+                    {
+                        DashboardsSemaphore.Release();
+                    }
+                    catch
+                    { }
                 }
-
             }
         }
 
@@ -18782,21 +18932,26 @@ namespace social.OpenData.UsersAPI
             {
                 try
                 {
-                    OrganizationsSemaphore.Wait();
-                    return _Organizations.Values.ToArray();
+                    return OrganizationsSemaphore.Wait(SemaphoreSlimTimeout)
+                               ? _Organizations.Values.ToArray()
+                               : new Organization[0];
                 }
                 finally
                 {
-                    OrganizationsSemaphore.Release();
+                    try
+                    {
+                        OrganizationsSemaphore.Release();
+                    }
+                    catch
+                    { }
                 }
-
             }
         }
 
         #endregion
 
 
-        #region WriteToDatabaseFileAndNotify(Organization, MessageType,  OldOrganization = null, CurrentUserId = null)
+        #region (protected) WriteToDatabaseFileAndNotify(Organization, MessageType,  OldOrganization = null, CurrentUserId = null)
 
         /// <summary>
         /// Write the given organization to the database and send out notifications.
@@ -18806,10 +18961,10 @@ namespace social.OpenData.UsersAPI
         /// <param name="MessageType">The organization notification.</param>
         /// <param name="OldOrganization">The old/updated organization.</param>
         /// <param name="CurrentUserId">The invoking user identification</param>
-        public async Task WriteToDatabaseFileAndNotify<TOrganization>(TOrganization            Organization,
-                                                                      NotificationMessageType  MessageType,
-                                                                      Organization             OldOrganization   = null,
-                                                                      User_Id?                 CurrentUserId     = null)
+        protected async Task WriteToDatabaseFileAndNotify<TOrganization>(TOrganization            Organization,
+                                                                         NotificationMessageType  MessageType,
+                                                                         Organization             OldOrganization   = null,
+                                                                         User_Id?                 CurrentUserId     = null)
 
             where TOrganization : Organization
 
@@ -18835,7 +18990,7 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
-        #region SendNotifications           (Organization, MessageTypes, OldOrganization = null, CurrentUserId = null)
+        #region (protected) SendNotifications           (Organization, MessageTypes, OldOrganization = null, CurrentUserId = null)
 
         /// <summary>
         /// Send organization notifications.
@@ -18845,10 +19000,10 @@ namespace social.OpenData.UsersAPI
         /// <param name="MessageType">The organization notifications.</param>
         /// <param name="OldOrganization">The old/updated organization.</param>
         /// <param name="CurrentUserId">The invoking user identification</param>
-        public async Task SendNotifications<TOrganization>(TOrganization            Organization,
-                                                           NotificationMessageType  MessageType,
-                                                           Organization             OldOrganization   = null,
-                                                           User_Id?                 CurrentUserId     = null)
+        protected async Task SendNotifications<TOrganization>(TOrganization            Organization,
+                                                              NotificationMessageType  MessageType,
+                                                              Organization             OldOrganization   = null,
+                                                              User_Id?                 CurrentUserId     = null)
 
             where TOrganization : Organization
 
@@ -18877,10 +19032,10 @@ namespace social.OpenData.UsersAPI
         /// <param name="MessageTypes">The organization notifications.</param>
         /// <param name="OldOrganization">The old/updated organization.</param>
         /// <param name="CurrentUserId">The invoking user identification</param>
-        public async Task SendNotifications<TOrganization>(TOrganization                         Organization,
-                                                           IEnumerable<NotificationMessageType>  MessageTypes,
-                                                           Organization                          OldOrganization   = null,
-                                                           User_Id?                              CurrentUserId     = null)
+        protected async Task SendNotifications<TOrganization>(TOrganization                         Organization,
+                                                              IEnumerable<NotificationMessageType>  MessageTypes,
+                                                              Organization                          OldOrganization   = null,
+                                                              User_Id?                              CurrentUserId     = null)
 
             where TOrganization : Organization
 
@@ -20027,14 +20182,19 @@ namespace social.OpenData.UsersAPI
             {
                 try
                 {
-                    OrganizationGroupsSemaphore.Wait();
-                    return _OrganizationGroups.Values.ToArray();
+                    return OrganizationGroupsSemaphore.Wait(SemaphoreSlimTimeout)
+                               ? _OrganizationGroups.Values.ToArray()
+                               : new OrganizationGroup[0];
                 }
                 finally
                 {
-                    OrganizationGroupsSemaphore.Release();
+                    try
+                    {
+                        OrganizationGroupsSemaphore.Release();
+                    }
+                    catch
+                    { }
                 }
-
             }
         }
 
@@ -20552,12 +20712,12 @@ namespace social.OpenData.UsersAPI
         #endregion
 
 
-        #region SendNotifications(Organization, User, MessageType, CurrentUserId = null)
+        #region (protected) SendNotifications(Organization, User, MessageType, CurrentUserId = null)
 
-        public async Task SendNotifications<TOrganization, TUser>(TOrganization            Organization,
-                                                                  TUser                    User,
-                                                                  NotificationMessageType  MessageType,
-                                                                  User_Id?                 CurrentUserId    = null)
+        protected async Task SendNotifications<TOrganization, TUser>(TOrganization            Organization,
+                                                                     TUser                    User,
+                                                                     NotificationMessageType  MessageType,
+                                                                     User_Id?                 CurrentUserId    = null)
 
             where TOrganization : Organization
             where TUser:          User
@@ -20944,12 +21104,12 @@ namespace social.OpenData.UsersAPI
 
         #region Organizations <> Organizations
 
-        #region SendNotifications(OrganizationOut, OrganizationIn, MessageType, CurrentUserId = null)
+        #region (protected) SendNotifications(OrganizationOut, OrganizationIn, MessageType, CurrentUserId = null)
 
-        public async Task SendNotifications<TOrganization>(TOrganization            OrganizationOut,
-                                                           TOrganization            OrganizationIn,
-                                                           NotificationMessageType  MessageType,
-                                                           User_Id?                 CurrentUserId    = null)
+        protected async Task SendNotifications<TOrganization>(TOrganization            OrganizationOut,
+                                                              TOrganization            OrganizationIn,
+                                                              NotificationMessageType  MessageType,
+                                                              User_Id?                 CurrentUserId    = null)
 
             where TOrganization : Organization
 
@@ -22694,14 +22854,19 @@ namespace social.OpenData.UsersAPI
             {
                 try
                 {
-                    NewsBannersSemaphore.Wait();
-                    return _NewsBanners.Values.ToArray();
+                    return NewsBannersSemaphore.Wait(SemaphoreSlimTimeout)
+                               ? _NewsBanners.Values.ToArray()
+                               : new NewsBanner[0];
                 }
                 finally
                 {
-                    NewsBannersSemaphore.Release();
+                    try
+                    {
+                        NewsBannersSemaphore.Release();
+                    }
+                    catch
+                    { }
                 }
-
             }
         }
 
