@@ -13112,9 +13112,8 @@ namespace social.OpenData.UsersAPI
             if (Request.Cookies == null)
                 return null;
 
-            if (Request. Cookies.TryGet  (SessionCookieName,            out HTTPCookie        Cookie) &&
-                         Cookie. TryGet  (SessionCookieName.ToString(), out String            Value)  &&
-                SecurityToken_Id.TryParse(Value,                        out SecurityToken_Id  SecurityTokenId))
+            if (Request.Cookies. TryGet  (SessionCookieName,           out HTTPCookie       Cookie) &&
+                SecurityToken_Id.TryParse(Cookie.FirstOrDefault().Key, out SecurityToken_Id SecurityTokenId))
             {
                 return SecurityTokenId;
             }
@@ -13131,9 +13130,8 @@ namespace social.OpenData.UsersAPI
         {
 
             if (Request.Cookies  != null &&
-                Request.Cookies. TryGet  (SessionCookieName,            out HTTPCookie  Cookie) &&
-                        Cookie.  TryGet  (SessionCookieName.ToString(), out String      Value)  &&
-                SecurityToken_Id.TryParse(Value,                        out             SecurityTokenId))
+                Request.Cookies. TryGet  (SessionCookieName,           out HTTPCookie Cookie) &&
+                SecurityToken_Id.TryParse(Cookie.FirstOrDefault().Key, out            SecurityTokenId))
             {
                 return true;
             }
@@ -13152,12 +13150,11 @@ namespace social.OpenData.UsersAPI
 
             #region Get user from cookie...
 
-            if (Request.Cookies != null                                                                               &&
-                Request. Cookies.TryGet     (SessionCookieName,            out HTTPCookie        Cookie)              &&
-                         Cookie. TryGet     (SessionCookieName.ToString(), out String            Value)               &&
-                SecurityToken_Id.TryParse   (Value,                        out SecurityToken_Id  SecurityTokenId)     &&
-                HTTPCookies.     TryGetValue(SecurityTokenId,              out SecurityToken     SecurityInformation) &&
-                DateTime.UtcNow < SecurityInformation.Expires                                                         &&
+            if (Request.Cookies != null                                                                             &&
+                Request.Cookies. TryGet     (SessionCookieName,           out HTTPCookie       Cookie)              &&
+                SecurityToken_Id.TryParse   (Cookie.FirstOrDefault().Key, out SecurityToken_Id SecurityTokenId)     &&
+                HTTPCookies.     TryGetValue(SecurityTokenId,             out SecurityToken    SecurityInformation) &&
+                DateTime.UtcNow < SecurityInformation.Expires                                                       &&
                 TryGetUser(SecurityInformation.UserId, out User))
             {
                 return true;
@@ -13251,12 +13248,11 @@ namespace social.OpenData.UsersAPI
 
             #region Get user from cookie...
 
-            if (Request.Cookies != null                                                                               &&
-                Request. Cookies.TryGet     (SessionCookieName,            out HTTPCookie        Cookie)              &&
-                         Cookie. TryGet     (SessionCookieName.ToString(), out String            Value)               &&
-                SecurityToken_Id.TryParse   (Value,                        out SecurityToken_Id  SecurityTokenId)     &&
-                HTTPCookies.     TryGetValue(SecurityTokenId,              out SecurityToken     SecurityInformation) &&
-                DateTime.UtcNow < SecurityInformation.Expires                                                         &&
+            if (Request.Cookies != null                                                                             &&
+                Request.Cookies. TryGet     (SessionCookieName,           out HTTPCookie       Cookie)              &&
+                SecurityToken_Id.TryParse   (Cookie.FirstOrDefault().Key, out SecurityToken_Id SecurityTokenId)     &&
+                HTTPCookies.     TryGetValue(SecurityTokenId,             out SecurityToken    SecurityInformation) &&
+                DateTime.UtcNow < SecurityInformation.Expires                                                       &&
                 TryGetUser(SecurityInformation.Astronaut ?? SecurityInformation.UserId, out User))
             {
                 return true;
