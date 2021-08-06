@@ -2898,6 +2898,8 @@ namespace social.OpenData.UsersAPI
 
         #region E-Mail templates
 
+        #region NewUserSignUpEMailCreatorDelegate
+
         /// <summary>
         /// A delegate for sending a sign-up e-mail to a new user.
         /// </summary>
@@ -2906,10 +2908,39 @@ namespace social.OpenData.UsersAPI
                                                        SecurityToken_Id  SecurityToken,
                                                        Boolean           Use2FactorAuth,
                                                        Languages         Language)
-        {
-            return null;
-        }
 
+            =>  new HTMLEMailBuilder() {
+
+                    From           = Robot.EMail,
+                    To             = EMailRecipients,
+                    Passphrase     = APIPassphrase,
+                    Subject        = "Your " + ServiceName + " account had been created",
+
+                    HTMLText       = String.Concat(
+                                         HTMLEMailHeader(ExternalDNSName, BasePath, EMailType.System),
+                                             "Dear ", User.Name, ",<br /><br />" + Environment.NewLine,
+                                             "your " + ServiceName + " account has been created!<br /><br />" + Environment.NewLine,
+                                             "Please click the following link to set a new password for your account" + (Use2FactorAuth ? " and check your mobile phone for an additional security token" : "") + "...<br /><br />" + Environment.NewLine,
+                                             "<a href=\"https://" + ExternalDNSName + "/setPassword?" + SecurityToken + (Use2FactorAuth ? "&2factor" : "") + "\" style=\"text-decoration: none; color: #FFFFFF; background-color: #ff7300; Border: solid #ff7300; border-width: 10px 20px; line-height: 2; font-weight: bold; text-align: center; cursor: pointer; display: inline-block; border-radius: 4px; margin-top: 20px; font-size: 70%\">Set a new password</a>" + Environment.NewLine,
+                                         HTMLEMailFooter(ExternalDNSName, BasePath, EMailType.System)
+                                     ),
+
+                    PlainText      = String.Concat(
+                                         TextEMailHeader(ExternalDNSName, BasePath, EMailType.System) +
+                                             "Dear ", User.Name, ", " + Environment.NewLine +
+                                             "your " + ServiceName + " account has been created!" + Environment.NewLine + Environment.NewLine +
+                                             "Please click the following link to set a new password for your account" + (Use2FactorAuth ? " and check your mobile phone for an additional security token" : "") + "..." + Environment.NewLine + Environment.NewLine +
+                                             "https://" + ExternalDNSName + "/setPassword?" + SecurityToken + (Use2FactorAuth ? "&2factor" : "") +
+                                         TextEMailFooter(ExternalDNSName, BasePath, EMailType.System)
+                                    ),
+
+                    SecurityLevel  = EMailSecurity.sign
+
+                }.AsImmutable;
+
+        #endregion
+
+        #region NewUserWelcomeEMailCreatorDelegate
 
         /// <summary>
         /// A delegate for sending a welcome e-mail to a new user.
@@ -2917,10 +2948,38 @@ namespace social.OpenData.UsersAPI
         public virtual EMail NewUserWelcomeEMailCreator(User              User,
                                                         EMailAddressList  EMailRecipients,
                                                         Languages         Language)
-        {
-            return null;
-        }
 
+            => new HTMLEMailBuilder() {
+
+                   From           = Robot.EMail,
+                   To             = EMailRecipients,
+                   Passphrase     = APIPassphrase,
+                   Subject        = "Welcome to " + ServiceName + "...",
+
+                   HTMLText       = String.Concat(
+                                        HTMLEMailHeader(ExternalDNSName, BasePath, EMailType.System) +
+                                            "Dear " + User.Name + ",<br /><br />" + Environment.NewLine +
+                                            "welcome to your new " + ServiceName + " account!<br /><br />" + Environment.NewLine +
+                                            "<a href=\"https://" + ExternalDNSName + "/login\" style=\"text-decoration: none; color: #FFFFFF; background-color: #ff7300; Border: solid #ff7300; border-width: 10px 20px; line-height: 2; font-weight: bold; text-align: center; cursor: pointer; display: inline-block; border-radius: 4px; margin-top: 20px; font-size: 70%\">Login</a>" + Environment.NewLine +
+                                        HTMLEMailFooter(ExternalDNSName, BasePath, EMailType.System)
+                                    ),
+
+                   PlainText      = String.Concat(
+                                        TextEMailHeader(ExternalDNSName, BasePath, EMailType.System) +
+                                            "Dear " + User.Name + "," + Environment.NewLine +
+                                            "welcome to your new " + ServiceName + " account!" + Environment.NewLine + Environment.NewLine +
+                                            "Please login via: https://" + ExternalDNSName + "/login" + Environment.NewLine + Environment.NewLine +
+                                        TextEMailFooter(ExternalDNSName, BasePath, EMailType.System)
+                                    ),
+
+                   SecurityLevel  = EMailSecurity.sign
+
+               }.//AddAttachment("Hi there!".ToUTF8Bytes(), "welcome.txt", MailContentTypes.text_plain).
+                 AsImmutable;
+
+        #endregion
+
+        #region ResetPasswordEMailCreatorDelegate
 
         /// <summary>
         /// A delegate for sending a reset password e-mail to a user.
@@ -2930,10 +2989,39 @@ namespace social.OpenData.UsersAPI
                                                        SecurityToken_Id  SecurityToken,
                                                        Boolean           Use2FactorAuth,
                                                        Languages         Language)
-        {
-            return null;
-        }
 
+            => new HTMLEMailBuilder() {
+
+                   From           = Robot.EMail,
+                   To             = EMailRecipients,
+                   Passphrase     = APIPassphrase,
+                   Subject        = ServiceName + " password reset...",
+
+                   HTMLText       = String.Concat(
+                                        HTMLEMailHeader(ExternalDNSName, BasePath, EMailType.System) +
+                                            "Dear " + User.Name + ",<br /><br />" + Environment.NewLine +
+                                            "someone - hopefully you - requested us to change your password!<br />" + Environment.NewLine +
+                                            "If this request was your intention, please click the following link to set a new password...<br /><br />" + Environment.NewLine +
+                                            "<a href=\"" + ExternalDNSName + "/setPassword?" + SecurityToken + (Use2FactorAuth ? "&2factor" : "") + "\" style=\"text-decoration: none; color: #FFFFFF; background-color: #ff7300; Border: solid #ff7300; border-width: 10px 20px; line-height: 2; font-weight: bold; text-align: center; cursor: pointer; display: inline-block; border-radius: 4px; margin-top: 20px; font-size: 70%\">Set a new password</a>" + Environment.NewLine +
+                                        HTMLEMailFooter(ExternalDNSName, BasePath, EMailType.System)
+                                    ),
+
+                   PlainText      = String.Concat(
+                                        TextEMailHeader(ExternalDNSName, BasePath, EMailType.System) +
+                                            "Dear " + User.Name + "," + Environment.NewLine +
+                                            "someone - hopefully you - requested us to change your password!" + Environment.NewLine +
+                                            "If this request was your intention, please click the following link to set a new password..." + Environment.NewLine + Environment.NewLine +
+                                            ExternalDNSName + "/setPassword?" + SecurityToken + (Use2FactorAuth ? "&2factor" : "") +
+                                        TextEMailFooter(ExternalDNSName, BasePath, EMailType.System)
+                                    ),
+
+                   SecurityLevel  = EMailSecurity.sign
+
+               }.AsImmutable;
+
+        #endregion
+
+        #region PasswordChangedEMailCreatorDelegate
 
         /// <summary>
         /// A delegate for sending a reset password e-mail to a user.
@@ -2941,9 +3029,35 @@ namespace social.OpenData.UsersAPI
         public virtual EMail PasswordChangedEMailCreator(User              User,
                                                          EMailAddressList  EMailRecipients,
                                                          Languages         Language)
-        {
-            return null;
-        }
+
+            => new HTMLEMailBuilder() {
+
+                   From           = Robot.EMail,
+                   To             = EMailRecipients,
+                   Passphrase     = APIPassphrase,
+                   Subject        = "Your " + ServiceName + " password changed...",
+
+                   HTMLText       = String.Concat(
+                                        HTMLEMailHeader(ExternalDNSName, BasePath, EMailType.System) +
+                                            "Dear " + User.Name + ",<br /><br />" + Environment.NewLine +
+                                            "your password has successfully been changed!<br />" + Environment.NewLine +
+                                            "<a href=\"" + ExternalDNSName + "/login?" + User.Id + "\" style=\"text-decoration: none; color: #FFFFFF; background-color: #ff7300; Border: solid #ff7300; border-width: 10px 20px; line-height: 2; font-weight: bold; text-align: center; cursor: pointer; display: inline-block; border-radius: 4px; margin-top: 20px; font-size: 70%\">Login</a>" + Environment.NewLine +
+                                        HTMLEMailFooter(ExternalDNSName, BasePath, EMailType.System)
+                                    ),
+
+                   PlainText      = String.Concat(
+                                        TextEMailHeader(ExternalDNSName, BasePath, EMailType.System) +
+                                            "Dear " + User.Name + "," + Environment.NewLine +
+                                            "your password has successfully been changed!" + Environment.NewLine +
+                                            ExternalDNSName + "/login?" + User.Id +
+                                        TextEMailFooter(ExternalDNSName, BasePath, EMailType.System)
+                                    ),
+
+                   SecurityLevel  = EMailSecurity.sign
+
+               }.AsImmutable;
+
+        #endregion
 
 
         #region NewServiceTicketMessageReceivedDelegate
