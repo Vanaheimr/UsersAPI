@@ -894,13 +894,14 @@ namespace social.OpenData.UsersAPI
         private static readonly SemaphoreSlim  SMTPLogSemaphore                = new SemaphoreSlim(1, 1);
         private static readonly SemaphoreSlim  TelegramLogSemaphore            = new SemaphoreSlim(1, 1);
         private static readonly SemaphoreSlim  LogFileSemaphore                = new SemaphoreSlim(1, 1);
-        //private static readonly SemaphoreSlim  NotificationsSemaphore          = new SemaphoreSlim(1, 1);
+        
         private static readonly SemaphoreSlim  UsersSemaphore                  = new SemaphoreSlim(1, 1);
         private static readonly SemaphoreSlim  UserGroupsSemaphore             = new SemaphoreSlim(1, 1);
         private static readonly SemaphoreSlim  APIKeysSemaphore                = new SemaphoreSlim(1, 1);
         private static readonly SemaphoreSlim  OrganizationsSemaphore          = new SemaphoreSlim(1, 1);
         private static readonly SemaphoreSlim  OrganizationGroupsSemaphore     = new SemaphoreSlim(1, 1);
         private static readonly SemaphoreSlim  MessagesSemaphore               = new SemaphoreSlim(1, 1);
+        private static readonly SemaphoreSlim  NotificationMessagesSemaphore   = new SemaphoreSlim(1, 1);
         private static readonly SemaphoreSlim  DashboardsSemaphore             = new SemaphoreSlim(1, 1);
         private static readonly SemaphoreSlim  NewsPostingsSemaphore           = new SemaphoreSlim(1, 1);
         private static readonly SemaphoreSlim  NewsBannersSemaphore            = new SemaphoreSlim(1, 1);
@@ -909,38 +910,39 @@ namespace social.OpenData.UsersAPI
         /// <summary>
         /// The HTTP root for embedded ressources.
         /// </summary>
-        public const              String                                        HTTPRoot                        = "social.OpenData.UsersAPI.HTTPRoot.";
+        public const              String                                        HTTPRoot                                = "social.OpenData.UsersAPI.HTTPRoot.";
 
         /// <summary>
         /// The default language of the API.
         /// </summary>
-        public  const             Languages                                     DefaultLanguage                 = Languages.en;
+        public  const             Languages                                     DefaultLanguage                         = Languages.en;
 
-        public  const             Byte                                          DefaultMinUserIdLength          = 4;
-        public  const             Byte                                          DefaultMinRealmLength           = 2;
-        public  const             Byte                                          DefaultMinUserNameLength        = 4;
-        public  const             Byte                                          DefaultMinUserGroupIdLength     = 4;
-        public  const             UInt16                                        DefaultMinAPIKeyLength          = 20;
-        public  const             Byte                                          DefaultMinMessageIdLength       = 8;
-        public  const             Byte                                          DefaultMinNewsPostingIdLength   = 8;
-        public  const             Byte                                          DefaultMinNewsBannerIdLength    = 8;
-        public  const             Byte                                          DefaultMinFAQIdLength           = 8;
+        public  const             Byte                                          DefaultMinUserIdLength                  = 4;
+        public  const             Byte                                          DefaultMinRealmLength                   = 2;
+        public  const             Byte                                          DefaultMinUserNameLength                = 4;
+        public  const             Byte                                          DefaultMinUserGroupIdLength             = 4;
+        public  const             UInt16                                        DefaultMinAPIKeyLength                  = 20;
+        public  const             Byte                                          DefaultMinMessageIdLength               = 8;
+        public  const             Byte                                          DefaultMinNotificationMessageIdLength   = 8;
+        public  const             Byte                                          DefaultMinNewsPostingIdLength           = 8;
+        public  const             Byte                                          DefaultMinNewsBannerIdLength            = 8;
+        public  const             Byte                                          DefaultMinFAQIdLength                   = 8;
 
-        public  static readonly   PasswordQualityCheckDelegate                  DefaultPasswordQualityCheck     = password => password.Length >= 8 ? 1.0f : 0;
-        public  static readonly   TimeSpan                                      DefaultSignInSessionLifetime    = TimeSpan.FromDays(30);
+        public  static readonly   PasswordQualityCheckDelegate                  DefaultPasswordQualityCheck             = password => password.Length >= 8 ? 1.0f : 0;
+        public  static readonly   TimeSpan                                      DefaultSignInSessionLifetime            = TimeSpan.FromDays(30);
 
         protected readonly        Dictionary<User_Id, LoginPassword>            _LoginPasswords;
         protected readonly        List<VerificationToken>                       _VerificationTokens;
 
-        public  const             String                                        SignUpContext                   = "";
-        public  const             String                                        SignInOutContext                = "";
+        public  const             String                                        SignUpContext                           = "";
+        public  const             String                                        SignInOutContext                        = "";
 
         /// <summary>
         /// The name of the default HTTP cookie.
         /// </summary>
-        public  static readonly   HTTPCookieName                                DefaultCookieName               = HTTPCookieName.Parse("UsersAPI");
+        public  static readonly   HTTPCookieName                                DefaultCookieName                       = HTTPCookieName.Parse("UsersAPI");
 
-        public  const             String                                        AdminGroupName                  = "Admins";
+        public  const             String                                        AdminGroupName                          = "Admins";
 
 
         /// <summary>
@@ -1116,6 +1118,11 @@ namespace social.OpenData.UsersAPI
         /// The minimal message identification length.
         /// </summary>
         public Byte                          MinMessageIdLength                 { get; }
+
+        /// <summary>
+        /// The minimal notification message identification length.
+        /// </summary>
+        public Byte                          MinNotificationMessageIdLength     { get; }
 
         /// <summary>
         /// The minimal news posting identification length.
@@ -2023,6 +2030,7 @@ namespace social.OpenData.UsersAPI
                         Byte?                                MinUserGroupIdLength               = null,
                         UInt16?                              MinAPIKeyLength                    = null,
                         Byte?                                MinMessageIdLength                 = null,
+                        Byte?                                MinNotificationMessageIdLength     = null,
                         Byte?                                MinNewsPostingIdLength             = null,
                         Byte?                                MinNewsBannerIdLength              = null,
                         Byte?                                MinFAQIdLength                     = null,
@@ -2103,6 +2111,7 @@ namespace social.OpenData.UsersAPI
                    MinUserGroupIdLength,
                    MinAPIKeyLength,
                    MinMessageIdLength,
+                   MinNotificationMessageIdLength,
                    MinNewsPostingIdLength,
                    MinNewsBannerIdLength,
                    MinFAQIdLength,
@@ -2171,51 +2180,52 @@ namespace social.OpenData.UsersAPI
         /// <param name="DatabaseFileName">The name of the database file for this API.</param>
         /// <param name="LogfileName">The name of the logfile for this API.</param>
         protected UsersAPI(HTTPServer                           HTTPServer,
-                           HTTPHostname?                        HTTPHostname                  = null,
-                           String                               ServiceName                   = "GraphDefined Users API",
-                           String                               ExternalDNSName               = null,
-                           HTTPPath?                            URLPathPrefix                 = null,
-                           HTTPPath?                            BasePath                      = null,
-                           String                               HTMLTemplate                  = null,
-                           JObject                              APIVersionHashes              = null,
+                           HTTPHostname?                        HTTPHostname                     = null,
+                           String                               ServiceName                      = "GraphDefined Users API",
+                           String                               ExternalDNSName                  = null,
+                           HTTPPath?                            URLPathPrefix                    = null,
+                           HTTPPath?                            BasePath                         = null,
+                           String                               HTMLTemplate                     = null,
+                           JObject                              APIVersionHashes                 = null,
 
-                           EMailAddress                         APIEMailAddress               = null,
-                           String                               APIPassphrase                 = null,
-                           EMailAddressList                     APIAdminEMails                = null,
-                           SMTPClient                           APISMTPClient                 = null,
+                           EMailAddress                         APIEMailAddress                  = null,
+                           String                               APIPassphrase                    = null,
+                           EMailAddressList                     APIAdminEMails                   = null,
+                           SMTPClient                           APISMTPClient                    = null,
 
-                           Credentials                          SMSAPICredentials             = null,
-                           String                               SMSSenderName                 = null,
-                           IEnumerable<PhoneNumber>             APIAdminSMS                   = null,
+                           Credentials                          SMSAPICredentials                = null,
+                           String                               SMSSenderName                    = null,
+                           IEnumerable<PhoneNumber>             APIAdminSMS                      = null,
 
-                           String                               TelegramBotToken              = null,
+                           String                               TelegramBotToken                 = null,
 
-                           HTTPCookieName?                      CookieName                    = null,
-                           Boolean                              UseSecureCookies              = true,
-                           Languages?                           Language                      = null,
-                           Byte?                                MinUserIdLength               = null,
-                           Byte?                                MinRealmLength                = null,
-                           Byte?                                MinUserNameLength             = null,
-                           Byte?                                MinUserGroupIdLength          = null,
-                           UInt16?                              MinAPIKeyLength               = null,
-                           Byte?                                MinMessageIdLength            = null,
-                           Byte?                                MinNewsPostingIdLength        = null,
-                           Byte?                                MinNewsBannerIdLength         = null,
-                           Byte?                                MinFAQIdLength                = null,
-                           PasswordQualityCheckDelegate         PasswordQualityCheck          = null,
-                           TimeSpan?                            SignInSessionLifetime         = null,
+                           HTTPCookieName?                      CookieName                       = null,
+                           Boolean                              UseSecureCookies                 = true,
+                           Languages?                           Language                         = null,
+                           Byte?                                MinUserIdLength                  = null,
+                           Byte?                                MinRealmLength                   = null,
+                           Byte?                                MinUserNameLength                = null,
+                           Byte?                                MinUserGroupIdLength             = null,
+                           UInt16?                              MinAPIKeyLength                  = null,
+                           Byte?                                MinMessageIdLength               = null,
+                           Byte?                                MinNotificationMessageIdLength   = null,
+                           Byte?                                MinNewsPostingIdLength           = null,
+                           Byte?                                MinNewsBannerIdLength            = null,
+                           Byte?                                MinFAQIdLength                   = null,
+                           PasswordQualityCheckDelegate         PasswordQualityCheck             = null,
+                           TimeSpan?                            SignInSessionLifetime            = null,
 
-                           TimeSpan?                            MaintenanceEvery              = null,
-                           Boolean                              DisableMaintenanceTasks       = false,
-                           TimeSpan?                            WardenInitialDelay            = null,
-                           TimeSpan?                            WardenCheckEvery              = null,
+                           TimeSpan?                            MaintenanceEvery                 = null,
+                           Boolean                              DisableMaintenanceTasks          = false,
+                           TimeSpan?                            WardenInitialDelay               = null,
+                           TimeSpan?                            WardenCheckEvery                 = null,
 
-                           Boolean                              SkipURLTemplates              = false,
-                           Boolean                              DisableNotifications          = false,
-                           Boolean                              DisableLogfile                = false,
-                           String                               LoggingPath                   = DefaultUsersAPI_LoggingPath,
-                           String                               DatabaseFileName              = DefaultUsersAPI_DatabaseFileName,
-                           String                               LogfileName                   = DefaultUsersAPI_LogfileName)
+                           Boolean                              SkipURLTemplates                 = false,
+                           Boolean                              DisableNotifications             = false,
+                           Boolean                              DisableLogfile                   = false,
+                           String                               LoggingPath                      = DefaultUsersAPI_LoggingPath,
+                           String                               DatabaseFileName                 = DefaultUsersAPI_DatabaseFileName,
+                           String                               LogfileName                      = DefaultUsersAPI_LogfileName)
 
             : base(HTTPServer,
                    HTTPHostname,
@@ -2262,63 +2272,65 @@ namespace social.OpenData.UsersAPI
                 Directory.CreateDirectory(this.SMSAPILoggingPath);
             }
 
-            this.Robot                        = new User(Id:               User_Id.Parse("robot"),
-                                                         EMail:            APIEMailAddress.Address,
-                                                         Name:             APIEMailAddress.OwnerName,
-                                                         PublicKeyRing:    APIEMailAddress.PublicKeyRing,
-                                                         SecretKeyRing:    APIEMailAddress.SecretKeyRing,
-                                                         Description:      I18NString.Create(Languages.en, "API robot"),
-                                                         IsAuthenticated:  true);
+            this.Robot                           = new User(Id:               User_Id.Parse("robot"),
+                                                            EMail:            APIEMailAddress.Address,
+                                                            Name:             APIEMailAddress.OwnerName,
+                                                            PublicKeyRing:    APIEMailAddress.PublicKeyRing,
+                                                            SecretKeyRing:    APIEMailAddress.SecretKeyRing,
+                                                            Description:      I18NString.Create(Languages.en, "API robot"),
+                                                            IsAuthenticated:  true);
 
-            CurrentAsyncLocalUserId.Value     = Robot.Id;
+            CurrentAsyncLocalUserId.Value        = Robot.Id;
 
-            this.APIPassphrase                = APIPassphrase               ?? throw new ArgumentNullException(nameof(APIPassphrase),  "The given API passphrase must not be null!");
-            this.APIAdminEMails               = APIAdminEMails              ?? throw new ArgumentNullException(nameof(APIAdminEMails), "The given API admin e-mail (list) must not be null!");
-            this.APISMTPClient                = APISMTPClient               ?? throw new ArgumentNullException(nameof(APISMTPClient),  "The given API SMTP client must not be null!");
+            this.APIPassphrase                   = APIPassphrase                  ?? throw new ArgumentNullException(nameof(APIPassphrase),  "The given API passphrase must not be null!");
+            this.APIAdminEMails                  = APIAdminEMails                 ?? throw new ArgumentNullException(nameof(APIAdminEMails), "The given API admin e-mail (list) must not be null!");
+            this.APISMTPClient                   = APISMTPClient                  ?? throw new ArgumentNullException(nameof(APISMTPClient),  "The given API SMTP client must not be null!");
 
-            this.CookieName                   = CookieName                  ?? DefaultCookieName;
-            this.SessionCookieName            = this.CookieName + "Session";
-            this.UseSecureCookies             = UseSecureCookies;
-            this.Language                     = Language                    ?? DefaultLanguage;
+            this.CookieName                      = CookieName                     ?? DefaultCookieName;
+            this.SessionCookieName               = this.CookieName + "Session";   
+            this.UseSecureCookies                = UseSecureCookies;
+            this.Language                        = Language                       ?? DefaultLanguage;
 
-            this.MinUserIdLength              = MinUserIdLength             ?? DefaultMinUserIdLength;
-            this.MinRealmLength               = MinRealmLength              ?? DefaultMinRealmLength;
-            this.MinUserNameLength            = MinUserNameLength           ?? DefaultMinUserNameLength;
-            this.MinUserGroupIdLength         = MinUserGroupIdLength        ?? DefaultMinUserGroupIdLength;
-            this.MinAPIKeyLength              = MinAPIKeyLength             ?? DefaultMinAPIKeyLength;
-            this.MinNewsPostingIdLength       = MinNewsPostingIdLength      ?? DefaultMinNewsPostingIdLength;
-            this.MinMessageIdLength           = MinMessageIdLength          ?? DefaultMinMessageIdLength;
-            this.MinNewsPostingIdLength       = MinNewsPostingIdLength      ?? DefaultMinNewsPostingIdLength;
-            this.MinNewsBannerIdLength        = MinNewsBannerIdLength       ?? DefaultMinNewsBannerIdLength;
-            this.MinFAQIdLength               = MinFAQIdLength              ?? DefaultMinFAQIdLength;
+            this.MinUserIdLength                 = MinUserIdLength                ?? DefaultMinUserIdLength;
+            this.MinRealmLength                  = MinRealmLength                 ?? DefaultMinRealmLength;
+            this.MinUserNameLength               = MinUserNameLength              ?? DefaultMinUserNameLength;
+            this.MinUserGroupIdLength            = MinUserGroupIdLength           ?? DefaultMinUserGroupIdLength;
+            this.MinAPIKeyLength                 = MinAPIKeyLength                ?? DefaultMinAPIKeyLength;
+            this.MinNewsPostingIdLength          = MinNewsPostingIdLength         ?? DefaultMinNewsPostingIdLength;
+            this.MinMessageIdLength              = MinMessageIdLength             ?? DefaultMinMessageIdLength;
+            this.MinNotificationMessageIdLength  = MinNotificationMessageIdLength ?? DefaultMinNotificationMessageIdLength;
+            this.MinNewsPostingIdLength          = MinNewsPostingIdLength         ?? DefaultMinNewsPostingIdLength;
+            this.MinNewsBannerIdLength           = MinNewsBannerIdLength          ?? DefaultMinNewsBannerIdLength;
+            this.MinFAQIdLength                  = MinFAQIdLength                 ?? DefaultMinFAQIdLength;
 
-            this.PasswordQualityCheck         = PasswordQualityCheck        ?? DefaultPasswordQualityCheck;
-            this.SignInSessionLifetime        = SignInSessionLifetime       ?? DefaultSignInSessionLifetime;
+            this.PasswordQualityCheck            = PasswordQualityCheck           ?? DefaultPasswordQualityCheck;
+            this.SignInSessionLifetime           = SignInSessionLifetime          ?? DefaultSignInSessionLifetime;
 
-            this._DataLicenses                = new Dictionary<DataLicense_Id,             DataLicense>();
-            this._Users                       = new Dictionary<User_Id,                    User>();
-            this._LoginPasswords              = new Dictionary<User_Id,                    LoginPassword>();
-            this._PasswordResets              = new Dictionary<SecurityToken_Id,           PasswordReset>();
-            this._HTTPCookies                 = new Dictionary<SecurityToken_Id,           SecurityToken>();
-            this._APIKeys                     = new Dictionary<APIKey,                     APIKeyInfo>();
-            this._Messages                    = new Dictionary<Message_Id,                 Message>();
-            this._UserGroups                  = new Dictionary<UserGroup_Id,               UserGroup>();
-            this._Organizations               = new Dictionary<Organization_Id,            Organization>();
-            this._OrganizationGroups          = new Dictionary<OrganizationGroup_Id,       OrganizationGroup>();
-            this._ServiceTickets              = new ConcurrentDictionary<ServiceTicket_Id, ServiceTicket>();
-            this._NewsPostings                = new Dictionary<NewsPosting_Id,             NewsPosting>();
-            this._NewsBanners                 = new Dictionary<NewsBanner_Id,              NewsBanner>();
-            this._FAQs                        = new Dictionary<FAQ_Id,                     FAQ>();
+            this._DataLicenses                   = new Dictionary<DataLicense_Id,             DataLicense>();
+            this._Users                          = new Dictionary<User_Id,                    User>();
+            this._LoginPasswords                 = new Dictionary<User_Id,                    LoginPassword>();
+            this._PasswordResets                 = new Dictionary<SecurityToken_Id,           PasswordReset>();
+            this._HTTPCookies                    = new Dictionary<SecurityToken_Id,           SecurityToken>();
+            this._APIKeys                        = new Dictionary<APIKey,                     APIKeyInfo>();
+            this._Messages                       = new Dictionary<Message_Id,                 Message>();
+            this._NotificationMessages           = new Dictionary<NotificationMessage_Id,     NotificationMessage>();
+            this._UserGroups                     = new Dictionary<UserGroup_Id,               UserGroup>();
+            this._Organizations                  = new Dictionary<Organization_Id,            Organization>();
+            this._OrganizationGroups             = new Dictionary<OrganizationGroup_Id,       OrganizationGroup>();
+            this._ServiceTickets                 = new ConcurrentDictionary<ServiceTicket_Id, ServiceTicket>();
+            this._NewsPostings                   = new Dictionary<NewsPosting_Id,             NewsPosting>();
+            this._NewsBanners                    = new Dictionary<NewsBanner_Id,              NewsBanner>();
+            this._FAQs                           = new Dictionary<FAQ_Id,                     FAQ>();
 
-            this._VerificationTokens          = new List<VerificationToken>();
+            this._VerificationTokens             = new List<VerificationToken>();
 
-            this.DisableNotifications         = DisableNotifications;
-            this.DisableLogfile               = DisableLogfile;
-            this.LogfileName                  = this.UsersAPIPath + (LogfileName ?? DefaultUsersAPI_LogfileName);
+            this.DisableNotifications            = DisableNotifications;
+            this.DisableLogfile                  = DisableLogfile;
+            this.LogfileName                     = this.UsersAPIPath + (LogfileName ?? DefaultUsersAPI_LogfileName);
 
-            //this._NotificationMessages        = new Queue<NotificationMessage>();
+            
 
-            this.DNSClient                    = HTTPServer.DNSClient;
+            this.DNSClient                       = HTTPServer.DNSClient;
 
             #endregion
 
@@ -2364,9 +2376,9 @@ namespace social.OpenData.UsersAPI
 
             if (SMSAPICredentials != null)
             {
-                this._SMSAPI                  = new SMSAPI(Credentials: SMSAPICredentials);
-                this.SMSSenderName            = SMSSenderName;
-                this.APIAdminSMS              = APIAdminSMS;
+                this._SMSAPI                     = new SMSAPI(Credentials: SMSAPICredentials);
+                this.SMSSenderName               = SMSSenderName;
+                this.APIAdminSMS                 = APIAdminSMS;
             }
 
             if (SMSAPICredentials != null && !DisableLogfile)
@@ -2723,89 +2735,95 @@ namespace social.OpenData.UsersAPI
 
         #region (static) NotificationMessageTypes
 
-        public static NotificationMessageType addUser_MessageType                           = NotificationMessageType.Parse("addUser");
-        public static NotificationMessageType addUserIfNotExists_MessageType                = NotificationMessageType.Parse("addUserIfNotExists");
-        public static NotificationMessageType addOrUpdateUser_MessageType                   = NotificationMessageType.Parse("addOrUpdateUser");
-        public static NotificationMessageType updateUser_MessageType                        = NotificationMessageType.Parse("updateUser");
-        public static NotificationMessageType removeUser_MessageType                        = NotificationMessageType.Parse("removeUser");
+        public static NotificationMessageType addUser_MessageType                             = NotificationMessageType.Parse("addUser");
+        public static NotificationMessageType addUserIfNotExists_MessageType                  = NotificationMessageType.Parse("addUserIfNotExists");
+        public static NotificationMessageType addOrUpdateUser_MessageType                     = NotificationMessageType.Parse("addOrUpdateUser");
+        public static NotificationMessageType updateUser_MessageType                          = NotificationMessageType.Parse("updateUser");
+        public static NotificationMessageType removeUser_MessageType                          = NotificationMessageType.Parse("removeUser");
 
-        public static NotificationMessageType addPassword_MessageType                       = NotificationMessageType.Parse("addPassword");
-        public static NotificationMessageType changePassword_MessageType                    = NotificationMessageType.Parse("changePassword");
+        public static NotificationMessageType addPassword_MessageType                         = NotificationMessageType.Parse("addPassword");
+        public static NotificationMessageType changePassword_MessageType                      = NotificationMessageType.Parse("changePassword");
 
-        public static NotificationMessageType addUserGroup_MessageType                      = NotificationMessageType.Parse("addUserGroup");
-        public static NotificationMessageType addUserGroupIfNotExists_MessageType           = NotificationMessageType.Parse("addUserGroupIfNotExists");
-        public static NotificationMessageType addOrUpdateUserGroup_MessageType              = NotificationMessageType.Parse("addOrUpdateUserGroup");
-        public static NotificationMessageType updateUserGroup_MessageType                   = NotificationMessageType.Parse("updateUserGroup");
-        public static NotificationMessageType removeUserGroup_MessageType                   = NotificationMessageType.Parse("removeUserGroup");
+        public static NotificationMessageType addUserGroup_MessageType                        = NotificationMessageType.Parse("addUserGroup");
+        public static NotificationMessageType addUserGroupIfNotExists_MessageType             = NotificationMessageType.Parse("addUserGroupIfNotExists");
+        public static NotificationMessageType addOrUpdateUserGroup_MessageType                = NotificationMessageType.Parse("addOrUpdateUserGroup");
+        public static NotificationMessageType updateUserGroup_MessageType                     = NotificationMessageType.Parse("updateUserGroup");
+        public static NotificationMessageType removeUserGroup_MessageType                     = NotificationMessageType.Parse("removeUserGroup");
 
-        public static NotificationMessageType addUserToUserGroup_MessageType                = NotificationMessageType.Parse("addUserToUserGroup");
-        public static NotificationMessageType removeUserFromUserGroup_MessageType           = NotificationMessageType.Parse("removeUserFromUserGroup");
+        public static NotificationMessageType addUserToUserGroup_MessageType                  = NotificationMessageType.Parse("addUserToUserGroup");
+        public static NotificationMessageType removeUserFromUserGroup_MessageType             = NotificationMessageType.Parse("removeUserFromUserGroup");
 
-        public static NotificationMessageType addAPIKey_MessageType                         = NotificationMessageType.Parse("addAPIKey");
-        public static NotificationMessageType addAPIKeyIfNotExists_MessageType              = NotificationMessageType.Parse("addAPIKeyIfNotExists");
-        public static NotificationMessageType addOrUpdateAPIKey_MessageType                 = NotificationMessageType.Parse("addOrUpdateAPIKey");
-        public static NotificationMessageType updateAPIKey_MessageType                      = NotificationMessageType.Parse("updateAPIKey");
-        public static NotificationMessageType removeAPIKey_MessageType                      = NotificationMessageType.Parse("removeAPIKey");
+        public static NotificationMessageType addAPIKey_MessageType                           = NotificationMessageType.Parse("addAPIKey");
+        public static NotificationMessageType addAPIKeyIfNotExists_MessageType                = NotificationMessageType.Parse("addAPIKeyIfNotExists");
+        public static NotificationMessageType addOrUpdateAPIKey_MessageType                   = NotificationMessageType.Parse("addOrUpdateAPIKey");
+        public static NotificationMessageType updateAPIKey_MessageType                        = NotificationMessageType.Parse("updateAPIKey");
+        public static NotificationMessageType removeAPIKey_MessageType                        = NotificationMessageType.Parse("removeAPIKey");
 
-        public static NotificationMessageType addMessage_MessageType                        = NotificationMessageType.Parse("addMessage");
-        public static NotificationMessageType addMessageIfNotExists_MessageType             = NotificationMessageType.Parse("addMessageIfNotExists");
-        public static NotificationMessageType addOrUpdateMessage_MessageType                = NotificationMessageType.Parse("addOrUpdateMessage");
-        public static NotificationMessageType updateMessage_MessageType                     = NotificationMessageType.Parse("updateMessage");
-        public static NotificationMessageType removeMessage_MessageType                     = NotificationMessageType.Parse("removeMessage");
+        public static NotificationMessageType addMessage_MessageType                          = NotificationMessageType.Parse("addMessage");
+        public static NotificationMessageType addMessageIfNotExists_MessageType               = NotificationMessageType.Parse("addMessageIfNotExists");
+        public static NotificationMessageType addOrUpdateMessage_MessageType                  = NotificationMessageType.Parse("addOrUpdateMessage");
+        public static NotificationMessageType updateMessage_MessageType                       = NotificationMessageType.Parse("updateMessage");
+        public static NotificationMessageType removeMessage_MessageType                       = NotificationMessageType.Parse("removeMessage");
 
-        public static NotificationMessageType addOrganization_MessageType                   = NotificationMessageType.Parse("addOrganization");
-        public static NotificationMessageType addOrganizationIfNotExists_MessageType        = NotificationMessageType.Parse("addOrganizationIfNotExists");
-        public static NotificationMessageType addOrUpdateOrganization_MessageType           = NotificationMessageType.Parse("addOrUpdateOrganization");
-        public static NotificationMessageType updateOrganization_MessageType                = NotificationMessageType.Parse("updateOrganization");
-        public static NotificationMessageType removeOrganization_MessageType                = NotificationMessageType.Parse("removeOrganization");
+        public static NotificationMessageType addNotificationMessage_MessageType              = NotificationMessageType.Parse("addNotificationMessage");
+        public static NotificationMessageType addNotificationMessageIfNotExists_MessageType   = NotificationMessageType.Parse("addNotificationMessageIfNotExists");
+        public static NotificationMessageType addOrUpdateNotificationMessage_MessageType      = NotificationMessageType.Parse("addOrUpdateNotificationMessage");
+        public static NotificationMessageType updateNotificationMessage_MessageType           = NotificationMessageType.Parse("updateNotificationMessage");
+        public static NotificationMessageType removeNotificationMessage_MessageType           = NotificationMessageType.Parse("removeNotificationMessage");
 
-        public static NotificationMessageType addUserToOrganization_MessageType             = NotificationMessageType.Parse("addUserToOrganization");
-        public static NotificationMessageType removeUserFromOrganization_MessageType        = NotificationMessageType.Parse("removeUserFromOrganization");
+        public static NotificationMessageType addOrganization_MessageType                     = NotificationMessageType.Parse("addOrganization");
+        public static NotificationMessageType addOrganizationIfNotExists_MessageType          = NotificationMessageType.Parse("addOrganizationIfNotExists");
+        public static NotificationMessageType addOrUpdateOrganization_MessageType             = NotificationMessageType.Parse("addOrUpdateOrganization");
+        public static NotificationMessageType updateOrganization_MessageType                  = NotificationMessageType.Parse("updateOrganization");
+        public static NotificationMessageType removeOrganization_MessageType                  = NotificationMessageType.Parse("removeOrganization");
 
-        public static NotificationMessageType linkOrganizations_MessageType                 = NotificationMessageType.Parse("linkOrganizations");
-        public static NotificationMessageType unlinkOrganizations_MessageType               = NotificationMessageType.Parse("unlinkOrganizations");
+        public static NotificationMessageType addUserToOrganization_MessageType               = NotificationMessageType.Parse("addUserToOrganization");
+        public static NotificationMessageType removeUserFromOrganization_MessageType          = NotificationMessageType.Parse("removeUserFromOrganization");
 
-        public static NotificationMessageType addOrganizationGroup_MessageType              = NotificationMessageType.Parse("addOrganizationGroup");
-        public static NotificationMessageType addOrganizationGroupIfNotExists_MessageType   = NotificationMessageType.Parse("addOrganizationGroupIfNotExists");
-        public static NotificationMessageType addOrUpdateOrganizationGroup_MessageType      = NotificationMessageType.Parse("addOrUpdateOrganizationGroup");
-        public static NotificationMessageType updateOrganizationGroup_MessageType           = NotificationMessageType.Parse("updateOrganizationGroup");
-        public static NotificationMessageType removeOrganizationGroup_MessageType           = NotificationMessageType.Parse("removeOrganizationGroup");
+        public static NotificationMessageType linkOrganizations_MessageType                   = NotificationMessageType.Parse("linkOrganizations");
+        public static NotificationMessageType unlinkOrganizations_MessageType                 = NotificationMessageType.Parse("unlinkOrganizations");
 
-        public static NotificationMessageType addNotification_MessageType                   = NotificationMessageType.Parse("addNotification");
-        public static NotificationMessageType removeNotification_MessageType                = NotificationMessageType.Parse("removeNotification");
+        public static NotificationMessageType addOrganizationGroup_MessageType                = NotificationMessageType.Parse("addOrganizationGroup");
+        public static NotificationMessageType addOrganizationGroupIfNotExists_MessageType     = NotificationMessageType.Parse("addOrganizationGroupIfNotExists");
+        public static NotificationMessageType addOrUpdateOrganizationGroup_MessageType        = NotificationMessageType.Parse("addOrUpdateOrganizationGroup");
+        public static NotificationMessageType updateOrganizationGroup_MessageType             = NotificationMessageType.Parse("updateOrganizationGroup");
+        public static NotificationMessageType removeOrganizationGroup_MessageType             = NotificationMessageType.Parse("removeOrganizationGroup");
 
-        public static NotificationMessageType addServiceTicket_MessageType                  = NotificationMessageType.Parse("addServiceTicket");
-        public static NotificationMessageType addServiceTicketIfNotExists_MessageType       = NotificationMessageType.Parse("addServiceTicketIfNotExists");
-        public static NotificationMessageType addOrUpdateServiceTicket_MessageType          = NotificationMessageType.Parse("addOrUpdateServiceTicket");
-        public static NotificationMessageType updateServiceTicket_MessageType               = NotificationMessageType.Parse("updateServiceTicket");
-        public static NotificationMessageType removeServiceTicket_MessageType               = NotificationMessageType.Parse("removeServiceTicket");
-        public static NotificationMessageType changeServiceTicketStatus_MessageType         = NotificationMessageType.Parse("changeServiceTicketStatus");
+        public static NotificationMessageType addNotification_MessageType                     = NotificationMessageType.Parse("addNotification");
+        public static NotificationMessageType removeNotification_MessageType                  = NotificationMessageType.Parse("removeNotification");
 
-        public static NotificationMessageType addDashboard_MessageType                      = NotificationMessageType.Parse("addDashboard");
-        public static NotificationMessageType addDashboardIfNotExists_MessageType           = NotificationMessageType.Parse("addDashboardIfNotExists");
-        public static NotificationMessageType addOrUpdateDashboard_MessageType              = NotificationMessageType.Parse("addOrUpdateDashboard");
-        public static NotificationMessageType updateDashboard_MessageType                   = NotificationMessageType.Parse("updateDashboard");
-        public static NotificationMessageType removeDashboard_MessageType                   = NotificationMessageType.Parse("removeDashboard");
+        public static NotificationMessageType addServiceTicket_MessageType                    = NotificationMessageType.Parse("addServiceTicket");
+        public static NotificationMessageType addServiceTicketIfNotExists_MessageType         = NotificationMessageType.Parse("addServiceTicketIfNotExists");
+        public static NotificationMessageType addOrUpdateServiceTicket_MessageType            = NotificationMessageType.Parse("addOrUpdateServiceTicket");
+        public static NotificationMessageType updateServiceTicket_MessageType                 = NotificationMessageType.Parse("updateServiceTicket");
+        public static NotificationMessageType removeServiceTicket_MessageType                 = NotificationMessageType.Parse("removeServiceTicket");
+        public static NotificationMessageType changeServiceTicketStatus_MessageType           = NotificationMessageType.Parse("changeServiceTicketStatus");
 
-        public static NotificationMessageType addNewsPosting_MessageType                    = NotificationMessageType.Parse("addNewsPosting");
-        public static NotificationMessageType addNewsPostingIfNotExists_MessageType         = NotificationMessageType.Parse("addNewsPostingIfNotExists");
-        public static NotificationMessageType addOrUpdateNewsPosting_MessageType            = NotificationMessageType.Parse("addOrUpdateNewsPosting");
-        public static NotificationMessageType updateNewsPosting_MessageType                 = NotificationMessageType.Parse("updateNewsPosting");
-        public static NotificationMessageType removeNewsPosting_MessageType                 = NotificationMessageType.Parse("removeNewsPosting");
+        public static NotificationMessageType addDashboard_MessageType                        = NotificationMessageType.Parse("addDashboard");
+        public static NotificationMessageType addDashboardIfNotExists_MessageType             = NotificationMessageType.Parse("addDashboardIfNotExists");
+        public static NotificationMessageType addOrUpdateDashboard_MessageType                = NotificationMessageType.Parse("addOrUpdateDashboard");
+        public static NotificationMessageType updateDashboard_MessageType                     = NotificationMessageType.Parse("updateDashboard");
+        public static NotificationMessageType removeDashboard_MessageType                     = NotificationMessageType.Parse("removeDashboard");
 
-        public static NotificationMessageType addNewsBanner_MessageType                     = NotificationMessageType.Parse("addNewsBanner");
-        public static NotificationMessageType addNewsBannerIfNotExists_MessageType          = NotificationMessageType.Parse("addNewsBannerIfNotExists");
-        public static NotificationMessageType addOrUpdateNewsBanner_MessageType             = NotificationMessageType.Parse("addOrUpdateNewsBanner");
-        public static NotificationMessageType updateNewsBanner_MessageType                  = NotificationMessageType.Parse("updateNewsBanner");
-        public static NotificationMessageType removeNewsBanner_MessageType                  = NotificationMessageType.Parse("removeNewsBanner");
+        public static NotificationMessageType addNewsPosting_MessageType                      = NotificationMessageType.Parse("addNewsPosting");
+        public static NotificationMessageType addNewsPostingIfNotExists_MessageType           = NotificationMessageType.Parse("addNewsPostingIfNotExists");
+        public static NotificationMessageType addOrUpdateNewsPosting_MessageType              = NotificationMessageType.Parse("addOrUpdateNewsPosting");
+        public static NotificationMessageType updateNewsPosting_MessageType                   = NotificationMessageType.Parse("updateNewsPosting");
+        public static NotificationMessageType removeNewsPosting_MessageType                   = NotificationMessageType.Parse("removeNewsPosting");
 
-        public static NotificationMessageType addFAQ_MessageType                            = NotificationMessageType.Parse("addFAQ");
-        public static NotificationMessageType addFAQIfNotExists_MessageType                 = NotificationMessageType.Parse("addFAQIfNotExists");
-        public static NotificationMessageType addOrUpdateFAQ_MessageType                    = NotificationMessageType.Parse("addOrUpdateFAQ");
-        public static NotificationMessageType updateFAQ_MessageType                         = NotificationMessageType.Parse("updateFAQ");
-        public static NotificationMessageType removeFAQ_MessageType                         = NotificationMessageType.Parse("removeFAQ");
-        public static NotificationMessageType changeFAQAdminStatus_MessageType              = NotificationMessageType.Parse("changeFAQAdminStatus");
-        public static NotificationMessageType changeFAQStatus_MessageType                   = NotificationMessageType.Parse("changeFAQStatus");
+        public static NotificationMessageType addNewsBanner_MessageType                       = NotificationMessageType.Parse("addNewsBanner");
+        public static NotificationMessageType addNewsBannerIfNotExists_MessageType            = NotificationMessageType.Parse("addNewsBannerIfNotExists");
+        public static NotificationMessageType addOrUpdateNewsBanner_MessageType               = NotificationMessageType.Parse("addOrUpdateNewsBanner");
+        public static NotificationMessageType updateNewsBanner_MessageType                    = NotificationMessageType.Parse("updateNewsBanner");
+        public static NotificationMessageType removeNewsBanner_MessageType                    = NotificationMessageType.Parse("removeNewsBanner");
+
+        public static NotificationMessageType addFAQ_MessageType                              = NotificationMessageType.Parse("addFAQ");
+        public static NotificationMessageType addFAQIfNotExists_MessageType                   = NotificationMessageType.Parse("addFAQIfNotExists");
+        public static NotificationMessageType addOrUpdateFAQ_MessageType                      = NotificationMessageType.Parse("addOrUpdateFAQ");
+        public static NotificationMessageType updateFAQ_MessageType                           = NotificationMessageType.Parse("updateFAQ");
+        public static NotificationMessageType removeFAQ_MessageType                           = NotificationMessageType.Parse("removeFAQ");
+        public static NotificationMessageType changeFAQAdminStatus_MessageType                = NotificationMessageType.Parse("changeFAQAdminStatus");
+        public static NotificationMessageType changeFAQStatus_MessageType                     = NotificationMessageType.Parse("changeFAQStatus");
 
         #endregion
 
@@ -2814,36 +2832,36 @@ namespace social.OpenData.UsersAPI
         private async Task RegisterNotifications()
         {
 
-            await AddNotificationMessageGroup(new NotificationMessageGroup(
-                                                  I18NString.Create(Languages.en, "Service Tickets"),
-                                                  I18NString.Create(Languages.en, "Service Ticket notifications"),
-                                                  NotificationVisibility.Customers,
-                                                  new NotificationMessageDescription[] {
-                                                      new NotificationMessageDescription(I18NString.Create(Languages.en, "(New) service ticket added"),                  I18NString.Create(Languages.en, ""), NotificationVisibility.Customers, NotificationTag.NewUserDefault, addServiceTicket_MessageType),
-                                                      new NotificationMessageDescription(I18NString.Create(Languages.en, "(New) service ticket added (did not exist)"),  I18NString.Create(Languages.en, ""), NotificationVisibility.System,    NotificationTag.NewUserDefault, addServiceTicketIfNotExists_MessageType),
-                                                      new NotificationMessageDescription(I18NString.Create(Languages.en, "(New) service ticket added or updated"),       I18NString.Create(Languages.en, ""), NotificationVisibility.System,    NotificationTag.NewUserDefault, addOrUpdateServiceTicket_MessageType),
-                                                      new NotificationMessageDescription(I18NString.Create(Languages.en, "ServiceTicket updated"),                       I18NString.Create(Languages.en, ""), NotificationVisibility.Customers, NotificationTag.NewUserDefault, updateServiceTicket_MessageType),
-                                                      new NotificationMessageDescription(I18NString.Create(Languages.en, "ServiceTicket removed"),                       I18NString.Create(Languages.en, ""), NotificationVisibility.Customers, NotificationTag.NewUserDefault, removeServiceTicket_MessageType),
-                                                      new NotificationMessageDescription(I18NString.Create(Languages.en, "ServiceTicket status changed"),                I18NString.Create(Languages.en, ""), NotificationVisibility.Customers, NotificationTag.NewUserDefault, changeServiceTicketStatus_MessageType)
-                                                  }));
+            await AddNotificationGroup(new NotificationGroup(
+                                           I18NString.Create(Languages.en, "Service Tickets"),
+                                           I18NString.Create(Languages.en, "Service Ticket notifications"),
+                                           NotificationVisibility.Customers,
+                                           new NotificationMessageDescription[] {
+                                               new NotificationMessageDescription(I18NString.Create(Languages.en, "(New) service ticket added"),                  I18NString.Create(Languages.en, ""), NotificationVisibility.Customers, NotificationTag.NewUserDefault, addServiceTicket_MessageType),
+                                               new NotificationMessageDescription(I18NString.Create(Languages.en, "(New) service ticket added (did not exist)"),  I18NString.Create(Languages.en, ""), NotificationVisibility.System,    NotificationTag.NewUserDefault, addServiceTicketIfNotExists_MessageType),
+                                               new NotificationMessageDescription(I18NString.Create(Languages.en, "(New) service ticket added or updated"),       I18NString.Create(Languages.en, ""), NotificationVisibility.System,    NotificationTag.NewUserDefault, addOrUpdateServiceTicket_MessageType),
+                                               new NotificationMessageDescription(I18NString.Create(Languages.en, "ServiceTicket updated"),                       I18NString.Create(Languages.en, ""), NotificationVisibility.Customers, NotificationTag.NewUserDefault, updateServiceTicket_MessageType),
+                                               new NotificationMessageDescription(I18NString.Create(Languages.en, "ServiceTicket removed"),                       I18NString.Create(Languages.en, ""), NotificationVisibility.Customers, NotificationTag.NewUserDefault, removeServiceTicket_MessageType),
+                                               new NotificationMessageDescription(I18NString.Create(Languages.en, "ServiceTicket status changed"),                I18NString.Create(Languages.en, ""), NotificationVisibility.Customers, NotificationTag.NewUserDefault, changeServiceTicketStatus_MessageType)
+                                           }));
 
-            await AddNotificationMessageGroup(new NotificationMessageGroup(
-                                                  I18NString.Create(Languages.en, "Users Management"),
-                                                  I18NString.Create(Languages.en, "Users Management notifications"),
-                                                  NotificationVisibility.Customers,
-                                                  new NotificationMessageDescription[] {
-                                                      new NotificationMessageDescription(I18NString.Create(Languages.en, "New user created"),                 I18NString.Create(Languages.en, "A new user was added to portal."),             NotificationVisibility.Admins,     addUser_MessageType),
-                                                      new NotificationMessageDescription(I18NString.Create(Languages.en, "User added to organization"),       I18NString.Create(Languages.en, "The user was added to an organization."),      NotificationVisibility.Customers,  addUserToOrganization_MessageType),
-                                                      new NotificationMessageDescription(I18NString.Create(Languages.en, "User information updated"),         I18NString.Create(Languages.en, "The user information was updated."),           NotificationVisibility.Customers,  updateUser_MessageType),
-                                                      new NotificationMessageDescription(I18NString.Create(Languages.en, "User removed from portal"),         I18NString.Create(Languages.en, "The user was removed from the portal."),       NotificationVisibility.Admins,     removeUser_MessageType),
-                                                      new NotificationMessageDescription(I18NString.Create(Languages.en, "User removed from organization"),   I18NString.Create(Languages.en, "The user was removed from an organization."),  NotificationVisibility.Customers,  removeUserFromOrganization_MessageType),
+            await AddNotificationGroup(new NotificationGroup(
+                                           I18NString.Create(Languages.en, "Users Management"),
+                                           I18NString.Create(Languages.en, "Users Management notifications"),
+                                           NotificationVisibility.Customers,
+                                           new NotificationMessageDescription[] {
+                                               new NotificationMessageDescription(I18NString.Create(Languages.en, "New user created"),                 I18NString.Create(Languages.en, "A new user was added to portal."),             NotificationVisibility.Admins,     addUser_MessageType),
+                                               new NotificationMessageDescription(I18NString.Create(Languages.en, "User added to organization"),       I18NString.Create(Languages.en, "The user was added to an organization."),      NotificationVisibility.Customers,  addUserToOrganization_MessageType),
+                                               new NotificationMessageDescription(I18NString.Create(Languages.en, "User information updated"),         I18NString.Create(Languages.en, "The user information was updated."),           NotificationVisibility.Customers,  updateUser_MessageType),
+                                               new NotificationMessageDescription(I18NString.Create(Languages.en, "User removed from portal"),         I18NString.Create(Languages.en, "The user was removed from the portal."),       NotificationVisibility.Admins,     removeUser_MessageType),
+                                               new NotificationMessageDescription(I18NString.Create(Languages.en, "User removed from organization"),   I18NString.Create(Languages.en, "The user was removed from an organization."),  NotificationVisibility.Customers,  removeUserFromOrganization_MessageType),
 
-                                                      new NotificationMessageDescription(I18NString.Create(Languages.en, "New organization created"),         I18NString.Create(Languages.en, "A new organization was created."),             NotificationVisibility.Admins,     addOrganization_MessageType),
-                                                      new NotificationMessageDescription(I18NString.Create(Languages.en, "New sub organization created"),     I18NString.Create(Languages.en, "A new sub organization was created."),         NotificationVisibility.Customers,  linkOrganizations_MessageType),
-                                                      new NotificationMessageDescription(I18NString.Create(Languages.en, "Organization information updated"), I18NString.Create(Languages.en, "An organization information was updated."),    NotificationVisibility.Customers,  updateOrganization_MessageType),
-                                                      new NotificationMessageDescription(I18NString.Create(Languages.en, "Organization removed"),             I18NString.Create(Languages.en, "An organization was removed."),                NotificationVisibility.Admins,     removeOrganization_MessageType),
-                                                      new NotificationMessageDescription(I18NString.Create(Languages.en, "Sub organization removed"),         I18NString.Create(Languages.en, "Sub organization was removed."),               NotificationVisibility.Customers,  unlinkOrganizations_MessageType),
-                                                  }));
+                                               new NotificationMessageDescription(I18NString.Create(Languages.en, "New organization created"),         I18NString.Create(Languages.en, "A new organization was created."),             NotificationVisibility.Admins,     addOrganization_MessageType),
+                                               new NotificationMessageDescription(I18NString.Create(Languages.en, "New sub organization created"),     I18NString.Create(Languages.en, "A new sub organization was created."),         NotificationVisibility.Customers,  linkOrganizations_MessageType),
+                                               new NotificationMessageDescription(I18NString.Create(Languages.en, "Organization information updated"), I18NString.Create(Languages.en, "An organization information was updated."),    NotificationVisibility.Customers,  updateOrganization_MessageType),
+                                               new NotificationMessageDescription(I18NString.Create(Languages.en, "Organization removed"),             I18NString.Create(Languages.en, "An organization was removed."),                NotificationVisibility.Admins,     removeOrganization_MessageType),
+                                               new NotificationMessageDescription(I18NString.Create(Languages.en, "Sub organization removed"),         I18NString.Create(Languages.en, "Sub organization was removed."),               NotificationVisibility.Customers,  unlinkOrganizations_MessageType),
+                                           }));
 
         }
 
@@ -3483,49 +3501,50 @@ namespace social.OpenData.UsersAPI
         /// <param name="DisableLogfile">Disable the log file.</param>
         /// <param name="LogfileName">The name of the logfile for this API.</param>
         public static UsersAPI AttachToHTTPAPI(HTTPServer                           HTTPServer,
-                                               HTTPHostname?                        HTTPHostname                  = null,
-                                               String                               ServiceName                   = "GraphDefined Users API",
-                                               String                               ExternalDNSName               = null,
-                                               HTTPPath?                            URLPathPrefix                 = null,
-                                               HTTPPath?                            BasePath                      = null,
-                                               String                               HTMLTemplate                  = null,
-                                               JObject                              APIVersionHashes              = null,
+                                               HTTPHostname?                        HTTPHostname                     = null,
+                                               String                               ServiceName                      = "GraphDefined Users API",
+                                               String                               ExternalDNSName                  = null,
+                                               HTTPPath?                            URLPathPrefix                    = null,
+                                               HTTPPath?                            BasePath                         = null,
+                                               String                               HTMLTemplate                     = null,
+                                               JObject                              APIVersionHashes                 = null,
 
-                                               EMailAddress                         APIEMailAddress               = null,
-                                               String                               APIPassphrase                 = null,
-                                               EMailAddressList                     APIAdminEMails                = null,
-                                               SMTPClient                           APISMTPClient                 = null,
+                                               EMailAddress                         APIEMailAddress                  = null,
+                                               String                               APIPassphrase                    = null,
+                                               EMailAddressList                     APIAdminEMails                   = null,
+                                               SMTPClient                           APISMTPClient                    = null,
 
-                                               Credentials                          SMSAPICredentials             = null,
-                                               String                               SMSSenderName                 = null,
-                                               IEnumerable<PhoneNumber>             APIAdminSMS                   = null,
+                                               Credentials                          SMSAPICredentials                = null,
+                                               String                               SMSSenderName                    = null,
+                                               IEnumerable<PhoneNumber>             APIAdminSMS                      = null,
 
-                                               String                               TelegramBotToken              = null,
+                                               String                               TelegramBotToken                 = null,
 
-                                               HTTPCookieName?                      CookieName                    = null,
-                                               Boolean                              UseSecureCookies              = true,
-                                               Languages                            DefaultLanguage               = Languages.en,
-                                               Byte?                                MinUserIdLength               = null,
-                                               Byte?                                MinRealmLength                = null,
-                                               Byte?                                MinUserNameLength             = null,
-                                               Byte?                                MinUserGroupIdLength          = null,
-                                               UInt16?                              MinAPIKeyLength               = null,
-                                               Byte?                                MinMessageIdLength            = null,
-                                               Byte?                                MinNewsPostingIdLength        = null,
-                                               Byte?                                MinNewsBannerIdLength         = null,
-                                               Byte?                                MinFAQIdLength                = null,
-                                               PasswordQualityCheckDelegate         PasswordQualityCheck          = null,
-                                               TimeSpan?                            SignInSessionLifetime         = null,
+                                               HTTPCookieName?                      CookieName                       = null,
+                                               Boolean                              UseSecureCookies                 = true,
+                                               Languages                            DefaultLanguage                  = Languages.en,
+                                               Byte?                                MinUserIdLength                  = null,
+                                               Byte?                                MinRealmLength                   = null,
+                                               Byte?                                MinUserNameLength                = null,
+                                               Byte?                                MinUserGroupIdLength             = null,
+                                               UInt16?                              MinAPIKeyLength                  = null,
+                                               Byte?                                MinMessageIdLength               = null,
+                                               Byte?                                MinNotificationMessageIdLength   = null,
+                                               Byte?                                MinNewsPostingIdLength           = null,
+                                               Byte?                                MinNewsBannerIdLength            = null,
+                                               Byte?                                MinFAQIdLength                   = null,
+                                               PasswordQualityCheckDelegate         PasswordQualityCheck             = null,
+                                               TimeSpan?                            SignInSessionLifetime            = null,
 
-                                               TimeSpan?                            MaintenanceEvery              = null,
-                                               Boolean                              DisableMaintenanceTasks       = false,
-                                               TimeSpan?                            WardenInitialDelay            = null,
-                                               TimeSpan?                            WardenCheckEvery              = null,
+                                               TimeSpan?                            MaintenanceEvery                 = null,
+                                               Boolean                              DisableMaintenanceTasks          = false,
+                                               TimeSpan?                            WardenInitialDelay               = null,
+                                               TimeSpan?                            WardenCheckEvery                 = null,
 
-                                               Boolean                              SkipURLTemplates              = false,
-                                               Boolean                              DisableNotifications          = false,
-                                               Boolean                              DisableLogfile                = false,
-                                               String                               LogfileName                   = DefaultLogfileName)
+                                               Boolean                              SkipURLTemplates                 = false,
+                                               Boolean                              DisableNotifications             = false,
+                                               Boolean                              DisableLogfile                   = false,
+                                               String                               LogfileName                      = DefaultLogfileName)
 
 
             => new UsersAPI(HTTPServer,
@@ -3557,6 +3576,7 @@ namespace social.OpenData.UsersAPI
                             MinUserGroupIdLength,
                             MinAPIKeyLength,
                             MinMessageIdLength,
+                            MinNotificationMessageIdLength,
                             MinNewsPostingIdLength,
                             MinNewsBannerIdLength,
                             MinFAQIdLength,
@@ -10680,7 +10700,7 @@ namespace social.OpenData.UsersAPI
 
                                                                                              )),
                                                                                              new JProperty("notificationGroups", new JArray(
-                                                                                                  _NotificationMessageGroups.Select(notificationMessageGroup => notificationMessageGroup.ToJSON())
+                                                                                                  _NotificationGroups.Values.Select(notificationGroup => notificationGroup.ToJSON())
                                                                                              ))
                                                                                           ).ToUTF8Bytes(),
                                                             Connection                 = "close",
@@ -14727,7 +14747,7 @@ namespace social.OpenData.UsersAPI
 
             #region Register 'New User Default'-Notifications
 
-            var newUserDefaultNotificationMessageGroups = _NotificationMessageGroups.
+            var newUserDefaultNotificationMessageGroups = _NotificationGroups.Values.
                                                               SelectMany(group       => group.Notifications).
                                                               Where     (description => description.Tags.Contains(NotificationTag.NewUserDefault)).
                                                               SelectMany(description => description.Messages).
@@ -14934,7 +14954,7 @@ namespace social.OpenData.UsersAPI
 
             #region Register 'New User Default'-Notifications
 
-            var newUserDefaultNotificationMessageGroups = _NotificationMessageGroups.
+            var newUserDefaultNotificationMessageGroups = _NotificationGroups.Values.
                                                                 SelectMany(group       => group.Notifications).
                                                                 Where     (description => description.Tags.Contains(NotificationTag.NewUserDefault)).
                                                                 SelectMany(description => description.Messages).
@@ -15169,7 +15189,7 @@ namespace social.OpenData.UsersAPI
 
                 #region Register 'New User Default'-Notifications
 
-                var newUserDefaultNotificationMessageGroups = _NotificationMessageGroups.
+                var newUserDefaultNotificationMessageGroups = _NotificationGroups.Values.
                                                                     SelectMany(group       => group.Notifications).
                                                                     Where     (description => description.Tags.Contains(NotificationTag.NewUserDefault)).
                                                                     SelectMany(description => description.Messages).
@@ -20433,7 +20453,7 @@ namespace social.OpenData.UsersAPI
             var notificationsJSON = User.GetNotificationInfos();
 
             notificationsJSON.AddFirst(new JProperty("notificationGroups", new JArray(
-                                           _NotificationMessageGroups.Select(notificationMessageGroup => notificationMessageGroup.ToJSON())
+                                           _NotificationGroups.Values.Select(notificationGroup => notificationGroup.ToJSON())
                                       )));
 
             return notificationsJSON;
@@ -20449,7 +20469,7 @@ namespace social.OpenData.UsersAPI
             var notificationJSON = User.GetNotificationInfo(NotificationId);
 
             notificationJSON.AddFirst(new JProperty("notificationGroups", new JArray(
-                                          _NotificationMessageGroups.Select(notificationMessageGroup => notificationMessageGroup.ToJSON())
+                                          _NotificationGroups.Values.Select(notificationGroup => notificationGroup.ToJSON())
                                      )));
 
             return notificationJSON;
@@ -20465,7 +20485,7 @@ namespace social.OpenData.UsersAPI
             var notificationsJSON = Organization.GetNotificationInfos();
 
             notificationsJSON.AddFirst(new JProperty("notificationGroups", new JArray(
-                                           _NotificationMessageGroups.Select(notificationMessageGroup => notificationMessageGroup.ToJSON())
+                                           _NotificationGroups.Values.Select(notificationGroup => notificationGroup.ToJSON())
                                       )));
 
             return notificationsJSON;
@@ -21258,19 +21278,48 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
-        #region Notification Messages
+        #region Notification Groups
 
         #region Data
 
-        private readonly List<NotificationMessage>      _NotificationMessages       = new List<NotificationMessage>();
+        /// <summary>
+        /// An enumeration of all notification groups.
+        /// </summary>
+        //protected readonly Dictionary<NotificationGroup_Id, NotificationGroup> _NotificationGroups;
+        protected readonly Dictionary<Int32, NotificationGroup> _NotificationGroups;
 
-        private readonly List<NotificationMessageGroup> _NotificationMessageGroups  = new List<NotificationMessageGroup>();
+        ///// <summary>
+        ///// An enumeration of all messages.
+        ///// </summary>
+        //public IEnumerable<Message> NotificationGroups
+        //{
+        //    get
+        //    {
+        //        try
+        //        {
+        //            return MessagesSemaphore.Wait(SemaphoreSlimTimeout)
+        //                       ? _Messages.Values.ToArray()
+        //                       : new Message[0];
+        //        }
+        //        finally
+        //        {
+        //            try
+        //            {
+        //                MessagesSemaphore.Release();
+        //            }
+        //            catch
+        //            { }
+        //        }
+        //    }
+        //}
 
         #endregion
 
 
+        //private readonly List<NotificationGroup> _NotificationGroups = new List<NotificationGroup>();
 
-        public async Task<NotificationMessage> AddNotificationMessage(NotificationMessage NotificationMessage)
+
+        public async Task<NotificationGroup> AddNotificationGroup(NotificationGroup NotificationGroup)
         {
 
             try
@@ -21278,10 +21327,10 @@ namespace social.OpenData.UsersAPI
 
                 await UsersSemaphore.WaitAsync();
 
-                _NotificationMessages.Add(NotificationMessage);
+                _NotificationGroups.Add(_NotificationGroups.Count+1, NotificationGroup);
 
 
-                return NotificationMessage;
+                return NotificationGroup;
 
             }
             finally
@@ -21290,6 +21339,994 @@ namespace social.OpenData.UsersAPI
             }
 
         }
+
+        #endregion
+
+        #region Notification Messages
+
+        #region Data
+
+        /// <summary>
+        /// An enumeration of all notification messages.
+        /// </summary>
+        protected readonly Dictionary<NotificationMessage_Id, NotificationMessage> _NotificationMessages;
+
+        /// <summary>
+        /// An enumeration of all notification messages.
+        /// </summary>
+        public IEnumerable<NotificationMessage> NotificationMessages
+        {
+            get
+            {
+                try
+                {
+                    return NotificationMessagesSemaphore.Wait(SemaphoreSlimTimeout)
+                               ? _NotificationMessages.Values.ToArray()
+                               : new NotificationMessage[0];
+                }
+                finally
+                {
+                    try
+                    {
+                        NotificationMessagesSemaphore.Release();
+                    }
+                    catch
+                    { }
+                }
+            }
+        }
+
+        #endregion
+
+
+        #region (protected) WriteToDatabaseFileAndNotify(NotificationMessage, MessageType,  OldNotificationMessage = null, CurrentUserId = null)
+
+        /// <summary>
+        /// Write the given notification message to the database and send out notifications.
+        /// </summary>
+        /// <param name="NotificationMessage">The notification message.</param>
+        /// <param name="MessageType">The user notification.</param>
+        /// <param name="OldNotificationMessage">The old/updated notification message.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
+        /// <param name="CurrentUserId">The invoking user identification</param>
+        protected async Task WriteToDatabaseFileAndNotify(NotificationMessage              NotificationMessage,
+                                                          NotificationMessageType  MessageType,
+                                                          NotificationMessage              OldNotificationMessage    = null,
+                                                          EventTracking_Id         EventTrackingId   = null,
+                                                          User_Id?                 CurrentUserId     = null)
+        {
+
+            if (NotificationMessage is null)
+                throw new ArgumentNullException(nameof(NotificationMessage),  "The given notification message must not be null or empty!");
+
+            if (MessageType.IsNullOrEmpty)
+                throw new ArgumentNullException(nameof(MessageType),  "The given message type must not be null or empty!");
+
+
+            var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
+
+            await WriteToDatabaseFile(MessageType,
+                                      NotificationMessage.ToJSON(false, true),
+                                      eventTrackingId,
+                                      CurrentUserId);
+
+            await SendNotifications(NotificationMessage,
+                                    MessageType,
+                                    OldNotificationMessage,
+                                    eventTrackingId,
+                                    CurrentUserId);
+
+        }
+
+        #endregion
+
+        #region (protected) SendNotifications           (NotificationMessage, MessageTypes, OldNotificationMessage = null, CurrentUserId = null)
+
+        /// <summary>
+        /// Send notification message notifications.
+        /// </summary>
+        /// <param name="NotificationMessage">The notification message.</param>
+        /// <param name="MessageType">The user notification.</param>
+        /// <param name="OldNotificationMessage">The old/updated notification message.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
+        /// <param name="CurrentUserId">The invoking user identification</param>
+        protected async Task SendNotifications(NotificationMessage              NotificationMessage,
+                                               NotificationMessageType  MessageType,
+                                               NotificationMessage              OldNotificationMessage    = null,
+                                               EventTracking_Id         EventTrackingId   = null,
+                                               User_Id?                 CurrentUserId     = null)
+        {
+
+            if (NotificationMessage is null)
+                throw new ArgumentNullException(nameof(NotificationMessage),  "The given notification message must not be null or empty!");
+
+            if (MessageType.IsNullOrEmpty)
+                throw new ArgumentNullException(nameof(MessageType),  "The given message type must not be null or empty!");
+
+
+            await SendNotifications(NotificationMessage,
+                                    new NotificationMessageType[] { MessageType },
+                                    OldNotificationMessage,
+                                    EventTrackingId,
+                                    CurrentUserId);
+
+        }
+
+
+        /// <summary>
+        /// Send notification message notifications.
+        /// </summary>
+        /// <param name="NotificationMessage">The notification message.</param>
+        /// <param name="MessageTypes">The user notifications.</param>
+        /// <param name="OldNotificationMessage">The old/updated notification message.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
+        /// <param name="CurrentUserId">The invoking user identification</param>
+        protected async Task SendNotifications(NotificationMessage                           NotificationMessage,
+                                               IEnumerable<NotificationMessageType>  MessageTypes,
+                                               NotificationMessage                           OldNotificationMessage    = null,
+                                               EventTracking_Id                      EventTrackingId   = null,
+                                               User_Id?                              CurrentUserId     = null)
+        {
+
+            if (NotificationMessage is null)
+                throw new ArgumentNullException(nameof(NotificationMessage),   "The given notification message must not be null or empty!");
+
+            var messageTypesHash = new HashSet<NotificationMessageType>(MessageTypes.Where(messageType => !messageType.IsNullOrEmpty));
+
+            if (messageTypesHash.IsNullOrEmpty())
+                throw new ArgumentNullException(nameof(MessageTypes),  "The given enumeration of message types must not be null or empty!");
+
+            if (messageTypesHash.Contains(addUserIfNotExists_MessageType))
+                messageTypesHash.Add(addUser_MessageType);
+
+            if (messageTypesHash.Contains(addOrUpdateUser_MessageType))
+                messageTypesHash.Add(OldNotificationMessage == null
+                                       ? addUser_MessageType
+                                       : updateUser_MessageType);
+
+            var messageTypes = messageTypesHash.ToArray();
+
+
+            if (!DisableNotifications)
+            {
+
+
+            }
+
+        }
+
+        #endregion
+
+        #region (protected) GetNotificationMessageSerializator(Request, User)
+
+        //protected NotificationMessageToJSONDelegate GetNotificationMessageSerializator(HTTPRequest  Request,
+        //                                                               User         User)
+        //{
+
+        //    switch (User?.Id.ToString())
+        //    {
+
+        //        default:
+        //            return (notificationMessage,
+        //                    embedded,
+        //                    ExpandTags,
+        //                    ExpandAuthorId,
+        //                    includeCryptoHash)
+
+        //                    => notificationMessage.ToJSON(embedded,
+        //                                          ExpandTags,
+        //                                          ExpandAuthorId,
+        //                                          includeCryptoHash);
+
+        //    }
+
+        //}
+
+        #endregion
+
+
+        #region AddNotificationMessage           (NotificationMessage, OnAdded = null,                   CurrentUserId = null)
+
+        /// <summary>
+        /// A delegate called whenever a notification message was added.
+        /// </summary>
+        /// <param name="Timestamp">The timestamp when the notification message was added.</param>
+        /// <param name="NotificationMessage">The added notification message.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
+        /// <param name="CurrentUserId">The invoking user identification</param>
+        public delegate Task OnNotificationMessageAddedDelegate(DateTime          Timestamp,
+                                                        NotificationMessage       NotificationMessage,
+                                                        EventTracking_Id  EventTrackingId   = null,
+                                                        User_Id?          CurrentUserId     = null);
+
+        /// <summary>
+        /// An event fired whenever a notification message was added.
+        /// </summary>
+        public event OnNotificationMessageAddedDelegate OnNotificationMessageAdded;
+
+
+        #region (protected) _AddNotificationMessage(NotificationMessage,                                OnAdded = null, CurrentUserId = null)
+
+        /// <summary>
+        /// Add the given notification message to the API.
+        /// </summary>
+        /// <param name="NotificationMessage">A new notification message to be added to this API.</param>
+        /// <param name="OnAdded">A delegate run whenever the notification message had been added successfully.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
+        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
+        protected async Task<NotificationMessage> _AddNotificationMessage(NotificationMessage                            NotificationMessage,
+                                                          Action<NotificationMessage, EventTracking_Id>  OnAdded           = null,
+                                                          EventTracking_Id                       EventTrackingId   = null,
+                                                          User_Id?                               CurrentUserId     = null)
+        {
+
+            if (NotificationMessage is null)
+                throw new ArgumentNullException(nameof(NotificationMessage),
+                                                "The given notification message must not be null!");
+
+            if (NotificationMessage.API != null && NotificationMessage.API != this)
+                throw new ArgumentException    ("The given notification message is already attached to another API!",
+                                                nameof(NotificationMessage));
+
+            if (_NotificationMessages.ContainsKey(NotificationMessage.Id))
+                throw new ArgumentException    ("User group identification '" + NotificationMessage.Id + "' already exists!",
+                                                nameof(NotificationMessage));
+
+            if (NotificationMessage.Id.Length < MinNotificationMessageIdLength)
+                throw new ArgumentException    ("User group identification '" + NotificationMessage.Id + "' is too short!",
+                                                nameof(NotificationMessage));
+
+            NotificationMessage.API = this;
+
+
+            var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
+
+            await WriteToDatabaseFile(addNotificationMessage_MessageType,
+                                      NotificationMessage.ToJSON(false, true),
+                                      eventTrackingId,
+                                      CurrentUserId);
+
+            _NotificationMessages.Add(NotificationMessage.Id, NotificationMessage);
+
+
+            var OnNotificationMessageAddedLocal = OnNotificationMessageAdded;
+            if (OnNotificationMessageAddedLocal != null)
+                await OnNotificationMessageAddedLocal?.Invoke(DateTime.UtcNow,
+                                                      NotificationMessage,
+                                                      eventTrackingId,
+                                                      CurrentUserId);
+
+            await SendNotifications(NotificationMessage,
+                                    addUser_MessageType,
+                                    null,
+                                    eventTrackingId,
+                                    CurrentUserId);
+
+            OnAdded?.Invoke(NotificationMessage,
+                            eventTrackingId);
+
+            return NotificationMessage;
+
+        }
+
+        #endregion
+
+        #region AddNotificationMessage             (NotificationMessage,                                OnAdded = null, CurrentUserId = null)
+
+        /// <summary>
+        /// Add the given notification message.
+        /// </summary>
+        /// <param name="NotificationMessage">A new notification message.</param>
+        /// <param name="OnAdded">A delegate run whenever the notification message had been added successfully.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
+        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
+        public async Task<NotificationMessage> AddNotificationMessage(NotificationMessage                            NotificationMessage,
+                                                      Action<NotificationMessage, EventTracking_Id>  OnAdded           = null,
+                                                      EventTracking_Id                       EventTrackingId   = null,
+                                                      User_Id?                               CurrentUserId     = null)
+        {
+
+            if (NotificationMessage is null)
+                throw new ArgumentNullException(nameof(NotificationMessage), "The given notification message must not be null!");
+
+            try
+            {
+
+                return (await NotificationMessagesSemaphore.WaitAsync(SemaphoreSlimTimeout))
+
+                            ? await _AddNotificationMessage(NotificationMessage,
+                                                    OnAdded,
+                                                    EventTrackingId,
+                                                    CurrentUserId)
+
+                            : null;
+
+            }
+            finally
+            {
+                try
+                {
+                    NotificationMessagesSemaphore.Release();
+                }
+                catch
+                { }
+            }
+
+        }
+
+        #endregion
+
+        #endregion
+
+        #region AddNotificationMessageIfNotExists(NotificationMessage, OnAdded = null,                   CurrentUserId = null)
+
+        #region (protected) _AddNotificationMessageIfNotExists(NotificationMessage,                                OnAdded = null, CurrentUserId = null)
+
+        /// <summary>
+        /// When it has not been created before, add the given notification message to the API.
+        /// </summary>
+        /// <param name="NotificationMessage">A new notification message to be added to this API.</param>
+        /// <param name="OnAdded">A delegate run whenever the notification message had been added successfully.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
+        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
+        protected async Task<NotificationMessage> _AddNotificationMessageIfNotExists(NotificationMessage                            NotificationMessage,
+                                                                     Action<NotificationMessage, EventTracking_Id>  OnAdded           = null,
+                                                                     EventTracking_Id                       EventTrackingId   = null,
+                                                                     User_Id?                               CurrentUserId     = null)
+        {
+
+            if (NotificationMessage is null)
+                throw new ArgumentNullException(nameof(NotificationMessage),
+                                                "The given notification message must not be null!");
+
+            if (NotificationMessage.API != null && NotificationMessage.API != this)
+                throw new ArgumentException    ("The given notification message is already attached to another API!",
+                                                nameof(NotificationMessage));
+
+            if (_NotificationMessages.ContainsKey(NotificationMessage.Id))
+                return _NotificationMessages[NotificationMessage.Id];
+
+            if (NotificationMessage.Id.Length < MinNotificationMessageIdLength)
+                throw new ArgumentException    ("User group identification '" + NotificationMessage.Id + "' is too short!",
+                                                nameof(NotificationMessage));
+
+            NotificationMessage.API = this;
+
+
+            var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
+
+            await WriteToDatabaseFile(addNotificationMessageIfNotExists_MessageType,
+                                      NotificationMessage.ToJSON(false, true),
+                                      eventTrackingId,
+                                      CurrentUserId);
+
+            _NotificationMessages.Add(NotificationMessage.Id, NotificationMessage);
+
+            var OnNotificationMessageAddedLocal = OnNotificationMessageAdded;
+            if (OnNotificationMessageAddedLocal != null)
+                await OnNotificationMessageAddedLocal?.Invoke(DateTime.UtcNow,
+                                                      NotificationMessage,
+                                                      eventTrackingId,
+                                                      CurrentUserId);
+
+            await SendNotifications(NotificationMessage,
+                                    addNotificationMessageIfNotExists_MessageType,
+                                    null,
+                                    eventTrackingId,
+                                    CurrentUserId);
+
+            OnAdded?.Invoke(NotificationMessage,
+                            eventTrackingId);
+
+            return NotificationMessage;
+
+        }
+
+        #endregion
+
+        #region AddNotificationMessageIfNotExists             (NotificationMessage,                                OnAdded = null, CurrentUserId = null)
+
+        /// <summary>
+        /// Add the given notification message.
+        /// </summary>
+        /// <param name="NotificationMessage">A new notification message.</param>
+        /// <param name="OnAdded">A delegate run whenever the notification message had been added successfully.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
+        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
+        public async Task<NotificationMessage> AddNotificationMessageIfNotExists(NotificationMessage                            NotificationMessage,
+                                                                 Action<NotificationMessage, EventTracking_Id>  OnAdded           = null,
+                                                                 EventTracking_Id                       EventTrackingId   = null,
+                                                                 User_Id?                               CurrentUserId     = null)
+        {
+
+            try
+            {
+
+                return (await NotificationMessagesSemaphore.WaitAsync(SemaphoreSlimTimeout))
+
+                            ? await _AddNotificationMessageIfNotExists(NotificationMessage,
+                                                             OnAdded,
+                                                             EventTrackingId,
+                                                             CurrentUserId)
+
+                            : null;
+
+            }
+            finally
+            {
+                try
+                {
+                    NotificationMessagesSemaphore.Release();
+                }
+                catch
+                { }
+            }
+
+        }
+
+        #endregion
+
+        #endregion
+
+        #region AddOrUpdateNotificationMessage   (NotificationMessage, OnAdded = null, OnUpdated = null, CurrentUserId = null)
+
+        #region (protected) _AddOrUpdateNotificationMessage   (NotificationMessage,   OnAdded = null, OnUpdated = null, CurrentUserId = null)
+
+        /// <summary>
+        /// Add or update the given notification message to/within the API.
+        /// </summary>
+        /// <param name="NotificationMessage">A notification message.</param>
+        /// <param name="OnAdded">A delegate run whenever the notification message had been added successfully.</param>
+        /// <param name="OnUpdated">A delegate run whenever the notification message had been updated successfully.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
+        /// <param name="CurrentUserId">An optional notification message identification initiating this command/request.</param>
+        protected async Task<NotificationMessage> _AddOrUpdateNotificationMessage(NotificationMessage                            NotificationMessage,
+                                                                  Action<NotificationMessage, EventTracking_Id>  OnAdded           = null,
+                                                                  Action<NotificationMessage, EventTracking_Id>  OnUpdated         = null,
+                                                                  EventTracking_Id                       EventTrackingId   = null,
+                                                                  User_Id?                               CurrentUserId     = null)
+        {
+
+            if (NotificationMessage is null)
+                throw new ArgumentNullException(nameof(NotificationMessage),
+                                                "The given notification message must not be null!");
+
+            if (NotificationMessage.API != null && NotificationMessage.API != this)
+                throw new ArgumentException    ("The given notification message is already attached to another API!",
+                                                nameof(NotificationMessage));
+
+            if (_NotificationMessages.ContainsKey(NotificationMessage.Id))
+                return _NotificationMessages[NotificationMessage.Id];
+
+            if (NotificationMessage.Id.Length < MinNotificationMessageIdLength)
+                throw new ArgumentException    ("NotificationMessage identification '" + NotificationMessage.Id + "' is too short!",
+                                                nameof(NotificationMessage));
+
+            NotificationMessage.API = this;
+
+
+            var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
+
+            await WriteToDatabaseFile(addOrUpdateNotificationMessage_MessageType,
+                                      NotificationMessage.ToJSON(false, true),
+                                      eventTrackingId,
+                                      CurrentUserId);
+
+            if (_NotificationMessages.TryGetValue(NotificationMessage.Id, out NotificationMessage OldNotificationMessage))
+            {
+                _NotificationMessages.Remove(OldNotificationMessage.Id);
+                NotificationMessage.CopyAllLinkedDataFrom(OldNotificationMessage);
+            }
+
+            _NotificationMessages.Add(NotificationMessage.Id, NotificationMessage);
+
+            if (OldNotificationMessage != null)
+            {
+
+                var OnNotificationMessageUpdatedLocal = OnNotificationMessageUpdated;
+                if (OnNotificationMessageUpdatedLocal != null)
+                    await OnNotificationMessageUpdatedLocal?.Invoke(DateTime.UtcNow,
+                                                            NotificationMessage,
+                                                            OldNotificationMessage,
+                                                            eventTrackingId,
+                                                            CurrentUserId);
+
+                await SendNotifications(NotificationMessage,
+                                        updateNotificationMessage_MessageType,
+                                        OldNotificationMessage,
+                                        eventTrackingId,
+                                        CurrentUserId);
+
+                OnUpdated?.Invoke(NotificationMessage,
+                                  eventTrackingId);
+
+            }
+            else
+            {
+
+                var OnNotificationMessageAddedLocal = OnNotificationMessageAdded;
+                if (OnNotificationMessageAddedLocal != null)
+                    await OnNotificationMessageAddedLocal?.Invoke(DateTime.UtcNow,
+                                                          NotificationMessage,
+                                                          eventTrackingId,
+                                                          CurrentUserId);
+
+                await SendNotifications(NotificationMessage,
+                                        addNotificationMessage_MessageType,
+                                        null,
+                                        eventTrackingId,
+                                        CurrentUserId);
+
+                OnAdded?.Invoke(NotificationMessage,
+                                eventTrackingId);
+
+            }
+
+            return NotificationMessage;
+
+        }
+
+        #endregion
+
+        #region AddOrUpdateNotificationMessage   (NotificationMessage,   OnAdded = null, OnUpdated = null, CurrentUserId = null)
+
+        /// <summary>
+        /// Add or update the given notification message to/within the API.
+        /// </summary>
+        /// <param name="NotificationMessage">A notification message.</param>
+        /// <param name="OnAdded">A delegate run whenever the notification message had been added successfully.</param>
+        /// <param name="OnUpdated">A delegate run whenever the notification message had been updated successfully.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
+        /// <param name="CurrentUserId">An optional notification message identification initiating this command/request.</param>
+        public async Task<NotificationMessage> AddOrUpdateNotificationMessage(NotificationMessage                            NotificationMessage,
+                                                              Action<NotificationMessage, EventTracking_Id>  OnAdded           = null,
+                                                              Action<NotificationMessage, EventTracking_Id>  OnUpdated         = null,
+                                                              EventTracking_Id                       EventTrackingId   = null,
+                                                              User_Id?                               CurrentUserId     = null)
+        {
+
+            if (NotificationMessage is null)
+                throw new ArgumentNullException(nameof(NotificationMessage), "The given notification message must not be null!");
+
+            try
+            {
+
+                return (await NotificationMessagesSemaphore.WaitAsync(SemaphoreSlimTimeout))
+
+                            ? await _AddOrUpdateNotificationMessage(NotificationMessage,
+                                                            OnAdded,
+                                                            OnUpdated,
+                                                            EventTrackingId,
+                                                            CurrentUserId)
+
+                            : null;
+
+            }
+            finally
+            {
+                try
+                {
+                    NotificationMessagesSemaphore.Release();
+                }
+                catch
+                { }
+            }
+
+        }
+
+        #endregion
+
+        #endregion
+
+        #region UpdateNotificationMessage        (NotificationMessage,                 OnUpdated = null, CurrentUserId = null)
+
+        /// <summary>
+        /// A delegate called whenever a notification message was updated.
+        /// </summary>
+        /// <param name="Timestamp">The timestamp when the notification message was updated.</param>
+        /// <param name="NotificationMessage">The updated notification message.</param>
+        /// <param name="OldNotificationMessage">The old notification message.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
+        /// <param name="CurrentUserId">The invoking notification message identification</param>
+        public delegate Task OnNotificationMessageUpdatedDelegate(DateTime          Timestamp,
+                                                          NotificationMessage       NotificationMessage,
+                                                          NotificationMessage       OldNotificationMessage,
+                                                          EventTracking_Id  EventTrackingId   = null,
+                                                          User_Id?          CurrentUserId     = null);
+
+        /// <summary>
+        /// An event fired whenever a notification message was updated.
+        /// </summary>
+        public event OnNotificationMessageUpdatedDelegate OnNotificationMessageUpdated;
+
+
+        #region (protected) _UpdateNotificationMessage(NotificationMessage, OnUpdated = null, CurrentUserId = null)
+
+        /// <summary>
+        /// Update the given notification message to/within the API.
+        /// </summary>
+        /// <param name="NotificationMessage">A notification message.</param>
+        /// <param name="OnUpdated">A delegate run whenever the notification message had been updated successfully.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
+        /// <param name="CurrentUserId">An optional notification message identification initiating this command/request.</param>
+        protected async Task<NotificationMessage> _UpdateNotificationMessage(NotificationMessage                            NotificationMessage,
+                                                             Action<NotificationMessage, EventTracking_Id>  OnUpdated         = null,
+                                                             EventTracking_Id                       EventTrackingId   = null,
+                                                             User_Id?                               CurrentUserId     = null)
+        {
+
+            if (NotificationMessage is null)
+                throw new ArgumentNullException(nameof(NotificationMessage),
+                                                "The given notification message must not be null!");
+
+            if (NotificationMessage.API != null && NotificationMessage.API != this)
+                throw new ArgumentException    ("The given notification message is already attached to another API!",
+                                                nameof(NotificationMessage));
+
+            if (!_NotificationMessages.TryGetValue(NotificationMessage.Id, out NotificationMessage OldNotificationMessage))
+                throw new ArgumentException    ("The given notification message '" + NotificationMessage.Id + "' does not exists in this API!",
+                                                nameof(NotificationMessage));
+
+            NotificationMessage.API = this;
+
+
+            var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
+
+            await WriteToDatabaseFile(updateNotificationMessage_MessageType,
+                                      NotificationMessage.ToJSON(),
+                                      eventTrackingId,
+                                      CurrentUserId);
+
+            _NotificationMessages.Remove(OldNotificationMessage.Id);
+            NotificationMessage.CopyAllLinkedDataFrom(OldNotificationMessage);
+
+
+            var OnNotificationMessageUpdatedLocal = OnNotificationMessageUpdated;
+            if (OnNotificationMessageUpdatedLocal != null)
+                await OnNotificationMessageUpdatedLocal?.Invoke(DateTime.UtcNow,
+                                                        NotificationMessage,
+                                                        OldNotificationMessage,
+                                                        eventTrackingId,
+                                                        CurrentUserId);
+
+            await SendNotifications(NotificationMessage,
+                                    updateNotificationMessage_MessageType,
+                                    OldNotificationMessage,
+                                    eventTrackingId,
+                                    CurrentUserId);
+
+            OnUpdated?.Invoke(NotificationMessage,
+                              eventTrackingId);
+
+            return NotificationMessage;
+
+        }
+
+        #endregion
+
+        #region UpdateNotificationMessage             (NotificationMessage, OnUpdated = null, CurrentUserId = null)
+
+        /// <summary>
+        /// Update the given notification message to/within the API.
+        /// </summary>
+        /// <param name="NotificationMessage">A notification message.</param>
+        /// <param name="OnUpdated">A delegate run whenever the notification message had been updated successfully.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
+        /// <param name="CurrentUserId">An optional notification message identification initiating this command/request.</param>
+        public async Task<NotificationMessage> UpdateNotificationMessage(NotificationMessage                            NotificationMessage,
+                                                         Action<NotificationMessage, EventTracking_Id>  OnUpdated         = null,
+                                                         EventTracking_Id                       EventTrackingId   = null,
+                                                         User_Id?                               CurrentUserId     = null)
+        {
+
+            if (NotificationMessage is null)
+                throw new ArgumentNullException(nameof(NotificationMessage), "The given notification message must not be null!");
+
+            try
+            {
+
+                return (await NotificationMessagesSemaphore.WaitAsync(SemaphoreSlimTimeout))
+
+                            ? await _UpdateNotificationMessage(NotificationMessage,
+                                                       OnUpdated,
+                                                       EventTrackingId,
+                                                       CurrentUserId)
+
+                            : null;
+
+            }
+            finally
+            {
+                try
+                {
+                    NotificationMessagesSemaphore.Release();
+                }
+                catch
+                { }
+            }
+
+        }
+
+        #endregion
+
+
+        #region (protected) _UpdateNotificationMessage(NotificationMessageId, UpdateDelegate, OnUpdated = null, CurrentUserId = null)
+
+        /// <summary>
+        /// Update the given notification message.
+        /// </summary>
+        /// <param name="NotificationMessageId">An notification message identification.</param>
+        /// <param name="UpdateDelegate">A delegate to update the given notification message.</param>
+        /// <param name="OnUpdated">A delegate run whenever the notification message had been updated successfully.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
+        /// <param name="CurrentUserId">An optional notification message identification initiating this command/request.</param>
+        protected async Task<NotificationMessage> _UpdateNotificationMessage(NotificationMessage_Id                         NotificationMessageId,
+                                                             Action<NotificationMessage.Builder>            UpdateDelegate,
+                                                             Action<NotificationMessage, EventTracking_Id>  OnUpdated         = null,
+                                                             EventTracking_Id                       EventTrackingId   = null,
+                                                             User_Id?                               CurrentUserId     = null)
+        {
+
+            if (NotificationMessageId.IsNullOrEmpty)
+                throw new ArgumentNullException(nameof(NotificationMessageId),
+                                                "The given notification message identification must not be null or empty!");
+
+            if (UpdateDelegate == null)
+                throw new ArgumentNullException(nameof(UpdateDelegate),
+                                                "The given update delegate must not be null!");
+
+            if (!_NotificationMessages.TryGetValue(NotificationMessageId, out NotificationMessage OldNotificationMessage))
+                throw new ArgumentException    ("The given notification message '" + NotificationMessageId + "' does not exists in this API!",
+                                                nameof(NotificationMessageId));
+
+            var Builder = OldNotificationMessage.ToBuilder();
+            UpdateDelegate(Builder);
+            var NewNotificationMessage = Builder.ToImmutable;
+
+
+            var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
+
+            await WriteToDatabaseFile(updateNotificationMessage_MessageType,
+                                      NewNotificationMessage.ToJSON(),
+                                      eventTrackingId,
+                                      CurrentUserId);
+
+            _NotificationMessages.Remove(OldNotificationMessage.Id);
+            NewNotificationMessage.CopyAllLinkedDataFrom(OldNotificationMessage);
+
+
+            var OnNotificationMessageUpdatedLocal = OnNotificationMessageUpdated;
+            if (OnNotificationMessageUpdatedLocal != null)
+                await OnNotificationMessageUpdatedLocal?.Invoke(DateTime.UtcNow,
+                                                        NewNotificationMessage,
+                                                        OldNotificationMessage,
+                                                        eventTrackingId,
+                                                        CurrentUserId);
+
+            await SendNotifications(NewNotificationMessage,
+                                    updateNotificationMessage_MessageType,
+                                    OldNotificationMessage,
+                                    eventTrackingId,
+                                    CurrentUserId);
+
+            OnUpdated?.Invoke(NewNotificationMessage,
+                              eventTrackingId);
+
+            return NewNotificationMessage;
+
+        }
+
+        #endregion
+
+        #region UpdateNotificationMessage             (NotificationMessageId, UpdateDelegate, OnUpdated = null, CurrentUserId = null)
+
+        /// <summary>
+        /// Update the given notification message.
+        /// </summary>
+        /// <param name="NotificationMessageId">An notification message identification.</param>
+        /// <param name="UpdateDelegate">A delegate to update the given notification message.</param>
+        /// <param name="OnUpdated">A delegate run whenever the notification message had been updated successfully.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
+        /// <param name="CurrentUserId">An optional notification message identification initiating this command/request.</param>
+        public async Task<NotificationMessage> UpdateNotificationMessage(NotificationMessage_Id                         NotificationMessageId,
+                                                         Action<NotificationMessage.Builder>            UpdateDelegate,
+                                                         Action<NotificationMessage, EventTracking_Id>  OnUpdated         = null,
+                                                         EventTracking_Id                       EventTrackingId   = null,
+                                                         User_Id?                               CurrentUserId     = null)
+        {
+
+            if (NotificationMessageId.IsNullOrEmpty)
+                throw new ArgumentNullException(nameof(NotificationMessageId), "The given notification message identification must not be null or empty!");
+
+            try
+            {
+
+                return (await NotificationMessagesSemaphore.WaitAsync(SemaphoreSlimTimeout))
+
+                            ? await _UpdateNotificationMessage(NotificationMessageId,
+                                                       UpdateDelegate,
+                                                       OnUpdated,
+                                                       EventTrackingId,
+                                                       CurrentUserId)
+
+                            : null;
+
+            }
+            finally
+            {
+                try
+                {
+                    NotificationMessagesSemaphore.Release();
+                }
+                catch
+                { }
+            }
+
+        }
+
+        #endregion
+
+        #endregion
+
+
+        #region NotificationMessageExists(NotificationMessageId)
+
+        /// <summary>
+        /// Determines whether the given notification message identification exists within this API.
+        /// </summary>
+        /// <param name="NotificationMessageId">The unique identification of an notification message.</param>
+        protected Boolean _NotificationMessageExists(NotificationMessage_Id NotificationMessageId)
+
+            => !NotificationMessageId.IsNullOrEmpty && _NotificationMessages.ContainsKey(NotificationMessageId);
+
+
+        /// <summary>
+        /// Determines whether the given notification message identification exists within this API.
+        /// </summary>
+        /// <param name="NotificationMessageId">The unique identification of an notification message.</param>
+        public Boolean NotificationMessageExists(NotificationMessage_Id NotificationMessageId)
+        {
+
+            try
+            {
+
+                if (NotificationMessagesSemaphore.Wait(SemaphoreSlimTimeout) &&
+                    _NotificationMessageExists(NotificationMessageId))
+                {
+                    return true;
+                }
+
+            }
+            catch
+            { }
+            finally
+            {
+                try
+                {
+                    NotificationMessagesSemaphore.Release();
+                }
+                catch
+                { }
+            }
+
+            return false;
+
+        }
+
+        #endregion
+
+        #region GetNotificationMessage   (NotificationMessageId)
+
+        /// <summary>
+        /// Get the notification message having the given unique identification.
+        /// </summary>
+        /// <param name="NotificationMessageId">The unique identification of an notification message.</param>
+        protected NotificationMessage _GetNotificationMessage(NotificationMessage_Id NotificationMessageId)
+        {
+
+            if (!NotificationMessageId.IsNullOrEmpty && _NotificationMessages.TryGetValue(NotificationMessageId, out NotificationMessage notificationMessage))
+                return notificationMessage;
+
+            return null;
+
+        }
+
+
+        /// <summary>
+        /// Get the notification message having the given unique identification.
+        /// </summary>
+        /// <param name="NotificationMessageId">The unique identification of the notification message.</param>
+        public NotificationMessage GetNotificationMessage(NotificationMessage_Id NotificationMessageId)
+        {
+
+            try
+            {
+
+                if (NotificationMessagesSemaphore.Wait(SemaphoreSlimTimeout))
+                    return _GetNotificationMessage(NotificationMessageId);
+
+            }
+            catch
+            { }
+            finally
+            {
+                try
+                {
+                    NotificationMessagesSemaphore.Release();
+                }
+                catch
+                { }
+            }
+
+            return null;
+
+        }
+
+        #endregion
+
+        #region TryGetNotificationMessage(NotificationMessageId, out NotificationMessage)
+
+        /// <summary>
+        /// Try to get the notification message having the given unique identification.
+        /// </summary>
+        /// <param name="NotificationMessageId">The unique identification of an notification message.</param>
+        /// <param name="NotificationMessage">The notification message.</param>
+        protected Boolean _TryGetNotificationMessage(NotificationMessage_Id NotificationMessageId, out NotificationMessage NotificationMessage)
+        {
+
+            if (!NotificationMessageId.IsNullOrEmpty && _NotificationMessages.TryGetValue(NotificationMessageId, out NotificationMessage notificationMessage))
+            {
+                NotificationMessage = notificationMessage;
+                return true;
+            }
+
+            NotificationMessage = null;
+            return false;
+
+        }
+
+
+        /// <summary>
+        /// Try to get the notification message having the given unique identification.
+        /// </summary>
+        /// <param name="NotificationMessageId">The unique identification of an notification message.</param>
+        /// <param name="NotificationMessage">The notification message.</param>
+        public Boolean TryGetNotificationMessage(NotificationMessage_Id   NotificationMessageId,
+                                         out NotificationMessage  NotificationMessage)
+        {
+
+            try
+            {
+
+                if (NotificationMessagesSemaphore.Wait(SemaphoreSlimTimeout) &&
+                    _TryGetNotificationMessage(NotificationMessageId, out NotificationMessage notificationMessage))
+                {
+                    NotificationMessage = notificationMessage;
+                    return true;
+                }
+
+            }
+            catch
+            { }
+            finally
+            {
+                try
+                {
+                    NotificationMessagesSemaphore.Release();
+                }
+                catch
+                { }
+            }
+
+            NotificationMessage = null;
+            return false;
+
+        }
+
+        #endregion
+
+
+        #region GetNotificationMessages(User)
 
         public IEnumerable<NotificationMessage> GetNotificationMessages(User User)
         {
@@ -21301,7 +22338,7 @@ namespace social.OpenData.UsersAPI
 
                 var UserOrganizations = User.Organizations(Access_Levels.ReadOnly, Recursive: true).SafeSelect(org => org.Id).ToArray();
 
-                return _NotificationMessages.Where(message => message.Owners.Intersect(UserOrganizations).Any()).ToArray();
+                return _NotificationMessages.Values.Where(message => message.Owners.Intersect(UserOrganizations).Any()).ToArray();
 
             }
             finally
@@ -21311,50 +22348,203 @@ namespace social.OpenData.UsersAPI
 
         }
 
+        #endregion
 
 
+        #region RemoveNotificationMessage(NotificationMessage, OnRemoved = null, CurrentUserId = null)
 
-        public async Task<NotificationMessageGroup> Add(NotificationMessageGroup NotificationMessageGroup)
+        /// <summary>
+        /// A delegate called whenever a notification message was removed.
+        /// </summary>
+        /// <param name="Timestamp">The timestamp when the notification message was removed.</param>
+        /// <param name="NotificationMessage">The removed notification message.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
+        /// <param name="CurrentUserId">The invoking notification message identification</param>
+        public delegate Task OnNotificationMessageRemovedDelegate(DateTime          Timestamp,
+                                                          NotificationMessage       NotificationMessage,
+                                                          EventTracking_Id  EventTrackingId   = null,
+                                                          User_Id?          CurrentUserId     = null);
+
+        /// <summary>
+        /// An event fired whenever a notification message was removed.
+        /// </summary>
+        public event OnNotificationMessageRemovedDelegate OnNotificationMessageRemoved;
+
+
+        #region (class) DeleteNotificationMessageResult
+
+        public class DeleteNotificationMessageResult
         {
+
+            public Boolean     IsSuccess           { get; }
+
+            public I18NString  ErrorDescription    { get; }
+
+
+            private DeleteNotificationMessageResult(Boolean     IsSuccess,
+                                          I18NString  ErrorDescription  = null)
+            {
+                this.IsSuccess         = IsSuccess;
+                this.ErrorDescription  = ErrorDescription;
+            }
+
+
+            public static DeleteNotificationMessageResult Success
+
+                => new DeleteNotificationMessageResult(true);
+
+            public static DeleteNotificationMessageResult Failed(I18NString Reason)
+
+                => new DeleteNotificationMessageResult(false,
+                                             Reason);
+
+            public static DeleteNotificationMessageResult Failed(Exception Exception)
+
+                => new DeleteNotificationMessageResult(false,
+                                             I18NString.Create(Languages.en,
+                                                               Exception.Message));
+
+            public override String ToString()
+
+                => IsSuccess
+                       ? "Success"
+                       : "Failed" + (ErrorDescription.IsNullOrEmpty()
+                                         ? ": " + ErrorDescription.FirstText()
+                                         : "!");
+
+        }
+
+        #endregion
+
+        #region (protected virtual) CanDeleteNotificationMessage(NotificationMessage)
+
+        /// <summary>
+        /// Determines whether the notification message can safely be removed from the API.
+        /// </summary>
+        /// <param name="NotificationMessage">The notification message to be removed.</param>
+        protected virtual I18NString CanDeleteNotificationMessage(NotificationMessage NotificationMessage)
+        {
+            return new I18NString(Languages.en, "Currently not possible!");
+        }
+
+        #endregion
+
+
+        #region (protected) _RemoveNotificationMessage(NotificationMessage, OnRemoved = null, CurrentUserId = null)
+
+        /// <summary>
+        /// Remove the given notification message from the API.
+        /// </summary>
+        /// <param name="NotificationMessage">The notification message to be removed from this API.</param>
+        /// <param name="OnRemoved">A delegate run whenever the notification message had been removed successfully.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
+        /// <param name="CurrentUserId">An optional notification message identification initiating this command/request.</param>
+        protected async Task<DeleteNotificationMessageResult> _RemoveNotificationMessage(NotificationMessage                            NotificationMessage,
+                                                                         Action<NotificationMessage, EventTracking_Id>  OnRemoved         = null,
+                                                                         EventTracking_Id                       EventTrackingId   = null,
+                                                                         User_Id?                               CurrentUserId     = null)
+        {
+
+            if (NotificationMessage is null)
+                throw new ArgumentNullException(nameof(NotificationMessage),
+                                                "The given notification message must not be null!");
+
+            if (NotificationMessage.API != this || !_NotificationMessages.TryGetValue(NotificationMessage.Id, out NotificationMessage NotificationMessageToBeRemoved))
+                throw new ArgumentException    ("The given notification message '" + NotificationMessage.Id + "' does not exists in this API!",
+                                                nameof(NotificationMessage));
+
+
+            var result = CanDeleteNotificationMessage(NotificationMessage);
+
+            if (result == null)
+            {
+
+                var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
+
+                await WriteToDatabaseFile(removeNotificationMessage_MessageType,
+                                          NotificationMessage.ToJSON(false, true),
+                                          eventTrackingId,
+                                          CurrentUserId);
+
+                _NotificationMessages.Remove(NotificationMessage.Id);
+
+
+                var OnNotificationMessageRemovedLocal = OnNotificationMessageRemoved;
+                if (OnNotificationMessageRemovedLocal != null)
+                    await OnNotificationMessageRemovedLocal?.Invoke(DateTime.UtcNow,
+                                                            NotificationMessage,
+                                                            eventTrackingId,
+                                                            CurrentUserId);
+
+                await SendNotifications(NotificationMessage,
+                                        removeNotificationMessage_MessageType,
+                                        null,
+                                        eventTrackingId,
+                                        CurrentUserId);
+
+                OnRemoved?.Invoke(NotificationMessage,
+                                  eventTrackingId);
+
+                return DeleteNotificationMessageResult.Success;
+
+            }
+            else
+                return DeleteNotificationMessageResult.Failed(result);
+
+        }
+
+        #endregion
+
+        #region RemoveNotificationMessage             (NotificationMessage, OnRemoved = null, CurrentUserId = null)
+
+        /// <summary>
+        /// Remove the given notification message from the API.
+        /// </summary>
+        /// <param name="NotificationMessage">The notification message to be removed from this API.</param>
+        /// <param name="OnRemoved">A delegate run whenever the notification message had been removed successfully.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
+        /// <param name="CurrentUserId">An optional notification message identification initiating this command/request.</param>
+        public async Task<DeleteNotificationMessageResult> RemoveNotificationMessage(NotificationMessage                            NotificationMessage,
+                                                                     Action<NotificationMessage, EventTracking_Id>  OnRemoved         = null,
+                                                                     EventTracking_Id                       EventTrackingId   = null,
+                                                                     User_Id?                               CurrentUserId     = null)
+        {
+
+            if (NotificationMessage is null)
+                throw new ArgumentNullException(nameof(NotificationMessage), "The given notification message must not be null!");
 
             try
             {
 
-                await UsersSemaphore.WaitAsync();
+                return (await NotificationMessagesSemaphore.WaitAsync(SemaphoreSlimTimeout))
 
-                _NotificationMessageGroups.Add(NotificationMessageGroup);
+                            ? await _RemoveNotificationMessage(NotificationMessage,
+                                                       OnRemoved,
+                                                       EventTrackingId,
+                                                       CurrentUserId)
 
+                            : null;
 
-                return NotificationMessageGroup;
-
+            }
+            catch (Exception e)
+            {
+                return DeleteNotificationMessageResult.Failed(e);
             }
             finally
             {
-                UsersSemaphore.Release();
+                try
+                {
+                    NotificationMessagesSemaphore.Release();
+                }
+                catch
+                { }
             }
 
         }
 
-        public async Task<NotificationMessageGroup> AddNotificationMessageGroup(NotificationMessageGroup NotificationMessageGroup)
-        {
+        #endregion
 
-            try
-            {
-
-                await UsersSemaphore.WaitAsync();
-
-                _NotificationMessageGroups.Add(NotificationMessageGroup);
-
-
-                return NotificationMessageGroup;
-
-            }
-            finally
-            {
-                UsersSemaphore.Release();
-            }
-
-        }
+        #endregion
 
         #endregion
 

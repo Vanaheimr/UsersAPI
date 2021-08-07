@@ -87,6 +87,9 @@
     <Compile Include="Entities\User\Group\UserGroup.cs" />
     <Compile Include="Entities\User\Group\UserGroup_Id.cs" />
     <Compile Include="GlobalSuppressions.cs" />
+    <Compile Include="Entities\Notification\NotificationVisibility.cs" />
+    <Compile Include="Entities\Notification\NotificationTag.cs" />
+    <Compile Include="Entities\Notification\NotificationGroup.cs" />
     <Compile Include="Telegram\TelegramStore.cs" />
     <Compile Include="UsersAPILogger.cs" />
     <Compile Include="CommonTypes\APIKeyRights.cs" />
@@ -129,9 +132,9 @@
     <Compile Include="Entities\User\User2GroupEdge.cs" />
     <Compile Include="Entities\User\User2UserEdge.cs" />
     <Compile Include="Entities\User\User_Id.cs" />
-    <Compile Include="Notifications\NotificationMessageDescription.cs" />
-    <Compile Include="Notifications\HTTPNotificationSender.cs" />
-    <Compile Include="Notifications\ANotificationSender.cs" />
+    <Compile Include="Entities\Notification\NotificationMessageDescription.cs" />
+    <Compile Include="Entities\Notification\HTTPNotificationSender.cs" />
+    <Compile Include="Entities\Notification\ANotificationSender.cs" />
     <Compile Include="Representations\HTTPHelper.cs" />
     <Compile Include="Entities\User\PasswordReset.cs" />
     <Compile Include="UsersAPI.cs" />
@@ -647,6 +650,7 @@
       <Name>TelegramBotAPI</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PreBuildEvent>tsc</PreBuildEvent>

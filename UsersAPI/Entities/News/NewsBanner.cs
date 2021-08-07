@@ -141,7 +141,6 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
-
         /// <summary>
         /// The (multi-language) text of the news banner.
         /// </summary>

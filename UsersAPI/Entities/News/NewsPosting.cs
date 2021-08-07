@@ -147,7 +147,6 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
-
         /// <summary>
         /// The (multi-language) headline of this news posting.
         /// </summary>
