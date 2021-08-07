@@ -919,13 +919,15 @@ namespace social.OpenData.UsersAPI
         public  const             Byte                                          DefaultMinUserIdLength          = 4;
         public  const             Byte                                          DefaultMinRealmLength           = 2;
         public  const             Byte                                          DefaultMinUserNameLength        = 4;
-        public  static readonly   PasswordQualityCheckDelegate                  DefaultPasswordQualityCheck     = password => password.Length >= 8 ? 1.0f : 0;
         public  const             Byte                                          DefaultMinUserGroupIdLength     = 4;
-        public  const             Byte                                          DefaultMinNewsPostingIdLength   = 8;
         public  const             UInt16                                        DefaultMinAPIKeyLength          = 20;
+        public  const             Byte                                          DefaultMinMessageIdLength       = 8;
+        public  const             Byte                                          DefaultMinNewsPostingIdLength   = 8;
+        public  const             Byte                                          DefaultMinNewsBannerIdLength    = 8;
+        public  const             Byte                                          DefaultMinFAQIdLength           = 8;
 
+        public  static readonly   PasswordQualityCheckDelegate                  DefaultPasswordQualityCheck     = password => password.Length >= 8 ? 1.0f : 0;
         public  static readonly   TimeSpan                                      DefaultSignInSessionLifetime    = TimeSpan.FromDays(30);
-
 
         protected readonly        Dictionary<User_Id, LoginPassword>            _LoginPasswords;
         protected readonly        List<VerificationToken>                       _VerificationTokens;
@@ -1111,9 +1113,24 @@ namespace social.OpenData.UsersAPI
         public UInt16                        MinAPIKeyLength                    { get; }
 
         /// <summary>
+        /// The minimal message identification length.
+        /// </summary>
+        public Byte                          MinMessageIdLength                 { get; }
+
+        /// <summary>
         /// The minimal news posting identification length.
         /// </summary>
         public Byte                          MinNewsPostingIdLength             { get; }
+
+        /// <summary>
+        /// The minimal news banner identification length.
+        /// </summary>
+        public Byte                          MinNewsBannerIdLength              { get; }
+
+        /// <summary>
+        /// The minimal FAQ identification length.
+        /// </summary>
+        public Byte                          MinFAQIdLength                     { get; }
 
 
         /// <summary>
@@ -2003,10 +2020,13 @@ namespace social.OpenData.UsersAPI
                         Byte?                                MinUserIdLength                    = null,
                         Byte?                                MinRealmLength                     = null,
                         Byte?                                MinUserNameLength                  = null,
-                        PasswordQualityCheckDelegate         PasswordQualityCheck               = null,
                         Byte?                                MinUserGroupIdLength               = null,
                         UInt16?                              MinAPIKeyLength                    = null,
+                        Byte?                                MinMessageIdLength                 = null,
                         Byte?                                MinNewsPostingIdLength             = null,
+                        Byte?                                MinNewsBannerIdLength              = null,
+                        Byte?                                MinFAQIdLength                     = null,
+                        PasswordQualityCheckDelegate         PasswordQualityCheck               = null,
                         TimeSpan?                            SignInSessionLifetime              = null,
 
                         String                               ServerThreadName                   = null,
@@ -2080,10 +2100,13 @@ namespace social.OpenData.UsersAPI
                    MinUserIdLength,
                    MinRealmLength,
                    MinUserNameLength,
-                   PasswordQualityCheck,
                    MinUserGroupIdLength,
                    MinAPIKeyLength,
+                   MinMessageIdLength,
                    MinNewsPostingIdLength,
+                   MinNewsBannerIdLength,
+                   MinFAQIdLength,
+                   PasswordQualityCheck,
                    SignInSessionLifetime,
 
                    MaintenanceEvery,
@@ -2173,10 +2196,13 @@ namespace social.OpenData.UsersAPI
                            Byte?                                MinUserIdLength               = null,
                            Byte?                                MinRealmLength                = null,
                            Byte?                                MinUserNameLength             = null,
-                           PasswordQualityCheckDelegate         PasswordQualityCheck          = null,
                            Byte?                                MinUserGroupIdLength          = null,
                            UInt16?                              MinAPIKeyLength               = null,
+                           Byte?                                MinMessageIdLength            = null,
                            Byte?                                MinNewsPostingIdLength        = null,
+                           Byte?                                MinNewsBannerIdLength         = null,
+                           Byte?                                MinFAQIdLength                = null,
+                           PasswordQualityCheckDelegate         PasswordQualityCheck          = null,
                            TimeSpan?                            SignInSessionLifetime         = null,
 
                            TimeSpan?                            MaintenanceEvery              = null,
@@ -2254,13 +2280,19 @@ namespace social.OpenData.UsersAPI
             this.SessionCookieName            = this.CookieName + "Session";
             this.UseSecureCookies             = UseSecureCookies;
             this.Language                     = Language                    ?? DefaultLanguage;
+
             this.MinUserIdLength              = MinUserIdLength             ?? DefaultMinUserIdLength;
             this.MinRealmLength               = MinRealmLength              ?? DefaultMinRealmLength;
             this.MinUserNameLength            = MinUserNameLength           ?? DefaultMinUserNameLength;
-            this.PasswordQualityCheck         = PasswordQualityCheck        ?? DefaultPasswordQualityCheck;
-            this.MinAPIKeyLength              = MinAPIKeyLength             ?? DefaultMinAPIKeyLength;
             this.MinUserGroupIdLength         = MinUserGroupIdLength        ?? DefaultMinUserGroupIdLength;
+            this.MinAPIKeyLength              = MinAPIKeyLength             ?? DefaultMinAPIKeyLength;
             this.MinNewsPostingIdLength       = MinNewsPostingIdLength      ?? DefaultMinNewsPostingIdLength;
+            this.MinMessageIdLength           = MinMessageIdLength          ?? DefaultMinMessageIdLength;
+            this.MinNewsPostingIdLength       = MinNewsPostingIdLength      ?? DefaultMinNewsPostingIdLength;
+            this.MinNewsBannerIdLength        = MinNewsBannerIdLength       ?? DefaultMinNewsBannerIdLength;
+            this.MinFAQIdLength               = MinFAQIdLength              ?? DefaultMinFAQIdLength;
+
+            this.PasswordQualityCheck         = PasswordQualityCheck        ?? DefaultPasswordQualityCheck;
             this.SignInSessionLifetime        = SignInSessionLifetime       ?? DefaultSignInSessionLifetime;
 
             this._DataLicenses                = new Dictionary<DataLicense_Id,             DataLicense>();
@@ -2714,6 +2746,12 @@ namespace social.OpenData.UsersAPI
         public static NotificationMessageType addOrUpdateAPIKey_MessageType                 = NotificationMessageType.Parse("addOrUpdateAPIKey");
         public static NotificationMessageType updateAPIKey_MessageType                      = NotificationMessageType.Parse("updateAPIKey");
         public static NotificationMessageType removeAPIKey_MessageType                      = NotificationMessageType.Parse("removeAPIKey");
+
+        public static NotificationMessageType addMessage_MessageType                        = NotificationMessageType.Parse("addMessage");
+        public static NotificationMessageType addMessageIfNotExists_MessageType             = NotificationMessageType.Parse("addMessageIfNotExists");
+        public static NotificationMessageType addOrUpdateMessage_MessageType                = NotificationMessageType.Parse("addOrUpdateMessage");
+        public static NotificationMessageType updateMessage_MessageType                     = NotificationMessageType.Parse("updateMessage");
+        public static NotificationMessageType removeMessage_MessageType                     = NotificationMessageType.Parse("removeMessage");
 
         public static NotificationMessageType addOrganization_MessageType                   = NotificationMessageType.Parse("addOrganization");
         public static NotificationMessageType addOrganizationIfNotExists_MessageType        = NotificationMessageType.Parse("addOrganizationIfNotExists");
@@ -3467,13 +3505,16 @@ namespace social.OpenData.UsersAPI
                                                HTTPCookieName?                      CookieName                    = null,
                                                Boolean                              UseSecureCookies              = true,
                                                Languages                            DefaultLanguage               = Languages.en,
-                                               Byte                                 MinLoginLength                = DefaultMinUserIdLength,
-                                               Byte                                 MinRealmLength                = DefaultMinRealmLength,
-                                               Byte                                 MinUserNameLength             = DefaultMinUserNameLength,
-                                               PasswordQualityCheckDelegate         PasswordQualityCheck          = null,
+                                               Byte?                                MinUserIdLength               = null,
+                                               Byte?                                MinRealmLength                = null,
+                                               Byte?                                MinUserNameLength             = null,
                                                Byte?                                MinUserGroupIdLength          = null,
                                                UInt16?                              MinAPIKeyLength               = null,
+                                               Byte?                                MinMessageIdLength            = null,
                                                Byte?                                MinNewsPostingIdLength        = null,
+                                               Byte?                                MinNewsBannerIdLength         = null,
+                                               Byte?                                MinFAQIdLength                = null,
+                                               PasswordQualityCheckDelegate         PasswordQualityCheck          = null,
                                                TimeSpan?                            SignInSessionLifetime         = null,
 
                                                TimeSpan?                            MaintenanceEvery              = null,
@@ -3510,13 +3551,16 @@ namespace social.OpenData.UsersAPI
                             CookieName,
                             UseSecureCookies,
                             DefaultLanguage,
-                            MinLoginLength,
+                            MinUserIdLength,
                             MinRealmLength,
                             MinUserNameLength,
-                            PasswordQualityCheck,
                             MinUserGroupIdLength,
                             MinAPIKeyLength,
+                            MinMessageIdLength,
                             MinNewsPostingIdLength,
+                            MinNewsBannerIdLength,
+                            MinFAQIdLength,
+                            PasswordQualityCheck,
                             SignInSessionLifetime,
 
                             MaintenanceEvery,
@@ -19196,9 +19240,8 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
-        #region Messages
-
         // ToDo: Create Mailinglists
+        #region Messages
 
         #region Data
 
@@ -19235,28 +19278,1147 @@ namespace social.OpenData.UsersAPI
         #endregion
 
 
+        #region (protected) WriteToDatabaseFileAndNotify(Message, MessageType,  OldMessage = null, CurrentUserId = null)
 
-        #region CreateMessage(Id, Sender, Receivers, Headline = null, Text = null)
-
-        public async Task<Message> CreateMessage(User_Id               Sender,
-                                                 IEnumerable<User_Id>  Receivers,
-                                                 I18NString            Subject,
-                                                 I18NString            Text,
-                                                 Message_Id?           Id  = null)
+        /// <summary>
+        /// Write the given message to the database and send out notifications.
+        /// </summary>
+        /// <param name="Message">The message.</param>
+        /// <param name="MessageType">The user notification.</param>
+        /// <param name="OldMessage">The old/updated message.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
+        /// <param name="CurrentUserId">The invoking user identification</param>
+        protected async Task WriteToDatabaseFileAndNotify(Message              Message,
+                                                          NotificationMessageType  MessageType,
+                                                          Message              OldMessage    = null,
+                                                          EventTracking_Id         EventTrackingId   = null,
+                                                          User_Id?                 CurrentUserId     = null)
         {
 
-            var Message = new Message(Id ?? Message_Id.New,
-                                      Sender,
-                                      Receivers,
-                                      Subject,
-                                      Text);
+            if (Message is null)
+                throw new ArgumentNullException(nameof(Message),  "The given message must not be null or empty!");
 
-            return _Messages.AddAndReturnValue(Message.Id, Message);
+            if (MessageType.IsNullOrEmpty)
+                throw new ArgumentNullException(nameof(MessageType),  "The given message type must not be null or empty!");
+
+
+            var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
+
+            await WriteToDatabaseFile(MessageType,
+                                      Message.ToJSON(false, true),
+                                      eventTrackingId,
+                                      CurrentUserId);
+
+            await SendNotifications(Message,
+                                    MessageType,
+                                    OldMessage,
+                                    eventTrackingId,
+                                    CurrentUserId);
 
         }
 
         #endregion
 
+        #region (protected) SendNotifications           (Message, MessageTypes, OldMessage = null, CurrentUserId = null)
+
+        /// <summary>
+        /// Send message notifications.
+        /// </summary>
+        /// <param name="Message">The message.</param>
+        /// <param name="MessageType">The user notification.</param>
+        /// <param name="OldMessage">The old/updated message.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
+        /// <param name="CurrentUserId">The invoking user identification</param>
+        protected async Task SendNotifications(Message              Message,
+                                               NotificationMessageType  MessageType,
+                                               Message              OldMessage    = null,
+                                               EventTracking_Id         EventTrackingId   = null,
+                                               User_Id?                 CurrentUserId     = null)
+        {
+
+            if (Message is null)
+                throw new ArgumentNullException(nameof(Message),  "The given message must not be null or empty!");
+
+            if (MessageType.IsNullOrEmpty)
+                throw new ArgumentNullException(nameof(MessageType),  "The given message type must not be null or empty!");
+
+
+            await SendNotifications(Message,
+                                    new NotificationMessageType[] { MessageType },
+                                    OldMessage,
+                                    EventTrackingId,
+                                    CurrentUserId);
+
+        }
+
+
+        /// <summary>
+        /// Send message notifications.
+        /// </summary>
+        /// <param name="Message">The message.</param>
+        /// <param name="MessageTypes">The user notifications.</param>
+        /// <param name="OldMessage">The old/updated message.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
+        /// <param name="CurrentUserId">The invoking user identification</param>
+        protected async Task SendNotifications(Message                           Message,
+                                               IEnumerable<NotificationMessageType>  MessageTypes,
+                                               Message                           OldMessage    = null,
+                                               EventTracking_Id                      EventTrackingId   = null,
+                                               User_Id?                              CurrentUserId     = null)
+        {
+
+            if (Message is null)
+                throw new ArgumentNullException(nameof(Message),   "The given message must not be null or empty!");
+
+            var messageTypesHash = new HashSet<NotificationMessageType>(MessageTypes.Where(messageType => !messageType.IsNullOrEmpty));
+
+            if (messageTypesHash.IsNullOrEmpty())
+                throw new ArgumentNullException(nameof(MessageTypes),  "The given enumeration of message types must not be null or empty!");
+
+            if (messageTypesHash.Contains(addUserIfNotExists_MessageType))
+                messageTypesHash.Add(addUser_MessageType);
+
+            if (messageTypesHash.Contains(addOrUpdateUser_MessageType))
+                messageTypesHash.Add(OldMessage == null
+                                       ? addUser_MessageType
+                                       : updateUser_MessageType);
+
+            var messageTypes = messageTypesHash.ToArray();
+
+
+            if (!DisableNotifications)
+            {
+
+
+            }
+
+        }
+
+        #endregion
+
+        #region (protected) GetMessageSerializator(Request, User)
+
+        //protected MessageToJSONDelegate GetMessageSerializator(HTTPRequest  Request,
+        //                                                               User         User)
+        //{
+
+        //    switch (User?.Id.ToString())
+        //    {
+
+        //        default:
+        //            return (message,
+        //                    embedded,
+        //                    ExpandTags,
+        //                    ExpandAuthorId,
+        //                    includeCryptoHash)
+
+        //                    => message.ToJSON(embedded,
+        //                                          ExpandTags,
+        //                                          ExpandAuthorId,
+        //                                          includeCryptoHash);
+
+        //    }
+
+        //}
+
+        #endregion
+
+
+        #region AddMessage           (Message, OnAdded = null,                   CurrentUserId = null)
+
+        /// <summary>
+        /// A delegate called whenever a message was added.
+        /// </summary>
+        /// <param name="Timestamp">The timestamp when the message was added.</param>
+        /// <param name="Message">The added message.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
+        /// <param name="CurrentUserId">The invoking user identification</param>
+        public delegate Task OnMessageAddedDelegate(DateTime          Timestamp,
+                                                        Message       Message,
+                                                        EventTracking_Id  EventTrackingId   = null,
+                                                        User_Id?          CurrentUserId     = null);
+
+        /// <summary>
+        /// An event fired whenever a message was added.
+        /// </summary>
+        public event OnMessageAddedDelegate OnMessageAdded;
+
+
+        #region (protected) _AddMessage(Message,                                OnAdded = null, CurrentUserId = null)
+
+        /// <summary>
+        /// Add the given message to the API.
+        /// </summary>
+        /// <param name="Message">A new message to be added to this API.</param>
+        /// <param name="OnAdded">A delegate run whenever the message had been added successfully.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
+        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
+        protected async Task<Message> _AddMessage(Message                            Message,
+                                                          Action<Message, EventTracking_Id>  OnAdded           = null,
+                                                          EventTracking_Id                       EventTrackingId   = null,
+                                                          User_Id?                               CurrentUserId     = null)
+        {
+
+            if (Message is null)
+                throw new ArgumentNullException(nameof(Message),
+                                                "The given message must not be null!");
+
+            if (Message.API != null && Message.API != this)
+                throw new ArgumentException    ("The given message is already attached to another API!",
+                                                nameof(Message));
+
+            if (_Messages.ContainsKey(Message.Id))
+                throw new ArgumentException    ("User group identification '" + Message.Id + "' already exists!",
+                                                nameof(Message));
+
+            if (Message.Id.Length < MinMessageIdLength)
+                throw new ArgumentException    ("User group identification '" + Message.Id + "' is too short!",
+                                                nameof(Message));
+
+            Message.API = this;
+
+
+            var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
+
+            await WriteToDatabaseFile(addMessage_MessageType,
+                                      Message.ToJSON(false, true),
+                                      eventTrackingId,
+                                      CurrentUserId);
+
+            _Messages.Add(Message.Id, Message);
+
+
+            var OnMessageAddedLocal = OnMessageAdded;
+            if (OnMessageAddedLocal != null)
+                await OnMessageAddedLocal?.Invoke(DateTime.UtcNow,
+                                                      Message,
+                                                      eventTrackingId,
+                                                      CurrentUserId);
+
+            await SendNotifications(Message,
+                                    addUser_MessageType,
+                                    null,
+                                    eventTrackingId,
+                                    CurrentUserId);
+
+            OnAdded?.Invoke(Message,
+                            eventTrackingId);
+
+            return Message;
+
+        }
+
+        #endregion
+
+        #region AddMessage             (Message,                                OnAdded = null, CurrentUserId = null)
+
+        /// <summary>
+        /// Add the given message.
+        /// </summary>
+        /// <param name="Message">A new message.</param>
+        /// <param name="OnAdded">A delegate run whenever the message had been added successfully.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
+        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
+        public async Task<Message> AddMessage(Message                            Message,
+                                                      Action<Message, EventTracking_Id>  OnAdded           = null,
+                                                      EventTracking_Id                       EventTrackingId   = null,
+                                                      User_Id?                               CurrentUserId     = null)
+        {
+
+            if (Message is null)
+                throw new ArgumentNullException(nameof(Message), "The given message must not be null!");
+
+            try
+            {
+
+                return (await MessagesSemaphore.WaitAsync(SemaphoreSlimTimeout))
+
+                            ? await _AddMessage(Message,
+                                                    OnAdded,
+                                                    EventTrackingId,
+                                                    CurrentUserId)
+
+                            : null;
+
+            }
+            finally
+            {
+                try
+                {
+                    MessagesSemaphore.Release();
+                }
+                catch
+                { }
+            }
+
+        }
+
+        #endregion
+
+        #endregion
+
+        #region AddMessageIfNotExists(Message, OnAdded = null,                   CurrentUserId = null)
+
+        #region (protected) _AddMessageIfNotExists(Message,                                OnAdded = null, CurrentUserId = null)
+
+        /// <summary>
+        /// When it has not been created before, add the given message to the API.
+        /// </summary>
+        /// <param name="Message">A new message to be added to this API.</param>
+        /// <param name="OnAdded">A delegate run whenever the message had been added successfully.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
+        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
+        protected async Task<Message> _AddMessageIfNotExists(Message                            Message,
+                                                                     Action<Message, EventTracking_Id>  OnAdded           = null,
+                                                                     EventTracking_Id                       EventTrackingId   = null,
+                                                                     User_Id?                               CurrentUserId     = null)
+        {
+
+            if (Message is null)
+                throw new ArgumentNullException(nameof(Message),
+                                                "The given message must not be null!");
+
+            if (Message.API != null && Message.API != this)
+                throw new ArgumentException    ("The given message is already attached to another API!",
+                                                nameof(Message));
+
+            if (_Messages.ContainsKey(Message.Id))
+                return _Messages[Message.Id];
+
+            if (Message.Id.Length < MinMessageIdLength)
+                throw new ArgumentException    ("User group identification '" + Message.Id + "' is too short!",
+                                                nameof(Message));
+
+            Message.API = this;
+
+
+            var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
+
+            await WriteToDatabaseFile(addMessageIfNotExists_MessageType,
+                                      Message.ToJSON(false, true),
+                                      eventTrackingId,
+                                      CurrentUserId);
+
+            _Messages.Add(Message.Id, Message);
+
+            var OnMessageAddedLocal = OnMessageAdded;
+            if (OnMessageAddedLocal != null)
+                await OnMessageAddedLocal?.Invoke(DateTime.UtcNow,
+                                                      Message,
+                                                      eventTrackingId,
+                                                      CurrentUserId);
+
+            await SendNotifications(Message,
+                                    addMessageIfNotExists_MessageType,
+                                    null,
+                                    eventTrackingId,
+                                    CurrentUserId);
+
+            OnAdded?.Invoke(Message,
+                            eventTrackingId);
+
+            return Message;
+
+        }
+
+        #endregion
+
+        #region AddMessageIfNotExists             (Message,                                OnAdded = null, CurrentUserId = null)
+
+        /// <summary>
+        /// Add the given message.
+        /// </summary>
+        /// <param name="Message">A new message.</param>
+        /// <param name="OnAdded">A delegate run whenever the message had been added successfully.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
+        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
+        public async Task<Message> AddMessageIfNotExists(Message                            Message,
+                                                                 Action<Message, EventTracking_Id>  OnAdded           = null,
+                                                                 EventTracking_Id                       EventTrackingId   = null,
+                                                                 User_Id?                               CurrentUserId     = null)
+        {
+
+            try
+            {
+
+                return (await MessagesSemaphore.WaitAsync(SemaphoreSlimTimeout))
+
+                            ? await _AddMessageIfNotExists(Message,
+                                                             OnAdded,
+                                                             EventTrackingId,
+                                                             CurrentUserId)
+
+                            : null;
+
+            }
+            finally
+            {
+                try
+                {
+                    MessagesSemaphore.Release();
+                }
+                catch
+                { }
+            }
+
+        }
+
+        #endregion
+
+        #endregion
+
+        #region AddOrUpdateMessage   (Message, OnAdded = null, OnUpdated = null, CurrentUserId = null)
+
+        #region (protected) _AddOrUpdateMessage   (Message,   OnAdded = null, OnUpdated = null, CurrentUserId = null)
+
+        /// <summary>
+        /// Add or update the given message to/within the API.
+        /// </summary>
+        /// <param name="Message">A message.</param>
+        /// <param name="OnAdded">A delegate run whenever the message had been added successfully.</param>
+        /// <param name="OnUpdated">A delegate run whenever the message had been updated successfully.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
+        /// <param name="CurrentUserId">An optional message identification initiating this command/request.</param>
+        protected async Task<Message> _AddOrUpdateMessage(Message                            Message,
+                                                                  Action<Message, EventTracking_Id>  OnAdded           = null,
+                                                                  Action<Message, EventTracking_Id>  OnUpdated         = null,
+                                                                  EventTracking_Id                       EventTrackingId   = null,
+                                                                  User_Id?                               CurrentUserId     = null)
+        {
+
+            if (Message is null)
+                throw new ArgumentNullException(nameof(Message),
+                                                "The given message must not be null!");
+
+            if (Message.API != null && Message.API != this)
+                throw new ArgumentException    ("The given message is already attached to another API!",
+                                                nameof(Message));
+
+            if (_Messages.ContainsKey(Message.Id))
+                return _Messages[Message.Id];
+
+            if (Message.Id.Length < MinMessageIdLength)
+                throw new ArgumentException    ("Message identification '" + Message.Id + "' is too short!",
+                                                nameof(Message));
+
+            Message.API = this;
+
+
+            var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
+
+            await WriteToDatabaseFile(addOrUpdateMessage_MessageType,
+                                      Message.ToJSON(false, true),
+                                      eventTrackingId,
+                                      CurrentUserId);
+
+            if (_Messages.TryGetValue(Message.Id, out Message OldMessage))
+            {
+                _Messages.Remove(OldMessage.Id);
+                Message.CopyAllLinkedDataFrom(OldMessage);
+            }
+
+            _Messages.Add(Message.Id, Message);
+
+            if (OldMessage != null)
+            {
+
+                var OnMessageUpdatedLocal = OnMessageUpdated;
+                if (OnMessageUpdatedLocal != null)
+                    await OnMessageUpdatedLocal?.Invoke(DateTime.UtcNow,
+                                                            Message,
+                                                            OldMessage,
+                                                            eventTrackingId,
+                                                            CurrentUserId);
+
+                await SendNotifications(Message,
+                                        updateMessage_MessageType,
+                                        OldMessage,
+                                        eventTrackingId,
+                                        CurrentUserId);
+
+                OnUpdated?.Invoke(Message,
+                                  eventTrackingId);
+
+            }
+            else
+            {
+
+                var OnMessageAddedLocal = OnMessageAdded;
+                if (OnMessageAddedLocal != null)
+                    await OnMessageAddedLocal?.Invoke(DateTime.UtcNow,
+                                                          Message,
+                                                          eventTrackingId,
+                                                          CurrentUserId);
+
+                await SendNotifications(Message,
+                                        addMessage_MessageType,
+                                        null,
+                                        eventTrackingId,
+                                        CurrentUserId);
+
+                OnAdded?.Invoke(Message,
+                                eventTrackingId);
+
+            }
+
+            return Message;
+
+        }
+
+        #endregion
+
+        #region AddOrUpdateMessage   (Message,   OnAdded = null, OnUpdated = null, CurrentUserId = null)
+
+        /// <summary>
+        /// Add or update the given message to/within the API.
+        /// </summary>
+        /// <param name="Message">A message.</param>
+        /// <param name="OnAdded">A delegate run whenever the message had been added successfully.</param>
+        /// <param name="OnUpdated">A delegate run whenever the message had been updated successfully.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
+        /// <param name="CurrentUserId">An optional message identification initiating this command/request.</param>
+        public async Task<Message> AddOrUpdateMessage(Message                            Message,
+                                                              Action<Message, EventTracking_Id>  OnAdded           = null,
+                                                              Action<Message, EventTracking_Id>  OnUpdated         = null,
+                                                              EventTracking_Id                       EventTrackingId   = null,
+                                                              User_Id?                               CurrentUserId     = null)
+        {
+
+            if (Message is null)
+                throw new ArgumentNullException(nameof(Message), "The given message must not be null!");
+
+            try
+            {
+
+                return (await MessagesSemaphore.WaitAsync(SemaphoreSlimTimeout))
+
+                            ? await _AddOrUpdateMessage(Message,
+                                                            OnAdded,
+                                                            OnUpdated,
+                                                            EventTrackingId,
+                                                            CurrentUserId)
+
+                            : null;
+
+            }
+            finally
+            {
+                try
+                {
+                    MessagesSemaphore.Release();
+                }
+                catch
+                { }
+            }
+
+        }
+
+        #endregion
+
+        #endregion
+
+        #region UpdateMessage        (Message,                 OnUpdated = null, CurrentUserId = null)
+
+        /// <summary>
+        /// A delegate called whenever a message was updated.
+        /// </summary>
+        /// <param name="Timestamp">The timestamp when the message was updated.</param>
+        /// <param name="Message">The updated message.</param>
+        /// <param name="OldMessage">The old message.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
+        /// <param name="CurrentUserId">The invoking message identification</param>
+        public delegate Task OnMessageUpdatedDelegate(DateTime          Timestamp,
+                                                          Message       Message,
+                                                          Message       OldMessage,
+                                                          EventTracking_Id  EventTrackingId   = null,
+                                                          User_Id?          CurrentUserId     = null);
+
+        /// <summary>
+        /// An event fired whenever a message was updated.
+        /// </summary>
+        public event OnMessageUpdatedDelegate OnMessageUpdated;
+
+
+        #region (protected) _UpdateMessage(Message, OnUpdated = null, CurrentUserId = null)
+
+        /// <summary>
+        /// Update the given message to/within the API.
+        /// </summary>
+        /// <param name="Message">A message.</param>
+        /// <param name="OnUpdated">A delegate run whenever the message had been updated successfully.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
+        /// <param name="CurrentUserId">An optional message identification initiating this command/request.</param>
+        protected async Task<Message> _UpdateMessage(Message                            Message,
+                                                             Action<Message, EventTracking_Id>  OnUpdated         = null,
+                                                             EventTracking_Id                       EventTrackingId   = null,
+                                                             User_Id?                               CurrentUserId     = null)
+        {
+
+            if (Message is null)
+                throw new ArgumentNullException(nameof(Message),
+                                                "The given message must not be null!");
+
+            if (Message.API != null && Message.API != this)
+                throw new ArgumentException    ("The given message is already attached to another API!",
+                                                nameof(Message));
+
+            if (!_Messages.TryGetValue(Message.Id, out Message OldMessage))
+                throw new ArgumentException    ("The given message '" + Message.Id + "' does not exists in this API!",
+                                                nameof(Message));
+
+            Message.API = this;
+
+
+            var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
+
+            await WriteToDatabaseFile(updateMessage_MessageType,
+                                      Message.ToJSON(),
+                                      eventTrackingId,
+                                      CurrentUserId);
+
+            _Messages.Remove(OldMessage.Id);
+            Message.CopyAllLinkedDataFrom(OldMessage);
+
+
+            var OnMessageUpdatedLocal = OnMessageUpdated;
+            if (OnMessageUpdatedLocal != null)
+                await OnMessageUpdatedLocal?.Invoke(DateTime.UtcNow,
+                                                        Message,
+                                                        OldMessage,
+                                                        eventTrackingId,
+                                                        CurrentUserId);
+
+            await SendNotifications(Message,
+                                    updateMessage_MessageType,
+                                    OldMessage,
+                                    eventTrackingId,
+                                    CurrentUserId);
+
+            OnUpdated?.Invoke(Message,
+                              eventTrackingId);
+
+            return Message;
+
+        }
+
+        #endregion
+
+        #region UpdateMessage             (Message, OnUpdated = null, CurrentUserId = null)
+
+        /// <summary>
+        /// Update the given message to/within the API.
+        /// </summary>
+        /// <param name="Message">A message.</param>
+        /// <param name="OnUpdated">A delegate run whenever the message had been updated successfully.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
+        /// <param name="CurrentUserId">An optional message identification initiating this command/request.</param>
+        public async Task<Message> UpdateMessage(Message                            Message,
+                                                         Action<Message, EventTracking_Id>  OnUpdated         = null,
+                                                         EventTracking_Id                       EventTrackingId   = null,
+                                                         User_Id?                               CurrentUserId     = null)
+        {
+
+            if (Message is null)
+                throw new ArgumentNullException(nameof(Message), "The given message must not be null!");
+
+            try
+            {
+
+                return (await MessagesSemaphore.WaitAsync(SemaphoreSlimTimeout))
+
+                            ? await _UpdateMessage(Message,
+                                                       OnUpdated,
+                                                       EventTrackingId,
+                                                       CurrentUserId)
+
+                            : null;
+
+            }
+            finally
+            {
+                try
+                {
+                    MessagesSemaphore.Release();
+                }
+                catch
+                { }
+            }
+
+        }
+
+        #endregion
+
+
+        #region (protected) _UpdateMessage(MessageId, UpdateDelegate, OnUpdated = null, CurrentUserId = null)
+
+        /// <summary>
+        /// Update the given message.
+        /// </summary>
+        /// <param name="MessageId">An message identification.</param>
+        /// <param name="UpdateDelegate">A delegate to update the given message.</param>
+        /// <param name="OnUpdated">A delegate run whenever the message had been updated successfully.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
+        /// <param name="CurrentUserId">An optional message identification initiating this command/request.</param>
+        protected async Task<Message> _UpdateMessage(Message_Id                         MessageId,
+                                                             Action<Message.Builder>            UpdateDelegate,
+                                                             Action<Message, EventTracking_Id>  OnUpdated         = null,
+                                                             EventTracking_Id                       EventTrackingId   = null,
+                                                             User_Id?                               CurrentUserId     = null)
+        {
+
+            if (MessageId.IsNullOrEmpty)
+                throw new ArgumentNullException(nameof(MessageId),
+                                                "The given message identification must not be null or empty!");
+
+            if (UpdateDelegate == null)
+                throw new ArgumentNullException(nameof(UpdateDelegate),
+                                                "The given update delegate must not be null!");
+
+            if (!_Messages.TryGetValue(MessageId, out Message OldMessage))
+                throw new ArgumentException    ("The given message '" + MessageId + "' does not exists in this API!",
+                                                nameof(MessageId));
+
+            var Builder = OldMessage.ToBuilder();
+            UpdateDelegate(Builder);
+            var NewMessage = Builder.ToImmutable;
+
+
+            var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
+
+            await WriteToDatabaseFile(updateMessage_MessageType,
+                                      NewMessage.ToJSON(),
+                                      eventTrackingId,
+                                      CurrentUserId);
+
+            _Messages.Remove(OldMessage.Id);
+            NewMessage.CopyAllLinkedDataFrom(OldMessage);
+
+
+            var OnMessageUpdatedLocal = OnMessageUpdated;
+            if (OnMessageUpdatedLocal != null)
+                await OnMessageUpdatedLocal?.Invoke(DateTime.UtcNow,
+                                                        NewMessage,
+                                                        OldMessage,
+                                                        eventTrackingId,
+                                                        CurrentUserId);
+
+            await SendNotifications(NewMessage,
+                                    updateMessage_MessageType,
+                                    OldMessage,
+                                    eventTrackingId,
+                                    CurrentUserId);
+
+            OnUpdated?.Invoke(NewMessage,
+                              eventTrackingId);
+
+            return NewMessage;
+
+        }
+
+        #endregion
+
+        #region UpdateMessage             (MessageId, UpdateDelegate, OnUpdated = null, CurrentUserId = null)
+
+        /// <summary>
+        /// Update the given message.
+        /// </summary>
+        /// <param name="MessageId">An message identification.</param>
+        /// <param name="UpdateDelegate">A delegate to update the given message.</param>
+        /// <param name="OnUpdated">A delegate run whenever the message had been updated successfully.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
+        /// <param name="CurrentUserId">An optional message identification initiating this command/request.</param>
+        public async Task<Message> UpdateMessage(Message_Id                         MessageId,
+                                                         Action<Message.Builder>            UpdateDelegate,
+                                                         Action<Message, EventTracking_Id>  OnUpdated         = null,
+                                                         EventTracking_Id                       EventTrackingId   = null,
+                                                         User_Id?                               CurrentUserId     = null)
+        {
+
+            if (MessageId.IsNullOrEmpty)
+                throw new ArgumentNullException(nameof(MessageId), "The given message identification must not be null or empty!");
+
+            try
+            {
+
+                return (await MessagesSemaphore.WaitAsync(SemaphoreSlimTimeout))
+
+                            ? await _UpdateMessage(MessageId,
+                                                       UpdateDelegate,
+                                                       OnUpdated,
+                                                       EventTrackingId,
+                                                       CurrentUserId)
+
+                            : null;
+
+            }
+            finally
+            {
+                try
+                {
+                    MessagesSemaphore.Release();
+                }
+                catch
+                { }
+            }
+
+        }
+
+        #endregion
+
+        #endregion
+
+
+        #region MessageExists(MessageId)
+
+        /// <summary>
+        /// Determines whether the given message identification exists within this API.
+        /// </summary>
+        /// <param name="MessageId">The unique identification of an message.</param>
+        protected Boolean _MessageExists(Message_Id MessageId)
+
+            => !MessageId.IsNullOrEmpty && _Messages.ContainsKey(MessageId);
+
+
+        /// <summary>
+        /// Determines whether the given message identification exists within this API.
+        /// </summary>
+        /// <param name="MessageId">The unique identification of an message.</param>
+        public Boolean MessageExists(Message_Id MessageId)
+        {
+
+            try
+            {
+
+                if (MessagesSemaphore.Wait(SemaphoreSlimTimeout) &&
+                    _MessageExists(MessageId))
+                {
+                    return true;
+                }
+
+            }
+            catch
+            { }
+            finally
+            {
+                try
+                {
+                    MessagesSemaphore.Release();
+                }
+                catch
+                { }
+            }
+
+            return false;
+
+        }
+
+        #endregion
+
+        #region GetMessage   (MessageId)
+
+        /// <summary>
+        /// Get the message having the given unique identification.
+        /// </summary>
+        /// <param name="MessageId">The unique identification of an message.</param>
+        protected Message _GetMessage(Message_Id MessageId)
+        {
+
+            if (!MessageId.IsNullOrEmpty && _Messages.TryGetValue(MessageId, out Message message))
+                return message;
+
+            return null;
+
+        }
+
+
+        /// <summary>
+        /// Get the message having the given unique identification.
+        /// </summary>
+        /// <param name="MessageId">The unique identification of the message.</param>
+        public Message GetMessage(Message_Id MessageId)
+        {
+
+            try
+            {
+
+                if (MessagesSemaphore.Wait(SemaphoreSlimTimeout))
+                    return _GetMessage(MessageId);
+
+            }
+            catch
+            { }
+            finally
+            {
+                try
+                {
+                    MessagesSemaphore.Release();
+                }
+                catch
+                { }
+            }
+
+            return null;
+
+        }
+
+        #endregion
+
+        #region TryGetMessage(MessageId, out Message)
+
+        /// <summary>
+        /// Try to get the message having the given unique identification.
+        /// </summary>
+        /// <param name="MessageId">The unique identification of an message.</param>
+        /// <param name="Message">The message.</param>
+        protected Boolean _TryGetMessage(Message_Id MessageId, out Message Message)
+        {
+
+            if (!MessageId.IsNullOrEmpty && _Messages.TryGetValue(MessageId, out Message message))
+            {
+                Message = message;
+                return true;
+            }
+
+            Message = null;
+            return false;
+
+        }
+
+
+        /// <summary>
+        /// Try to get the message having the given unique identification.
+        /// </summary>
+        /// <param name="MessageId">The unique identification of an message.</param>
+        /// <param name="Message">The message.</param>
+        public Boolean TryGetMessage(Message_Id   MessageId,
+                                         out Message  Message)
+        {
+
+            try
+            {
+
+                if (MessagesSemaphore.Wait(SemaphoreSlimTimeout) &&
+                    _TryGetMessage(MessageId, out Message message))
+                {
+                    Message = message;
+                    return true;
+                }
+
+            }
+            catch
+            { }
+            finally
+            {
+                try
+                {
+                    MessagesSemaphore.Release();
+                }
+                catch
+                { }
+            }
+
+            Message = null;
+            return false;
+
+        }
+
+        #endregion
+
+
+        #region RemoveMessage(Message, OnRemoved = null, CurrentUserId = null)
+
+        /// <summary>
+        /// A delegate called whenever a message was removed.
+        /// </summary>
+        /// <param name="Timestamp">The timestamp when the message was removed.</param>
+        /// <param name="Message">The removed message.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
+        /// <param name="CurrentUserId">The invoking message identification</param>
+        public delegate Task OnMessageRemovedDelegate(DateTime          Timestamp,
+                                                          Message       Message,
+                                                          EventTracking_Id  EventTrackingId   = null,
+                                                          User_Id?          CurrentUserId     = null);
+
+        /// <summary>
+        /// An event fired whenever a message was removed.
+        /// </summary>
+        public event OnMessageRemovedDelegate OnMessageRemoved;
+
+
+        #region (class) DeleteMessageResult
+
+        public class DeleteMessageResult
+        {
+
+            public Boolean     IsSuccess           { get; }
+
+            public I18NString  ErrorDescription    { get; }
+
+
+            private DeleteMessageResult(Boolean     IsSuccess,
+                                          I18NString  ErrorDescription  = null)
+            {
+                this.IsSuccess         = IsSuccess;
+                this.ErrorDescription  = ErrorDescription;
+            }
+
+
+            public static DeleteMessageResult Success
+
+                => new DeleteMessageResult(true);
+
+            public static DeleteMessageResult Failed(I18NString Reason)
+
+                => new DeleteMessageResult(false,
+                                             Reason);
+
+            public static DeleteMessageResult Failed(Exception Exception)
+
+                => new DeleteMessageResult(false,
+                                             I18NString.Create(Languages.en,
+                                                               Exception.Message));
+
+            public override String ToString()
+
+                => IsSuccess
+                       ? "Success"
+                       : "Failed" + (ErrorDescription.IsNullOrEmpty()
+                                         ? ": " + ErrorDescription.FirstText()
+                                         : "!");
+
+        }
+
+        #endregion
+
+        #region (protected virtual) CanDeleteMessage(Message)
+
+        /// <summary>
+        /// Determines whether the message can safely be removed from the API.
+        /// </summary>
+        /// <param name="Message">The message to be removed.</param>
+        protected virtual I18NString CanDeleteMessage(Message Message)
+        {
+            return new I18NString(Languages.en, "Currently not possible!");
+        }
+
+        #endregion
+
+
+        #region (protected) _RemoveMessage(Message, OnRemoved = null, CurrentUserId = null)
+
+        /// <summary>
+        /// Remove the given message from the API.
+        /// </summary>
+        /// <param name="Message">The message to be removed from this API.</param>
+        /// <param name="OnRemoved">A delegate run whenever the message had been removed successfully.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
+        /// <param name="CurrentUserId">An optional message identification initiating this command/request.</param>
+        protected async Task<DeleteMessageResult> _RemoveMessage(Message                            Message,
+                                                                         Action<Message, EventTracking_Id>  OnRemoved         = null,
+                                                                         EventTracking_Id                       EventTrackingId   = null,
+                                                                         User_Id?                               CurrentUserId     = null)
+        {
+
+            if (Message is null)
+                throw new ArgumentNullException(nameof(Message),
+                                                "The given message must not be null!");
+
+            if (Message.API != this || !_Messages.TryGetValue(Message.Id, out Message MessageToBeRemoved))
+                throw new ArgumentException    ("The given message '" + Message.Id + "' does not exists in this API!",
+                                                nameof(Message));
+
+
+            var result = CanDeleteMessage(Message);
+
+            if (result == null)
+            {
+
+                var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
+
+                await WriteToDatabaseFile(removeMessage_MessageType,
+                                          Message.ToJSON(false, true),
+                                          eventTrackingId,
+                                          CurrentUserId);
+
+                _Messages.Remove(Message.Id);
+
+
+                var OnMessageRemovedLocal = OnMessageRemoved;
+                if (OnMessageRemovedLocal != null)
+                    await OnMessageRemovedLocal?.Invoke(DateTime.UtcNow,
+                                                            Message,
+                                                            eventTrackingId,
+                                                            CurrentUserId);
+
+                await SendNotifications(Message,
+                                        removeMessage_MessageType,
+                                        null,
+                                        eventTrackingId,
+                                        CurrentUserId);
+
+                OnRemoved?.Invoke(Message,
+                                  eventTrackingId);
+
+                return DeleteMessageResult.Success;
+
+            }
+            else
+                return DeleteMessageResult.Failed(result);
+
+        }
+
+        #endregion
+
+        #region RemoveMessage             (Message, OnRemoved = null, CurrentUserId = null)
+
+        /// <summary>
+        /// Remove the given message from the API.
+        /// </summary>
+        /// <param name="Message">The message to be removed from this API.</param>
+        /// <param name="OnRemoved">A delegate run whenever the message had been removed successfully.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
+        /// <param name="CurrentUserId">An optional message identification initiating this command/request.</param>
+        public async Task<DeleteMessageResult> RemoveMessage(Message                            Message,
+                                                                     Action<Message, EventTracking_Id>  OnRemoved         = null,
+                                                                     EventTracking_Id                       EventTrackingId   = null,
+                                                                     User_Id?                               CurrentUserId     = null)
+        {
+
+            if (Message is null)
+                throw new ArgumentNullException(nameof(Message), "The given message must not be null!");
+
+            try
+            {
+
+                return (await MessagesSemaphore.WaitAsync(SemaphoreSlimTimeout))
+
+                            ? await _RemoveMessage(Message,
+                                                       OnRemoved,
+                                                       EventTrackingId,
+                                                       CurrentUserId)
+
+                            : null;
+
+            }
+            catch (Exception e)
+            {
+                return DeleteMessageResult.Failed(e);
+            }
+            finally
+            {
+                try
+                {
+                    MessagesSemaphore.Release();
+                }
+                catch
+                { }
+            }
+
+        }
+
+        #endregion
+
+        #endregion
 
         #endregion
 
@@ -25292,10 +26454,13 @@ namespace social.OpenData.UsersAPI
 
         #region Data
 
-        private readonly Dictionary<NewsBanner_Id, NewsBanner> _NewsBanners;
+        /// <summary>
+        /// An enumeration of all news banners.
+        /// </summary>
+        protected readonly Dictionary<NewsBanner_Id, NewsBanner> _NewsBanners;
 
         /// <summary>
-        /// Return an enumeration of all news banners.
+        /// An enumeration of all news banners.
         /// </summary>
         public IEnumerable<NewsBanner> NewsBanners
         {
@@ -25321,261 +26486,488 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
-        #region (private) GetNewsBannerSerializator(Request, User)
 
-        private NewsBannerToJSONDelegate GetNewsBannerSerializator(HTTPRequest  Request,
-                                                                   User         User)
+        #region (protected) WriteToDatabaseFileAndNotify(NewsBanner, MessageType,  OldNewsBanner = null, CurrentUserId = null)
+
+        /// <summary>
+        /// Write the given news banner to the database and send out notifications.
+        /// </summary>
+        /// <param name="NewsBanner">The news banner.</param>
+        /// <param name="MessageType">The user notification.</param>
+        /// <param name="OldNewsBanner">The old/updated news banner.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
+        /// <param name="CurrentUserId">The invoking user identification</param>
+        protected async Task WriteToDatabaseFileAndNotify(NewsBanner              NewsBanner,
+                                                          NotificationMessageType  MessageType,
+                                                          NewsBanner              OldNewsBanner    = null,
+                                                          EventTracking_Id         EventTrackingId   = null,
+                                                          User_Id?                 CurrentUserId     = null)
         {
 
-            //if (!Request.X_Portal)
-            //{
-            //    switch (User.Id.ToString())
-            //    {
+            if (NewsBanner is null)
+                throw new ArgumentNullException(nameof(NewsBanner),  "The given news banner must not be null or empty!");
 
-            //        case __issapi:
-            //            return ISSNotificationExtentions.ToISSJSON;
+            if (MessageType.IsNullOrEmpty)
+                throw new ArgumentNullException(nameof(MessageType),  "The given message type must not be null or empty!");
 
-            //    }
-            //}
 
-            return (NewsBanner,
-                    Embedded,
-                    ExpandTags,
-                    ExpandAuthorId,
-                    IncludeCryptoHash)
-
-                        => NewsBanner.ToJSON(Embedded,
-                                             ExpandTags,
-                                             ExpandAuthorId,
-                                             IncludeCryptoHash);
-
-        }
-
-        #endregion
-
-        #region WriteToLogfileAndNotify(MessageType, NewsBanner, OldNews = null, CurrentUserId = null)
-
-        public async Task WriteToLogfileAndNotify(NewsBanner              NewsBanner,
-                                                  NotificationMessageType  MessageType,
-                                                  NewsBanner              OldNews        = null,
-                                                  User_Id?                 CurrentUserId  = null)
-        {
+            var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
 
             await WriteToDatabaseFile(MessageType,
-                                      NewsBanner.ToJSON(Embedded: false),
-                                      EventTracking_Id.New,
+                                      NewsBanner.ToJSON(false, true),
+                                      eventTrackingId,
                                       CurrentUserId);
 
-            //base.WriteToLogfileAndNotify(NotificationMessageType.Parse("News." + MessageType),
-            //                             News.ToJSON(Embedded: true),
-            //                             News.Owner,
-            //                             CardiCloudNotificationsLogFile,
-            //                             CurrentUserId);
+            await SendNotifications(NewsBanner,
+                                    MessageType,
+                                    OldNewsBanner,
+                                    eventTrackingId,
+                                    CurrentUserId);
+
+        }
+
+        #endregion
+
+        #region (protected) SendNotifications           (NewsBanner, MessageTypes, OldNewsBanner = null, CurrentUserId = null)
+
+        /// <summary>
+        /// Send news banner notifications.
+        /// </summary>
+        /// <param name="NewsBanner">The news banner.</param>
+        /// <param name="MessageType">The user notification.</param>
+        /// <param name="OldNewsBanner">The old/updated news banner.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
+        /// <param name="CurrentUserId">The invoking user identification</param>
+        protected async Task SendNotifications(NewsBanner              NewsBanner,
+                                               NotificationMessageType  MessageType,
+                                               NewsBanner              OldNewsBanner    = null,
+                                               EventTracking_Id         EventTrackingId   = null,
+                                               User_Id?                 CurrentUserId     = null)
+        {
+
+            if (NewsBanner is null)
+                throw new ArgumentNullException(nameof(NewsBanner),  "The given news banner must not be null or empty!");
+
+            if (MessageType.IsNullOrEmpty)
+                throw new ArgumentNullException(nameof(MessageType),  "The given message type must not be null or empty!");
 
 
-            var _MessageTypes  = new HashSet<NotificationMessageType>() { MessageType };
+            await SendNotifications(NewsBanner,
+                                    new NotificationMessageType[] { MessageType },
+                                    OldNewsBanner,
+                                    EventTrackingId,
+                                    CurrentUserId);
 
-            if (MessageType == addNewsBannerIfNotExists_MessageType)
+        }
+
+
+        /// <summary>
+        /// Send news banner notifications.
+        /// </summary>
+        /// <param name="NewsBanner">The news banner.</param>
+        /// <param name="MessageTypes">The user notifications.</param>
+        /// <param name="OldNewsBanner">The old/updated news banner.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
+        /// <param name="CurrentUserId">The invoking user identification</param>
+        protected async Task SendNotifications(NewsBanner                           NewsBanner,
+                                               IEnumerable<NotificationMessageType>  MessageTypes,
+                                               NewsBanner                           OldNewsBanner    = null,
+                                               EventTracking_Id                      EventTrackingId   = null,
+                                               User_Id?                              CurrentUserId     = null)
+        {
+
+            if (NewsBanner is null)
+                throw new ArgumentNullException(nameof(NewsBanner),   "The given news banner must not be null or empty!");
+
+            var messageTypesHash = new HashSet<NotificationMessageType>(MessageTypes.Where(messageType => !messageType.IsNullOrEmpty));
+
+            if (messageTypesHash.IsNullOrEmpty())
+                throw new ArgumentNullException(nameof(MessageTypes),  "The given enumeration of message types must not be null or empty!");
+
+            if (messageTypesHash.Contains(addUserIfNotExists_MessageType))
+                messageTypesHash.Add(addUser_MessageType);
+
+            if (messageTypesHash.Contains(addOrUpdateUser_MessageType))
+                messageTypesHash.Add(OldNewsBanner == null
+                                       ? addUser_MessageType
+                                       : updateUser_MessageType);
+
+            var messageTypes = messageTypesHash.ToArray();
+
+
+            if (!DisableNotifications)
             {
-                _MessageTypes.Add(addNewsBanner_MessageType);
+
+
             }
 
-            else if (MessageType == addOrUpdateNewsBanner_MessageType)
+        }
+
+        #endregion
+
+        #region (protected) GetNewsBannerSerializator(Request, User)
+
+        protected NewsBannerToJSONDelegate GetNewsBannerSerializator(HTTPRequest  Request,
+                                                                       User         User)
+        {
+
+            switch (User?.Id.ToString())
             {
-                _MessageTypes.Add(addNewsBanner_MessageType);
+
+                default:
+                    return (newsBanner,
+                            embedded,
+                            ExpandTags,
+                            ExpandAuthorId,
+                            includeCryptoHash)
+
+                            => newsBanner.ToJSON(embedded,
+                                                  ExpandTags,
+                                                  ExpandAuthorId,
+                                                  includeCryptoHash);
+
             }
-
-            var MessageTypes   = _MessageTypes.ToArray();
-
-            // Add notifications here!
 
         }
 
         #endregion
 
 
-        #region AddNewsBanner           (NewsBanner,   CurrentUserId = null)
+        #region AddNewsBanner           (NewsBanner, OnAdded = null,                   CurrentUserId = null)
+
+        /// <summary>
+        /// A delegate called whenever a news banner was added.
+        /// </summary>
+        /// <param name="Timestamp">The timestamp when the news banner was added.</param>
+        /// <param name="NewsBanner">The added news banner.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
+        /// <param name="CurrentUserId">The invoking user identification</param>
+        public delegate Task OnNewsBannerAddedDelegate(DateTime          Timestamp,
+                                                        NewsBanner       NewsBanner,
+                                                        EventTracking_Id  EventTrackingId   = null,
+                                                        User_Id?          CurrentUserId     = null);
+
+        /// <summary>
+        /// An event fired whenever a news banner was added.
+        /// </summary>
+        public event OnNewsBannerAddedDelegate OnNewsBannerAdded;
+
+
+        #region (protected) _AddNewsBanner(NewsBanner,                                OnAdded = null, CurrentUserId = null)
 
         /// <summary>
         /// Add the given news banner to the API.
         /// </summary>
-        /// <param name="News">A news banner.</param>
+        /// <param name="NewsBanner">A new news banner to be added to this API.</param>
+        /// <param name="OnAdded">A delegate run whenever the news banner had been added successfully.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
-        public async Task<NewsBanner> AddNewsBanner(NewsBanner  NewsBanner,
-                                                      User_Id?     CurrentUserId  = null)
+        protected async Task<NewsBanner> _AddNewsBanner(NewsBanner                            NewsBanner,
+                                                          Action<NewsBanner, EventTracking_Id>  OnAdded           = null,
+                                                          EventTracking_Id                       EventTrackingId   = null,
+                                                          User_Id?                               CurrentUserId     = null)
         {
 
-            if (NewsBanner == null)
-                throw new ArgumentException(nameof(NewsBanner), "The given news banner must not be null!");
+            if (NewsBanner is null)
+                throw new ArgumentNullException(nameof(NewsBanner),
+                                                "The given news banner must not be null!");
 
             if (NewsBanner.API != null && NewsBanner.API != this)
-                throw new ArgumentException(nameof(NewsBanner), "The given news banner is already attached to another API!");
+                throw new ArgumentException    ("The given news banner is already attached to another API!",
+                                                nameof(NewsBanner));
 
-            try
-            {
+            if (_NewsBanners.ContainsKey(NewsBanner.Id))
+                throw new ArgumentException    ("User group identification '" + NewsBanner.Id + "' already exists!",
+                                                nameof(NewsBanner));
 
-                await NewsBannersSemaphore.WaitAsync();
+            if (NewsBanner.Id.Length < MinNewsBannerIdLength)
+                throw new ArgumentException    ("User group identification '" + NewsBanner.Id + "' is too short!",
+                                                nameof(NewsBanner));
 
-                if (_NewsBanners.ContainsKey(NewsBanner.Id))
-                    throw new Exception("news banner '" + NewsBanner.Id + "' already exists in this API!");
+            NewsBanner.API = this;
 
-                await WriteToLogfileAndNotify(NewsBanner,
-                                              addNewsBanner_MessageType,
-                                              CurrentUserId: CurrentUserId);
 
-                NewsBanner.API = this;
+            var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
 
-                return _NewsBanners.AddAndReturnValue(NewsBanner.Id, NewsBanner);
+            await WriteToDatabaseFile(addNewsBanner_MessageType,
+                                      NewsBanner.ToJSON(false, true),
+                                      eventTrackingId,
+                                      CurrentUserId);
 
-            }
-            finally
-            {
-                NewsBannersSemaphore.Release();
-            }
+            _NewsBanners.Add(NewsBanner.Id, NewsBanner);
+
+
+            var OnNewsBannerAddedLocal = OnNewsBannerAdded;
+            if (OnNewsBannerAddedLocal != null)
+                await OnNewsBannerAddedLocal?.Invoke(DateTime.UtcNow,
+                                                      NewsBanner,
+                                                      eventTrackingId,
+                                                      CurrentUserId);
+
+            await SendNotifications(NewsBanner,
+                                    addUser_MessageType,
+                                    null,
+                                    eventTrackingId,
+                                    CurrentUserId);
+
+            OnAdded?.Invoke(NewsBanner,
+                            eventTrackingId);
+
+            return NewsBanner;
 
         }
 
         #endregion
 
-        #region AddNewsBannerIfNotExists(NewsBanner,   CurrentUserId = null)
+        #region AddNewsBanner             (NewsBanner,                                OnAdded = null, CurrentUserId = null)
 
         /// <summary>
-        /// Add the given news banner to the API.
+        /// Add the given news banner.
         /// </summary>
-        /// <param name="NewsBanner">A news banner.</param>
+        /// <param name="NewsBanner">A new news banner.</param>
+        /// <param name="OnAdded">A delegate run whenever the news banner had been added successfully.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
-        public async Task<NewsBanner> AddNewsBannerIfNotExists(NewsBanner  NewsBanner,
-                                                               User_Id?    CurrentUserId  = null)
+        public async Task<NewsBanner> AddNewsBanner(NewsBanner                            NewsBanner,
+                                                      Action<NewsBanner, EventTracking_Id>  OnAdded           = null,
+                                                      EventTracking_Id                       EventTrackingId   = null,
+                                                      User_Id?                               CurrentUserId     = null)
         {
 
-            if (NewsBanner == null)
-                throw new ArgumentException(nameof(NewsBanner), "The given news banner must not be null!");
-
-            if (NewsBanner.API != null && NewsBanner.API != this)
-                throw new ArgumentException(nameof(NewsBanner), "The given news banner is already attached to another API!");
+            if (NewsBanner is null)
+                throw new ArgumentNullException(nameof(NewsBanner), "The given news banner must not be null!");
 
             try
             {
 
-                await NewsBannersSemaphore.WaitAsync();
+                return (await NewsBannersSemaphore.WaitAsync(SemaphoreSlimTimeout))
 
-                if (_NewsBanners.TryGetValue(NewsBanner.Id, out NewsBanner OldNewsBanner))
-                    return OldNewsBanner;
+                            ? await _AddNewsBanner(NewsBanner,
+                                                    OnAdded,
+                                                    EventTrackingId,
+                                                    CurrentUserId)
 
-                await WriteToLogfileAndNotify(NewsBanner,
-                                              addNewsBannerIfNotExists_MessageType,
-                                              CurrentUserId: CurrentUserId);
-
-                NewsBanner.API = this;
-
-                return _NewsBanners.AddAndReturnValue(NewsBanner.Id, NewsBanner);
+                            : null;
 
             }
             finally
             {
-                NewsBannersSemaphore.Release();
+                try
+                {
+                    NewsBannersSemaphore.Release();
+                }
+                catch
+                { }
             }
 
         }
 
         #endregion
 
-        #region AddOrUpdateNewsBanner   (NewsBanner,   CurrentUserId = null)
+        #endregion
+
+        #region AddNewsBannerIfNotExists(NewsBanner, OnAdded = null,                   CurrentUserId = null)
+
+        #region (protected) _AddNewsBannerIfNotExists(NewsBanner,                                OnAdded = null, CurrentUserId = null)
+
+        /// <summary>
+        /// When it has not been created before, add the given news banner to the API.
+        /// </summary>
+        /// <param name="NewsBanner">A new news banner to be added to this API.</param>
+        /// <param name="OnAdded">A delegate run whenever the news banner had been added successfully.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
+        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
+        protected async Task<NewsBanner> _AddNewsBannerIfNotExists(NewsBanner                            NewsBanner,
+                                                                     Action<NewsBanner, EventTracking_Id>  OnAdded           = null,
+                                                                     EventTracking_Id                       EventTrackingId   = null,
+                                                                     User_Id?                               CurrentUserId     = null)
+        {
+
+            if (NewsBanner is null)
+                throw new ArgumentNullException(nameof(NewsBanner),
+                                                "The given news banner must not be null!");
+
+            if (NewsBanner.API != null && NewsBanner.API != this)
+                throw new ArgumentException    ("The given news banner is already attached to another API!",
+                                                nameof(NewsBanner));
+
+            if (_NewsBanners.ContainsKey(NewsBanner.Id))
+                return _NewsBanners[NewsBanner.Id];
+
+            if (NewsBanner.Id.Length < MinNewsBannerIdLength)
+                throw new ArgumentException    ("User group identification '" + NewsBanner.Id + "' is too short!",
+                                                nameof(NewsBanner));
+
+            NewsBanner.API = this;
+
+
+            var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
+
+            await WriteToDatabaseFile(addNewsBannerIfNotExists_MessageType,
+                                      NewsBanner.ToJSON(false, true),
+                                      eventTrackingId,
+                                      CurrentUserId);
+
+            _NewsBanners.Add(NewsBanner.Id, NewsBanner);
+
+            var OnNewsBannerAddedLocal = OnNewsBannerAdded;
+            if (OnNewsBannerAddedLocal != null)
+                await OnNewsBannerAddedLocal?.Invoke(DateTime.UtcNow,
+                                                      NewsBanner,
+                                                      eventTrackingId,
+                                                      CurrentUserId);
+
+            await SendNotifications(NewsBanner,
+                                    addNewsBannerIfNotExists_MessageType,
+                                    null,
+                                    eventTrackingId,
+                                    CurrentUserId);
+
+            OnAdded?.Invoke(NewsBanner,
+                            eventTrackingId);
+
+            return NewsBanner;
+
+        }
+
+        #endregion
+
+        #region AddNewsBannerIfNotExists             (NewsBanner,                                OnAdded = null, CurrentUserId = null)
+
+        /// <summary>
+        /// Add the given news banner.
+        /// </summary>
+        /// <param name="NewsBanner">A new news banner.</param>
+        /// <param name="OnAdded">A delegate run whenever the news banner had been added successfully.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
+        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
+        public async Task<NewsBanner> AddNewsBannerIfNotExists(NewsBanner                            NewsBanner,
+                                                                 Action<NewsBanner, EventTracking_Id>  OnAdded           = null,
+                                                                 EventTracking_Id                       EventTrackingId   = null,
+                                                                 User_Id?                               CurrentUserId     = null)
+        {
+
+            try
+            {
+
+                return (await NewsBannersSemaphore.WaitAsync(SemaphoreSlimTimeout))
+
+                            ? await _AddNewsBannerIfNotExists(NewsBanner,
+                                                             OnAdded,
+                                                             EventTrackingId,
+                                                             CurrentUserId)
+
+                            : null;
+
+            }
+            finally
+            {
+                try
+                {
+                    NewsBannersSemaphore.Release();
+                }
+                catch
+                { }
+            }
+
+        }
+
+        #endregion
+
+        #endregion
+
+        #region AddOrUpdateNewsBanner   (NewsBanner, OnAdded = null, OnUpdated = null, CurrentUserId = null)
+
+        #region (protected) _AddOrUpdateNewsBanner   (NewsBanner,   OnAdded = null, OnUpdated = null, CurrentUserId = null)
 
         /// <summary>
         /// Add or update the given news banner to/within the API.
         /// </summary>
         /// <param name="NewsBanner">A news banner.</param>
-        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
-        public async Task<NewsBanner> AddOrUpdateNewsBanner(NewsBanner  NewsBanner,
-                                                              User_Id?     CurrentUserId = null)
+        /// <param name="OnAdded">A delegate run whenever the news banner had been added successfully.</param>
+        /// <param name="OnUpdated">A delegate run whenever the news banner had been updated successfully.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
+        /// <param name="CurrentUserId">An optional news banner identification initiating this command/request.</param>
+        protected async Task<NewsBanner> _AddOrUpdateNewsBanner(NewsBanner                            NewsBanner,
+                                                                  Action<NewsBanner, EventTracking_Id>  OnAdded           = null,
+                                                                  Action<NewsBanner, EventTracking_Id>  OnUpdated         = null,
+                                                                  EventTracking_Id                       EventTrackingId   = null,
+                                                                  User_Id?                               CurrentUserId     = null)
         {
 
-            if (NewsBanner == null)
-                throw new ArgumentException(nameof(NewsBanner), "The given news banner must not be null!");
+            if (NewsBanner is null)
+                throw new ArgumentNullException(nameof(NewsBanner),
+                                                "The given news banner must not be null!");
 
             if (NewsBanner.API != null && NewsBanner.API != this)
-                throw new ArgumentException(nameof(NewsBanner), "The given news banner is already attached to another API!");
+                throw new ArgumentException    ("The given news banner is already attached to another API!",
+                                                nameof(NewsBanner));
 
-            NewsBanner OldNewsBanner  = null;
-            DateTime    Now             = DateTime.UtcNow;
+            if (_NewsBanners.ContainsKey(NewsBanner.Id))
+                return _NewsBanners[NewsBanner.Id];
 
-            try
+            if (NewsBanner.Id.Length < MinNewsBannerIdLength)
+                throw new ArgumentException    ("NewsBanner identification '" + NewsBanner.Id + "' is too short!",
+                                                nameof(NewsBanner));
+
+            NewsBanner.API = this;
+
+
+            var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
+
+            await WriteToDatabaseFile(addOrUpdateNewsBanner_MessageType,
+                                      NewsBanner.ToJSON(false, true),
+                                      eventTrackingId,
+                                      CurrentUserId);
+
+            if (_NewsBanners.TryGetValue(NewsBanner.Id, out NewsBanner OldNewsBanner))
             {
-
-                await NewsBannersSemaphore.WaitAsync();
-
-                NewsBanner.API = this;
-
-                if (_NewsBanners.TryGetValue(NewsBanner.Id, out OldNewsBanner))
-                {
-                    _NewsBanners.Remove(OldNewsBanner.Id);
-                    NewsBanner.CopyAllLinkedDataFrom(OldNewsBanner);
-                }
-
-                await WriteToLogfileAndNotify(NewsBanner,
-                                              addOrUpdateNewsBanner_MessageType,
-                                              OldNewsBanner,
-                                              CurrentUserId);
-
-                _NewsBanners.Add(NewsBanner.Id, NewsBanner);
-
-            }
-            finally
-            {
-                NewsBannersSemaphore.Release();
-            }
-
-            return NewsBanner;
-
-        }
-
-        #endregion
-
-        #region UpdateNewsBanner        (NewsBanner,   CurrentUserId = null)
-
-        /// <summary>
-        /// Update the given news banner within the API.
-        /// </summary>
-        /// <param name="NewsBanner">A news banner.</param>
-        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
-        public async Task<NewsBanner> UpdateNewsBanner(NewsBanner  NewsBanner,
-                                                         User_Id?     CurrentUserId   = null)
-        {
-
-            if (NewsBanner == null)
-                throw new ArgumentException(nameof(NewsBanner), "The given news banner must not be null!");
-
-            if (NewsBanner.API != null && NewsBanner.API != this)
-                throw new ArgumentException(nameof(NewsBanner), "The given news banner is already attached to another API!");
-
-            DateTime Now = DateTime.UtcNow;
-
-            try
-            {
-
-                await NewsBannersSemaphore.WaitAsync();
-
-                if (!_NewsBanners.TryGetValue(NewsBanner.Id, out NewsBanner OldNewsBanner))
-                    throw new Exception("News banner '" + NewsBanner.Id + "' does not exists in this API!");
-
-
-                await WriteToLogfileAndNotify(NewsBanner,
-                                              updateNewsBanner_MessageType,
-                                              OldNewsBanner,
-                                              CurrentUserId);
-
-                NewsBanner.API = this;
-
                 _NewsBanners.Remove(OldNewsBanner.Id);
                 NewsBanner.CopyAllLinkedDataFrom(OldNewsBanner);
+            }
 
-                _NewsBanners.Add(NewsBanner.Id, NewsBanner);
+            _NewsBanners.Add(NewsBanner.Id, NewsBanner);
+
+            if (OldNewsBanner != null)
+            {
+
+                var OnNewsBannerUpdatedLocal = OnNewsBannerUpdated;
+                if (OnNewsBannerUpdatedLocal != null)
+                    await OnNewsBannerUpdatedLocal?.Invoke(DateTime.UtcNow,
+                                                            NewsBanner,
+                                                            OldNewsBanner,
+                                                            eventTrackingId,
+                                                            CurrentUserId);
+
+                await SendNotifications(NewsBanner,
+                                        updateNewsBanner_MessageType,
+                                        OldNewsBanner,
+                                        eventTrackingId,
+                                        CurrentUserId);
+
+                OnUpdated?.Invoke(NewsBanner,
+                                  eventTrackingId);
 
             }
-            finally
+            else
             {
-                NewsBannersSemaphore.Release();
+
+                var OnNewsBannerAddedLocal = OnNewsBannerAdded;
+                if (OnNewsBannerAddedLocal != null)
+                    await OnNewsBannerAddedLocal?.Invoke(DateTime.UtcNow,
+                                                          NewsBanner,
+                                                          eventTrackingId,
+                                                          CurrentUserId);
+
+                await SendNotifications(NewsBanner,
+                                        addNewsBanner_MessageType,
+                                        null,
+                                        eventTrackingId,
+                                        CurrentUserId);
+
+                OnAdded?.Invoke(NewsBanner,
+                                eventTrackingId);
+
             }
 
             return NewsBanner;
@@ -25584,164 +26976,428 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
-        #region UpdateNewsBanner        (NewsBannerId, UpdateDelegate, CurrentUserId = null)
+        #region AddOrUpdateNewsBanner   (NewsBanner,   OnAdded = null, OnUpdated = null, CurrentUserId = null)
+
+        /// <summary>
+        /// Add or update the given news banner to/within the API.
+        /// </summary>
+        /// <param name="NewsBanner">A news banner.</param>
+        /// <param name="OnAdded">A delegate run whenever the news banner had been added successfully.</param>
+        /// <param name="OnUpdated">A delegate run whenever the news banner had been updated successfully.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
+        /// <param name="CurrentUserId">An optional news banner identification initiating this command/request.</param>
+        public async Task<NewsBanner> AddOrUpdateNewsBanner(NewsBanner                            NewsBanner,
+                                                              Action<NewsBanner, EventTracking_Id>  OnAdded           = null,
+                                                              Action<NewsBanner, EventTracking_Id>  OnUpdated         = null,
+                                                              EventTracking_Id                       EventTrackingId   = null,
+                                                              User_Id?                               CurrentUserId     = null)
+        {
+
+            if (NewsBanner is null)
+                throw new ArgumentNullException(nameof(NewsBanner), "The given news banner must not be null!");
+
+            try
+            {
+
+                return (await NewsBannersSemaphore.WaitAsync(SemaphoreSlimTimeout))
+
+                            ? await _AddOrUpdateNewsBanner(NewsBanner,
+                                                            OnAdded,
+                                                            OnUpdated,
+                                                            EventTrackingId,
+                                                            CurrentUserId)
+
+                            : null;
+
+            }
+            finally
+            {
+                try
+                {
+                    NewsBannersSemaphore.Release();
+                }
+                catch
+                { }
+            }
+
+        }
+
+        #endregion
+
+        #endregion
+
+        #region UpdateNewsBanner        (NewsBanner,                 OnUpdated = null, CurrentUserId = null)
+
+        /// <summary>
+        /// A delegate called whenever a news banner was updated.
+        /// </summary>
+        /// <param name="Timestamp">The timestamp when the news banner was updated.</param>
+        /// <param name="NewsBanner">The updated news banner.</param>
+        /// <param name="OldNewsBanner">The old news banner.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
+        /// <param name="CurrentUserId">The invoking news banner identification</param>
+        public delegate Task OnNewsBannerUpdatedDelegate(DateTime          Timestamp,
+                                                          NewsBanner       NewsBanner,
+                                                          NewsBanner       OldNewsBanner,
+                                                          EventTracking_Id  EventTrackingId   = null,
+                                                          User_Id?          CurrentUserId     = null);
+
+        /// <summary>
+        /// An event fired whenever a news banner was updated.
+        /// </summary>
+        public event OnNewsBannerUpdatedDelegate OnNewsBannerUpdated;
+
+
+        #region (protected) _UpdateNewsBanner(NewsBanner, OnUpdated = null, CurrentUserId = null)
+
+        /// <summary>
+        /// Update the given news banner to/within the API.
+        /// </summary>
+        /// <param name="NewsBanner">A news banner.</param>
+        /// <param name="OnUpdated">A delegate run whenever the news banner had been updated successfully.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
+        /// <param name="CurrentUserId">An optional news banner identification initiating this command/request.</param>
+        protected async Task<NewsBanner> _UpdateNewsBanner(NewsBanner                            NewsBanner,
+                                                             Action<NewsBanner, EventTracking_Id>  OnUpdated         = null,
+                                                             EventTracking_Id                       EventTrackingId   = null,
+                                                             User_Id?                               CurrentUserId     = null)
+        {
+
+            if (NewsBanner is null)
+                throw new ArgumentNullException(nameof(NewsBanner),
+                                                "The given news banner must not be null!");
+
+            if (NewsBanner.API != null && NewsBanner.API != this)
+                throw new ArgumentException    ("The given news banner is already attached to another API!",
+                                                nameof(NewsBanner));
+
+            if (!_NewsBanners.TryGetValue(NewsBanner.Id, out NewsBanner OldNewsBanner))
+                throw new ArgumentException    ("The given news banner '" + NewsBanner.Id + "' does not exists in this API!",
+                                                nameof(NewsBanner));
+
+            NewsBanner.API = this;
+
+
+            var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
+
+            await WriteToDatabaseFile(updateNewsBanner_MessageType,
+                                      NewsBanner.ToJSON(),
+                                      eventTrackingId,
+                                      CurrentUserId);
+
+            _NewsBanners.Remove(OldNewsBanner.Id);
+            NewsBanner.CopyAllLinkedDataFrom(OldNewsBanner);
+
+
+            var OnNewsBannerUpdatedLocal = OnNewsBannerUpdated;
+            if (OnNewsBannerUpdatedLocal != null)
+                await OnNewsBannerUpdatedLocal?.Invoke(DateTime.UtcNow,
+                                                        NewsBanner,
+                                                        OldNewsBanner,
+                                                        eventTrackingId,
+                                                        CurrentUserId);
+
+            await SendNotifications(NewsBanner,
+                                    updateNewsBanner_MessageType,
+                                    OldNewsBanner,
+                                    eventTrackingId,
+                                    CurrentUserId);
+
+            OnUpdated?.Invoke(NewsBanner,
+                              eventTrackingId);
+
+            return NewsBanner;
+
+        }
+
+        #endregion
+
+        #region UpdateNewsBanner             (NewsBanner, OnUpdated = null, CurrentUserId = null)
+
+        /// <summary>
+        /// Update the given news banner to/within the API.
+        /// </summary>
+        /// <param name="NewsBanner">A news banner.</param>
+        /// <param name="OnUpdated">A delegate run whenever the news banner had been updated successfully.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
+        /// <param name="CurrentUserId">An optional news banner identification initiating this command/request.</param>
+        public async Task<NewsBanner> UpdateNewsBanner(NewsBanner                            NewsBanner,
+                                                         Action<NewsBanner, EventTracking_Id>  OnUpdated         = null,
+                                                         EventTracking_Id                       EventTrackingId   = null,
+                                                         User_Id?                               CurrentUserId     = null)
+        {
+
+            if (NewsBanner is null)
+                throw new ArgumentNullException(nameof(NewsBanner), "The given news banner must not be null!");
+
+            try
+            {
+
+                return (await NewsBannersSemaphore.WaitAsync(SemaphoreSlimTimeout))
+
+                            ? await _UpdateNewsBanner(NewsBanner,
+                                                       OnUpdated,
+                                                       EventTrackingId,
+                                                       CurrentUserId)
+
+                            : null;
+
+            }
+            finally
+            {
+                try
+                {
+                    NewsBannersSemaphore.Release();
+                }
+                catch
+                { }
+            }
+
+        }
+
+        #endregion
+
+
+        #region (protected) _UpdateNewsBanner(NewsBannerId, UpdateDelegate, OnUpdated = null, CurrentUserId = null)
 
         /// <summary>
         /// Update the given news banner.
         /// </summary>
-        /// <param name="NewsBannerId">A news banner identification.</param>
+        /// <param name="NewsBannerId">An news banner identification.</param>
         /// <param name="UpdateDelegate">A delegate to update the given news banner.</param>
-        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
-        public async Task<NewsBanner> Update(NewsBanner_Id               NewsBannerId,
-                                              Action<NewsBanner.Builder>  UpdateDelegate,
-                                              User_Id?                     CurrentUserId  = null)
+        /// <param name="OnUpdated">A delegate run whenever the news banner had been updated successfully.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
+        /// <param name="CurrentUserId">An optional news banner identification initiating this command/request.</param>
+        protected async Task<NewsBanner> _UpdateNewsBanner(NewsBanner_Id                         NewsBannerId,
+                                                             Action<NewsBanner.Builder>            UpdateDelegate,
+                                                             Action<NewsBanner, EventTracking_Id>  OnUpdated         = null,
+                                                             EventTracking_Id                       EventTrackingId   = null,
+                                                             User_Id?                               CurrentUserId     = null)
         {
 
-            NewsBanner NewsBanner;
-            DateTime Now = DateTime.UtcNow;
+            if (NewsBannerId.IsNullOrEmpty)
+                throw new ArgumentNullException(nameof(NewsBannerId),
+                                                "The given news banner identification must not be null or empty!");
 
-            try
-            {
+            if (UpdateDelegate == null)
+                throw new ArgumentNullException(nameof(UpdateDelegate),
+                                                "The given update delegate must not be null!");
 
-                if (UpdateDelegate == null)
-                    throw new Exception("The given update delegate must not be null!");
+            if (!_NewsBanners.TryGetValue(NewsBannerId, out NewsBanner OldNewsBanner))
+                throw new ArgumentException    ("The given news banner '" + NewsBannerId + "' does not exists in this API!",
+                                                nameof(NewsBannerId));
 
-                await NewsBannersSemaphore.WaitAsync();
+            var Builder = OldNewsBanner.ToBuilder();
+            UpdateDelegate(Builder);
+            var NewNewsBanner = Builder.ToImmutable;
 
-                if (!_NewsBanners.TryGetValue(NewsBannerId, out NewsBanner OldNewsBanner))
-                    throw new Exception("News banner '" + NewsBannerId + "' does not exists in this API!");
 
-                var Builder = OldNewsBanner.ToBuilder();
-                UpdateDelegate(Builder);
-                NewsBanner = Builder.ToImmutable;
-                NewsBanner.API = this;
+            var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
 
-                await WriteToLogfileAndNotify(NewsBanner,
-                                              updateNewsBanner_MessageType,
-                                              OldNewsBanner,
-                                              CurrentUserId);
+            await WriteToDatabaseFile(updateNewsBanner_MessageType,
+                                      NewNewsBanner.ToJSON(),
+                                      eventTrackingId,
+                                      CurrentUserId);
 
-                _NewsBanners.Remove(OldNewsBanner.Id);
-                //OldNews.CopyAllEdgesTo(News);
-                _NewsBanners.Add(NewsBanner.Id, NewsBanner);
+            _NewsBanners.Remove(OldNewsBanner.Id);
+            NewNewsBanner.CopyAllLinkedDataFrom(OldNewsBanner);
 
-            }
-            finally
-            {
-                NewsBannersSemaphore.Release();
-            }
 
-            return NewsBanner;
+            var OnNewsBannerUpdatedLocal = OnNewsBannerUpdated;
+            if (OnNewsBannerUpdatedLocal != null)
+                await OnNewsBannerUpdatedLocal?.Invoke(DateTime.UtcNow,
+                                                        NewNewsBanner,
+                                                        OldNewsBanner,
+                                                        eventTrackingId,
+                                                        CurrentUserId);
+
+            await SendNotifications(NewNewsBanner,
+                                    updateNewsBanner_MessageType,
+                                    OldNewsBanner,
+                                    eventTrackingId,
+                                    CurrentUserId);
+
+            OnUpdated?.Invoke(NewNewsBanner,
+                              eventTrackingId);
+
+            return NewNewsBanner;
 
         }
 
         #endregion
 
-        #region RemoveNewsBanner        (NewsBannerId, CurrentUserId = null)
+        #region UpdateNewsBanner             (NewsBannerId, UpdateDelegate, OnUpdated = null, CurrentUserId = null)
 
         /// <summary>
-        /// Remove the given news banner from this API.
+        /// Update the given news banner.
         /// </summary>
-        /// <param name="NewsBannerId">The unique identification of the news banner.</param>
-        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
-        public async Task<NewsBanner> RemoveNewsBanner(NewsBanner_Id  NewsBannerId,
-                                                         User_Id?        CurrentUserId  = null)
+        /// <param name="NewsBannerId">An news banner identification.</param>
+        /// <param name="UpdateDelegate">A delegate to update the given news banner.</param>
+        /// <param name="OnUpdated">A delegate run whenever the news banner had been updated successfully.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
+        /// <param name="CurrentUserId">An optional news banner identification initiating this command/request.</param>
+        public async Task<NewsBanner> UpdateNewsBanner(NewsBanner_Id                         NewsBannerId,
+                                                         Action<NewsBanner.Builder>            UpdateDelegate,
+                                                         Action<NewsBanner, EventTracking_Id>  OnUpdated         = null,
+                                                         EventTracking_Id                       EventTrackingId   = null,
+                                                         User_Id?                               CurrentUserId     = null)
+        {
+
+            if (NewsBannerId.IsNullOrEmpty)
+                throw new ArgumentNullException(nameof(NewsBannerId), "The given news banner identification must not be null or empty!");
+
+            try
+            {
+
+                return (await NewsBannersSemaphore.WaitAsync(SemaphoreSlimTimeout))
+
+                            ? await _UpdateNewsBanner(NewsBannerId,
+                                                       UpdateDelegate,
+                                                       OnUpdated,
+                                                       EventTrackingId,
+                                                       CurrentUserId)
+
+                            : null;
+
+            }
+            finally
+            {
+                try
+                {
+                    NewsBannersSemaphore.Release();
+                }
+                catch
+                { }
+            }
+
+        }
+
+        #endregion
+
+        #endregion
+
+
+        #region NewsBannerExists(NewsBannerId)
+
+        /// <summary>
+        /// Determines whether the given news banner identification exists within this API.
+        /// </summary>
+        /// <param name="NewsBannerId">The unique identification of an news banner.</param>
+        protected Boolean _NewsBannerExists(NewsBanner_Id NewsBannerId)
+
+            => !NewsBannerId.IsNullOrEmpty && _NewsBanners.ContainsKey(NewsBannerId);
+
+
+        /// <summary>
+        /// Determines whether the given news banner identification exists within this API.
+        /// </summary>
+        /// <param name="NewsBannerId">The unique identification of an news banner.</param>
+        public Boolean NewsBannerExists(NewsBanner_Id NewsBannerId)
         {
 
             try
             {
 
-                await NewsBannersSemaphore.WaitAsync();
-
-                if (_NewsBanners.TryGetValue(NewsBannerId, out NewsBanner NewsBanner))
+                if (NewsBannersSemaphore.Wait(SemaphoreSlimTimeout) &&
+                    _NewsBannerExists(NewsBannerId))
                 {
-
-                    await WriteToLogfileAndNotify(NewsBanner,
-                                                  removeNewsBanner_MessageType,
-                                                  CurrentUserId: CurrentUserId);
-
-                    _NewsBanners.Remove(NewsBannerId);
-
-                    NewsBanner.API = null;
-
-                    return NewsBanner;
-
+                    return true;
                 }
 
-                return null;
-
             }
+            catch
+            { }
             finally
             {
-                NewsBannersSemaphore.Release();
+                try
+                {
+                    NewsBannersSemaphore.Release();
+                }
+                catch
+                { }
             }
+
+            return false;
 
         }
 
         #endregion
 
-
-        #region ContainsNewsBanner      (NewsBannerId)
+        #region GetNewsBanner   (NewsBannerId)
 
         /// <summary>
-        /// Whether this API contains a news banner having the given unique identification.
+        /// Get the news banner having the given unique identification.
         /// </summary>
-        /// <param name="NewsBannerId">The unique identification of the news banner.</param>
-        public Boolean ContainsNewsBanner(NewsBanner_Id NewsBannerId)
+        /// <param name="NewsBannerId">The unique identification of an news banner.</param>
+        protected NewsBanner _GetNewsBanner(NewsBanner_Id NewsBannerId)
         {
 
-            try
-            {
+            if (!NewsBannerId.IsNullOrEmpty && _NewsBanners.TryGetValue(NewsBannerId, out NewsBanner newsBanner))
+                return newsBanner;
 
-                NewsBannersSemaphore.Wait();
-
-                return _NewsBanners.ContainsKey(NewsBannerId);
-
-            }
-            finally
-            {
-                NewsBannersSemaphore.Release();
-            }
+            return null;
 
         }
 
-        #endregion
-
-        #region GetNewsBanner           (NewsBannerId)
 
         /// <summary>
         /// Get the news banner having the given unique identification.
         /// </summary>
         /// <param name="NewsBannerId">The unique identification of the news banner.</param>
-        public async Task<NewsBanner> GetNewsBanner(NewsBanner_Id  NewsBannerId)
+        public NewsBanner GetNewsBanner(NewsBanner_Id NewsBannerId)
         {
 
             try
             {
 
-                await NewsBannersSemaphore.WaitAsync();
-
-                if (_NewsBanners.TryGetValue(NewsBannerId, out NewsBanner newsBanner))
-                    return newsBanner;
-
-                return null;
+                if (NewsBannersSemaphore.Wait(SemaphoreSlimTimeout))
+                    return _GetNewsBanner(NewsBannerId);
 
             }
+            catch
+            { }
             finally
             {
-                NewsBannersSemaphore.Release();
+                try
+                {
+                    NewsBannersSemaphore.Release();
+                }
+                catch
+                { }
             }
+
+            return null;
 
         }
 
         #endregion
 
-        #region TryGetNewsBanner        (NewsBannerId, out NewsBanner)
+        #region TryGetNewsBanner(NewsBannerId, out NewsBanner)
 
         /// <summary>
         /// Try to get the news banner having the given unique identification.
         /// </summary>
-        /// <param name="NewsId">The unique identification of the news banner.</param>
+        /// <param name="NewsBannerId">The unique identification of an news banner.</param>
+        /// <param name="NewsBanner">The news banner.</param>
+        protected Boolean _TryGetNewsBanner(NewsBanner_Id NewsBannerId, out NewsBanner NewsBanner)
+        {
+
+            if (!NewsBannerId.IsNullOrEmpty && _NewsBanners.TryGetValue(NewsBannerId, out NewsBanner newsBanner))
+            {
+                NewsBanner = newsBanner;
+                return true;
+            }
+
+            NewsBanner = null;
+            return false;
+
+        }
+
+
+        /// <summary>
+        /// Try to get the news banner having the given unique identification.
+        /// </summary>
+        /// <param name="NewsBannerId">The unique identification of an news banner.</param>
         /// <param name="NewsBanner">The news banner.</param>
         public Boolean TryGetNewsBanner(NewsBanner_Id   NewsBannerId,
                                          out NewsBanner  NewsBanner)
@@ -25750,17 +27406,226 @@ namespace social.OpenData.UsersAPI
             try
             {
 
-                NewsBannersSemaphore.Wait();
+                if (NewsBannersSemaphore.Wait(SemaphoreSlimTimeout) &&
+                    _TryGetNewsBanner(NewsBannerId, out NewsBanner newsBanner))
+                {
+                    NewsBanner = newsBanner;
+                    return true;
+                }
 
-                return _NewsBanners.TryGetValue(NewsBannerId, out NewsBanner);
+            }
+            catch
+            { }
+            finally
+            {
+                try
+                {
+                    NewsBannersSemaphore.Release();
+                }
+                catch
+                { }
+            }
 
+            NewsBanner = null;
+            return false;
+
+        }
+
+        #endregion
+
+
+        #region RemoveNewsBanner(NewsBanner, OnRemoved = null, CurrentUserId = null)
+
+        /// <summary>
+        /// A delegate called whenever a news banner was removed.
+        /// </summary>
+        /// <param name="Timestamp">The timestamp when the news banner was removed.</param>
+        /// <param name="NewsBanner">The removed news banner.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
+        /// <param name="CurrentUserId">The invoking news banner identification</param>
+        public delegate Task OnNewsBannerRemovedDelegate(DateTime          Timestamp,
+                                                          NewsBanner       NewsBanner,
+                                                          EventTracking_Id  EventTrackingId   = null,
+                                                          User_Id?          CurrentUserId     = null);
+
+        /// <summary>
+        /// An event fired whenever a news banner was removed.
+        /// </summary>
+        public event OnNewsBannerRemovedDelegate OnNewsBannerRemoved;
+
+
+        #region (class) DeleteNewsBannerResult
+
+        public class DeleteNewsBannerResult
+        {
+
+            public Boolean     IsSuccess           { get; }
+
+            public I18NString  ErrorDescription    { get; }
+
+
+            private DeleteNewsBannerResult(Boolean     IsSuccess,
+                                          I18NString  ErrorDescription  = null)
+            {
+                this.IsSuccess         = IsSuccess;
+                this.ErrorDescription  = ErrorDescription;
+            }
+
+
+            public static DeleteNewsBannerResult Success
+
+                => new DeleteNewsBannerResult(true);
+
+            public static DeleteNewsBannerResult Failed(I18NString Reason)
+
+                => new DeleteNewsBannerResult(false,
+                                             Reason);
+
+            public static DeleteNewsBannerResult Failed(Exception Exception)
+
+                => new DeleteNewsBannerResult(false,
+                                             I18NString.Create(Languages.en,
+                                                               Exception.Message));
+
+            public override String ToString()
+
+                => IsSuccess
+                       ? "Success"
+                       : "Failed" + (ErrorDescription.IsNullOrEmpty()
+                                         ? ": " + ErrorDescription.FirstText()
+                                         : "!");
+
+        }
+
+        #endregion
+
+        #region (protected virtual) CanDeleteNewsBanner(NewsBanner)
+
+        /// <summary>
+        /// Determines whether the news banner can safely be removed from the API.
+        /// </summary>
+        /// <param name="NewsBanner">The news banner to be removed.</param>
+        protected virtual I18NString CanDeleteNewsBanner(NewsBanner NewsBanner)
+        {
+            return new I18NString(Languages.en, "Currently not possible!");
+        }
+
+        #endregion
+
+
+        #region (protected) _RemoveNewsBanner(NewsBanner, OnRemoved = null, CurrentUserId = null)
+
+        /// <summary>
+        /// Remove the given news banner from the API.
+        /// </summary>
+        /// <param name="NewsBanner">The news banner to be removed from this API.</param>
+        /// <param name="OnRemoved">A delegate run whenever the news banner had been removed successfully.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
+        /// <param name="CurrentUserId">An optional news banner identification initiating this command/request.</param>
+        protected async Task<DeleteNewsBannerResult> _RemoveNewsBanner(NewsBanner                            NewsBanner,
+                                                                         Action<NewsBanner, EventTracking_Id>  OnRemoved         = null,
+                                                                         EventTracking_Id                       EventTrackingId   = null,
+                                                                         User_Id?                               CurrentUserId     = null)
+        {
+
+            if (NewsBanner is null)
+                throw new ArgumentNullException(nameof(NewsBanner),
+                                                "The given news banner must not be null!");
+
+            if (NewsBanner.API != this || !_NewsBanners.TryGetValue(NewsBanner.Id, out NewsBanner NewsBannerToBeRemoved))
+                throw new ArgumentException    ("The given news banner '" + NewsBanner.Id + "' does not exists in this API!",
+                                                nameof(NewsBanner));
+
+
+            var result = CanDeleteNewsBanner(NewsBanner);
+
+            if (result == null)
+            {
+
+                var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
+
+                await WriteToDatabaseFile(removeNewsBanner_MessageType,
+                                          NewsBanner.ToJSON(false, true),
+                                          eventTrackingId,
+                                          CurrentUserId);
+
+                _NewsBanners.Remove(NewsBanner.Id);
+
+
+                var OnNewsBannerRemovedLocal = OnNewsBannerRemoved;
+                if (OnNewsBannerRemovedLocal != null)
+                    await OnNewsBannerRemovedLocal?.Invoke(DateTime.UtcNow,
+                                                            NewsBanner,
+                                                            eventTrackingId,
+                                                            CurrentUserId);
+
+                await SendNotifications(NewsBanner,
+                                        removeNewsBanner_MessageType,
+                                        null,
+                                        eventTrackingId,
+                                        CurrentUserId);
+
+                OnRemoved?.Invoke(NewsBanner,
+                                  eventTrackingId);
+
+                return DeleteNewsBannerResult.Success;
+
+            }
+            else
+                return DeleteNewsBannerResult.Failed(result);
+
+        }
+
+        #endregion
+
+        #region RemoveNewsBanner             (NewsBanner, OnRemoved = null, CurrentUserId = null)
+
+        /// <summary>
+        /// Remove the given news banner from the API.
+        /// </summary>
+        /// <param name="NewsBanner">The news banner to be removed from this API.</param>
+        /// <param name="OnRemoved">A delegate run whenever the news banner had been removed successfully.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
+        /// <param name="CurrentUserId">An optional news banner identification initiating this command/request.</param>
+        public async Task<DeleteNewsBannerResult> RemoveNewsBanner(NewsBanner                            NewsBanner,
+                                                                     Action<NewsBanner, EventTracking_Id>  OnRemoved         = null,
+                                                                     EventTracking_Id                       EventTrackingId   = null,
+                                                                     User_Id?                               CurrentUserId     = null)
+        {
+
+            if (NewsBanner is null)
+                throw new ArgumentNullException(nameof(NewsBanner), "The given news banner must not be null!");
+
+            try
+            {
+
+                return (await NewsBannersSemaphore.WaitAsync(SemaphoreSlimTimeout))
+
+                            ? await _RemoveNewsBanner(NewsBanner,
+                                                       OnRemoved,
+                                                       EventTrackingId,
+                                                       CurrentUserId)
+
+                            : null;
+
+            }
+            catch (Exception e)
+            {
+                return DeleteNewsBannerResult.Failed(e);
             }
             finally
             {
-                NewsBannersSemaphore.Release();
+                try
+                {
+                    NewsBannersSemaphore.Release();
+                }
+                catch
+                { }
             }
 
         }
+
+        #endregion
 
         #endregion
 
@@ -25770,10 +27635,13 @@ namespace social.OpenData.UsersAPI
 
         #region Data
 
-        private readonly Dictionary<FAQ_Id, FAQ> _FAQs;
+        /// <summary>
+        /// An enumeration of all FAQs.
+        /// </summary>
+        protected readonly Dictionary<FAQ_Id, FAQ> _FAQs;
 
         /// <summary>
-        /// Return an enumeration of all FAQs.
+        /// An enumeration of all FAQs.
         /// </summary>
         public IEnumerable<FAQ> FAQs
         {
@@ -25781,253 +27649,506 @@ namespace social.OpenData.UsersAPI
             {
                 try
                 {
-                    FAQsSemaphore.Wait();
-                    return _FAQs.Values.ToArray();
+                    return FAQsSemaphore.Wait(SemaphoreSlimTimeout)
+                               ? _FAQs.Values.ToArray()
+                               : new FAQ[0];
                 }
                 finally
                 {
-                    FAQsSemaphore.Release();
+                    try
+                    {
+                        FAQsSemaphore.Release();
+                    }
+                    catch
+                    { }
                 }
-
             }
         }
 
         #endregion
 
-        #region (private) GetFAQSerializator(Request, User)
 
-        private FAQToJSONDelegate GetFAQSerializator(HTTPRequest  Request,
-                                                       User         User)
+        #region (protected) WriteToDatabaseFileAndNotify(FAQ, MessageType,  OldFAQ = null, CurrentUserId = null)
+
+        /// <summary>
+        /// Write the given FAQ to the database and send out notifications.
+        /// </summary>
+        /// <param name="FAQ">The FAQ.</param>
+        /// <param name="MessageType">The user notification.</param>
+        /// <param name="OldFAQ">The old/updated FAQ.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
+        /// <param name="CurrentUserId">The invoking user identification</param>
+        protected async Task WriteToDatabaseFileAndNotify(FAQ              FAQ,
+                                                          NotificationMessageType  MessageType,
+                                                          FAQ              OldFAQ    = null,
+                                                          EventTracking_Id         EventTrackingId   = null,
+                                                          User_Id?                 CurrentUserId     = null)
         {
 
-            //if (!Request.X_Portal)
-            //{
-            //    switch (User.Id.ToString())
-            //    {
+            if (FAQ is null)
+                throw new ArgumentNullException(nameof(FAQ),  "The given FAQ must not be null or empty!");
 
-            //        case __issapi:
-            //            return ISSNotificationExtentions.ToISSJSON;
+            if (MessageType.IsNullOrEmpty)
+                throw new ArgumentNullException(nameof(MessageType),  "The given message type must not be null or empty!");
 
-            //    }
-            //}
 
-            return (FAQ,
-                    Embedded,
-                    ExpandTags,
-                    ExpandOwnerId,
-                    IncludeCryptoHash)
-
-                    => FAQ.ToJSON(Embedded,
-                                  ExpandTags,
-                                  ExpandOwnerId,
-                                  IncludeCryptoHash);
-
-        }
-
-        #endregion
-
-        #region WriteToLogfileAndNotify(MessageType, FAQ, OldFAQ = null, CurrentUserId = null)
-
-        public async Task WriteToLogfileAndNotify(FAQ                     FAQ,
-                                                  NotificationMessageType  MessageType,
-                                                  FAQ                     OldFAQ        = null,
-                                                  User_Id?                 CurrentUserId  = null)
-        {
+            var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
 
             await WriteToDatabaseFile(MessageType,
-                                      FAQ.ToJSON(Embedded: false),
-                                      EventTracking_Id.New,
+                                      FAQ.ToJSON(false, true),
+                                      eventTrackingId,
                                       CurrentUserId);
 
-            // Add notifications here!
+            await SendNotifications(FAQ,
+                                    MessageType,
+                                    OldFAQ,
+                                    eventTrackingId,
+                                    CurrentUserId);
+
+        }
+
+        #endregion
+
+        #region (protected) SendNotifications           (FAQ, MessageTypes, OldFAQ = null, CurrentUserId = null)
+
+        /// <summary>
+        /// Send FAQ notifications.
+        /// </summary>
+        /// <param name="FAQ">The FAQ.</param>
+        /// <param name="MessageType">The user notification.</param>
+        /// <param name="OldFAQ">The old/updated FAQ.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
+        /// <param name="CurrentUserId">The invoking user identification</param>
+        protected async Task SendNotifications(FAQ              FAQ,
+                                               NotificationMessageType  MessageType,
+                                               FAQ              OldFAQ    = null,
+                                               EventTracking_Id         EventTrackingId   = null,
+                                               User_Id?                 CurrentUserId     = null)
+        {
+
+            if (FAQ is null)
+                throw new ArgumentNullException(nameof(FAQ),  "The given FAQ must not be null or empty!");
+
+            if (MessageType.IsNullOrEmpty)
+                throw new ArgumentNullException(nameof(MessageType),  "The given message type must not be null or empty!");
+
+
+            await SendNotifications(FAQ,
+                                    new NotificationMessageType[] { MessageType },
+                                    OldFAQ,
+                                    EventTrackingId,
+                                    CurrentUserId);
+
+        }
+
+
+        /// <summary>
+        /// Send FAQ notifications.
+        /// </summary>
+        /// <param name="FAQ">The FAQ.</param>
+        /// <param name="MessageTypes">The user notifications.</param>
+        /// <param name="OldFAQ">The old/updated FAQ.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
+        /// <param name="CurrentUserId">The invoking user identification</param>
+        protected async Task SendNotifications(FAQ                           FAQ,
+                                               IEnumerable<NotificationMessageType>  MessageTypes,
+                                               FAQ                           OldFAQ    = null,
+                                               EventTracking_Id                      EventTrackingId   = null,
+                                               User_Id?                              CurrentUserId     = null)
+        {
+
+            if (FAQ is null)
+                throw new ArgumentNullException(nameof(FAQ),   "The given FAQ must not be null or empty!");
+
+            var messageTypesHash = new HashSet<NotificationMessageType>(MessageTypes.Where(messageType => !messageType.IsNullOrEmpty));
+
+            if (messageTypesHash.IsNullOrEmpty())
+                throw new ArgumentNullException(nameof(MessageTypes),  "The given enumeration of message types must not be null or empty!");
+
+            if (messageTypesHash.Contains(addUserIfNotExists_MessageType))
+                messageTypesHash.Add(addUser_MessageType);
+
+            if (messageTypesHash.Contains(addOrUpdateUser_MessageType))
+                messageTypesHash.Add(OldFAQ == null
+                                       ? addUser_MessageType
+                                       : updateUser_MessageType);
+
+            var messageTypes = messageTypesHash.ToArray();
+
+
+            if (!DisableNotifications)
+            {
+
+
+            }
+
+        }
+
+        #endregion
+
+        #region (protected) GetFAQSerializator(Request, User)
+
+        protected FAQToJSONDelegate GetFAQSerializator(HTTPRequest  Request,
+                                                                       User         User)
+        {
+
+            switch (User?.Id.ToString())
+            {
+
+                default:
+                    return (faq,
+                            embedded,
+                            ExpandTags,
+                            ExpandAuthorId,
+                            includeCryptoHash)
+
+                            => faq.ToJSON(embedded,
+                                                  ExpandTags,
+                                                  ExpandAuthorId,
+                                                  includeCryptoHash);
+
+            }
 
         }
 
         #endregion
 
 
-        #region AddFAQ           (FAQ,   CurrentUserId = null)
+        #region AddFAQ           (FAQ, OnAdded = null,                   CurrentUserId = null)
+
+        /// <summary>
+        /// A delegate called whenever a FAQ was added.
+        /// </summary>
+        /// <param name="Timestamp">The timestamp when the FAQ was added.</param>
+        /// <param name="FAQ">The added FAQ.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
+        /// <param name="CurrentUserId">The invoking user identification</param>
+        public delegate Task OnFAQAddedDelegate(DateTime          Timestamp,
+                                                        FAQ       FAQ,
+                                                        EventTracking_Id  EventTrackingId   = null,
+                                                        User_Id?          CurrentUserId     = null);
+
+        /// <summary>
+        /// An event fired whenever a FAQ was added.
+        /// </summary>
+        public event OnFAQAddedDelegate OnFAQAdded;
+
+
+        #region (protected) _AddFAQ(FAQ,                                OnAdded = null, CurrentUserId = null)
 
         /// <summary>
         /// Add the given FAQ to the API.
         /// </summary>
-        /// <param name="FAQ">A FAQ.</param>
+        /// <param name="FAQ">A new FAQ to be added to this API.</param>
+        /// <param name="OnAdded">A delegate run whenever the FAQ had been added successfully.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
-        public async Task<FAQ> AddFAQ(FAQ       FAQ,
-                                      User_Id?  CurrentUserId  = null)
+        protected async Task<FAQ> _AddFAQ(FAQ                            FAQ,
+                                                          Action<FAQ, EventTracking_Id>  OnAdded           = null,
+                                                          EventTracking_Id                       EventTrackingId   = null,
+                                                          User_Id?                               CurrentUserId     = null)
         {
 
-            if (FAQ == null)
-                throw new ArgumentException(nameof(FAQ), "The given FAQ must not be null!");
+            if (FAQ is null)
+                throw new ArgumentNullException(nameof(FAQ),
+                                                "The given FAQ must not be null!");
 
             if (FAQ.API != null && FAQ.API != this)
-                throw new ArgumentException(nameof(FAQ), "The given FAQ is already attached to another API!");
+                throw new ArgumentException    ("The given FAQ is already attached to another API!",
+                                                nameof(FAQ));
 
-            try
-            {
+            if (_FAQs.ContainsKey(FAQ.Id))
+                throw new ArgumentException    ("User group identification '" + FAQ.Id + "' already exists!",
+                                                nameof(FAQ));
 
-                await FAQsSemaphore.WaitAsync();
+            if (FAQ.Id.Length < MinFAQIdLength)
+                throw new ArgumentException    ("User group identification '" + FAQ.Id + "' is too short!",
+                                                nameof(FAQ));
 
-                if (_FAQs.ContainsKey(FAQ.Id))
-                    throw new Exception("FAQ '" + FAQ.Id + "' already exists in this API!");
+            FAQ.API = this;
 
-                await WriteToLogfileAndNotify(FAQ,
-                                              addFAQ_MessageType,
-                                              CurrentUserId: CurrentUserId);
 
-                FAQ.API = this;
+            var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
 
-                return _FAQs.AddAndReturnValue(FAQ.Id, FAQ);
+            await WriteToDatabaseFile(addFAQ_MessageType,
+                                      FAQ.ToJSON(false, true),
+                                      eventTrackingId,
+                                      CurrentUserId);
 
-            }
-            finally
-            {
-                FAQsSemaphore.Release();
-            }
+            _FAQs.Add(FAQ.Id, FAQ);
+
+
+            var OnFAQAddedLocal = OnFAQAdded;
+            if (OnFAQAddedLocal != null)
+                await OnFAQAddedLocal?.Invoke(DateTime.UtcNow,
+                                                      FAQ,
+                                                      eventTrackingId,
+                                                      CurrentUserId);
+
+            await SendNotifications(FAQ,
+                                    addUser_MessageType,
+                                    null,
+                                    eventTrackingId,
+                                    CurrentUserId);
+
+            OnAdded?.Invoke(FAQ,
+                            eventTrackingId);
+
+            return FAQ;
 
         }
 
         #endregion
 
-        #region AddFAQIfNotExists(FAQ,   CurrentUserId = null)
+        #region AddFAQ             (FAQ,                                OnAdded = null, CurrentUserId = null)
 
         /// <summary>
-        /// Add the given FAQ to the API.
+        /// Add the given FAQ.
         /// </summary>
-        /// <param name="FAQ">A FAQ.</param>
+        /// <param name="FAQ">A new FAQ.</param>
+        /// <param name="OnAdded">A delegate run whenever the FAQ had been added successfully.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
-        public async Task<FAQ> AddFAQIfNotExists(FAQ       FAQ,
-                                                 User_Id?  CurrentUserId  = null)
+        public async Task<FAQ> AddFAQ(FAQ                            FAQ,
+                                                      Action<FAQ, EventTracking_Id>  OnAdded           = null,
+                                                      EventTracking_Id                       EventTrackingId   = null,
+                                                      User_Id?                               CurrentUserId     = null)
         {
 
-            if (FAQ == null)
-                throw new ArgumentException(nameof(FAQ), "The given FAQ must not be null!");
-
-            if (FAQ.API != null && FAQ.API != this)
-                throw new ArgumentException(nameof(FAQ), "The given FAQ is already attached to another API!");
+            if (FAQ is null)
+                throw new ArgumentNullException(nameof(FAQ), "The given FAQ must not be null!");
 
             try
             {
 
-                await FAQsSemaphore.WaitAsync();
+                return (await FAQsSemaphore.WaitAsync(SemaphoreSlimTimeout))
 
-                if (_FAQs.TryGetValue(FAQ.Id, out FAQ OldFAQ))
-                    return OldFAQ;
+                            ? await _AddFAQ(FAQ,
+                                                    OnAdded,
+                                                    EventTrackingId,
+                                                    CurrentUserId)
 
-                await WriteToLogfileAndNotify(FAQ,
-                                              addFAQIfNotExists_MessageType,
-                                              CurrentUserId: CurrentUserId);
-
-                FAQ.API = this;
-
-                return _FAQs.AddAndReturnValue(FAQ.Id, FAQ);
+                            : null;
 
             }
             finally
             {
-                FAQsSemaphore.Release();
+                try
+                {
+                    FAQsSemaphore.Release();
+                }
+                catch
+                { }
             }
 
         }
 
         #endregion
 
-        #region AddOrUpdateFAQ   (FAQ,   CurrentUserId = null)
+        #endregion
+
+        #region AddFAQIfNotExists(FAQ, OnAdded = null,                   CurrentUserId = null)
+
+        #region (protected) _AddFAQIfNotExists(FAQ,                                OnAdded = null, CurrentUserId = null)
+
+        /// <summary>
+        /// When it has not been created before, add the given FAQ to the API.
+        /// </summary>
+        /// <param name="FAQ">A new FAQ to be added to this API.</param>
+        /// <param name="OnAdded">A delegate run whenever the FAQ had been added successfully.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
+        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
+        protected async Task<FAQ> _AddFAQIfNotExists(FAQ                            FAQ,
+                                                                     Action<FAQ, EventTracking_Id>  OnAdded           = null,
+                                                                     EventTracking_Id                       EventTrackingId   = null,
+                                                                     User_Id?                               CurrentUserId     = null)
+        {
+
+            if (FAQ is null)
+                throw new ArgumentNullException(nameof(FAQ),
+                                                "The given FAQ must not be null!");
+
+            if (FAQ.API != null && FAQ.API != this)
+                throw new ArgumentException    ("The given FAQ is already attached to another API!",
+                                                nameof(FAQ));
+
+            if (_FAQs.ContainsKey(FAQ.Id))
+                return _FAQs[FAQ.Id];
+
+            if (FAQ.Id.Length < MinFAQIdLength)
+                throw new ArgumentException    ("User group identification '" + FAQ.Id + "' is too short!",
+                                                nameof(FAQ));
+
+            FAQ.API = this;
+
+
+            var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
+
+            await WriteToDatabaseFile(addFAQIfNotExists_MessageType,
+                                      FAQ.ToJSON(false, true),
+                                      eventTrackingId,
+                                      CurrentUserId);
+
+            _FAQs.Add(FAQ.Id, FAQ);
+
+            var OnFAQAddedLocal = OnFAQAdded;
+            if (OnFAQAddedLocal != null)
+                await OnFAQAddedLocal?.Invoke(DateTime.UtcNow,
+                                                      FAQ,
+                                                      eventTrackingId,
+                                                      CurrentUserId);
+
+            await SendNotifications(FAQ,
+                                    addFAQIfNotExists_MessageType,
+                                    null,
+                                    eventTrackingId,
+                                    CurrentUserId);
+
+            OnAdded?.Invoke(FAQ,
+                            eventTrackingId);
+
+            return FAQ;
+
+        }
+
+        #endregion
+
+        #region AddFAQIfNotExists             (FAQ,                                OnAdded = null, CurrentUserId = null)
+
+        /// <summary>
+        /// Add the given FAQ.
+        /// </summary>
+        /// <param name="FAQ">A new FAQ.</param>
+        /// <param name="OnAdded">A delegate run whenever the FAQ had been added successfully.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
+        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
+        public async Task<FAQ> AddFAQIfNotExists(FAQ                            FAQ,
+                                                                 Action<FAQ, EventTracking_Id>  OnAdded           = null,
+                                                                 EventTracking_Id                       EventTrackingId   = null,
+                                                                 User_Id?                               CurrentUserId     = null)
+        {
+
+            try
+            {
+
+                return (await FAQsSemaphore.WaitAsync(SemaphoreSlimTimeout))
+
+                            ? await _AddFAQIfNotExists(FAQ,
+                                                             OnAdded,
+                                                             EventTrackingId,
+                                                             CurrentUserId)
+
+                            : null;
+
+            }
+            finally
+            {
+                try
+                {
+                    FAQsSemaphore.Release();
+                }
+                catch
+                { }
+            }
+
+        }
+
+        #endregion
+
+        #endregion
+
+        #region AddOrUpdateFAQ   (FAQ, OnAdded = null, OnUpdated = null, CurrentUserId = null)
+
+        #region (protected) _AddOrUpdateFAQ   (FAQ,   OnAdded = null, OnUpdated = null, CurrentUserId = null)
 
         /// <summary>
         /// Add or update the given FAQ to/within the API.
         /// </summary>
         /// <param name="FAQ">A FAQ.</param>
-        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
-        public async Task<FAQ> AddOrUpdateFAQ(FAQ      FAQ,
-                                              User_Id? CurrentUserId = null)
+        /// <param name="OnAdded">A delegate run whenever the FAQ had been added successfully.</param>
+        /// <param name="OnUpdated">A delegate run whenever the FAQ had been updated successfully.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
+        /// <param name="CurrentUserId">An optional FAQ identification initiating this command/request.</param>
+        protected async Task<FAQ> _AddOrUpdateFAQ(FAQ                            FAQ,
+                                                                  Action<FAQ, EventTracking_Id>  OnAdded           = null,
+                                                                  Action<FAQ, EventTracking_Id>  OnUpdated         = null,
+                                                                  EventTracking_Id                       EventTrackingId   = null,
+                                                                  User_Id?                               CurrentUserId     = null)
         {
 
-            if (FAQ == null)
-                throw new ArgumentException(nameof(FAQ), "The given FAQ must not be null!");
+            if (FAQ is null)
+                throw new ArgumentNullException(nameof(FAQ),
+                                                "The given FAQ must not be null!");
 
             if (FAQ.API != null && FAQ.API != this)
-                throw new ArgumentException(nameof(FAQ), "The given FAQ is already attached to another API!");
+                throw new ArgumentException    ("The given FAQ is already attached to another API!",
+                                                nameof(FAQ));
 
-            FAQ      OldFAQ  = null;
-            DateTime Now     = DateTime.UtcNow;
+            if (_FAQs.ContainsKey(FAQ.Id))
+                return _FAQs[FAQ.Id];
 
-            try
+            if (FAQ.Id.Length < MinFAQIdLength)
+                throw new ArgumentException    ("FAQ identification '" + FAQ.Id + "' is too short!",
+                                                nameof(FAQ));
+
+            FAQ.API = this;
+
+
+            var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
+
+            await WriteToDatabaseFile(addOrUpdateFAQ_MessageType,
+                                      FAQ.ToJSON(false, true),
+                                      eventTrackingId,
+                                      CurrentUserId);
+
+            if (_FAQs.TryGetValue(FAQ.Id, out FAQ OldFAQ))
             {
-
-                await FAQsSemaphore.WaitAsync();
-
-                FAQ.API = this;
-
-                if (_FAQs.TryGetValue(FAQ.Id, out OldFAQ))
-                {
-                    _FAQs.Remove(OldFAQ.Id);
-                    FAQ.CopyAllLinkedDataFrom(OldFAQ);
-                }
-
-                await WriteToLogfileAndNotify(FAQ,
-                                              addOrUpdateFAQ_MessageType,
-                                              OldFAQ,
-                                              CurrentUserId);
-
-                _FAQs.Add(FAQ.Id, FAQ);
-
-            }
-            finally
-            {
-                FAQsSemaphore.Release();
-            }
-
-            return FAQ;
-
-        }
-
-        #endregion
-
-        #region UpdateFAQ        (FAQ,   CurrentUserId = null)
-
-        /// <summary>
-        /// Update the given FAQ within the API.
-        /// </summary>
-        /// <param name="FAQ">A FAQ.</param>
-        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
-        public async Task<FAQ> UpdateFAQ(FAQ       FAQ,
-                                         User_Id?  CurrentUserId   = null)
-        {
-
-            if (FAQ == null)
-                throw new ArgumentException(nameof(FAQ), "The given FAQ must not be null!");
-
-            if (FAQ.API != null && FAQ.API != this)
-                throw new ArgumentException(nameof(FAQ), "The given FAQ is already attached to another API!");
-
-            DateTime Now = DateTime.UtcNow;
-
-            try
-            {
-
-                await FAQsSemaphore.WaitAsync();
-
-                if (!_FAQs.TryGetValue(FAQ.Id, out FAQ OldFAQ))
-                    throw new Exception("FAQ '" + FAQ.Id + "' does not exists in this API!");
-
-
-                await WriteToLogfileAndNotify(FAQ,
-                                              updateFAQ_MessageType,
-                                              OldFAQ,
-                                              CurrentUserId);
-
-                FAQ.API = this;
-
                 _FAQs.Remove(OldFAQ.Id);
                 FAQ.CopyAllLinkedDataFrom(OldFAQ);
+            }
 
-                _FAQs.Add(FAQ.Id, FAQ);
+            _FAQs.Add(FAQ.Id, FAQ);
+
+            if (OldFAQ != null)
+            {
+
+                var OnFAQUpdatedLocal = OnFAQUpdated;
+                if (OnFAQUpdatedLocal != null)
+                    await OnFAQUpdatedLocal?.Invoke(DateTime.UtcNow,
+                                                            FAQ,
+                                                            OldFAQ,
+                                                            eventTrackingId,
+                                                            CurrentUserId);
+
+                await SendNotifications(FAQ,
+                                        updateFAQ_MessageType,
+                                        OldFAQ,
+                                        eventTrackingId,
+                                        CurrentUserId);
+
+                OnUpdated?.Invoke(FAQ,
+                                  eventTrackingId);
 
             }
-            finally
+            else
             {
-                FAQsSemaphore.Release();
+
+                var OnFAQAddedLocal = OnFAQAdded;
+                if (OnFAQAddedLocal != null)
+                    await OnFAQAddedLocal?.Invoke(DateTime.UtcNow,
+                                                          FAQ,
+                                                          eventTrackingId,
+                                                          CurrentUserId);
+
+                await SendNotifications(FAQ,
+                                        addFAQ_MessageType,
+                                        null,
+                                        eventTrackingId,
+                                        CurrentUserId);
+
+                OnAdded?.Invoke(FAQ,
+                                eventTrackingId);
+
             }
 
             return FAQ;
@@ -26036,182 +28157,656 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
-        #region UpdateFAQ        (FAQId, UpdateDelegate, CurrentUserId = null)
+        #region AddOrUpdateFAQ   (FAQ,   OnAdded = null, OnUpdated = null, CurrentUserId = null)
+
+        /// <summary>
+        /// Add or update the given FAQ to/within the API.
+        /// </summary>
+        /// <param name="FAQ">A FAQ.</param>
+        /// <param name="OnAdded">A delegate run whenever the FAQ had been added successfully.</param>
+        /// <param name="OnUpdated">A delegate run whenever the FAQ had been updated successfully.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
+        /// <param name="CurrentUserId">An optional FAQ identification initiating this command/request.</param>
+        public async Task<FAQ> AddOrUpdateFAQ(FAQ                            FAQ,
+                                                              Action<FAQ, EventTracking_Id>  OnAdded           = null,
+                                                              Action<FAQ, EventTracking_Id>  OnUpdated         = null,
+                                                              EventTracking_Id                       EventTrackingId   = null,
+                                                              User_Id?                               CurrentUserId     = null)
+        {
+
+            if (FAQ is null)
+                throw new ArgumentNullException(nameof(FAQ), "The given FAQ must not be null!");
+
+            try
+            {
+
+                return (await FAQsSemaphore.WaitAsync(SemaphoreSlimTimeout))
+
+                            ? await _AddOrUpdateFAQ(FAQ,
+                                                            OnAdded,
+                                                            OnUpdated,
+                                                            EventTrackingId,
+                                                            CurrentUserId)
+
+                            : null;
+
+            }
+            finally
+            {
+                try
+                {
+                    FAQsSemaphore.Release();
+                }
+                catch
+                { }
+            }
+
+        }
+
+        #endregion
+
+        #endregion
+
+        #region UpdateFAQ        (FAQ,                 OnUpdated = null, CurrentUserId = null)
+
+        /// <summary>
+        /// A delegate called whenever a FAQ was updated.
+        /// </summary>
+        /// <param name="Timestamp">The timestamp when the FAQ was updated.</param>
+        /// <param name="FAQ">The updated FAQ.</param>
+        /// <param name="OldFAQ">The old FAQ.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
+        /// <param name="CurrentUserId">The invoking FAQ identification</param>
+        public delegate Task OnFAQUpdatedDelegate(DateTime          Timestamp,
+                                                          FAQ       FAQ,
+                                                          FAQ       OldFAQ,
+                                                          EventTracking_Id  EventTrackingId   = null,
+                                                          User_Id?          CurrentUserId     = null);
+
+        /// <summary>
+        /// An event fired whenever a FAQ was updated.
+        /// </summary>
+        public event OnFAQUpdatedDelegate OnFAQUpdated;
+
+
+        #region (protected) _UpdateFAQ(FAQ, OnUpdated = null, CurrentUserId = null)
+
+        /// <summary>
+        /// Update the given FAQ to/within the API.
+        /// </summary>
+        /// <param name="FAQ">A FAQ.</param>
+        /// <param name="OnUpdated">A delegate run whenever the FAQ had been updated successfully.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
+        /// <param name="CurrentUserId">An optional FAQ identification initiating this command/request.</param>
+        protected async Task<FAQ> _UpdateFAQ(FAQ                            FAQ,
+                                                             Action<FAQ, EventTracking_Id>  OnUpdated         = null,
+                                                             EventTracking_Id                       EventTrackingId   = null,
+                                                             User_Id?                               CurrentUserId     = null)
+        {
+
+            if (FAQ is null)
+                throw new ArgumentNullException(nameof(FAQ),
+                                                "The given FAQ must not be null!");
+
+            if (FAQ.API != null && FAQ.API != this)
+                throw new ArgumentException    ("The given FAQ is already attached to another API!",
+                                                nameof(FAQ));
+
+            if (!_FAQs.TryGetValue(FAQ.Id, out FAQ OldFAQ))
+                throw new ArgumentException    ("The given FAQ '" + FAQ.Id + "' does not exists in this API!",
+                                                nameof(FAQ));
+
+            FAQ.API = this;
+
+
+            var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
+
+            await WriteToDatabaseFile(updateFAQ_MessageType,
+                                      FAQ.ToJSON(),
+                                      eventTrackingId,
+                                      CurrentUserId);
+
+            _FAQs.Remove(OldFAQ.Id);
+            FAQ.CopyAllLinkedDataFrom(OldFAQ);
+
+
+            var OnFAQUpdatedLocal = OnFAQUpdated;
+            if (OnFAQUpdatedLocal != null)
+                await OnFAQUpdatedLocal?.Invoke(DateTime.UtcNow,
+                                                        FAQ,
+                                                        OldFAQ,
+                                                        eventTrackingId,
+                                                        CurrentUserId);
+
+            await SendNotifications(FAQ,
+                                    updateFAQ_MessageType,
+                                    OldFAQ,
+                                    eventTrackingId,
+                                    CurrentUserId);
+
+            OnUpdated?.Invoke(FAQ,
+                              eventTrackingId);
+
+            return FAQ;
+
+        }
+
+        #endregion
+
+        #region UpdateFAQ             (FAQ, OnUpdated = null, CurrentUserId = null)
+
+        /// <summary>
+        /// Update the given FAQ to/within the API.
+        /// </summary>
+        /// <param name="FAQ">A FAQ.</param>
+        /// <param name="OnUpdated">A delegate run whenever the FAQ had been updated successfully.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
+        /// <param name="CurrentUserId">An optional FAQ identification initiating this command/request.</param>
+        public async Task<FAQ> UpdateFAQ(FAQ                            FAQ,
+                                                         Action<FAQ, EventTracking_Id>  OnUpdated         = null,
+                                                         EventTracking_Id                       EventTrackingId   = null,
+                                                         User_Id?                               CurrentUserId     = null)
+        {
+
+            if (FAQ is null)
+                throw new ArgumentNullException(nameof(FAQ), "The given FAQ must not be null!");
+
+            try
+            {
+
+                return (await FAQsSemaphore.WaitAsync(SemaphoreSlimTimeout))
+
+                            ? await _UpdateFAQ(FAQ,
+                                                       OnUpdated,
+                                                       EventTrackingId,
+                                                       CurrentUserId)
+
+                            : null;
+
+            }
+            finally
+            {
+                try
+                {
+                    FAQsSemaphore.Release();
+                }
+                catch
+                { }
+            }
+
+        }
+
+        #endregion
+
+
+        #region (protected) _UpdateFAQ(FAQId, UpdateDelegate, OnUpdated = null, CurrentUserId = null)
 
         /// <summary>
         /// Update the given FAQ.
         /// </summary>
-        /// <param name="FAQId">A FAQ identification.</param>
+        /// <param name="FAQId">An FAQ identification.</param>
         /// <param name="UpdateDelegate">A delegate to update the given FAQ.</param>
-        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
-        public async Task<FAQ> UpdateFAQ(FAQ_Id               FAQId,
-                                         Action<FAQ.Builder>  UpdateDelegate,
-                                         User_Id?             CurrentUserId  = null)
+        /// <param name="OnUpdated">A delegate run whenever the FAQ had been updated successfully.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
+        /// <param name="CurrentUserId">An optional FAQ identification initiating this command/request.</param>
+        protected async Task<FAQ> _UpdateFAQ(FAQ_Id                         FAQId,
+                                                             Action<FAQ.Builder>            UpdateDelegate,
+                                                             Action<FAQ, EventTracking_Id>  OnUpdated         = null,
+                                                             EventTracking_Id                       EventTrackingId   = null,
+                                                             User_Id?                               CurrentUserId     = null)
         {
 
-            FAQ FAQ;
+            if (FAQId.IsNullOrEmpty)
+                throw new ArgumentNullException(nameof(FAQId),
+                                                "The given FAQ identification must not be null or empty!");
 
-            try
-            {
+            if (UpdateDelegate == null)
+                throw new ArgumentNullException(nameof(UpdateDelegate),
+                                                "The given update delegate must not be null!");
 
-                if (UpdateDelegate == null)
-                    throw new Exception("The given update delegate must not be null!");
+            if (!_FAQs.TryGetValue(FAQId, out FAQ OldFAQ))
+                throw new ArgumentException    ("The given FAQ '" + FAQId + "' does not exists in this API!",
+                                                nameof(FAQId));
 
-                await FAQsSemaphore.WaitAsync();
+            var Builder = OldFAQ.ToBuilder();
+            UpdateDelegate(Builder);
+            var NewFAQ = Builder.ToImmutable;
 
-                if (!_FAQs.TryGetValue(FAQId, out FAQ OldFAQ))
-                    throw new Exception("FAQ '" + FAQId + "' does not exists in this API!");
 
-                var Builder = OldFAQ.ToBuilder();
-                UpdateDelegate(Builder);
-                FAQ = Builder.ToImmutable;
-                FAQ.API = this;
+            var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
 
-                await WriteToLogfileAndNotify(FAQ,
-                                              updateFAQ_MessageType,
-                                              OldFAQ,
-                                              CurrentUserId);
+            await WriteToDatabaseFile(updateFAQ_MessageType,
+                                      NewFAQ.ToJSON(),
+                                      eventTrackingId,
+                                      CurrentUserId);
 
-                _FAQs.Remove(OldFAQ.Id);
-                //OldFAQ.CopyAllEdgesTo(FAQ);
-                _FAQs.Add(FAQ.Id, FAQ);
+            _FAQs.Remove(OldFAQ.Id);
+            NewFAQ.CopyAllLinkedDataFrom(OldFAQ);
 
-            }
-            finally
-            {
-                FAQsSemaphore.Release();
-            }
 
-            return FAQ;
+            var OnFAQUpdatedLocal = OnFAQUpdated;
+            if (OnFAQUpdatedLocal != null)
+                await OnFAQUpdatedLocal?.Invoke(DateTime.UtcNow,
+                                                        NewFAQ,
+                                                        OldFAQ,
+                                                        eventTrackingId,
+                                                        CurrentUserId);
+
+            await SendNotifications(NewFAQ,
+                                    updateFAQ_MessageType,
+                                    OldFAQ,
+                                    eventTrackingId,
+                                    CurrentUserId);
+
+            OnUpdated?.Invoke(NewFAQ,
+                              eventTrackingId);
+
+            return NewFAQ;
 
         }
 
         #endregion
 
-        #region RemoveFAQ        (FAQId, CurrentUserId = null)
+        #region UpdateFAQ             (FAQId, UpdateDelegate, OnUpdated = null, CurrentUserId = null)
 
         /// <summary>
-        /// Remove the given FAQ from this API.
+        /// Update the given FAQ.
         /// </summary>
-        /// <param name="FAQId">The unique identification of the FAQ.</param>
-        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
-        public async Task<FAQ> RemoveFAQ(FAQ_Id   FAQId,
-                                         User_Id? CurrentUserId  = null)
+        /// <param name="FAQId">An FAQ identification.</param>
+        /// <param name="UpdateDelegate">A delegate to update the given FAQ.</param>
+        /// <param name="OnUpdated">A delegate run whenever the FAQ had been updated successfully.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
+        /// <param name="CurrentUserId">An optional FAQ identification initiating this command/request.</param>
+        public async Task<FAQ> UpdateFAQ(FAQ_Id                         FAQId,
+                                                         Action<FAQ.Builder>            UpdateDelegate,
+                                                         Action<FAQ, EventTracking_Id>  OnUpdated         = null,
+                                                         EventTracking_Id                       EventTrackingId   = null,
+                                                         User_Id?                               CurrentUserId     = null)
+        {
+
+            if (FAQId.IsNullOrEmpty)
+                throw new ArgumentNullException(nameof(FAQId), "The given FAQ identification must not be null or empty!");
+
+            try
+            {
+
+                return (await FAQsSemaphore.WaitAsync(SemaphoreSlimTimeout))
+
+                            ? await _UpdateFAQ(FAQId,
+                                                       UpdateDelegate,
+                                                       OnUpdated,
+                                                       EventTrackingId,
+                                                       CurrentUserId)
+
+                            : null;
+
+            }
+            finally
+            {
+                try
+                {
+                    FAQsSemaphore.Release();
+                }
+                catch
+                { }
+            }
+
+        }
+
+        #endregion
+
+        #endregion
+
+
+        #region FAQExists(FAQId)
+
+        /// <summary>
+        /// Determines whether the given FAQ identification exists within this API.
+        /// </summary>
+        /// <param name="FAQId">The unique identification of an FAQ.</param>
+        protected Boolean _FAQExists(FAQ_Id FAQId)
+
+            => !FAQId.IsNullOrEmpty && _FAQs.ContainsKey(FAQId);
+
+
+        /// <summary>
+        /// Determines whether the given FAQ identification exists within this API.
+        /// </summary>
+        /// <param name="FAQId">The unique identification of an FAQ.</param>
+        public Boolean FAQExists(FAQ_Id FAQId)
         {
 
             try
             {
 
-                await FAQsSemaphore.WaitAsync();
-
-                if (_FAQs.TryGetValue(FAQId, out FAQ FAQ))
+                if (FAQsSemaphore.Wait(SemaphoreSlimTimeout) &&
+                    _FAQExists(FAQId))
                 {
-
-                    await WriteToLogfileAndNotify(FAQ,
-                                                  removeFAQ_MessageType,
-                                                  CurrentUserId: CurrentUserId);
-
-                    _FAQs.Remove(FAQId);
-
-                    FAQ.API = null;
-
-                    return FAQ;
-
+                    return true;
                 }
 
-                return null;
-
             }
+            catch
+            { }
             finally
             {
-                FAQsSemaphore.Release();
+                try
+                {
+                    FAQsSemaphore.Release();
+                }
+                catch
+                { }
             }
+
+            return false;
 
         }
 
         #endregion
 
-
-        #region ContainsFAQ      (FAQId)
+        #region GetFAQ   (FAQId)
 
         /// <summary>
-        /// Whether this API contains a FAQ having the given unique identification.
+        /// Get the FAQ having the given unique identification.
         /// </summary>
-        /// <param name="FAQId">The unique identification of the FAQ.</param>
-        public Boolean ContainsFAQ(FAQ_Id FAQId)
+        /// <param name="FAQId">The unique identification of an FAQ.</param>
+        protected FAQ _GetFAQ(FAQ_Id FAQId)
         {
 
-            try
-            {
+            if (!FAQId.IsNullOrEmpty && _FAQs.TryGetValue(FAQId, out FAQ faq))
+                return faq;
 
-                FAQsSemaphore.Wait();
-
-                return _FAQs.ContainsKey(FAQId);
-
-            }
-            finally
-            {
-                FAQsSemaphore.Release();
-            }
+            return null;
 
         }
 
-        #endregion
-
-        #region GetFAQ           (FAQId)
 
         /// <summary>
         /// Get the FAQ having the given unique identification.
         /// </summary>
         /// <param name="FAQId">The unique identification of the FAQ.</param>
-        public async Task<FAQ> GetFAQ(FAQ_Id  FAQId)
+        public FAQ GetFAQ(FAQ_Id FAQId)
         {
 
             try
             {
 
-                await FAQsSemaphore.WaitAsync();
-
-                if (_FAQs.TryGetValue(FAQId, out FAQ FAQ))
-                    return FAQ;
-
-                return null;
+                if (FAQsSemaphore.Wait(SemaphoreSlimTimeout))
+                    return _GetFAQ(FAQId);
 
             }
+            catch
+            { }
             finally
             {
-                FAQsSemaphore.Release();
+                try
+                {
+                    FAQsSemaphore.Release();
+                }
+                catch
+                { }
             }
+
+            return null;
 
         }
 
         #endregion
 
-        #region TryGetFAQ        (FAQId, out FAQ)
+        #region TryGetFAQ(FAQId, out FAQ)
 
         /// <summary>
         /// Try to get the FAQ having the given unique identification.
         /// </summary>
-        /// <param name="FAQId">The unique identification of the FAQ.</param>
+        /// <param name="FAQId">The unique identification of an FAQ.</param>
+        /// <param name="FAQ">The FAQ.</param>
+        protected Boolean _TryGetFAQ(FAQ_Id FAQId, out FAQ FAQ)
+        {
+
+            if (!FAQId.IsNullOrEmpty && _FAQs.TryGetValue(FAQId, out FAQ faq))
+            {
+                FAQ = faq;
+                return true;
+            }
+
+            FAQ = null;
+            return false;
+
+        }
+
+
+        /// <summary>
+        /// Try to get the FAQ having the given unique identification.
+        /// </summary>
+        /// <param name="FAQId">The unique identification of an FAQ.</param>
         /// <param name="FAQ">The FAQ.</param>
         public Boolean TryGetFAQ(FAQ_Id   FAQId,
-                                 out FAQ  FAQ)
+                                         out FAQ  FAQ)
         {
 
             try
             {
 
-                FAQsSemaphore.Wait();
+                if (FAQsSemaphore.Wait(SemaphoreSlimTimeout) &&
+                    _TryGetFAQ(FAQId, out FAQ faq))
+                {
+                    FAQ = faq;
+                    return true;
+                }
 
-                return _FAQs.TryGetValue(FAQId, out FAQ);
+            }
+            catch
+            { }
+            finally
+            {
+                try
+                {
+                    FAQsSemaphore.Release();
+                }
+                catch
+                { }
+            }
 
+            FAQ = null;
+            return false;
+
+        }
+
+        #endregion
+
+
+        #region RemoveFAQ(FAQ, OnRemoved = null, CurrentUserId = null)
+
+        /// <summary>
+        /// A delegate called whenever a FAQ was removed.
+        /// </summary>
+        /// <param name="Timestamp">The timestamp when the FAQ was removed.</param>
+        /// <param name="FAQ">The removed FAQ.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
+        /// <param name="CurrentUserId">The invoking FAQ identification</param>
+        public delegate Task OnFAQRemovedDelegate(DateTime          Timestamp,
+                                                          FAQ       FAQ,
+                                                          EventTracking_Id  EventTrackingId   = null,
+                                                          User_Id?          CurrentUserId     = null);
+
+        /// <summary>
+        /// An event fired whenever a FAQ was removed.
+        /// </summary>
+        public event OnFAQRemovedDelegate OnFAQRemoved;
+
+
+        #region (class) DeleteFAQResult
+
+        public class DeleteFAQResult
+        {
+
+            public Boolean     IsSuccess           { get; }
+
+            public I18NString  ErrorDescription    { get; }
+
+
+            private DeleteFAQResult(Boolean     IsSuccess,
+                                          I18NString  ErrorDescription  = null)
+            {
+                this.IsSuccess         = IsSuccess;
+                this.ErrorDescription  = ErrorDescription;
+            }
+
+
+            public static DeleteFAQResult Success
+
+                => new DeleteFAQResult(true);
+
+            public static DeleteFAQResult Failed(I18NString Reason)
+
+                => new DeleteFAQResult(false,
+                                             Reason);
+
+            public static DeleteFAQResult Failed(Exception Exception)
+
+                => new DeleteFAQResult(false,
+                                             I18NString.Create(Languages.en,
+                                                               Exception.Message));
+
+            public override String ToString()
+
+                => IsSuccess
+                       ? "Success"
+                       : "Failed" + (ErrorDescription.IsNullOrEmpty()
+                                         ? ": " + ErrorDescription.FirstText()
+                                         : "!");
+
+        }
+
+        #endregion
+
+        #region (protected virtual) CanDeleteFAQ(FAQ)
+
+        /// <summary>
+        /// Determines whether the FAQ can safely be removed from the API.
+        /// </summary>
+        /// <param name="FAQ">The FAQ to be removed.</param>
+        protected virtual I18NString CanDeleteFAQ(FAQ FAQ)
+        {
+            return new I18NString(Languages.en, "Currently not possible!");
+        }
+
+        #endregion
+
+
+        #region (protected) _RemoveFAQ(FAQ, OnRemoved = null, CurrentUserId = null)
+
+        /// <summary>
+        /// Remove the given FAQ from the API.
+        /// </summary>
+        /// <param name="FAQ">The FAQ to be removed from this API.</param>
+        /// <param name="OnRemoved">A delegate run whenever the FAQ had been removed successfully.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
+        /// <param name="CurrentUserId">An optional FAQ identification initiating this command/request.</param>
+        protected async Task<DeleteFAQResult> _RemoveFAQ(FAQ                            FAQ,
+                                                                         Action<FAQ, EventTracking_Id>  OnRemoved         = null,
+                                                                         EventTracking_Id                       EventTrackingId   = null,
+                                                                         User_Id?                               CurrentUserId     = null)
+        {
+
+            if (FAQ is null)
+                throw new ArgumentNullException(nameof(FAQ),
+                                                "The given FAQ must not be null!");
+
+            if (FAQ.API != this || !_FAQs.TryGetValue(FAQ.Id, out FAQ FAQToBeRemoved))
+                throw new ArgumentException    ("The given FAQ '" + FAQ.Id + "' does not exists in this API!",
+                                                nameof(FAQ));
+
+
+            var result = CanDeleteFAQ(FAQ);
+
+            if (result == null)
+            {
+
+                var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
+
+                await WriteToDatabaseFile(removeFAQ_MessageType,
+                                          FAQ.ToJSON(false, true),
+                                          eventTrackingId,
+                                          CurrentUserId);
+
+                _FAQs.Remove(FAQ.Id);
+
+
+                var OnFAQRemovedLocal = OnFAQRemoved;
+                if (OnFAQRemovedLocal != null)
+                    await OnFAQRemovedLocal?.Invoke(DateTime.UtcNow,
+                                                            FAQ,
+                                                            eventTrackingId,
+                                                            CurrentUserId);
+
+                await SendNotifications(FAQ,
+                                        removeFAQ_MessageType,
+                                        null,
+                                        eventTrackingId,
+                                        CurrentUserId);
+
+                OnRemoved?.Invoke(FAQ,
+                                  eventTrackingId);
+
+                return DeleteFAQResult.Success;
+
+            }
+            else
+                return DeleteFAQResult.Failed(result);
+
+        }
+
+        #endregion
+
+        #region RemoveFAQ             (FAQ, OnRemoved = null, CurrentUserId = null)
+
+        /// <summary>
+        /// Remove the given FAQ from the API.
+        /// </summary>
+        /// <param name="FAQ">The FAQ to be removed from this API.</param>
+        /// <param name="OnRemoved">A delegate run whenever the FAQ had been removed successfully.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
+        /// <param name="CurrentUserId">An optional FAQ identification initiating this command/request.</param>
+        public async Task<DeleteFAQResult> RemoveFAQ(FAQ                            FAQ,
+                                                                     Action<FAQ, EventTracking_Id>  OnRemoved         = null,
+                                                                     EventTracking_Id                       EventTrackingId   = null,
+                                                                     User_Id?                               CurrentUserId     = null)
+        {
+
+            if (FAQ is null)
+                throw new ArgumentNullException(nameof(FAQ), "The given FAQ must not be null!");
+
+            try
+            {
+
+                return (await FAQsSemaphore.WaitAsync(SemaphoreSlimTimeout))
+
+                            ? await _RemoveFAQ(FAQ,
+                                                       OnRemoved,
+                                                       EventTrackingId,
+                                                       CurrentUserId)
+
+                            : null;
+
+            }
+            catch (Exception e)
+            {
+                return DeleteFAQResult.Failed(e);
             }
             finally
             {
-                FAQsSemaphore.Release();
+                try
+                {
+                    FAQsSemaphore.Release();
+                }
+                catch
+                { }
             }
 
         }
+
+        #endregion
 
         #endregion
 
