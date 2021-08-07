@@ -717,8 +717,7 @@ namespace social.OpenData.UsersAPI
 
             #region Initial checks
 
-            if (Name != null)
-                Name = Name.Trim();
+            Name = Name?.Trim();
 
             if (Name.IsNullOrEmpty())
                 throw new ArgumentNullException(nameof(Name), "The given username must not be null or empty!");
@@ -1026,7 +1025,9 @@ namespace social.OpenData.UsersAPI
         public static Boolean TryParseJSON(JObject     JSONObject,
                                            out User    User,
                                            out String  ErrorResponse,
-                                           User_Id?    UserIdURL = null)
+                                           User_Id?    UserIdURL = null,
+                                           Byte? MinUserIdLength = 0,
+                                           Byte? MinUserNameLength = 0)
         {
 
             try
@@ -1036,8 +1037,6 @@ namespace social.OpenData.UsersAPI
 
                 #region Parse UserId           [optional]
 
-                // Verify that a given user identification
-                //   is at least valid.
                 if (JSONObject.ParseOptionalStruct("@id",
                                                    "user identification",
                                                    User_Id.TryParse,
@@ -1059,6 +1058,14 @@ namespace social.OpenData.UsersAPI
                 if (UserIdURL.HasValue && UserIdBody.HasValue && UserIdURL.Value != UserIdBody.Value)
                 {
                     ErrorResponse = "The optional user identification given within the JSON body does not match the one given in the URI!";
+                    return false;
+                }
+
+                var userId = UserIdBody ?? UserIdURL.Value;
+
+                if (userId.Length < MinUserIdLength)
+                {
+                    ErrorResponse = "The given user identification '" + userId + "' is too short!";
                     return false;
                 }
 
@@ -1091,6 +1098,12 @@ namespace social.OpenData.UsersAPI
                                                    out String Name,
                                                    out ErrorResponse))
                 {
+                    return false;
+                }
+
+                if (Name.Length < MinUserNameLength)
+                {
+                    ErrorResponse = "The given user name '" + Name + "' is too short!";
                     return false;
                 }
 
@@ -1313,7 +1326,7 @@ namespace social.OpenData.UsersAPI
                 #endregion
 
 
-                User = new User(UserIdBody ?? UserIdURL.Value,
+                User = new User(userId,
 
                                 EMail,
                                 Name,

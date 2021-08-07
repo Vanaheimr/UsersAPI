@@ -461,8 +461,8 @@ namespace social.OpenData.UsersAPI
         /// <returns>The HashCode of this object.</returns>
         public override Int32 GetHashCode()
 
-            => InternalId.ToLower().GetHashCode() ^
-               Realm.     ToLower().GetHashCode();
+            => InternalId.ToLower(). GetHashCode() ^
+              (Realm?.    ToLower()?.GetHashCode() ?? 0);
 
         #endregion
 

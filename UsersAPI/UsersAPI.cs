@@ -5321,300 +5321,108 @@ namespace social.OpenData.UsersAPI
                                          HTTPResponseLogger:  AddUsersHTTPResponse,
                                          HTTPDelegate:        async Request => {
 
-                                              #region Get HTTP user and its organizations
-
-                                              // Will return HTTP 401 Unauthorized, when the HTTP user is unknown!
-                                              if (!TryGetHTTPUser(Request,
-                                                                  out User                   HTTPUser,
-                                                                  out HashSet<Organization>  HTTPOrganizations,
-                                                                  out HTTPResponse.Builder   ErrorResponse,
-                                                                  AccessLevel:               Access_Levels.ReadWrite,
-                                                                  Recursive:                 true))
-                                              {
-                                                  return ErrorResponse;
-                                              }
-
-                                              #endregion
-
-
-                                              #region Parse JSON...
-
-                                              if (!Request.TryParseJObjectRequestBody(out JObject JSONObj, out ErrorResponse))
-                                                  return ErrorResponse;
-
-                                              #region Parse Context          [mandatory]
-
-                                              if (!JSONObj.ParseMandatory("@context",
-                                                                          "JSON-LinkedData context information",
-                                                                          HTTPServer.DefaultServerName,
-                                                                          JSONLDContext.TryParse,
-                                                                          out JSONLDContext Context,
-                                                                          Request,
-                                                                          out ErrorResponse))
-                                              {
-                                                  return ErrorResponse;
-                                              }
-
-                                              if (Context != User.DefaultJSONLDContext)
-                                              {
-
-                                                  return new HTTPResponse.Builder(Request) {
-                                                             HTTPStatusCode             = HTTPStatusCode.BadRequest,
-                                                             Server                     = HTTPServer.DefaultServerName,
-                                                             Date                       = DateTime.UtcNow,
-                                                             AccessControlAllowOrigin   = "*",
-                                                             AccessControlAllowMethods  = "GET, SET",
-                                                             AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
-                                                             ContentType                = HTTPContentType.JSON_UTF8,
-                                                             Content                    = JSONObject.Create(
-                                                                                              new JProperty("description", @"The given JSON-LD ""@context"" information '" + Context + "' is not supported!")
-                                                                                          ).ToUTF8Bytes()
-                                                         }.AsImmutable;
-
-                                              }
-
-                                              #endregion
-
-                                              #region Parse UserId           [optional]
-
-                                              // Verify that a given user identification
-                                              //   is at least valid.
-                                              if (JSONObj.ParseOptionalStruct2("@id",
-                                                                               "user identification",
-                                                                               HTTPServer.DefaultHTTPServerName,
-                                                                               User_Id.TryParse,
-                                                                               out User_Id? UserId,
-                                                                               Request,
-                                                                               out ErrorResponse))
-                                              {
-
-                                                  if (ErrorResponse != null)
-                                                      return ErrorResponse;
-
-                                              }
-
-                                              if (UserId.HasValue)
-                                              {
-
-                                                  if (UserId.Value.Length < MinUserIdLength)
-                                                  {
-
-                                                      return new HTTPResponse.Builder(Request) {
-                                                                 HTTPStatusCode             = HTTPStatusCode.BadRequest,
-                                                                 Server                     = HTTPServer.DefaultServerName,
-                                                                 Date                       = DateTime.UtcNow,
-                                                                 AccessControlAllowOrigin   = "*",
-                                                                 AccessControlAllowMethods  = "GET, SET",
-                                                                 AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
-                                                                 ContentType                = HTTPContentType.JSON_UTF8,
-                                                                 Content                    = JSONObject.Create(
-                                                                                                  new JProperty("description", "The given user identification '" + UserId.Value + "' is too short!")
-                                                                                              ).ToUTF8Bytes()
-                                                             }.AsImmutable;
-
-                                                  }
-
-                                                  if (_Users.ContainsKey(UserId.Value))
-                                                  {
-
-                                                      return new HTTPResponse.Builder(Request) {
-                                                                 HTTPStatusCode             = HTTPStatusCode.BadRequest,
-                                                                 Server                     = HTTPServer.DefaultServerName,
-                                                                 Date                       = DateTime.UtcNow,
-                                                                 AccessControlAllowOrigin   = "*",
-                                                                 AccessControlAllowMethods  = "GET, SET",
-                                                                 AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
-                                                                 ContentType                = HTTPContentType.JSON_UTF8,
-                                                                 Content                    = JSONObject.Create(
-                                                                                                  new JProperty("description", "The given user identification '" + UserId.Value + "' already exists!")
-                                                                                              ).ToUTF8Bytes()
-                                                             }.AsImmutable;
-
-                                                  }
-
-                                              }
-
-                                              #endregion
-
-                                              #region Parse Username         [mandatory]
-
-                                              if (!JSONObj.ParseMandatoryText("username",
-                                                                              "user name",
-                                                                              out String Username,
-                                                                              out String errorResponse))
-                                              {
-
-                                                  return new HTTPResponse.Builder(Request) {
-                                                             HTTPStatusCode             = HTTPStatusCode.BadRequest,
-                                                             Server                     = HTTPServer.DefaultServerName,
-                                                             Date                       = DateTime.UtcNow,
-                                                             AccessControlAllowOrigin   = "*",
-                                                             AccessControlAllowMethods  = "GET, SET",
-                                                             AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
-                                                             ContentType                = HTTPContentType.JSON_UTF8,
-                                                             Content                    = JSONObject.Create(
-                                                                                              new JProperty("description", errorResponse)
-                                                                                          ).ToUTF8Bytes()
-                                                         }.AsImmutable;
-
-                                              }
-
-                                              Username = Username?.Trim();
-
-                                              if (Username.IsNullOrEmpty() || Username.Length < MinUserNameLength)
-                                              {
-
-                                                  return new HTTPResponse.Builder(Request) {
-                                                             HTTPStatusCode             = HTTPStatusCode.BadRequest,
-                                                             Server                     = HTTPServer.DefaultServerName,
-                                                             Date                       = DateTime.UtcNow,
-                                                             AccessControlAllowOrigin   = "*",
-                                                             AccessControlAllowMethods  = "GET, SET",
-                                                             AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
-                                                             ContentType                = HTTPContentType.JSON_UTF8,
-                                                             Content                    = JSONObject.Create(
-                                                                                              new JProperty("description", "Invalid user name!")
-                                                                                          ).ToUTF8Bytes()
-                                                         }.AsImmutable;
-
-                                              }
-
-                                              #endregion
-
-                                              #region Parse E-Mail           [mandatory]
-
-                                              if (!JSONObj.ParseMandatory("email",
-                                                                          "E-Mail",
-                                                                          HTTPServer.DefaultServerName,
-                                                                          SimpleEMailAddress.TryParse,
-                                                                          out SimpleEMailAddress EMail,
-                                                                          Request,
-                                                                          out ErrorResponse))
-                                              {
-                                                  return ErrorResponse;
-                                              }
-
-                                              #endregion
-
-                                              #region Parse Language         [mandatory]
-
-                                              if (!JSONObj.ParseMandatoryEnum("language",
-                                                                              "user language",
-                                                                              HTTPServer.DefaultHTTPServerName,
-                                                                              out Languages UserLanguage,
-                                                                              Request,
-                                                                              out ErrorResponse))
-                                              {
-                                                  return ErrorResponse;
-                                              }
-
-                                              #endregion
-
-                                              #region Parse Telephone        [optional]
-
-                                              if (JSONObj.ParseOptional("telephone",
-                                                                        "telephone number",
-                                                                        HTTPServer.DefaultServerName,
-                                                                        PhoneNumber.TryParse,
-                                                                        out PhoneNumber? Telephone,
-                                                                        Request,
-                                                                        out ErrorResponse))
-                                              {
-
-                                                  if (ErrorResponse != null)
-                                                      return ErrorResponse;
-
-                                              }
-
-                                              #endregion
-
-                                              #region Parse MobilePhone      [optional]
-
-                                              if (JSONObj.ParseOptional("mobilephone",
-                                                                        "mobile phone number",
-                                                                        HTTPServer.DefaultServerName,
-                                                                        PhoneNumber.TryParse,
-                                                                        out PhoneNumber? MobilePhone,
-                                                                        Request,
-                                                                        out ErrorResponse))
-                                              {
-
-                                                  if (ErrorResponse != null)
-                                                      return ErrorResponse;
-
-                                              }
-
-                                              #endregion
-
-                                              #region Parse Homepage         [optional]
-
-                                              if (JSONObj.ParseOptional("homepage",
-                                                                        "homepage",
-                                                                        out String Homepage,
-                                                                        out        errorResponse))
-                                              {
-
-                                                  if (errorResponse != null)
-                                                      return new HTTPResponse.Builder(Request) {
-                                                                 HTTPStatusCode             = HTTPStatusCode.BadRequest,
-                                                                 Server                     = HTTPServer.DefaultServerName,
-                                                                 Date                       = DateTime.UtcNow,
-                                                                 AccessControlAllowOrigin   = "*",
-                                                                 AccessControlAllowMethods  = "ADD, SET, GET",
-                                                                 AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
-                                                                 ContentType                = HTTPContentType.JSON_UTF8,
-                                                                 Content                    = JSONObject.Create(
-                                                                                                  new JProperty("description", "Invalid homepage '" + Homepage + "'!")
-                                                                                              ).ToUTF8Bytes()
-                                                             }.AsImmutable;
-
-                                              }
-
-                                              #endregion
-
-                                              #region Parse Description      [optional]
-
-                                              if (JSONObj.ParseOptional("description",
-                                                                        "user description",
-                                                                        HTTPServer.DefaultHTTPServerName,
-                                                                        out I18NString Description,
-                                                                        Request,
-                                                                        out ErrorResponse))
-                                              {
-
-                                                  if (ErrorResponse != null)
-                                                      return ErrorResponse;
-
-                                              }
-
-                                              #endregion
-
-
-                                              #region Parse accessRights     [optional]
-
-                                              var accessRights = new List<Tuple<User2OrganizationEdgeTypes, Organization>>();
-
-                                              if (JSONObj.ParseOptional("accessRights",
-                                                                        "organizations array",
-                                                                        HTTPServer.DefaultHTTPServerName,
-                                                                        out JArray accessRightsJSON,
-                                                                        Request,
-                                                                        out ErrorResponse))
-                                              {
-
-                                                  if (ErrorResponse != null)
-                                                      return ErrorResponse;
-
-                                              }
-
-                                              if (accessRightsJSON?.Count > 0)
-                                              {
-                                                  foreach (var accessRightJSON in accessRightsJSON)
-                                                  {
+                                             #region Get HTTP user and its organizations
+
+                                             // Will return HTTP 401 Unauthorized, when the HTTP user is unknown!
+                                             if (!TryGetHTTPUser(Request,
+                                                                 out User                   HTTPUser,
+                                                                 out HashSet<Organization>  HTTPOrganizations,
+                                                                 out HTTPResponse.Builder   ErrorResponse,
+                                                                 AccessLevel:               Access_Levels.ReadWrite,
+                                                                 Recursive:                 true))
+                                             {
+                                                 return ErrorResponse;
+                                             }
+
+                                             #endregion
+
+
+                                             #region Parse JSON...
+
+                                             if (!Request.TryParseJObjectRequestBody(out JObject JSONObj, out ErrorResponse))
+                                                 return ErrorResponse;
+
+                                             #region Parse UserId           [optional]
+
+                                             if (JSONObj.ParseOptionalStruct("@id",
+                                                                             "user identification",
+                                                                             User_Id.TryParse,
+                                                                             out User_Id?  UserIdBody,
+                                                                             out String    errorResponse))
+                                             {
+
+                                                 if (errorResponse != null)
+                                                 {
+                                                     return new HTTPResponse.Builder(Request) {
+                                                                HTTPStatusCode             = HTTPStatusCode.BadRequest,
+                                                                Server                     = HTTPServer.DefaultServerName,
+                                                                Date                       = DateTime.UtcNow,
+                                                                AccessControlAllowOrigin   = "*",
+                                                                AccessControlAllowMethods  = "GET, SET",
+                                                                AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
+                                                                ContentType                = HTTPContentType.JSON_UTF8,
+                                                                Content                    = JSONObject.Create(
+                                                                                                 new JProperty("description", errorResponse)
+                                                                                             ).ToUTF8Bytes()
+                                                            }.AsImmutable;
+                                                 }
+
+                                             }
+
+                                             #endregion
+
+                                             #region Parse User             [mandatory]
+
+                                             if (!User.TryParseJSON(JSONObj,
+                                                                    out User newUser2,
+                                                                    out String Err,
+                                                                    UserIdBody ?? User_Id.Random(),
+                                                                    MinUserIdLength,
+                                                                    MinUserNameLength))
+                                             {
+
+                                                 return new HTTPResponse.Builder(Request) {
+                                                            HTTPStatusCode             = HTTPStatusCode.BadRequest,
+                                                            Server                     = HTTPServer.DefaultServerName,
+                                                            Date                       = DateTime.UtcNow,
+                                                            AccessControlAllowOrigin   = "*",
+                                                            AccessControlAllowMethods  = "GET, SET",
+                                                            AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
+                                                            ContentType                = HTTPContentType.JSON_UTF8,
+                                                            Content                    = JSONObject.Create(
+                                                                                             new JProperty("description", Err)
+                                                                                         ).ToUTF8Bytes()
+                                                        }.AsImmutable;
+
+                                             }
+
+                                             #endregion
+
+                                             #region Parse accessRights     [optional]
+
+                                             var accessRights = new List<Tuple<User2OrganizationEdgeTypes, Organization>>();
+
+                                             if (JSONObj.ParseOptional("accessRights",
+                                                                       "access rights",
+                                                                       HTTPServer.DefaultHTTPServerName,
+                                                                       out JArray accessRightsJSON,
+                                                                       Request,
+                                                                       out ErrorResponse))
+                                             {
+
+                                                 if (ErrorResponse != null)
+                                                     return ErrorResponse;
+
+                                             }
+
+                                             if (accessRightsJSON.SafeAny())
+                                             {
+                                                 foreach (var accessRightJSON in accessRightsJSON)
+                                                 {
 
                                                       #region Validate accessRight JSON object.
 
-                                                      if (!(accessRightJSON is JObject accessRight))
+                                                      if (!(accessRightJSON is JObject accessRightObject))
                                                       {
 
                                                           return new HTTPResponse.Builder(Request) {
@@ -5636,14 +5444,12 @@ namespace social.OpenData.UsersAPI
 
                                                       #region Parse AccessRight     [mandatory]
 
-                                                      // Verify that a given user identification
-                                                      //   is at least valid.
-                                                      if (!accessRight.ParseMandatoryEnum("accessRight",
-                                                                                          "access right",
-                                                                                          HTTPServer.DefaultHTTPServerName,
-                                                                                          out User2OrganizationEdgeTypes AccessRight,
-                                                                                          Request,
-                                                                                          out ErrorResponse))
+                                                      if (!accessRightObject.ParseMandatoryEnum("accessRight",
+                                                                                                "access right",
+                                                                                                HTTPServer.DefaultHTTPServerName,
+                                                                                                out User2OrganizationEdgeTypes accessRight,
+                                                                                                Request,
+                                                                                                out ErrorResponse))
                                                       {
                                                           return ErrorResponse;
                                                       }
@@ -5652,20 +5458,18 @@ namespace social.OpenData.UsersAPI
 
                                                       #region Parse Organization    [mandatory]
 
-                                                      // Verify that a given user identification
-                                                      //   is at least valid.
-                                                      if (!accessRight.ParseMandatory("organizationId",
-                                                                                      "organization identification",
-                                                                                      HTTPServer.DefaultHTTPServerName,
-                                                                                      Organization_Id.TryParse,
-                                                                                      out Organization_Id OrganizationId,
-                                                                                      Request,
-                                                                                      out ErrorResponse))
+                                                      if (!accessRightObject.ParseMandatory("organizationId",
+                                                                                            "organization identification",
+                                                                                            HTTPServer.DefaultHTTPServerName,
+                                                                                            Organization_Id.TryParse,
+                                                                                            out Organization_Id organizationId,
+                                                                                            Request,
+                                                                                            out ErrorResponse))
                                                       {
                                                           return ErrorResponse;
                                                       }
 
-                                                      if (!_Organizations.TryGetValue(OrganizationId, out Organization _Organization))
+                                                      if (!_Organizations.TryGetValue(organizationId, out Organization organization))
                                                       {
 
                                                           return new HTTPResponse.Builder(Request) {
@@ -5677,7 +5481,7 @@ namespace social.OpenData.UsersAPI
                                                                      AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
                                                                      ContentType                = HTTPContentType.JSON_UTF8,
                                                                      Content                    = JSONObject.Create(
-                                                                                                     new JProperty("description", "The given organization '" + OrganizationId + "' does not exist!")
+                                                                                                     new JProperty("description", "The given organization '" + organizationId + "' does not exist!")
                                                                                                  ).ToUTF8Bytes()
                                                                  }.AsImmutable;
 
@@ -5685,116 +5489,121 @@ namespace social.OpenData.UsersAPI
 
                                                       #endregion
 
-                                                      accessRights.Add(new Tuple<User2OrganizationEdgeTypes, Organization>(AccessRight, _Organization));
+                                                      accessRights.Add(new Tuple<User2OrganizationEdgeTypes, Organization>(accessRight,
+                                                                                                                           organization));
 
-                                                  }
-                                              }
+                                                 }
+                                             }
 
-                                              #endregion
+                                             #endregion
 
-                                              #endregion
+                                             #endregion
 
 
-                                              #region Create new user
+                                             #region Adding new user
 
-                                              var newUser = await CreateUser(Id:               UserId ?? User_Id.Random(),
-                                                                             Name:             Username,
-                                                                             EMail:            EMail,
-                                                                             UserLanguage:     UserLanguage,
-                                                                             Telephone:        Telephone,
-                                                                             MobilePhone:      MobilePhone,
-                                                                             Homepage:         Homepage,
-                                                                             Description:      Description,
-                                                                             IsAuthenticated:  false,
-                                                                             CurrentUserId:    HTTPUser.Id);
+                                             var newUser = accessRightsJSON.SafeAny()
 
-                                              if (newUser == null)
-                                              {
+                                                               ? await AddUser(newUser2,
+                                                                               accessRights.First().Item1,
+                                                                               accessRights.First().Item2,
+                                                                               (_user, _eventTrackingId) => {
+                                                                               },
+                                                                               Request.EventTrackingId,
+                                                                               CurrentUserId: HTTPUser.Id)
 
-                                                  return new HTTPResponse.Builder(Request) {
-                                                             HTTPStatusCode             = HTTPStatusCode.BadRequest,
-                                                             Server                     = HTTPServer.DefaultServerName,
-                                                             Date                       = DateTime.UtcNow,
-                                                             AccessControlAllowOrigin   = "*",
-                                                             AccessControlAllowMethods  = "ADD, SET, GET",
-                                                             AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
-                                                             ContentType                = HTTPContentType.JSON_UTF8,
-                                                             Content                    = JSONObject.Create(
-                                                                                              new JProperty("description", "Could create the new user!")
-                                                                                          ).ToUTF8Bytes()
-                                                         }.AsImmutable;
+                                                               : await AddUser(newUser2,
+                                                                               (_user, _eventTrackingId) => {
+                                                                               },
+                                                                               Request.EventTrackingId,
+                                                                               CurrentUserId: HTTPUser.Id);
 
-                                              }
+                                             if (newUser == null)
+                                             {
 
-                                              #endregion
+                                                 return new HTTPResponse.Builder(Request) {
+                                                            HTTPStatusCode             = HTTPStatusCode.BadRequest,
+                                                            Server                     = HTTPServer.DefaultServerName,
+                                                            Date                       = DateTime.UtcNow,
+                                                            AccessControlAllowOrigin   = "*",
+                                                            AccessControlAllowMethods  = "ADD, SET, GET",
+                                                            AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
+                                                            ContentType                = HTTPContentType.JSON_UTF8,
+                                                            Content                    = JSONObject.Create(
+                                                                                             new JProperty("description", "Could create the new user!")
+                                                                                         ).ToUTF8Bytes()
+                                                        }.AsImmutable;
 
-                                              #region Set organization access rights
+                                             }
 
-                                              foreach (var accessRight in accessRights)
-                                              {
+                                             #endregion
 
-                                                  var success = await AddToOrganization(newUser, accessRight.Item1, accessRight.Item2);
+                                             #region Set user organization access rights
 
-                                                  if (!success)
-                                                  {
+                                             foreach (var accessRight in accessRights)
+                                             {
 
-                                                      return new HTTPResponse.Builder(Request) {
-                                                                 HTTPStatusCode             = HTTPStatusCode.BadRequest,
-                                                                 Server                     = HTTPServer.DefaultServerName,
-                                                                 Date                       = DateTime.UtcNow,
-                                                                 AccessControlAllowOrigin   = "*",
-                                                                 AccessControlAllowMethods  = "ADD, SET, GET",
-                                                                 AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
-                                                                 ContentType                = HTTPContentType.JSON_UTF8,
-                                                                 Content                    = JSONObject.Create(
-                                                                                                  new JProperty("description", "Could not add the new user to organization '" + accessRight.Item2.Id + "'!")
-                                                                                              ).ToUTF8Bytes()
-                                                             }.AsImmutable;
+                                                 var success = await AddToOrganization(newUser, accessRight.Item1, accessRight.Item2);
 
-                                                  }
+                                                 if (!success)
+                                                 {
 
-                                              }
+                                                     return new HTTPResponse.Builder(Request) {
+                                                                HTTPStatusCode             = HTTPStatusCode.BadRequest,
+                                                                Server                     = HTTPServer.DefaultServerName,
+                                                                Date                       = DateTime.UtcNow,
+                                                                AccessControlAllowOrigin   = "*",
+                                                                AccessControlAllowMethods  = "ADD, SET, GET",
+                                                                AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
+                                                                ContentType                = HTTPContentType.JSON_UTF8,
+                                                                Content                    = JSONObject.Create(
+                                                                                                 new JProperty("description", "Could not add the new user to organization '" + accessRight.Item2.Id + "'!")
+                                                                                             ).ToUTF8Bytes()
+                                                            }.AsImmutable;
 
-                                              #endregion
+                                                 }
 
-                                              #region Send 'new user' e-mail
+                                             }
 
-                                              var MailSentResult = MailSentStatus.failed;
+                                             #endregion
 
-                                              try
-                                              {
 
-                                                  var SetPasswordRequest = await ResetPassword(newUser.Id,
-                                                                                               SecurityToken_Id.Random(40, _Random),
-                                                                                               SecurityToken_Id.Parse(_Random.RandomString(5) + "-" + _Random.RandomString(5)));
+                                             #region Send 'new user' e-mail
 
-                                                  var MailResultTask = APISMTPClient.Send(NewUserSignUpEMailCreator(newUser,
-                                                                                                                    new EMailAddress(OwnerName:           Username,
-                                                                                                                                     SimpleEMailAddress:  EMail,
-                                                                                                                                     PublicKeyRing:       null),
-                                                                                                                    SetPasswordRequest.SecurityToken1,
-                                                                                                                    MobilePhone.HasValue,
-                                                                                                                    //"https://" + Request.Host.SimpleString,
-                                                                                                                    DefaultLanguage));
+                                             var MailSentResult = MailSentStatus.failed;
 
-                                                  if (MailResultTask.Wait(60000))
-                                                      MailSentResult = MailResultTask.Result;
+                                             try
+                                             {
 
-                                                  if (MailSentResult != MailSentStatus.ok)
-                                                      DebugX.Log("Could not send new user e-mail: " + MailSentResult + "!");
+                                                 var SetPasswordRequest = await ResetPassword(newUser.Id,
+                                                                                              SecurityToken_Id.Random(40, _Random),
+                                                                                              SecurityToken_Id.Parse(_Random.RandomString(5) + "-" + _Random.RandomString(5)));
 
-                                              }
-                                              catch (Exception e)
-                                              {
+                                                 var MailResultTask = APISMTPClient.Send(NewUserSignUpEMailCreator(newUser,
+                                                                                                                   newUser.EMail,
+                                                                                                                   SetPasswordRequest.SecurityToken1,
+                                                                                                                   newUser.MobilePhone.HasValue,
+                                                                                                                   //"https://" + Request.Host.SimpleString,
+                                                                                                                   DefaultLanguage));
 
-                                                  while (e.InnerException != null)
-                                                      e = e.InnerException;
+                                                 if (MailResultTask.Wait(60000))
+                                                     MailSentResult = MailResultTask.Result;
 
-                                                  DebugX.Log("Could not send new user e-mail: " + e.Message);
+                                                 if (MailSentResult != MailSentStatus.ok)
+                                                     DebugX.Log("Could not send new user e-mail: " + MailSentResult + "!");
 
-                                              }
+                                             }
+                                             catch (Exception e)
+                                             {
 
-                                              #endregion
+                                                 while (e.InnerException != null)
+                                                     e = e.InnerException;
+
+                                                 DebugX.Log("Could not send new user e-mail: " + e.Message);
+
+                                             }
+
+                                             #endregion
 
 
 
@@ -14595,7 +14404,7 @@ namespace social.OpenData.UsersAPI
         public event OnUserAddedDelegate OnUserAdded;
 
 
-        #region (protected) _AddUser(User,                           OnAdded = null, CurrentUserId = null)
+        #region (protected) _AddUser(User,                            OnAdded = null, CurrentUserId = null)
 
         /// <summary>
         /// Add the given user to the API.
@@ -14625,6 +14434,14 @@ namespace social.OpenData.UsersAPI
             if (User.Id.Length < MinUserIdLength)
                 throw new ArgumentException    ("User identification '" + User.Id + "' is too short!",
                                                 nameof(User));
+
+            if (User.Name.IsNullOrEmpty() || User.Name.Trim().IsNullOrEmpty())
+                throw new ArgumentNullException(nameof(User.Name),
+                                                "The given user name must not be null!");
+
+            if (User.Name.Length < MinUserNameLength)
+                throw new ArgumentException    ("User name '" + User.Name + "' is too short!",
+                                                nameof(User.Name));
 
             User.API = this;
 
@@ -14682,7 +14499,7 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
-        #region AddUser             (User,                           OnAdded = null, CurrentUserId = null)
+        #region AddUser             (User,                            OnAdded = null, CurrentUserId = null)
 
         /// <summary>
         /// Add the given user.
@@ -14727,19 +14544,19 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
-        #region AddUser             (User, Membership, Organization, OnAdded = null, CurrentUserId = null)
+        #region AddUser             (User, AccessRight, Organization, OnAdded = null, CurrentUserId = null)
 
         /// <summary>
         /// Add the given user and add him/her to the given organization.
         /// </summary>
         /// <param name="User">A new user.</param>
-        /// <param name="Membership">The organization membership of the new user.</param>
+        /// <param name="AccessRight">The organization membership of the new user.</param>
         /// <param name="Organization">The organization of the new user.</param>
         /// <param name="OnAdded">A delegate run whenever the user had been added successfully.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
         public async Task<User> AddUser(User                            User,
-                                        User2OrganizationEdgeTypes      Membership,
+                                        User2OrganizationEdgeTypes      AccessRight,
                                         Organization                    Organization,
                                         Action<User, EventTracking_Id>  OnAdded           = null,
                                         EventTracking_Id                EventTrackingId   = null,
@@ -14771,7 +14588,7 @@ namespace social.OpenData.UsersAPI
                              ? await _AddUser(User,
                                               async (_user, _eventTrackingId) => {
                                                   await _AddToOrganization(_user,
-                                                                           Membership,
+                                                                           AccessRight,
                                                                            Organization,
                                                                            _eventTrackingId,
                                                                            CurrentUserId);
@@ -21180,7 +20997,7 @@ namespace social.OpenData.UsersAPI
         /// An enumeration of all notification groups.
         /// </summary>
         //protected readonly Dictionary<NotificationGroup_Id, NotificationGroup> _NotificationGroups;
-        protected readonly Dictionary<Int32, NotificationGroup> _NotificationGroups;
+        protected readonly Dictionary<Int32, NotificationGroup> _NotificationGroups = new Dictionary<Int32, NotificationGroup>();
 
         ///// <summary>
         ///// An enumeration of all messages.

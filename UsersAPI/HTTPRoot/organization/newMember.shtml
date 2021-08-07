@@ -51,7 +51,7 @@
         <div class="row">
             <div class="key">Name</div>
             <div class="value" id="usernameDiv">
-                <input id="username" type="text" placeholder = "The name of the new user...">
+                <input id="name" type="text" placeholder = "The name of the new user...">
                 <div class="validationError"></div>
             </div>
         </div>
