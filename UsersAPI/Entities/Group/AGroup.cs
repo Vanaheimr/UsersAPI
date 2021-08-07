@@ -85,7 +85,7 @@ namespace social.OpenData.UsersAPI
         private Object _API;
 
         /// <summary>
-        /// The CardiCloudAPI of this CommunicatorGroup.
+        /// The API of this object.
         /// </summary>
         public Object API
         {
@@ -99,9 +99,9 @@ namespace social.OpenData.UsersAPI
             {
 
                 if (_API != null)
-                    throw new ArgumentException("Illegal attempt to change the API of this CommunicatorGroup!");
+                    throw new ArgumentException("Illegal attempt to change the API!");
 
-                _API = value ?? throw new ArgumentException("Illegal attempt to delete the API reference of this CommunicatorGroup!");
+                _API = value ?? throw new ArgumentException("Illegal attempt to delete the API!");
 
             }
 

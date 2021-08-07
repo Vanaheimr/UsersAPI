@@ -50,6 +50,35 @@ namespace social.OpenData.UsersAPI
 
         #region Properties
 
+        #region API
+
+        private Object _API;
+
+        /// <summary>
+        /// The API of this object.
+        /// </summary>
+        public Object API
+        {
+
+            get
+            {
+                return _API;
+            }
+
+            set
+            {
+
+                if (_API != null)
+                    throw new ArgumentException("Illegal attempt to change the API!");
+
+                _API = value ?? throw new ArgumentException("Illegal attempt to delete the API!");
+
+            }
+
+        }
+
+        #endregion
+
         /// <summary>
         /// The API key.
         /// </summary>

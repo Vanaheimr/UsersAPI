@@ -882,7 +882,7 @@ namespace social.OpenData.UsersAPI
         /// <summary>
         /// The default maintenance interval.
         /// </summary>
-        public readonly             TimeSpan                   DefaultMaintenanceEvery          = TimeSpan.FromMinutes(1);
+        public readonly TimeSpan DefaultMaintenanceEvery          = TimeSpan.FromMinutes(1);
 
         private readonly Timer MaintenanceTimer;
 
@@ -920,6 +920,8 @@ namespace social.OpenData.UsersAPI
         public  const             Byte                                          DefaultMinRealmLength           = 2;
         public  const             Byte                                          DefaultMinUserNameLength        = 4;
         public  static readonly   PasswordQualityCheckDelegate                  DefaultPasswordQualityCheck     = password => password.Length >= 8 ? 1.0f : 0;
+        public  const             Byte                                          DefaultMinUserGroupIdLength     = 4;
+        public  const             UInt16                                        DefaultMinAPIKeyLength          = 20;
 
         public  static readonly   TimeSpan                                      DefaultSignInSessionLifetime    = TimeSpan.FromDays(30);
 
@@ -979,100 +981,82 @@ namespace social.OpenData.UsersAPI
         /// <summary>
         /// The API database file.
         /// </summary>
-        public String                    DatabaseFileName                    { get; }
+        public String                        DatabaseFileName                   { get; }
 
 
         /// <summary>
         /// The API version hash (git commit hash value).
         /// </summary>
-        public String                    APIVersionHash                     { get; }
+        public String                        APIVersionHash                     { get; }
 
         /// <summary>
         /// The maintenance interval.
         /// </summary>
-        public TimeSpan                  MaintenanceEvery                   { get; }
+        public TimeSpan                      MaintenanceEvery                   { get; }
 
         /// <summary>
         /// Disable all maintenance tasks.
         /// </summary>
-        public Boolean                   DisableMaintenanceTasks            { get; set; }
+        public Boolean                       DisableMaintenanceTasks            { get; set; }
 
 
-        public String                    UsersAPIPath                       { get; }
-        public String                    NotificationsPath                  { get; }
-        public String                    MetricsPath                        { get; }
-        public String                    SMTPLoggingPath                    { get; }
-        public String                    TelegramLoggingPath                { get; }
-        public String                    SMSAPILoggingPath                  { get; }
+        public String                        UsersAPIPath                       { get; }
+        public String                        NotificationsPath                  { get; }
+        public String                        MetricsPath                        { get; }
+        public String                        SMTPLoggingPath                    { get; }
+        public String                        TelegramLoggingPath                { get; }
+        public String                        SMSAPILoggingPath                  { get; }
 
 
         /// <summary>
         /// The mother of all organizations.
         /// </summary>
-        public Organization              NoOwner                            { get; }
+        public Organization                  NoOwner                            { get; }
 
         /// <summary>
         /// The virtual 'robot' user.
         /// </summary>
-        public User                      Robot                              { get; }
-
-        #region APIPassphrase
+        public User                          Robot                              { get; }
 
         /// <summary>
         /// The passphrase of the PGP/GPG secret key of the Open Data API.
         /// </summary>
-        public String APIPassphrase { get; }
-
-        #endregion
-
-        #region APIAdminEMails
+        public String                        APIPassphrase                      { get; }
 
         /// <summary>
         /// The E-Mail Addresses of the service admins.
         /// </summary>
-        public EMailAddressList APIAdminEMails { get; }
-
-        #endregion
-
-        #region APISMTPClient
+        public EMailAddressList              APIAdminEMails                     { get; }
 
         /// <summary>
         /// A SMTP client to be used by the Open Data API.
         /// </summary>
-        public SMTPClient APISMTPClient { get; }
-
-        #endregion
-
-
-        #region SMSAPI
+        public SMTPClient                    APISMTPClient                      { get; }
 
         /// <summary>
         /// The (default) SMS sender name.
         /// </summary>
-        public String                    SMSSenderName              { get; }
+        public String                        SMSSenderName                      { get; }
 
         /// <summary>
         /// A list of admin SMS phonenumbers.
         /// </summary>
-        public IEnumerable<PhoneNumber>  APIAdminSMS                { get; }
-
-        #endregion
-
+        public IEnumerable<PhoneNumber>      APIAdminSMS                        { get; }
 
         /// <summary>
         /// The Telegram API access token of the bot.
         /// </summary>
-        public String                    TelegramBotToken               { get; }
+        public String                        TelegramBotToken                   { get; }
 
         /// <summary>
         /// The Telegram API client.
         /// </summary>
-        public TelegramBotClient         TelegramAPI                    { get; }
+        public TelegramBotClient             TelegramAPI                        { get; }
 
         /// <summary>
         /// The Telegram user store.
         /// </summary>
-        public TelegramStore             TelegramStore                  { get; }
+        public TelegramStore                 TelegramStore                      { get; }
 
 
         #region DNSClient
@@ -1093,96 +1077,87 @@ namespace social.OpenData.UsersAPI
         #endregion
 
 
-        public UserGroup                 Admins                         { get; }
+        public UserGroup                     Admins                             { get; }
 
-        public HTTPCookieName            CookieName                     { get; }
+        public HTTPCookieName                CookieName                         { get; }
 
-        public HTTPCookieName            SessionCookieName              { get; }
+        public HTTPCookieName                SessionCookieName                  { get; }
 
         /// <summary>
         /// Force the web browser to send cookies only via HTTPS.
         /// </summary>
-        public Boolean                   UseSecureCookies               { get; }
+        public Boolean                       UseSecureCookies                   { get; }
 
 
         /// <summary>
         /// The main language of this API.
         /// </summary>
-        public Languages                 Language                       { get; }
+        public Languages                     Language                           { get; }
 
 
-        #region SignInSessionLifetime
-
-        public TimeSpan SignInSessionLifetime { get; }
-
-        #endregion
-
-        #region MinUserIdLength
+        public TimeSpan                      SignInSessionLifetime              { get; }
 
         /// <summary>
         /// The minimal user identification length.
         /// </summary>
-        public Byte MinUserIdLength { get; }
-
-        #endregion
-
-        #region MinRealmLength
+        public Byte                          MinUserIdLength                    { get; }
 
         /// <summary>
         /// The minimal realm length.
         /// </summary>
-        public Byte MinRealmLength { get; }
-
-        #endregion
-
-        #region PasswordQualityCheck
+        public Byte                          MinRealmLength                     { get; }
 
         /// <summary>
         /// A delegate to ensure a minimal password quality.
         /// </summary>
-        public PasswordQualityCheckDelegate PasswordQualityCheck { get; }
-
-        #endregion
-
-        #region MinUserNameLength
+        public PasswordQualityCheckDelegate  PasswordQualityCheck               { get; }
 
         /// <summary>
         /// The minimal user name length.
         /// </summary>
-        public Byte MinUserNameLength { get; }
+        public Byte                          MinUserNameLength                  { get; }
 
-        #endregion
+        /// <summary>
+        /// The minimal user group identification length.
+        /// </summary>
+        public Byte                          MinUserGroupIdLength               { get; }
+
+        /// <summary>
+        /// The minimal API key length.
+        /// </summary>
+        public UInt16                        MinAPIKeyLength                    { get; }
+
 
 
         /// <summary>
         /// The current hash value of the API.
         /// </summary>
-        public String                    CurrentDatabaseHashValue       { get; protected set; }
+        public String                        CurrentDatabaseHashValue           { get; protected set; }
 
 
         /// <summary>
         /// Disable the log file.
         /// </summary>
-        public Boolean                   DisableLogfile                 { get; }
+        public Boolean                       DisableLogfile                     { get; }
 
         /// <summary>
         /// Disable external notifications.
         /// </summary>
-        public Boolean                   DisableNotifications           { get; set; }
+        public Boolean                       DisableNotifications               { get; set; }
 
         /// <summary>
         /// The logfile of this API.
         /// </summary>
-        public String                    LogfileName                    { get; }
+        public String                        LogfileName                        { get; }
 
 
-        public Warden                    Warden                         { get; }
+        public Warden                        Warden                             { get; }
 
-        public List<BlogPosting>         BlogPostings                   { get; }
+        public List<BlogPosting>             BlogPostings                       { get; }
 
-        public ECPrivateKeyParameters    ServiceCheckPrivateKey         { get; set; }
+        public ECPrivateKeyParameters        ServiceCheckPrivateKey             { get; set; }
 
-        public ECPublicKeyParameters     ServiceCheckPublicKey          { get; set; }
+        public ECPublicKeyParameters         ServiceCheckPublicKey              { get; set; }
 
         #endregion
 
@@ -1983,10 +1958,6 @@ namespace social.OpenData.UsersAPI
         /// <param name="CookieName">The name of the HTTP Cookie for authentication.</param>
         /// <param name="UseSecureCookies">Force the web browser to send cookies only via HTTPS.</param>
         /// <param name="Language">The main language of the API.</param>
-        /// <param name="NewUserSignUpEMailCreator">A delegate for sending a sign-up e-mail to a new user.</param>
-        /// <param name="NewUserWelcomeEMailCreator">A delegate for sending a welcome e-mail to a new user.</param>
-        /// <param name="ResetPasswordEMailCreator">A delegate for sending a reset password e-mail to a user.</param>
-        /// <param name="PasswordChangedEMailCreator">A delegate for sending a password changed e-mail to a user.</param>
         /// <param name="MinUserNameLength">The minimal user name length.</param>
         /// <param name="MinRealmLength">The minimal realm length.</param>
         /// <param name="PasswordQualityCheck">A delegate to ensure a minimal password quality.</param>
@@ -2039,10 +2010,12 @@ namespace social.OpenData.UsersAPI
                         HTTPCookieName?                      CookieName                         = null,
                         Boolean                              UseSecureCookies                   = true,
                         Languages?                           Language                           = null,
-                        Byte?                                MinLoginLength                     = null,
+                        Byte?                                MinUserIdLength                    = null,
                         Byte?                                MinRealmLength                     = null,
                         Byte?                                MinUserNameLength                  = null,
                         PasswordQualityCheckDelegate         PasswordQualityCheck               = null,
+                        Byte?                                MinUserGroupIdLength               = null,
+                        UInt16?                              MinAPIKeyLength                    = null,
                         TimeSpan?                            SignInSessionLifetime              = null,
 
                         String                               ServerThreadName                   = null,
@@ -2113,10 +2086,12 @@ namespace social.OpenData.UsersAPI
                    CookieName,
                    UseSecureCookies,
                    Language,
-                   MinLoginLength,
+                   MinUserIdLength,
                    MinRealmLength,
                    MinUserNameLength,
                    PasswordQualityCheck,
+                   MinUserGroupIdLength,
+                   MinAPIKeyLength,
                    SignInSessionLifetime,
 
                    MaintenanceEvery,
@@ -2207,6 +2182,8 @@ namespace social.OpenData.UsersAPI
                            Byte?                                MinRealmLength                = null,
                            Byte?                                MinUserNameLength             = null,
                            PasswordQualityCheckDelegate         PasswordQualityCheck          = null,
+                           Byte?                                MinUserGroupIdLength          = null,
+                           UInt16?                              MinAPIKeyLength               = null,
                            TimeSpan?                            SignInSessionLifetime         = null,
 
                            TimeSpan?                            MaintenanceEvery              = null,
@@ -2285,6 +2262,8 @@ namespace social.OpenData.UsersAPI
             this.MinRealmLength               = MinRealmLength              ?? DefaultMinRealmLength;
             this.MinUserNameLength            = MinUserNameLength           ?? DefaultMinUserNameLength;
             this.PasswordQualityCheck         = PasswordQualityCheck        ?? DefaultPasswordQualityCheck;
+            this.MinAPIKeyLength              = MinAPIKeyLength             ?? DefaultMinAPIKeyLength;
+            this.MinUserGroupIdLength         = MinUserGroupIdLength        ?? DefaultMinUserGroupIdLength;
             this.SignInSessionLifetime        = SignInSessionLifetime       ?? DefaultSignInSessionLifetime;
 
             this._DataLicenses                = new Dictionary<DataLicense_Id,             DataLicense>();
@@ -2323,10 +2302,15 @@ namespace social.OpenData.UsersAPI
 
             #endregion
 
-            this.Admins  = AddUserGroupIfNotExists(UserGroup_Id.Parse(AdminGroupName),
-                                                   I18NString.Create(Languages.en, AdminGroupName),
-                                                   I18NString.Create(Languages.en, "All admins of this API."),
-                                                   Robot.Id).Result;
+            this.Admins  = AddUserGroupIfNotExists(
+                               new UserGroup(
+                                   UserGroup_Id.Parse(AdminGroupName),
+                                   I18NString.Create(Languages.en, AdminGroupName),
+                                   I18NString.Create(Languages.en, "All admins of this API.")
+                               ),
+                               null,
+                               EventTracking_Id.New,
+                               Robot.Id).Result;
 
             #region Reflect data licenses
 
@@ -2702,56 +2686,83 @@ namespace social.OpenData.UsersAPI
 
         #region (static) NotificationMessageTypes
 
-        public static NotificationMessageType addUser_MessageType                      = NotificationMessageType.Parse("addUser");
-        public static NotificationMessageType addUserIfNotExists_MessageType           = NotificationMessageType.Parse("addUserIfNotExists");
-        public static NotificationMessageType addOrUpdateUser_MessageType              = NotificationMessageType.Parse("addOrUpdateUser");
-        public static NotificationMessageType updateUser_MessageType                   = NotificationMessageType.Parse("updateUser");
-        public static NotificationMessageType removeUser_MessageType                   = NotificationMessageType.Parse("removeUser");
+        public static NotificationMessageType addUser_MessageType                           = NotificationMessageType.Parse("addUser");
+        public static NotificationMessageType addUserIfNotExists_MessageType                = NotificationMessageType.Parse("addUserIfNotExists");
+        public static NotificationMessageType addOrUpdateUser_MessageType                   = NotificationMessageType.Parse("addOrUpdateUser");
+        public static NotificationMessageType updateUser_MessageType                        = NotificationMessageType.Parse("updateUser");
+        public static NotificationMessageType removeUser_MessageType                        = NotificationMessageType.Parse("removeUser");
 
-        public static NotificationMessageType addAPIKey_MessageType                    = NotificationMessageType.Parse("addAPIKey");
-        public static NotificationMessageType addAPIKeyIfNotExists_MessageType         = NotificationMessageType.Parse("addAPIKeyIfNotExists");
-        public static NotificationMessageType addOrUpdateAPIKey_MessageType            = NotificationMessageType.Parse("addOrUpdateAPIKey");
-        public static NotificationMessageType updateAPIKey_MessageType                 = NotificationMessageType.Parse("updateAPIKey");
-        public static NotificationMessageType removeAPIKey_MessageType                 = NotificationMessageType.Parse("removeAPIKey");
+        public static NotificationMessageType addPassword_MessageType                       = NotificationMessageType.Parse("addPassword");
+        public static NotificationMessageType changePassword_MessageType                    = NotificationMessageType.Parse("changePassword");
 
-        public static NotificationMessageType addOrganization_MessageType              = NotificationMessageType.Parse("addOrganization");
-        public static NotificationMessageType addOrganizationIfNotExists_MessageType   = NotificationMessageType.Parse("addOrganizationIfNotExists");
-        public static NotificationMessageType addOrUpdateOrganization_MessageType      = NotificationMessageType.Parse("addOrUpdateOrganization");
-        public static NotificationMessageType updateOrganization_MessageType           = NotificationMessageType.Parse("updateOrganization");
-        public static NotificationMessageType removeOrganization_MessageType           = NotificationMessageType.Parse("removeOrganization");
+        public static NotificationMessageType addUserGroup_MessageType                      = NotificationMessageType.Parse("addUserGroup");
+        public static NotificationMessageType addUserGroupIfNotExists_MessageType           = NotificationMessageType.Parse("addUserGroupIfNotExists");
+        public static NotificationMessageType addOrUpdateUserGroup_MessageType              = NotificationMessageType.Parse("addOrUpdateUserGroup");
+        public static NotificationMessageType updateUserGroup_MessageType                   = NotificationMessageType.Parse("updateUserGroup");
+        public static NotificationMessageType removeUserGroup_MessageType                   = NotificationMessageType.Parse("removeUserGroup");
 
-        public static NotificationMessageType addUserToOrganization_MessageType        = NotificationMessageType.Parse("addUserToOrganization");
-        public static NotificationMessageType removeUserFromOrganization_MessageType   = NotificationMessageType.Parse("removeUserFromOrganization");
+        public static NotificationMessageType addUserToUserGroup_MessageType                = NotificationMessageType.Parse("addUserToUserGroup");
+        public static NotificationMessageType removeUserFromUserGroup_MessageType           = NotificationMessageType.Parse("removeUserFromUserGroup");
 
-        public static NotificationMessageType linkOrganizations_MessageType            = NotificationMessageType.Parse("linkOrganizations");
-        public static NotificationMessageType unlinkOrganizations_MessageType          = NotificationMessageType.Parse("unlinkOrganizations");
+        public static NotificationMessageType addAPIKey_MessageType                         = NotificationMessageType.Parse("addAPIKey");
+        public static NotificationMessageType addAPIKeyIfNotExists_MessageType              = NotificationMessageType.Parse("addAPIKeyIfNotExists");
+        public static NotificationMessageType addOrUpdateAPIKey_MessageType                 = NotificationMessageType.Parse("addOrUpdateAPIKey");
+        public static NotificationMessageType updateAPIKey_MessageType                      = NotificationMessageType.Parse("updateAPIKey");
+        public static NotificationMessageType removeAPIKey_MessageType                      = NotificationMessageType.Parse("removeAPIKey");
 
-        public static NotificationMessageType addServiceTicket_MessageType             = NotificationMessageType.Parse("addServiceTicket");
-        public static NotificationMessageType addServiceTicketIfNotExists_MessageType  = NotificationMessageType.Parse("addServiceTicketIfNotExists");
-        public static NotificationMessageType addOrUpdateServiceTicket_MessageType     = NotificationMessageType.Parse("addOrUpdateServiceTicket");
-        public static NotificationMessageType updateServiceTicket_MessageType          = NotificationMessageType.Parse("updateServiceTicket");
-        public static NotificationMessageType removeServiceTicket_MessageType          = NotificationMessageType.Parse("removeServiceTicket");
-        public static NotificationMessageType changeServiceTicketStatus_MessageType    = NotificationMessageType.Parse("changeServiceTicketStatus");
+        public static NotificationMessageType addOrganization_MessageType                   = NotificationMessageType.Parse("addOrganization");
+        public static NotificationMessageType addOrganizationIfNotExists_MessageType        = NotificationMessageType.Parse("addOrganizationIfNotExists");
+        public static NotificationMessageType addOrUpdateOrganization_MessageType           = NotificationMessageType.Parse("addOrUpdateOrganization");
+        public static NotificationMessageType updateOrganization_MessageType                = NotificationMessageType.Parse("updateOrganization");
+        public static NotificationMessageType removeOrganization_MessageType                = NotificationMessageType.Parse("removeOrganization");
 
-        public static NotificationMessageType addNewsPosting_MessageType               = NotificationMessageType.Parse("addNewsPosting");
-        public static NotificationMessageType addNewsPostingIfNotExists_MessageType    = NotificationMessageType.Parse("addNewsPostingIfNotExists");
-        public static NotificationMessageType addOrUpdateNewsPosting_MessageType       = NotificationMessageType.Parse("addOrUpdateNewsPosting");
-        public static NotificationMessageType updateNewsPosting_MessageType            = NotificationMessageType.Parse("updateNewsPosting");
-        public static NotificationMessageType removeNewsPosting_MessageType            = NotificationMessageType.Parse("removeNewsPosting");
+        public static NotificationMessageType addUserToOrganization_MessageType             = NotificationMessageType.Parse("addUserToOrganization");
+        public static NotificationMessageType removeUserFromOrganization_MessageType        = NotificationMessageType.Parse("removeUserFromOrganization");
 
-        public static NotificationMessageType addNewsBanner_MessageType                = NotificationMessageType.Parse("addNewsBanner");
-        public static NotificationMessageType addNewsBannerIfNotExists_MessageType     = NotificationMessageType.Parse("addNewsBannerIfNotExists");
-        public static NotificationMessageType addOrUpdateNewsBanner_MessageType        = NotificationMessageType.Parse("addOrUpdateNewsBanner");
-        public static NotificationMessageType updateNewsBanner_MessageType             = NotificationMessageType.Parse("updateNewsBanner");
-        public static NotificationMessageType removeNewsBanner_MessageType             = NotificationMessageType.Parse("removeNewsBanner");
+        public static NotificationMessageType linkOrganizations_MessageType                 = NotificationMessageType.Parse("linkOrganizations");
+        public static NotificationMessageType unlinkOrganizations_MessageType               = NotificationMessageType.Parse("unlinkOrganizations");
 
-        public static NotificationMessageType addFAQ_MessageType                       = NotificationMessageType.Parse("addFAQ");
-        public static NotificationMessageType addFAQIfNotExists_MessageType            = NotificationMessageType.Parse("addFAQIfNotExists");
-        public static NotificationMessageType addOrUpdateFAQ_MessageType               = NotificationMessageType.Parse("addOrUpdateFAQ");
-        public static NotificationMessageType updateFAQ_MessageType                    = NotificationMessageType.Parse("updateFAQ");
-        public static NotificationMessageType removeFAQ_MessageType                    = NotificationMessageType.Parse("removeFAQ");
-        public static NotificationMessageType changeFAQAdminStatus_MessageType         = NotificationMessageType.Parse("changeFAQAdminStatus");
-        public static NotificationMessageType changeFAQStatus_MessageType              = NotificationMessageType.Parse("changeFAQStatus");
+        public static NotificationMessageType addOrganizationGroup_MessageType              = NotificationMessageType.Parse("addOrganizationGroup");
+        public static NotificationMessageType addOrganizationGroupIfNotExists_MessageType   = NotificationMessageType.Parse("addOrganizationGroupIfNotExists");
+        public static NotificationMessageType addOrUpdateOrganizationGroup_MessageType      = NotificationMessageType.Parse("addOrUpdateOrganizationGroup");
+        public static NotificationMessageType updateOrganizationGroup_MessageType           = NotificationMessageType.Parse("updateOrganizationGroup");
+        public static NotificationMessageType removeOrganizationGroup_MessageType           = NotificationMessageType.Parse("removeOrganizationGroup");
+
+        public static NotificationMessageType addNotification_MessageType                   = NotificationMessageType.Parse("addNotification");
+        public static NotificationMessageType removeNotification_MessageType                = NotificationMessageType.Parse("removeNotification");
+
+        public static NotificationMessageType addServiceTicket_MessageType                  = NotificationMessageType.Parse("addServiceTicket");
+        public static NotificationMessageType addServiceTicketIfNotExists_MessageType       = NotificationMessageType.Parse("addServiceTicketIfNotExists");
+        public static NotificationMessageType addOrUpdateServiceTicket_MessageType          = NotificationMessageType.Parse("addOrUpdateServiceTicket");
+        public static NotificationMessageType updateServiceTicket_MessageType               = NotificationMessageType.Parse("updateServiceTicket");
+        public static NotificationMessageType removeServiceTicket_MessageType               = NotificationMessageType.Parse("removeServiceTicket");
+        public static NotificationMessageType changeServiceTicketStatus_MessageType         = NotificationMessageType.Parse("changeServiceTicketStatus");
+
+        public static NotificationMessageType addDashboard_MessageType                      = NotificationMessageType.Parse("addDashboard");
+        public static NotificationMessageType addDashboardIfNotExists_MessageType           = NotificationMessageType.Parse("addDashboardIfNotExists");
+        public static NotificationMessageType addOrUpdateDashboard_MessageType              = NotificationMessageType.Parse("addOrUpdateDashboard");
+        public static NotificationMessageType updateDashboard_MessageType                   = NotificationMessageType.Parse("updateDashboard");
+        public static NotificationMessageType removeDashboard_MessageType                   = NotificationMessageType.Parse("removeDashboard");
+
+        public static NotificationMessageType addNewsPosting_MessageType                    = NotificationMessageType.Parse("addNewsPosting");
+        public static NotificationMessageType addNewsPostingIfNotExists_MessageType         = NotificationMessageType.Parse("addNewsPostingIfNotExists");
+        public static NotificationMessageType addOrUpdateNewsPosting_MessageType            = NotificationMessageType.Parse("addOrUpdateNewsPosting");
+        public static NotificationMessageType updateNewsPosting_MessageType                 = NotificationMessageType.Parse("updateNewsPosting");
+        public static NotificationMessageType removeNewsPosting_MessageType                 = NotificationMessageType.Parse("removeNewsPosting");
+
+        public static NotificationMessageType addNewsBanner_MessageType                     = NotificationMessageType.Parse("addNewsBanner");
+        public static NotificationMessageType addNewsBannerIfNotExists_MessageType          = NotificationMessageType.Parse("addNewsBannerIfNotExists");
+        public static NotificationMessageType addOrUpdateNewsBanner_MessageType             = NotificationMessageType.Parse("addOrUpdateNewsBanner");
+        public static NotificationMessageType updateNewsBanner_MessageType                  = NotificationMessageType.Parse("updateNewsBanner");
+        public static NotificationMessageType removeNewsBanner_MessageType                  = NotificationMessageType.Parse("removeNewsBanner");
+
+        public static NotificationMessageType addFAQ_MessageType                            = NotificationMessageType.Parse("addFAQ");
+        public static NotificationMessageType addFAQIfNotExists_MessageType                 = NotificationMessageType.Parse("addFAQIfNotExists");
+        public static NotificationMessageType addOrUpdateFAQ_MessageType                    = NotificationMessageType.Parse("addOrUpdateFAQ");
+        public static NotificationMessageType updateFAQ_MessageType                         = NotificationMessageType.Parse("updateFAQ");
+        public static NotificationMessageType removeFAQ_MessageType                         = NotificationMessageType.Parse("removeFAQ");
+        public static NotificationMessageType changeFAQAdminStatus_MessageType              = NotificationMessageType.Parse("changeFAQAdminStatus");
+        public static NotificationMessageType changeFAQStatus_MessageType                   = NotificationMessageType.Parse("changeFAQStatus");
 
         #endregion
 
@@ -3455,6 +3466,8 @@ namespace social.OpenData.UsersAPI
                                                Byte                                 MinRealmLength                = DefaultMinRealmLength,
                                                Byte                                 MinUserNameLength             = DefaultMinUserNameLength,
                                                PasswordQualityCheckDelegate         PasswordQualityCheck          = null,
+                                               Byte?                                MinUserGroupIdLength          = null,
+                                               UInt16?                              MinAPIKeyLength               = null,
                                                TimeSpan?                            SignInSessionLifetime         = null,
 
                                                TimeSpan?                            MaintenanceEvery              = null,
@@ -3495,6 +3508,8 @@ namespace social.OpenData.UsersAPI
                             MinRealmLength,
                             MinUserNameLength,
                             PasswordQualityCheck,
+                            MinUserGroupIdLength,
+                            MinAPIKeyLength,
                             SignInSessionLifetime,
 
                             MaintenanceEvery,
@@ -5050,24 +5065,25 @@ namespace social.OpenData.UsersAPI
                                              {
 
                                                  await WriteToDatabaseFile(NotificationMessageType.Parse("resetPassword"),
-                                                                      JSONObject.Create(
+                                                                           JSONObject.Create(
 
-                                                                          new JProperty("login",                 userId.ToString()),
+                                                                               new JProperty("login",                 userId.ToString()),
 
-                                                                          new JProperty("newPassword", new JObject(
-                                                                              new JProperty("salt",              NewPassword.Salt.UnsecureString()),
-                                                                              new JProperty("passwordHash",      NewPassword.UnsecureString)
-                                                                          )),
+                                                                               new JProperty("newPassword", new JObject(
+                                                                                   new JProperty("salt",              NewPassword.Salt.UnsecureString()),
+                                                                                   new JProperty("passwordHash",      NewPassword.UnsecureString)
+                                                                               )),
 
-                                                                          new JProperty("securityToken1",        SecurityToken1.ToString()),
+                                                                               new JProperty("securityToken1",        SecurityToken1.ToString()),
 
-                                                                          SecurityToken2.HasValue
-                                                                              ? new JProperty("securityToken2",  SecurityToken2.ToString())
-                                                                              : null
+                                                                               SecurityToken2.HasValue
+                                                                                   ? new JProperty("securityToken2",  SecurityToken2.ToString())
+                                                                                   : null
 
-                                                                      ),
-                                                                      this.UsersAPIPath + DefaultPasswordFile,
-                                                                      Robot.Id);
+                                                                           ),
+                                                                           this.UsersAPIPath + DefaultPasswordFile,
+                                                                           Request.EventTrackingId,
+                                                                           Robot.Id);
 
                                                  _LoginPasswords.Remove(userId);
 
@@ -5078,7 +5094,7 @@ namespace social.OpenData.UsersAPI
                                                  #region Send e-mail...
 
                                                  var MailSentResult = MailSentStatus.failed;
-                                                 var user           = await GetUser(userId);
+                                                 var user           = GetUser(userId);
 
                                                  var MailResultTask = APISMTPClient.Send(PasswordChangedEMailCreator(user,
                                                                                                                      user.EMail,
@@ -6726,6 +6742,7 @@ namespace social.OpenData.UsersAPI
                                              await AddOrUpdateUser(_User,
                                                                    null,
                                                                    null,
+                                                                   Request.EventTrackingId,
                                                                    HTTPUser.Id);
 
 
@@ -7477,7 +7494,7 @@ namespace social.OpenData.UsersAPI
                                                                  ErrorString = "Could not parse Telegram notification!";
                                                                  goto fail;
                                                              }
-                                                             await AddNotification(HTTPUser, telegramNotification, HTTPUser.Id);
+                                                             await AddNotification(HTTPUser, telegramNotification, Request.EventTrackingId, HTTPUser.Id);
                                                              break;
 
                                                          case TelegramGroupNotification.JSONLDContext:
@@ -7486,7 +7503,7 @@ namespace social.OpenData.UsersAPI
                                                                  ErrorString = "Could not parse Telegram group notification!";
                                                                  goto fail;
                                                              }
-                                                             await AddNotification(HTTPUser, telegramGroupNotification, HTTPUser.Id);
+                                                             await AddNotification(HTTPUser, telegramGroupNotification, Request.EventTrackingId, HTTPUser.Id);
                                                              break;
 
                                                          case SMSNotification.JSONLDContext:
@@ -7495,7 +7512,7 @@ namespace social.OpenData.UsersAPI
                                                                  ErrorString = "Could not parse sms notification!";
                                                                  goto fail;
                                                              }
-                                                             await AddNotification(HTTPUser, smsNotification, HTTPUser.Id);
+                                                             await AddNotification(HTTPUser, smsNotification, Request.EventTrackingId, HTTPUser.Id);
                                                              break;
 
                                                          case HTTPSNotification.JSONLDContext:
@@ -7504,7 +7521,7 @@ namespace social.OpenData.UsersAPI
                                                                  ErrorString = "Could not parse https notification!";
                                                                  goto fail;
                                                              }
-                                                             await AddNotification(HTTPUser, httpsNotification, HTTPUser.Id);
+                                                             await AddNotification(HTTPUser, httpsNotification, Request.EventTrackingId, HTTPUser.Id);
                                                              break;
 
                                                          case EMailNotification.JSONLDContext:
@@ -7513,7 +7530,7 @@ namespace social.OpenData.UsersAPI
                                                                  ErrorString = "Could not parse e-mail notification!";
                                                                  goto fail;
                                                              }
-                                                             await AddNotification(HTTPUser, eMailNotification, HTTPUser.Id);
+                                                             await AddNotification(HTTPUser, eMailNotification, Request.EventTrackingId, HTTPUser.Id);
                                                              break;
 
                                                          default:
@@ -7667,7 +7684,7 @@ namespace social.OpenData.UsersAPI
                                                                  ErrorString = "Could not parse Telegram notification!";
                                                                  goto fail;
                                                              }
-                                                             await RemoveNotification(HTTPUser, telegramNotification, HTTPUser.Id);
+                                                             await RemoveNotification(HTTPUser, telegramNotification, Request.EventTrackingId, HTTPUser.Id);
                                                              break;
 
                                                          case TelegramGroupNotification.JSONLDContext:
@@ -7676,7 +7693,7 @@ namespace social.OpenData.UsersAPI
                                                                  ErrorString = "Could not parse Telegram group notification!";
                                                                  goto fail;
                                                              }
-                                                             await RemoveNotification(HTTPUser, telegramGroupNotification, HTTPUser.Id);
+                                                             await RemoveNotification(HTTPUser, telegramGroupNotification, Request.EventTrackingId, HTTPUser.Id);
                                                              break;
 
                                                          case SMSNotification.JSONLDContext:
@@ -7685,7 +7702,7 @@ namespace social.OpenData.UsersAPI
                                                                  ErrorString = "Could not parse sms notification!";
                                                                  goto fail;
                                                              }
-                                                             await RemoveNotification(HTTPUser, smsNotification, HTTPUser.Id);
+                                                             await RemoveNotification(HTTPUser, smsNotification, Request.EventTrackingId, HTTPUser.Id);
                                                              break;
 
                                                          case HTTPSNotification.JSONLDContext:
@@ -7694,7 +7711,7 @@ namespace social.OpenData.UsersAPI
                                                                  ErrorString = "Could not parse https notification!";
                                                                  goto fail;
                                                              }
-                                                             await RemoveNotification(HTTPUser, httpsNotification, HTTPUser.Id);
+                                                             await RemoveNotification(HTTPUser, httpsNotification, Request.EventTrackingId, HTTPUser.Id);
                                                              break;
 
                                                          case EMailNotification.JSONLDContext:
@@ -7703,7 +7720,7 @@ namespace social.OpenData.UsersAPI
                                                                  ErrorString = "Could not parse e-mail notification!";
                                                                  goto fail;
                                                              }
-                                                             await RemoveNotification(HTTPUser, eMailNotification, HTTPUser.Id);
+                                                             await RemoveNotification(HTTPUser, eMailNotification, Request.EventTrackingId, HTTPUser.Id);
                                                              break;
 
                                                          default:
@@ -8047,6 +8064,7 @@ namespace social.OpenData.UsersAPI
                                              if (TryChangePassword(UserIdURL.Value,
                                                                    Password.Parse(NewPassword),
                                                                    CurrentPassword,
+                                                                   Request.EventTrackingId,
                                                                    HTTPUser.Id).Result)
                                              {
 
@@ -9035,7 +9053,7 @@ namespace social.OpenData.UsersAPI
 
                                                      }
 
-                                                     Admin = await GetUser(admin.Value);
+                                                     Admin = GetUser(admin.Value);
 
                                                      if (Admin == null)
                                                      {
@@ -9896,7 +9914,7 @@ namespace social.OpenData.UsersAPI
                                                                  ErrorString = "Could not parse Telegram notification!";
                                                                  goto fail;
                                                              }
-                                                             await AddNotification(Organization, telegramNotification, HTTPUser.Id);
+                                                             await AddNotification(Organization, telegramNotification, Request.EventTrackingId, HTTPUser.Id);
                                                              break;
 
                                                          case TelegramGroupNotification.JSONLDContext:
@@ -9905,7 +9923,7 @@ namespace social.OpenData.UsersAPI
                                                                  ErrorString = "Could not parse Telegram group notification!";
                                                                  goto fail;
                                                              }
-                                                             await AddNotification(Organization, telegramGroupNotification, HTTPUser.Id);
+                                                             await AddNotification(Organization, telegramGroupNotification, Request.EventTrackingId, HTTPUser.Id);
                                                              break;
 
                                                          case SMSNotification.JSONLDContext:
@@ -9914,7 +9932,7 @@ namespace social.OpenData.UsersAPI
                                                                  ErrorString = "Could not parse sms notification!";
                                                                  goto fail;
                                                              }
-                                                             await AddNotification(Organization, smsNotification, HTTPUser.Id);
+                                                             await AddNotification(Organization, smsNotification, Request.EventTrackingId, HTTPUser.Id);
                                                              break;
 
                                                          case HTTPSNotification.JSONLDContext:
@@ -9923,7 +9941,7 @@ namespace social.OpenData.UsersAPI
                                                                  ErrorString = "Could not parse https notification!";
                                                                  goto fail;
                                                              }
-                                                             await AddNotification(Organization, httpsNotification, HTTPUser.Id);
+                                                             await AddNotification(Organization, httpsNotification, Request.EventTrackingId, HTTPUser.Id);
                                                              break;
 
                                                          case EMailNotification.JSONLDContext:
@@ -9932,7 +9950,7 @@ namespace social.OpenData.UsersAPI
                                                                  ErrorString = "Could not parse e-mail notification!";
                                                                  goto fail;
                                                              }
-                                                             await AddNotification(Organization, eMailNotification, HTTPUser.Id);
+                                                             await AddNotification(Organization, eMailNotification, Request.EventTrackingId, HTTPUser.Id);
                                                              break;
 
                                                          default:
@@ -10082,7 +10100,7 @@ namespace social.OpenData.UsersAPI
                                                                  ErrorString = "Could not parse Telegram notification!";
                                                                  goto fail;
                                                              }
-                                                             await RemoveNotification(Organization, telegramNotification, HTTPUser.Id);
+                                                             await RemoveNotification(Organization, telegramNotification, Request.EventTrackingId, HTTPUser.Id);
                                                              break;
 
                                                          case TelegramGroupNotification.JSONLDContext:
@@ -10091,7 +10109,7 @@ namespace social.OpenData.UsersAPI
                                                                  ErrorString = "Could not parse Telegram group notification!";
                                                                  goto fail;
                                                              }
-                                                             await RemoveNotification(Organization, telegramGroupNotification, HTTPUser.Id);
+                                                             await RemoveNotification(Organization, telegramGroupNotification, Request.EventTrackingId, HTTPUser.Id);
                                                              break;
 
                                                          case SMSNotification.JSONLDContext:
@@ -10100,7 +10118,7 @@ namespace social.OpenData.UsersAPI
                                                                  ErrorString = "Could not parse sms notification!";
                                                                  goto fail;
                                                              }
-                                                             await RemoveNotification(Organization, smsNotification, HTTPUser.Id);
+                                                             await RemoveNotification(Organization, smsNotification, Request.EventTrackingId, HTTPUser.Id);
                                                              break;
 
                                                          case HTTPSNotification.JSONLDContext:
@@ -10109,7 +10127,7 @@ namespace social.OpenData.UsersAPI
                                                                  ErrorString = "Could not parse https notification!";
                                                                  goto fail;
                                                              }
-                                                             await RemoveNotification(Organization, httpsNotification, HTTPUser.Id);
+                                                             await RemoveNotification(Organization, httpsNotification, Request.EventTrackingId, HTTPUser.Id);
                                                              break;
 
                                                          case EMailNotification.JSONLDContext:
@@ -10118,7 +10136,7 @@ namespace social.OpenData.UsersAPI
                                                                  ErrorString = "Could not parse e-mail notification!";
                                                                  goto fail;
                                                              }
-                                                             await RemoveNotification(Organization, eMailNotification, HTTPUser.Id);
+                                                             await RemoveNotification(Organization, eMailNotification, Request.EventTrackingId, HTTPUser.Id);
                                                              break;
 
                                                          default:
@@ -13411,38 +13429,43 @@ namespace social.OpenData.UsersAPI
 
 
 
-        #region WriteToDatabaseFile(MessageType, JSONData,                                 CurrentUserId = null)
+        #region WriteToDatabaseFile(MessageType, JSONData,                     EventTrackingId,        CurrentUserId = null)
 
         /// <summary>
         /// Write data to a log file.
         /// </summary>
         /// <param name="MessageType">The type of the message.</param>
         /// <param name="JSONData">The JSON data of the message.</param>
+        /// <param name="EventTrackingId">An unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
         public Task WriteToDatabaseFile(NotificationMessageType  MessageType,
                                         JObject                  JSONData,
-                                        User_Id?                 CurrentUserId  = null)
+                                        EventTracking_Id         EventTrackingId,
+                                        User_Id?                 CurrentUserId   = null)
 
             => WriteToDatabaseFile(MessageType,
                                    JSONData,
                                    DatabaseFileName,
+                                   EventTrackingId,
                                    CurrentUserId);
 
         #endregion
 
-        #region WriteToDatabaseFile(MessageType, JSONData, DatabaseFile = APIDatabaseFile, CurrentUserId = null)
+        #region WriteToDatabaseFile(MessageType, JSONData, DatabaseFile, EventTrackingId = null, CurrentUserId = null)
 
         /// <summary>
         /// Write data to a database file.
         /// </summary>
         /// <param name="MessageType">The type of the message.</param>
         /// <param name="JSONData">The JSON data of the message.</param>
-        /// <param name="DatabaseFile">An optional database file.</param>
+        /// <param name="DatabaseFile">The database file.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
         public async Task WriteToDatabaseFile(NotificationMessageType  MessageType,
                                               JObject                  JSONData,
-                                              String                   DatabaseFile    = null,
-                                              User_Id?                 CurrentUserId   = null)
+                                              String                   DatabaseFile,
+                                              EventTracking_Id         EventTrackingId   = null,
+                                              User_Id?                 CurrentUserId     = null)
         {
 
             if (!DisableLogfile || !DisableNotifications)
@@ -13454,6 +13477,7 @@ namespace social.OpenData.UsersAPI
                     var Now          = DateTime.UtcNow;
 
                     var JSONMessage  = new JObject(
+                                           new JProperty("eventTrackingId",       (EventTrackingId ?? EventTracking_Id.New).ToString()),
                                            new JProperty(MessageType.ToString(),  JSONData),
                                            new JProperty("userId",                (CurrentUserId ?? CurrentAsyncLocalUserId.Value ?? Robot.Id).ToString()),
                                            new JProperty("systemId",              SystemId.ToString()),
@@ -13538,17 +13562,19 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
-        #region WriteCommentToDatabaseFile(Comment = null, DatabaseFile = APIDatabaseFile, CurrentUserId = null)
+        #region WriteCommentToDatabaseFile(Comment = null, DatabaseFile = APIDatabaseFile, EventTrackingId = null, CurrentUserId = null)
 
         /// <summary>
         /// Write a comment or just an empty comment to a database file.
         /// </summary>
         /// <param name="Comment">An optional comment.</param>
         /// <param name="DatabaseFile">An optional database file.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
-        public async Task WriteCommentToDatabaseFile(String    Comment         = null,
-                                                     String    DatabaseFile    = null,
-                                                     User_Id?  CurrentUserId   = null)
+        public async Task WriteCommentToDatabaseFile(String            Comment           = null,
+                                                     String            DatabaseFile      = null,
+                                                     EventTracking_Id  EventTrackingId   = null,
+                                                     User_Id?          CurrentUserId     = null)
         {
 
             if (!DisableLogfile || !DisableNotifications)
@@ -14203,11 +14229,13 @@ namespace social.OpenData.UsersAPI
         /// <param name="User">The user.</param>
         /// <param name="MessageType">The user notification.</param>
         /// <param name="OldUser">The old/updated user.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">The invoking user identification</param>
         protected async Task WriteToDatabaseFileAndNotify<TUser>(TUser                    User,
                                                                  NotificationMessageType  MessageType,
-                                                                 User                     OldUser         = null,
-                                                                 User_Id?                 CurrentUserId   = null)
+                                                                 TUser                    OldUser           = null,
+                                                                 EventTracking_Id         EventTrackingId   = null,
+                                                                 User_Id?                 CurrentUserId     = null)
 
             where TUser : User
 
@@ -14220,13 +14248,17 @@ namespace social.OpenData.UsersAPI
                 throw new ArgumentNullException(nameof(MessageType),  "The given message type must not be null or empty!");
 
 
+            var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
+
             await WriteToDatabaseFile(MessageType,
                                       User.ToJSON(false, true),
+                                      eventTrackingId,
                                       CurrentUserId);
 
             await SendNotifications(User,
                                     MessageType,
                                     OldUser,
+                                    eventTrackingId,
                                     CurrentUserId);
 
         }
@@ -14242,11 +14274,13 @@ namespace social.OpenData.UsersAPI
         /// <param name="User">The user.</param>
         /// <param name="MessageType">The user notification.</param>
         /// <param name="OldUser">The old/updated user.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">The invoking user identification</param>
         protected async Task SendNotifications<TUser>(TUser                    User,
                                                       NotificationMessageType  MessageType,
-                                                      User                     OldUser         = null,
-                                                      User_Id?                 CurrentUserId   = null)
+                                                      TUser                    OldUser           = null,
+                                                      EventTracking_Id         EventTrackingId   = null,
+                                                      User_Id?                 CurrentUserId     = null)
 
             where TUser : User
 
@@ -14262,6 +14296,7 @@ namespace social.OpenData.UsersAPI
             await SendNotifications(User,
                                     new NotificationMessageType[] { MessageType },
                                     OldUser,
+                                    EventTrackingId,
                                     CurrentUserId);
 
         }
@@ -14274,11 +14309,13 @@ namespace social.OpenData.UsersAPI
         /// <param name="User">The user.</param>
         /// <param name="MessageTypes">The user notifications.</param>
         /// <param name="OldUser">The old/updated user.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">The invoking user identification</param>
         protected async Task SendNotifications<TUser>(TUser                                 User,
                                                       IEnumerable<NotificationMessageType>  MessageTypes,
-                                                      User                                  OldUser         = null,
-                                                      User_Id?                              CurrentUserId   = null)
+                                                      TUser                                 OldUser           = null,
+                                                      EventTracking_Id                      EventTrackingId   = null,
+                                                      User_Id?                              CurrentUserId     = null)
 
             where TUser : User
 
@@ -14634,17 +14671,19 @@ namespace social.OpenData.UsersAPI
         #endregion
 
 
-        #region AddUser           (User, OnAdded = null,                   CurrentUserId = null)
+        #region AddUser           (User, (Membership, Organization), OnAdded = null,                   CurrentUserId = null)
 
         /// <summary>
         /// A delegate called whenever a user was added.
         /// </summary>
         /// <param name="Timestamp">The timestamp when the user was added.</param>
         /// <param name="User">The added user.</param>
+        /// <param name="EventTrackingId">An unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">The invoking user identification</param>
-        public delegate Task OnUserAddedDelegate(DateTime  Timestamp,
-                                                 User      User,
-                                                 User_Id?  CurrentUserId  = null);
+        public delegate Task OnUserAddedDelegate(DateTime          Timestamp,
+                                                 User              User,
+                                                 EventTracking_Id  EventTrackingId   = null,
+                                                 User_Id?          CurrentUserId     = null);
 
         /// <summary>
         /// An event fired whenever a user was added.
@@ -14652,36 +14691,45 @@ namespace social.OpenData.UsersAPI
         public event OnUserAddedDelegate OnUserAdded;
 
 
-        #region (protected) _AddUser(User,                                OnAdded = null, CurrentUserId = null)
+        #region (protected) _AddUser(User,                           OnAdded = null, CurrentUserId = null)
 
         /// <summary>
         /// Add the given user to the API.
         /// </summary>
         /// <param name="User">A new user to be added to this API.</param>
         /// <param name="OnAdded">A delegate run whenever the user had been added successfully.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
-        protected async Task<User> _AddUser(User          User,
-                                            Action<User>  OnAdded        = null,
-                                            User_Id?      CurrentUserId  = null)
+        protected async Task<User> _AddUser(User                            User,
+                                            Action<User, EventTracking_Id>  OnAdded           = null,
+                                            EventTracking_Id                EventTrackingId   = null,
+                                            User_Id?                        CurrentUserId     = null)
         {
 
             if (User is null)
-                throw new ArgumentNullException(nameof(User),  "The given user must not be null!");
+                throw new ArgumentNullException(nameof(User),
+                                                "The given user must not be null!");
 
             if (User.API != null && User.API != this)
-                throw new ArgumentException    (nameof(User),  "The given user is already attached to another API!");
+                throw new ArgumentException    ("The given user is already attached to another API!",
+                                                nameof(User));
 
             if (_Users.ContainsKey(User.Id))
-                throw new ArgumentException    (nameof(User),  "User identification '" + User.Id + "' already exists!");
+                throw new ArgumentException    ("User identification '" + User.Id + "' already exists!",
+                                                nameof(User));
 
             if (User.Id.Length < MinUserIdLength)
-                throw new ArgumentException    (nameof(User),  "User identification '" + User.Id + "' is too short!");
+                throw new ArgumentException    ("User identification '" + User.Id + "' is too short!",
+                                                nameof(User));
 
             User.API = this;
 
 
+            var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
+
             await WriteToDatabaseFile(addUser_MessageType,
                                       User.ToJSON(false, true),
+                                      eventTrackingId,
                                       CurrentUserId);
 
             _Users.Add(User.Id, User);
@@ -14702,6 +14750,7 @@ namespace social.OpenData.UsersAPI
                                                              "",
                                                              newUserDefaultNotificationMessageGroups,
                                                              "Default notifications for new users"),
+                                       eventTrackingId,
                                        CurrentUserId);
 
             #endregion
@@ -14711,14 +14760,17 @@ namespace social.OpenData.UsersAPI
             if (OnUserAddedLocal != null)
                 await OnUserAddedLocal?.Invoke(DateTime.UtcNow,
                                                User,
+                                               EventTrackingId,
                                                CurrentUserId);
 
             await SendNotifications(User,
                                     addUser_MessageType,
                                     null,
+                                    EventTrackingId,
                                     CurrentUserId);
 
-            OnAdded?.Invoke(User);
+            OnAdded?.Invoke(User,
+                            eventTrackingId);
 
             return User;
 
@@ -14726,17 +14778,19 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
-        #region AddUser             (User,                                OnAdded = null, CurrentUserId = null)
+        #region AddUser             (User,                           OnAdded = null, CurrentUserId = null)
 
         /// <summary>
         /// Add the given user.
         /// </summary>
         /// <param name="User">A new user.</param>
         /// <param name="OnAdded">A delegate run whenever the user had been added successfully.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
-        public async Task<User> AddUser(User          User,
-                                        Action<User>  OnAdded        = null,
-                                        User_Id?      CurrentUserId  = null)
+        public async Task<User> AddUser(User                            User,
+                                        Action<User, EventTracking_Id>  OnAdded           = null,
+                                        EventTracking_Id                EventTrackingId   = null,
+                                        User_Id?                        CurrentUserId     = null)
         {
 
             if (User is null)
@@ -14749,6 +14803,7 @@ namespace social.OpenData.UsersAPI
 
                             ? await _AddUser(User,
                                              OnAdded,
+                                             EventTrackingId,
                                              CurrentUserId)
 
                             : null;
@@ -14768,34 +14823,41 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
-        #region AddUser             (User, EdgeLabel, ParentOrganization, OnAdded = null, CurrentUserId = null)
+        #region AddUser             (User, Membership, Organization, OnAdded = null, CurrentUserId = null)
 
         /// <summary>
         /// Add the given user and add him/her to the given organization.
         /// </summary>
         /// <param name="User">A new user.</param>
-        /// <param name="EdgeLabel"></param>
-        /// <param name="ParentOrganization"></param>
+        /// <param name="Membership">The organization membership of the new user.</param>
+        /// <param name="Organization">The organization of the new user.</param>
         /// <param name="OnAdded">A delegate run whenever the user had been added successfully.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
-        public async Task<User> AddUser(User                         User,
-                                        User2OrganizationEdgeTypes   EdgeLabel,
-                                        Organization                 ParentOrganization,
-                                        Action<User>                 OnAdded              = null,
-                                        User_Id?                     CurrentUserId        = null)
+        public async Task<User> AddUser(User                            User,
+                                        User2OrganizationEdgeTypes      Membership,
+                                        Organization                    Organization,
+                                        Action<User, EventTracking_Id>  OnAdded           = null,
+                                        EventTracking_Id                EventTrackingId   = null,
+                                        User_Id?                        CurrentUserId     = null)
         {
 
             if (User is null)
-                throw new ArgumentNullException(nameof(User),                "The given user must not be null!");
+                throw new ArgumentNullException("The given user must not be null!",
+                                                nameof(User));
 
-            if (ParentOrganization is null)
-                throw new ArgumentNullException(nameof(ParentOrganization),  "The given parent organization of the user must not be null!");
+            if (Organization is null)
+                throw new ArgumentNullException("The given organization of the user must not be null!",
+                                                nameof(Organization));
 
-            if (ParentOrganization.API != this)
-                throw new ArgumentException    (nameof(ParentOrganization),  "The given parent organization of the user is not attached to this API!");
+            if (Organization.API != this)
+                throw new ArgumentException    ("The given organization of the user is not attached to this API!",
+                                                nameof(Organization));
 
             try
             {
+
+                var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
 
                 // The new user does not yet have an organization,
                 // therefore organization notifications do not work here yet!
@@ -14803,13 +14865,16 @@ namespace social.OpenData.UsersAPI
                         (await OrganizationsSemaphore.WaitAsync(SemaphoreSlimTimeout)))
 
                              ? await _AddUser(User,
-                                              async user => {
-                                                  await _AddToOrganization(User,
-                                                                           EdgeLabel,
-                                                                           ParentOrganization,
+                                              async (_user, _eventTrackingId) => {
+                                                  await _AddToOrganization(_user,
+                                                                           Membership,
+                                                                           Organization,
+                                                                           _eventTrackingId,
                                                                            CurrentUserId);
-                                                  OnAdded(user);
+                                                  OnAdded(_user,
+                                                          _eventTrackingId);
                                               },
+                                              eventTrackingId,
                                               CurrentUserId)
 
                              : null;
@@ -14832,38 +14897,46 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
-        #region AddUserIfNotExists(User, OnAdded = null,                   CurrentUserId = null)
+        #region AddUserIfNotExists(User, (Membership, Organization), OnAdded = null,                   CurrentUserId = null)
 
-        #region (protected) _AddUserIfNotExists(User,                                OnAdded = null, CurrentUserId = null)
+        #region (protected) _AddUserIfNotExists(User,                           OnAdded = null, CurrentUserId = null)
 
         /// <summary>
         /// When it has not been created before, add the given user to the API.
         /// </summary>
         /// <param name="User">A new user to be added to this API.</param>
         /// <param name="OnAdded">A delegate run whenever the user had been added successfully.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
-        protected async Task<User> _AddUserIfNotExists(User          User,
-                                                       Action<User>  OnAdded        = null,
-                                                       User_Id?      CurrentUserId  = null)
+        protected async Task<User> _AddUserIfNotExists(User                            User,
+                                                       Action<User, EventTracking_Id>  OnAdded           = null,
+                                                       EventTracking_Id                EventTrackingId   = null,
+                                                       User_Id?                        CurrentUserId     = null)
         {
 
             if (User is null)
-                throw new ArgumentNullException(nameof(User),  "The given user must not be null!");
+                throw new ArgumentNullException(nameof(User),
+                                                "The given user must not be null!");
 
             if (User.API != null && User.API != this)
-                throw new ArgumentException    (nameof(User),  "The given user is already attached to another API!");
+                throw new ArgumentException    ("The given user is already attached to another API!",
+                                                nameof(User));
 
             if (_Users.ContainsKey(User.Id))
                 return _Users[User.Id];
 
             if (User.Id.Length < MinUserIdLength)
-                throw new ArgumentException    (nameof(User),  "User identification '" + User.Id + "' is too short!");
+                throw new ArgumentException    ("User identification '" + User.Id + "' is too short!",
+                                                nameof(User));
 
             User.API = this;
 
 
+            var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
+
             await WriteToDatabaseFile(addUserIfNotExists_MessageType,
                                       User.ToJSON(false, true),
+                                      eventTrackingId,
                                       CurrentUserId);
 
             _Users.Add(User.Id, User);
@@ -14878,13 +14951,14 @@ namespace social.OpenData.UsersAPI
 
             if (newUserDefaultNotificationMessageGroups.Any())
                 await AddNotification(User,
-                                        new EMailNotification(User.EMail,
+                                      new EMailNotification(User.EMail,
                                                             "",
                                                             "",
                                                             "",
                                                             newUserDefaultNotificationMessageGroups,
                                                             "Default notifications for new users"),
-                                        CurrentUserId);
+                                      eventTrackingId,
+                                      CurrentUserId);
 
             #endregion
 
@@ -14892,14 +14966,17 @@ namespace social.OpenData.UsersAPI
             if (OnUserAddedLocal != null)
                 await OnUserAddedLocal?.Invoke(DateTime.UtcNow,
                                                User,
+                                               eventTrackingId,
                                                CurrentUserId);
 
             await SendNotifications(User,
                                     addUserIfNotExists_MessageType,
                                     null,
+                                    eventTrackingId,
                                     CurrentUserId);
 
-            OnAdded?.Invoke(User);
+            OnAdded?.Invoke(User,
+                            eventTrackingId);
 
             return User;
 
@@ -14907,17 +14984,19 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
-        #region AddUserIfNotExists             (User,                                OnAdded = null, CurrentUserId = null)
+        #region AddUserIfNotExists             (User,                           OnAdded = null, CurrentUserId = null)
 
         /// <summary>
         /// Add the given user.
         /// </summary>
         /// <param name="User">A new user.</param>
         /// <param name="OnAdded">A delegate run whenever the user had been added successfully.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
-        public async Task<User> AddUserIfNotExists(User          User,
-                                                   Action<User>  OnAdded        = null,
-                                                   User_Id?      CurrentUserId  = null)
+        public async Task<User> AddUserIfNotExists(User                            User,
+                                                   Action<User, EventTracking_Id>  OnAdded           = null,
+                                                   EventTracking_Id                EventTrackingId   = null,
+                                                   User_Id?                        CurrentUserId     = null)
         {
 
             try
@@ -14925,9 +15004,10 @@ namespace social.OpenData.UsersAPI
 
                 return (await UsersSemaphore.WaitAsync(SemaphoreSlimTimeout))
 
-                            ? await _AddUser(User,
-                                             OnAdded,
-                                             CurrentUserId)
+                            ? await _AddUserIfNotExists(User,
+                                                        OnAdded,
+                                                        EventTrackingId,
+                                                        CurrentUserId)
 
                             : null;
 
@@ -14946,34 +15026,41 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
-        #region AddUserIfNotExists             (User, EdgeLabel, ParentOrganization, OnAdded = null, CurrentUserId = null)
+        #region AddUserIfNotExists             (User, Membership, Organization, OnAdded = null, CurrentUserId = null)
 
         /// <summary>
         /// Add the given user and add him/her to the given organization.
         /// </summary>
         /// <param name="User">A new user.</param>
-        /// <param name="EdgeLabel"></param>
-        /// <param name="ParentOrganization"></param>
+        /// <param name="Membership">The organization membership of the new user.</param>
+        /// <param name="Organization">The organization of the new user.</param>
         /// <param name="OnAdded">A delegate run whenever the user had been added successfully.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
-        public async Task<User> AddUserIfNotExists(User                         User,
-                                                   User2OrganizationEdgeTypes   EdgeLabel,
-                                                   Organization                 ParentOrganization,
-                                                   Action<User>                 OnAdded              = null,
-                                                   User_Id?                     CurrentUserId        = null)
+        public async Task<User> AddUserIfNotExists(User                            User,
+                                                   User2OrganizationEdgeTypes      Membership,
+                                                   Organization                    Organization,
+                                                   Action<User, EventTracking_Id>  OnAdded              = null,
+                                                   EventTracking_Id                EventTrackingId      = null,
+                                                   User_Id?                        CurrentUserId        = null)
         {
 
             if (User is null)
-                throw new ArgumentNullException(nameof(User),                "The given user must not be null!");
+                throw new ArgumentNullException(nameof(User),
+                                                "The given user must not be null!");
 
-            if (ParentOrganization is null)
-                throw new ArgumentNullException(nameof(ParentOrganization),  "The given parent organization must not be null!");
+            if (Organization is null)
+                throw new ArgumentNullException(nameof(Organization),
+                                                "The given organization must not be null!");
 
-            if (ParentOrganization.API != this)
-                throw new ArgumentException    (nameof(ParentOrganization),  "The given parent organization is not attached to this API!");
+            if (Organization.API != this)
+                throw new ArgumentException    ("The given organization is not attached to this API!",
+                                                nameof(Organization));
 
             try
             {
+
+                var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
 
                 // The new user does not yet have an organization,
                 // therefore organization notifications do not work here yet!
@@ -14981,13 +15068,16 @@ namespace social.OpenData.UsersAPI
                         (await OrganizationsSemaphore.WaitAsync(SemaphoreSlimTimeout)))
 
                              ? await _AddUserIfNotExists(User,
-                                                         async user => {
-                                                             await _AddToOrganization(User,
-                                                                                      EdgeLabel,
-                                                                                      ParentOrganization,
+                                                         async (_user, _eventTrackingId) => {
+                                                             await _AddToOrganization(_user,
+                                                                                      Membership,
+                                                                                      Organization,
+                                                                                      _eventTrackingId,
                                                                                       CurrentUserId);
-                                                             OnAdded(user);
+                                                             OnAdded(_user,
+                                                                     _eventTrackingId);
                                                          },
+                                                         eventTrackingId,
                                                          CurrentUserId)
 
                              : null;
@@ -15010,9 +15100,9 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
-        #region AddOrUpdateUser   (User, OnAdded = null, OnUpdated = null, CurrentUserId = null)
+        #region AddOrUpdateUser   (User, (Membership, Organization), OnAdded = null, OnUpdated = null, CurrentUserId = null)
 
-        #region (protected) _AddOrUpdateUser   (User,   OnAdded = null, OnUpdated = null, CurrentUserId = null)
+        #region (protected) _AddOrUpdateUser(User,                           OnAdded = null, OnUpdated = null, CurrentUserId = null)
 
         /// <summary>
         /// Add or update the given user to/within the API.
@@ -15020,30 +15110,38 @@ namespace social.OpenData.UsersAPI
         /// <param name="User">A user.</param>
         /// <param name="OnAdded">A delegate run whenever the user had been added successfully.</param>
         /// <param name="OnUpdated">A delegate run whenever the user had been updated successfully.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
-        protected async Task<User> _AddOrUpdateUser(User          User,
-                                                    Action<User>  OnAdded        = null,
-                                                    Action<User>  OnUpdated      = null,
-                                                    User_Id?      CurrentUserId  = null)
+        protected async Task<User> _AddOrUpdateUser(User                            User,
+                                                    Action<User, EventTracking_Id>  OnAdded           = null,
+                                                    Action<User, EventTracking_Id>  OnUpdated         = null,
+                                                    EventTracking_Id                EventTrackingId   = null,
+                                                    User_Id?                        CurrentUserId     = null)
         {
 
             if (User is null)
-                throw new ArgumentNullException(nameof(User),  "The given user must not be null!");
+                throw new ArgumentNullException(nameof(User),
+                                                "The given user must not be null!");
 
             if (User.API != null && User.API != this)
-                throw new ArgumentException    (nameof(User),  "The given user is already attached to another API!");
+                throw new ArgumentException    ("The given user is already attached to another API!",
+                                                nameof(User));
 
             if (_Users.ContainsKey(User.Id))
                 return _Users[User.Id];
 
             if (User.Id.Length < MinUserIdLength)
-                throw new ArgumentException    (nameof(User),  "User identification '" + User.Id + "' is too short!");
+                throw new ArgumentException    ("User identification '" + User.Id + "' is too short!",
+                                                nameof(User));
 
             User.API = this;
 
 
+            var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
+
             await WriteToDatabaseFile(addOrUpdateUser_MessageType,
-                                      User.ToJSON(),
+                                      User.ToJSON(false, true),
+                                      eventTrackingId,
                                       CurrentUserId);
 
             if (_Users.TryGetValue(User.Id, out User OldUser))
@@ -15061,13 +15159,18 @@ namespace social.OpenData.UsersAPI
                 if (OnUserUpdatedLocal != null)
                     await OnUserUpdatedLocal?.Invoke(DateTime.UtcNow,
                                                      User,
+                                                     OldUser,
+                                                     eventTrackingId,
                                                      CurrentUserId);
 
                 await SendNotifications(User,
                                         updateUser_MessageType,
-                                        CurrentUserId: CurrentUserId);
+                                        OldUser,
+                                        eventTrackingId,
+                                        CurrentUserId);
 
-                OnUpdated?.Invoke(User);
+                OnUpdated?.Invoke(User,
+                                  eventTrackingId);
 
             }
             else
@@ -15083,13 +15186,14 @@ namespace social.OpenData.UsersAPI
 
                 if (newUserDefaultNotificationMessageGroups.Any())
                     await _AddNotification(User,
-                                            new EMailNotification(User.EMail,
-                                                                    "",
-                                                                    "",
-                                                                    "",
-                                                                    newUserDefaultNotificationMessageGroups,
-                                                                    "Default notifications for new users"),
-                                            CurrentUserId);
+                                           new EMailNotification(User.EMail,
+                                                                 "",
+                                                                 "",
+                                                                 "",
+                                                                 newUserDefaultNotificationMessageGroups,
+                                                                 "Default notifications for new users"),
+                                           eventTrackingId,
+                                           CurrentUserId);
 
                 #endregion
 
@@ -15097,13 +15201,17 @@ namespace social.OpenData.UsersAPI
                 if (OnUserAddedLocal != null)
                     await OnUserAddedLocal?.Invoke(DateTime.UtcNow,
                                                    User,
+                                                   eventTrackingId,
                                                    CurrentUserId);
 
                 await SendNotifications(User,
                                         addUser_MessageType,
-                                        CurrentUserId: CurrentUserId);
+                                        null,
+                                        eventTrackingId,
+                                        CurrentUserId);
 
-                OnAdded?.Invoke(User);
+                OnAdded?.Invoke(User,
+                                eventTrackingId);
 
             }
 
@@ -15113,7 +15221,7 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
-        #region AddOrUpdateUser   (User,   OnAdded = null, OnUpdated = null, CurrentUserId = null)
+        #region AddOrUpdateUser             (User,                           OnAdded = null, OnUpdated = null, CurrentUserId = null)
 
         /// <summary>
         /// Add or update the given user to/within the API.
@@ -15121,11 +15229,13 @@ namespace social.OpenData.UsersAPI
         /// <param name="User">A user.</param>
         /// <param name="OnAdded">A delegate run whenever the user had been added successfully.</param>
         /// <param name="OnUpdated">A delegate run whenever the user had been updated successfully.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
-        public async Task<User> AddOrUpdateUser(User          User,
-                                                Action<User>  OnAdded        = null,
-                                                Action<User>  OnUpdated      = null,
-                                                User_Id?      CurrentUserId  = null)
+        public async Task<User> AddOrUpdateUser(User                            User,
+                                                Action<User, EventTracking_Id>  OnAdded           = null,
+                                                Action<User, EventTracking_Id>  OnUpdated         = null,
+                                                EventTracking_Id                EventTrackingId   = null,
+                                                User_Id?                        CurrentUserId     = null)
         {
 
             if (User is null)
@@ -15139,6 +15249,67 @@ namespace social.OpenData.UsersAPI
                             ? await _AddOrUpdateUser(User,
                                                      OnAdded,
                                                      OnUpdated,
+                                                     EventTrackingId,
+                                                     CurrentUserId)
+
+                            : null;
+
+            }
+            finally
+            {
+                try
+                {
+                    UsersSemaphore.Release();
+                }
+                catch
+                { }
+            }
+
+        }
+
+        #endregion
+
+        #region AddOrUpdateUser             (User, Membership, Organization, OnAdded = null, OnUpdated = null, CurrentUserId = null)
+
+        /// <summary>
+        /// Add or update the given user to/within the API.
+        /// </summary>
+        /// <param name="User">A user.</param>
+        /// <param name="Membership">The organization membership of the new user.</param>
+        /// <param name="Organization">The organization of the new user.</param>
+        /// <param name="OnAdded">A delegate run whenever the user had been added successfully.</param>
+        /// <param name="OnUpdated">A delegate run whenever the user had been updated successfully.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
+        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
+        public async Task<User> AddOrUpdateUser(User                            User,
+                                                User2OrganizationEdgeTypes      Membership,
+                                                Organization                    Organization,
+                                                Action<User, EventTracking_Id>  OnAdded           = null,
+                                                Action<User, EventTracking_Id>  OnUpdated         = null,
+                                                EventTracking_Id                EventTrackingId   = null,
+                                                User_Id?                        CurrentUserId     = null)
+        {
+
+            if (User is null)
+                throw new ArgumentNullException(nameof(User), "The given user must not be null!");
+
+            try
+            {
+
+                return (await UsersSemaphore.WaitAsync(SemaphoreSlimTimeout))
+
+                            ? await _AddOrUpdateUser(User,
+                                                     async (_user, _eventTrackingId) => {
+                                                         await _AddToOrganization(_user,
+                                                                                  Membership,
+                                                                                  Organization,
+                                                                                  _eventTrackingId,
+                                                                                  CurrentUserId);
+                                                         OnAdded(_user,
+                                                                 _eventTrackingId);
+                                                     },
+                                                     OnUpdated,
+                                                     EventTrackingId,
                                                      CurrentUserId)
 
                             : null;
@@ -15160,17 +15331,21 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
-        #region UpdateUser        (User,                 OnUpdated = null, CurrentUserId = null)
+        #region UpdateUser        (User,                                             OnUpdated = null, CurrentUserId = null)
 
         /// <summary>
         /// A delegate called whenever a user was updated.
         /// </summary>
         /// <param name="Timestamp">The timestamp when the user was updated.</param>
         /// <param name="User">The updated user.</param>
+        /// <param name="OldUser">The old user.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">The invoking user identification</param>
-        public delegate Task OnUserUpdatedDelegate(DateTime  Timestamp,
-                                                   User      User,
-                                                   User_Id?  CurrentUserId  = null);
+        public delegate Task OnUserUpdatedDelegate(DateTime          Timestamp,
+                                                   User              User,
+                                                   User              OldUser,
+                                                   EventTracking_Id  EventTrackingId   = null,
+                                                   User_Id?          CurrentUserId     = null);
 
         /// <summary>
         /// An event fired whenever a user was updated.
@@ -15185,26 +15360,34 @@ namespace social.OpenData.UsersAPI
         /// </summary>
         /// <param name="User">A user.</param>
         /// <param name="OnUpdated">A delegate run whenever the user had been updated successfully.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
-        protected async Task<User> _UpdateUser(User          User,
-                                               Action<User>  OnUpdated       = null,
-                                               User_Id?      CurrentUserId   = null)
+        protected async Task<User> _UpdateUser(User                            User,
+                                               Action<User, EventTracking_Id>  OnUpdated         = null,
+                                               EventTracking_Id                EventTrackingId   = null,
+                                               User_Id?                        CurrentUserId     = null)
         {
 
             if (User is null)
-                throw new ArgumentNullException(nameof(User),  "The given user must not be null!");
+                throw new ArgumentNullException(nameof(User),
+                                                "The given user must not be null!");
 
             if (User.API != null && User.API != this)
-                throw new ArgumentException    (nameof(User),  "The given user is already attached to another API!");
+                throw new ArgumentException    ("The given user is already attached to another API!",
+                                                nameof(User));
 
             if (!_Users.TryGetValue(User.Id, out User OldUser))
-                throw new ArgumentException    (nameof(User),  "The given user '" + User.Id + "' does not exists in this API!");
+                throw new ArgumentException    ("The given user '" + User.Id + "' does not exists in this API!",
+                                                nameof(User));
 
             User.API = this;
 
 
+            var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
+
             await WriteToDatabaseFile(updateUser_MessageType,
                                       User.ToJSON(),
+                                      eventTrackingId,
                                       CurrentUserId);
 
             _Users.Remove(OldUser.Id);
@@ -15215,13 +15398,18 @@ namespace social.OpenData.UsersAPI
             if (OnUserUpdatedLocal != null)
                 await OnUserUpdatedLocal?.Invoke(DateTime.UtcNow,
                                                  User,
+                                                 OldUser,
+                                                 eventTrackingId,
                                                  CurrentUserId);
 
             await SendNotifications(User,
                                     updateUser_MessageType,
-                                    CurrentUserId: CurrentUserId);
+                                    OldUser,
+                                    eventTrackingId,
+                                    CurrentUserId);
 
-            OnUpdated?.Invoke(User);
+            OnUpdated?.Invoke(User,
+                              eventTrackingId);
 
             return User;
 
@@ -15236,10 +15424,12 @@ namespace social.OpenData.UsersAPI
         /// </summary>
         /// <param name="User">A user.</param>
         /// <param name="OnUpdated">A delegate run whenever the user had been updated successfully.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
-        public async Task<User> UpdateUser(User          User,
-                                           Action<User>  OnUpdated       = null,
-                                           User_Id?      CurrentUserId   = null)
+        public async Task<User> UpdateUser(User                            User,
+                                           Action<User, EventTracking_Id>  OnUpdated         = null,
+                                           EventTracking_Id                EventTrackingId   = null,
+                                           User_Id?                        CurrentUserId     = null)
         {
 
             if (User is null)
@@ -15252,6 +15442,7 @@ namespace social.OpenData.UsersAPI
 
                             ? await _UpdateUser(User,
                                                 OnUpdated,
+                                                EventTrackingId,
                                                 CurrentUserId)
 
                             : null;
@@ -15280,28 +15471,37 @@ namespace social.OpenData.UsersAPI
         /// <param name="UserId">An user identification.</param>
         /// <param name="UpdateDelegate">A delegate to update the given user.</param>
         /// <param name="OnUpdated">A delegate run whenever the user had been updated successfully.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
-        protected async Task<User> _UpdateUser(User_Id               UserId,
-                                               Action<User.Builder>  UpdateDelegate,
-                                               Action<User>          OnUpdated       = null,
-                                               User_Id?              CurrentUserId   = null)
+        protected async Task<User> _UpdateUser(User_Id                         UserId,
+                                               Action<User.Builder>            UpdateDelegate,
+                                               Action<User, EventTracking_Id>  OnUpdated         = null,
+                                               EventTracking_Id                EventTrackingId   = null,
+                                               User_Id?                        CurrentUserId     = null)
         {
 
             if (UserId.IsNullOrEmpty)
-                throw new ArgumentNullException(nameof(UserId),          "The given user identification must not be null or empty!");
+                throw new ArgumentNullException(nameof(UserId),
+                                                "The given user identification must not be null or empty!");
 
             if (UpdateDelegate == null)
-                throw new ArgumentNullException(nameof(UpdateDelegate),  "The given update delegate must not be null!");
+                throw new ArgumentNullException(nameof(UpdateDelegate),
+                                                "The given update delegate must not be null!");
 
             if (!_Users.TryGetValue(UserId, out User OldUser))
-                throw new ArgumentException    (nameof(UserId),          "The given user '" + UserId + "' does not exists in this API!");
+                throw new ArgumentException    ("The given user '" + UserId + "' does not exists in this API!",
+                                                nameof(UserId));
 
             var Builder = OldUser.ToBuilder();
             UpdateDelegate(Builder);
             var NewUser = Builder.ToImmutable;
 
+
+            var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
+
             await WriteToDatabaseFile(updateUser_MessageType,
                                       NewUser.ToJSON(),
+                                      eventTrackingId,
                                       CurrentUserId);
 
             _Users.Remove(OldUser.Id);
@@ -15312,13 +15512,18 @@ namespace social.OpenData.UsersAPI
             if (OnUserUpdatedLocal != null)
                 await OnUserUpdatedLocal?.Invoke(DateTime.UtcNow,
                                                  NewUser,
+                                                 OldUser,
+                                                 eventTrackingId,
                                                  CurrentUserId);
 
             await SendNotifications(NewUser,
                                     updateUser_MessageType,
-                                    CurrentUserId: CurrentUserId);
+                                    OldUser,
+                                    eventTrackingId,
+                                    CurrentUserId);
 
-            OnUpdated?.Invoke(NewUser);
+            OnUpdated?.Invoke(NewUser,
+                              eventTrackingId);
 
             return NewUser;
 
@@ -15334,11 +15539,13 @@ namespace social.OpenData.UsersAPI
         /// <param name="UserId">An user identification.</param>
         /// <param name="UpdateDelegate">A delegate to update the given user.</param>
         /// <param name="OnUpdated">A delegate run whenever the user had been updated successfully.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
-        public async Task<User> UpdateUser(User_Id               UserId,
-                                           Action<User.Builder>  UpdateDelegate,
-                                           Action<User>          OnUpdated       = null,
-                                           User_Id?              CurrentUserId  = null)
+        public async Task<User> UpdateUser(User_Id                         UserId,
+                                           Action<User.Builder>            UpdateDelegate,
+                                           Action<User, EventTracking_Id>  OnUpdated         = null,
+                                           EventTracking_Id                EventTrackingId   = null,
+                                           User_Id?                        CurrentUserId     = null)
         {
 
             if (UserId.IsNullOrEmpty)
@@ -15352,6 +15559,7 @@ namespace social.OpenData.UsersAPI
                             ? await _UpdateUser(UserId,
                                                 UpdateDelegate,
                                                 OnUpdated,
+                                                EventTrackingId,
                                                 CurrentUserId)
 
                             : null;
@@ -15436,12 +15644,13 @@ namespace social.OpenData.UsersAPI
                                       IsDisabled,
                                       DataSource: DataSource),
 
-                             user => {
+                             (user, eventTrackingId) => {
 
                                  if (Password.HasValue &&
                                      !_TryChangePassword(user.Id,
                                                          Password.Value,
                                                          null,
+                                                         eventTrackingId,
                                                          CurrentUserId).Result)
                                  {
                                      throw new ApplicationException("The password for '" + user.Id + "' could not be changed, as the given current password does not match!");
@@ -15449,6 +15658,7 @@ namespace social.OpenData.UsersAPI
 
                              },
 
+                             EventTracking_Id.New,
                              CurrentUserId);
 
         #endregion
@@ -15520,12 +15730,13 @@ namespace social.OpenData.UsersAPI
                              EdgeLabel,
                              ParentOrganization,
 
-                             user => {
+                             (user, eventTrackingId) => {
 
                                  if (Password.HasValue &&
                                      !_TryChangePassword(user.Id,
                                                          Password.Value,
                                                          null,
+                                                         eventTrackingId,
                                                          CurrentUserId).Result)
                                  {
                                      throw new ApplicationException("The password for '" + user.Id + "' could not be changed, as the given current password does not match!");
@@ -15533,6 +15744,7 @@ namespace social.OpenData.UsersAPI
 
                              },
 
+                             EventTracking_Id.New,
                              CurrentUserId);
 
         #endregion
@@ -15601,12 +15813,13 @@ namespace social.OpenData.UsersAPI
                                                  IsDisabled,
                                                  DataSource: DataSource),
 
-                                    async user => {
+                                    async (user, eventTrackingId) => {
 
                                         if (Password.HasValue &&
                                             !_TryChangePassword(user.Id,
                                                                 Password.Value,
                                                                 null,
+                                                                eventTrackingId,
                                                                 CurrentUserId).Result)
                                         {
                                             throw new ApplicationException("The password for '" + user.Id + "' could not be changed, as the given current password does not match!");
@@ -15622,22 +15835,69 @@ namespace social.OpenData.UsersAPI
 
                                     },
 
+                                    EventTracking_Id.New,
                                     CurrentUserId);
 
         #endregion
 
+
+        #region UserExists(UserId)
+
+        /// <summary>
+        /// Determines whether the given user identification exists within this API.
+        /// </summary>
+        /// <param name="UserId">The unique identification of an user.</param>
+        protected Boolean _UserExists(User_Id UserId)
+
+            => !UserId.IsNullOrEmpty && _Users.ContainsKey(UserId);
+
+
+        /// <summary>
+        /// Determines whether the given user identification exists within this API.
+        /// </summary>
+        /// <param name="UserId">The unique identification of an user.</param>
+        public Boolean UserExists(User_Id  UserId)
+        {
+
+            try
+            {
+
+                if (UsersSemaphore.Wait(SemaphoreSlimTimeout) &&
+                    _UserExists(UserId))
+                {
+                    return true;
+                }
+
+            }
+            catch
+            { }
+            finally
+            {
+                try
+                {
+                    UsersSemaphore.Release();
+                }
+                catch
+                { }
+            }
+
+            return false;
+
+        }
+
+        #endregion
 
         #region GetUser   (UserId)
 
         /// <summary>
         /// Get the user having the given unique identification.
         /// </summary>
-        /// <param name="UserId">The unique identification of the user.</param>
+        /// <param name="UserId">The unique identification of an user.</param>
         protected User _GetUser(User_Id UserId)
         {
 
-            if (_Users.TryGetValue(UserId, out User User))
-                return User;
+            if (!UserId.IsNullOrEmpty && _Users.TryGetValue(UserId, out User user))
+                return user;
 
             return null;
 
@@ -15647,21 +15907,19 @@ namespace social.OpenData.UsersAPI
         /// <summary>
         /// Get the user having the given unique identification.
         /// </summary>
-        /// <param name="UserId">The unique identification of the user.</param>
-        public async Task<User> GetUser(User_Id  UserId)
+        /// <param name="UserId">The unique identification of an user.</param>
+        public User GetUser(User_Id  UserId)
         {
 
             try
             {
 
-                return (await UsersSemaphore.WaitAsync(SemaphoreSlimTimeout) &&
-                        _Users.TryGetValue(UserId, out User User))
-
-                            ? User
-
-                            : null;
+                if (UsersSemaphore.Wait(SemaphoreSlimTimeout))
+                    return _GetUser(UserId);
 
             }
+            catch
+            { }
             finally
             {
                 try
@@ -15672,44 +15930,7 @@ namespace social.OpenData.UsersAPI
                 { }
             }
 
-        }
-
-        #endregion
-
-        #region UserExists(UserId)
-
-        /// <summary>
-        /// Determines whether the given user identification exists within this API.
-        /// </summary>
-        /// <param name="UserId">The unique identification of the user.</param>
-        protected Boolean _UserExists(User_Id UserId)
-
-            => _Users.ContainsKey(UserId);
-
-
-        /// <summary>
-        /// Determines whether the given user identification exists within this API.
-        /// </summary>
-        /// <param name="UserId">The unique identification of the user.</param>
-        public Boolean UserExists(User_Id  UserId)
-        {
-
-            try
-            {
-
-                return UsersSemaphore.Wait(SemaphoreSlimTimeout) &&
-                       _Users.ContainsKey(UserId);
-
-            }
-            finally
-            {
-                try
-                {
-                    UsersSemaphore.Release();
-                }
-                catch
-                { }
-            }
+            return null;
 
         }
 
@@ -15720,17 +15941,27 @@ namespace social.OpenData.UsersAPI
         /// <summary>
         /// Try to get the user having the given unique identification.
         /// </summary>
-        /// <param name="UserId">The unique identification of the user.</param>
+        /// <param name="UserId">The unique identification of an user.</param>
         /// <param name="User">The user.</param>
         protected Boolean _TryGetUser(User_Id UserId, out User User)
+        {
 
-            => _Users.TryGetValue(UserId, out User);
+            if (!UserId.IsNullOrEmpty && _Users.TryGetValue(UserId, out User user))
+            {
+                User = user;
+                return true;
+            }
+
+            User = null;
+            return false;
+
+        }
 
 
         /// <summary>
         /// Try to get the user having the given unique identification.
         /// </summary>
-        /// <param name="UserId">The unique identification of the user.</param>
+        /// <param name="UserId">The unique identification of an user.</param>
         /// <param name="User">The user.</param>
         public Boolean TryGetUser(User_Id   UserId,
                                   out User  User)
@@ -15740,13 +15971,15 @@ namespace social.OpenData.UsersAPI
             {
 
                 if (UsersSemaphore.Wait(SemaphoreSlimTimeout) &&
-                    _Users.TryGetValue(UserId, out User user))
+                    _TryGetUser(UserId, out User user))
                 {
                     User = user;
                     return true;
                 }
 
             }
+            catch
+            { }
             finally
             {
                 try
@@ -15773,24 +16006,25 @@ namespace social.OpenData.UsersAPI
         /// <param name="Username">The name of a user (might not be unique).</param>
         protected IEnumerable<User> _SearchUsersByName(String Username)
 
-            => _Users.Values.Where(user => user.Name.Equals(Username));
+            => _Users.Values.Where(user => user.Name.Equals(Username ?? ""));
 
 
         /// <summary>
         /// Find all users having the given user name.
         /// </summary>
         /// <param name="Username">The name of a user (might not be unique).</param>
-        public IEnumerable<User> SearchUsersByName(String  Username)
+        public IEnumerable<User> SearchUsersByName(String Username)
         {
 
             try
             {
 
-                return UsersSemaphore.Wait(SemaphoreSlimTimeout)
-                           ? _SearchUsersByName(Username)
-                           : new User[0];
+                if (UsersSemaphore.Wait(SemaphoreSlimTimeout))
+                    return _SearchUsersByName(Username);
 
             }
+            catch
+            { }
             finally
             {
                 try
@@ -15800,6 +16034,8 @@ namespace social.OpenData.UsersAPI
                 catch
                 { }
             }
+
+            return new User[0];
 
         }
 
@@ -15818,7 +16054,7 @@ namespace social.OpenData.UsersAPI
             var foundUsers = new List<User>();
 
             foreach (var user in _Users.Values)
-                if (user.Name.Equals(Username))
+                if (user.Name.Equals(Username ?? ""))
                     foundUsers.Add(user);
 
             Users = foundUsers;
@@ -15847,6 +16083,8 @@ namespace social.OpenData.UsersAPI
                 }
 
             }
+            catch
+            { }
             finally
             {
                 try
@@ -15872,10 +16110,12 @@ namespace social.OpenData.UsersAPI
         /// </summary>
         /// <param name="Timestamp">The timestamp when the user was removed.</param>
         /// <param name="User">The removed user.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">The invoking user identification</param>
-        public delegate Task OnUserRemovedDelegate(DateTime  Timestamp,
-                                                   User      User,
-                                                   User_Id?  CurrentUserId  = null);
+        public delegate Task OnUserRemovedDelegate(DateTime          Timestamp,
+                                                   User              User,
+                                                   EventTracking_Id  EventTrackingId   = null,
+                                                   User_Id?          CurrentUserId     = null);
 
         /// <summary>
         /// An event fired whenever a user was removed.
@@ -15910,6 +16150,12 @@ namespace social.OpenData.UsersAPI
                 => new DeleteUserResult(false,
                                         Reason);
 
+            public static DeleteUserResult Failed(Exception Exception)
+
+                => new DeleteUserResult(false,
+                                        I18NString.Create(Languages.en,
+                                                          Exception.Message));
+
             public override String ToString()
 
                 => IsSuccess
@@ -15930,7 +16176,12 @@ namespace social.OpenData.UsersAPI
         /// <param name="User">The user to be removed.</param>
         protected virtual I18NString CanDeleteUser(User User)
         {
-            return new I18NString(Languages.en, "Currently not possible!");
+
+            if (User.User2Organization_OutEdges.Any())
+                return new I18NString(Languages.en, "The user is still member of an organization!");
+
+            return null;
+
         }
 
         #endregion
@@ -15943,17 +16194,21 @@ namespace social.OpenData.UsersAPI
         /// </summary>
         /// <param name="User">The user to be removed from this API.</param>
         /// <param name="OnRemoved">A delegate run whenever the user had been removed successfully.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
-        protected async Task<DeleteUserResult> _RemoveUser(User          User,
-                                                           Action<User>  OnRemoved       = null,
-                                                           User_Id?      CurrentUserId   = null)
+        protected async Task<DeleteUserResult> _RemoveUser(User                            User,
+                                                           Action<User, EventTracking_Id>  OnRemoved         = null,
+                                                           EventTracking_Id                EventTrackingId   = null,
+                                                           User_Id?                        CurrentUserId     = null)
         {
 
             if (User is null)
-                throw new ArgumentNullException(nameof(User),  "The given user must not be null!");
+                throw new ArgumentNullException(nameof(User),
+                                                "The given user must not be null!");
 
             if (User.API != this || !_Users.TryGetValue(User.Id, out User UserToBeRemoved))
-                throw new ArgumentException    (nameof(User),  "The given user '" + User.Id + "' does not exists in this API!");
+                throw new ArgumentException    ("The given user '" + User.Id + "' does not exists in this API!",
+                                                nameof(User));
 
 
             var result = CanDeleteUser(User);
@@ -15961,8 +16216,11 @@ namespace social.OpenData.UsersAPI
             if (result == null)
             {
 
+                var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
+
                 await WriteToDatabaseFile(removeUser_MessageType,
                                           User.ToJSON(false, true),
+                                          eventTrackingId,
                                           CurrentUserId);
 
                 _Users.Remove(User.Id);
@@ -15972,14 +16230,17 @@ namespace social.OpenData.UsersAPI
                 if (OnUserRemovedLocal != null)
                     await OnUserRemovedLocal?.Invoke(DateTime.UtcNow,
                                                      User,
+                                                     eventTrackingId,
                                                      CurrentUserId);
 
                 await SendNotifications(User,
                                         removeUser_MessageType,
                                         null,
+                                        eventTrackingId,
                                         CurrentUserId);
 
-                OnRemoved?.Invoke(User);
+                OnRemoved?.Invoke(User,
+                                  eventTrackingId);
 
                 return DeleteUserResult.Success;
 
@@ -15998,10 +16259,12 @@ namespace social.OpenData.UsersAPI
         /// </summary>
         /// <param name="User">The user to be removed from this API.</param>
         /// <param name="OnRemoved">A delegate run whenever the user had been removed successfully.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
-        public async Task<DeleteUserResult> RemoveUser(User          User,
-                                                       Action<User>  OnRemoved       = null,
-                                                       User_Id?      CurrentUserId   = null)
+        public async Task<DeleteUserResult> RemoveUser(User                            User,
+                                                       Action<User, EventTracking_Id>  OnRemoved         = null,
+                                                       EventTracking_Id                EventTrackingId   = null,
+                                                       User_Id?                        CurrentUserId     = null)
         {
 
             if (User is null)
@@ -16014,10 +16277,15 @@ namespace social.OpenData.UsersAPI
 
                             ? await _RemoveUser(User,
                                                 OnRemoved,
+                                                EventTrackingId,
                                                 CurrentUserId)
 
                             : null;
 
+            }
+            catch (Exception e)
+            {
+                return DeleteUserResult.Failed(e);
             }
             finally
             {
@@ -16074,7 +16342,125 @@ namespace social.OpenData.UsersAPI
         #endregion
 
 
-        #region (protected) GetUserGroupSerializator        (Request, User)
+        #region (protected) WriteToDatabaseFileAndNotify(UserGroup, MessageType,  OldUserGroup = null, CurrentUserId = null)
+
+        /// <summary>
+        /// Write the given user group to the database and send out notifications.
+        /// </summary>
+        /// <param name="UserGroup">The user group.</param>
+        /// <param name="MessageType">The user notification.</param>
+        /// <param name="OldUserGroup">The old/updated user group.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
+        /// <param name="CurrentUserId">The invoking user identification</param>
+        protected async Task WriteToDatabaseFileAndNotify(UserGroup                UserGroup,
+                                                          NotificationMessageType  MessageType,
+                                                          UserGroup                OldUserGroup      = null,
+                                                          EventTracking_Id         EventTrackingId   = null,
+                                                          User_Id?                 CurrentUserId     = null)
+        {
+
+            if (UserGroup is null)
+                throw new ArgumentNullException(nameof(UserGroup),    "The given user group must not be null or empty!");
+
+            if (MessageType.IsNullOrEmpty)
+                throw new ArgumentNullException(nameof(MessageType),  "The given message type must not be null or empty!");
+
+
+            var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
+
+            await WriteToDatabaseFile(MessageType,
+                                      UserGroup.ToJSON(false, true),
+                                      eventTrackingId,
+                                      CurrentUserId);
+
+            await SendNotifications(UserGroup,
+                                    MessageType,
+                                    OldUserGroup,
+                                    eventTrackingId,
+                                    CurrentUserId);
+
+        }
+
+        #endregion
+
+        #region (protected) SendNotifications           (UserGroup, MessageTypes, OldUserGroup = null, CurrentUserId = null)
+
+        /// <summary>
+        /// Send user group notifications.
+        /// </summary>
+        /// <param name="UserGroup">The user group.</param>
+        /// <param name="MessageType">The user notification.</param>
+        /// <param name="OldUserGroup">The old/updated user group.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
+        /// <param name="CurrentUserId">The invoking user identification</param>
+        protected async Task SendNotifications(UserGroup                UserGroup,
+                                               NotificationMessageType  MessageType,
+                                               UserGroup                OldUserGroup      = null,
+                                               EventTracking_Id         EventTrackingId   = null,
+                                               User_Id?                 CurrentUserId     = null)
+        {
+
+            if (UserGroup is null)
+                throw new ArgumentNullException(nameof(UserGroup),    "The given user group must not be null or empty!");
+
+            if (MessageType.IsNullOrEmpty)
+                throw new ArgumentNullException(nameof(MessageType),  "The given message type must not be null or empty!");
+
+
+            await SendNotifications(UserGroup,
+                                    new NotificationMessageType[] { MessageType },
+                                    OldUserGroup,
+                                    EventTrackingId,
+                                    CurrentUserId);
+
+        }
+
+
+        /// <summary>
+        /// Send user group notifications.
+        /// </summary>
+        /// <param name="UserGroup">The user group.</param>
+        /// <param name="MessageTypes">The user notifications.</param>
+        /// <param name="OldUserGroup">The old/updated user group.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
+        /// <param name="CurrentUserId">The invoking user identification</param>
+        protected async Task SendNotifications(UserGroup                             UserGroup,
+                                               IEnumerable<NotificationMessageType>  MessageTypes,
+                                               UserGroup                             OldUserGroup      = null,
+                                               EventTracking_Id                      EventTrackingId   = null,
+                                               User_Id?                              CurrentUserId     = null)
+        {
+
+            if (UserGroup is null)
+                throw new ArgumentNullException(nameof(UserGroup),     "The given user group must not be null or empty!");
+
+            var messageTypesHash = new HashSet<NotificationMessageType>(MessageTypes.Where(messageType => !messageType.IsNullOrEmpty));
+
+            if (messageTypesHash.IsNullOrEmpty())
+                throw new ArgumentNullException(nameof(MessageTypes),  "The given enumeration of message types must not be null or empty!");
+
+            if (messageTypesHash.Contains(addUserIfNotExists_MessageType))
+                messageTypesHash.Add(addUser_MessageType);
+
+            if (messageTypesHash.Contains(addOrUpdateUser_MessageType))
+                messageTypesHash.Add(OldUserGroup == null
+                                       ? addUser_MessageType
+                                       : updateUser_MessageType);
+
+            var messageTypes = messageTypesHash.ToArray();
+
+
+            if (!DisableNotifications)
+            {
+
+
+            }
+
+        }
+
+        #endregion
+
+        #region (protected) GetUserGroupSerializator(Request, User)
 
         protected UserGroupToJSONDelegate GetUserGroupSerializator(HTTPRequest  Request,
                                                                    User         User)
@@ -16111,144 +16497,772 @@ namespace social.OpenData.UsersAPI
         #endregion
 
 
-        #region AddUserGroup           (Id, Name = null, Description = null, CurrentUserId = null)
-
-        public async Task<UserGroup> AddUserGroup(UserGroup_Id  Id,
-                                                  I18NString    Name            = null,
-                                                  I18NString    Description     = null,
-                                                  User_Id?      CurrentUserId   = null)
-        {
-
-            try
-            {
-
-                await UserGroupsSemaphore.WaitAsync();
-
-                if (_UserGroups.ContainsKey(Id))
-                    throw new ArgumentException("The given group identification already exists!", nameof(Id));
-
-
-                var UserGroup = new UserGroup(Id,
-                                              Name,
-                                              Description);
-
-                if (UserGroup.Id.ToString() != AdminGroupName)
-                    await WriteToDatabaseFile(NotificationMessageType.Parse("addUserGroup"),
-                                              UserGroup.ToJSON(),
-                                              CurrentUserId);
-
-                return _UserGroups.AddAndReturnValue(UserGroup.Id, UserGroup);
-
-            }
-            finally
-            {
-                UserGroupsSemaphore.Release();
-            }
-
-        }
-
-        #endregion
-
-        #region AddUserGroupIfNotExists(Id, Name = null, Description = null, CurrentUserId = null)
-
-        public async Task<UserGroup> AddUserGroupIfNotExists(UserGroup_Id  Id,
-                                                             I18NString    Name            = null,
-                                                             I18NString    Description     = null,
-                                                             User_Id?      CurrentUserId   = null)
-        {
-
-            try
-            {
-
-                await UserGroupsSemaphore.WaitAsync();
-
-                if (_UserGroups.ContainsKey(Id))
-                    return _UserGroups[Id];
-
-                var UserGroup = new UserGroup(Id,
-                                              Name,
-                                              Description);
-
-                if (UserGroup.Id.ToString() != AdminGroupName)
-                    await WriteToDatabaseFile(NotificationMessageType.Parse("addUserGroupIfNotExists"),
-                                              UserGroup.ToJSON(),
-                                              CurrentUserId);
-
-                return _UserGroups.AddAndReturnValue(UserGroup.Id, UserGroup);
-
-            }
-            finally
-            {
-                UserGroupsSemaphore.Release();
-            }
-
-        }
-
-        #endregion
-
-
-        #region Contains(UserGroupId)
+        #region AddUserGroup           (UserGroup, OnAdded = null,                   CurrentUserId = null)
 
         /// <summary>
-        /// Whether this API contains a group having the given unique identification.
+        /// A delegate called whenever a user group was added.
         /// </summary>
-        /// <param name="UserGroupId">The unique identification of the group.</param>
-        public Boolean Contains(UserGroup_Id UserGroupId)
+        /// <param name="Timestamp">The timestamp when the user group was added.</param>
+        /// <param name="UserGroup">The added user group.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
+        /// <param name="CurrentUserId">The invoking user identification</param>
+        public delegate Task OnUserGroupAddedDelegate(DateTime          Timestamp,
+                                                      UserGroup         UserGroup,
+                                                      EventTracking_Id  EventTrackingId   = null,
+                                                      User_Id?          CurrentUserId     = null);
+
+        /// <summary>
+        /// An event fired whenever a user group was added.
+        /// </summary>
+        public event OnUserGroupAddedDelegate OnUserGroupAdded;
+
+
+        #region (protected) _AddUserGroup(UserGroup,                                OnAdded = null, CurrentUserId = null)
+
+        /// <summary>
+        /// Add the given user group to the API.
+        /// </summary>
+        /// <param name="UserGroup">A new user group to be added to this API.</param>
+        /// <param name="OnAdded">A delegate run whenever the user group had been added successfully.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
+        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
+        protected async Task<UserGroup> _AddUserGroup(UserGroup                            UserGroup,
+                                                      Action<UserGroup, EventTracking_Id>  OnAdded           = null,
+                                                      EventTracking_Id                     EventTrackingId   = null,
+                                                      User_Id?                             CurrentUserId     = null)
         {
+
+            if (UserGroup is null)
+                throw new ArgumentNullException(nameof(UserGroup),
+                                                "The given user group must not be null!");
+
+            if (UserGroup.API != null && UserGroup.API != this)
+                throw new ArgumentException    ("The given user group is already attached to another API!",
+                                                nameof(UserGroup));
+
+            if (_UserGroups.ContainsKey(UserGroup.Id))
+                throw new ArgumentException    ("User group identification '" + UserGroup.Id + "' already exists!",
+                                                nameof(UserGroup));
+
+            if (UserGroup.Id.Length < MinUserIdLength)
+                throw new ArgumentException    ("User group identification '" + UserGroup.Id + "' is too short!",
+                                                nameof(UserGroup));
+
+            UserGroup.API = this;
+
+
+            var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
+
+            await WriteToDatabaseFile(addUserGroup_MessageType,
+                                      UserGroup.ToJSON(false, true),
+                                      eventTrackingId,
+                                      CurrentUserId);
+
+            _UserGroups.Add(UserGroup.Id, UserGroup);
+
+
+            var OnUserGroupAddedLocal = OnUserGroupAdded;
+            if (OnUserGroupAddedLocal != null)
+                await OnUserGroupAddedLocal?.Invoke(DateTime.UtcNow,
+                                                    UserGroup,
+                                                    eventTrackingId,
+                                                    CurrentUserId);
+
+            await SendNotifications(UserGroup,
+                                    addUser_MessageType,
+                                    null,
+                                    eventTrackingId,
+                                    CurrentUserId);
+
+            OnAdded?.Invoke(UserGroup,
+                            eventTrackingId);
+
+            return UserGroup;
+
+        }
+
+        #endregion
+
+        #region AddUserGroup             (UserGroup,                                OnAdded = null, CurrentUserId = null)
+
+        /// <summary>
+        /// Add the given user group.
+        /// </summary>
+        /// <param name="UserGroup">A new user group.</param>
+        /// <param name="OnAdded">A delegate run whenever the user group had been added successfully.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
+        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
+        public async Task<UserGroup> AddUserGroup(UserGroup                            UserGroup,
+                                                  Action<UserGroup, EventTracking_Id>  OnAdded           = null,
+                                                  EventTracking_Id                     EventTrackingId   = null,
+                                                  User_Id?                             CurrentUserId     = null)
+        {
+
+            if (UserGroup is null)
+                throw new ArgumentNullException(nameof(UserGroup), "The given user group must not be null!");
 
             try
             {
 
-                UserGroupsSemaphore.Wait();
+                return (await UserGroupsSemaphore.WaitAsync(SemaphoreSlimTimeout))
 
-                return _UserGroups.ContainsKey(UserGroupId);
+                            ? await _AddUserGroup(UserGroup,
+                                                  OnAdded,
+                                                  EventTrackingId,
+                                                  CurrentUserId)
+
+                            : null;
 
             }
             finally
             {
-                UserGroupsSemaphore.Release();
+                try
+                {
+                    UserGroupsSemaphore.Release();
+                }
+                catch
+                { }
             }
 
         }
 
         #endregion
 
-        #region GetUserGroup     (UserGroupId)
+        #endregion
+
+        #region AddUserGroupIfNotExists(UserGroup, OnAdded = null,                   CurrentUserId = null)
+
+        #region (protected) _AddUserGroupIfNotExists(UserGroup,                                OnAdded = null, CurrentUserId = null)
 
         /// <summary>
-        /// Get the group having the given unique identification.
+        /// When it has not been created before, add the given user group to the API.
         /// </summary>
-        /// <param name="UserGroupId">The unique identification of the group.</param>
-        public async Task<UserGroup> GetUserGroup(UserGroup_Id  UserGroupId)
+        /// <param name="UserGroup">A new user group to be added to this API.</param>
+        /// <param name="OnAdded">A delegate run whenever the user group had been added successfully.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
+        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
+        protected async Task<UserGroup> _AddUserGroupIfNotExists(UserGroup                            UserGroup,
+                                                                 Action<UserGroup, EventTracking_Id>  OnAdded           = null,
+                                                                 EventTracking_Id                     EventTrackingId   = null,
+                                                                 User_Id?                             CurrentUserId     = null)
+        {
+
+            if (UserGroup is null)
+                throw new ArgumentNullException(nameof(UserGroup),
+                                                "The given user group must not be null!");
+
+            if (UserGroup.API != null && UserGroup.API != this)
+                throw new ArgumentException    ("The given user group is already attached to another API!",
+                                                nameof(UserGroup));
+
+            if (_UserGroups.ContainsKey(UserGroup.Id))
+                return _UserGroups[UserGroup.Id];
+
+            if (UserGroup.Id.Length < MinUserIdLength)
+                throw new ArgumentException    ("User group identification '" + UserGroup.Id + "' is too short!",
+                                                nameof(UserGroup));
+
+            UserGroup.API = this;
+
+
+            var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
+
+            await WriteToDatabaseFile(addUserGroupIfNotExists_MessageType,
+                                      UserGroup.ToJSON(false, true),
+                                      eventTrackingId,
+                                      CurrentUserId);
+
+            _UserGroups.Add(UserGroup.Id, UserGroup);
+
+            var OnUserGroupAddedLocal = OnUserGroupAdded;
+            if (OnUserGroupAddedLocal != null)
+                await OnUserGroupAddedLocal?.Invoke(DateTime.UtcNow,
+                                                    UserGroup,
+                                                    eventTrackingId,
+                                                    CurrentUserId);
+
+            await SendNotifications(UserGroup,
+                                    addUserGroupIfNotExists_MessageType,
+                                    null,
+                                    eventTrackingId,
+                                    CurrentUserId);
+
+            OnAdded?.Invoke(UserGroup,
+                            eventTrackingId);
+
+            return UserGroup;
+
+        }
+
+        #endregion
+
+        #region AddUserGroupIfNotExists             (UserGroup,                                OnAdded = null, CurrentUserId = null)
+
+        /// <summary>
+        /// Add the given user group.
+        /// </summary>
+        /// <param name="UserGroup">A new user group.</param>
+        /// <param name="OnAdded">A delegate run whenever the user group had been added successfully.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
+        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
+        public async Task<UserGroup> AddUserGroupIfNotExists(UserGroup                            UserGroup,
+                                                             Action<UserGroup, EventTracking_Id>  OnAdded           = null,
+                                                             EventTracking_Id                     EventTrackingId   = null,
+                                                             User_Id?                             CurrentUserId     = null)
         {
 
             try
             {
 
-                await UserGroupsSemaphore.WaitAsync();
+                return (await UserGroupsSemaphore.WaitAsync(SemaphoreSlimTimeout))
 
-                if (_UserGroups.TryGetValue(UserGroupId, out UserGroup UserGroup))
-                    return UserGroup;
+                            ? await _AddUserGroupIfNotExists(UserGroup,
+                                                             OnAdded,
+                                                             EventTrackingId,
+                                                             CurrentUserId)
 
-                return null;
+                            : null;
 
             }
             finally
             {
-                UserGroupsSemaphore.Release();
+                try
+                {
+                    UserGroupsSemaphore.Release();
+                }
+                catch
+                { }
             }
 
         }
 
         #endregion
 
-        #region TryGetUserGroup  (UserGroupId, out UserGroup)
+        #endregion
+
+        #region AddOrUpdateUserGroup   (UserGroup, OnAdded = null, OnUpdated = null, CurrentUserId = null)
+
+        #region (protected) _AddOrUpdateUserGroup   (UserGroup,   OnAdded = null, OnUpdated = null, CurrentUserId = null)
 
         /// <summary>
-        /// Try to get the group having the given unique identification.
+        /// Add or update the given user group to/within the API.
         /// </summary>
-        /// <param name="UserGroupId">The unique identification of the group.</param>
-        /// <param name="UserGroup">The group.</param>
+        /// <param name="UserGroup">A user group.</param>
+        /// <param name="OnAdded">A delegate run whenever the user group had been added successfully.</param>
+        /// <param name="OnUpdated">A delegate run whenever the user group had been updated successfully.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
+        /// <param name="CurrentUserId">An optional user group identification initiating this command/request.</param>
+        protected async Task<UserGroup> _AddOrUpdateUserGroup(UserGroup                            UserGroup,
+                                                              Action<UserGroup, EventTracking_Id>  OnAdded           = null,
+                                                              Action<UserGroup, EventTracking_Id>  OnUpdated         = null,
+                                                              EventTracking_Id                     EventTrackingId   = null,
+                                                              User_Id?                             CurrentUserId     = null)
+        {
+
+            if (UserGroup is null)
+                throw new ArgumentNullException(nameof(UserGroup),
+                                                "The given user group must not be null!");
+
+            if (UserGroup.API != null && UserGroup.API != this)
+                throw new ArgumentException    ("The given user group is already attached to another API!",
+                                                nameof(UserGroup));
+
+            if (_UserGroups.ContainsKey(UserGroup.Id))
+                return _UserGroups[UserGroup.Id];
+
+            if (UserGroup.Id.Length < MinUserGroupIdLength)
+                throw new ArgumentException    ("UserGroup identification '" + UserGroup.Id + "' is too short!",
+                                                nameof(UserGroup));
+
+            UserGroup.API = this;
+
+
+            var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
+
+            await WriteToDatabaseFile(addOrUpdateUserGroup_MessageType,
+                                      UserGroup.ToJSON(false, true),
+                                      eventTrackingId,
+                                      CurrentUserId);
+
+            if (_UserGroups.TryGetValue(UserGroup.Id, out UserGroup OldUserGroup))
+            {
+                _UserGroups.Remove(OldUserGroup.Id);
+                UserGroup.CopyAllLinkedDataFrom(OldUserGroup);
+            }
+
+            _UserGroups.Add(UserGroup.Id, UserGroup);
+
+            if (OldUserGroup != null)
+            {
+
+                var OnUserGroupUpdatedLocal = OnUserGroupUpdated;
+                if (OnUserGroupUpdatedLocal != null)
+                    await OnUserGroupUpdatedLocal?.Invoke(DateTime.UtcNow,
+                                                          UserGroup,
+                                                          OldUserGroup,
+                                                          eventTrackingId,
+                                                          CurrentUserId);
+
+                await SendNotifications(UserGroup,
+                                        updateUserGroup_MessageType,
+                                        OldUserGroup,
+                                        eventTrackingId,
+                                        CurrentUserId);
+
+                OnUpdated?.Invoke(UserGroup,
+                                  eventTrackingId);
+
+            }
+            else
+            {
+
+                var OnUserGroupAddedLocal = OnUserGroupAdded;
+                if (OnUserGroupAddedLocal != null)
+                    await OnUserGroupAddedLocal?.Invoke(DateTime.UtcNow,
+                                                        UserGroup,
+                                                        eventTrackingId,
+                                                        CurrentUserId);
+
+                await SendNotifications(UserGroup,
+                                        addUserGroup_MessageType,
+                                        null,
+                                        eventTrackingId,
+                                        CurrentUserId);
+
+                OnAdded?.Invoke(UserGroup,
+                                eventTrackingId);
+
+            }
+
+            return UserGroup;
+
+        }
+
+        #endregion
+
+        #region AddOrUpdateUserGroup   (UserGroup,   OnAdded = null, OnUpdated = null, CurrentUserId = null)
+
+        /// <summary>
+        /// Add or update the given user group to/within the API.
+        /// </summary>
+        /// <param name="UserGroup">A user group.</param>
+        /// <param name="OnAdded">A delegate run whenever the user group had been added successfully.</param>
+        /// <param name="OnUpdated">A delegate run whenever the user group had been updated successfully.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
+        /// <param name="CurrentUserId">An optional user group identification initiating this command/request.</param>
+        public async Task<UserGroup> AddOrUpdateUserGroup(UserGroup                            UserGroup,
+                                                          Action<UserGroup, EventTracking_Id>  OnAdded           = null,
+                                                          Action<UserGroup, EventTracking_Id>  OnUpdated         = null,
+                                                          EventTracking_Id                     EventTrackingId   = null,
+                                                          User_Id?                             CurrentUserId     = null)
+        {
+
+            if (UserGroup is null)
+                throw new ArgumentNullException(nameof(UserGroup), "The given user group must not be null!");
+
+            try
+            {
+
+                return (await UserGroupsSemaphore.WaitAsync(SemaphoreSlimTimeout))
+
+                            ? await _AddOrUpdateUserGroup(UserGroup,
+                                                          OnAdded,
+                                                          OnUpdated,
+                                                          EventTrackingId,
+                                                          CurrentUserId)
+
+                            : null;
+
+            }
+            finally
+            {
+                try
+                {
+                    UserGroupsSemaphore.Release();
+                }
+                catch
+                { }
+            }
+
+        }
+
+        #endregion
+
+        #endregion
+
+        #region UpdateUserGroup        (UserGroup,                 OnUpdated = null, CurrentUserId = null)
+
+        /// <summary>
+        /// A delegate called whenever a user group was updated.
+        /// </summary>
+        /// <param name="Timestamp">The timestamp when the user group was updated.</param>
+        /// <param name="UserGroup">The updated user group.</param>
+        /// <param name="OldUserGroup">The old user group.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
+        /// <param name="CurrentUserId">The invoking user group identification</param>
+        public delegate Task OnUserGroupUpdatedDelegate(DateTime          Timestamp,
+                                                        UserGroup         UserGroup,
+                                                        UserGroup         OldUserGroup,
+                                                        EventTracking_Id  EventTrackingId   = null,
+                                                        User_Id?          CurrentUserId     = null);
+
+        /// <summary>
+        /// An event fired whenever a user group was updated.
+        /// </summary>
+        public event OnUserGroupUpdatedDelegate OnUserGroupUpdated;
+
+
+        #region (protected) _UpdateUserGroup(UserGroup, OnUpdated = null, CurrentUserId = null)
+
+        /// <summary>
+        /// Update the given user group to/within the API.
+        /// </summary>
+        /// <param name="UserGroup">A user group.</param>
+        /// <param name="OnUpdated">A delegate run whenever the user group had been updated successfully.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
+        /// <param name="CurrentUserId">An optional user group identification initiating this command/request.</param>
+        protected async Task<UserGroup> _UpdateUserGroup(UserGroup                            UserGroup,
+                                                         Action<UserGroup, EventTracking_Id>  OnUpdated         = null,
+                                                         EventTracking_Id                     EventTrackingId   = null,
+                                                         User_Id?                             CurrentUserId     = null)
+        {
+
+            if (UserGroup is null)
+                throw new ArgumentNullException(nameof(UserGroup),
+                                                "The given user group must not be null!");
+
+            if (UserGroup.API != null && UserGroup.API != this)
+                throw new ArgumentException    ("The given user group is already attached to another API!",
+                                                nameof(UserGroup));
+
+            if (!_UserGroups.TryGetValue(UserGroup.Id, out UserGroup OldUserGroup))
+                throw new ArgumentException    ("The given user group '" + UserGroup.Id + "' does not exists in this API!",
+                                                nameof(UserGroup));
+
+            UserGroup.API = this;
+
+
+            var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
+
+            await WriteToDatabaseFile(updateUserGroup_MessageType,
+                                      UserGroup.ToJSON(),
+                                      eventTrackingId,
+                                      CurrentUserId);
+
+            _UserGroups.Remove(OldUserGroup.Id);
+            UserGroup.CopyAllLinkedDataFrom(OldUserGroup);
+
+
+            var OnUserGroupUpdatedLocal = OnUserGroupUpdated;
+            if (OnUserGroupUpdatedLocal != null)
+                await OnUserGroupUpdatedLocal?.Invoke(DateTime.UtcNow,
+                                                      UserGroup,
+                                                      OldUserGroup,
+                                                      eventTrackingId,
+                                                      CurrentUserId);
+
+            await SendNotifications(UserGroup,
+                                    updateUserGroup_MessageType,
+                                    OldUserGroup,
+                                    eventTrackingId,
+                                    CurrentUserId);
+
+            OnUpdated?.Invoke(UserGroup,
+                              eventTrackingId);
+
+            return UserGroup;
+
+        }
+
+        #endregion
+
+        #region UpdateUserGroup             (UserGroup, OnUpdated = null, CurrentUserId = null)
+
+        /// <summary>
+        /// Update the given user group to/within the API.
+        /// </summary>
+        /// <param name="UserGroup">A user group.</param>
+        /// <param name="OnUpdated">A delegate run whenever the user group had been updated successfully.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
+        /// <param name="CurrentUserId">An optional user group identification initiating this command/request.</param>
+        public async Task<UserGroup> UpdateUserGroup(UserGroup                            UserGroup,
+                                                     Action<UserGroup, EventTracking_Id>  OnUpdated         = null,
+                                                     EventTracking_Id                     EventTrackingId   = null,
+                                                     User_Id?                             CurrentUserId     = null)
+        {
+
+            if (UserGroup is null)
+                throw new ArgumentNullException(nameof(UserGroup), "The given user group must not be null!");
+
+            try
+            {
+
+                return (await UserGroupsSemaphore.WaitAsync(SemaphoreSlimTimeout))
+
+                            ? await _UpdateUserGroup(UserGroup,
+                                                     OnUpdated,
+                                                     EventTrackingId,
+                                                     CurrentUserId)
+
+                            : null;
+
+            }
+            finally
+            {
+                try
+                {
+                    UserGroupsSemaphore.Release();
+                }
+                catch
+                { }
+            }
+
+        }
+
+        #endregion
+
+
+        #region (protected) _UpdateUserGroup(UserGroupId, UpdateDelegate, OnUpdated = null, CurrentUserId = null)
+
+        /// <summary>
+        /// Update the given user group.
+        /// </summary>
+        /// <param name="UserGroupId">An user group identification.</param>
+        /// <param name="UpdateDelegate">A delegate to update the given user group.</param>
+        /// <param name="OnUpdated">A delegate run whenever the user group had been updated successfully.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
+        /// <param name="CurrentUserId">An optional user group identification initiating this command/request.</param>
+        protected async Task<UserGroup> _UpdateUserGroup(UserGroup_Id                         UserGroupId,
+                                                         Action<UserGroup.Builder>            UpdateDelegate,
+                                                         Action<UserGroup, EventTracking_Id>  OnUpdated         = null,
+                                                         EventTracking_Id                     EventTrackingId   = null,
+                                                         User_Id?                             CurrentUserId     = null)
+        {
+
+            if (UserGroupId.IsNullOrEmpty)
+                throw new ArgumentNullException(nameof(UserGroupId),
+                                                "The given user group identification must not be null or empty!");
+
+            if (UpdateDelegate == null)
+                throw new ArgumentNullException(nameof(UpdateDelegate),
+                                                "The given update delegate must not be null!");
+
+            if (!_UserGroups.TryGetValue(UserGroupId, out UserGroup OldUserGroup))
+                throw new ArgumentException    ("The given user group '" + UserGroupId + "' does not exists in this API!",
+                                                nameof(UserGroupId));
+
+            var Builder = OldUserGroup.ToBuilder();
+            UpdateDelegate(Builder);
+            var NewUserGroup = Builder.ToImmutable;
+
+
+            var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
+
+            await WriteToDatabaseFile(updateUserGroup_MessageType,
+                                      NewUserGroup.ToJSON(),
+                                      eventTrackingId,
+                                      CurrentUserId);
+
+            _UserGroups.Remove(OldUserGroup.Id);
+            NewUserGroup.CopyAllLinkedDataFrom(OldUserGroup);
+
+
+            var OnUserGroupUpdatedLocal = OnUserGroupUpdated;
+            if (OnUserGroupUpdatedLocal != null)
+                await OnUserGroupUpdatedLocal?.Invoke(DateTime.UtcNow,
+                                                      NewUserGroup,
+                                                      OldUserGroup,
+                                                      eventTrackingId,
+                                                      CurrentUserId);
+
+            await SendNotifications(NewUserGroup,
+                                    updateUserGroup_MessageType,
+                                    OldUserGroup,
+                                    eventTrackingId,
+                                    CurrentUserId);
+
+            OnUpdated?.Invoke(NewUserGroup,
+                              eventTrackingId);
+
+            return NewUserGroup;
+
+        }
+
+        #endregion
+
+        #region UpdateUserGroup             (UserGroupId, UpdateDelegate, OnUpdated = null, CurrentUserId = null)
+
+        /// <summary>
+        /// Update the given user group.
+        /// </summary>
+        /// <param name="UserGroupId">An user group identification.</param>
+        /// <param name="UpdateDelegate">A delegate to update the given user group.</param>
+        /// <param name="OnUpdated">A delegate run whenever the user group had been updated successfully.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
+        /// <param name="CurrentUserId">An optional user group identification initiating this command/request.</param>
+        public async Task<UserGroup> UpdateUserGroup(UserGroup_Id                         UserGroupId,
+                                                     Action<UserGroup.Builder>            UpdateDelegate,
+                                                     Action<UserGroup, EventTracking_Id>  OnUpdated         = null,
+                                                     EventTracking_Id                     EventTrackingId   = null,
+                                                     User_Id?                             CurrentUserId     = null)
+        {
+
+            if (UserGroupId.IsNullOrEmpty)
+                throw new ArgumentNullException(nameof(UserGroupId), "The given user group identification must not be null or empty!");
+
+            try
+            {
+
+                return (await UserGroupsSemaphore.WaitAsync(SemaphoreSlimTimeout))
+
+                            ? await _UpdateUserGroup(UserGroupId,
+                                                     UpdateDelegate,
+                                                     OnUpdated,
+                                                     EventTrackingId,
+                                                     CurrentUserId)
+
+                            : null;
+
+            }
+            finally
+            {
+                try
+                {
+                    UserGroupsSemaphore.Release();
+                }
+                catch
+                { }
+            }
+
+        }
+
+        #endregion
+
+        #endregion
+
+
+        #region UserGroupExists(UserGroupId)
+
+        /// <summary>
+        /// Determines whether the given user group identification exists within this API.
+        /// </summary>
+        /// <param name="UserGroupId">The unique identification of an user group.</param>
+        protected Boolean _UserGroupExists(UserGroup_Id UserGroupId)
+
+            => !UserGroupId.IsNullOrEmpty && _UserGroups.ContainsKey(UserGroupId);
+
+
+        /// <summary>
+        /// Determines whether the given user group identification exists within this API.
+        /// </summary>
+        /// <param name="UserGroupId">The unique identification of an user group.</param>
+        public Boolean UserGroupExists(UserGroup_Id UserGroupId)
+        {
+
+            try
+            {
+
+                if (UserGroupsSemaphore.Wait(SemaphoreSlimTimeout) &&
+                    _UserGroupExists(UserGroupId))
+                {
+                    return true;
+                }
+
+            }
+            catch
+            { }
+            finally
+            {
+                try
+                {
+                    UserGroupsSemaphore.Release();
+                }
+                catch
+                { }
+            }
+
+            return false;
+
+        }
+
+        #endregion
+
+        #region GetUserGroup   (UserGroupId)
+
+        /// <summary>
+        /// Get the user group having the given unique identification.
+        /// </summary>
+        /// <param name="UserGroupId">The unique identification of an user group.</param>
+        protected UserGroup _GetUserGroup(UserGroup_Id UserGroupId)
+        {
+
+            if (!UserGroupId.IsNullOrEmpty && _UserGroups.TryGetValue(UserGroupId, out UserGroup userGroup))
+                return userGroup;
+
+            return null;
+
+        }
+
+
+        /// <summary>
+        /// Get the user group having the given unique identification.
+        /// </summary>
+        /// <param name="UserGroupId">The unique identification of the user group.</param>
+        public UserGroup GetUserGroup(UserGroup_Id UserGroupId)
+        {
+
+            try
+            {
+
+                if (UserGroupsSemaphore.Wait(SemaphoreSlimTimeout))
+                    return _GetUserGroup(UserGroupId);
+
+            }
+            catch
+            { }
+            finally
+            {
+                try
+                {
+                    UserGroupsSemaphore.Release();
+                }
+                catch
+                { }
+            }
+
+            return null;
+
+        }
+
+        #endregion
+
+        #region TryGetUserGroup(UserGroupId, out UserGroup)
+
+        /// <summary>
+        /// Try to get the user group having the given unique identification.
+        /// </summary>
+        /// <param name="UserGroupId">The unique identification of an user group.</param>
+        /// <param name="UserGroup">The user group.</param>
+        protected Boolean _TryGetUserGroup(UserGroup_Id UserGroupId, out UserGroup UserGroup)
+        {
+
+            if (!UserGroupId.IsNullOrEmpty && _UserGroups.TryGetValue(UserGroupId, out UserGroup userGroup))
+            {
+                UserGroup = userGroup;
+                return true;
+            }
+
+            UserGroup = null;
+            return false;
+
+        }
+
+
+        /// <summary>
+        /// Try to get the user group having the given unique identification.
+        /// </summary>
+        /// <param name="UserGroupId">The unique identification of an user group.</param>
+        /// <param name="UserGroup">The user group.</param>
         public Boolean TryGetUserGroup(UserGroup_Id   UserGroupId,
                                        out UserGroup  UserGroup)
         {
@@ -16256,19 +17270,33 @@ namespace social.OpenData.UsersAPI
             try
             {
 
-                UserGroupsSemaphore.Wait();
-
-                return _UserGroups.TryGetValue(UserGroupId, out UserGroup);
+                if (UserGroupsSemaphore.Wait(SemaphoreSlimTimeout) &&
+                    _TryGetUserGroup(UserGroupId, out UserGroup userGroup))
+                {
+                    UserGroup = userGroup;
+                    return true;
+                }
 
             }
+            catch
+            { }
             finally
             {
-                UserGroupsSemaphore.Release();
+                try
+                {
+                    UserGroupsSemaphore.Release();
+                }
+                catch
+                { }
             }
+
+            UserGroup = null;
+            return false;
 
         }
 
         #endregion
+
 
         #region SearchUserGroupsByName(UserGroupName)
 
@@ -16397,13 +17425,13 @@ namespace social.OpenData.UsersAPI
         #endregion
 
 
-        #region AddToUserGroup(User, Edge, UserGroup, PrivacyLevel = Private)
+        #region AddToUserGroup(User, Edge, UserGroup)
 
         public async Task<Boolean> AddToUserGroup(User                 User,
                                                   User2GroupEdgeTypes  EdgeLabel,
                                                   UserGroup            UserGroup,
-                                                  PrivacyLevel         PrivacyLevel   = PrivacyLevel.Private,
-                                                  User_Id?             CurrentUserId  = null)
+                                                  EventTracking_Id     EventTrackingId   = null,
+                                                  User_Id?             CurrentUserId     = null)
 
         {
 
@@ -16417,24 +17445,24 @@ namespace social.OpenData.UsersAPI
 
                 if (!User.OutEdges(UserGroup).Any(edgeLabel => edgeLabel == EdgeLabel))
                 {
-                    User.AddOutgoingEdge(EdgeLabel, UserGroup, PrivacyLevel);
+                    User.AddOutgoingEdge(EdgeLabel, UserGroup);
                     updated = true;
                 }
 
                 if (!UserGroup.InEdges(User).Any(edgeLabel => edgeLabel == EdgeLabel))
                 {
-                    UserGroup.AddIncomingEdge(User, EdgeLabel, PrivacyLevel);
+                    UserGroup.AddIncomingEdge(User, EdgeLabel);
                     updated = true;
                 }
 
                 if (updated)
-                    await WriteToDatabaseFile(NotificationMessageType.Parse("addUserToUserGroup"),
+                    await WriteToDatabaseFile(addUserToUserGroup_MessageType,
                                               new JObject(
                                                   new JProperty("user",   User.Id.  ToString()),
-                                                  new JProperty("edge",   EdgeLabel.     ToString()),
-                                                  new JProperty("group",  UserGroup.ToString()),
-                                                  PrivacyLevel.ToJSON()
+                                                  new JProperty("edge",   EdgeLabel.ToString()),
+                                                  new JProperty("group",  UserGroup.ToString())
                                               ),
+                                              EventTrackingId,
                                               CurrentUserId);
 
                 return updated;
@@ -16496,29 +17524,227 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
+
+        #region RemoveUserGroup(UserGroup, OnRemoved = null, CurrentUserId = null)
+
+        /// <summary>
+        /// A delegate called whenever a user group was removed.
+        /// </summary>
+        /// <param name="Timestamp">The timestamp when the user group was removed.</param>
+        /// <param name="UserGroup">The removed user group.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
+        /// <param name="CurrentUserId">The invoking user group identification</param>
+        public delegate Task OnUserGroupRemovedDelegate(DateTime          Timestamp,
+                                                        UserGroup         UserGroup,
+                                                        EventTracking_Id  EventTrackingId   = null,
+                                                        User_Id?          CurrentUserId     = null);
+
+        /// <summary>
+        /// An event fired whenever a user group was removed.
+        /// </summary>
+        public event OnUserGroupRemovedDelegate OnUserGroupRemoved;
+
+
+        #region (class) DeleteUserGroupResult
+
+        public class DeleteUserGroupResult
+        {
+
+            public Boolean     IsSuccess           { get; }
+
+            public I18NString  ErrorDescription    { get; }
+
+
+            private DeleteUserGroupResult(Boolean     IsSuccess,
+                                          I18NString  ErrorDescription  = null)
+            {
+                this.IsSuccess         = IsSuccess;
+                this.ErrorDescription  = ErrorDescription;
+            }
+
+
+            public static DeleteUserGroupResult Success
+
+                => new DeleteUserGroupResult(true);
+
+            public static DeleteUserGroupResult Failed(I18NString Reason)
+
+                => new DeleteUserGroupResult(false,
+                                             Reason);
+
+            public static DeleteUserGroupResult Failed(Exception Exception)
+
+                => new DeleteUserGroupResult(false,
+                                             I18NString.Create(Languages.en,
+                                                               Exception.Message));
+
+            public override String ToString()
+
+                => IsSuccess
+                       ? "Success"
+                       : "Failed" + (ErrorDescription.IsNullOrEmpty()
+                                         ? ": " + ErrorDescription.FirstText()
+                                         : "!");
+
+        }
+
+        #endregion
+
+        #region (protected virtual) CanDeleteUserGroup(UserGroup)
+
+        /// <summary>
+        /// Determines whether the user group can safely be removed from the API.
+        /// </summary>
+        /// <param name="UserGroup">The user group to be removed.</param>
+        protected virtual I18NString CanDeleteUserGroup(UserGroup UserGroup)
+        {
+            return new I18NString(Languages.en, "Currently not possible!");
+        }
+
+        #endregion
+
+
+        #region (protected) _RemoveUserGroup(UserGroup, OnRemoved = null, CurrentUserId = null)
+
+        /// <summary>
+        /// Remove the given user group from the API.
+        /// </summary>
+        /// <param name="UserGroup">The user group to be removed from this API.</param>
+        /// <param name="OnRemoved">A delegate run whenever the user group had been removed successfully.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
+        /// <param name="CurrentUserId">An optional user group identification initiating this command/request.</param>
+        protected async Task<DeleteUserGroupResult> _RemoveUserGroup(UserGroup                            UserGroup,
+                                                                     Action<UserGroup, EventTracking_Id>  OnRemoved         = null,
+                                                                     EventTracking_Id                     EventTrackingId   = null,
+                                                                     User_Id?                             CurrentUserId     = null)
+        {
+
+            if (UserGroup is null)
+                throw new ArgumentNullException(nameof(UserGroup),
+                                                "The given user group must not be null!");
+
+            if (UserGroup.API != this || !_UserGroups.TryGetValue(UserGroup.Id, out UserGroup UserGroupToBeRemoved))
+                throw new ArgumentException    ("The given user group '" + UserGroup.Id + "' does not exists in this API!",
+                                                nameof(UserGroup));
+
+
+            var result = CanDeleteUserGroup(UserGroup);
+
+            if (result == null)
+            {
+
+                var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
+
+                await WriteToDatabaseFile(removeUserGroup_MessageType,
+                                          UserGroup.ToJSON(false, true),
+                                          eventTrackingId,
+                                          CurrentUserId);
+
+                _UserGroups.Remove(UserGroup.Id);
+
+
+                var OnUserGroupRemovedLocal = OnUserGroupRemoved;
+                if (OnUserGroupRemovedLocal != null)
+                    await OnUserGroupRemovedLocal?.Invoke(DateTime.UtcNow,
+                                                          UserGroup,
+                                                          eventTrackingId,
+                                                          CurrentUserId);
+
+                await SendNotifications(UserGroup,
+                                        removeUserGroup_MessageType,
+                                        null,
+                                        eventTrackingId,
+                                        CurrentUserId);
+
+                OnRemoved?.Invoke(UserGroup,
+                                  eventTrackingId);
+
+                return DeleteUserGroupResult.Success;
+
+            }
+            else
+                return DeleteUserGroupResult.Failed(result);
+
+        }
+
+        #endregion
+
+        #region RemoveUserGroup             (UserGroup, OnRemoved = null, CurrentUserId = null)
+
+        /// <summary>
+        /// Remove the given user group from the API.
+        /// </summary>
+        /// <param name="UserGroup">The user group to be removed from this API.</param>
+        /// <param name="OnRemoved">A delegate run whenever the user group had been removed successfully.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
+        /// <param name="CurrentUserId">An optional user group identification initiating this command/request.</param>
+        public async Task<DeleteUserGroupResult> RemoveUserGroup(UserGroup                            UserGroup,
+                                                                 Action<UserGroup, EventTracking_Id>  OnRemoved         = null,
+                                                                 EventTracking_Id                     EventTrackingId   = null,
+                                                                 User_Id?                             CurrentUserId     = null)
+        {
+
+            if (UserGroup is null)
+                throw new ArgumentNullException(nameof(UserGroup), "The given user group must not be null!");
+
+            try
+            {
+
+                return (await UserGroupsSemaphore.WaitAsync(SemaphoreSlimTimeout))
+
+                            ? await _RemoveUserGroup(UserGroup,
+                                                     OnRemoved,
+                                                     EventTrackingId,
+                                                     CurrentUserId)
+
+                            : null;
+
+            }
+            catch (Exception e)
+            {
+                return DeleteUserGroupResult.Failed(e);
+            }
+            finally
+            {
+                try
+                {
+                    UserGroupsSemaphore.Release();
+                }
+                catch
+                { }
+            }
+
+        }
+
+        #endregion
+
+        #endregion
+
         #endregion
 
         #region Reset user password
 
         #region ChangePassword   (UserId, NewPassword, CurrentPassword = null, CurrentUserId = null)
 
-        public async Task ChangePassword(User_Id   UserId,
-                                         Password  NewPassword,
-                                         String    CurrentPassword  = null,
-                                         User_Id?  CurrentUserId    = null)
+        public async Task ChangePassword(User_Id           UserId,
+                                         Password          NewPassword,
+                                         String            CurrentPassword   = null,
+                                         EventTracking_Id  EventTrackingId   = null,
+                                         User_Id?          CurrentUserId     = null)
         {
 
             try
             {
 
                 if (UserId.Length < MinUserIdLength)
-                    throw new Exception("UserId '" + UserId + "' is too short!");
+                    throw new ArgumentException("User identification '" + UserId + "' is too short!", nameof(UserId));
 
                 await UsersSemaphore.WaitAsync();
 
                 if (!_TryChangePassword(UserId,
                                         NewPassword,
                                         CurrentPassword,
+                                        EventTrackingId,
                                         CurrentUserId).Result)
                 {
                     throw new ApplicationException("The password for '" + UserId + "' could not be changed, as the given current password does not match!");
@@ -16536,30 +17762,35 @@ namespace social.OpenData.UsersAPI
 
         #region TryChangePassword(UserId, NewPassword, CurrentPassword = null, CurrentUserId = null)
 
-        protected async Task<Boolean> _TryChangePassword(User_Id   UserId,
-                                                         Password  NewPassword,
-                                                         String    CurrentPassword  = null,
-                                                         User_Id?  CurrentUserId    = null)
+        protected async Task<Boolean> _TryChangePassword(User_Id           UserId,
+                                                         Password          NewPassword,
+                                                         String            CurrentPassword   = null,
+                                                         EventTracking_Id  EventTrackingId   = null,
+                                                         User_Id?          CurrentUserId     = null)
         {
 
             if (UserId.Length < MinUserIdLength)
-                throw new Exception("UserId '" + UserId + "' is too short!");
+                throw new ArgumentException("User identification '" + UserId + "' is too short!", nameof(UserId));
+
+
+            var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
 
             #region AddPassword
 
             if (!_LoginPasswords.TryGetValue(UserId, out LoginPassword _LoginPassword))
             {
 
-                await WriteToDatabaseFile(NotificationMessageType.Parse("addPassword"),
-                                     new JObject(
-                                         new JProperty("login",         UserId.ToString()),
-                                         new JProperty("newPassword", new JObject(
-                                             new JProperty("salt",          NewPassword.Salt.UnsecureString()),
-                                             new JProperty("passwordHash",  NewPassword.UnsecureString)
-                                         ))
-                                     ),
-                                     this.UsersAPIPath + DefaultPasswordFile,
-                                     CurrentUserId);
+                await WriteToDatabaseFile(addPassword_MessageType,
+                                          new JObject(
+                                              new JProperty("login",         UserId.ToString()),
+                                              new JProperty("newPassword", new JObject(
+                                                  new JProperty("salt",          NewPassword.Salt.UnsecureString()),
+                                                  new JProperty("passwordHash",  NewPassword.UnsecureString)
+                                              ))
+                                          ),
+                                          UsersAPIPath + DefaultPasswordFile,
+                                          eventTrackingId,
+                                          CurrentUserId);
 
                 _LoginPasswords.Add(UserId, new LoginPassword(UserId, NewPassword));
 
@@ -16574,20 +17805,21 @@ namespace social.OpenData.UsersAPI
             else if (CurrentPassword.IsNotNullOrEmpty() && _LoginPassword.VerifyPassword(CurrentPassword))
             {
 
-                await WriteToDatabaseFile(NotificationMessageType.Parse("changePassword"),
-                                     new JObject(
-                                         new JProperty("login",         UserId.ToString()),
-                                         new JProperty("currentPassword", new JObject(
-                                             new JProperty("salt",          _LoginPassword.Password.Salt.UnsecureString()),
-                                             new JProperty("passwordHash",  _LoginPassword.Password.UnsecureString)
-                                         )),
-                                         new JProperty("newPassword",     new JObject(
-                                             new JProperty("salt",          NewPassword.Salt.UnsecureString()),
-                                             new JProperty("passwordHash",  NewPassword.UnsecureString)
-                                         ))
-                                     ),
-                                     this.UsersAPIPath + DefaultPasswordFile,
-                                     CurrentUserId);
+                await WriteToDatabaseFile(changePassword_MessageType,
+                                          new JObject(
+                                              new JProperty("login",         UserId.ToString()),
+                                              new JProperty("currentPassword", new JObject(
+                                                  new JProperty("salt",          _LoginPassword.Password.Salt.UnsecureString()),
+                                                  new JProperty("passwordHash",  _LoginPassword.Password.UnsecureString)
+                                              )),
+                                              new JProperty("newPassword",     new JObject(
+                                                  new JProperty("salt",          NewPassword.Salt.UnsecureString()),
+                                                  new JProperty("passwordHash",  NewPassword.UnsecureString)
+                                              ))
+                                          ),
+                                          UsersAPIPath + DefaultPasswordFile,
+                                          eventTrackingId,
+                                          CurrentUserId);
 
                 _LoginPasswords[UserId] = new LoginPassword(UserId, NewPassword);
 
@@ -16602,10 +17834,11 @@ namespace social.OpenData.UsersAPI
 
         }
 
-        public async Task<Boolean> TryChangePassword(User_Id   Login,
-                                                     Password  NewPassword,
-                                                     String    CurrentPassword  = null,
-                                                     User_Id?  CurrentUserId    = null)
+        public async Task<Boolean> TryChangePassword(User_Id           Login,
+                                                     Password          NewPassword,
+                                                     String            CurrentPassword   = null,
+                                                     EventTracking_Id  EventTrackingId   = null,
+                                                     User_Id?          CurrentUserId     = null)
         {
 
             try
@@ -16616,6 +17849,7 @@ namespace social.OpenData.UsersAPI
                 return await _TryChangePassword(Login,
                                                 NewPassword,
                                                 CurrentPassword,
+                                                EventTrackingId,
                                                 CurrentUserId);
 
             }
@@ -16638,12 +17872,12 @@ namespace social.OpenData.UsersAPI
             {
 
                 if (UserId.Length < MinUserIdLength)
-                    throw new Exception("UserId '" + UserId + "' is too short!");
+                    throw new ArgumentException("User identification '" + UserId + "' is too short!", nameof(UserId));
 
                 UsersSemaphore.Wait();
 
-                return _LoginPasswords.TryGetValue(UserId, out LoginPassword LoginPassword) &&
-                        LoginPassword.VerifyPassword(Password);
+                return _LoginPasswords.TryGetValue   (UserId, out LoginPassword LoginPassword) &&
+                        LoginPassword. VerifyPassword(Password);
 
             }
             finally
@@ -16690,8 +17924,8 @@ namespace social.OpenData.UsersAPI
                 await UsersSemaphore.WaitAsync();
 
                 await WriteToDatabaseFile(NotificationMessageType.Parse("add"),
-                                     passwordReset.ToJSON(),
-                                     this.UsersAPIPath + DefaultPasswordResetsFile);
+                                          passwordReset.ToJSON(),
+                                          UsersAPIPath + DefaultPasswordResetsFile);
 
                 this.PasswordResets.Add(passwordReset.SecurityToken1, passwordReset);
 
@@ -16718,8 +17952,8 @@ namespace social.OpenData.UsersAPI
                 await UsersSemaphore.WaitAsync();
 
                 await WriteToDatabaseFile(NotificationMessageType.Parse("remove"),
-                                     passwordReset.ToJSON(),
-                                     this.UsersAPIPath + DefaultPasswordResetsFile);
+                                          passwordReset.ToJSON(),
+                                          UsersAPIPath + DefaultPasswordResetsFile);
 
                 this.PasswordResets.Remove(passwordReset.SecurityToken1);
 
@@ -16776,22 +18010,35 @@ namespace social.OpenData.UsersAPI
 
         #region (protected) WriteToDatabaseFileAndNotify(APIKeyInfo, MessageType,  OldAPIKeyInfo = null, CurrentUserId = null)
 
+        /// <summary>
+        /// Write the given API key to the database and send out notifications.
+        /// </summary>
+        /// <param name="APIKeyInfo">The API key.</param>
+        /// <param name="MessageType">The user notification.</param>
+        /// <param name="OldAPIKeyInfo">The old/updated API key.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
+        /// <param name="CurrentUserId">The invoking user identification</param>
         protected async Task WriteToDatabaseFileAndNotify(APIKeyInfo               APIKeyInfo,
                                                           NotificationMessageType  MessageType,
-                                                          APIKeyInfo               OldAPIKeyInfo   = null,
-                                                          User_Id?                 CurrentUserId   = null)
+                                                          APIKeyInfo               OldAPIKeyInfo     = null,
+                                                          EventTracking_Id         EventTrackingId   = null,
+                                                          User_Id?                 CurrentUserId     = null)
         {
 
             if (APIKeyInfo == null)
                 return;
 
+            var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
+
             await WriteToDatabaseFile(MessageType,
                                       APIKeyInfo.ToJSON(true),
+                                      eventTrackingId,
                                       CurrentUserId);
 
             await SendNotifications(APIKeyInfo,
                                     MessageType,
                                     OldAPIKeyInfo,
+                                    eventTrackingId,
                                     CurrentUserId);
 
         }
@@ -16801,34 +18048,39 @@ namespace social.OpenData.UsersAPI
         #region (protected) SendNotifications           (APIKeyInfo, MessageTypes, OldAPIKeyInfo = null, CurrentUserId = null)
 
         /// <summary>
-        /// Send user notifications.
+        /// Send API key notifications.
         /// </summary>
         /// <param name="APIKeyInfo">The API key.</param>
         /// <param name="MessageType">The API key notification.</param>
         /// <param name="OldAPIKeyInfo">The old/updated API key.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">The invoking user identification</param>
         protected Task SendNotifications(APIKeyInfo               APIKeyInfo,
                                          NotificationMessageType  MessageType,
-                                         APIKeyInfo               OldAPIKeyInfo   = null,
-                                         User_Id?                 CurrentUserId   = null)
+                                         APIKeyInfo               OldAPIKeyInfo     = null,
+                                         EventTracking_Id         EventTrackingId   = null,
+                                         User_Id?                 CurrentUserId     = null)
 
             => SendNotifications(APIKeyInfo,
                                  new NotificationMessageType[] { MessageType },
                                  OldAPIKeyInfo,
+                                 EventTrackingId,
                                  CurrentUserId);
 
 
         /// <summary>
-        /// Send user notifications.
+        /// Send API key notifications.
         /// </summary>
         /// <param name="APIKeyInfo">The API key.</param>
         /// <param name="MessageTypes">The API key notifications.</param>
         /// <param name="OldAPIKeyInfo">The old/updated API key.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">The invoking user identification</param>
         protected async Task SendNotifications(APIKeyInfo                            APIKeyInfo,
                                                IEnumerable<NotificationMessageType>  MessageTypes,
-                                               APIKeyInfo                            OldAPIKeyInfo   = null,
-                                               User_Id?                              CurrentUserId   = null)
+                                               APIKeyInfo                            OldAPIKeyInfo     = null,
+                                               EventTracking_Id                      EventTrackingId   = null,
+                                               User_Id?                              CurrentUserId     = null)
         {
 
             if (APIKeyInfo is null || MessageTypes.IsNullOrEmpty())
@@ -16859,20 +18111,22 @@ namespace social.OpenData.UsersAPI
         #endregion
 
 
-        #region AddAPIKey          (APIKey, OnAdded = null, CurrentUserId = null)
+        #region AddAPIKey           (APIKey, OnAdded = null,                   CurrentAPIKeyId = null)
 
         /// <summary>
-        /// A delegate called whenever an API key was added.
+        /// A delegate called whenever a API key was added.
         /// </summary>
         /// <param name="Timestamp">The timestamp when the API key was added.</param>
         /// <param name="APIKey">The added API key.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">The invoking user identification</param>
-        public delegate Task OnAPIKeyAddedDelegate(DateTime    Timestamp,
-                                                   APIKeyInfo  APIKey,
-                                                   User_Id?    CurrentUserId   = null);
+        public delegate Task OnAPIKeyAddedDelegate(DateTime          Timestamp,
+                                                   APIKeyInfo        APIKey,
+                                                   EventTracking_Id  EventTrackingId   = null,
+                                                   User_Id?          CurrentUserId     = null);
 
         /// <summary>
-        /// An event fired whenever an API key was added.
+        /// An event fired whenever a API key was added.
         /// </summary>
         public event OnAPIKeyAddedDelegate OnAPIKeyAdded;
 
@@ -16884,29 +18138,38 @@ namespace social.OpenData.UsersAPI
         /// </summary>
         /// <param name="APIKey">A new API key to be added to this API.</param>
         /// <param name="OnAdded">A delegate run whenever the API key had been added successfully.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
-        protected async Task<APIKeyInfo> _AddAPIKey(APIKeyInfo          APIKey,
-                                                    Action<APIKeyInfo>  OnAdded         = null,
-                                                    User_Id?            CurrentUserId   = null)
+        protected async Task<APIKeyInfo> _AddAPIKey(APIKeyInfo                            APIKey,
+                                                    Action<APIKeyInfo, EventTracking_Id>  OnAdded           = null,
+                                                    EventTracking_Id                      EventTrackingId   = null,
+                                                    User_Id?                              CurrentUserId     = null)
         {
 
             if (APIKey is null)
-                throw new ArgumentNullException(nameof(APIKey),  "The given user must not be null!");
+                throw new ArgumentNullException(nameof(APIKey),
+                                                "The given API key must not be null!");
 
-            //if (APIKey.API != null && APIKey.API != this)
-            //    throw new ArgumentException    (nameof(APIKey),  "The given user is already attached to another API!");
+            if (APIKey.API != null && APIKey.API != this)
+                throw new ArgumentException    ("The given API key is already attached to another API!",
+                                                nameof(APIKey));
 
-            //if (_APIKeys.ContainsKey(APIKey.Id))
-            //    throw new ArgumentException    (nameof(APIKey),  "APIKey identification '" + APIKey.Id + "' already exists!");
+            if (_APIKeys.ContainsKey(APIKey.APIKey))
+                throw new ArgumentException    ("API key '" + APIKey.APIKey + "' already exists!",
+                                                nameof(APIKey));
 
-            //if (APIKey.Id.Length < MinAPIKeyIdLength)
-            //    throw new ArgumentException    (nameof(APIKey),  "APIKey identification '" + APIKey.Id + "' is too short!");
+            if (APIKey.APIKey.Length < MinUserIdLength)
+                throw new ArgumentException    ("API key '" + APIKey.APIKey + "' is too short!",
+                                                nameof(APIKey));
 
-            //APIKey.API = this;
+            APIKey.API = this;
 
+
+            var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
 
             await WriteToDatabaseFile(addAPIKey_MessageType,
                                       APIKey.ToJSON(true),
+                                      eventTrackingId,
                                       CurrentUserId);
 
             _APIKeys.Add(APIKey.APIKey, APIKey);
@@ -16916,14 +18179,17 @@ namespace social.OpenData.UsersAPI
             if (OnAPIKeyAddedLocal != null)
                 await OnAPIKeyAddedLocal?.Invoke(DateTime.UtcNow,
                                                  APIKey,
+                                                 eventTrackingId,
                                                  CurrentUserId);
 
             await SendNotifications(APIKey,
-                                    addAPIKey_MessageType,
+                                    addUser_MessageType,
                                     null,
+                                    eventTrackingId,
                                     CurrentUserId);
 
-            OnAdded?.Invoke(APIKey);
+            OnAdded?.Invoke(APIKey,
+                            eventTrackingId);
 
             return APIKey;
 
@@ -16931,17 +18197,19 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
-        #region AddAPIKey             (APIKey, OnAdded = null, CurrentAPIKeyId = null)
+        #region AddAPIKey             (APIKey,                                OnAdded = null, CurrentUserId = null)
 
         /// <summary>
-        /// Add the given API key to the API.
+        /// Add the given API key.
         /// </summary>
-        /// <param name="APIKey">A new API key to be added to this API.</param>
+        /// <param name="APIKey">A new API key.</param>
         /// <param name="OnAdded">A delegate run whenever the API key had been added successfully.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
-        public async Task<APIKeyInfo> AddAPIKey(APIKeyInfo          APIKey,
-                                                Action<APIKeyInfo>  OnAdded         = null,
-                                                User_Id?            CurrentUserId   = null)
+        public async Task<APIKeyInfo> AddAPIKey(APIKeyInfo                            APIKey,
+                                                Action<APIKeyInfo, EventTracking_Id>  OnAdded           = null,
+                                                EventTracking_Id                      EventTrackingId   = null,
+                                                User_Id?                              CurrentUserId     = null)
         {
 
             if (APIKey is null)
@@ -16950,16 +18218,24 @@ namespace social.OpenData.UsersAPI
             try
             {
 
-                await APIKeysSemaphore.WaitAsync();
+                return (await APIKeysSemaphore.WaitAsync(SemaphoreSlimTimeout))
 
-                return await _AddAPIKey(APIKey,
-                                        OnAdded,
-                                        CurrentUserId);
+                            ? await _AddAPIKey(APIKey,
+                                               OnAdded,
+                                               EventTrackingId,
+                                               CurrentUserId)
+
+                            : null;
 
             }
             finally
             {
-                APIKeysSemaphore.Release();
+                try
+                {
+                    APIKeysSemaphore.Release();
+                }
+                catch
+                { }
             }
 
         }
@@ -16968,81 +18244,438 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
+        #region AddAPIKeyIfNotExists(APIKey, OnAdded = null,                   CurrentAPIKeyId = null)
 
-        #region GetAPIKey          (APIKey)
+        #region (protected) _AddAPIKeyIfNotExists(APIKey,                                OnAdded = null, CurrentUserId = null)
 
         /// <summary>
-        /// Get the API key having the given unique identification.
+        /// When it has not been created before, add the given API key to the API.
         /// </summary>
-        /// <param name="APIKey">The API key.</param>
-        protected APIKeyInfo _GetAPIKey(APIKey APIKey)
+        /// <param name="APIKey">A new API key to be added to this API.</param>
+        /// <param name="OnAdded">A delegate run whenever the API key had been added successfully.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
+        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
+        protected async Task<APIKeyInfo> _AddAPIKeyIfNotExists(APIKeyInfo                            APIKey,
+                                                               Action<APIKeyInfo, EventTracking_Id>  OnAdded           = null,
+                                                               EventTracking_Id                      EventTrackingId   = null,
+                                                               User_Id?                              CurrentUserId     = null)
         {
 
-            if (_APIKeys.TryGetValue(APIKey, out APIKeyInfo apiKeyInfo))
-                return apiKeyInfo;
+            if (APIKey is null)
+                throw new ArgumentNullException(nameof(APIKey),
+                                                "The given API key must not be null!");
 
-            return null;
+            if (APIKey.API != null && APIKey.API != this)
+                throw new ArgumentException    ("The given API key is already attached to another API!",
+                                                nameof(APIKey));
+
+            if (_APIKeys.ContainsKey(APIKey.APIKey))
+                return _APIKeys[APIKey.APIKey];
+
+            if (APIKey.APIKey.Length < MinUserIdLength)
+                throw new ArgumentException    ("API key identification '" + APIKey.APIKey + "' is too short!",
+                                                nameof(APIKey));
+
+            APIKey.API = this;
+
+
+            var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
+
+            await WriteToDatabaseFile(addAPIKeyIfNotExists_MessageType,
+                                      APIKey.ToJSON(true),
+                                      eventTrackingId,
+                                      CurrentUserId);
+
+            _APIKeys.Add(APIKey.APIKey, APIKey);
+
+            var OnAPIKeyAddedLocal = OnAPIKeyAdded;
+            if (OnAPIKeyAddedLocal != null)
+                await OnAPIKeyAddedLocal?.Invoke(DateTime.UtcNow,
+                                                    APIKey,
+                                                    eventTrackingId,
+                                                    CurrentUserId);
+
+            await SendNotifications(APIKey,
+                                    addAPIKeyIfNotExists_MessageType,
+                                    null,
+                                    eventTrackingId,
+                                    CurrentUserId);
+
+            OnAdded?.Invoke(APIKey,
+                            eventTrackingId);
+
+            return APIKey;
 
         }
 
+        #endregion
+
+        #region AddAPIKeyIfNotExists             (APIKey,                                OnAdded = null, CurrentUserId = null)
 
         /// <summary>
-        /// Get the API key having the given unique identification.
+        /// Add the given API key.
         /// </summary>
-        /// <param name="APIKey">The API key.</param>
-        public async Task<APIKeyInfo> GetAPIKey(APIKey APIKey)
+        /// <param name="APIKey">A new API key.</param>
+        /// <param name="OnAdded">A delegate run whenever the API key had been added successfully.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
+        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
+        public async Task<APIKeyInfo> AddAPIKeyIfNotExists(APIKeyInfo                            APIKey,
+                                                           Action<APIKeyInfo, EventTracking_Id>  OnAdded           = null,
+                                                           EventTracking_Id                      EventTrackingId   = null,
+                                                           User_Id?                              CurrentUserId     = null)
         {
 
             try
             {
 
-                await APIKeysSemaphore.WaitAsync();
+                return (await APIKeysSemaphore.WaitAsync(SemaphoreSlimTimeout))
 
-                if (_APIKeys.TryGetValue(APIKey, out APIKeyInfo apiKeyInfo))
-                    return apiKeyInfo;
+                            ? await _AddAPIKeyIfNotExists(APIKey,
+                                                          OnAdded,
+                                                          EventTrackingId,
+                                                          CurrentUserId)
 
-                return null;
+                            : null;
 
             }
             finally
             {
-                APIKeysSemaphore.Release();
+                try
+                {
+                    APIKeysSemaphore.Release();
+                }
+                catch
+                { }
             }
 
         }
 
         #endregion
 
+        #endregion
+
+        #region AddOrUpdateAPIKey   (APIKey, OnAdded = null, OnUpdated = null, CurrentUserId = null)
+
+        #region (protected) _AddOrUpdateAPIKey   (APIKey,   OnAdded = null, OnUpdated = null, CurrentUserId = null)
+
+        /// <summary>
+        /// Add or update the given API key to/within the API.
+        /// </summary>
+        /// <param name="APIKey">A API key.</param>
+        /// <param name="OnAdded">A delegate run whenever the API key had been added successfully.</param>
+        /// <param name="OnUpdated">A delegate run whenever the API key had been updated successfully.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
+        /// <param name="CurrentUserId">An optional API key identification initiating this command/request.</param>
+        protected async Task<APIKeyInfo> _AddOrUpdateAPIKey(APIKeyInfo                            APIKey,
+                                                            Action<APIKeyInfo, EventTracking_Id>  OnAdded           = null,
+                                                            Action<APIKeyInfo, EventTracking_Id>  OnUpdated         = null,
+                                                            EventTracking_Id                      EventTrackingId   = null,
+                                                            User_Id?                              CurrentUserId     = null)
+        {
+
+            if (APIKey is null)
+                throw new ArgumentNullException(nameof(APIKey),
+                                                "The given API key must not be null!");
+
+            if (APIKey.API != null && APIKey.API != this)
+                throw new ArgumentException    ("The given API key is already attached to another API!",
+                                                nameof(APIKey));
+
+            if (_APIKeys.ContainsKey(APIKey.APIKey))
+                return _APIKeys[APIKey.APIKey];
+
+            if (APIKey.APIKey.Length < MinAPIKeyLength)
+                throw new ArgumentException    ("APIKey identification '" + APIKey.APIKey + "' is too short!",
+                                                nameof(APIKey));
+
+            APIKey.API = this;
+
+
+            var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
+
+            await WriteToDatabaseFile(addOrUpdateAPIKey_MessageType,
+                                      APIKey.ToJSON(true),
+                                      eventTrackingId,
+                                      CurrentUserId);
+
+            if (_APIKeys.TryGetValue(APIKey.APIKey, out APIKeyInfo OldAPIKey))
+            {
+                _APIKeys.Remove(OldAPIKey.APIKey);
+                //APIKey.CopyAllLinkedDataFrom(OldAPIKey);
+            }
+
+            _APIKeys.Add(APIKey.APIKey, APIKey);
+
+            if (OldAPIKey != null)
+            {
+
+                var OnAPIKeyUpdatedLocal = OnAPIKeyUpdated;
+                if (OnAPIKeyUpdatedLocal != null)
+                    await OnAPIKeyUpdatedLocal?.Invoke(DateTime.UtcNow,
+                                                       APIKey,
+                                                       OldAPIKey,
+                                                       eventTrackingId,
+                                                       CurrentUserId);
+
+                await SendNotifications(APIKey,
+                                        updateAPIKey_MessageType,
+                                        OldAPIKey,
+                                        eventTrackingId,
+                                        CurrentUserId);
+
+                OnUpdated?.Invoke(APIKey,
+                                  eventTrackingId);
+
+            }
+            else
+            {
+
+                var OnAPIKeyAddedLocal = OnAPIKeyAdded;
+                if (OnAPIKeyAddedLocal != null)
+                    await OnAPIKeyAddedLocal?.Invoke(DateTime.UtcNow,
+                                                     APIKey,
+                                                     eventTrackingId,
+                                                     CurrentUserId);
+
+                await SendNotifications(APIKey,
+                                        addAPIKey_MessageType,
+                                        null,
+                                        eventTrackingId,
+                                        CurrentUserId);
+
+                OnAdded?.Invoke(APIKey,
+                                eventTrackingId);
+
+            }
+
+            return APIKey;
+
+        }
+
+        #endregion
+
+        #region AddOrUpdateAPIKey   (APIKey,   OnAdded = null, OnUpdated = null, CurrentUserId = null)
+
+        /// <summary>
+        /// Add or update the given API key to/within the API.
+        /// </summary>
+        /// <param name="APIKey">A API key.</param>
+        /// <param name="OnAdded">A delegate run whenever the API key had been added successfully.</param>
+        /// <param name="OnUpdated">A delegate run whenever the API key had been updated successfully.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
+        /// <param name="CurrentUserId">An optional API key identification initiating this command/request.</param>
+        public async Task<APIKeyInfo> AddOrUpdateAPIKey(APIKeyInfo                            APIKey,
+                                                        Action<APIKeyInfo, EventTracking_Id>  OnAdded           = null,
+                                                        Action<APIKeyInfo, EventTracking_Id>  OnUpdated         = null,
+                                                        EventTracking_Id                      EventTrackingId   = null,
+                                                        User_Id?                              CurrentUserId     = null)
+        {
+
+            if (APIKey is null)
+                throw new ArgumentNullException(nameof(APIKey), "The given API key must not be null!");
+
+            try
+            {
+
+                return (await APIKeysSemaphore.WaitAsync(SemaphoreSlimTimeout))
+
+                            ? await _AddOrUpdateAPIKey(APIKey,
+                                                       OnAdded,
+                                                       OnUpdated,
+                                                       EventTrackingId,
+                                                       CurrentUserId)
+
+                            : null;
+
+            }
+            finally
+            {
+                try
+                {
+                    APIKeysSemaphore.Release();
+                }
+                catch
+                { }
+            }
+
+        }
+
+        #endregion
+
+        #endregion
+
+        #region UpdateAPIKey        (APIKey,                 OnUpdated = null, CurrentUserId = null)
+
+        /// <summary>
+        /// A delegate called whenever a API key was updated.
+        /// </summary>
+        /// <param name="Timestamp">The timestamp when the API key was updated.</param>
+        /// <param name="APIKey">The updated API key.</param>
+        /// <param name="OldAPIKey">The old API key.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
+        /// <param name="CurrentUserId">The invoking API key identification</param>
+        public delegate Task OnAPIKeyUpdatedDelegate(DateTime          Timestamp,
+                                                     APIKeyInfo        APIKey,
+                                                     APIKeyInfo        OldAPIKey,
+                                                     EventTracking_Id  EventTrackingId   = null,
+                                                     User_Id?          CurrentUserId     = null);
+
+        /// <summary>
+        /// An event fired whenever a API key was updated.
+        /// </summary>
+        public event OnAPIKeyUpdatedDelegate OnAPIKeyUpdated;
+
+
+        #region (protected) _UpdateAPIKey(APIKey, OnUpdated = null, CurrentUserId = null)
+
+        /// <summary>
+        /// Update the given API key to/within the API.
+        /// </summary>
+        /// <param name="APIKey">A API key.</param>
+        /// <param name="OnUpdated">A delegate run whenever the API key had been updated successfully.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
+        /// <param name="CurrentUserId">An optional API key identification initiating this command/request.</param>
+        protected async Task<APIKeyInfo> _UpdateAPIKey(APIKeyInfo                            APIKey,
+                                                       Action<APIKeyInfo, EventTracking_Id>  OnUpdated         = null,
+                                                       EventTracking_Id                      EventTrackingId   = null,
+                                                       User_Id?                              CurrentUserId     = null)
+        {
+
+            if (APIKey is null)
+                throw new ArgumentNullException(nameof(APIKey),
+                                                "The given API key must not be null!");
+
+            if (APIKey.API != null && APIKey.API != this)
+                throw new ArgumentException    ("The given API key is already attached to another API!",
+                                                nameof(APIKey));
+
+            if (!_APIKeys.TryGetValue(APIKey.APIKey, out APIKeyInfo OldAPIKey))
+                throw new ArgumentException    ("The given API key '" + APIKey.APIKey + "' does not exists in this API!",
+                                                nameof(APIKey));
+
+            APIKey.API = this;
+
+
+            var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
+
+            await WriteToDatabaseFile(updateAPIKey_MessageType,
+                                      APIKey.ToJSON(true),
+                                      eventTrackingId,
+                                      CurrentUserId);
+
+            _APIKeys.Remove(OldAPIKey.APIKey);
+            //APIKey.CopyAllLinkedDataFrom(OldAPIKey);
+
+
+            var OnAPIKeyUpdatedLocal = OnAPIKeyUpdated;
+            if (OnAPIKeyUpdatedLocal != null)
+                await OnAPIKeyUpdatedLocal?.Invoke(DateTime.UtcNow,
+                                                   APIKey,
+                                                   OldAPIKey,
+                                                   eventTrackingId,
+                                                   CurrentUserId);
+
+            await SendNotifications(APIKey,
+                                    updateAPIKey_MessageType,
+                                    OldAPIKey,
+                                    eventTrackingId,
+                                    CurrentUserId);
+
+            OnUpdated?.Invoke(APIKey,
+                              eventTrackingId);
+
+            return APIKey;
+
+        }
+
+        #endregion
+
+        #region UpdateAPIKey             (APIKey, OnUpdated = null, CurrentUserId = null)
+
+        /// <summary>
+        /// Update the given API key to/within the API.
+        /// </summary>
+        /// <param name="APIKey">A API key.</param>
+        /// <param name="OnUpdated">A delegate run whenever the API key had been updated successfully.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
+        /// <param name="CurrentUserId">An optional API key identification initiating this command/request.</param>
+        public async Task<APIKeyInfo> UpdateAPIKey(APIKeyInfo                            APIKey,
+                                                   Action<APIKeyInfo, EventTracking_Id>  OnUpdated         = null,
+                                                   EventTracking_Id                      EventTrackingId   = null,
+                                                   User_Id?                              CurrentUserId     = null)
+        {
+
+            if (APIKey is null)
+                throw new ArgumentNullException(nameof(APIKey), "The given API key must not be null!");
+
+            try
+            {
+
+                return (await APIKeysSemaphore.WaitAsync(SemaphoreSlimTimeout))
+
+                            ? await _UpdateAPIKey(APIKey,
+                                                  OnUpdated,
+                                                  EventTrackingId,
+                                                  CurrentUserId)
+
+                            : null;
+
+            }
+            finally
+            {
+                try
+                {
+                    APIKeysSemaphore.Release();
+                }
+                catch
+                { }
+            }
+
+        }
+
+        #endregion
+
+        #endregion
+
+
         #region APIKeyExists       (APIKey)
 
         /// <summary>
-        /// Determines whether the given API key exists within this API.
+        /// Determines whether the given API key identification exists within this API.
         /// </summary>
-        /// <param name="APIKey">The API key.</param>
+        /// <param name="APIKey">The unique identification of an API key.</param>
         protected Boolean _APIKeyExists(APIKey APIKey)
 
-            => _APIKeys.ContainsKey(APIKey);
+            => !APIKey.IsNullOrEmpty && _APIKeys.ContainsKey(APIKey);
 
 
         /// <summary>
-        /// Determines whether the given API key exists within this API.
+        /// Determines whether the given API key identification exists within this API.
         /// </summary>
-        /// <param name="APIKey">The API key.</param>
+        /// <param name="APIKey">The unique identification of an API key.</param>
         public Boolean APIKeyExists(APIKey APIKey)
         {
 
             try
             {
 
-                APIKeysSemaphore.Wait();
-
-                return _APIKeys.ContainsKey(APIKey);
+                if (APIKeysSemaphore.Wait(SemaphoreSlimTimeout))
+                    return _APIKeyExists(APIKey);
 
             }
+            catch
+            { }
             finally
             {
-                APIKeysSemaphore.Release();
+                try
+                {
+                    APIKeysSemaphore.Release();
+                }
+                catch
+                { }
             }
+
+            return false;
 
         }
 
@@ -17092,15 +18725,23 @@ namespace social.OpenData.UsersAPI
             try
             {
 
-                APIKeysSemaphore.Wait();
-
-                return _APIKeyIsValid(APIKeyInfo);
+                if (APIKeysSemaphore.Wait(SemaphoreSlimTimeout))
+                    return _APIKeyIsValid(APIKeyInfo);
 
             }
+            catch
+            { }
             finally
             {
-                APIKeysSemaphore.Release();
+                try
+                {
+                    APIKeysSemaphore.Release();
+                }
+                catch
+                { }
             }
+
+            return false;
 
         }
 
@@ -17114,15 +18755,23 @@ namespace social.OpenData.UsersAPI
             try
             {
 
-                APIKeysSemaphore.Wait();
-
-                return _APIKeyIsValid(APIKey);
+                if (APIKeysSemaphore.Wait(SemaphoreSlimTimeout))
+                    return _APIKeyIsValid(APIKey);
 
             }
+            catch
+            { }
             finally
             {
-                APIKeysSemaphore.Release();
+                try
+                {
+                    APIKeysSemaphore.Release();
+                }
+                catch
+                { }
             }
+
+            return false;
 
         }
 
@@ -17136,15 +18785,72 @@ namespace social.OpenData.UsersAPI
             try
             {
 
-                APIKeysSemaphore.Wait();
-
-                return _APIKeyIsValid(APIKey);
+                if (APIKeysSemaphore.Wait(SemaphoreSlimTimeout))
+                    return _APIKeyIsValid(APIKey);
 
             }
+            catch
+            { }
             finally
             {
-                APIKeysSemaphore.Release();
+                try
+                {
+                    APIKeysSemaphore.Release();
+                }
+                catch
+                { }
             }
+
+            return false;
+
+        }
+
+        #endregion
+
+        #region GetAPIKey          (APIKey)
+
+        /// <summary>
+        /// Get the API key having the given unique identification.
+        /// </summary>
+        /// <param name="APIKey">The unique identification of an API key.</param>
+        protected APIKeyInfo _GetAPIKey(APIKey APIKey)
+        {
+
+            if (!APIKey.IsNullOrEmpty && _APIKeys.TryGetValue(APIKey, out APIKeyInfo apiKey))
+                return apiKey;
+
+            return null;
+
+        }
+
+
+        /// <summary>
+        /// Get the API key having the given unique identification.
+        /// </summary>
+        /// <param name="APIKey">The unique identification of the API key.</param>
+        public APIKeyInfo GetAPIKey(APIKey APIKey)
+        {
+
+            try
+            {
+
+                if (APIKeysSemaphore.Wait(SemaphoreSlimTimeout))
+                    return _GetAPIKey(APIKey);
+
+            }
+            catch
+            { }
+            finally
+            {
+                try
+                {
+                    APIKeysSemaphore.Release();
+                }
+                catch
+                { }
+            }
+
+            return null;
 
         }
 
@@ -17155,17 +18861,27 @@ namespace social.OpenData.UsersAPI
         /// <summary>
         /// Try to get the API key having the given unique identification.
         /// </summary>
-        /// <param name="APIKey">The unique identification of the API key.</param>
+        /// <param name="APIKey">The unique identification of an API key.</param>
         /// <param name="APIKeyInfo">The API key.</param>
         protected Boolean _TryGetAPIKey(APIKey APIKey, out APIKeyInfo APIKeyInfo)
+        {
 
-            => _APIKeys.TryGetValue(APIKey, out APIKeyInfo);
+            if (!APIKey.IsNullOrEmpty && _APIKeys.TryGetValue(APIKey, out APIKeyInfo apiKeyInfo))
+            {
+                APIKeyInfo = apiKeyInfo;
+                return true;
+            }
+
+            APIKeyInfo = null;
+            return false;
+
+        }
 
 
         /// <summary>
         /// Try to get the API key having the given unique identification.
         /// </summary>
-        /// <param name="APIKey">The unique identification of the API key.</param>
+        /// <param name="APIKey">The unique identification of an API key.</param>
         /// <param name="APIKeyInfo">The API key.</param>
         public Boolean TryGetAPIKey(APIKey          APIKey,
                                     out APIKeyInfo  APIKeyInfo)
@@ -17174,15 +18890,28 @@ namespace social.OpenData.UsersAPI
             try
             {
 
-                APIKeysSemaphore.Wait();
-
-                return _APIKeys.TryGetValue(APIKey, out APIKeyInfo);
+                if (APIKeysSemaphore.Wait(SemaphoreSlimTimeout) &&
+                    _TryGetAPIKey(APIKey, out APIKeyInfo apiKeyInfo))
+                {
+                    APIKeyInfo = apiKeyInfo;
+                    return true;
+                }
 
             }
+            catch
+            { }
             finally
             {
-                APIKeysSemaphore.Release();
+                try
+                {
+                    APIKeysSemaphore.Release();
+                }
+                catch
+                { }
             }
+
+            APIKeyInfo = null;
+            return false;
 
         }
 
@@ -17246,15 +18975,27 @@ namespace social.OpenData.UsersAPI
             try
             {
 
-                APIKeysSemaphore.Wait();
-
-                return _TryGetValidAPIKey(APIKey, out APIKeyInfo);
+                if (APIKeysSemaphore.Wait(SemaphoreSlimTimeout) &&
+                    _TryGetValidAPIKey(APIKey, out APIKeyInfo))
+                {
+                    return true;
+                }
 
             }
+            catch
+            { }
             finally
             {
-                APIKeysSemaphore.Release();
+                try
+                {
+                    APIKeysSemaphore.Release();
+                }
+                catch
+                { }
             }
+
+            APIKeyInfo = null;
+            return false;
 
         }
 
@@ -17270,15 +19011,27 @@ namespace social.OpenData.UsersAPI
             try
             {
 
-                APIKeysSemaphore.Wait();
-
-                return _TryGetValidAPIKey(APIKey, out APIKeyInfo);
+                if (APIKeysSemaphore.Wait(SemaphoreSlimTimeout) &&
+                    _TryGetValidAPIKey(APIKey, out APIKeyInfo))
+                {
+                    return true;
+                }
 
             }
+            catch
+            { }
             finally
             {
-                APIKeysSemaphore.Release();
+                try
+                {
+                    APIKeysSemaphore.Release();
+                }
+                catch
+                { }
             }
+
+            APIKeyInfo = null;
+            return false;
 
         }
 
@@ -17307,12 +19060,24 @@ namespace social.OpenData.UsersAPI
 
             try
             {
-                return _GetAPIKeysForUser(User);
+
+                if (APIKeysSemaphore.Wait(SemaphoreSlimTimeout))
+                    return _GetAPIKeysForUser(User);
+
             }
+            catch
+            { }
             finally
             {
-                APIKeysSemaphore.Release();
+                try
+                {
+                    APIKeysSemaphore.Release();
+                }
+                catch
+                { }
             }
+
+            return new APIKeyInfo[0];
 
         }
 
@@ -17341,12 +19106,24 @@ namespace social.OpenData.UsersAPI
 
             try
             {
-                return _GetValidAPIKeysForUser(User);
+
+                if (APIKeysSemaphore.Wait(SemaphoreSlimTimeout))
+                    return _GetValidAPIKeysForUser(User);
+
             }
+            catch
+            { }
             finally
             {
-                APIKeysSemaphore.Release();
+                try
+                {
+                    APIKeysSemaphore.Release();
+                }
+                catch
+                { }
             }
+
+            return new APIKeyInfo[0];
 
         }
 
@@ -17356,17 +19133,19 @@ namespace social.OpenData.UsersAPI
         #region RemoveAPIKey(APIKey, OnRemoved = null, CurrentUserId = null)
 
         /// <summary>
-        /// A delegate called whenever an API key was removed.
+        /// A delegate called whenever a API key was removed.
         /// </summary>
         /// <param name="Timestamp">The timestamp when the API key was removed.</param>
-        /// <param name="APIKey">The removed API key.</param>
-        /// <param name="CurrentUserId">The invoking user identification</param>
-        public delegate Task OnAPIKeyRemovedDelegate(DateTime    Timestamp,
-                                                     APIKeyInfo  APIKey,
-                                                     User_Id?    CurrentUserId  = null);
+        /// <param name="APIKeyInfo">The removed API key.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
+        /// <param name="CurrentUserId">The invoking API key identification</param>
+        public delegate Task OnAPIKeyRemovedDelegate(DateTime          Timestamp,
+                                                     APIKeyInfo        APIKeyInfo,
+                                                     EventTracking_Id  EventTrackingId   = null,
+                                                     User_Id?          CurrentUserId     = null);
 
         /// <summary>
-        /// An event fired whenever an API key was removed.
+        /// An event fired whenever a API key was removed.
         /// </summary>
         public event OnAPIKeyRemovedDelegate OnAPIKeyRemoved;
 
@@ -17377,44 +19156,29 @@ namespace social.OpenData.UsersAPI
         /// Remove the given API key from the API.
         /// </summary>
         /// <param name="APIKey">The API key to be removed from this API.</param>
-        /// <param name="OnRemoved">A delegate run whenever the user had been removed successfully.</param>
-        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
-        protected async Task<APIKeyInfo> _RemoveAPIKey(APIKey              APIKey,
-                                                       Action<APIKeyInfo>  OnRemoved       = null,
-                                                       User_Id?            CurrentUserId   = null)
-        {
-
-            if (APIKey.IsNullOrEmpty)
-                throw new ArgumentNullException(nameof(APIKey),  "The given API key must not be null!");
-
-            if (!_APIKeys.TryGetValue(APIKey, out APIKeyInfo APIKeyToBeRemoved))
-                throw new ArgumentException    (nameof(APIKey),  "The given API key '" + APIKey.ToString() + "' does not exists in this API!");
-
-            return await _RemoveAPIKey(APIKeyToBeRemoved);
-
-        }
-
-
-        /// <summary>
-        /// Remove the given API key from the API.
-        /// </summary>
-        /// <param name="APIKey">The API key to be removed from this API.</param>
-        /// <param name="OnRemoved">A delegate run whenever the user had been removed successfully.</param>
-        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
-        protected async Task<APIKeyInfo> _RemoveAPIKey(APIKeyInfo          APIKey,
-                                                       Action<APIKeyInfo>  OnRemoved       = null,
-                                                       User_Id?            CurrentUserId   = null)
+        /// <param name="OnRemoved">A delegate run whenever the API key had been removed successfully.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
+        /// <param name="CurrentUserId">An optional API key identification initiating this command/request.</param>
+        protected async Task _RemoveAPIKey(APIKeyInfo                            APIKey,
+                                           Action<APIKeyInfo, EventTracking_Id>  OnRemoved         = null,
+                                           EventTracking_Id                      EventTrackingId   = null,
+                                           User_Id?                              CurrentUserId     = null)
         {
 
             if (APIKey is null)
-                throw new ArgumentNullException(nameof(APIKey),  "The given API key must not be null!");
+                throw new ArgumentNullException(nameof(APIKey),
+                                                "The given API key must not be null!");
 
-            //if (APIKey.API != this || !_APIKeys.TryGetValue(APIKey.Id, out APIKey APIKeyToBeRemoved))
-            //    throw new ArgumentException    (nameof(APIKey),  "The given user '" + APIKey.Id + "' does not exists in this API!");
+            if (APIKey.API != this || !_APIKeys.TryGetValue(APIKey.APIKey, out APIKeyInfo APIKeyToBeRemoved))
+                throw new ArgumentException    ("The given API key '" + APIKey.APIKey + "' does not exists in this API!",
+                                                nameof(APIKey));
 
+
+            var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
 
             await WriteToDatabaseFile(removeAPIKey_MessageType,
                                       APIKey.ToJSON(true),
+                                      eventTrackingId,
                                       CurrentUserId);
 
             _APIKeys.Remove(APIKey.APIKey);
@@ -17424,16 +19188,17 @@ namespace social.OpenData.UsersAPI
             if (OnAPIKeyRemovedLocal != null)
                 await OnAPIKeyRemovedLocal?.Invoke(DateTime.UtcNow,
                                                    APIKey,
+                                                   eventTrackingId,
                                                    CurrentUserId);
 
             await SendNotifications(APIKey,
                                     removeAPIKey_MessageType,
                                     null,
+                                    eventTrackingId,
                                     CurrentUserId);
 
-            OnRemoved?.Invoke(APIKey);
-
-            return APIKey;
+            OnRemoved?.Invoke(APIKey,
+                              eventTrackingId);
 
         }
 
@@ -17445,43 +19210,13 @@ namespace social.OpenData.UsersAPI
         /// Remove the given API key from the API.
         /// </summary>
         /// <param name="APIKey">The API key to be removed from this API.</param>
-        /// <param name="OnRemoved">A delegate run whenever the user had been removed successfully.</param>
-        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
-        public async Task<APIKeyInfo> RemoveAPIKey(APIKey              APIKey,
-                                                   Action<APIKeyInfo>  OnRemoved       = null,
-                                                   User_Id?            CurrentUserId   = null)
-        {
-
-            if (APIKey.IsNullOrEmpty)
-                throw new ArgumentNullException(nameof(APIKey), "The given API key must not be null!");
-
-            try
-            {
-
-                await APIKeysSemaphore.WaitAsync();
-
-                return await _RemoveAPIKey(APIKey,
-                                           OnRemoved,
-                                           CurrentUserId);
-
-            }
-            finally
-            {
-                APIKeysSemaphore.Release();
-            }
-
-        }
-
-
-        /// <summary>
-        /// Remove the given API key from the API.
-        /// </summary>
-        /// <param name="APIKey">The API key to be removed from this API.</param>
-        /// <param name="OnRemoved">A delegate run whenever the user had been removed successfully.</param>
-        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
-        public async Task<APIKeyInfo> RemoveAPIKey(APIKeyInfo          APIKey,
-                                                   Action<APIKeyInfo>  OnRemoved       = null,
-                                                   User_Id?            CurrentUserId   = null)
+        /// <param name="OnRemoved">A delegate run whenever the API key had been removed successfully.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
+        /// <param name="CurrentUserId">An optional API key identification initiating this command/request.</param>
+        public async Task RemoveAPIKey(APIKeyInfo                            APIKey,
+                                       Action<APIKeyInfo, EventTracking_Id>  OnRemoved         = null,
+                                       EventTracking_Id                      EventTrackingId   = null,
+                                       User_Id?                              CurrentUserId     = null)
         {
 
             if (APIKey is null)
@@ -17490,16 +19225,23 @@ namespace social.OpenData.UsersAPI
             try
             {
 
-                await APIKeysSemaphore.WaitAsync();
-
-                return await _RemoveAPIKey(APIKey,
-                                           OnRemoved,
-                                           CurrentUserId);
+                if (await APIKeysSemaphore.WaitAsync(SemaphoreSlimTimeout))
+                    await _RemoveAPIKey(APIKey,
+                                        OnRemoved,
+                                        EventTrackingId,
+                                        CurrentUserId);
 
             }
+            catch
+            { }
             finally
             {
-                APIKeysSemaphore.Release();
+                try
+                {
+                    APIKeysSemaphore.Release();
+                }
+                catch
+                { }
             }
 
         }
@@ -17631,25 +19373,28 @@ namespace social.OpenData.UsersAPI
 
         #region AddNotification(User,           NotificationType,                           CurrentUserId = null)
 
-        protected async Task _AddNotification<T>(User      User,
-                                                 T         NotificationType,
-                                                 User_Id?  CurrentUserId  = null)
+        protected async Task _AddNotification<T>(User              User,
+                                                 T                 NotificationType,
+                                                 EventTracking_Id  EventTrackingId   = null,
+                                                 User_Id?          CurrentUserId     = null)
 
             where T : ANotification
 
         {
 
             User.AddNotification(NotificationType,
-                                 async update => await WriteToDatabaseFile(NotificationMessageType.Parse("addNotification"),
-                                                                      update.ToJSON(false).AddFirstAndReturn(new JProperty("userId", User.Id.ToString())),
-                                                                      CurrentUserId));
+                                 async update => await WriteToDatabaseFile(addNotification_MessageType,
+                                                                           update.ToJSON(false).AddFirstAndReturn(new JProperty("userId", User.Id.ToString())),
+                                                                           EventTrackingId,
+                                                                           CurrentUserId));
 
         }
 
 
-        public async Task AddNotification<T>(User      User,
-                                             T         NotificationType,
-                                             User_Id?  CurrentUserId  = null)
+        public async Task AddNotification<T>(User              User,
+                                             T                 NotificationType,
+                                             EventTracking_Id  EventTrackingId   = null,
+                                             User_Id?          CurrentUserId     = null)
 
             where T : ANotification
 
@@ -17662,6 +19407,7 @@ namespace social.OpenData.UsersAPI
 
                 await _AddNotification(User,
                                        NotificationType,
+                                       EventTrackingId,
                                        CurrentUserId);
 
             }
@@ -17676,9 +19422,10 @@ namespace social.OpenData.UsersAPI
 
         #region AddNotification(UserId,         NotificationType,                           CurrentUserId = null)
 
-        public async Task AddNotification<T>(User_Id   UserId,
-                                             T         NotificationType,
-                                             User_Id?  CurrentUserId  = null)
+        public async Task AddNotification<T>(User_Id           UserId,
+                                             T                 NotificationType,
+                                             EventTracking_Id  EventTrackingId   = null,
+                                             User_Id?          CurrentUserId     = null)
 
             where T : ANotification
 
@@ -17693,9 +19440,10 @@ namespace social.OpenData.UsersAPI
                 {
 
                     User.AddNotification(NotificationType,
-                                         async update => await WriteToDatabaseFile(NotificationMessageType.Parse("addNotification"),
-                                                                              update.ToJSON(false).AddFirstAndReturn(new JProperty("userId", User.Id.ToString())),
-                                                                              CurrentUserId));
+                                         async update => await WriteToDatabaseFile(addNotification_MessageType,
+                                                                                   update.ToJSON(false).AddFirstAndReturn(new JProperty("userId", User.Id.ToString())),
+                                                                                   EventTrackingId,
+                                                                                   CurrentUserId));
 
                 }
 
@@ -17714,7 +19462,8 @@ namespace social.OpenData.UsersAPI
         public async Task AddNotification<T>(User                     User,
                                              T                        NotificationType,
                                              NotificationMessageType  NotificationMessageType,
-                                             User_Id?                 CurrentUserId  = null)
+                                             EventTracking_Id         EventTrackingId   = null,
+                                             User_Id?                 CurrentUserId     = null)
 
             where T : ANotification
 
@@ -17727,9 +19476,10 @@ namespace social.OpenData.UsersAPI
 
                 User.AddNotification(NotificationType,
                                      NotificationMessageType,
-                                     async update => await WriteToDatabaseFile(NotificationMessageType.Parse("addNotification"),
-                                                                          update.ToJSON(false).AddFirstAndReturn(new JProperty("userId", User.Id.ToString())),
-                                                                          CurrentUserId));
+                                     async update => await WriteToDatabaseFile(addNotification_MessageType,
+                                                                               update.ToJSON(false).AddFirstAndReturn(new JProperty("userId", User.Id.ToString())),
+                                                                               EventTrackingId,
+                                                                               CurrentUserId));
 
             }
             finally
@@ -17746,7 +19496,8 @@ namespace social.OpenData.UsersAPI
         public async Task AddNotification<T>(User_Id                  UserId,
                                              T                        NotificationType,
                                              NotificationMessageType  NotificationMessageType,
-                                             User_Id?                 CurrentUserId  = null)
+                                             EventTracking_Id         EventTrackingId   = null,
+                                             User_Id?                 CurrentUserId     = null)
 
             where T : ANotification
 
@@ -17762,9 +19513,10 @@ namespace social.OpenData.UsersAPI
 
                     User.AddNotification(NotificationType,
                                          NotificationMessageType,
-                                         async update => await WriteToDatabaseFile(NotificationMessageType.Parse("addNotification"),
-                                                                              update.ToJSON(false).AddFirstAndReturn(new JProperty("userId", User.Id.ToString())),
-                                                                              CurrentUserId));
+                                         async update => await WriteToDatabaseFile(addNotification_MessageType,
+                                                                                   update.ToJSON(false).AddFirstAndReturn(new JProperty("userId", User.Id.ToString())),
+                                                                                   EventTrackingId,
+                                                                                   CurrentUserId));
 
                 }
 
@@ -17786,7 +19538,8 @@ namespace social.OpenData.UsersAPI
         public async Task AddNotification<T>(User                                  User,
                                              T                                     NotificationType,
                                              IEnumerable<NotificationMessageType>  NotificationMessageTypes,
-                                             User_Id?                              CurrentUserId  = null)
+                                             EventTracking_Id                      EventTrackingId   = null,
+                                             User_Id?                              CurrentUserId     = null)
 
             where T : ANotification
 
@@ -17799,9 +19552,10 @@ namespace social.OpenData.UsersAPI
 
                 User.AddNotification(NotificationType,
                                      NotificationMessageTypes,
-                                     async update => await WriteToDatabaseFile(NotificationMessageType.Parse("addNotification"),
-                                                                          update.ToJSON(false).AddFirstAndReturn(new JProperty("userId", User.Id.ToString())),
-                                                                          CurrentUserId));
+                                     async update => await WriteToDatabaseFile(addNotification_MessageType,
+                                                                               update.ToJSON(false).AddFirstAndReturn(new JProperty("userId", User.Id.ToString())),
+                                                                               EventTrackingId,
+                                                                               CurrentUserId));
 
             }
             finally
@@ -17818,7 +19572,8 @@ namespace social.OpenData.UsersAPI
         public async Task AddNotification<T>(User_Id                               UserId,
                                              T                                     NotificationType,
                                              IEnumerable<NotificationMessageType>  NotificationMessageTypes,
-                                             User_Id?                              CurrentUserId  = null)
+                                             EventTracking_Id                      EventTrackingId   = null,
+                                             User_Id?                              CurrentUserId     = null)
 
             where T : ANotification
 
@@ -17834,9 +19589,10 @@ namespace social.OpenData.UsersAPI
 
                     User.AddNotification(NotificationType,
                                          NotificationMessageTypes,
-                                         async update => await WriteToDatabaseFile(NotificationMessageType.Parse("addNotification"),
-                                                                              update.ToJSON(false).AddFirstAndReturn(new JProperty("userId", User.Id.ToString())),
-                                                                              CurrentUserId));
+                                         async update => await WriteToDatabaseFile(addNotification_MessageType,
+                                                                                   update.ToJSON(false).AddFirstAndReturn(new JProperty("userId", User.Id.ToString())),
+                                                                                   EventTrackingId,
+                                                                                   CurrentUserId));
 
                 }
 
@@ -17856,9 +19612,10 @@ namespace social.OpenData.UsersAPI
 
         #region AddNotification(Organization,   NotificationType,                           CurrentUserId = null)
 
-        public async Task AddNotification<T>(Organization  Organization,
-                                             T             NotificationType,
-                                             User_Id?      CurrentUserId  = null)
+        public async Task AddNotification<T>(Organization      Organization,
+                                             T                 NotificationType,
+                                             EventTracking_Id  EventTrackingId   = null,
+                                             User_Id?          CurrentUserId     = null)
 
             where T : ANotification
 
@@ -17870,9 +19627,10 @@ namespace social.OpenData.UsersAPI
                 await UsersSemaphore.WaitAsync();
 
                 Organization.AddNotification(NotificationType,
-                                             async update => await WriteToDatabaseFile(NotificationMessageType.Parse("addNotification"),
-                                                                                  update.ToJSON(false).AddFirstAndReturn(new JProperty("organizationId", Organization.Id.ToString())),
-                                                                                  CurrentUserId));
+                                             async update => await WriteToDatabaseFile(addNotification_MessageType,
+                                                                                       update.ToJSON(false).AddFirstAndReturn(new JProperty("organizationId", Organization.Id.ToString())),
+                                                                                       EventTrackingId,
+                                                                                       CurrentUserId));
 
             }
             finally
@@ -17886,9 +19644,10 @@ namespace social.OpenData.UsersAPI
 
         #region AddNotification(OrganizationId, NotificationType,                           CurrentUserId = null)
 
-        public async Task AddNotification<T>(Organization_Id  OrganizationId,
-                                             T                NotificationType,
-                                             User_Id?         CurrentUserId  = null)
+        public async Task AddNotification<T>(Organization_Id   OrganizationId,
+                                             T                 NotificationType,
+                                             EventTracking_Id  EventTrackingId   = null,
+                                             User_Id?          CurrentUserId     = null)
 
             where T : ANotification
 
@@ -17903,9 +19662,10 @@ namespace social.OpenData.UsersAPI
                 {
 
                     Organization.AddNotification(NotificationType,
-                                                 async update => await WriteToDatabaseFile(NotificationMessageType.Parse("addNotification"),
-                                                                                      update.ToJSON(false).AddFirstAndReturn(new JProperty("organizationId", Organization.Id.ToString())),
-                                                                                      CurrentUserId));
+                                                 async update => await WriteToDatabaseFile(addNotification_MessageType,
+                                                                                           update.ToJSON(false).AddFirstAndReturn(new JProperty("organizationId", Organization.Id.ToString())),
+                                                                                           EventTrackingId,
+                                                                                           CurrentUserId));
 
                 }
 
@@ -17924,7 +19684,8 @@ namespace social.OpenData.UsersAPI
         public async Task AddNotification<T>(Organization             Organization,
                                              T                        NotificationType,
                                              NotificationMessageType  NotificationMessageType,
-                                             User_Id?                 CurrentUserId  = null)
+                                             EventTracking_Id         EventTrackingId   = null,
+                                             User_Id?                 CurrentUserId     = null)
 
             where T : ANotification
 
@@ -17937,9 +19698,10 @@ namespace social.OpenData.UsersAPI
 
                 Organization.AddNotification(NotificationType,
                                              NotificationMessageType,
-                                             async update => await WriteToDatabaseFile(NotificationMessageType.Parse("addNotification"),
-                                                                                  update.ToJSON(false).AddFirstAndReturn(new JProperty("organizationId", Organization.Id.ToString())),
-                                                                                  CurrentUserId));
+                                             async update => await WriteToDatabaseFile(addNotification_MessageType,
+                                                                                       update.ToJSON(false).AddFirstAndReturn(new JProperty("organizationId", Organization.Id.ToString())),
+                                                                                       EventTrackingId,
+                                                                                       CurrentUserId));
 
             }
             finally
@@ -17956,7 +19718,8 @@ namespace social.OpenData.UsersAPI
         public async Task AddNotification<T>(Organization_Id          OrganizationId,
                                              T                        NotificationType,
                                              NotificationMessageType  NotificationMessageType,
-                                             User_Id?                 CurrentUserId  = null)
+                                             EventTracking_Id         EventTrackingId   = null,
+                                             User_Id?                 CurrentUserId     = null)
 
             where T : ANotification
 
@@ -17972,9 +19735,10 @@ namespace social.OpenData.UsersAPI
 
                     Organization.AddNotification(NotificationType,
                                                  NotificationMessageType,
-                                                 async update => await WriteToDatabaseFile(NotificationMessageType.Parse("addNotification"),
-                                                                                      update.ToJSON(false).AddFirstAndReturn(new JProperty("organizationId", Organization.Id.ToString())),
-                                                                                      CurrentUserId));
+                                                 async update => await WriteToDatabaseFile(addNotification_MessageType,
+                                                                                           update.ToJSON(false).AddFirstAndReturn(new JProperty("organizationId", Organization.Id.ToString())),
+                                                                                           EventTrackingId,
+                                                                                           CurrentUserId));
 
                 }
 
@@ -17996,7 +19760,8 @@ namespace social.OpenData.UsersAPI
         public async Task AddNotification<T>(Organization                          Organization,
                                              T                                     NotificationType,
                                              IEnumerable<NotificationMessageType>  NotificationMessageTypes,
-                                             User_Id?                              CurrentUserId  = null)
+                                             EventTracking_Id                      EventTrackingId   = null,
+                                             User_Id?                              CurrentUserId     = null)
 
             where T : ANotification
 
@@ -18009,9 +19774,10 @@ namespace social.OpenData.UsersAPI
 
                 Organization.AddNotification(NotificationType,
                                              NotificationMessageTypes,
-                                             async update => await WriteToDatabaseFile(NotificationMessageType.Parse("addNotification"),
-                                                                                  update.ToJSON(false).AddFirstAndReturn(new JProperty("organizationId", Organization.Id.ToString())),
-                                                                                  CurrentUserId));
+                                             async update => await WriteToDatabaseFile(addNotification_MessageType,
+                                                                                       update.ToJSON(false).AddFirstAndReturn(new JProperty("organizationId", Organization.Id.ToString())),
+                                                                                       EventTrackingId,
+                                                                                       CurrentUserId));
 
             }
             finally
@@ -18028,7 +19794,8 @@ namespace social.OpenData.UsersAPI
         public async Task AddNotification<T>(Organization_Id                       OrganizationId,
                                              T                                     NotificationType,
                                              IEnumerable<NotificationMessageType>  NotificationMessageTypes,
-                                             User_Id?                              CurrentUserId  = null)
+                                             EventTracking_Id                      EventTrackingId   = null,
+                                             User_Id?                              CurrentUserId     = null)
 
             where T : ANotification
 
@@ -18044,9 +19811,10 @@ namespace social.OpenData.UsersAPI
 
                     Organization.AddNotification(NotificationType,
                                                  NotificationMessageTypes,
-                                                 async update => await WriteToDatabaseFile(NotificationMessageType.Parse("addNotification"),
-                                                                                      update.ToJSON(false).AddFirstAndReturn(new JProperty("organizationId", Organization.Id.ToString())),
-                                                                                      CurrentUserId));
+                                                 async update => await WriteToDatabaseFile(addNotification_MessageType,
+                                                                                           update.ToJSON(false).AddFirstAndReturn(new JProperty("organizationId", Organization.Id.ToString())),
+                                                                                           EventTrackingId,
+                                                                                           CurrentUserId));
 
                 }
 
@@ -18244,9 +20012,10 @@ namespace social.OpenData.UsersAPI
 
         #region RemoveNotification(User,           NotificationType, CurrentUserId = null)
 
-        public async Task RemoveNotification<T>(User      User,
-                                                T         NotificationType,
-                                                User_Id?  CurrentUserId  = null)
+        public async Task RemoveNotification<T>(User              User,
+                                                T                 NotificationType,
+                                                EventTracking_Id  EventTrackingId   = null,
+                                                User_Id?          CurrentUserId     = null)
 
             where T : ANotification
 
@@ -18258,9 +20027,10 @@ namespace social.OpenData.UsersAPI
                 await UsersSemaphore.WaitAsync();
 
                 User.RemoveNotification(NotificationType,
-                                        async update => await WriteToDatabaseFile(NotificationMessageType.Parse("removeNotification"),
-                                                                             update.ToJSON(false).AddFirstAndReturn(new JProperty("userId", User.Id.ToString())),
-                                                                             CurrentUserId));
+                                        async update => await WriteToDatabaseFile(removeNotification_MessageType,
+                                                                                  update.ToJSON(false).AddFirstAndReturn(new JProperty("userId", User.Id.ToString())),
+                                                                                  EventTrackingId,
+                                                                                  CurrentUserId));
 
             }
             finally
@@ -18274,9 +20044,10 @@ namespace social.OpenData.UsersAPI
 
         #region RemoveNotification(UserId,         NotificationType, CurrentUserId = null)
 
-        public async Task RemoveNotification<T>(User_Id   UserId,
-                                                T         NotificationType,
-                                                User_Id?  CurrentUserId  = null)
+        public async Task RemoveNotification<T>(User_Id           UserId,
+                                                T                 NotificationType,
+                                                EventTracking_Id  EventTrackingId   = null,
+                                                User_Id?          CurrentUserId     = null)
 
             where T : ANotification
 
@@ -18291,9 +20062,10 @@ namespace social.OpenData.UsersAPI
                 {
 
                     User.RemoveNotification(NotificationType,
-                                            async update => await WriteToDatabaseFile(NotificationMessageType.Parse("removeNotification"),
-                                                                                 update.ToJSON(false).AddFirstAndReturn(new JProperty("userId", User.Id.ToString())),
-                                                                                 CurrentUserId));
+                                            async update => await WriteToDatabaseFile(removeNotification_MessageType,
+                                                                                      update.ToJSON(false).AddFirstAndReturn(new JProperty("userId", User.Id.ToString())),
+                                                                                      EventTrackingId,
+                                                                                      CurrentUserId));
 
                 }
 
@@ -18310,9 +20082,10 @@ namespace social.OpenData.UsersAPI
 
         #region RemoveNotification(Organization,   NotificationType, CurrentUserId = null)
 
-        public async Task RemoveNotification<T>(Organization  Organization,
-                                                T             NotificationType,
-                                                User_Id?      CurrentUserId  = null)
+        public async Task RemoveNotification<T>(Organization      Organization,
+                                                T                 NotificationType,
+                                                EventTracking_Id  EventTrackingId   = null,
+                                                User_Id?          CurrentUserId     = null)
 
             where T : ANotification
 
@@ -18324,9 +20097,10 @@ namespace social.OpenData.UsersAPI
                 await UsersSemaphore.WaitAsync();
 
                 Organization.RemoveNotification(NotificationType,
-                                                async update => await WriteToDatabaseFile(NotificationMessageType.Parse("removeNotification"),
-                                                                                     update.ToJSON(false).AddFirstAndReturn(new JProperty("organizationId", Organization.Id.ToString())),
-                                                                                     CurrentUserId));
+                                                async update => await WriteToDatabaseFile(removeNotification_MessageType,
+                                                                                          update.ToJSON(false).AddFirstAndReturn(new JProperty("organizationId", Organization.Id.ToString())),
+                                                                                          EventTrackingId,
+                                                                                          CurrentUserId));
 
             }
             finally
@@ -18340,9 +20114,10 @@ namespace social.OpenData.UsersAPI
 
         #region RemoveNotification(OrganizationId, NotificationType, CurrentUserId = null)
 
-        public async Task RemoveNotification<T>(Organization_Id  UserId,
-                                                T                NotificationType,
-                                                User_Id?         CurrentUserId  = null)
+        public async Task RemoveNotification<T>(Organization_Id   UserId,
+                                                T                 NotificationType,
+                                                EventTracking_Id  EventTrackingId   = null,
+                                                User_Id?          CurrentUserId     = null)
 
             where T : ANotification
 
@@ -18357,9 +20132,10 @@ namespace social.OpenData.UsersAPI
                 {
 
                     Organization.RemoveNotification(NotificationType,
-                                                    async update => await WriteToDatabaseFile(NotificationMessageType.Parse("removeNotification"),
-                                                                                         update.ToJSON(false).AddFirstAndReturn(new JProperty("organizationId", Organization.Id.ToString())),
-                                                                                         CurrentUserId));
+                                                    async update => await WriteToDatabaseFile(removeNotification_MessageType,
+                                                                                              update.ToJSON(false).AddFirstAndReturn(new JProperty("organizationId", Organization.Id.ToString())),
+                                                                                              EventTrackingId,
+                                                                                              CurrentUserId));
 
                 }
 
@@ -18537,9 +20313,10 @@ namespace social.OpenData.UsersAPI
                 Dashboard.API = this;
 
 
-                await WriteToDatabaseFile(NotificationMessageType.Parse("addDashboard"),
-                                     Dashboard.ToJSON(),
-                                     CurrentUserId);
+                await WriteToDatabaseFile(addDashboard_MessageType,
+                                          Dashboard.ToJSON(),
+                                          EventTracking_Id.New,
+                                          CurrentUserId);
 
                 var newDashboard = _Dashboards.AddAndReturnValue(Dashboard.Id, Dashboard);
 
@@ -18579,9 +20356,10 @@ namespace social.OpenData.UsersAPI
 
                 Dashboard.API = this;
 
-                await WriteToDatabaseFile(NotificationMessageType.Parse("addIfNotExistsDashboard"),
-                                     Dashboard.ToJSON(),
-                                     CurrentUserId);
+                await WriteToDatabaseFile(addDashboardIfNotExists_MessageType,
+                                          Dashboard.ToJSON(),
+                                          EventTracking_Id.New,
+                                          CurrentUserId);
 
                 var newDashboard = _Dashboards.AddAndReturnValue(Dashboard.Id, Dashboard);
 
@@ -18623,9 +20401,10 @@ namespace social.OpenData.UsersAPI
 
                 Dashboard.API = this;
 
-                await WriteToDatabaseFile(NotificationMessageType.Parse("addOrUpdateDashboard"),
-                                     Dashboard.ToJSON(),
-                                     CurrentUserId);
+                await WriteToDatabaseFile(addOrUpdateDashboard_MessageType,
+                                          Dashboard.ToJSON(),
+                                          EventTracking_Id.New,
+                                          CurrentUserId);
 
                 var newDashboard = _Dashboards.AddAndReturnValue(Dashboard.Id, Dashboard);
 
@@ -18674,9 +20453,10 @@ namespace social.OpenData.UsersAPI
 
                 Dashboard.API = this;
 
-                await WriteToDatabaseFile(NotificationMessageType.Parse("updateDashboard"),
-                                     Dashboard.ToJSON(),
-                                     CurrentUserId);
+                await WriteToDatabaseFile(updateDashboard_MessageType,
+                                          Dashboard.ToJSON(),
+                                          EventTracking_Id.New,
+                                          CurrentUserId);
 
                 Dashboard.CopyAllLinkedDataFrom(OldDashboard);
 
@@ -18720,9 +20500,10 @@ namespace social.OpenData.UsersAPI
                 UpdateDelegate(Builder);
                 var NewDashboard = Builder.ToImmutable;
 
-                await WriteToDatabaseFile(NotificationMessageType.Parse("updateDashboard"),
-                                     NewDashboard.ToJSON(),
-                                     CurrentUserId);
+                await WriteToDatabaseFile(updateDashboard_MessageType,
+                                          NewDashboard.ToJSON(),
+                                          EventTracking_Id.New,
+                                          CurrentUserId);
 
                 NewDashboard.API = this;
 
@@ -18887,9 +20668,10 @@ namespace social.OpenData.UsersAPI
                 if (_Dashboards.TryGetValue(DashboardId, out Dashboard Dashboard))
                 {
 
-                    await WriteToDatabaseFile(NotificationMessageType.Parse("removeDashboard"),
-                                         Dashboard.ToJSON(),
-                                         CurrentUserId);
+                    await WriteToDatabaseFile(removeDashboard_MessageType,
+                                              Dashboard.ToJSON(),
+                                              EventTracking_Id.New,
+                                              CurrentUserId);
 
                     _Dashboards.Remove(DashboardId);
 
@@ -18979,6 +20761,7 @@ namespace social.OpenData.UsersAPI
 
             await WriteToDatabaseFile(MessageType,
                                       Organization.ToJSON(false, true),
+                                      EventTracking_Id.New,
                                       CurrentUserId);
 
             await SendNotifications(Organization,
@@ -19422,7 +21205,7 @@ namespace social.OpenData.UsersAPI
                 // Check Admin!
                 if (CurrentUserId.HasValue)
                 {
-                    if (!(await GetUser(CurrentUserId.Value)).
+                    if (!(GetUser(CurrentUserId.Value)).
                              Organizations(Access_Levels.ReadWrite, true).
                              Contains(ParentOrganization))
                     {
@@ -19435,6 +21218,7 @@ namespace social.OpenData.UsersAPI
                 // therefore notifications do not work here now!
                 await WriteToDatabaseFile(addOrganization_MessageType,
                                           Organization.ToJSON(false, true),
+                                          EventTracking_Id.New,
                                           CurrentUserId);
 
                 var newOrganization = _Organizations.AddAndReturnValue(Organization.Id, Organization);
@@ -20136,6 +21920,7 @@ namespace social.OpenData.UsersAPI
 
                         await WriteToDatabaseFile(removeOrganization_MessageType,
                                                   organization.ToJSON(false, true),
+                                                  EventTracking_Id.New,
                                                   CurrentUserId);
 
                         _Organizations.Remove(OrganizationId);
@@ -20260,9 +22045,10 @@ namespace social.OpenData.UsersAPI
                                       Description);
 
                 if (OrganizationGroup.Id.ToString() != AdminGroupName)
-                    await WriteToDatabaseFile(NotificationMessageType.Parse("createOrganizationGroup"),
-                                         OrganizationGroup.ToJSON(),
-                                         CurrentUserId);
+                    await WriteToDatabaseFile(addOrganizationGroup_MessageType,
+                                              OrganizationGroup.ToJSON(),
+                                              EventTracking_Id.New,
+                                              CurrentUserId);
 
                 return _OrganizationGroups.AddAndReturnValue(OrganizationGroup.Id, OrganizationGroup);
 
@@ -20297,9 +22083,10 @@ namespace social.OpenData.UsersAPI
                                       Description);
 
                 if (OrganizationGroup.Id.ToString() != AdminGroupName)
-                    await WriteToDatabaseFile(NotificationMessageType.Parse("createOrganizationGroup"),
-                                         OrganizationGroup.ToJSON(),
-                                         CurrentUserId);
+                    await WriteToDatabaseFile(addOrganizationGroup_MessageType,
+                                              OrganizationGroup.ToJSON(),
+                                              EventTracking_Id.New,
+                                              CurrentUserId);
 
                 return _OrganizationGroups.AddAndReturnValue(OrganizationGroup.Id, OrganizationGroup);
 
@@ -20712,12 +22499,13 @@ namespace social.OpenData.UsersAPI
         #endregion
 
 
-        #region (protected) SendNotifications(Organization, User, MessageType, CurrentUserId = null)
+        #region (protected) SendNotifications      (Organization, User, MessageType, CurrentUserId = null)
 
         protected async Task SendNotifications<TOrganization, TUser>(TOrganization            Organization,
                                                                      TUser                    User,
                                                                      NotificationMessageType  MessageType,
-                                                                     User_Id?                 CurrentUserId    = null)
+                                                                     EventTracking_Id         EventTrackingId   = null,
+                                                                     User_Id?                 CurrentUserId     = null)
 
             where TOrganization : Organization
             where TUser:          User
@@ -20965,33 +22753,40 @@ namespace social.OpenData.UsersAPI
         #endregion
 
 
-        #region (protected) _AddToOrganization(User, EdgeLabel, Organization, CurrentUserId  = null)
+        #region (protected) _AddToOrganization     (User, EdgeLabel, Organization, CurrentUserId  = null)
 
         protected async Task<Boolean> _AddToOrganization(User                        User,
                                                          User2OrganizationEdgeTypes  EdgeLabel,
                                                          Organization                Organization,
-                                                         User_Id?                    CurrentUserId  = null)
+                                                         EventTracking_Id            EventTrackingId   = null,
+                                                         User_Id?                    CurrentUserId     = null)
         {
 
             if (!User.EdgeLabels(Organization).Any(edge => edge == EdgeLabel))
             {
+
+                var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
+
+                await WriteToDatabaseFile(addUserToOrganization_MessageType,
+                                          new JObject(
+                                              new JProperty("user",         User.        Id.ToString()),
+                                              new JProperty("edge",         EdgeLabel.      ToString()),
+                                              new JProperty("organization", Organization.Id.ToString())
+                                          ),
+                                          eventTrackingId,
+                                          CurrentUserId);
+
 
                 var edge = User.AddOutgoingEdge(EdgeLabel, Organization);
 
                 if (!Organization.User2OrganizationInEdgeLabels(User).Any(edgelabel => edgelabel == EdgeLabel))
                     Organization.LinkUser(edge);
 
-                await WriteToDatabaseFile(addUserToOrganization_MessageType,
-                                          new JObject(
-                                              new JProperty("user",          User.        Id.ToString()),
-                                              new JProperty("edge",          EdgeLabel.      ToString()),
-                                              new JProperty("organization",  Organization.Id.ToString())
-                                          ),
-                                          CurrentUserId);
 
                 await SendNotifications(Organization,
                                         User,
                                         addUserToOrganization_MessageType,
+                                        eventTrackingId,
                                         CurrentUserId);
 
                 return true;
@@ -21004,12 +22799,13 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
-        #region AddToOrganization(User, EdgeLabel, Organization, CurrentUserId  = null)
+        #region AddToOrganization                  (User, EdgeLabel, Organization, CurrentUserId  = null)
 
         public async Task<Boolean> AddToOrganization(User                        User,
                                                      User2OrganizationEdgeTypes  Edge,
                                                      Organization                Organization,
-                                                     User_Id?                    CurrentUserId  = null)
+                                                     EventTracking_Id            EventTrackingId   = null,
+                                                     User_Id?                    CurrentUserId     = null)
         {
 
             try
@@ -21021,6 +22817,7 @@ namespace social.OpenData.UsersAPI
                 return await _AddToOrganization(User,
                                                 Edge,
                                                 Organization,
+                                                EventTrackingId,
                                                 CurrentUserId);
 
             }
@@ -21040,8 +22837,21 @@ namespace social.OpenData.UsersAPI
         protected async Task<Boolean> _RemoveFromOrganization(User                        User,
                                                               User2OrganizationEdgeTypes  EdgeLabel,
                                                               Organization                Organization,
-                                                              User_Id?                    CurrentUserId  = null)
+                                                              EventTracking_Id            EventTrackingId   = null,
+                                                              User_Id?                    CurrentUserId     = null)
         {
+
+            var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
+
+            await WriteToDatabaseFile(addUserToOrganization_MessageType,
+                                      new JObject(
+                                          new JProperty("user",         User.        Id.ToString()),
+                                          new JProperty("edge",         EdgeLabel.      ToString()),
+                                          new JProperty("organization", Organization.Id.ToString())
+                                      ),
+                                      eventTrackingId,
+                                      CurrentUserId);
+
 
             var edges = new List<User2OrganizationEdgeTypes>();
 
@@ -21051,17 +22861,11 @@ namespace social.OpenData.UsersAPI
             foreach (var edge in Organization.User2OrganizationInEdges(User).Where(_edge => _edge.EdgeLabel == EdgeLabel))
                 Organization.UnlinkUser(edge.EdgeLabel, User);
 
-            await WriteToDatabaseFile(addUserToOrganization_MessageType,
-                                      new JObject(
-                                          new JProperty("user", User.Id.ToString()),
-                                          new JProperty("edge", EdgeLabel.ToString()),
-                                          new JProperty("organization", Organization.Id.ToString())
-                                      ),
-                                      CurrentUserId);
 
             await SendNotifications(Organization,
                                     User,
                                     removeUserFromOrganization_MessageType,
+                                    eventTrackingId,
                                     CurrentUserId);
 
             return true;
@@ -21070,12 +22874,13 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
-        #region RemoveFromOrganization(User, EdgeLabel, Organization, CurrentUserId = null)
+        #region RemoveFromOrganization             (User, EdgeLabel, Organization, CurrentUserId = null)
 
         public async Task<Boolean> RemoveFromOrganization(User                        User,
                                                           User2OrganizationEdgeTypes  Edge,
                                                           Organization                Organization,
-                                                          User_Id?                    CurrentUserId  = null)
+                                                          EventTracking_Id            EventTrackingId   = null,
+                                                          User_Id?                    CurrentUserId     = null)
         {
 
             try
@@ -21087,6 +22892,7 @@ namespace social.OpenData.UsersAPI
                 return await _RemoveFromOrganization(User,
                                                      Edge,
                                                      Organization,
+                                                     EventTrackingId,
                                                      CurrentUserId);
 
             }
@@ -21104,12 +22910,13 @@ namespace social.OpenData.UsersAPI
 
         #region Organizations <> Organizations
 
-        #region (protected) SendNotifications(OrganizationOut, OrganizationIn, MessageType, CurrentUserId = null)
+        #region (protected) SendNotifications   (OrganizationOut, OrganizationIn, MessageType, CurrentUserId = null)
 
         protected async Task SendNotifications<TOrganization>(TOrganization            OrganizationOut,
                                                               TOrganization            OrganizationIn,
                                                               NotificationMessageType  MessageType,
-                                                              User_Id?                 CurrentUserId    = null)
+                                                              EventTracking_Id         EventTrackingId   = null,
+                                                              User_Id?                 CurrentUserId     = null)
 
             where TOrganization : Organization
 
@@ -21351,13 +23158,13 @@ namespace social.OpenData.UsersAPI
         #endregion
 
 
-        #region (protected) _LinkOrganizations  (OrganizationOut, EdgeLabel, OrganizationIn, Privacy = Public, CurrentUserId = null)
+        #region (protected) _LinkOrganizations  (OrganizationOut, EdgeLabel, OrganizationIn, EventTrackingId = null, CurrentUserId = null)
 
         protected async Task<Boolean> _LinkOrganizations(Organization                        OrganizationOut,
                                                          Organization2OrganizationEdgeTypes  EdgeLabel,
                                                          Organization                        OrganizationIn,
-                                                         PrivacyLevel                        Privacy        = PrivacyLevel.World,
-                                                         User_Id?                            CurrentUserId  = null)
+                                                         EventTracking_Id                    EventTrackingId   = null,
+                                                         User_Id?                            CurrentUserId     = null)
         {
 
                 if (!OrganizationOut.
@@ -21366,28 +23173,31 @@ namespace social.OpenData.UsersAPI
                         Any  (edge => edge.EdgeLabel == EdgeLabel))
                 {
 
-                    OrganizationOut.AddOutEdge(EdgeLabel, OrganizationIn, Privacy);
+                    var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
+
+                    await WriteToDatabaseFile(linkOrganizations_MessageType,
+                                              new JObject(
+                                                  new JProperty("organizationOut", OrganizationOut.Id.ToString()),
+                                                  new JProperty("edge",            EdgeLabel.         ToString()),
+                                                  new JProperty("organizationIn",  OrganizationIn. Id.ToString())
+                                              ),
+                                              EventTrackingId,
+                                              CurrentUserId);
+
+                    OrganizationOut.AddOutEdge(EdgeLabel, OrganizationIn);
 
                     if (!OrganizationIn.
                             Organization2OrganizationInEdges.
                             Where(edge => edge.Source    == OrganizationOut).
                             Any  (edge => edge.EdgeLabel == EdgeLabel))
                     {
-                        OrganizationIn.AddInEdge(EdgeLabel, OrganizationOut, Privacy);
+                        OrganizationIn.AddInEdge(EdgeLabel, OrganizationOut);
                     }
-
-                    await WriteToDatabaseFile(linkOrganizations_MessageType,
-                                              new JObject(
-                                                  new JProperty("organizationOut", OrganizationOut.Id.ToString()),
-                                                  new JProperty("edge",            EdgeLabel.         ToString()),
-                                                  new JProperty("organizationIn",  OrganizationIn. Id.ToString()),
-                                                  Privacy.ToJSON()
-                                              ),
-                                              CurrentUserId);
 
                     await SendNotifications(OrganizationOut,
                                             OrganizationIn,
                                             linkOrganizations_MessageType,
+                                            eventTrackingId,
                                             CurrentUserId);
 
                     return true;
@@ -21400,13 +23210,13 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
-        #region LinkOrganizations  (OrganizationOut, EdgeLabel, OrganizationIn, Privacy = Public, CurrentUserId = null)
+        #region LinkOrganizations               (OrganizationOut, EdgeLabel, OrganizationIn, EventTrackingId = null, CurrentUserId = null)
 
         public async Task<Boolean> LinkOrganizations(Organization                        OrganizationOut,
                                                      Organization2OrganizationEdgeTypes  EdgeLabel,
                                                      Organization                        OrganizationIn,
-                                                     PrivacyLevel                        Privacy        = PrivacyLevel.World,
-                                                     User_Id?                            CurrentUserId  = null)
+                                                     EventTracking_Id                    EventTrackingId   = null,
+                                                     User_Id?                            CurrentUserId     = null)
         {
 
             try
@@ -21417,7 +23227,7 @@ namespace social.OpenData.UsersAPI
                 return await _LinkOrganizations(OrganizationOut,
                                                 EdgeLabel,
                                                 OrganizationIn,
-                                                Privacy,
+                                                EventTrackingId,
                                                 CurrentUserId);
 
             }
@@ -21431,12 +23241,13 @@ namespace social.OpenData.UsersAPI
         #endregion
 
 
-        #region (protected) _UnlinkOrganizations(OrganizationOut, EdgeLabel, OrganizationIn,                   CurrentUserId = null)
+        #region (protected) _UnlinkOrganizations(OrganizationOut, EdgeLabel, OrganizationIn, CurrentUserId = null)
 
         protected async Task<Boolean> _UnlinkOrganizations(Organization                        OrganizationOut,
                                                            Organization2OrganizationEdgeTypes  EdgeLabel,
                                                            Organization                        OrganizationIn,
-                                                           User_Id?                            CurrentUserId  = null)
+                                                           EventTracking_Id                    EventTrackingId   = null,
+                                                           User_Id?                            CurrentUserId     = null)
         {
 
             if (OrganizationOut.
@@ -21444,6 +23255,17 @@ namespace social.OpenData.UsersAPI
                     Where(edge => edge.Target    == OrganizationIn).
                     Any  (edge => edge.EdgeLabel == EdgeLabel))
             {
+
+                var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
+
+                await WriteToDatabaseFile(unlinkOrganizations_MessageType,
+                                          new JObject(
+                                              new JProperty("organizationOut", OrganizationOut.Id.ToString()),
+                                              new JProperty("edge",            EdgeLabel.         ToString()),
+                                              new JProperty("organizationIn",  OrganizationIn. Id.ToString())
+                                          ),
+                                          eventTrackingId,
+                                          CurrentUserId);
 
                 OrganizationOut.RemoveOutEdges(EdgeLabel, OrganizationIn);
 
@@ -21455,17 +23277,10 @@ namespace social.OpenData.UsersAPI
                     OrganizationIn.RemoveInEdges(EdgeLabel, OrganizationOut);
                 }
 
-                await WriteToDatabaseFile(unlinkOrganizations_MessageType,
-                                          new JObject(
-                                              new JProperty("organizationOut", OrganizationOut.Id.ToString()),
-                                              new JProperty("edge",            EdgeLabel.         ToString()),
-                                              new JProperty("organizationIn",  OrganizationIn. Id.ToString())
-                                          ),
-                                          CurrentUserId);
-
                 await SendNotifications(OrganizationOut,
+                                        OrganizationIn,
                                         unlinkOrganizations_MessageType,
-                                        null,
+                                        eventTrackingId,
                                         CurrentUserId);
 
                 return true;
@@ -21478,12 +23293,13 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
-        #region UnlinkOrganizations(OrganizationOut, EdgeLabel, OrganizationIn,                   CurrentUserId = null)
+        #region UnlinkOrganizations             (OrganizationOut, EdgeLabel, OrganizationIn, CurrentUserId = null)
 
         public async Task<Boolean> UnlinkOrganizations(Organization                        OrganizationOut,
                                                        Organization2OrganizationEdgeTypes  EdgeLabel,
                                                        Organization                        OrganizationIn,
-                                                       User_Id?                            CurrentUserId  = null)
+                                                       EventTracking_Id                    EventTrackingId   = null,
+                                                       User_Id?                            CurrentUserId     = null)
         {
 
             try
@@ -21494,6 +23310,7 @@ namespace social.OpenData.UsersAPI
                 return await _UnlinkOrganizations(OrganizationOut,
                                                   EdgeLabel,
                                                   OrganizationIn,
+                                                  EventTrackingId,
                                                   CurrentUserId);
 
             }
@@ -21508,34 +23325,6 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
-
-        #region (protected) GetBlogPostingSerializator      (Request, User)
-
-        protected BlogPostingToJSONDelegate GetBlogPostingSerializator(HTTPRequest  Request,
-                                                                       User         User)
-        {
-
-            switch (User?.Id.ToString())
-            {
-
-                //case __issapi:
-                //    return ISSNotificationExtentions.ToISSJSON;
-
-                default:
-                    return (BlogPosting,
-                            Embedded,
-                            ExpandTags,
-                            IncludeCryptoHash)
-
-                            => BlogPosting.ToJSON(Embedded,
-                                                  ExpandTags,
-                                                  IncludeCryptoHash);
-
-            }
-
-        }
-
-        #endregion
 
         #region ServiceTickets
 
@@ -21570,8 +23359,9 @@ namespace social.OpenData.UsersAPI
 
         public async Task WriteToLogfileAndNotify<TServiceTicket>(TServiceTicket           ServiceTicket,
                                                                   NotificationMessageType  MessageType,
-                                                                  TServiceTicket           OldServiceTicket  = null,
-                                                                  User_Id?                 CurrentUserId     = null)
+                                                                  TServiceTicket           OldServiceTicket   = null,
+                                                                  EventTracking_Id         EventTrackingId    = null,
+                                                                  User_Id?                 CurrentUserId      = null)
 
             where TServiceTicket : ServiceTicket
 
@@ -21583,6 +23373,7 @@ namespace social.OpenData.UsersAPI
             await WriteToDatabaseFile(MessageType,
                                       ServiceTicket.ToJSON(),
                                       DatabaseFileName,
+                                      EventTrackingId,
                                       CurrentUserId);
 
 
@@ -21823,8 +23614,9 @@ namespace social.OpenData.UsersAPI
         /// <param name="AfterAddition">A delegate to call after the service ticket was added to the API.</param>
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
         public async Task<TServiceTicket> AddServiceTicket<TServiceTicket>(TServiceTicket          ServiceTicket,
-                                                                           Action<TServiceTicket>  AfterAddition  = null,
-                                                                           User_Id?                CurrentUserId  = null)
+                                                                           Action<TServiceTicket>  AfterAddition     = null,
+                                                                           EventTracking_Id        EventTrackingId   = null,
+                                                                           User_Id?                CurrentUserId     = null)
 
             where TServiceTicket : ServiceTicket
 
@@ -21977,6 +23769,7 @@ namespace social.OpenData.UsersAPI
                 await WriteToLogfileAndNotify(ServiceTicket,
                                               addOrUpdateServiceTicket_MessageType,
                                               OldServiceTicket,
+                                              EventTracking_Id.New,
                                               CurrentUserId);
 
                 _ServiceTickets.AddOrUpdate(ServiceTicket.Id,
@@ -22060,6 +23853,7 @@ namespace social.OpenData.UsersAPI
                 await WriteToLogfileAndNotify(ServiceTicket,
                                               updateServiceTicket_MessageType,
                                               OldServiceTicket,
+                                              EventTracking_Id.New,
                                               CurrentUserId);
 
                 //if (ServiceTicket.API == null)
@@ -22157,6 +23951,7 @@ namespace social.OpenData.UsersAPI
                 await WriteToLogfileAndNotify(ServiceTicket,
                                               updateServiceTicket_MessageType,
                                               castedOldServiceTicket,
+                                              EventTracking_Id.New,
                                               CurrentUserId);
 
                 _ServiceTickets.TryRemove(OldServiceTicket.Id, out ServiceTicket RemovedServiceTicket);
@@ -22367,6 +24162,38 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
+        #region BlogPostings
+
+        #region (protected) GetBlogPostingSerializator      (Request, User)
+
+        protected BlogPostingToJSONDelegate GetBlogPostingSerializator(HTTPRequest  Request,
+                                                                       User         User)
+        {
+
+            switch (User?.Id.ToString())
+            {
+
+                //case __issapi:
+                //    return ISSNotificationExtentions.ToISSJSON;
+
+                default:
+                    return (BlogPosting,
+                            Embedded,
+                            ExpandTags,
+                            IncludeCryptoHash)
+
+                            => BlogPosting.ToJSON(Embedded,
+                                                  ExpandTags,
+                                                  IncludeCryptoHash);
+
+            }
+
+        }
+
+        #endregion
+
+        #endregion
+
         #region NewsPostings
 
         #region Data
@@ -22437,6 +24264,7 @@ namespace social.OpenData.UsersAPI
 
             await WriteToDatabaseFile(MessageType,
                                       NewsPosting.ToJSON(Embedded: false),
+                                      EventTracking_Id.New,
                                       CurrentUserId);
 
             //base.WriteToLogfileAndNotify(NotificationMessageType.Parse("News." + MessageType),
@@ -22914,6 +24742,7 @@ namespace social.OpenData.UsersAPI
 
             await WriteToDatabaseFile(MessageType,
                                       NewsBanner.ToJSON(Embedded: false),
+                                      EventTracking_Id.New,
                                       CurrentUserId);
 
             //base.WriteToLogfileAndNotify(NotificationMessageType.Parse("News." + MessageType),
@@ -23386,6 +25215,7 @@ namespace social.OpenData.UsersAPI
 
             await WriteToDatabaseFile(MessageType,
                                       FAQ.ToJSON(Embedded: false),
+                                      EventTracking_Id.New,
                                       CurrentUserId);
 
             // Add notifications here!
@@ -23802,8 +25632,9 @@ namespace social.OpenData.UsersAPI
                                                   URLs);
 
                 WriteToDatabaseFile(NotificationMessageType.Parse("createDataLicense"),
-                               DataLicense.ToJSON(),
-                               Robot.Id);
+                                    DataLicense.ToJSON(),
+                                    EventTracking_Id.New,
+                                    Robot.Id);
 
                 return _DataLicenses.AddAndReturnValue(DataLicense.Id, DataLicense);
 
