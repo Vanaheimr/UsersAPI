@@ -921,6 +921,7 @@ namespace social.OpenData.UsersAPI
         public  const             Byte                                          DefaultMinUserNameLength        = 4;
         public  static readonly   PasswordQualityCheckDelegate                  DefaultPasswordQualityCheck     = password => password.Length >= 8 ? 1.0f : 0;
         public  const             Byte                                          DefaultMinUserGroupIdLength     = 4;
+        public  const             Byte                                          DefaultMinNewsPostingIdLength   = 8;
         public  const             UInt16                                        DefaultMinAPIKeyLength          = 20;
 
         public  static readonly   TimeSpan                                      DefaultSignInSessionLifetime    = TimeSpan.FromDays(30);
@@ -958,14 +959,14 @@ namespace social.OpenData.UsersAPI
         /// <summary>
         /// All HTTP cookies.
         /// </summary>
-        protected readonly        Dictionary<SecurityToken_Id, SecurityToken>   HTTPCookies;
+        protected readonly        Dictionary<SecurityToken_Id, SecurityToken>   _HTTPCookies;
 
         public  const             String                                        HTTPCookieDomain                = "";
 
         /// <summary>
         /// All password resets.
         /// </summary>
-        protected readonly        Dictionary<SecurityToken_Id, PasswordReset>   PasswordResets;
+        protected readonly        Dictionary<SecurityToken_Id, PasswordReset>   _PasswordResets;
 
 
         protected static readonly String[]  Split1  = { "\r\n" };
@@ -1059,25 +1060,7 @@ namespace social.OpenData.UsersAPI
         public TelegramStore                 TelegramStore                      { get; }
 
 
-        #region DNSClient
-
-        protected readonly DNSClient _DNSClient = null;
-
-        /// <summary>
-        /// The DNS resolver to use.
-        /// </summary>
-        public DNSClient DNSClient
-        {
-            get
-            {
-                return _DNSClient;
-            }
-        }
-
-        #endregion
-
-
-        public UserGroup                     Admins                             { get; }
+        public UserGroup                     AdminUserGroup                             { get; }
 
         public HTTPCookieName                CookieName                         { get; }
 
@@ -1127,6 +1110,10 @@ namespace social.OpenData.UsersAPI
         /// </summary>
         public UInt16                        MinAPIKeyLength                    { get; }
 
+        /// <summary>
+        /// The minimal news posting identification length.
+        /// </summary>
+        public Byte                          MinNewsPostingIdLength             { get; }
 
 
         /// <summary>
@@ -1153,11 +1140,14 @@ namespace social.OpenData.UsersAPI
 
         public Warden                        Warden                             { get; }
 
-        public List<BlogPosting>             BlogPostings                       { get; }
-
         public ECPrivateKeyParameters        ServiceCheckPrivateKey             { get; set; }
 
         public ECPublicKeyParameters         ServiceCheckPublicKey              { get; set; }
+
+        /// <summary>
+        /// The DNS resolver to use.
+        /// </summary>
+        public DNSClient                     DNSClient                          { get; }
 
         #endregion
 
@@ -2016,6 +2006,7 @@ namespace social.OpenData.UsersAPI
                         PasswordQualityCheckDelegate         PasswordQualityCheck               = null,
                         Byte?                                MinUserGroupIdLength               = null,
                         UInt16?                              MinAPIKeyLength                    = null,
+                        Byte?                                MinNewsPostingIdLength             = null,
                         TimeSpan?                            SignInSessionLifetime              = null,
 
                         String                               ServerThreadName                   = null,
@@ -2092,6 +2083,7 @@ namespace social.OpenData.UsersAPI
                    PasswordQualityCheck,
                    MinUserGroupIdLength,
                    MinAPIKeyLength,
+                   MinNewsPostingIdLength,
                    SignInSessionLifetime,
 
                    MaintenanceEvery,
@@ -2184,6 +2176,7 @@ namespace social.OpenData.UsersAPI
                            PasswordQualityCheckDelegate         PasswordQualityCheck          = null,
                            Byte?                                MinUserGroupIdLength          = null,
                            UInt16?                              MinAPIKeyLength               = null,
+                           Byte?                                MinNewsPostingIdLength        = null,
                            TimeSpan?                            SignInSessionLifetime         = null,
 
                            TimeSpan?                            MaintenanceEvery              = null,
@@ -2212,8 +2205,11 @@ namespace social.OpenData.UsersAPI
 
             #region Inital checks
 
+            if (HTTPServer is null)
+                throw new ArgumentNullException(nameof(HTTPServer),       "The given HTTP server must not be null!");
+
             if (APIEMailAddress is null)
-                throw new ArgumentNullException(nameof(APIEMailAddress), "The given API e-mail address must not be null!");
+                throw new ArgumentNullException(nameof(APIEMailAddress),  "The given API e-mail address must not be null!");
 
             #endregion
 
@@ -2264,53 +2260,35 @@ namespace social.OpenData.UsersAPI
             this.PasswordQualityCheck         = PasswordQualityCheck        ?? DefaultPasswordQualityCheck;
             this.MinAPIKeyLength              = MinAPIKeyLength             ?? DefaultMinAPIKeyLength;
             this.MinUserGroupIdLength         = MinUserGroupIdLength        ?? DefaultMinUserGroupIdLength;
+            this.MinNewsPostingIdLength       = MinNewsPostingIdLength      ?? DefaultMinNewsPostingIdLength;
             this.SignInSessionLifetime        = SignInSessionLifetime       ?? DefaultSignInSessionLifetime;
 
             this._DataLicenses                = new Dictionary<DataLicense_Id,             DataLicense>();
             this._Users                       = new Dictionary<User_Id,                    User>();
+            this._LoginPasswords              = new Dictionary<User_Id,                    LoginPassword>();
+            this._PasswordResets              = new Dictionary<SecurityToken_Id,           PasswordReset>();
+            this._HTTPCookies                 = new Dictionary<SecurityToken_Id,           SecurityToken>();
+            this._APIKeys                     = new Dictionary<APIKey,                     APIKeyInfo>();
+            this._Messages                    = new Dictionary<Message_Id,                 Message>();
             this._UserGroups                  = new Dictionary<UserGroup_Id,               UserGroup>();
             this._Organizations               = new Dictionary<Organization_Id,            Organization>();
             this._OrganizationGroups          = new Dictionary<OrganizationGroup_Id,       OrganizationGroup>();
-            this._Messages                    = new Dictionary<Message_Id,                 Message>();
             this._ServiceTickets              = new ConcurrentDictionary<ServiceTicket_Id, ServiceTicket>();
             this._NewsPostings                = new Dictionary<NewsPosting_Id,             NewsPosting>();
             this._NewsBanners                 = new Dictionary<NewsBanner_Id,              NewsBanner>();
             this._FAQs                        = new Dictionary<FAQ_Id,                     FAQ>();
 
-            this._LoginPasswords              = new Dictionary<User_Id,                    LoginPassword>();
             this._VerificationTokens          = new List<VerificationToken>();
-
-            this._DNSClient                   = HTTPServer.DNSClient;
-
-            this.HTTPCookies                  = new Dictionary<SecurityToken_Id, SecurityToken>();
-            this.PasswordResets               = new Dictionary<SecurityToken_Id, PasswordReset>();
 
             this.DisableNotifications         = DisableNotifications;
             this.DisableLogfile               = DisableLogfile;
             this.LogfileName                  = this.UsersAPIPath + (LogfileName ?? DefaultUsersAPI_LogfileName);
 
-            this._APIKeys                     = new Dictionary<APIKey, APIKeyInfo>();
-
             //this._NotificationMessages        = new Queue<NotificationMessage>();
 
-            this.DisableMaintenanceTasks      = DisableMaintenanceTasks;
-            this.MaintenanceEvery             = MaintenanceEvery ?? DefaultMaintenanceEvery;
-            this.MaintenanceTimer             = new Timer(DoMaintenance,
-                                                          null,
-                                                          this.MaintenanceEvery,
-                                                          this.MaintenanceEvery);
+            this.DNSClient                    = HTTPServer.DNSClient;
 
             #endregion
-
-            this.Admins  = AddUserGroupIfNotExists(
-                               new UserGroup(
-                                   UserGroup_Id.Parse(AdminGroupName),
-                                   I18NString.Create(Languages.en, AdminGroupName),
-                                   I18NString.Create(Languages.en, "All admins of this API.")
-                               ),
-                               null,
-                               EventTracking_Id.New,
-                               Robot.Id).Result;
 
             #region Reflect data licenses
 
@@ -2328,11 +2306,29 @@ namespace social.OpenData.UsersAPI
 
             #endregion
 
+
             ReadUsersAPIDatabaseFiles().Wait();
 
-            NoOwner                           = new Organization(Organization_Id.Parse("NoOwner"),
+            #region Create default organizations/user groups
+
+            this.AdminUserGroup               = AddUserGroupIfNotExists(
+                                                    new UserGroup(
+                                                        UserGroup_Id.Parse(AdminGroupName),
+                                                        I18NString.Create(Languages.en, AdminGroupName),
+                                                        I18NString.Create(Languages.en, "All admins of this API.")
+                                                    ),
+                                                    null,
+                                                    EventTracking_Id.New,
+                                                    Robot.Id).Result;
+
+            this.NoOwner                      = new Organization(Organization_Id.Parse("NoOwner"),
                                                                  I18NString.Create(Languages.en, "No owner"));
+
             _Organizations.Add(NoOwner.Id, NoOwner);
+
+            #endregion
+
+            #region Setup SMSAPI
 
             if (SMSAPICredentials != null)
             {
@@ -2340,8 +2336,6 @@ namespace social.OpenData.UsersAPI
                 this.SMSSenderName            = SMSSenderName;
                 this.APIAdminSMS              = APIAdminSMS;
             }
-
-            #region Setup SMSAPI logging
 
             if (SMSAPICredentials != null && !DisableLogfile)
             {
@@ -2523,12 +2517,22 @@ namespace social.OpenData.UsersAPI
 
             #endregion
 
+            #region Setup Maintenance Task
+
+            this.DisableMaintenanceTasks      = DisableMaintenanceTasks;
+            this.MaintenanceEvery             = MaintenanceEvery ?? DefaultMaintenanceEvery;
+            this.MaintenanceTimer             = new Timer(DoMaintenance,
+                                                          null,
+                                                          this.MaintenanceEvery,
+                                                          this.MaintenanceEvery);
+
+            #endregion
+
+            #region Setup Warden
+
             this.Warden = new Warden(WardenInitialDelay ?? TimeSpan.FromMinutes(3),
                                      WardenCheckEvery   ?? TimeSpan.FromMinutes(1),
                                      DNSClient);
-
-            this.BlogPostings = new List<BlogPosting>();
-
 
             #region Observe CPU/RAM
 
@@ -2607,13 +2611,14 @@ namespace social.OpenData.UsersAPI
 
             #endregion
 
+            #endregion
 
             RegisterNotifications().Wait();
 
             if (!SkipURLTemplates)
                 RegisterURLTemplates();
 
-            DebugX.Log("UsersAPI started...");
+            DebugX.Log("UsersAPI version '" + this.APIVersionHash + "' started...");
 
         }
 
@@ -3468,6 +3473,7 @@ namespace social.OpenData.UsersAPI
                                                PasswordQualityCheckDelegate         PasswordQualityCheck          = null,
                                                Byte?                                MinUserGroupIdLength          = null,
                                                UInt16?                              MinAPIKeyLength               = null,
+                                               Byte?                                MinNewsPostingIdLength        = null,
                                                TimeSpan?                            SignInSessionLifetime         = null,
 
                                                TimeSpan?                            MaintenanceEvery              = null,
@@ -3510,6 +3516,7 @@ namespace social.OpenData.UsersAPI
                             PasswordQualityCheck,
                             MinUserGroupIdLength,
                             MinAPIKeyLength,
+                            MinNewsPostingIdLength,
                             SignInSessionLifetime,
 
                             MaintenanceEvery,
@@ -3711,7 +3718,7 @@ namespace social.OpenData.UsersAPI
             if (Request.Cookies != null                                                                             &&
                 Request.Cookies. TryGet     (SessionCookieName,           out HTTPCookie       Cookie)              &&
                 SecurityToken_Id.TryParse   (Cookie.FirstOrDefault().Key, out SecurityToken_Id SecurityTokenId)     &&
-                HTTPCookies.     TryGetValue(SecurityTokenId,             out SecurityToken    SecurityInformation) &&
+                _HTTPCookies.     TryGetValue(SecurityTokenId,             out SecurityToken    SecurityInformation) &&
                 DateTime.UtcNow < SecurityInformation.Expires                                                       &&
                 TryGetUser(SecurityInformation.UserId, out User))
             {
@@ -3806,7 +3813,7 @@ namespace social.OpenData.UsersAPI
             if (Request.Cookies != null                                                                             &&
                 Request.Cookies. TryGet     (SessionCookieName,           out HTTPCookie       Cookie)              &&
                 SecurityToken_Id.TryParse   (Cookie.FirstOrDefault().Key, out SecurityToken_Id SecurityTokenId)     &&
-                HTTPCookies.     TryGetValue(SecurityTokenId,             out SecurityToken    SecurityInformation) &&
+                _HTTPCookies.     TryGetValue(SecurityTokenId,             out SecurityToken    SecurityInformation) &&
                 DateTime.UtcNow < SecurityInformation.Expires                                                       &&
                 TryGetUser(SecurityInformation.Astronaut ?? SecurityInformation.UserId, out User))
             {
@@ -3930,7 +3937,7 @@ namespace social.OpenData.UsersAPI
                 if (Request.HTTPSource.IPAddress.IsIPv4 &&
                     Request.HTTPSource.IPAddress.IsLocalhost)
                 {
-                    User           = Admins.User2GroupInEdges(edgelabel => edgelabel == User2GroupEdgeTypes.IsAdmin).FirstOrDefault()?.Source;
+                    User           = AdminUserGroup.User2GroupInEdges(edgelabel => edgelabel == User2GroupEdgeTypes.IsAdmin).FirstOrDefault()?.Source;
                     Organizations  = new HashSet<Organization>(User.Organizations(AccessLevel, Recursive));
                     return;
                 }
@@ -4663,10 +4670,10 @@ namespace social.OpenData.UsersAPI
 
                                               var Expires          = DateTime.UtcNow.Add(SignInSessionLifetime);
 
-                                              lock (HTTPCookies)
+                                              lock (_HTTPCookies)
                                               {
 
-                                                  HTTPCookies.Add(SecurityTokenId,
+                                                  _HTTPCookies.Add(SecurityTokenId,
                                                                   new SecurityToken(validUser.Id,
                                                                                     Expires));
 
@@ -5010,7 +5017,7 @@ namespace social.OpenData.UsersAPI
 
                                              #region Is this a known/valid request?
 
-                                             if (!PasswordResets.TryGetValue(SecurityToken1, out PasswordReset _PasswordReset))
+                                             if (!_PasswordResets.TryGetValue(SecurityToken1, out PasswordReset _PasswordReset))
                                              {
 
                                                  return new HTTPResponse.Builder(Request) {
@@ -7029,10 +7036,10 @@ namespace social.OpenData.UsersAPI
 
                                               var Expires          = DateTime.UtcNow.Add(SignInSessionLifetime);
 
-                                              lock (HTTPCookies)
+                                              lock (_HTTPCookies)
                                               {
 
-                                                  HTTPCookies.Add(SecurityTokenId,
+                                                  _HTTPCookies.Add(SecurityTokenId,
                                                                   new SecurityToken(validUser.Id,
                                                                                     Expires));
 
@@ -7177,10 +7184,10 @@ namespace social.OpenData.UsersAPI
 
                                              var Expires          = DateTime.UtcNow.Add(SignInSessionLifetime);
 
-                                             lock (HTTPCookies)
+                                             lock (_HTTPCookies)
                                              {
 
-                                                 HTTPCookies.Add(SecurityTokenId,
+                                                 _HTTPCookies.Add(SecurityTokenId,
                                                                     new SecurityToken(UserURL.Id,
                                                                                       Expires,
                                                                                       Astronaut.Id));
@@ -7300,10 +7307,10 @@ namespace social.OpenData.UsersAPI
 
                                              var Expires          = DateTime.UtcNow.Add(SignInSessionLifetime);
 
-                                             lock (HTTPCookies)
+                                             lock (_HTTPCookies)
                                              {
 
-                                                 HTTPCookies.Add(SecurityTokenId,
+                                                 _HTTPCookies.Add(SecurityTokenId,
                                                                  new SecurityToken(Astronaut.Id,
                                                                                    Expires));
 
@@ -10744,66 +10751,6 @@ namespace social.OpenData.UsersAPI
             #endregion
 
 
-
-            #region GET         ~/blogPostings
-
-            // --------------------------------------------------------------------------
-            // curl -v -H "Accept: application/json" http://127.0.0.1:3001/blogPostings
-            // --------------------------------------------------------------------------
-            HTTPServer.AddMethodCallback(Hostname,
-                                         HTTPMethod.GET,
-                                         URLPathPrefix + "blogPostings",
-                                         HTTPContentType.JSON_UTF8,
-                                         HTTPDelegate: async Request => {
-
-                                             #region Get HTTP user and its organizations
-
-                                             TryGetHTTPUser(Request,
-                                                            out User                   HTTPUser,
-                                                            out HashSet<Organization>  HTTPOrganizations,
-                                                            out HTTPResponse.Builder   Response,
-                                                            Recursive: true);
-
-                                             #endregion
-
-                                             var skip                    = Request.QueryString.GetUInt64  ("skip");
-                                             var take                    = Request.QueryString.GetUInt64  ("take");
-                                             var since                   = Request.QueryString.GetDateTime("since");
-
-                                             var includeCryptoHash       = Request.QueryString.GetBoolean ("includeCryptoHash", true);
-
-                                             var expand                  = Request.QueryString.GetStrings ("expand");
-                                             var expandTags              = expand.ContainsIgnoreCase("tags")         ? InfoStatus.Expanded : InfoStatus.ShowIdOnly;
-
-
-                                             return new HTTPResponse.Builder(Request) {
-                                                        HTTPStatusCode                = HTTPStatusCode.OK,
-                                                        Server                        = HTTPServer.DefaultServerName,
-                                                        Date                          = DateTime.UtcNow,
-                                                        AccessControlAllowOrigin      = "*",
-                                                        AccessControlAllowMethods     = "GET",
-                                                        AccessControlAllowHeaders     = "Content-Type, Accept, Authorization",
-                                                        ContentType                   = HTTPContentType.JSON_UTF8,
-                                                        Content                       = BlogPostings.
-                                                                                            OrderBy(posting => posting.PublicationDate).
-                                                                                            Where  (posting => !since.HasValue || posting.PublicationDate >= since.Value).
-                                                                                            //Where  (organization => HTTPOrganizations.Contains(organization.Owner) ||
-                                                                                            //                            Admins.InEdges(HTTPUser).
-                                                                                            //                                   Any(edgelabel => edgelabel == User2GroupEdges.IsAdmin)).
-                                                                                            ToJSON(skip,
-                                                                                                   take,
-                                                                                                   false, //Embedded
-                                                                                                   expandTags,
-                                                                                                   GetBlogPostingSerializator(Request, HTTPUser),
-                                                                                                   includeCryptoHash).
-                                                                                            ToUTF8Bytes(),
-                                                        Connection                    = "close"
-                                                    };
-
-                                         });
-
-            #endregion
-
             #region ~/newsPostings
 
             #region OPTIONS     ~/newsPostings
@@ -12204,7 +12151,7 @@ namespace social.OpenData.UsersAPI
 
             #region Read HTTPCookiesFile file...
 
-            lock (HTTPCookies)
+            lock (_HTTPCookies)
             {
 
                 try
@@ -12224,12 +12171,12 @@ namespace social.OpenData.UsersAPI
                                                        ? new User_Id?(User_Id.Parse(Tokens[3]))
                                                        : null;
 
-                            if (!HTTPCookies.ContainsKey(SecurityTokenId) &&
+                            if (!_HTTPCookies.ContainsKey(SecurityTokenId) &&
                                 _LoginPasswords.ContainsKey(Login) &&
                                 Expires > DateTime.UtcNow)
                             {
 
-                                HTTPCookies.Add(SecurityTokenId,
+                                _HTTPCookies.Add(SecurityTokenId,
                                                 new SecurityToken(Login,
                                                                   Expires,
                                                                   Astronaut));
@@ -12258,7 +12205,7 @@ namespace social.OpenData.UsersAPI
                 {
 
                     File.WriteAllLines(this.UsersAPIPath + DefaultHTTPCookiesFile,
-                                       HTTPCookies.Select(token => token.Key + ";" + token.Value.ToLogLine()));
+                                       _HTTPCookies.Select(token => token.Key + ";" + token.Value.ToLogLine()));
 
                 }
                 catch (Exception e)
@@ -12315,11 +12262,11 @@ namespace social.OpenData.UsersAPI
 
                                             case "add":
 
-                                                if (!PasswordResets.ContainsKey(_PasswordReset.SecurityToken1))
+                                                if (!_PasswordResets.ContainsKey(_PasswordReset.SecurityToken1))
                                                 {
                                                     if (Now - _PasswordReset.Timestamp <= MaxAge)
                                                     {
-                                                        PasswordResets.Add(_PasswordReset.SecurityToken1,
+                                                        _PasswordResets.Add(_PasswordReset.SecurityToken1,
                                                                            _PasswordReset);
                                                     }
                                                 }
@@ -12334,7 +12281,7 @@ namespace social.OpenData.UsersAPI
                                         #region Remove
 
                                             case "remove":
-                                                PasswordResets.Remove(_PasswordReset.SecurityToken1);
+                                                _PasswordResets.Remove(_PasswordReset.SecurityToken1);
                                                 break;
 
                                             #endregion
@@ -12991,7 +12938,7 @@ namespace social.OpenData.UsersAPI
                                                _Users.TryGetValue,
                                                out userGroup,
                                                out ErrorResponse) &&
-                        userGroup.Id != Admins.Id)
+                        userGroup.Id != AdminUserGroup.Id)
                     {
 
                         if (!_UserGroups.ContainsKey(userGroup.Id))
@@ -13021,7 +12968,7 @@ namespace social.OpenData.UsersAPI
                                                _Users.TryGetValue,
                                                out userGroup,
                                                out ErrorResponse) &&
-                        userGroup.Id != Admins.Id)
+                        userGroup.Id != AdminUserGroup.Id)
                     {
 
                         if (!_UserGroups.ContainsKey(userGroup.Id))
@@ -16310,12 +16257,12 @@ namespace social.OpenData.UsersAPI
         #region Data
 
         /// <summary>
-        /// An enumeration of all groups.
+        /// An enumeration of all user groups.
         /// </summary>
         protected readonly Dictionary<UserGroup_Id, UserGroup> _UserGroups;
 
         /// <summary>
-        /// An enumeration of all groups.
+        /// An enumeration of all user groups.
         /// </summary>
         public IEnumerable<UserGroup> UserGroups
         {
@@ -16469,9 +16416,6 @@ namespace social.OpenData.UsersAPI
             switch (User?.Id.ToString())
             {
 
-                //case __issapi:
-                //    return ISSNotificationExtentions.ToISSJSON;
-
                 default:
                     return (userGroup,
                             embedded,
@@ -16544,7 +16488,7 @@ namespace social.OpenData.UsersAPI
                 throw new ArgumentException    ("User group identification '" + UserGroup.Id + "' already exists!",
                                                 nameof(UserGroup));
 
-            if (UserGroup.Id.Length < MinUserIdLength)
+            if (UserGroup.Id.Length < MinUserGroupIdLength)
                 throw new ArgumentException    ("User group identification '" + UserGroup.Id + "' is too short!",
                                                 nameof(UserGroup));
 
@@ -16658,7 +16602,7 @@ namespace social.OpenData.UsersAPI
             if (_UserGroups.ContainsKey(UserGroup.Id))
                 return _UserGroups[UserGroup.Id];
 
-            if (UserGroup.Id.Length < MinUserIdLength)
+            if (UserGroup.Id.Length < MinUserGroupIdLength)
                 throw new ArgumentException    ("User group identification '" + UserGroup.Id + "' is too short!",
                                                 nameof(UserGroup));
 
@@ -17489,13 +17433,13 @@ namespace social.OpenData.UsersAPI
         {
 
             if (User.Groups(User2GroupEdgeTypes.IsAdmin_ReadOnly).
-                     Contains(Admins))
+                     Contains(AdminUserGroup))
             {
                 return Access_Levels.ReadOnly;
             }
 
             if (User.Groups(User2GroupEdgeTypes.IsAdmin).
-                     Contains(Admins))
+                     Contains(AdminUserGroup))
             {
                 return Access_Levels.ReadWrite;
             }
@@ -17927,7 +17871,7 @@ namespace social.OpenData.UsersAPI
                                           passwordReset.ToJSON(),
                                           UsersAPIPath + DefaultPasswordResetsFile);
 
-                this.PasswordResets.Add(passwordReset.SecurityToken1, passwordReset);
+                this._PasswordResets.Add(passwordReset.SecurityToken1, passwordReset);
 
                 return passwordReset;
 
@@ -17955,7 +17899,7 @@ namespace social.OpenData.UsersAPI
                                           passwordReset.ToJSON(),
                                           UsersAPIPath + DefaultPasswordResetsFile);
 
-                this.PasswordResets.Remove(passwordReset.SecurityToken1);
+                this._PasswordResets.Remove(passwordReset.SecurityToken1);
 
                 return passwordReset;
 
@@ -18158,7 +18102,7 @@ namespace social.OpenData.UsersAPI
                 throw new ArgumentException    ("API key '" + APIKey.APIKey + "' already exists!",
                                                 nameof(APIKey));
 
-            if (APIKey.APIKey.Length < MinUserIdLength)
+            if (APIKey.APIKey.Length < MinAPIKeyLength)
                 throw new ArgumentException    ("API key '" + APIKey.APIKey + "' is too short!",
                                                 nameof(APIKey));
 
@@ -18272,7 +18216,7 @@ namespace social.OpenData.UsersAPI
             if (_APIKeys.ContainsKey(APIKey.APIKey))
                 return _APIKeys[APIKey.APIKey];
 
-            if (APIKey.APIKey.Length < MinUserIdLength)
+            if (APIKey.APIKey.Length < MinAPIKeyLength)
                 throw new ArgumentException    ("API key identification '" + APIKey.APIKey + "' is too short!",
                                                 nameof(APIKey));
 
@@ -19254,6 +19198,8 @@ namespace social.OpenData.UsersAPI
 
         #region Messages
 
+        // ToDo: Create Mailinglists
+
         #region Data
 
         /// <summary>
@@ -19311,7 +19257,6 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
-        // Create Mailinglist
 
         #endregion
 
@@ -22425,11 +22370,11 @@ namespace social.OpenData.UsersAPI
                 return false;
 
             // API admins can impersonate everyone! Except other API Admins!
-            if (Admins.InEdges(Astronaut).Any())
-                return !Admins.InEdges(Member).Any();
+            if (AdminUserGroup.InEdges(Astronaut).Any())
+                return !AdminUserGroup.InEdges(Member).Any();
 
             // API admins can never be impersonated!
-            if (Admins.InEdges(Member).Any())
+            if (AdminUserGroup.InEdges(Member).Any())
                 return false;
 
             // An astronaut must be at least an admin of some parent organization!
@@ -24162,46 +24107,17 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
-        #region BlogPostings
-
-        #region (protected) GetBlogPostingSerializator      (Request, User)
-
-        protected BlogPostingToJSONDelegate GetBlogPostingSerializator(HTTPRequest  Request,
-                                                                       User         User)
-        {
-
-            switch (User?.Id.ToString())
-            {
-
-                //case __issapi:
-                //    return ISSNotificationExtentions.ToISSJSON;
-
-                default:
-                    return (BlogPosting,
-                            Embedded,
-                            ExpandTags,
-                            IncludeCryptoHash)
-
-                            => BlogPosting.ToJSON(Embedded,
-                                                  ExpandTags,
-                                                  IncludeCryptoHash);
-
-            }
-
-        }
-
-        #endregion
-
-        #endregion
-
         #region NewsPostings
 
         #region Data
 
-        private readonly Dictionary<NewsPosting_Id, NewsPosting> _NewsPostings;
+        /// <summary>
+        /// An enumeration of all news postings.
+        /// </summary>
+        protected readonly Dictionary<NewsPosting_Id, NewsPosting> _NewsPostings;
 
         /// <summary>
-        /// Return an enumeration of all news postings.
+        /// An enumeration of all news postings.
         /// </summary>
         public IEnumerable<NewsPosting> NewsPostings
         {
@@ -24209,274 +24125,506 @@ namespace social.OpenData.UsersAPI
             {
                 try
                 {
-                    NewsPostingsSemaphore.Wait();
-                    return _NewsPostings.Values.ToArray();
+                    return NewsPostingsSemaphore.Wait(SemaphoreSlimTimeout)
+                               ? _NewsPostings.Values.ToArray()
+                               : new NewsPosting[0];
                 }
                 finally
                 {
-                    NewsPostingsSemaphore.Release();
+                    try
+                    {
+                        NewsPostingsSemaphore.Release();
+                    }
+                    catch
+                    { }
                 }
-
             }
         }
 
         #endregion
 
-        #region (private) GetNewsPostingSerializator(Request, User)
 
-        private NewsPostingToJSONDelegate GetNewsPostingSerializator(HTTPRequest  Request,
-                                                                     User         User)
+        #region (protected) WriteToDatabaseFileAndNotify(NewsPosting, MessageType,  OldNewsPosting = null, CurrentUserId = null)
+
+        /// <summary>
+        /// Write the given news posting to the database and send out notifications.
+        /// </summary>
+        /// <param name="NewsPosting">The news posting.</param>
+        /// <param name="MessageType">The user notification.</param>
+        /// <param name="OldNewsPosting">The old/updated news posting.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
+        /// <param name="CurrentUserId">The invoking user identification</param>
+        protected async Task WriteToDatabaseFileAndNotify(NewsPosting              NewsPosting,
+                                                          NotificationMessageType  MessageType,
+                                                          NewsPosting              OldNewsPosting    = null,
+                                                          EventTracking_Id         EventTrackingId   = null,
+                                                          User_Id?                 CurrentUserId     = null)
         {
 
-            //if (!Request.X_Portal)
-            //{
-            //    switch (User.Id.ToString())
-            //    {
+            if (NewsPosting is null)
+                throw new ArgumentNullException(nameof(NewsPosting),  "The given news posting must not be null or empty!");
 
-            //        case __issapi:
-            //            return ISSNotificationExtentions.ToISSJSON;
+            if (MessageType.IsNullOrEmpty)
+                throw new ArgumentNullException(nameof(MessageType),  "The given message type must not be null or empty!");
 
-            //    }
-            //}
 
-            return (NewsPosting,
-                    Embedded,
-                    ExpandTags,
-                    ExpandAuthorId,
-                    IncludeCryptoHash)
-
-                    => NewsPosting.ToJSON(Embedded,
-                                          ExpandTags,
-                                          ExpandAuthorId,
-                                          IncludeCryptoHash);
-
-        }
-
-        #endregion
-
-        #region WriteToLogfileAndNotify(MessageType, NewsPosting, OldNews = null, CurrentUserId = null)
-
-        public async Task WriteToLogfileAndNotify(NewsPosting              NewsPosting,
-                                                  NotificationMessageType  MessageType,
-                                                  NewsPosting              OldNews        = null,
-                                                  User_Id?                 CurrentUserId  = null)
-        {
+            var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
 
             await WriteToDatabaseFile(MessageType,
-                                      NewsPosting.ToJSON(Embedded: false),
-                                      EventTracking_Id.New,
+                                      NewsPosting.ToJSON(false, true),
+                                      eventTrackingId,
                                       CurrentUserId);
 
-            //base.WriteToLogfileAndNotify(NotificationMessageType.Parse("News." + MessageType),
-            //                             News.ToJSON(Embedded: true),
-            //                             News.Owner,
-            //                             CardiCloudNotificationsLogFile,
-            //                             CurrentUserId);
+            await SendNotifications(NewsPosting,
+                                    MessageType,
+                                    OldNewsPosting,
+                                    eventTrackingId,
+                                    CurrentUserId);
+
+        }
+
+        #endregion
+
+        #region (protected) SendNotifications           (NewsPosting, MessageTypes, OldNewsPosting = null, CurrentUserId = null)
+
+        /// <summary>
+        /// Send news posting notifications.
+        /// </summary>
+        /// <param name="NewsPosting">The news posting.</param>
+        /// <param name="MessageType">The user notification.</param>
+        /// <param name="OldNewsPosting">The old/updated news posting.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
+        /// <param name="CurrentUserId">The invoking user identification</param>
+        protected async Task SendNotifications(NewsPosting              NewsPosting,
+                                               NotificationMessageType  MessageType,
+                                               NewsPosting              OldNewsPosting    = null,
+                                               EventTracking_Id         EventTrackingId   = null,
+                                               User_Id?                 CurrentUserId     = null)
+        {
+
+            if (NewsPosting is null)
+                throw new ArgumentNullException(nameof(NewsPosting),  "The given news posting must not be null or empty!");
+
+            if (MessageType.IsNullOrEmpty)
+                throw new ArgumentNullException(nameof(MessageType),  "The given message type must not be null or empty!");
 
 
-            var _MessageTypes  = new HashSet<NotificationMessageType>() { MessageType };
+            await SendNotifications(NewsPosting,
+                                    new NotificationMessageType[] { MessageType },
+                                    OldNewsPosting,
+                                    EventTrackingId,
+                                    CurrentUserId);
 
-            if (MessageType == addNewsPostingIfNotExists_MessageType)
+        }
+
+
+        /// <summary>
+        /// Send news posting notifications.
+        /// </summary>
+        /// <param name="NewsPosting">The news posting.</param>
+        /// <param name="MessageTypes">The user notifications.</param>
+        /// <param name="OldNewsPosting">The old/updated news posting.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
+        /// <param name="CurrentUserId">The invoking user identification</param>
+        protected async Task SendNotifications(NewsPosting                           NewsPosting,
+                                               IEnumerable<NotificationMessageType>  MessageTypes,
+                                               NewsPosting                           OldNewsPosting    = null,
+                                               EventTracking_Id                      EventTrackingId   = null,
+                                               User_Id?                              CurrentUserId     = null)
+        {
+
+            if (NewsPosting is null)
+                throw new ArgumentNullException(nameof(NewsPosting),   "The given news posting must not be null or empty!");
+
+            var messageTypesHash = new HashSet<NotificationMessageType>(MessageTypes.Where(messageType => !messageType.IsNullOrEmpty));
+
+            if (messageTypesHash.IsNullOrEmpty())
+                throw new ArgumentNullException(nameof(MessageTypes),  "The given enumeration of message types must not be null or empty!");
+
+            if (messageTypesHash.Contains(addUserIfNotExists_MessageType))
+                messageTypesHash.Add(addUser_MessageType);
+
+            if (messageTypesHash.Contains(addOrUpdateUser_MessageType))
+                messageTypesHash.Add(OldNewsPosting == null
+                                       ? addUser_MessageType
+                                       : updateUser_MessageType);
+
+            var messageTypes = messageTypesHash.ToArray();
+
+
+            if (!DisableNotifications)
             {
-                _MessageTypes.Add(addNewsPosting_MessageType);
+
+
             }
 
-            else if (MessageType == addOrUpdateNewsPosting_MessageType)
+        }
+
+        #endregion
+
+        #region (protected) GetNewsPostingSerializator(Request, User)
+
+        protected NewsPostingToJSONDelegate GetNewsPostingSerializator(HTTPRequest  Request,
+                                                                       User         User)
+        {
+
+            switch (User?.Id.ToString())
             {
-                _MessageTypes.Add(addNewsPosting_MessageType);
+
+                default:
+                    return (newsPosting,
+                            embedded,
+                            ExpandTags,
+                            ExpandAuthorId,
+                            includeCryptoHash)
+
+                            => newsPosting.ToJSON(embedded,
+                                                  ExpandTags,
+                                                  ExpandAuthorId,
+                                                  includeCryptoHash);
+
             }
-
-            var MessageTypes   = _MessageTypes.ToArray();
-
-            // Add notifications here!
 
         }
 
         #endregion
 
 
-        #region AddNewsPosting           (NewsPosting,   CurrentUserId = null)
+        #region AddNewsPosting           (NewsPosting, OnAdded = null,                   CurrentUserId = null)
+
+        /// <summary>
+        /// A delegate called whenever a news posting was added.
+        /// </summary>
+        /// <param name="Timestamp">The timestamp when the news posting was added.</param>
+        /// <param name="NewsPosting">The added news posting.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
+        /// <param name="CurrentUserId">The invoking user identification</param>
+        public delegate Task OnNewsPostingAddedDelegate(DateTime          Timestamp,
+                                                        NewsPosting       NewsPosting,
+                                                        EventTracking_Id  EventTrackingId   = null,
+                                                        User_Id?          CurrentUserId     = null);
+
+        /// <summary>
+        /// An event fired whenever a news posting was added.
+        /// </summary>
+        public event OnNewsPostingAddedDelegate OnNewsPostingAdded;
+
+
+        #region (protected) _AddNewsPosting(NewsPosting,                                OnAdded = null, CurrentUserId = null)
 
         /// <summary>
         /// Add the given news posting to the API.
         /// </summary>
-        /// <param name="News">A news posting.</param>
+        /// <param name="NewsPosting">A new news posting to be added to this API.</param>
+        /// <param name="OnAdded">A delegate run whenever the news posting had been added successfully.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
-        public async Task<NewsPosting> AddNewsPosting(NewsPosting  NewsPosting,
-                                                      User_Id?     CurrentUserId  = null)
+        protected async Task<NewsPosting> _AddNewsPosting(NewsPosting                            NewsPosting,
+                                                          Action<NewsPosting, EventTracking_Id>  OnAdded           = null,
+                                                          EventTracking_Id                       EventTrackingId   = null,
+                                                          User_Id?                               CurrentUserId     = null)
         {
 
-            if (NewsPosting == null)
-                throw new ArgumentException(nameof(NewsPosting), "The given news posting must not be null!");
+            if (NewsPosting is null)
+                throw new ArgumentNullException(nameof(NewsPosting),
+                                                "The given news posting must not be null!");
 
             if (NewsPosting.API != null && NewsPosting.API != this)
-                throw new ArgumentException(nameof(NewsPosting), "The given news posting is already attached to another API!");
+                throw new ArgumentException    ("The given news posting is already attached to another API!",
+                                                nameof(NewsPosting));
 
-            try
-            {
+            if (_NewsPostings.ContainsKey(NewsPosting.Id))
+                throw new ArgumentException    ("User group identification '" + NewsPosting.Id + "' already exists!",
+                                                nameof(NewsPosting));
 
-                await NewsPostingsSemaphore.WaitAsync();
+            if (NewsPosting.Id.Length < MinNewsPostingIdLength)
+                throw new ArgumentException    ("User group identification '" + NewsPosting.Id + "' is too short!",
+                                                nameof(NewsPosting));
 
-                if (_NewsPostings.ContainsKey(NewsPosting.Id))
-                    throw new Exception("news posting '" + NewsPosting.Id + "' already exists in this API!");
+            NewsPosting.API = this;
 
-                await WriteToLogfileAndNotify(NewsPosting,
-                                              addNewsPosting_MessageType,
-                                              CurrentUserId: CurrentUserId);
 
-                NewsPosting.API = this;
+            var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
 
-                return _NewsPostings.AddAndReturnValue(NewsPosting.Id, NewsPosting);
+            await WriteToDatabaseFile(addNewsPosting_MessageType,
+                                      NewsPosting.ToJSON(false, true),
+                                      eventTrackingId,
+                                      CurrentUserId);
 
-            }
-            finally
-            {
-                NewsPostingsSemaphore.Release();
-            }
+            _NewsPostings.Add(NewsPosting.Id, NewsPosting);
+
+
+            var OnNewsPostingAddedLocal = OnNewsPostingAdded;
+            if (OnNewsPostingAddedLocal != null)
+                await OnNewsPostingAddedLocal?.Invoke(DateTime.UtcNow,
+                                                      NewsPosting,
+                                                      eventTrackingId,
+                                                      CurrentUserId);
+
+            await SendNotifications(NewsPosting,
+                                    addUser_MessageType,
+                                    null,
+                                    eventTrackingId,
+                                    CurrentUserId);
+
+            OnAdded?.Invoke(NewsPosting,
+                            eventTrackingId);
+
+            return NewsPosting;
 
         }
 
         #endregion
 
-        #region AddNewsPostingIfNotExists(NewsPosting,   CurrentUserId = null)
+        #region AddNewsPosting             (NewsPosting,                                OnAdded = null, CurrentUserId = null)
 
         /// <summary>
-        /// Add the given news posting to the API.
+        /// Add the given news posting.
         /// </summary>
-        /// <param name="NewsPosting">A news posting.</param>
+        /// <param name="NewsPosting">A new news posting.</param>
+        /// <param name="OnAdded">A delegate run whenever the news posting had been added successfully.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
-        public async Task<NewsPosting> AddNewsPostingIfNotExists(NewsPosting  NewsPosting,
-                                                                 User_Id?     CurrentUserId  = null)
+        public async Task<NewsPosting> AddNewsPosting(NewsPosting                            NewsPosting,
+                                                      Action<NewsPosting, EventTracking_Id>  OnAdded           = null,
+                                                      EventTracking_Id                       EventTrackingId   = null,
+                                                      User_Id?                               CurrentUserId     = null)
         {
 
-            if (NewsPosting == null)
-                throw new ArgumentException(nameof(NewsPosting), "The given news posting must not be null!");
-
-            if (NewsPosting.API != null && NewsPosting.API != this)
-                throw new ArgumentException(nameof(NewsPosting), "The given news posting is already attached to another API!");
+            if (NewsPosting is null)
+                throw new ArgumentNullException(nameof(NewsPosting), "The given news posting must not be null!");
 
             try
             {
 
-                await NewsPostingsSemaphore.WaitAsync();
+                return (await NewsPostingsSemaphore.WaitAsync(SemaphoreSlimTimeout))
 
-                if (_NewsPostings.TryGetValue(NewsPosting.Id, out NewsPosting OldNewsPosting))
-                    return OldNewsPosting;
+                            ? await _AddNewsPosting(NewsPosting,
+                                                    OnAdded,
+                                                    EventTrackingId,
+                                                    CurrentUserId)
 
-                await WriteToLogfileAndNotify(NewsPosting,
-                                              addNewsPostingIfNotExists_MessageType,
-                                              CurrentUserId: CurrentUserId);
-
-                NewsPosting.API = this;
-
-                return _NewsPostings.AddAndReturnValue(NewsPosting.Id, NewsPosting);
+                            : null;
 
             }
             finally
             {
-                NewsPostingsSemaphore.Release();
+                try
+                {
+                    NewsPostingsSemaphore.Release();
+                }
+                catch
+                { }
             }
 
         }
 
         #endregion
 
-        #region AddOrUpdateNewsPosting   (NewsPosting,   CurrentUserId = null)
+        #endregion
+
+        #region AddNewsPostingIfNotExists(NewsPosting, OnAdded = null,                   CurrentUserId = null)
+
+        #region (protected) _AddNewsPostingIfNotExists(NewsPosting,                                OnAdded = null, CurrentUserId = null)
+
+        /// <summary>
+        /// When it has not been created before, add the given news posting to the API.
+        /// </summary>
+        /// <param name="NewsPosting">A new news posting to be added to this API.</param>
+        /// <param name="OnAdded">A delegate run whenever the news posting had been added successfully.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
+        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
+        protected async Task<NewsPosting> _AddNewsPostingIfNotExists(NewsPosting                            NewsPosting,
+                                                                     Action<NewsPosting, EventTracking_Id>  OnAdded           = null,
+                                                                     EventTracking_Id                       EventTrackingId   = null,
+                                                                     User_Id?                               CurrentUserId     = null)
+        {
+
+            if (NewsPosting is null)
+                throw new ArgumentNullException(nameof(NewsPosting),
+                                                "The given news posting must not be null!");
+
+            if (NewsPosting.API != null && NewsPosting.API != this)
+                throw new ArgumentException    ("The given news posting is already attached to another API!",
+                                                nameof(NewsPosting));
+
+            if (_NewsPostings.ContainsKey(NewsPosting.Id))
+                return _NewsPostings[NewsPosting.Id];
+
+            if (NewsPosting.Id.Length < MinNewsPostingIdLength)
+                throw new ArgumentException    ("User group identification '" + NewsPosting.Id + "' is too short!",
+                                                nameof(NewsPosting));
+
+            NewsPosting.API = this;
+
+
+            var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
+
+            await WriteToDatabaseFile(addNewsPostingIfNotExists_MessageType,
+                                      NewsPosting.ToJSON(false, true),
+                                      eventTrackingId,
+                                      CurrentUserId);
+
+            _NewsPostings.Add(NewsPosting.Id, NewsPosting);
+
+            var OnNewsPostingAddedLocal = OnNewsPostingAdded;
+            if (OnNewsPostingAddedLocal != null)
+                await OnNewsPostingAddedLocal?.Invoke(DateTime.UtcNow,
+                                                      NewsPosting,
+                                                      eventTrackingId,
+                                                      CurrentUserId);
+
+            await SendNotifications(NewsPosting,
+                                    addNewsPostingIfNotExists_MessageType,
+                                    null,
+                                    eventTrackingId,
+                                    CurrentUserId);
+
+            OnAdded?.Invoke(NewsPosting,
+                            eventTrackingId);
+
+            return NewsPosting;
+
+        }
+
+        #endregion
+
+        #region AddNewsPostingIfNotExists             (NewsPosting,                                OnAdded = null, CurrentUserId = null)
+
+        /// <summary>
+        /// Add the given news posting.
+        /// </summary>
+        /// <param name="NewsPosting">A new news posting.</param>
+        /// <param name="OnAdded">A delegate run whenever the news posting had been added successfully.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
+        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
+        public async Task<NewsPosting> AddNewsPostingIfNotExists(NewsPosting                            NewsPosting,
+                                                                 Action<NewsPosting, EventTracking_Id>  OnAdded           = null,
+                                                                 EventTracking_Id                       EventTrackingId   = null,
+                                                                 User_Id?                               CurrentUserId     = null)
+        {
+
+            try
+            {
+
+                return (await NewsPostingsSemaphore.WaitAsync(SemaphoreSlimTimeout))
+
+                            ? await _AddNewsPostingIfNotExists(NewsPosting,
+                                                             OnAdded,
+                                                             EventTrackingId,
+                                                             CurrentUserId)
+
+                            : null;
+
+            }
+            finally
+            {
+                try
+                {
+                    NewsPostingsSemaphore.Release();
+                }
+                catch
+                { }
+            }
+
+        }
+
+        #endregion
+
+        #endregion
+
+        #region AddOrUpdateNewsPosting   (NewsPosting, OnAdded = null, OnUpdated = null, CurrentUserId = null)
+
+        #region (protected) _AddOrUpdateNewsPosting   (NewsPosting,   OnAdded = null, OnUpdated = null, CurrentUserId = null)
 
         /// <summary>
         /// Add or update the given news posting to/within the API.
         /// </summary>
         /// <param name="NewsPosting">A news posting.</param>
-        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
-        public async Task<NewsPosting> AddOrUpdateNewsPosting(NewsPosting  NewsPosting,
-                                                              User_Id?     CurrentUserId = null)
+        /// <param name="OnAdded">A delegate run whenever the news posting had been added successfully.</param>
+        /// <param name="OnUpdated">A delegate run whenever the news posting had been updated successfully.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
+        /// <param name="CurrentUserId">An optional news posting identification initiating this command/request.</param>
+        protected async Task<NewsPosting> _AddOrUpdateNewsPosting(NewsPosting                            NewsPosting,
+                                                                  Action<NewsPosting, EventTracking_Id>  OnAdded           = null,
+                                                                  Action<NewsPosting, EventTracking_Id>  OnUpdated         = null,
+                                                                  EventTracking_Id                       EventTrackingId   = null,
+                                                                  User_Id?                               CurrentUserId     = null)
         {
 
-            if (NewsPosting == null)
-                throw new ArgumentException(nameof(NewsPosting), "The given news posting must not be null!");
+            if (NewsPosting is null)
+                throw new ArgumentNullException(nameof(NewsPosting),
+                                                "The given news posting must not be null!");
 
             if (NewsPosting.API != null && NewsPosting.API != this)
-                throw new ArgumentException(nameof(NewsPosting), "The given news posting is already attached to another API!");
+                throw new ArgumentException    ("The given news posting is already attached to another API!",
+                                                nameof(NewsPosting));
 
-            NewsPosting OldNewsPosting  = null;
-            DateTime    Now             = DateTime.UtcNow;
+            if (_NewsPostings.ContainsKey(NewsPosting.Id))
+                return _NewsPostings[NewsPosting.Id];
 
-            try
+            if (NewsPosting.Id.Length < MinNewsPostingIdLength)
+                throw new ArgumentException    ("NewsPosting identification '" + NewsPosting.Id + "' is too short!",
+                                                nameof(NewsPosting));
+
+            NewsPosting.API = this;
+
+
+            var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
+
+            await WriteToDatabaseFile(addOrUpdateNewsPosting_MessageType,
+                                      NewsPosting.ToJSON(false, true),
+                                      eventTrackingId,
+                                      CurrentUserId);
+
+            if (_NewsPostings.TryGetValue(NewsPosting.Id, out NewsPosting OldNewsPosting))
             {
-
-                await NewsPostingsSemaphore.WaitAsync();
-
-                NewsPosting.API = this;
-
-                if (_NewsPostings.TryGetValue(NewsPosting.Id, out OldNewsPosting))
-                {
-                    _NewsPostings.Remove(OldNewsPosting.Id);
-                    NewsPosting.CopyAllLinkedDataFrom(OldNewsPosting);
-                }
-
-                await WriteToLogfileAndNotify(NewsPosting,
-                                              addOrUpdateNewsPosting_MessageType,
-                                              OldNewsPosting,
-                                              CurrentUserId);
-
-                _NewsPostings.Add(NewsPosting.Id, NewsPosting);
-
-            }
-            finally
-            {
-                NewsPostingsSemaphore.Release();
-            }
-
-            return NewsPosting;
-
-        }
-
-        #endregion
-
-        #region UpdateNewsPosting        (NewsPosting,   CurrentUserId = null)
-
-        /// <summary>
-        /// Update the given news posting within the API.
-        /// </summary>
-        /// <param name="NewsPosting">A news posting.</param>
-        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
-        public async Task<NewsPosting> UpdateNewsPosting(NewsPosting  NewsPosting,
-                                                         User_Id?     CurrentUserId   = null)
-        {
-
-            if (NewsPosting == null)
-                throw new ArgumentException(nameof(NewsPosting), "The given news posting must not be null!");
-
-            if (NewsPosting.API != null && NewsPosting.API != this)
-                throw new ArgumentException(nameof(NewsPosting), "The given news posting is already attached to another API!");
-
-            DateTime Now = DateTime.UtcNow;
-
-            try
-            {
-
-                await NewsPostingsSemaphore.WaitAsync();
-
-                if (!_NewsPostings.TryGetValue(NewsPosting.Id, out NewsPosting OldNewsPosting))
-                    throw new Exception("News posting '" + NewsPosting.Id + "' does not exists in this API!");
-
-
-                await WriteToLogfileAndNotify(NewsPosting,
-                                              updateNewsPosting_MessageType,
-                                              OldNewsPosting,
-                                              CurrentUserId);
-
-                NewsPosting.API = this;
-
                 _NewsPostings.Remove(OldNewsPosting.Id);
                 NewsPosting.CopyAllLinkedDataFrom(OldNewsPosting);
+            }
 
-                _NewsPostings.Add(NewsPosting.Id, NewsPosting);
+            _NewsPostings.Add(NewsPosting.Id, NewsPosting);
+
+            if (OldNewsPosting != null)
+            {
+
+                var OnNewsPostingUpdatedLocal = OnNewsPostingUpdated;
+                if (OnNewsPostingUpdatedLocal != null)
+                    await OnNewsPostingUpdatedLocal?.Invoke(DateTime.UtcNow,
+                                                            NewsPosting,
+                                                            OldNewsPosting,
+                                                            eventTrackingId,
+                                                            CurrentUserId);
+
+                await SendNotifications(NewsPosting,
+                                        updateNewsPosting_MessageType,
+                                        OldNewsPosting,
+                                        eventTrackingId,
+                                        CurrentUserId);
+
+                OnUpdated?.Invoke(NewsPosting,
+                                  eventTrackingId);
 
             }
-            finally
+            else
             {
-                NewsPostingsSemaphore.Release();
+
+                var OnNewsPostingAddedLocal = OnNewsPostingAdded;
+                if (OnNewsPostingAddedLocal != null)
+                    await OnNewsPostingAddedLocal?.Invoke(DateTime.UtcNow,
+                                                          NewsPosting,
+                                                          eventTrackingId,
+                                                          CurrentUserId);
+
+                await SendNotifications(NewsPosting,
+                                        addNewsPosting_MessageType,
+                                        null,
+                                        eventTrackingId,
+                                        CurrentUserId);
+
+                OnAdded?.Invoke(NewsPosting,
+                                eventTrackingId);
+
             }
 
             return NewsPosting;
@@ -24485,164 +24633,428 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
-        #region UpdateNewsPosting        (NewsPostingId, UpdateDelegate, CurrentUserId = null)
+        #region AddOrUpdateNewsPosting   (NewsPosting,   OnAdded = null, OnUpdated = null, CurrentUserId = null)
+
+        /// <summary>
+        /// Add or update the given news posting to/within the API.
+        /// </summary>
+        /// <param name="NewsPosting">A news posting.</param>
+        /// <param name="OnAdded">A delegate run whenever the news posting had been added successfully.</param>
+        /// <param name="OnUpdated">A delegate run whenever the news posting had been updated successfully.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
+        /// <param name="CurrentUserId">An optional news posting identification initiating this command/request.</param>
+        public async Task<NewsPosting> AddOrUpdateNewsPosting(NewsPosting                            NewsPosting,
+                                                              Action<NewsPosting, EventTracking_Id>  OnAdded           = null,
+                                                              Action<NewsPosting, EventTracking_Id>  OnUpdated         = null,
+                                                              EventTracking_Id                       EventTrackingId   = null,
+                                                              User_Id?                               CurrentUserId     = null)
+        {
+
+            if (NewsPosting is null)
+                throw new ArgumentNullException(nameof(NewsPosting), "The given news posting must not be null!");
+
+            try
+            {
+
+                return (await NewsPostingsSemaphore.WaitAsync(SemaphoreSlimTimeout))
+
+                            ? await _AddOrUpdateNewsPosting(NewsPosting,
+                                                            OnAdded,
+                                                            OnUpdated,
+                                                            EventTrackingId,
+                                                            CurrentUserId)
+
+                            : null;
+
+            }
+            finally
+            {
+                try
+                {
+                    NewsPostingsSemaphore.Release();
+                }
+                catch
+                { }
+            }
+
+        }
+
+        #endregion
+
+        #endregion
+
+        #region UpdateNewsPosting        (NewsPosting,                 OnUpdated = null, CurrentUserId = null)
+
+        /// <summary>
+        /// A delegate called whenever a news posting was updated.
+        /// </summary>
+        /// <param name="Timestamp">The timestamp when the news posting was updated.</param>
+        /// <param name="NewsPosting">The updated news posting.</param>
+        /// <param name="OldNewsPosting">The old news posting.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
+        /// <param name="CurrentUserId">The invoking news posting identification</param>
+        public delegate Task OnNewsPostingUpdatedDelegate(DateTime          Timestamp,
+                                                          NewsPosting       NewsPosting,
+                                                          NewsPosting       OldNewsPosting,
+                                                          EventTracking_Id  EventTrackingId   = null,
+                                                          User_Id?          CurrentUserId     = null);
+
+        /// <summary>
+        /// An event fired whenever a news posting was updated.
+        /// </summary>
+        public event OnNewsPostingUpdatedDelegate OnNewsPostingUpdated;
+
+
+        #region (protected) _UpdateNewsPosting(NewsPosting, OnUpdated = null, CurrentUserId = null)
+
+        /// <summary>
+        /// Update the given news posting to/within the API.
+        /// </summary>
+        /// <param name="NewsPosting">A news posting.</param>
+        /// <param name="OnUpdated">A delegate run whenever the news posting had been updated successfully.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
+        /// <param name="CurrentUserId">An optional news posting identification initiating this command/request.</param>
+        protected async Task<NewsPosting> _UpdateNewsPosting(NewsPosting                            NewsPosting,
+                                                             Action<NewsPosting, EventTracking_Id>  OnUpdated         = null,
+                                                             EventTracking_Id                       EventTrackingId   = null,
+                                                             User_Id?                               CurrentUserId     = null)
+        {
+
+            if (NewsPosting is null)
+                throw new ArgumentNullException(nameof(NewsPosting),
+                                                "The given news posting must not be null!");
+
+            if (NewsPosting.API != null && NewsPosting.API != this)
+                throw new ArgumentException    ("The given news posting is already attached to another API!",
+                                                nameof(NewsPosting));
+
+            if (!_NewsPostings.TryGetValue(NewsPosting.Id, out NewsPosting OldNewsPosting))
+                throw new ArgumentException    ("The given news posting '" + NewsPosting.Id + "' does not exists in this API!",
+                                                nameof(NewsPosting));
+
+            NewsPosting.API = this;
+
+
+            var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
+
+            await WriteToDatabaseFile(updateNewsPosting_MessageType,
+                                      NewsPosting.ToJSON(),
+                                      eventTrackingId,
+                                      CurrentUserId);
+
+            _NewsPostings.Remove(OldNewsPosting.Id);
+            NewsPosting.CopyAllLinkedDataFrom(OldNewsPosting);
+
+
+            var OnNewsPostingUpdatedLocal = OnNewsPostingUpdated;
+            if (OnNewsPostingUpdatedLocal != null)
+                await OnNewsPostingUpdatedLocal?.Invoke(DateTime.UtcNow,
+                                                        NewsPosting,
+                                                        OldNewsPosting,
+                                                        eventTrackingId,
+                                                        CurrentUserId);
+
+            await SendNotifications(NewsPosting,
+                                    updateNewsPosting_MessageType,
+                                    OldNewsPosting,
+                                    eventTrackingId,
+                                    CurrentUserId);
+
+            OnUpdated?.Invoke(NewsPosting,
+                              eventTrackingId);
+
+            return NewsPosting;
+
+        }
+
+        #endregion
+
+        #region UpdateNewsPosting             (NewsPosting, OnUpdated = null, CurrentUserId = null)
+
+        /// <summary>
+        /// Update the given news posting to/within the API.
+        /// </summary>
+        /// <param name="NewsPosting">A news posting.</param>
+        /// <param name="OnUpdated">A delegate run whenever the news posting had been updated successfully.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
+        /// <param name="CurrentUserId">An optional news posting identification initiating this command/request.</param>
+        public async Task<NewsPosting> UpdateNewsPosting(NewsPosting                            NewsPosting,
+                                                         Action<NewsPosting, EventTracking_Id>  OnUpdated         = null,
+                                                         EventTracking_Id                       EventTrackingId   = null,
+                                                         User_Id?                               CurrentUserId     = null)
+        {
+
+            if (NewsPosting is null)
+                throw new ArgumentNullException(nameof(NewsPosting), "The given news posting must not be null!");
+
+            try
+            {
+
+                return (await NewsPostingsSemaphore.WaitAsync(SemaphoreSlimTimeout))
+
+                            ? await _UpdateNewsPosting(NewsPosting,
+                                                       OnUpdated,
+                                                       EventTrackingId,
+                                                       CurrentUserId)
+
+                            : null;
+
+            }
+            finally
+            {
+                try
+                {
+                    NewsPostingsSemaphore.Release();
+                }
+                catch
+                { }
+            }
+
+        }
+
+        #endregion
+
+
+        #region (protected) _UpdateNewsPosting(NewsPostingId, UpdateDelegate, OnUpdated = null, CurrentUserId = null)
 
         /// <summary>
         /// Update the given news posting.
         /// </summary>
-        /// <param name="NewsPostingId">A news posting identification.</param>
+        /// <param name="NewsPostingId">An news posting identification.</param>
         /// <param name="UpdateDelegate">A delegate to update the given news posting.</param>
-        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
-        public async Task<NewsPosting> Update(NewsPosting_Id               NewsPostingId,
-                                              Action<NewsPosting.Builder>  UpdateDelegate,
-                                              User_Id?                     CurrentUserId  = null)
+        /// <param name="OnUpdated">A delegate run whenever the news posting had been updated successfully.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
+        /// <param name="CurrentUserId">An optional news posting identification initiating this command/request.</param>
+        protected async Task<NewsPosting> _UpdateNewsPosting(NewsPosting_Id                         NewsPostingId,
+                                                             Action<NewsPosting.Builder>            UpdateDelegate,
+                                                             Action<NewsPosting, EventTracking_Id>  OnUpdated         = null,
+                                                             EventTracking_Id                       EventTrackingId   = null,
+                                                             User_Id?                               CurrentUserId     = null)
         {
 
-            NewsPosting NewsPosting;
-            DateTime Now = DateTime.UtcNow;
+            if (NewsPostingId.IsNullOrEmpty)
+                throw new ArgumentNullException(nameof(NewsPostingId),
+                                                "The given news posting identification must not be null or empty!");
 
-            try
-            {
+            if (UpdateDelegate == null)
+                throw new ArgumentNullException(nameof(UpdateDelegate),
+                                                "The given update delegate must not be null!");
 
-                if (UpdateDelegate == null)
-                    throw new Exception("The given update delegate must not be null!");
+            if (!_NewsPostings.TryGetValue(NewsPostingId, out NewsPosting OldNewsPosting))
+                throw new ArgumentException    ("The given news posting '" + NewsPostingId + "' does not exists in this API!",
+                                                nameof(NewsPostingId));
 
-                await NewsPostingsSemaphore.WaitAsync();
+            var Builder = OldNewsPosting.ToBuilder();
+            UpdateDelegate(Builder);
+            var NewNewsPosting = Builder.ToImmutable;
 
-                if (!_NewsPostings.TryGetValue(NewsPostingId, out NewsPosting OldNewsPosting))
-                    throw new Exception("News posting '" + NewsPostingId + "' does not exists in this API!");
 
-                var Builder = OldNewsPosting.ToBuilder();
-                UpdateDelegate(Builder);
-                NewsPosting = Builder.ToImmutable;
-                NewsPosting.API = this;
+            var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
 
-                await WriteToLogfileAndNotify(NewsPosting,
-                                              updateNewsPosting_MessageType,
-                                              OldNewsPosting,
-                                              CurrentUserId);
+            await WriteToDatabaseFile(updateNewsPosting_MessageType,
+                                      NewNewsPosting.ToJSON(),
+                                      eventTrackingId,
+                                      CurrentUserId);
 
-                _NewsPostings.Remove(OldNewsPosting.Id);
-                //OldNews.CopyAllEdgesTo(News);
-                _NewsPostings.Add(NewsPosting.Id, NewsPosting);
+            _NewsPostings.Remove(OldNewsPosting.Id);
+            NewNewsPosting.CopyAllLinkedDataFrom(OldNewsPosting);
 
-            }
-            finally
-            {
-                NewsPostingsSemaphore.Release();
-            }
 
-            return NewsPosting;
+            var OnNewsPostingUpdatedLocal = OnNewsPostingUpdated;
+            if (OnNewsPostingUpdatedLocal != null)
+                await OnNewsPostingUpdatedLocal?.Invoke(DateTime.UtcNow,
+                                                        NewNewsPosting,
+                                                        OldNewsPosting,
+                                                        eventTrackingId,
+                                                        CurrentUserId);
+
+            await SendNotifications(NewNewsPosting,
+                                    updateNewsPosting_MessageType,
+                                    OldNewsPosting,
+                                    eventTrackingId,
+                                    CurrentUserId);
+
+            OnUpdated?.Invoke(NewNewsPosting,
+                              eventTrackingId);
+
+            return NewNewsPosting;
 
         }
 
         #endregion
 
-        #region RemoveNewsPosting        (NewsPostingId, CurrentUserId = null)
+        #region UpdateNewsPosting             (NewsPostingId, UpdateDelegate, OnUpdated = null, CurrentUserId = null)
 
         /// <summary>
-        /// Remove the given news posting from this API.
+        /// Update the given news posting.
         /// </summary>
-        /// <param name="NewsPostingId">The unique identification of the news posting.</param>
-        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
-        public async Task<NewsPosting> RemoveNewsPosting(NewsPosting_Id  NewsPostingId,
-                                                         User_Id?        CurrentUserId  = null)
+        /// <param name="NewsPostingId">An news posting identification.</param>
+        /// <param name="UpdateDelegate">A delegate to update the given news posting.</param>
+        /// <param name="OnUpdated">A delegate run whenever the news posting had been updated successfully.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
+        /// <param name="CurrentUserId">An optional news posting identification initiating this command/request.</param>
+        public async Task<NewsPosting> UpdateNewsPosting(NewsPosting_Id                         NewsPostingId,
+                                                         Action<NewsPosting.Builder>            UpdateDelegate,
+                                                         Action<NewsPosting, EventTracking_Id>  OnUpdated         = null,
+                                                         EventTracking_Id                       EventTrackingId   = null,
+                                                         User_Id?                               CurrentUserId     = null)
+        {
+
+            if (NewsPostingId.IsNullOrEmpty)
+                throw new ArgumentNullException(nameof(NewsPostingId), "The given news posting identification must not be null or empty!");
+
+            try
+            {
+
+                return (await NewsPostingsSemaphore.WaitAsync(SemaphoreSlimTimeout))
+
+                            ? await _UpdateNewsPosting(NewsPostingId,
+                                                       UpdateDelegate,
+                                                       OnUpdated,
+                                                       EventTrackingId,
+                                                       CurrentUserId)
+
+                            : null;
+
+            }
+            finally
+            {
+                try
+                {
+                    NewsPostingsSemaphore.Release();
+                }
+                catch
+                { }
+            }
+
+        }
+
+        #endregion
+
+        #endregion
+
+
+        #region NewsPostingExists(NewsPostingId)
+
+        /// <summary>
+        /// Determines whether the given news posting identification exists within this API.
+        /// </summary>
+        /// <param name="NewsPostingId">The unique identification of an news posting.</param>
+        protected Boolean _NewsPostingExists(NewsPosting_Id NewsPostingId)
+
+            => !NewsPostingId.IsNullOrEmpty && _NewsPostings.ContainsKey(NewsPostingId);
+
+
+        /// <summary>
+        /// Determines whether the given news posting identification exists within this API.
+        /// </summary>
+        /// <param name="NewsPostingId">The unique identification of an news posting.</param>
+        public Boolean NewsPostingExists(NewsPosting_Id NewsPostingId)
         {
 
             try
             {
 
-                await NewsPostingsSemaphore.WaitAsync();
-
-                if (_NewsPostings.TryGetValue(NewsPostingId, out NewsPosting NewsPosting))
+                if (NewsPostingsSemaphore.Wait(SemaphoreSlimTimeout) &&
+                    _NewsPostingExists(NewsPostingId))
                 {
-
-                    await WriteToLogfileAndNotify(NewsPosting,
-                                                  removeNewsPosting_MessageType,
-                                                  CurrentUserId: CurrentUserId);
-
-                    _NewsPostings.Remove(NewsPostingId);
-
-                    NewsPosting.API = null;
-
-                    return NewsPosting;
-
+                    return true;
                 }
 
-                return null;
-
             }
+            catch
+            { }
             finally
             {
-                NewsPostingsSemaphore.Release();
+                try
+                {
+                    NewsPostingsSemaphore.Release();
+                }
+                catch
+                { }
             }
+
+            return false;
 
         }
 
         #endregion
 
-
-        #region ContainsNewsPosting      (NewsPostingId)
+        #region GetNewsPosting   (NewsPostingId)
 
         /// <summary>
-        /// Whether this API contains a news posting having the given unique identification.
+        /// Get the news posting having the given unique identification.
         /// </summary>
-        /// <param name="NewsPostingId">The unique identification of the news posting.</param>
-        public Boolean ContainsNewsPosting(NewsPosting_Id NewsPostingId)
+        /// <param name="NewsPostingId">The unique identification of an news posting.</param>
+        protected NewsPosting _GetNewsPosting(NewsPosting_Id NewsPostingId)
         {
 
-            try
-            {
+            if (!NewsPostingId.IsNullOrEmpty && _NewsPostings.TryGetValue(NewsPostingId, out NewsPosting newsPosting))
+                return newsPosting;
 
-                NewsPostingsSemaphore.Wait();
-
-                return _NewsPostings.ContainsKey(NewsPostingId);
-
-            }
-            finally
-            {
-                NewsPostingsSemaphore.Release();
-            }
+            return null;
 
         }
 
-        #endregion
-
-        #region GetNewsPosting           (NewsPostingId)
 
         /// <summary>
         /// Get the news posting having the given unique identification.
         /// </summary>
         /// <param name="NewsPostingId">The unique identification of the news posting.</param>
-        public async Task<NewsPosting> GetNewsPosting(NewsPosting_Id  NewsPostingId)
+        public NewsPosting GetNewsPosting(NewsPosting_Id NewsPostingId)
         {
 
             try
             {
 
-                await NewsPostingsSemaphore.WaitAsync();
-
-                if (_NewsPostings.TryGetValue(NewsPostingId, out NewsPosting newsPosting))
-                    return newsPosting;
-
-                return null;
+                if (NewsPostingsSemaphore.Wait(SemaphoreSlimTimeout))
+                    return _GetNewsPosting(NewsPostingId);
 
             }
+            catch
+            { }
             finally
             {
-                NewsPostingsSemaphore.Release();
+                try
+                {
+                    NewsPostingsSemaphore.Release();
+                }
+                catch
+                { }
             }
+
+            return null;
 
         }
 
         #endregion
 
-        #region TryGetNewsPosting        (NewsPostingId, out NewsPosting)
+        #region TryGetNewsPosting(NewsPostingId, out NewsPosting)
 
         /// <summary>
         /// Try to get the news posting having the given unique identification.
         /// </summary>
-        /// <param name="NewsId">The unique identification of the news posting.</param>
+        /// <param name="NewsPostingId">The unique identification of an news posting.</param>
+        /// <param name="NewsPosting">The news posting.</param>
+        protected Boolean _TryGetNewsPosting(NewsPosting_Id NewsPostingId, out NewsPosting NewsPosting)
+        {
+
+            if (!NewsPostingId.IsNullOrEmpty && _NewsPostings.TryGetValue(NewsPostingId, out NewsPosting newsPosting))
+            {
+                NewsPosting = newsPosting;
+                return true;
+            }
+
+            NewsPosting = null;
+            return false;
+
+        }
+
+
+        /// <summary>
+        /// Try to get the news posting having the given unique identification.
+        /// </summary>
+        /// <param name="NewsPostingId">The unique identification of an news posting.</param>
         /// <param name="NewsPosting">The news posting.</param>
         public Boolean TryGetNewsPosting(NewsPosting_Id   NewsPostingId,
                                          out NewsPosting  NewsPosting)
@@ -24651,17 +25063,226 @@ namespace social.OpenData.UsersAPI
             try
             {
 
-                NewsPostingsSemaphore.Wait();
+                if (NewsPostingsSemaphore.Wait(SemaphoreSlimTimeout) &&
+                    _TryGetNewsPosting(NewsPostingId, out NewsPosting newsPosting))
+                {
+                    NewsPosting = newsPosting;
+                    return true;
+                }
 
-                return _NewsPostings.TryGetValue(NewsPostingId, out NewsPosting);
+            }
+            catch
+            { }
+            finally
+            {
+                try
+                {
+                    NewsPostingsSemaphore.Release();
+                }
+                catch
+                { }
+            }
 
+            NewsPosting = null;
+            return false;
+
+        }
+
+        #endregion
+
+
+        #region RemoveNewsPosting(NewsPosting, OnRemoved = null, CurrentUserId = null)
+
+        /// <summary>
+        /// A delegate called whenever a news posting was removed.
+        /// </summary>
+        /// <param name="Timestamp">The timestamp when the news posting was removed.</param>
+        /// <param name="NewsPosting">The removed news posting.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
+        /// <param name="CurrentUserId">The invoking news posting identification</param>
+        public delegate Task OnNewsPostingRemovedDelegate(DateTime          Timestamp,
+                                                          NewsPosting       NewsPosting,
+                                                          EventTracking_Id  EventTrackingId   = null,
+                                                          User_Id?          CurrentUserId     = null);
+
+        /// <summary>
+        /// An event fired whenever a news posting was removed.
+        /// </summary>
+        public event OnNewsPostingRemovedDelegate OnNewsPostingRemoved;
+
+
+        #region (class) DeleteNewsPostingResult
+
+        public class DeleteNewsPostingResult
+        {
+
+            public Boolean     IsSuccess           { get; }
+
+            public I18NString  ErrorDescription    { get; }
+
+
+            private DeleteNewsPostingResult(Boolean     IsSuccess,
+                                          I18NString  ErrorDescription  = null)
+            {
+                this.IsSuccess         = IsSuccess;
+                this.ErrorDescription  = ErrorDescription;
+            }
+
+
+            public static DeleteNewsPostingResult Success
+
+                => new DeleteNewsPostingResult(true);
+
+            public static DeleteNewsPostingResult Failed(I18NString Reason)
+
+                => new DeleteNewsPostingResult(false,
+                                             Reason);
+
+            public static DeleteNewsPostingResult Failed(Exception Exception)
+
+                => new DeleteNewsPostingResult(false,
+                                             I18NString.Create(Languages.en,
+                                                               Exception.Message));
+
+            public override String ToString()
+
+                => IsSuccess
+                       ? "Success"
+                       : "Failed" + (ErrorDescription.IsNullOrEmpty()
+                                         ? ": " + ErrorDescription.FirstText()
+                                         : "!");
+
+        }
+
+        #endregion
+
+        #region (protected virtual) CanDeleteNewsPosting(NewsPosting)
+
+        /// <summary>
+        /// Determines whether the news posting can safely be removed from the API.
+        /// </summary>
+        /// <param name="NewsPosting">The news posting to be removed.</param>
+        protected virtual I18NString CanDeleteNewsPosting(NewsPosting NewsPosting)
+        {
+            return new I18NString(Languages.en, "Currently not possible!");
+        }
+
+        #endregion
+
+
+        #region (protected) _RemoveNewsPosting(NewsPosting, OnRemoved = null, CurrentUserId = null)
+
+        /// <summary>
+        /// Remove the given news posting from the API.
+        /// </summary>
+        /// <param name="NewsPosting">The news posting to be removed from this API.</param>
+        /// <param name="OnRemoved">A delegate run whenever the news posting had been removed successfully.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
+        /// <param name="CurrentUserId">An optional news posting identification initiating this command/request.</param>
+        protected async Task<DeleteNewsPostingResult> _RemoveNewsPosting(NewsPosting                            NewsPosting,
+                                                                         Action<NewsPosting, EventTracking_Id>  OnRemoved         = null,
+                                                                         EventTracking_Id                       EventTrackingId   = null,
+                                                                         User_Id?                               CurrentUserId     = null)
+        {
+
+            if (NewsPosting is null)
+                throw new ArgumentNullException(nameof(NewsPosting),
+                                                "The given news posting must not be null!");
+
+            if (NewsPosting.API != this || !_NewsPostings.TryGetValue(NewsPosting.Id, out NewsPosting NewsPostingToBeRemoved))
+                throw new ArgumentException    ("The given news posting '" + NewsPosting.Id + "' does not exists in this API!",
+                                                nameof(NewsPosting));
+
+
+            var result = CanDeleteNewsPosting(NewsPosting);
+
+            if (result == null)
+            {
+
+                var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
+
+                await WriteToDatabaseFile(removeNewsPosting_MessageType,
+                                          NewsPosting.ToJSON(false, true),
+                                          eventTrackingId,
+                                          CurrentUserId);
+
+                _NewsPostings.Remove(NewsPosting.Id);
+
+
+                var OnNewsPostingRemovedLocal = OnNewsPostingRemoved;
+                if (OnNewsPostingRemovedLocal != null)
+                    await OnNewsPostingRemovedLocal?.Invoke(DateTime.UtcNow,
+                                                            NewsPosting,
+                                                            eventTrackingId,
+                                                            CurrentUserId);
+
+                await SendNotifications(NewsPosting,
+                                        removeNewsPosting_MessageType,
+                                        null,
+                                        eventTrackingId,
+                                        CurrentUserId);
+
+                OnRemoved?.Invoke(NewsPosting,
+                                  eventTrackingId);
+
+                return DeleteNewsPostingResult.Success;
+
+            }
+            else
+                return DeleteNewsPostingResult.Failed(result);
+
+        }
+
+        #endregion
+
+        #region RemoveNewsPosting             (NewsPosting, OnRemoved = null, CurrentUserId = null)
+
+        /// <summary>
+        /// Remove the given news posting from the API.
+        /// </summary>
+        /// <param name="NewsPosting">The news posting to be removed from this API.</param>
+        /// <param name="OnRemoved">A delegate run whenever the news posting had been removed successfully.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
+        /// <param name="CurrentUserId">An optional news posting identification initiating this command/request.</param>
+        public async Task<DeleteNewsPostingResult> RemoveNewsPosting(NewsPosting                            NewsPosting,
+                                                                     Action<NewsPosting, EventTracking_Id>  OnRemoved         = null,
+                                                                     EventTracking_Id                       EventTrackingId   = null,
+                                                                     User_Id?                               CurrentUserId     = null)
+        {
+
+            if (NewsPosting is null)
+                throw new ArgumentNullException(nameof(NewsPosting), "The given news posting must not be null!");
+
+            try
+            {
+
+                return (await NewsPostingsSemaphore.WaitAsync(SemaphoreSlimTimeout))
+
+                            ? await _RemoveNewsPosting(NewsPosting,
+                                                       OnRemoved,
+                                                       EventTrackingId,
+                                                       CurrentUserId)
+
+                            : null;
+
+            }
+            catch (Exception e)
+            {
+                return DeleteNewsPostingResult.Failed(e);
             }
             finally
             {
-                NewsPostingsSemaphore.Release();
+                try
+                {
+                    NewsPostingsSemaphore.Release();
+                }
+                catch
+                { }
             }
 
         }
+
+        #endregion
 
         #endregion
 
