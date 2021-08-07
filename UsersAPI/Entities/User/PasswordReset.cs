@@ -214,7 +214,7 @@ namespace social.OpenData.UsersAPI
                 {
                     UserIds = UserIdArray.Select(jsonvalue => User_Id.Parse(jsonvalue.Value<String>())).ToArray();
                 }
-                catch (Exception e)
+                catch
                 {
                     ErrorResponse = "The given array of users '" + UserIdArray + "' is invalid!";
                     return false;

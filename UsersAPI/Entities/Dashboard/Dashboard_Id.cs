@@ -37,12 +37,15 @@ namespace social.OpenData.UsersAPI
 
         #region Data
 
-        private static readonly Random _random = new Random(DateTime.Now.Millisecond);
-
         /// <summary>
         /// The internal identification.
         /// </summary>
-        private readonly String  InternalId;
+        private readonly String InternalId;
+
+        /// <summary>
+        /// Private non-cryptographic random number generator.
+        /// </summary>
+        private static readonly Random _random = new Random();
 
         #endregion
 
@@ -55,10 +58,10 @@ namespace social.OpenData.UsersAPI
             => InternalId.IsNullOrEmpty();
 
         /// <summary>
-        /// The length of the dashboard identification.
+        /// The length of the dashboard identificator.
         /// </summary>
         public UInt64 Length
-            => (UInt64) InternalId.Length;
+            => (UInt64) InternalId?.Length;
 
         #endregion
 
@@ -67,112 +70,88 @@ namespace social.OpenData.UsersAPI
         /// <summary>
         /// Create a new dashboard identification based on the given string.
         /// </summary>
-        /// <param name="String">The string representation of the dashboard identification.</param>
-        private Dashboard_Id(String  String)
+        private Dashboard_Id(String Text)
         {
-            this.InternalId  = String.ToLower();
+            InternalId = Text;
         }
 
         #endregion
 
 
-        #region (static) Random  (Size)
+        #region (static) Random(Length)
 
         /// <summary>
-        /// Create a random dashboard identification.
+        /// Create a new dashboard identification.
         /// </summary>
-        /// <param name="Size">The expected size of the dashboard identification.</param>
-        public static Dashboard_Id Random(UInt16? Size = 64)
+        /// <param name="Length">The expected length of the dashboard identification.</param>
+        public static Dashboard_Id Random(Byte Length = 15)
 
-            => new Dashboard_Id(_random.RandomString(Size ?? 64));
+            => new Dashboard_Id(_random.RandomString(Length).ToUpper());
 
         #endregion
 
-        #region (static) Parse   (Text)
+        #region Parse   (Text)
 
         /// <summary>
         /// Parse the given string as a dashboard identification.
         /// </summary>
-        /// <param name="Text">A text representation of a dashboard identification.</param>
+        /// <param name="Text">A text-representation of a dashboard identification.</param>
         public static Dashboard_Id Parse(String Text)
         {
 
-            #region Initial checks
+            if (TryParse(Text, out Dashboard_Id dashboardId))
+                return dashboardId;
 
-            if (Text != null)
-                Text = Text.Trim();
-
-            if (Text.IsNullOrEmpty())
-                throw new ArgumentNullException(nameof(Text), "The given text representation of a dashboard identification must not be null or empty!");
-
-            #endregion
-
-            return new Dashboard_Id(Text);
+            throw new ArgumentException("Invalid text-representation of a dashboard identification: '" + Text + "'!",
+                                        nameof(Text));
 
         }
 
         #endregion
 
-        #region (static) TryParse(Text)
+        #region TryParse(Text)
 
         /// <summary>
         /// Try to parse the given string as a dashboard identification.
         /// </summary>
-        /// <param name="Text">A text representation of a dashboard identification.</param>
+        /// <param name="Text">A text-representation of a dashboard identification.</param>
         public static Dashboard_Id? TryParse(String Text)
         {
 
-            #region Initial checks
+            if (TryParse(Text, out Dashboard_Id dashboardId))
+                return dashboardId;
 
-            if (Text != null)
-                Text = Text.Trim();
-
-            if (Text.IsNullOrEmpty())
-                throw new ArgumentNullException(nameof(Text), "The given text representation of a dashboard identification must not be null or empty!");
-
-            #endregion
-
-            if (TryParse(Text, out Dashboard_Id _PostingId))
-                return _PostingId;
-
-            return new Dashboard_Id?();
+            return null;
 
         }
 
         #endregion
 
-        #region (static) TryParse(Text, out PostingId)
+        #region TryParse(Text, out DashboardId)
 
         /// <summary>
         /// Try to parse the given string as a dashboard identification.
         /// </summary>
-        /// <param name="Text">A text representation of a dashboard identification.</param>
-        /// <param name="PostingId">The parsed dashboard identification.</param>
-        public static Boolean TryParse(String Text, out Dashboard_Id PostingId)
+        /// <param name="Text">A text-representation of a dashboard identification.</param>
+        /// <param name="DashboardId">The parsed dashboard identification.</param>
+        public static Boolean TryParse(String Text, out Dashboard_Id DashboardId)
         {
 
-            #region Initial checks
+            Text = Text?.Trim();
 
-            if (Text != null)
-                Text = Text.Trim();
-
-            if (Text.IsNullOrEmpty())
-                throw new ArgumentNullException(nameof(Text), "The given text representation of a dashboard identification must not be null or empty!");
-
-            String Realm = null;
-
-            #endregion
-
-            try
+            if (Text.IsNotNullOrEmpty())
             {
-                PostingId = new Dashboard_Id(Text);
-                return true;
+                try
+                {
+                    DashboardId = new Dashboard_Id(Text);
+                    return true;
+                }
+                catch
+                { }
             }
-            catch (Exception)
-            {
-                PostingId = default(Dashboard_Id);
-                return false;
-            }
+
+            DashboardId = default;
+            return false;
 
         }
 
@@ -183,123 +162,110 @@ namespace social.OpenData.UsersAPI
         /// <summary>
         /// Clone this dashboard identification.
         /// </summary>
-
         public Dashboard_Id Clone
 
-            => new Dashboard_Id(new String(InternalId.ToCharArray()));
+            => new Dashboard_Id(
+                   new String(InternalId?.ToCharArray())
+               );
 
         #endregion
 
 
         #region Operator overloading
 
-        #region Operator == (PostingId1, PostingId2)
+        #region Operator == (DashboardIdId1, DashboardIdId2)
 
         /// <summary>
         /// Compares two instances of this object.
         /// </summary>
-        /// <param name="PostingId1">a dashboard identification.</param>
-        /// <param name="PostingId2">Another dashboard identification.</param>
+        /// <param name="DashboardIdId1">A dashboard identification.</param>
+        /// <param name="DashboardIdId2">Another dashboard identification.</param>
         /// <returns>true|false</returns>
-        public static Boolean operator == (Dashboard_Id PostingId1, Dashboard_Id PostingId2)
-        {
+        public static Boolean operator == (Dashboard_Id DashboardIdId1,
+                                           Dashboard_Id DashboardIdId2)
 
-            // If both are null, or both are same instance, return true.
-            if (Object.ReferenceEquals(PostingId1, PostingId2))
-                return true;
-
-            // If one is null, but not both, return false.
-            if (((Object) PostingId1 == null) || ((Object) PostingId2 == null))
-                return false;
-
-            return PostingId1.Equals(PostingId2);
-
-        }
+            => DashboardIdId1.Equals(DashboardIdId2);
 
         #endregion
 
-        #region Operator != (PostingId1, PostingId2)
+        #region Operator != (DashboardIdId1, DashboardIdId2)
 
         /// <summary>
         /// Compares two instances of this object.
         /// </summary>
-        /// <param name="PostingId1">a dashboard identification.</param>
-        /// <param name="PostingId2">Another dashboard identification.</param>
+        /// <param name="DashboardIdId1">A dashboard identification.</param>
+        /// <param name="DashboardIdId2">Another dashboard identification.</param>
         /// <returns>true|false</returns>
-        public static Boolean operator != (Dashboard_Id PostingId1, Dashboard_Id PostingId2)
-            => !(PostingId1 == PostingId2);
+        public static Boolean operator != (Dashboard_Id DashboardIdId1,
+                                           Dashboard_Id DashboardIdId2)
+
+            => !DashboardIdId1.Equals(DashboardIdId2);
 
         #endregion
 
-        #region Operator <  (PostingId1, PostingId2)
+        #region Operator <  (DashboardIdId1, DashboardIdId2)
 
         /// <summary>
         /// Compares two instances of this object.
         /// </summary>
-        /// <param name="PostingId1">a dashboard identification.</param>
-        /// <param name="PostingId2">Another dashboard identification.</param>
+        /// <param name="DashboardIdId1">A dashboard identification.</param>
+        /// <param name="DashboardIdId2">Another dashboard identification.</param>
         /// <returns>true|false</returns>
-        public static Boolean operator < (Dashboard_Id PostingId1, Dashboard_Id PostingId2)
-        {
+        public static Boolean operator < (Dashboard_Id DashboardIdId1,
+                                          Dashboard_Id DashboardIdId2)
 
-            if ((Object) PostingId1 == null)
-                throw new ArgumentNullException(nameof(PostingId1), "The given PostingId1 must not be null!");
-
-            return PostingId1.CompareTo(PostingId2) < 0;
-
-        }
+            => DashboardIdId1.CompareTo(DashboardIdId2) < 0;
 
         #endregion
 
-        #region Operator <= (PostingId1, PostingId2)
+        #region Operator <= (DashboardIdId1, DashboardIdId2)
 
         /// <summary>
         /// Compares two instances of this object.
         /// </summary>
-        /// <param name="PostingId1">a dashboard identification.</param>
-        /// <param name="PostingId2">Another dashboard identification.</param>
+        /// <param name="DashboardIdId1">A dashboard identification.</param>
+        /// <param name="DashboardIdId2">Another dashboard identification.</param>
         /// <returns>true|false</returns>
-        public static Boolean operator <= (Dashboard_Id PostingId1, Dashboard_Id PostingId2)
-            => !(PostingId1 > PostingId2);
+        public static Boolean operator <= (Dashboard_Id DashboardIdId1,
+                                           Dashboard_Id DashboardIdId2)
+
+            => DashboardIdId1.CompareTo(DashboardIdId2) <= 0;
 
         #endregion
 
-        #region Operator >  (PostingId1, PostingId2)
+        #region Operator >  (DashboardIdId1, DashboardIdId2)
 
         /// <summary>
         /// Compares two instances of this object.
         /// </summary>
-        /// <param name="PostingId1">a dashboard identification.</param>
-        /// <param name="PostingId2">Another dashboard identification.</param>
+        /// <param name="DashboardIdId1">A dashboard identification.</param>
+        /// <param name="DashboardIdId2">Another dashboard identification.</param>
         /// <returns>true|false</returns>
-        public static Boolean operator > (Dashboard_Id PostingId1, Dashboard_Id PostingId2)
-        {
+        public static Boolean operator > (Dashboard_Id DashboardIdId1,
+                                          Dashboard_Id DashboardIdId2)
 
-            if ((Object) PostingId1 == null)
-                throw new ArgumentNullException(nameof(PostingId1), "The given PostingId1 must not be null!");
-
-            return PostingId1.CompareTo(PostingId2) > 0;
-
-        }
+            => DashboardIdId1.CompareTo(DashboardIdId2) > 0;
 
         #endregion
 
-        #region Operator >= (PostingId1, PostingId2)
+        #region Operator >= (DashboardIdId1, DashboardIdId2)
 
         /// <summary>
         /// Compares two instances of this object.
         /// </summary>
-        /// <param name="PostingId1">a dashboard identification.</param>
-        /// <param name="PostingId2">Another dashboard identification.</param>
+        /// <param name="DashboardIdId1">A dashboard identification.</param>
+        /// <param name="DashboardIdId2">Another dashboard identification.</param>
         /// <returns>true|false</returns>
-        public static Boolean operator >= (Dashboard_Id PostingId1, Dashboard_Id PostingId2)
-            => !(PostingId1 < PostingId2);
+        public static Boolean operator >= (Dashboard_Id DashboardIdId1,
+                                           Dashboard_Id DashboardIdId2)
+
+            => DashboardIdId1.CompareTo(DashboardIdId2) >= 0;
 
         #endregion
 
         #endregion
 
-        #region IComparable<PostingId> Members
+        #region IComparable<DashboardId> Members
 
         #region CompareTo(Object)
 
@@ -308,42 +274,31 @@ namespace social.OpenData.UsersAPI
         /// </summary>
         /// <param name="Object">An object to compare with.</param>
         public Int32 CompareTo(Object Object)
-        {
 
-            if (Object == null)
-                throw new ArgumentNullException(nameof(Object), "The given object must not be null!");
-
-            if (!(Object is Dashboard_Id))
-                throw new ArgumentException("The given object is not a dashboard identification!",
-                                            nameof(Object));
-
-            return CompareTo((Dashboard_Id) Object);
-
-        }
+            => Object is Dashboard_Id dashboardId
+                   ? CompareTo(dashboardId)
+                   : throw new ArgumentException("The given object is not a dashboard identification!",
+                                                 nameof(Object));
 
         #endregion
 
-        #region CompareTo(PostingId)
+        #region CompareTo(DashboardId)
 
         /// <summary>
         /// Compares two instances of this object.
         /// </summary>
-        /// <param name="PostingId">An object to compare with.</param>
-        public Int32 CompareTo(Dashboard_Id PostingId)
-        {
+        /// <param name="DashboardId">An object to compare with.</param>
+        public Int32 CompareTo(Dashboard_Id DashboardId)
 
-            if ((Object) PostingId == null)
-                throw new ArgumentNullException(nameof(PostingId),  "The given dashboard identification must not be null!");
-
-            return String.Compare(InternalId, PostingId.InternalId, StringComparison.OrdinalIgnoreCase);
-
-        }
+            => String.Compare(InternalId,
+                              DashboardId.InternalId,
+                              StringComparison.OrdinalIgnoreCase);
 
         #endregion
 
         #endregion
 
-        #region IEquatable<PostingId> Members
+        #region IEquatable<DashboardId> Members
 
         #region Equals(Object)
 
@@ -353,36 +308,24 @@ namespace social.OpenData.UsersAPI
         /// <param name="Object">An object to compare with.</param>
         /// <returns>true|false</returns>
         public override Boolean Equals(Object Object)
-        {
 
-            if (Object == null)
-                return false;
-
-            if (!(Object is Dashboard_Id))
-                return false;
-
-            return Equals((Dashboard_Id) Object);
-
-        }
+            => Object is Dashboard_Id dashboardId &&
+                   Equals(dashboardId);
 
         #endregion
 
-        #region Equals(PostingId)
+        #region Equals(DashboardId)
 
         /// <summary>
-        /// Compares two dashboard identifications for equality.
+        /// Compares two DashboardIds for equality.
         /// </summary>
-        /// <param name="PostingId">a dashboard identification to compare with.</param>
+        /// <param name="DashboardId">A dashboard identification to compare with.</param>
         /// <returns>True if both match; False otherwise.</returns>
-        public Boolean Equals(Dashboard_Id PostingId)
-        {
+        public Boolean Equals(Dashboard_Id DashboardId)
 
-            if ((Object) PostingId == null)
-                return false;
-
-            return InternalId.Equals(PostingId.InternalId, StringComparison.OrdinalIgnoreCase);
-
-        }
+            => String.Equals(InternalId,
+                             DashboardId.InternalId,
+                             StringComparison.OrdinalIgnoreCase);
 
         #endregion
 
@@ -391,23 +334,23 @@ namespace social.OpenData.UsersAPI
         #region GetHashCode()
 
         /// <summary>
-        /// Return the HashCode of this object.
+        /// Return the hash code of this object.
         /// </summary>
-        /// <returns>The HashCode of this object.</returns>
+        /// <returns>The hash code of this object.</returns>
         public override Int32 GetHashCode()
 
-            => InternalId.ToLower().GetHashCode();
+            => InternalId?.GetHashCode() ?? 0;
 
         #endregion
 
         #region (override) ToString()
 
         /// <summary>
-        /// Return a text representation of this object.
+        /// Return a text-representation of this object.
         /// </summary>
         public override String ToString()
 
-            => InternalId;
+            => InternalId ?? "";
 
         #endregion
 

@@ -37,12 +37,15 @@ namespace social.OpenData.UsersAPI
 
         #region Data
 
-        private static readonly Random _random = new Random(DateTime.Now.Millisecond);
-
         /// <summary>
         /// The internal identification.
         /// </summary>
-        private readonly String  InternalId;
+        private readonly String InternalId;
+
+        /// <summary>
+        /// Private non-cryptographic random number generator.
+        /// </summary>
+        private static readonly Random _random = new Random();
 
         #endregion
 
@@ -55,10 +58,10 @@ namespace social.OpenData.UsersAPI
             => InternalId.IsNullOrEmpty();
 
         /// <summary>
-        /// The length of the news posting identification.
+        /// The length of the news posting identificator.
         /// </summary>
         public UInt64 Length
-            => (UInt64) InternalId.Length;
+            => (UInt64) InternalId?.Length;
 
         #endregion
 
@@ -67,112 +70,88 @@ namespace social.OpenData.UsersAPI
         /// <summary>
         /// Create a new news posting identification based on the given string.
         /// </summary>
-        /// <param name="String">The string representation of the news posting identification.</param>
-        private NewsPosting_Id(String  String)
+        private NewsPosting_Id(String Text)
         {
-            this.InternalId  = String.ToLower();
+            InternalId = Text;
         }
 
         #endregion
 
 
-        #region (static) Random  (Size)
+        #region (static) Random(Length)
 
         /// <summary>
-        /// Create a random news posting identification.
+        /// Create a new news posting identification.
         /// </summary>
-        /// <param name="Size">The expected size of the news posting identification.</param>
-        public static NewsPosting_Id Random(UInt16? Size = 64)
+        /// <param name="Length">The expected length of the news posting identification.</param>
+        public static NewsPosting_Id Random(Byte Length = 15)
 
-            => new NewsPosting_Id(_random.RandomString(Size ?? 64));
+            => new NewsPosting_Id(_random.RandomString(Length));
 
         #endregion
 
-        #region (static) Parse   (Text)
+        #region Parse   (Text)
 
         /// <summary>
         /// Parse the given string as a news posting identification.
         /// </summary>
-        /// <param name="Text">A text representation of a news posting identification.</param>
+        /// <param name="Text">A text-representation of a news posting identification.</param>
         public static NewsPosting_Id Parse(String Text)
         {
 
-            #region Initial checks
+            if (TryParse(Text, out NewsPosting_Id newsPostingId))
+                return newsPostingId;
 
-            if (Text != null)
-                Text = Text.Trim();
-
-            if (Text.IsNullOrEmpty())
-                throw new ArgumentNullException(nameof(Text), "The given text representation of a news posting identification must not be null or empty!");
-
-            #endregion
-
-            return new NewsPosting_Id(Text);
+            throw new ArgumentException("Invalid text-representation of a news posting identification: '" + Text + "'!",
+                                        nameof(Text));
 
         }
 
         #endregion
 
-        #region (static) TryParse(Text)
+        #region TryParse(Text)
 
         /// <summary>
-        /// Try to parse the given text as a news posting identification.
+        /// Try to parse the given string as a news posting identification.
         /// </summary>
-        /// <param name="Text">A text representation of a news posting identification.</param>
+        /// <param name="Text">A text-representation of a news posting identification.</param>
         public static NewsPosting_Id? TryParse(String Text)
         {
 
-            #region Initial checks
+            if (TryParse(Text, out NewsPosting_Id newsPostingId))
+                return newsPostingId;
 
-            if (Text != null)
-                Text = Text.Trim();
-
-            if (Text.IsNullOrEmpty())
-                throw new ArgumentNullException(nameof(Text), "The given text representation of a news posting identification must not be null or empty!");
-
-            #endregion
-
-            if (TryParse(Text, out NewsPosting_Id _PostingId))
-                return _PostingId;
-
-            return new NewsPosting_Id?();
+            return null;
 
         }
 
         #endregion
 
-        #region (static) TryParse(Text, out PostingId)
+        #region TryParse(Text, out NewsPostingId)
 
         /// <summary>
-        /// Try to parse the given text as a news posting identification.
+        /// Try to parse the given string as a news posting identification.
         /// </summary>
-        /// <param name="Text">A text representation of a news posting identification.</param>
-        /// <param name="PostingId">The parsed news posting identification.</param>
-        public static Boolean TryParse(String Text, out NewsPosting_Id PostingId)
+        /// <param name="Text">A text-representation of a news posting identification.</param>
+        /// <param name="NewsPostingId">The parsed news posting identification.</param>
+        public static Boolean TryParse(String Text, out NewsPosting_Id NewsPostingId)
         {
 
-            #region Initial checks
+            Text = Text?.Trim();
 
-            if (Text != null)
-                Text = Text.Trim();
-
-            if (Text.IsNullOrEmpty())
-                throw new ArgumentNullException(nameof(Text), "The given text representation of a news posting identification must not be null or empty!");
-
-            String Realm = null;
-
-            #endregion
-
-            try
+            if (Text.IsNotNullOrEmpty())
             {
-                PostingId = new NewsPosting_Id(Text);
-                return true;
+                try
+                {
+                    NewsPostingId = new NewsPosting_Id(Text);
+                    return true;
+                }
+                catch
+                { }
             }
-            catch (Exception)
-            {
-                PostingId = default(NewsPosting_Id);
-                return false;
-            }
+
+            NewsPostingId = default;
+            return false;
 
         }
 
@@ -183,123 +162,110 @@ namespace social.OpenData.UsersAPI
         /// <summary>
         /// Clone this news posting identification.
         /// </summary>
-
         public NewsPosting_Id Clone
 
-            => new NewsPosting_Id(new String(InternalId.ToCharArray()));
+            => new NewsPosting_Id(
+                   new String(InternalId?.ToCharArray())
+               );
 
         #endregion
 
 
         #region Operator overloading
 
-        #region Operator == (PostingId1, PostingId2)
+        #region Operator == (NewsPostingId1, NewsPostingId2)
 
         /// <summary>
         /// Compares two instances of this object.
         /// </summary>
-        /// <param name="PostingId1">a news posting identification.</param>
-        /// <param name="PostingId2">Another news posting identification.</param>
+        /// <param name="NewsPostingId1">A news posting identification.</param>
+        /// <param name="NewsPostingId2">Another news posting identification.</param>
         /// <returns>true|false</returns>
-        public static Boolean operator == (NewsPosting_Id PostingId1, NewsPosting_Id PostingId2)
-        {
+        public static Boolean operator == (NewsPosting_Id NewsPostingId1,
+                                           NewsPosting_Id NewsPostingId2)
 
-            // If both are null, or both are same instance, return true.
-            if (Object.ReferenceEquals(PostingId1, PostingId2))
-                return true;
-
-            // If one is null, but not both, return false.
-            if (((Object) PostingId1 == null) || ((Object) PostingId2 == null))
-                return false;
-
-            return PostingId1.Equals(PostingId2);
-
-        }
+            => NewsPostingId1.Equals(NewsPostingId2);
 
         #endregion
 
-        #region Operator != (PostingId1, PostingId2)
+        #region Operator != (NewsPostingId1, NewsPostingId2)
 
         /// <summary>
         /// Compares two instances of this object.
         /// </summary>
-        /// <param name="PostingId1">a news posting identification.</param>
-        /// <param name="PostingId2">Another news posting identification.</param>
+        /// <param name="NewsPostingId1">A news posting identification.</param>
+        /// <param name="NewsPostingId2">Another news posting identification.</param>
         /// <returns>true|false</returns>
-        public static Boolean operator != (NewsPosting_Id PostingId1, NewsPosting_Id PostingId2)
-            => !(PostingId1 == PostingId2);
+        public static Boolean operator != (NewsPosting_Id NewsPostingId1,
+                                           NewsPosting_Id NewsPostingId2)
+
+            => !NewsPostingId1.Equals(NewsPostingId2);
 
         #endregion
 
-        #region Operator <  (PostingId1, PostingId2)
+        #region Operator <  (NewsPostingId1, NewsPostingId2)
 
         /// <summary>
         /// Compares two instances of this object.
         /// </summary>
-        /// <param name="PostingId1">a news posting identification.</param>
-        /// <param name="PostingId2">Another news posting identification.</param>
+        /// <param name="NewsPostingId1">A news posting identification.</param>
+        /// <param name="NewsPostingId2">Another news posting identification.</param>
         /// <returns>true|false</returns>
-        public static Boolean operator < (NewsPosting_Id PostingId1, NewsPosting_Id PostingId2)
-        {
+        public static Boolean operator < (NewsPosting_Id NewsPostingId1,
+                                          NewsPosting_Id NewsPostingId2)
 
-            if ((Object) PostingId1 == null)
-                throw new ArgumentNullException(nameof(PostingId1), "The given PostingId1 must not be null!");
-
-            return PostingId1.CompareTo(PostingId2) < 0;
-
-        }
+            => NewsPostingId1.CompareTo(NewsPostingId2) < 0;
 
         #endregion
 
-        #region Operator <= (PostingId1, PostingId2)
+        #region Operator <= (NewsPostingId1, NewsPostingId2)
 
         /// <summary>
         /// Compares two instances of this object.
         /// </summary>
-        /// <param name="PostingId1">a news posting identification.</param>
-        /// <param name="PostingId2">Another news posting identification.</param>
+        /// <param name="NewsPostingId1">A news posting identification.</param>
+        /// <param name="NewsPostingId2">Another news posting identification.</param>
         /// <returns>true|false</returns>
-        public static Boolean operator <= (NewsPosting_Id PostingId1, NewsPosting_Id PostingId2)
-            => !(PostingId1 > PostingId2);
+        public static Boolean operator <= (NewsPosting_Id NewsPostingId1,
+                                           NewsPosting_Id NewsPostingId2)
+
+            => NewsPostingId1.CompareTo(NewsPostingId2) <= 0;
 
         #endregion
 
-        #region Operator >  (PostingId1, PostingId2)
+        #region Operator >  (NewsPostingId1, NewsPostingId2)
 
         /// <summary>
         /// Compares two instances of this object.
         /// </summary>
-        /// <param name="PostingId1">a news posting identification.</param>
-        /// <param name="PostingId2">Another news posting identification.</param>
+        /// <param name="NewsPostingId1">A news posting identification.</param>
+        /// <param name="NewsPostingId2">Another news posting identification.</param>
         /// <returns>true|false</returns>
-        public static Boolean operator > (NewsPosting_Id PostingId1, NewsPosting_Id PostingId2)
-        {
+        public static Boolean operator > (NewsPosting_Id NewsPostingId1,
+                                          NewsPosting_Id NewsPostingId2)
 
-            if ((Object) PostingId1 == null)
-                throw new ArgumentNullException(nameof(PostingId1), "The given PostingId1 must not be null!");
-
-            return PostingId1.CompareTo(PostingId2) > 0;
-
-        }
+            => NewsPostingId1.CompareTo(NewsPostingId2) > 0;
 
         #endregion
 
-        #region Operator >= (PostingId1, PostingId2)
+        #region Operator >= (NewsPostingId1, NewsPostingId2)
 
         /// <summary>
         /// Compares two instances of this object.
         /// </summary>
-        /// <param name="PostingId1">a news posting identification.</param>
-        /// <param name="PostingId2">Another news posting identification.</param>
+        /// <param name="NewsPostingId1">A news posting identification.</param>
+        /// <param name="NewsPostingId2">Another news posting identification.</param>
         /// <returns>true|false</returns>
-        public static Boolean operator >= (NewsPosting_Id PostingId1, NewsPosting_Id PostingId2)
-            => !(PostingId1 < PostingId2);
+        public static Boolean operator >= (NewsPosting_Id NewsPostingId1,
+                                           NewsPosting_Id NewsPostingId2)
+
+            => NewsPostingId1.CompareTo(NewsPostingId2) >= 0;
 
         #endregion
 
         #endregion
 
-        #region IComparable<PostingId> Members
+        #region IComparable<NewsPostingId> Members
 
         #region CompareTo(Object)
 
@@ -308,42 +274,31 @@ namespace social.OpenData.UsersAPI
         /// </summary>
         /// <param name="Object">An object to compare with.</param>
         public Int32 CompareTo(Object Object)
-        {
 
-            if (Object == null)
-                throw new ArgumentNullException(nameof(Object), "The given object must not be null!");
-
-            if (!(Object is NewsPosting_Id))
-                throw new ArgumentException("The given object is not a news posting identification!",
-                                            nameof(Object));
-
-            return CompareTo((NewsPosting_Id) Object);
-
-        }
+            => Object is NewsPosting_Id newsPostingId
+                   ? CompareTo(newsPostingId)
+                   : throw new ArgumentException("The given object is not a news posting identification!",
+                                                 nameof(Object));
 
         #endregion
 
-        #region CompareTo(PostingId)
+        #region CompareTo(NewsPostingId)
 
         /// <summary>
         /// Compares two instances of this object.
         /// </summary>
-        /// <param name="PostingId">An object to compare with.</param>
-        public Int32 CompareTo(NewsPosting_Id PostingId)
-        {
+        /// <param name="NewsPostingId">An object to compare with.</param>
+        public Int32 CompareTo(NewsPosting_Id NewsPostingId)
 
-            if ((Object) PostingId == null)
-                throw new ArgumentNullException(nameof(PostingId),  "The given news posting identification must not be null!");
-
-            return String.Compare(InternalId, PostingId.InternalId, StringComparison.OrdinalIgnoreCase);
-
-        }
+            => String.Compare(InternalId,
+                              NewsPostingId.InternalId,
+                              StringComparison.OrdinalIgnoreCase);
 
         #endregion
 
         #endregion
 
-        #region IEquatable<PostingId> Members
+        #region IEquatable<NewsPostingId> Members
 
         #region Equals(Object)
 
@@ -353,36 +308,24 @@ namespace social.OpenData.UsersAPI
         /// <param name="Object">An object to compare with.</param>
         /// <returns>true|false</returns>
         public override Boolean Equals(Object Object)
-        {
 
-            if (Object == null)
-                return false;
-
-            if (!(Object is NewsPosting_Id))
-                return false;
-
-            return Equals((NewsPosting_Id) Object);
-
-        }
+            => Object is NewsPosting_Id newsPostingId &&
+                   Equals(newsPostingId);
 
         #endregion
 
-        #region Equals(PostingId)
+        #region Equals(NewsPostingId)
 
         /// <summary>
-        /// Compares two news posting identifications for equality.
+        /// Compares two NewsPostingIds for equality.
         /// </summary>
-        /// <param name="PostingId">a news posting identification to compare with.</param>
+        /// <param name="NewsPostingId">A news posting identification to compare with.</param>
         /// <returns>True if both match; False otherwise.</returns>
-        public Boolean Equals(NewsPosting_Id PostingId)
-        {
+        public Boolean Equals(NewsPosting_Id NewsPostingId)
 
-            if ((Object) PostingId == null)
-                return false;
-
-            return InternalId.Equals(PostingId.InternalId, StringComparison.OrdinalIgnoreCase);
-
-        }
+            => String.Equals(InternalId,
+                             NewsPostingId.InternalId,
+                             StringComparison.OrdinalIgnoreCase);
 
         #endregion
 
@@ -391,23 +334,23 @@ namespace social.OpenData.UsersAPI
         #region GetHashCode()
 
         /// <summary>
-        /// Return the HashCode of this object.
+        /// Return the hash code of this object.
         /// </summary>
-        /// <returns>The HashCode of this object.</returns>
+        /// <returns>The hash code of this object.</returns>
         public override Int32 GetHashCode()
 
-            => InternalId.ToLower().GetHashCode();
+            => InternalId?.GetHashCode() ?? 0;
 
         #endregion
 
         #region (override) ToString()
 
         /// <summary>
-        /// Return a text representation of this object.
+        /// Return a text-representation of this object.
         /// </summary>
         public override String ToString()
 
-            => InternalId;
+            => InternalId ?? "";
 
         #endregion
 

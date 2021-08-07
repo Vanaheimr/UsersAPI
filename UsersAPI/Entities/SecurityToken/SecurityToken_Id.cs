@@ -41,7 +41,10 @@ namespace social.OpenData.UsersAPI
         /// </summary>
         private readonly String  InternalId;
 
-        private static readonly Random _Random = new Random();
+        /// <summary>
+        /// Private non-cryptographic random number generator.
+        /// </summary>
+        private static readonly Random _random = new Random();
 
         #endregion
 
@@ -85,7 +88,7 @@ namespace social.OpenData.UsersAPI
         public static SecurityToken_Id Random(UInt16  Length              = 40,
                                               Random  SourceOfRandomness  = null)
 
-            => new SecurityToken_Id((SourceOfRandomness ?? _Random).RandomString(Length));
+            => new SecurityToken_Id((SourceOfRandomness ?? _random).RandomString(Length));
 
         #endregion
 
@@ -147,7 +150,7 @@ namespace social.OpenData.UsersAPI
                     SecurityTokenId = new SecurityToken_Id(Text);
                     return true;
                 }
-                catch (Exception)
+                catch
                 { }
             }
 
@@ -201,7 +204,7 @@ namespace social.OpenData.UsersAPI
         public static Boolean operator != (SecurityToken_Id SecurityTokenId1,
                                            SecurityToken_Id SecurityTokenId2)
 
-            => !(SecurityTokenId1 == SecurityTokenId2);
+            => !SecurityTokenId1.Equals(SecurityTokenId2);
 
         #endregion
 

@@ -116,7 +116,6 @@
     <Compile Include="Entities\Organization\Organization2UserEdgeTypes.cs" />
     <Compile Include="Entities\Group\Group.cs" />
     <Compile Include="Entities\Group\UserGroup2User.cs" />
-    <Compile Include="Entities\Group\Group_Id.cs" />
     <Compile Include="Entities\Message\Message.cs" />
     <Compile Include="Entities\Message\Message_Id.cs" />
     <Compile Include="Entities\BlogPosting\BlogPosting.cs" />

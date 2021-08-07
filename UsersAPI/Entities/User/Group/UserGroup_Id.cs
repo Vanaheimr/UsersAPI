@@ -34,154 +34,89 @@ namespace social.OpenData.UsersAPI
 
         #region Data
 
-        private static readonly Random _random = new Random(DateTime.Now.Millisecond);
+        /// <summary>
+        /// The internal identification.
+        /// </summary>
+        private readonly String InternalId;
+
+        /// <summary>
+        /// Private non-cryptographic random number generator.
+        /// </summary>
+        private static readonly Random _random = new Random();
 
         #endregion
 
         #region Properties
 
         /// <summary>
-        /// The internal context.
-        /// </summary>
-        internal String  Context    { get; }
-
-        /// <summary>
-        /// The internal identification.
-        /// </summary>
-        internal String  Id         { get; }
-
-
-        /// <summary>
         /// Indicates whether this identification is null or empty.
         /// </summary>
         public Boolean IsNullOrEmpty
-
-            => Id.IsNullOrEmpty();
+            => InternalId.IsNullOrEmpty();
 
         /// <summary>
-        /// The length of the user group identification.
+        /// The length of the user group identificator.
         /// </summary>
         public UInt64 Length
-
-            => (UInt64) ((Context.IsNotNullOrEmpty()
-                              ? Context.Length + 1
-                              : 0) +
-                         (Id?.Length ?? 0));
+            => (UInt64) InternalId?.Length;
 
         #endregion
 
         #region Constructor(s)
 
-        #region UserGroup_Id(Text)
-
         /// <summary>
-        /// Create a new user group identification based on the given text.
+        /// Create a new user group identification based on the given string.
         /// </summary>
-        /// <param name="Text">The text representation of the user group identification.</param>
         private UserGroup_Id(String Text)
-
-            : this(String.Empty,
-                   Text)
-
-        { }
-
-        #endregion
-
-        #region UserGroup_Id(Context, Text)
-
-        /// <summary>
-        /// Create a new user group identification based on the given text and context.
-        /// </summary>
-        /// <param name="Context">The text representation of the user group identification context.</param>
-        /// <param name="Text">The text representation of the user group identification.</param>
-        private UserGroup_Id(String  Context,
-                                      String  Text)
         {
-
-            this.Context  = Context?.Trim();
-            this.Id       = Text?.   Trim();
-
+            InternalId = Text;
         }
 
         #endregion
 
-        #endregion
 
-
-        #region (static) Random  (Length)
+        #region (static) Random(Length)
 
         /// <summary>
-        /// Create a new random user group identification.
+        /// Create a new user group identification.
         /// </summary>
         /// <param name="Length">The expected length of the user group identification.</param>
-        public static UserGroup_Id Random(Byte Length = 10)
+        public static UserGroup_Id Random(Byte Length = 20)
 
-            => new UserGroup_Id(_random.RandomString(Length).ToUpper());
+            => new UserGroup_Id(_random.RandomString(Length));
 
         #endregion
 
-        #region (static) Parse   (         Text)
+        #region Parse   (Text)
 
         /// <summary>
         /// Parse the given string as an user group identification.
         /// </summary>
-        /// <param name="Text">A text representation of an user group identification.</param>
+        /// <param name="Text">A text-representation of an user group identification.</param>
         public static UserGroup_Id Parse(String Text)
         {
 
             if (TryParse(Text, out UserGroup_Id userGroupId))
                 return userGroupId;
 
-            if (Text.IsNullOrEmpty())
-                throw new ArgumentNullException(nameof(Text), "The given text representation of an user group identification must not be null or empty!");
-
-            throw new ArgumentException("The given text representation of an user group identification is invalid!", nameof(Text));
+            throw new ArgumentException("Invalid text-representation of an user group identification: '" + Text + "'!",
+                                        nameof(Text));
 
         }
 
         #endregion
 
-        #region (static) Parse   (Context, Text)
+        #region TryParse(Text)
 
         /// <summary>
-        /// Parse the given string as an user group identification.
+        /// Try to parse the given string as an user group identification.
         /// </summary>
-        /// <param name="Context">The text representation of the user group identification context.</param>
-        /// <param name="Text">A text representation of an user group identification.</param>
-        public static UserGroup_Id Parse(String  Context,
-                                                  String  Text)
-        {
-
-            if (TryParse(Context,
-                         Text,
-                         out UserGroup_Id userGroupId))
-            {
-                return userGroupId;
-            }
-
-            if (Text.IsNullOrEmpty())
-                throw new ArgumentNullException(nameof(Text), "The given text representation of an user group identification must not be null or empty!");
-
-            throw new ArgumentException("The given text representation of an user group identification is invalid!", nameof(Text));
-
-        }
-
-        #endregion
-
-        #region (static) TryParse(         Text)
-
-        /// <summary>
-        /// Try to parse the given text as an user group identification.
-        /// </summary>
-        /// <param name="Text">A text representation of an user group identification.</param>
+        /// <param name="Text">A text-representation of an user group identification.</param>
         public static UserGroup_Id? TryParse(String Text)
         {
 
-            if (TryParse(Text,
-                         out UserGroup_Id userGroupId))
-            {
+            if (TryParse(Text, out UserGroup_Id userGroupId))
                 return userGroupId;
-            }
 
             return null;
 
@@ -189,70 +124,14 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
-        #region (static) TryParse(Context, Text)
+        #region TryParse(Text, out UserGroupId)
 
         /// <summary>
-        /// Try to parse the given text as an user group identification.
+        /// Try to parse the given string as an user group identification.
         /// </summary>
-        /// <param name="Context">The text representation of the user group identification context.</param>
-        /// <param name="Text">A text representation of an user group identification.</param>
-        public static UserGroup_Id? TryParse(String  Context,
-                                             String  Text)
-        {
-
-            if (TryParse(Context,
-                         Text,
-                         out UserGroup_Id userGroupId))
-            {
-                return userGroupId;
-            }
-
-            return null;
-
-        }
-
-        #endregion
-
-        #region (static) TryParse(         Text, out UserGroupId)
-
-        /// <summary>
-        /// Try to parse the given text as an user group identification.
-        /// </summary>
-        /// <param name="Text">A text representation of an user group identification.</param>
+        /// <param name="Text">A text-representation of an user group identification.</param>
         /// <param name="UserGroupId">The parsed user group identification.</param>
         public static Boolean TryParse(String Text, out UserGroup_Id UserGroupId)
-        {
-
-            if (Text.IsNullOrEmpty())
-            {
-                UserGroupId = default;
-                return false;
-            }
-
-            if (Text.Contains("."))
-                return TryParse(Text.Substring(0, Text.LastIndexOf(".")),
-                                Text.Substring(Text.LastIndexOf(".") + 1),
-                                out UserGroupId);
-
-            return TryParse(String.Empty,
-                            Text,
-                            out UserGroupId);
-
-        }
-
-        #endregion
-
-        #region (static) TryParse(Context, Text, out UserGroupId)
-
-        /// <summary>
-        /// Try to parse the given context and text as an user group identification.
-        /// </summary>
-        /// <param name="Context">The text representation of the user group identification context.</param>
-        /// <param name="Text">A text representation of an user group identification.</param>
-        /// <param name="UserGroupId">The parsed user group identification.</param>
-        public static Boolean TryParse(String            Context,
-                                       String            Text,
-                                       out UserGroup_Id  UserGroupId)
         {
 
             Text = Text?.Trim();
@@ -261,14 +140,10 @@ namespace social.OpenData.UsersAPI
             {
                 try
                 {
-
-                    UserGroupId = new UserGroup_Id(Context?.Trim(),
-                                                   Text);
-
+                    UserGroupId = new UserGroup_Id(Text);
                     return true;
-
                 }
-                catch (Exception)
+                catch
                 { }
             }
 
@@ -287,8 +162,7 @@ namespace social.OpenData.UsersAPI
         public UserGroup_Id Clone
 
             => new UserGroup_Id(
-                   new String(Context?.ToCharArray()),
-                   new String(Id?.     ToCharArray())
+                   new String(InternalId?.ToCharArray())
                );
 
         #endregion
@@ -301,7 +175,7 @@ namespace social.OpenData.UsersAPI
         /// <summary>
         /// Compares two instances of this object.
         /// </summary>
-        /// <param name="UserGroupId1">A user group identification.</param>
+        /// <param name="UserGroupId1">An user group identification.</param>
         /// <param name="UserGroupId2">Another user group identification.</param>
         /// <returns>true|false</returns>
         public static Boolean operator == (UserGroup_Id UserGroupId1,
@@ -316,13 +190,13 @@ namespace social.OpenData.UsersAPI
         /// <summary>
         /// Compares two instances of this object.
         /// </summary>
-        /// <param name="UserGroupId1">A user group identification.</param>
+        /// <param name="UserGroupId1">An user group identification.</param>
         /// <param name="UserGroupId2">Another user group identification.</param>
         /// <returns>true|false</returns>
         public static Boolean operator != (UserGroup_Id UserGroupId1,
                                            UserGroup_Id UserGroupId2)
 
-            => !(UserGroupId1 == UserGroupId2);
+            => !UserGroupId1.Equals(UserGroupId2);
 
         #endregion
 
@@ -331,7 +205,7 @@ namespace social.OpenData.UsersAPI
         /// <summary>
         /// Compares two instances of this object.
         /// </summary>
-        /// <param name="UserGroupId1">A user group identification.</param>
+        /// <param name="UserGroupId1">An user group identification.</param>
         /// <param name="UserGroupId2">Another user group identification.</param>
         /// <returns>true|false</returns>
         public static Boolean operator < (UserGroup_Id UserGroupId1,
@@ -346,13 +220,13 @@ namespace social.OpenData.UsersAPI
         /// <summary>
         /// Compares two instances of this object.
         /// </summary>
-        /// <param name="UserGroupId1">A user group identification.</param>
+        /// <param name="UserGroupId1">An user group identification.</param>
         /// <param name="UserGroupId2">Another user group identification.</param>
         /// <returns>true|false</returns>
         public static Boolean operator <= (UserGroup_Id UserGroupId1,
                                            UserGroup_Id UserGroupId2)
 
-            => !(UserGroupId1 > UserGroupId2);
+            => UserGroupId1.CompareTo(UserGroupId2) <= 0;
 
         #endregion
 
@@ -361,7 +235,7 @@ namespace social.OpenData.UsersAPI
         /// <summary>
         /// Compares two instances of this object.
         /// </summary>
-        /// <param name="UserGroupId1">A user group identification.</param>
+        /// <param name="UserGroupId1">An user group identification.</param>
         /// <param name="UserGroupId2">Another user group identification.</param>
         /// <returns>true|false</returns>
         public static Boolean operator > (UserGroup_Id UserGroupId1,
@@ -376,13 +250,13 @@ namespace social.OpenData.UsersAPI
         /// <summary>
         /// Compares two instances of this object.
         /// </summary>
-        /// <param name="UserGroupId1">A user group identification.</param>
+        /// <param name="UserGroupId1">An user group identification.</param>
         /// <param name="UserGroupId2">Another user group identification.</param>
         /// <returns>true|false</returns>
         public static Boolean operator >= (UserGroup_Id UserGroupId1,
                                            UserGroup_Id UserGroupId2)
 
-            => !(UserGroupId1 < UserGroupId2);
+            => UserGroupId1.CompareTo(UserGroupId2) >= 0;
 
         #endregion
 
@@ -398,10 +272,10 @@ namespace social.OpenData.UsersAPI
         /// <param name="Object">An object to compare with.</param>
         public Int32 CompareTo(Object Object)
 
-             => Object is UserGroup_Id userGroupId
-                    ? CompareTo(userGroupId)
-                    : throw new ArgumentException("The given object is not an user group identification!",
-                                                  nameof(Object));
+            => Object is UserGroup_Id userGroupId
+                   ? CompareTo(userGroupId)
+                   : throw new ArgumentException("The given object is not an user group identification!",
+                                                 nameof(Object));
 
         #endregion
 
@@ -412,20 +286,10 @@ namespace social.OpenData.UsersAPI
         /// </summary>
         /// <param name="UserGroupId">An object to compare with.</param>
         public Int32 CompareTo(UserGroup_Id UserGroupId)
-        {
 
-            var c = String.Compare(Context,
-                                   UserGroupId.Context,
-                                   StringComparison.OrdinalIgnoreCase);
-
-            if (c == 0)
-                c = String.Compare(Id,
-                                   UserGroupId.Id,
-                                   StringComparison.OrdinalIgnoreCase);
-
-            return c;
-
-        }
+            => String.Compare(InternalId,
+                              UserGroupId.InternalId,
+                              StringComparison.OrdinalIgnoreCase);
 
         #endregion
 
@@ -450,17 +314,14 @@ namespace social.OpenData.UsersAPI
         #region Equals(UserGroupId)
 
         /// <summary>
-        /// Compares two user group identifications for equality.
+        /// Compares two UserGroupIds for equality.
         /// </summary>
         /// <param name="UserGroupId">An user group identification to compare with.</param>
         /// <returns>True if both match; False otherwise.</returns>
         public Boolean Equals(UserGroup_Id UserGroupId)
 
-            => String.Equals(Context,
-                             UserGroupId.Context,
-                             StringComparison.OrdinalIgnoreCase) &&
-               String.Equals(Id,
-                             UserGroupId.Id,
+            => String.Equals(InternalId,
+                             UserGroupId.InternalId,
                              StringComparison.OrdinalIgnoreCase);
 
         #endregion
@@ -470,27 +331,23 @@ namespace social.OpenData.UsersAPI
         #region GetHashCode()
 
         /// <summary>
-        /// Return the HashCode of this object.
+        /// Return the hash code of this object.
         /// </summary>
-        /// <returns>The HashCode of this object.</returns>
+        /// <returns>The hash code of this object.</returns>
         public override Int32 GetHashCode()
 
-            => (Context?.ToLower().GetHashCode() * 3 ?? 0) ^
-               (Id?.     ToLower().GetHashCode()     ?? 0);
+            => InternalId?.ToLower().GetHashCode() ?? 0;
 
         #endregion
 
         #region (override) ToString()
 
         /// <summary>
-        /// Return a text representation of this object.
+        /// Return a text-representation of this object.
         /// </summary>
         public override String ToString()
 
-            => String.Concat(Context.IsNotNullOrEmpty()
-                                 ? Context + "."
-                                 : "",
-                             Id ?? "");
+            => InternalId ?? "";
 
         #endregion
 

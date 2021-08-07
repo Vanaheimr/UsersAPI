@@ -37,7 +37,7 @@ namespace social.OpenData.UsersAPI.Notifications
 
         #region Data
 
-        private static readonly Random _random = new Random(DateTime.Now.Millisecond);
+        private static readonly Random _random = new Random();
 
         /// <summary>
         /// The internal identification.

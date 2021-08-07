@@ -37,12 +37,15 @@ namespace social.OpenData.UsersAPI
 
         #region Data
 
-        private static readonly Random _random = new Random(DateTime.Now.Millisecond);
-
         /// <summary>
         /// The internal identification.
         /// </summary>
-        private readonly String  InternalId;
+        private readonly String InternalId;
+
+        /// <summary>
+        /// Private non-cryptographic random number generator.
+        /// </summary>
+        private static readonly Random _random = new Random();
 
         #endregion
 
@@ -55,124 +58,100 @@ namespace social.OpenData.UsersAPI
             => InternalId.IsNullOrEmpty();
 
         /// <summary>
-        /// The length of the posting identification.
+        /// The length of the faq identificator.
         /// </summary>
         public UInt64 Length
-            => (UInt64) InternalId.Length;
+            => (UInt64) InternalId?.Length;
 
         #endregion
 
         #region Constructor(s)
 
         /// <summary>
-        /// Create a new posting identification based on the given string.
+        /// Create a new faq identification based on the given string.
         /// </summary>
-        /// <param name="String">The string representation of the posting identification.</param>
-        private FAQ_Id(String  String)
+        private FAQ_Id(String Text)
         {
-            this.InternalId  = String.ToLower();
+            InternalId = Text;
         }
 
         #endregion
 
 
-        #region (static) Random  (Size)
+        #region (static) Random(Length)
 
         /// <summary>
-        /// Create a random FAQ identification.
+        /// Create a new faq identification.
         /// </summary>
-        /// <param name="Size">The expected size of the FAQ identification.</param>
-        public static FAQ_Id Random(UInt16? Size = 64)
+        /// <param name="Length">The expected length of the faq identification.</param>
+        public static FAQ_Id Random(Byte Length = 15)
 
-            => new FAQ_Id(_random.RandomString(Size ?? 64));
+            => new FAQ_Id(_random.RandomString(Length).ToUpper());
 
         #endregion
 
-        #region (static) Parse   (Text)
+        #region Parse   (Text)
 
         /// <summary>
-        /// Parse the given string as a FAQ identification.
+        /// Parse the given string as a faq identification.
         /// </summary>
-        /// <param name="Text">A text representation of a FAQ identification.</param>
+        /// <param name="Text">A text-representation of a faq identification.</param>
         public static FAQ_Id Parse(String Text)
         {
 
-            #region Initial checks
+            if (TryParse(Text, out FAQ_Id faqId))
+                return faqId;
 
-            if (Text != null)
-                Text = Text.Trim();
-
-            if (Text.IsNullOrEmpty())
-                throw new ArgumentNullException(nameof(Text), "The given text representation of a FAQ identification must not be null or empty!");
-
-            #endregion
-
-            return new FAQ_Id(Text);
+            throw new ArgumentException("Invalid text-representation of a faq identification: '" + Text + "'!",
+                                        nameof(Text));
 
         }
 
         #endregion
 
-        #region (static) TryParse(Text)
+        #region TryParse(Text)
 
         /// <summary>
-        /// Try to parse the given text as a FAQ identification.
+        /// Try to parse the given string as a faq identification.
         /// </summary>
-        /// <param name="Text">A text representation of a FAQ identification.</param>
+        /// <param name="Text">A text-representation of a faq identification.</param>
         public static FAQ_Id? TryParse(String Text)
         {
 
-            #region Initial checks
+            if (TryParse(Text, out FAQ_Id faqId))
+                return faqId;
 
-            if (Text != null)
-                Text = Text.Trim();
-
-            if (Text.IsNullOrEmpty())
-                throw new ArgumentNullException(nameof(Text), "The given text representation of a FAQ identification must not be null or empty!");
-
-            #endregion
-
-            if (TryParse(Text, out FAQ_Id _PostingId))
-                return _PostingId;
-
-            return new FAQ_Id?();
+            return null;
 
         }
 
         #endregion
 
-        #region (static) TryParse(Text, out PostingId)
+        #region TryParse(Text, out FAQId)
 
         /// <summary>
-        /// Try to parse the given text as a FAQ identification.
+        /// Try to parse the given string as a faq identification.
         /// </summary>
-        /// <param name="Text">A text representation of a FAQ identification.</param>
-        /// <param name="PostingId">The parsed posting identification.</param>
-        public static Boolean TryParse(String Text, out FAQ_Id PostingId)
+        /// <param name="Text">A text-representation of a faq identification.</param>
+        /// <param name="FAQId">The parsed faq identification.</param>
+        public static Boolean TryParse(String Text, out FAQ_Id FAQId)
         {
 
-            #region Initial checks
+            Text = Text?.Trim();
 
-            if (Text != null)
-                Text = Text.Trim();
-
-            if (Text.IsNullOrEmpty())
-                throw new ArgumentNullException(nameof(Text), "The given text representation of a FAQ identification must not be null or empty!");
-
-            String Realm = null;
-
-            #endregion
-
-            try
+            if (Text.IsNotNullOrEmpty())
             {
-                PostingId = new FAQ_Id(Text);
-                return true;
+                try
+                {
+                    FAQId = new FAQ_Id(Text);
+                    return true;
+                }
+                catch
+                { }
             }
-            catch (Exception)
-            {
-                PostingId = default(FAQ_Id);
-                return false;
-            }
+
+            FAQId = default;
+            return false;
 
         }
 
@@ -181,125 +160,112 @@ namespace social.OpenData.UsersAPI
         #region Clone
 
         /// <summary>
-        /// Clone this posting identification.
+        /// Clone this faq identification.
         /// </summary>
-
         public FAQ_Id Clone
 
-            => new FAQ_Id(new String(InternalId.ToCharArray()));
+            => new FAQ_Id(
+                   new String(InternalId?.ToCharArray())
+               );
 
         #endregion
 
 
         #region Operator overloading
 
-        #region Operator == (PostingId1, PostingId2)
+        #region Operator == (FAQIdId1, FAQIdId2)
 
         /// <summary>
         /// Compares two instances of this object.
         /// </summary>
-        /// <param name="PostingId1">a FAQ identification.</param>
-        /// <param name="PostingId2">Another posting identification.</param>
+        /// <param name="FAQIdId1">A faq identification.</param>
+        /// <param name="FAQIdId2">Another faq identification.</param>
         /// <returns>true|false</returns>
-        public static Boolean operator == (FAQ_Id PostingId1, FAQ_Id PostingId2)
-        {
+        public static Boolean operator == (FAQ_Id FAQIdId1,
+                                           FAQ_Id FAQIdId2)
 
-            // If both are null, or both are same instance, return true.
-            if (Object.ReferenceEquals(PostingId1, PostingId2))
-                return true;
-
-            // If one is null, but not both, return false.
-            if (((Object) PostingId1 == null) || ((Object) PostingId2 == null))
-                return false;
-
-            return PostingId1.Equals(PostingId2);
-
-        }
+            => FAQIdId1.Equals(FAQIdId2);
 
         #endregion
 
-        #region Operator != (PostingId1, PostingId2)
+        #region Operator != (FAQIdId1, FAQIdId2)
 
         /// <summary>
         /// Compares two instances of this object.
         /// </summary>
-        /// <param name="PostingId1">a FAQ identification.</param>
-        /// <param name="PostingId2">Another posting identification.</param>
+        /// <param name="FAQIdId1">A faq identification.</param>
+        /// <param name="FAQIdId2">Another faq identification.</param>
         /// <returns>true|false</returns>
-        public static Boolean operator != (FAQ_Id PostingId1, FAQ_Id PostingId2)
-            => !(PostingId1 == PostingId2);
+        public static Boolean operator != (FAQ_Id FAQIdId1,
+                                           FAQ_Id FAQIdId2)
+
+            => !FAQIdId1.Equals(FAQIdId2);
 
         #endregion
 
-        #region Operator <  (PostingId1, PostingId2)
+        #region Operator <  (FAQIdId1, FAQIdId2)
 
         /// <summary>
         /// Compares two instances of this object.
         /// </summary>
-        /// <param name="PostingId1">a FAQ identification.</param>
-        /// <param name="PostingId2">Another posting identification.</param>
+        /// <param name="FAQIdId1">A faq identification.</param>
+        /// <param name="FAQIdId2">Another faq identification.</param>
         /// <returns>true|false</returns>
-        public static Boolean operator < (FAQ_Id PostingId1, FAQ_Id PostingId2)
-        {
+        public static Boolean operator < (FAQ_Id FAQIdId1,
+                                          FAQ_Id FAQIdId2)
 
-            if ((Object) PostingId1 == null)
-                throw new ArgumentNullException(nameof(PostingId1), "The given PostingId1 must not be null!");
-
-            return PostingId1.CompareTo(PostingId2) < 0;
-
-        }
+            => FAQIdId1.CompareTo(FAQIdId2) < 0;
 
         #endregion
 
-        #region Operator <= (PostingId1, PostingId2)
+        #region Operator <= (FAQIdId1, FAQIdId2)
 
         /// <summary>
         /// Compares two instances of this object.
         /// </summary>
-        /// <param name="PostingId1">a FAQ identification.</param>
-        /// <param name="PostingId2">Another posting identification.</param>
+        /// <param name="FAQIdId1">A faq identification.</param>
+        /// <param name="FAQIdId2">Another faq identification.</param>
         /// <returns>true|false</returns>
-        public static Boolean operator <= (FAQ_Id PostingId1, FAQ_Id PostingId2)
-            => !(PostingId1 > PostingId2);
+        public static Boolean operator <= (FAQ_Id FAQIdId1,
+                                           FAQ_Id FAQIdId2)
+
+            => FAQIdId1.CompareTo(FAQIdId2) <= 0;
 
         #endregion
 
-        #region Operator >  (PostingId1, PostingId2)
+        #region Operator >  (FAQIdId1, FAQIdId2)
 
         /// <summary>
         /// Compares two instances of this object.
         /// </summary>
-        /// <param name="PostingId1">a FAQ identification.</param>
-        /// <param name="PostingId2">Another posting identification.</param>
+        /// <param name="FAQIdId1">A faq identification.</param>
+        /// <param name="FAQIdId2">Another faq identification.</param>
         /// <returns>true|false</returns>
-        public static Boolean operator > (FAQ_Id PostingId1, FAQ_Id PostingId2)
-        {
+        public static Boolean operator > (FAQ_Id FAQIdId1,
+                                          FAQ_Id FAQIdId2)
 
-            if ((Object) PostingId1 == null)
-                throw new ArgumentNullException(nameof(PostingId1), "The given PostingId1 must not be null!");
-
-            return PostingId1.CompareTo(PostingId2) > 0;
-
-        }
+            => FAQIdId1.CompareTo(FAQIdId2) > 0;
 
         #endregion
 
-        #region Operator >= (PostingId1, PostingId2)
+        #region Operator >= (FAQIdId1, FAQIdId2)
 
         /// <summary>
         /// Compares two instances of this object.
         /// </summary>
-        /// <param name="PostingId1">a FAQ identification.</param>
-        /// <param name="PostingId2">Another posting identification.</param>
+        /// <param name="FAQIdId1">A faq identification.</param>
+        /// <param name="FAQIdId2">Another faq identification.</param>
         /// <returns>true|false</returns>
-        public static Boolean operator >= (FAQ_Id PostingId1, FAQ_Id PostingId2)
-            => !(PostingId1 < PostingId2);
+        public static Boolean operator >= (FAQ_Id FAQIdId1,
+                                           FAQ_Id FAQIdId2)
+
+            => FAQIdId1.CompareTo(FAQIdId2) >= 0;
 
         #endregion
 
         #endregion
 
-        #region IComparable<PostingId> Members
+        #region IComparable<FAQId> Members
 
         #region CompareTo(Object)
 
@@ -308,42 +274,31 @@ namespace social.OpenData.UsersAPI
         /// </summary>
         /// <param name="Object">An object to compare with.</param>
         public Int32 CompareTo(Object Object)
-        {
 
-            if (Object == null)
-                throw new ArgumentNullException(nameof(Object), "The given object must not be null!");
-
-            if (!(Object is FAQ_Id))
-                throw new ArgumentException("The given object is not a FAQ identification!",
-                                            nameof(Object));
-
-            return CompareTo((FAQ_Id) Object);
-
-        }
+            => Object is FAQ_Id faqId
+                   ? CompareTo(faqId)
+                   : throw new ArgumentException("The given object is not a faq identification!",
+                                                 nameof(Object));
 
         #endregion
 
-        #region CompareTo(PostingId)
+        #region CompareTo(FAQId)
 
         /// <summary>
         /// Compares two instances of this object.
         /// </summary>
-        /// <param name="PostingId">An object to compare with.</param>
-        public Int32 CompareTo(FAQ_Id PostingId)
-        {
+        /// <param name="FAQId">An object to compare with.</param>
+        public Int32 CompareTo(FAQ_Id FAQId)
 
-            if ((Object) PostingId == null)
-                throw new ArgumentNullException(nameof(PostingId),  "The given posting identification must not be null!");
-
-            return String.Compare(InternalId, PostingId.InternalId, StringComparison.OrdinalIgnoreCase);
-
-        }
+            => String.Compare(InternalId,
+                              FAQId.InternalId,
+                              StringComparison.OrdinalIgnoreCase);
 
         #endregion
 
         #endregion
 
-        #region IEquatable<PostingId> Members
+        #region IEquatable<FAQId> Members
 
         #region Equals(Object)
 
@@ -353,36 +308,24 @@ namespace social.OpenData.UsersAPI
         /// <param name="Object">An object to compare with.</param>
         /// <returns>true|false</returns>
         public override Boolean Equals(Object Object)
-        {
 
-            if (Object == null)
-                return false;
-
-            if (!(Object is FAQ_Id))
-                return false;
-
-            return Equals((FAQ_Id) Object);
-
-        }
+            => Object is FAQ_Id faqId &&
+                   Equals(faqId);
 
         #endregion
 
-        #region Equals(PostingId)
+        #region Equals(FAQId)
 
         /// <summary>
-        /// Compares two posting identifications for equality.
+        /// Compares two FAQIds for equality.
         /// </summary>
-        /// <param name="PostingId">a FAQ identification to compare with.</param>
+        /// <param name="FAQId">A faq identification to compare with.</param>
         /// <returns>True if both match; False otherwise.</returns>
-        public Boolean Equals(FAQ_Id PostingId)
-        {
+        public Boolean Equals(FAQ_Id FAQId)
 
-            if ((Object) PostingId == null)
-                return false;
-
-            return InternalId.Equals(PostingId.InternalId, StringComparison.OrdinalIgnoreCase);
-
-        }
+            => String.Equals(InternalId,
+                             FAQId.InternalId,
+                             StringComparison.OrdinalIgnoreCase);
 
         #endregion
 
@@ -391,23 +334,23 @@ namespace social.OpenData.UsersAPI
         #region GetHashCode()
 
         /// <summary>
-        /// Return the HashCode of this object.
+        /// Return the hash code of this object.
         /// </summary>
-        /// <returns>The HashCode of this object.</returns>
+        /// <returns>The hash code of this object.</returns>
         public override Int32 GetHashCode()
 
-            => InternalId.ToLower().GetHashCode();
+            => InternalId?.GetHashCode() ?? 0;
 
         #endregion
 
         #region (override) ToString()
 
         /// <summary>
-        /// Return a text representation of this object.
+        /// Return a text-representation of this object.
         /// </summary>
         public override String ToString()
 
-            => InternalId;
+            => InternalId ?? "";
 
         #endregion
 

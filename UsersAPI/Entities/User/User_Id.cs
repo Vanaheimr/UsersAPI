@@ -49,7 +49,7 @@ namespace social.OpenData.UsersAPI
         /// <summary>
         /// Private non-cryptographic random number generator.
         /// </summary>
-        private static readonly Random _random = new Random(DateTime.Now.Millisecond);
+        private static readonly Random _random = new Random();
 
         #endregion
 
@@ -78,13 +78,13 @@ namespace social.OpenData.UsersAPI
         /// Create a new user identification based on the given string.
         /// </summary>
         /// <param name="String">The string representation of the user identification.</param>
-        /// <param name="Realm">An optional realm of the user identification.</param>
+        /// <param name="Realm">The realm of the user identification.</param>
         private User_Id(String  String,
-                        String  Realm = null)
+                        String  Realm)
         {
 
-            this.InternalId  = String.ToLower().Trim();
-            this.Realm       = Realm?.ToLower() ?? "";
+            this.InternalId  = String;
+            this.Realm       = Realm;
 
         }
 
@@ -99,92 +99,82 @@ namespace social.OpenData.UsersAPI
         /// <param name="Length">The expected length of the user identification.</param>
         public static User_Id Random(Byte Length = 15)
 
-            => new User_Id(_random.RandomString(Length).ToUpper());
+            => new User_Id(_random.RandomString(Length),
+                           null);
 
         #endregion
 
-        #region (static) Parse   (Text, Realm = null)
+        #region (static) Parse   (Text)
 
         /// <summary>
         /// Parse the given string as an user identification.
         /// </summary>
         /// <param name="Text">A text representation of an user identification.</param>
-        /// <param name="Realm">An optional realm of the user identification.</param>
-        public static User_Id Parse(String Text, String Realm = null)
+        public static User_Id Parse(String Text)
         {
 
-            #region Initial checks
+            if (TryParse(Text, out User_Id userId))
+                return userId;
 
-            if (Text != null)
-                Text = Text.Trim();
-
-            if (Text.IsNullOrEmpty())
-                throw new ArgumentNullException(nameof(Text), "The given text representation of an user identification must not be null or empty!");
-
-            if (Text.Contains("@"))
-            {
-
-                if (Realm.IsNotNullOrEmpty())
-                    throw new ArgumentException("The given text representation of an user identification is invalid!", nameof(Text));
-
-                var Splitted = Text.Split(new Char[] { '@' }, StringSplitOptions.RemoveEmptyEntries);
-
-                if (Splitted.Length != 2)
-                    throw new ArgumentException("The given text representation of an user identification is invalid!", nameof(Text));
-
-                Text   = Splitted[0];
-                Realm  = Splitted[1];
-
-            }
-
-            #endregion
-
-            return new User_Id(Text, Realm);
+            throw new ArgumentException("Invalid text-representation of an user identification: '" + Text + "'!",
+                                        nameof(Text));
 
         }
 
         #endregion
 
-        #region (static) TryParse(Text, Realm = null)
+        #region (static) Parse   (Text, Realm)
+
+        /// <summary>
+        /// Parse the given string as an user identification.
+        /// </summary>
+        /// <param name="Text">A text representation of an user identification.</param>
+        /// <param name="Realm">A realm of the user identification.</param>
+        public static User_Id Parse(String Text, String Realm)
+        {
+
+            if (TryParse(Text, Realm, out User_Id userId))
+                return userId;
+
+            throw new ArgumentException("Invalid text-representation of an user identification: '" + Text + "'!",
+                                        nameof(Text));
+
+        }
+
+        #endregion
+
+        #region (static) TryParse(Text)
 
         /// <summary>
         /// Try to parse the given string as an user identification.
         /// </summary>
         /// <param name="Text">A text representation of an user identification.</param>
-        /// <param name="Realm">An optional realm of the user identification.</param>
-        public static User_Id? TryParse(String Text, String Realm = null)
+        public static User_Id? TryParse(String Text)
         {
 
-            #region Initial checks
+            if (TryParse(Text, out User_Id userId))
+                return userId;
 
-            if (Text != null)
-                Text = Text.Trim();
+            return null;
 
-            if (Text.IsNullOrEmpty())
-                throw new ArgumentNullException(nameof(Text), "The given text representation of an user identification must not be null or empty!");
+        }
 
-            if (Text.Contains("@"))
-            {
+        #endregion
 
-                if (Realm.IsNotNullOrEmpty())
-                    throw new ArgumentException("The given text representation of an user identification is invalid!", nameof(Text));
+        #region (static) TryParse(Text, Realm)
 
-                var Splitted = Text.Split(new Char[] { '@' }, StringSplitOptions.RemoveEmptyEntries);
+        /// <summary>
+        /// Try to parse the given string as an user identification.
+        /// </summary>
+        /// <param name="Text">A text representation of an user identification.</param>
+        /// <param name="Realm">A realm of the user identification.</param>
+        public static User_Id? TryParse(String Text, String Realm)
+        {
 
-                if (Splitted.Length != 2)
-                    throw new ArgumentException("The given text representation of an user identification is invalid!", nameof(Text));
+            if (TryParse(Text, Realm, out User_Id userId))
+                return userId;
 
-                Text   = Splitted[0];
-                Realm  = Splitted[1];
-
-            }
-
-            #endregion
-
-            if (TryParse(Text, Realm, out User_Id _UserId))
-                return _UserId;
-
-            return new User_Id?();
+            return null;
 
         }
 
@@ -200,41 +190,44 @@ namespace social.OpenData.UsersAPI
         public static Boolean TryParse(String Text, out User_Id UserId)
         {
 
-            #region Initial checks
+            Text = Text?.Trim();
+            UserId = default;
 
-            if (Text != null)
-                Text = Text.Trim();
-
-            if (Text.IsNullOrEmpty())
-                throw new ArgumentNullException(nameof(Text), "The given text representation of an user identification must not be null or empty!");
-
-            String Realm = null;
-
-            if (Text.Contains("@"))
+            if (Text.IsNotNullOrEmpty())
             {
 
-                var Splitted = Text.Split(new Char[] { '@' }, StringSplitOptions.RemoveEmptyEntries);
+                String Realm = null;
 
-                if (Splitted.Length != 2)
-                    throw new ArgumentException("The given text representation of an user identification is invalid!", nameof(Text));
+                if (Text.Contains("@"))
+                {
 
-                Text   = Splitted[0];
-                Realm  = Splitted[1];
+                    var Splitted = Text.Split(new Char[] { '@' }, StringSplitOptions.RemoveEmptyEntries);
+
+                    if (Splitted.Length != 2)
+                        return false;
+
+                    Text   = Splitted[0]?.Trim();
+                    Realm  = Splitted[1]?.Trim();
+
+                    if (Realm.IsNullOrEmpty())
+                        return false;
+
+                }
+
+                if (Text.IsNotNullOrEmpty())
+                {
+                    try
+                    {
+                        UserId = new User_Id(Text, Realm);
+                        return true;
+                    }
+                    catch
+                    { }
+                }
 
             }
 
-            #endregion
-
-            try
-            {
-                UserId = new User_Id(Text, Realm);
-                return true;
-            }
-            catch (Exception)
-            {
-                UserId = default;
-                return false;
-            }
+            return false;
 
         }
 
@@ -251,42 +244,22 @@ namespace social.OpenData.UsersAPI
         public static Boolean TryParse(String Text, String Realm, out User_Id UserId)
         {
 
-            #region Initial checks
+            Text = Text?.Trim();
 
-            if (Text != null)
-                Text = Text.Trim();
-
-            if (Text.IsNullOrEmpty())
-                throw new ArgumentNullException(nameof(Text), "The given text representation of an user identification must not be null or empty!");
-
-            if (Text.Contains("@"))
+            if (Text.IsNotNullOrEmpty() &&
+               !Text.Contains("@"))
             {
-
-                if (Realm.IsNotNullOrEmpty())
-                    throw new ArgumentException("The given text representation of an user identification is invalid!", nameof(Text));
-
-                var Splitted = Text.Split(new Char[] { '@' }, StringSplitOptions.RemoveEmptyEntries);
-
-                if (Splitted.Length != 2)
-                    throw new ArgumentException("The given text representation of an user identification is invalid!", nameof(Text));
-
-                Text   = Splitted[0];
-                Realm  = Splitted[1];
-
+                try
+                {
+                    UserId = new User_Id(Text, Realm);
+                    return true;
+                }
+                catch
+                { }
             }
 
-            #endregion
-
-            try
-            {
-                UserId = new User_Id(Text, Realm);
-                return true;
-            }
-            catch (Exception)
-            {
-                UserId = default;
-                return false;
-            }
+            UserId = default;
+            return false;
 
         }
 
@@ -306,24 +279,6 @@ namespace social.OpenData.UsersAPI
         #endregion
 
 
-        #region IndexOf(Text)
-
-        /// <summary>
-        /// Reports the zero-based index of the first occurrence of the specified string
-        /// in the current System.String object. A parameter specifies the type of search
-        /// to use for the specified string.
-        /// </summary>
-        /// <param name="Text">The string to seek.</param>
-        /// <returns>
-        /// The index position of the value parameter if that string is found, or -1 if it
-        /// is not. If value is System.String.Empty, the return value is 0.
-        /// </returns>
-        public Int32 IndexOf(String Text)
-            => InternalId.IndexOf(Text, StringComparison.OrdinalIgnoreCase);
-
-        #endregion
-
-
         #region Operator overloading
 
         #region Operator == (UserId1, UserId2)
@@ -331,23 +286,13 @@ namespace social.OpenData.UsersAPI
         /// <summary>
         /// Compares two instances of this object.
         /// </summary>
-        /// <param name="UserId1">A user identification.</param>
+        /// <param name="UserId1">An user identification.</param>
         /// <param name="UserId2">Another user identification.</param>
         /// <returns>true|false</returns>
-        public static Boolean operator == (User_Id UserId1, User_Id UserId2)
-        {
+        public static Boolean operator == (User_Id UserId1,
+                                           User_Id UserId2)
 
-            // If both are null, or both are same instance, return true.
-            if (Object.ReferenceEquals(UserId1, UserId2))
-                return true;
-
-            // If one is null, but not both, return false.
-            if (((Object) UserId1 == null) || ((Object) UserId2 == null))
-                return false;
-
-            return UserId1.Equals(UserId2);
-
-        }
+            => UserId1.Equals(UserId2);
 
         #endregion
 
@@ -356,11 +301,13 @@ namespace social.OpenData.UsersAPI
         /// <summary>
         /// Compares two instances of this object.
         /// </summary>
-        /// <param name="UserId1">A user identification.</param>
+        /// <param name="UserId1">An user identification.</param>
         /// <param name="UserId2">Another user identification.</param>
         /// <returns>true|false</returns>
-        public static Boolean operator != (User_Id UserId1, User_Id UserId2)
-            => !(UserId1 == UserId2);
+        public static Boolean operator != (User_Id UserId1,
+                                           User_Id UserId2)
+
+            => !UserId1.Equals(UserId2);
 
         #endregion
 
@@ -369,18 +316,13 @@ namespace social.OpenData.UsersAPI
         /// <summary>
         /// Compares two instances of this object.
         /// </summary>
-        /// <param name="UserId1">A user identification.</param>
+        /// <param name="UserId1">An user identification.</param>
         /// <param name="UserId2">Another user identification.</param>
         /// <returns>true|false</returns>
-        public static Boolean operator < (User_Id UserId1, User_Id UserId2)
-        {
+        public static Boolean operator < (User_Id UserId1,
+                                          User_Id UserId2)
 
-            if ((Object) UserId1 == null)
-                throw new ArgumentNullException(nameof(UserId1), "The given UserId1 must not be null!");
-
-            return UserId1.CompareTo(UserId2) < 0;
-
-        }
+            => UserId1.CompareTo(UserId2) < 0;
 
         #endregion
 
@@ -389,11 +331,13 @@ namespace social.OpenData.UsersAPI
         /// <summary>
         /// Compares two instances of this object.
         /// </summary>
-        /// <param name="UserId1">A user identification.</param>
+        /// <param name="UserId1">An user identification.</param>
         /// <param name="UserId2">Another user identification.</param>
         /// <returns>true|false</returns>
-        public static Boolean operator <= (User_Id UserId1, User_Id UserId2)
-            => !(UserId1 > UserId2);
+        public static Boolean operator <= (User_Id UserId1,
+                                           User_Id UserId2)
+
+            => UserId1.CompareTo(UserId2) <= 0;
 
         #endregion
 
@@ -402,18 +346,13 @@ namespace social.OpenData.UsersAPI
         /// <summary>
         /// Compares two instances of this object.
         /// </summary>
-        /// <param name="UserId1">A user identification.</param>
+        /// <param name="UserId1">An user identification.</param>
         /// <param name="UserId2">Another user identification.</param>
         /// <returns>true|false</returns>
-        public static Boolean operator > (User_Id UserId1, User_Id UserId2)
-        {
+        public static Boolean operator > (User_Id UserId1,
+                                          User_Id UserId2)
 
-            if ((Object) UserId1 == null)
-                throw new ArgumentNullException(nameof(UserId1), "The given UserId1 must not be null!");
-
-            return UserId1.CompareTo(UserId2) > 0;
-
-        }
+            => UserId1.CompareTo(UserId2) > 0;
 
         #endregion
 
@@ -422,11 +361,13 @@ namespace social.OpenData.UsersAPI
         /// <summary>
         /// Compares two instances of this object.
         /// </summary>
-        /// <param name="UserId1">A user identification.</param>
+        /// <param name="UserId1">An user identification.</param>
         /// <param name="UserId2">Another user identification.</param>
         /// <returns>true|false</returns>
-        public static Boolean operator >= (User_Id UserId1, User_Id UserId2)
-            => !(UserId1 < UserId2);
+        public static Boolean operator >= (User_Id UserId1,
+                                           User_Id UserId2)
+
+            => UserId1.CompareTo(UserId2) >= 0;
 
         #endregion
 
@@ -441,18 +382,11 @@ namespace social.OpenData.UsersAPI
         /// </summary>
         /// <param name="Object">An object to compare with.</param>
         public Int32 CompareTo(Object Object)
-        {
 
-            if (Object == null)
-                throw new ArgumentNullException(nameof(Object), "The given object must not be null!");
-
-            if (!(Object is User_Id))
-                throw new ArgumentException("The given object is not an user identification!",
-                                            nameof(Object));
-
-            return CompareTo((User_Id) Object);
-
-        }
+            => Object is User_Id userId
+                   ? CompareTo(userId)
+                   : throw new ArgumentException("The given object is not an user identification!",
+                                                 nameof(Object));
 
         #endregion
 
@@ -465,14 +399,16 @@ namespace social.OpenData.UsersAPI
         public Int32 CompareTo(User_Id UserId)
         {
 
-            if ((Object) UserId == null)
-                throw new ArgumentNullException(nameof(UserId),  "The given user identification must not be null!");
+            var c = String.Compare(InternalId,
+                                   UserId.InternalId,
+                                   StringComparison.OrdinalIgnoreCase);
 
-            var c = String.Compare(InternalId, UserId.InternalId, StringComparison.OrdinalIgnoreCase);
-            if (c != 0)
-                return c;
+            if (c == 0)
+                c = String.Compare(Realm,
+                                   UserId.Realm,
+                                   StringComparison.OrdinalIgnoreCase);
 
-            return String.Compare(Realm, UserId.Realm, StringComparison.OrdinalIgnoreCase);
+            return c;
 
         }
 
@@ -490,17 +426,9 @@ namespace social.OpenData.UsersAPI
         /// <param name="Object">An object to compare with.</param>
         /// <returns>true|false</returns>
         public override Boolean Equals(Object Object)
-        {
 
-            if (Object == null)
-                return false;
-
-            if (!(Object is User_Id))
-                return false;
-
-            return Equals((User_Id) Object);
-
-        }
+            => Object is User_Id userId &&
+                   Equals(userId);
 
         #endregion
 
@@ -512,15 +440,14 @@ namespace social.OpenData.UsersAPI
         /// <param name="UserId">An user identification to compare with.</param>
         /// <returns>True if both match; False otherwise.</returns>
         public Boolean Equals(User_Id UserId)
-        {
 
-            if ((Object) UserId == null)
-                return false;
+            => String.Equals(InternalId,
+                             UserId.InternalId,
+                             StringComparison.OrdinalIgnoreCase) &&
 
-            return InternalId.Equals(UserId.InternalId, StringComparison.OrdinalIgnoreCase) &&
-                   Realm.     Equals(UserId.Realm,      StringComparison.OrdinalIgnoreCase);
-
-        }
+               String.Equals(Realm,
+                             UserId.Realm,
+                             StringComparison.OrdinalIgnoreCase);
 
         #endregion
 

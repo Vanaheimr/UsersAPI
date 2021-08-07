@@ -36,12 +36,15 @@ namespace social.OpenData.UsersAPI
 
         #region Data
 
-        private static readonly Random _random = new Random(DateTime.Now.Millisecond);
-
         /// <summary>
         /// The internal identification.
         /// </summary>
-        private readonly String  InternalId;
+        private readonly String InternalId;
+
+        /// <summary>
+        /// Private non-cryptographic random number generator.
+        /// </summary>
+        private static readonly Random _random = new Random();
 
         #endregion
 
@@ -54,10 +57,10 @@ namespace social.OpenData.UsersAPI
             => InternalId.IsNullOrEmpty();
 
         /// <summary>
-        /// The length of the service ticket identification.
+        /// The length of the service ticket identificator.
         /// </summary>
         public UInt64 Length
-            => (UInt64) InternalId.Length;
+            => (UInt64) InternalId?.Length;
 
         #endregion
 
@@ -66,10 +69,9 @@ namespace social.OpenData.UsersAPI
         /// <summary>
         /// Create a new service ticket identification based on the given string.
         /// </summary>
-        /// <param name="String">The string representation of the service ticket identification.</param>
-        private ServiceTicket_Id(String  String)
+        private ServiceTicket_Id(String Text)
         {
-            this.InternalId  = String;
+            InternalId = Text;
         }
 
         #endregion
@@ -87,72 +89,68 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
-        #region (static) Parse   (Text)
+        #region Parse   (Text)
 
         /// <summary>
         /// Parse the given string as a service ticket identification.
         /// </summary>
-        /// <param name="Text">A text representation of a service ticket identification.</param>
+        /// <param name="Text">A text-representation of a service ticket identification.</param>
         public static ServiceTicket_Id Parse(String Text)
         {
 
-            if (TryParse(Text, out ServiceTicket_Id _ServiceTicketId))
-                return _ServiceTicketId;
+            if (TryParse(Text, out ServiceTicket_Id serviceTicketId))
+                return serviceTicketId;
 
-            throw new ArgumentException("The given text representation of a service ticket identification is invalid!", nameof(Text));
+            throw new ArgumentException("Invalid text-representation of a service ticket identification: '" + Text + "'!",
+                                        nameof(Text));
 
         }
 
         #endregion
 
-        #region (static) TryParse(Text)
+        #region TryParse(Text)
 
         /// <summary>
         /// Try to parse the given string as a service ticket identification.
         /// </summary>
-        /// <param name="Text">A text representation of a service ticket identification.</param>
+        /// <param name="Text">A text-representation of a service ticket identification.</param>
         public static ServiceTicket_Id? TryParse(String Text)
         {
 
-            if (TryParse(Text, out ServiceTicket_Id _ServiceTicketId))
-                return _ServiceTicketId;
+            if (TryParse(Text, out ServiceTicket_Id serviceTicketId))
+                return serviceTicketId;
 
-            return new ServiceTicket_Id?();
+            return null;
 
         }
 
         #endregion
 
-        #region (static) TryParse(Text, out ServiceTicketId)
+        #region TryParse(Text, out ServiceTicketId)
 
         /// <summary>
         /// Try to parse the given string as a service ticket identification.
         /// </summary>
-        /// <param name="Text">A text representation of a service ticket identification.</param>
+        /// <param name="Text">A text-representation of a service ticket identification.</param>
         /// <param name="ServiceTicketId">The parsed service ticket identification.</param>
         public static Boolean TryParse(String Text, out ServiceTicket_Id ServiceTicketId)
         {
 
-            #region Initial checks
+            Text = Text?.Trim();
 
-            if (Text != null)
-                Text = Text.Trim();
-
-            if (Text.IsNullOrEmpty())
-                throw new ArgumentNullException(nameof(Text), "The given text representation of a service ticket identification must not be null or empty!");
-
-            #endregion
-
-            try
+            if (Text.IsNotNullOrEmpty())
             {
-                ServiceTicketId = new ServiceTicket_Id(Text);
-                return true;
+                try
+                {
+                    ServiceTicketId = new ServiceTicket_Id(Text);
+                    return true;
+                }
+                catch
+                { }
             }
-            catch (Exception)
-            {
-                ServiceTicketId = default(ServiceTicket_Id);
-                return false;
-            }
+
+            ServiceTicketId = default;
+            return false;
 
         }
 
@@ -163,11 +161,10 @@ namespace social.OpenData.UsersAPI
         /// <summary>
         /// Clone this service ticket identification.
         /// </summary>
-
         public ServiceTicket_Id Clone
 
             => new ServiceTicket_Id(
-                   new String(InternalId.ToCharArray())
+                   new String(InternalId?.ToCharArray())
                );
 
         #endregion
@@ -175,107 +172,93 @@ namespace social.OpenData.UsersAPI
 
         #region Operator overloading
 
-        #region Operator == (ServiceTicketId1, ServiceTicketId2)
+        #region Operator == (ServiceTicketIdId1, ServiceTicketIdId2)
 
         /// <summary>
         /// Compares two instances of this object.
         /// </summary>
-        /// <param name="ServiceTicketId1">A service ticket identification.</param>
-        /// <param name="ServiceTicketId2">Another service ticket identification.</param>
+        /// <param name="ServiceTicketIdId1">A service ticket identification.</param>
+        /// <param name="ServiceTicketIdId2">Another service ticket identification.</param>
         /// <returns>true|false</returns>
-        public static Boolean operator == (ServiceTicket_Id ServiceTicketId1, ServiceTicket_Id ServiceTicketId2)
-        {
+        public static Boolean operator == (ServiceTicket_Id ServiceTicketIdId1,
+                                           ServiceTicket_Id ServiceTicketIdId2)
 
-            // If both are null, or both are same instance, return true.
-            if (Object.ReferenceEquals(ServiceTicketId1, ServiceTicketId2))
-                return true;
-
-            // If one is null, but not both, return false.
-            if (((Object) ServiceTicketId1 == null) || ((Object) ServiceTicketId2 == null))
-                return false;
-
-            return ServiceTicketId1.Equals(ServiceTicketId2);
-
-        }
+            => ServiceTicketIdId1.Equals(ServiceTicketIdId2);
 
         #endregion
 
-        #region Operator != (ServiceTicketId1, ServiceTicketId2)
+        #region Operator != (ServiceTicketIdId1, ServiceTicketIdId2)
 
         /// <summary>
         /// Compares two instances of this object.
         /// </summary>
-        /// <param name="ServiceTicketId1">A service ticket identification.</param>
-        /// <param name="ServiceTicketId2">Another service ticket identification.</param>
+        /// <param name="ServiceTicketIdId1">A service ticket identification.</param>
+        /// <param name="ServiceTicketIdId2">Another service ticket identification.</param>
         /// <returns>true|false</returns>
-        public static Boolean operator != (ServiceTicket_Id ServiceTicketId1, ServiceTicket_Id ServiceTicketId2)
-            => !(ServiceTicketId1 == ServiceTicketId2);
+        public static Boolean operator != (ServiceTicket_Id ServiceTicketIdId1,
+                                           ServiceTicket_Id ServiceTicketIdId2)
+
+            => !ServiceTicketIdId1.Equals(ServiceTicketIdId2);
 
         #endregion
 
-        #region Operator <  (ServiceTicketId1, ServiceTicketId2)
+        #region Operator <  (ServiceTicketIdId1, ServiceTicketIdId2)
 
         /// <summary>
         /// Compares two instances of this object.
         /// </summary>
-        /// <param name="ServiceTicketId1">A service ticket identification.</param>
-        /// <param name="ServiceTicketId2">Another service ticket identification.</param>
+        /// <param name="ServiceTicketIdId1">A service ticket identification.</param>
+        /// <param name="ServiceTicketIdId2">Another service ticket identification.</param>
         /// <returns>true|false</returns>
-        public static Boolean operator < (ServiceTicket_Id ServiceTicketId1, ServiceTicket_Id ServiceTicketId2)
-        {
+        public static Boolean operator < (ServiceTicket_Id ServiceTicketIdId1,
+                                          ServiceTicket_Id ServiceTicketIdId2)
 
-            if ((Object) ServiceTicketId1 == null)
-                throw new ArgumentNullException(nameof(ServiceTicketId1), "The given ServiceTicketId1 must not be null!");
-
-            return ServiceTicketId1.CompareTo(ServiceTicketId2) < 0;
-
-        }
+            => ServiceTicketIdId1.CompareTo(ServiceTicketIdId2) < 0;
 
         #endregion
 
-        #region Operator <= (ServiceTicketId1, ServiceTicketId2)
+        #region Operator <= (ServiceTicketIdId1, ServiceTicketIdId2)
 
         /// <summary>
         /// Compares two instances of this object.
         /// </summary>
-        /// <param name="ServiceTicketId1">A service ticket identification.</param>
-        /// <param name="ServiceTicketId2">Another service ticket identification.</param>
+        /// <param name="ServiceTicketIdId1">A service ticket identification.</param>
+        /// <param name="ServiceTicketIdId2">Another service ticket identification.</param>
         /// <returns>true|false</returns>
-        public static Boolean operator <= (ServiceTicket_Id ServiceTicketId1, ServiceTicket_Id ServiceTicketId2)
-            => !(ServiceTicketId1 > ServiceTicketId2);
+        public static Boolean operator <= (ServiceTicket_Id ServiceTicketIdId1,
+                                           ServiceTicket_Id ServiceTicketIdId2)
+
+            => ServiceTicketIdId1.CompareTo(ServiceTicketIdId2) <= 0;
 
         #endregion
 
-        #region Operator >  (ServiceTicketId1, ServiceTicketId2)
+        #region Operator >  (ServiceTicketIdId1, ServiceTicketIdId2)
 
         /// <summary>
         /// Compares two instances of this object.
         /// </summary>
-        /// <param name="ServiceTicketId1">A service ticket identification.</param>
-        /// <param name="ServiceTicketId2">Another service ticket identification.</param>
+        /// <param name="ServiceTicketIdId1">A service ticket identification.</param>
+        /// <param name="ServiceTicketIdId2">Another service ticket identification.</param>
         /// <returns>true|false</returns>
-        public static Boolean operator > (ServiceTicket_Id ServiceTicketId1, ServiceTicket_Id ServiceTicketId2)
-        {
+        public static Boolean operator > (ServiceTicket_Id ServiceTicketIdId1,
+                                          ServiceTicket_Id ServiceTicketIdId2)
 
-            if ((Object) ServiceTicketId1 == null)
-                throw new ArgumentNullException(nameof(ServiceTicketId1), "The given ServiceTicketId1 must not be null!");
-
-            return ServiceTicketId1.CompareTo(ServiceTicketId2) > 0;
-
-        }
+            => ServiceTicketIdId1.CompareTo(ServiceTicketIdId2) > 0;
 
         #endregion
 
-        #region Operator >= (ServiceTicketId1, ServiceTicketId2)
+        #region Operator >= (ServiceTicketIdId1, ServiceTicketIdId2)
 
         /// <summary>
         /// Compares two instances of this object.
         /// </summary>
-        /// <param name="ServiceTicketId1">A service ticket identification.</param>
-        /// <param name="ServiceTicketId2">Another service ticket identification.</param>
+        /// <param name="ServiceTicketIdId1">A service ticket identification.</param>
+        /// <param name="ServiceTicketIdId2">Another service ticket identification.</param>
         /// <returns>true|false</returns>
-        public static Boolean operator >= (ServiceTicket_Id ServiceTicketId1, ServiceTicket_Id ServiceTicketId2)
-            => !(ServiceTicketId1 < ServiceTicketId2);
+        public static Boolean operator >= (ServiceTicket_Id ServiceTicketIdId1,
+                                           ServiceTicket_Id ServiceTicketIdId2)
+
+            => ServiceTicketIdId1.CompareTo(ServiceTicketIdId2) >= 0;
 
         #endregion
 
@@ -290,18 +273,11 @@ namespace social.OpenData.UsersAPI
         /// </summary>
         /// <param name="Object">An object to compare with.</param>
         public Int32 CompareTo(Object Object)
-        {
 
-            if (Object == null)
-                throw new ArgumentNullException(nameof(Object), "The given object must not be null!");
-
-            if (!(Object is ServiceTicket_Id))
-                throw new ArgumentException("The given object is not a service ticket identification!",
-                                            nameof(Object));
-
-            return CompareTo((ServiceTicket_Id) Object);
-
-        }
+            => Object is ServiceTicket_Id serviceTicketId
+                   ? CompareTo(serviceTicketId)
+                   : throw new ArgumentException("The given object is not a service ticket identification!",
+                                                 nameof(Object));
 
         #endregion
 
@@ -312,14 +288,10 @@ namespace social.OpenData.UsersAPI
         /// </summary>
         /// <param name="ServiceTicketId">An object to compare with.</param>
         public Int32 CompareTo(ServiceTicket_Id ServiceTicketId)
-        {
 
-            if ((Object) ServiceTicketId == null)
-                throw new ArgumentNullException(nameof(ServiceTicketId),  "The given service ticket identification must not be null!");
-
-            return String.Compare(InternalId, ServiceTicketId.InternalId, StringComparison.OrdinalIgnoreCase);
-
-        }
+            => String.Compare(InternalId,
+                              ServiceTicketId.InternalId,
+                              StringComparison.OrdinalIgnoreCase);
 
         #endregion
 
@@ -335,36 +307,24 @@ namespace social.OpenData.UsersAPI
         /// <param name="Object">An object to compare with.</param>
         /// <returns>true|false</returns>
         public override Boolean Equals(Object Object)
-        {
 
-            if (Object == null)
-                return false;
-
-            if (!(Object is ServiceTicket_Id))
-                return false;
-
-            return Equals((ServiceTicket_Id) Object);
-
-        }
+            => Object is ServiceTicket_Id serviceTicketId &&
+                   Equals(serviceTicketId);
 
         #endregion
 
         #region Equals(ServiceTicketId)
 
         /// <summary>
-        /// Compares two service ticket identifications for equality.
+        /// Compares two ServiceTicketIds for equality.
         /// </summary>
-        /// <param name="ServiceTicketId">An service ticket identification to compare with.</param>
+        /// <param name="ServiceTicketId">A service ticket identification to compare with.</param>
         /// <returns>True if both match; False otherwise.</returns>
         public Boolean Equals(ServiceTicket_Id ServiceTicketId)
-        {
 
-            if ((Object) ServiceTicketId == null)
-                return false;
-
-            return InternalId.Equals(ServiceTicketId.InternalId, StringComparison.OrdinalIgnoreCase);
-
-        }
+            => String.Equals(InternalId,
+                             ServiceTicketId.InternalId,
+                             StringComparison.OrdinalIgnoreCase);
 
         #endregion
 
@@ -373,21 +333,23 @@ namespace social.OpenData.UsersAPI
         #region GetHashCode()
 
         /// <summary>
-        /// Return the HashCode of this object.
+        /// Return the hash code of this object.
         /// </summary>
-        /// <returns>The HashCode of this object.</returns>
+        /// <returns>The hash code of this object.</returns>
         public override Int32 GetHashCode()
-            => InternalId.ToLower().GetHashCode();
+
+            => InternalId?.GetHashCode() ?? 0;
 
         #endregion
 
         #region (override) ToString()
 
         /// <summary>
-        /// Return a text representation of this object.
+        /// Return a text-representation of this object.
         /// </summary>
         public override String ToString()
-            => InternalId;
+
+            => InternalId ?? "";
 
         #endregion
 

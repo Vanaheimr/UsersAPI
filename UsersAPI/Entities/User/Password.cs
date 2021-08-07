@@ -40,7 +40,7 @@ namespace social.OpenData.UsersAPI
         /// <summary>
         /// Private non-cryptographic random number generator.
         /// </summary>
-        private static readonly Random _random = new Random(DateTime.Now.Millisecond);
+        private static readonly Random _random = new Random();
 
         /// <summary>
         /// The internal identification.

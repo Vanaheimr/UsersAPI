@@ -34,12 +34,10 @@ namespace social.OpenData.UsersAPI
 
         #region Data
 
-        private static readonly Random _random = new Random(DateTime.Now.Millisecond);
-
         /// <summary>
         /// The internal identification.
         /// </summary>
-        private readonly String  InternalId;
+        private readonly String InternalId;
 
         #endregion
 
@@ -52,10 +50,10 @@ namespace social.OpenData.UsersAPI
             => InternalId.IsNullOrEmpty();
 
         /// <summary>
-        /// The length of the RMA identification.
+        /// The length of the parcel tracking identificator.
         /// </summary>
         public UInt64 Length
-            => (UInt64) InternalId.Length;
+            => (UInt64) InternalId?.Length;
 
         #endregion
 
@@ -64,93 +62,76 @@ namespace social.OpenData.UsersAPI
         /// <summary>
         /// Create a new parcel tracking identification based on the given string.
         /// </summary>
-        /// <param name="String">The string representation of the RMA identification.</param>
-        private ParcelTracking_Id(String  String)
+        private ParcelTracking_Id(String Text)
         {
-            this.InternalId  = String;
+            InternalId = Text;
         }
 
         #endregion
 
 
-        #region (static) Random(Length)
+        #region Parse   (Text)
 
         /// <summary>
-        /// Create a new RMA identification.
+        /// Parse the given string as a parcel tracking identification.
         /// </summary>
-        /// <param name="Length">The expected length of the RMA identification.</param>
-        public static ParcelTracking_Id Random(Byte Length = 10)
-
-            => new ParcelTracking_Id(_random.RandomString(Length).ToUpper());
-
-        #endregion
-
-        #region (static) Parse   (Text)
-
-        /// <summary>
-        /// Parse the given string as a RMA identification.
-        /// </summary>
-        /// <param name="Text">A text representation of a RMA identification.</param>
+        /// <param name="Text">A text-representation of a parcel tracking identification.</param>
         public static ParcelTracking_Id Parse(String Text)
         {
 
-            if (TryParse(Text, out ParcelTracking_Id _ServiceTicketId))
-                return _ServiceTicketId;
+            if (TryParse(Text, out ParcelTracking_Id parcelTrackingId))
+                return parcelTrackingId;
 
-            throw new ArgumentException("The given text representation of a RMA identification is invalid!", nameof(Text));
+            throw new ArgumentException("Invalid text-representation of a parcel tracking identification: '" + Text + "'!",
+                                        nameof(Text));
 
         }
 
         #endregion
 
-        #region (static) TryParse(Text)
+        #region TryParse(Text)
 
         /// <summary>
-        /// Try to parse the given string as a RMA identification.
+        /// Try to parse the given string as a parcel tracking identification.
         /// </summary>
-        /// <param name="Text">A text representation of a RMA identification.</param>
+        /// <param name="Text">A text-representation of a parcel tracking identification.</param>
         public static ParcelTracking_Id? TryParse(String Text)
         {
 
-            if (TryParse(Text, out ParcelTracking_Id _ServiceTicketId))
-                return _ServiceTicketId;
+            if (TryParse(Text, out ParcelTracking_Id parcelTrackingId))
+                return parcelTrackingId;
 
-            return new ParcelTracking_Id?();
+            return default;
 
         }
 
         #endregion
 
-        #region (static) TryParse(Text, out ServiceTicketId)
+        #region TryParse(Text, out ParcelTrackingId)
 
         /// <summary>
-        /// Try to parse the given string as a RMA identification.
+        /// Try to parse the given string as a parcel tracking identification.
         /// </summary>
-        /// <param name="Text">A text representation of a RMA identification.</param>
-        /// <param name="ServiceTicketId">The parsed RMA identification.</param>
-        public static Boolean TryParse(String Text, out ParcelTracking_Id ServiceTicketId)
+        /// <param name="Text">A text-representation of a parcel tracking identification.</param>
+        /// <param name="ParcelTrackingId">The parsed parcel tracking identification.</param>
+        public static Boolean TryParse(String Text, out ParcelTracking_Id ParcelTrackingId)
         {
 
-            #region Initial checks
+            Text = Text?.Trim();
 
-            if (Text != null)
-                Text = Text.Trim();
-
-            if (Text.IsNullOrEmpty())
-                throw new ArgumentNullException(nameof(Text), "The given text representation of a RMA identification must not be null or empty!");
-
-            #endregion
-
-            try
+            if (Text.IsNotNullOrEmpty())
             {
-                ServiceTicketId = new ParcelTracking_Id(Text);
-                return true;
+                try
+                {
+                    ParcelTrackingId = new ParcelTracking_Id(Text);
+                    return true;
+                }
+                catch
+                { }
             }
-            catch (Exception)
-            {
-                ServiceTicketId = default(ParcelTracking_Id);
-                return false;
-            }
+
+            ParcelTrackingId = default;
+            return false;
 
         }
 
@@ -159,13 +140,12 @@ namespace social.OpenData.UsersAPI
         #region Clone
 
         /// <summary>
-        /// Clone this RMA identification.
+        /// Clone this parcel tracking identification.
         /// </summary>
-
         public ParcelTracking_Id Clone
 
             => new ParcelTracking_Id(
-                   new String(InternalId.ToCharArray())
+                   new String(InternalId?.ToCharArray())
                );
 
         #endregion
@@ -173,113 +153,99 @@ namespace social.OpenData.UsersAPI
 
         #region Operator overloading
 
-        #region Operator == (ServiceTicketId1, ServiceTicketId2)
+        #region Operator == (ParcelTrackingIdId1, ParcelTrackingIdId2)
 
         /// <summary>
         /// Compares two instances of this object.
         /// </summary>
-        /// <param name="ServiceTicketId1">A RMA identification.</param>
-        /// <param name="ServiceTicketId2">Another RMA identification.</param>
+        /// <param name="ParcelTrackingIdId1">A parcel tracking identification.</param>
+        /// <param name="ParcelTrackingIdId2">Another parcel tracking identification.</param>
         /// <returns>true|false</returns>
-        public static Boolean operator == (ParcelTracking_Id ServiceTicketId1, ParcelTracking_Id ServiceTicketId2)
-        {
+        public static Boolean operator == (ParcelTracking_Id ParcelTrackingIdId1,
+                                           ParcelTracking_Id ParcelTrackingIdId2)
 
-            // If both are null, or both are same instance, return true.
-            if (Object.ReferenceEquals(ServiceTicketId1, ServiceTicketId2))
-                return true;
-
-            // If one is null, but not both, return false.
-            if (((Object) ServiceTicketId1 == null) || ((Object) ServiceTicketId2 == null))
-                return false;
-
-            return ServiceTicketId1.Equals(ServiceTicketId2);
-
-        }
+            => ParcelTrackingIdId1.Equals(ParcelTrackingIdId2);
 
         #endregion
 
-        #region Operator != (ServiceTicketId1, ServiceTicketId2)
+        #region Operator != (ParcelTrackingIdId1, ParcelTrackingIdId2)
 
         /// <summary>
         /// Compares two instances of this object.
         /// </summary>
-        /// <param name="ServiceTicketId1">A RMA identification.</param>
-        /// <param name="ServiceTicketId2">Another RMA identification.</param>
+        /// <param name="ParcelTrackingIdId1">A parcel tracking identification.</param>
+        /// <param name="ParcelTrackingIdId2">Another parcel tracking identification.</param>
         /// <returns>true|false</returns>
-        public static Boolean operator != (ParcelTracking_Id ServiceTicketId1, ParcelTracking_Id ServiceTicketId2)
-            => !(ServiceTicketId1 == ServiceTicketId2);
+        public static Boolean operator != (ParcelTracking_Id ParcelTrackingIdId1,
+                                           ParcelTracking_Id ParcelTrackingIdId2)
+
+            => !ParcelTrackingIdId1.Equals(ParcelTrackingIdId2);
 
         #endregion
 
-        #region Operator <  (ServiceTicketId1, ServiceTicketId2)
+        #region Operator <  (ParcelTrackingIdId1, ParcelTrackingIdId2)
 
         /// <summary>
         /// Compares two instances of this object.
         /// </summary>
-        /// <param name="ServiceTicketId1">A RMA identification.</param>
-        /// <param name="ServiceTicketId2">Another RMA identification.</param>
+        /// <param name="ParcelTrackingIdId1">A parcel tracking identification.</param>
+        /// <param name="ParcelTrackingIdId2">Another parcel tracking identification.</param>
         /// <returns>true|false</returns>
-        public static Boolean operator < (ParcelTracking_Id ServiceTicketId1, ParcelTracking_Id ServiceTicketId2)
-        {
+        public static Boolean operator < (ParcelTracking_Id ParcelTrackingIdId1,
+                                          ParcelTracking_Id ParcelTrackingIdId2)
 
-            if ((Object) ServiceTicketId1 == null)
-                throw new ArgumentNullException(nameof(ServiceTicketId1), "The given ServiceTicketId1 must not be null!");
-
-            return ServiceTicketId1.CompareTo(ServiceTicketId2) < 0;
-
-        }
+            => ParcelTrackingIdId1.CompareTo(ParcelTrackingIdId2) < 0;
 
         #endregion
 
-        #region Operator <= (ServiceTicketId1, ServiceTicketId2)
+        #region Operator <= (ParcelTrackingIdId1, ParcelTrackingIdId2)
 
         /// <summary>
         /// Compares two instances of this object.
         /// </summary>
-        /// <param name="ServiceTicketId1">A RMA identification.</param>
-        /// <param name="ServiceTicketId2">Another RMA identification.</param>
+        /// <param name="ParcelTrackingIdId1">A parcel tracking identification.</param>
+        /// <param name="ParcelTrackingIdId2">Another parcel tracking identification.</param>
         /// <returns>true|false</returns>
-        public static Boolean operator <= (ParcelTracking_Id ServiceTicketId1, ParcelTracking_Id ServiceTicketId2)
-            => !(ServiceTicketId1 > ServiceTicketId2);
+        public static Boolean operator <= (ParcelTracking_Id ParcelTrackingIdId1,
+                                           ParcelTracking_Id ParcelTrackingIdId2)
+
+            => ParcelTrackingIdId1.CompareTo(ParcelTrackingIdId2) <= 0;
 
         #endregion
 
-        #region Operator >  (ServiceTicketId1, ServiceTicketId2)
+        #region Operator >  (ParcelTrackingIdId1, ParcelTrackingIdId2)
 
         /// <summary>
         /// Compares two instances of this object.
         /// </summary>
-        /// <param name="ServiceTicketId1">A RMA identification.</param>
-        /// <param name="ServiceTicketId2">Another RMA identification.</param>
+        /// <param name="ParcelTrackingIdId1">A parcel tracking identification.</param>
+        /// <param name="ParcelTrackingIdId2">Another parcel tracking identification.</param>
         /// <returns>true|false</returns>
-        public static Boolean operator > (ParcelTracking_Id ServiceTicketId1, ParcelTracking_Id ServiceTicketId2)
-        {
+        public static Boolean operator > (ParcelTracking_Id ParcelTrackingIdId1,
+                                          ParcelTracking_Id ParcelTrackingIdId2)
 
-            if ((Object) ServiceTicketId1 == null)
-                throw new ArgumentNullException(nameof(ServiceTicketId1), "The given ServiceTicketId1 must not be null!");
-
-            return ServiceTicketId1.CompareTo(ServiceTicketId2) > 0;
-
-        }
+            => ParcelTrackingIdId1.CompareTo(ParcelTrackingIdId2) > 0;
 
         #endregion
 
-        #region Operator >= (ServiceTicketId1, ServiceTicketId2)
+        #region Operator >= (ParcelTrackingIdId1, ParcelTrackingIdId2)
 
         /// <summary>
         /// Compares two instances of this object.
         /// </summary>
-        /// <param name="ServiceTicketId1">A RMA identification.</param>
-        /// <param name="ServiceTicketId2">Another RMA identification.</param>
+        /// <param name="ParcelTrackingIdId1">A parcel tracking identification.</param>
+        /// <param name="ParcelTrackingIdId2">Another parcel tracking identification.</param>
         /// <returns>true|false</returns>
-        public static Boolean operator >= (ParcelTracking_Id ServiceTicketId1, ParcelTracking_Id ServiceTicketId2)
-            => !(ServiceTicketId1 < ServiceTicketId2);
+        public static Boolean operator >= (ParcelTracking_Id ParcelTrackingIdId1,
+                                           ParcelTracking_Id ParcelTrackingIdId2)
+
+            => ParcelTrackingIdId1.CompareTo(ParcelTrackingIdId2) >= 0;
 
         #endregion
 
         #endregion
 
-        #region IComparable<ServiceTicketId> Members
+        #region IComparable<ParcelTrackingId> Members
 
         #region CompareTo(Object)
 
@@ -288,42 +254,31 @@ namespace social.OpenData.UsersAPI
         /// </summary>
         /// <param name="Object">An object to compare with.</param>
         public Int32 CompareTo(Object Object)
-        {
 
-            if (Object == null)
-                throw new ArgumentNullException(nameof(Object), "The given object must not be null!");
-
-            if (!(Object is ParcelTracking_Id))
-                throw new ArgumentException("The given object is not a RMA identification!",
-                                            nameof(Object));
-
-            return CompareTo((ParcelTracking_Id) Object);
-
-        }
+            => Object is ParcelTracking_Id parcelTrackingId
+                   ? CompareTo(parcelTrackingId)
+                   : throw new ArgumentException("The given object is not a parcel tracking identification!",
+                                                 nameof(Object));
 
         #endregion
 
-        #region CompareTo(ServiceTicketId)
+        #region CompareTo(ParcelTrackingId)
 
         /// <summary>
         /// Compares two instances of this object.
         /// </summary>
-        /// <param name="ServiceTicketId">An object to compare with.</param>
-        public Int32 CompareTo(ParcelTracking_Id ServiceTicketId)
-        {
+        /// <param name="ParcelTrackingId">An object to compare with.</param>
+        public Int32 CompareTo(ParcelTracking_Id ParcelTrackingId)
 
-            if ((Object) ServiceTicketId == null)
-                throw new ArgumentNullException(nameof(ServiceTicketId),  "The given RMA identification must not be null!");
-
-            return String.Compare(InternalId, ServiceTicketId.InternalId, StringComparison.OrdinalIgnoreCase);
-
-        }
+            => String.Compare(InternalId,
+                              ParcelTrackingId.InternalId,
+                              StringComparison.OrdinalIgnoreCase);
 
         #endregion
 
         #endregion
 
-        #region IEquatable<ServiceTicketId> Members
+        #region IEquatable<ParcelTrackingId> Members
 
         #region Equals(Object)
 
@@ -333,36 +288,24 @@ namespace social.OpenData.UsersAPI
         /// <param name="Object">An object to compare with.</param>
         /// <returns>true|false</returns>
         public override Boolean Equals(Object Object)
-        {
 
-            if (Object == null)
-                return false;
-
-            if (!(Object is ParcelTracking_Id))
-                return false;
-
-            return Equals((ParcelTracking_Id) Object);
-
-        }
+            => Object is ParcelTracking_Id parcelTrackingId &&
+                   Equals(parcelTrackingId);
 
         #endregion
 
-        #region Equals(ServiceTicketId)
+        #region Equals(ParcelTrackingId)
 
         /// <summary>
-        /// Compares two RMA identifications for equality.
+        /// Compares two ParcelTrackingIds for equality.
         /// </summary>
-        /// <param name="ServiceTicketId">An RMA identification to compare with.</param>
+        /// <param name="ParcelTrackingId">A parcel tracking identification to compare with.</param>
         /// <returns>True if both match; False otherwise.</returns>
-        public Boolean Equals(ParcelTracking_Id ServiceTicketId)
-        {
+        public Boolean Equals(ParcelTracking_Id ParcelTrackingId)
 
-            if ((Object) ServiceTicketId == null)
-                return false;
-
-            return InternalId.Equals(ServiceTicketId.InternalId, StringComparison.OrdinalIgnoreCase);
-
-        }
+            => String.Equals(InternalId,
+                             ParcelTrackingId.InternalId,
+                             StringComparison.OrdinalIgnoreCase);
 
         #endregion
 
@@ -371,21 +314,23 @@ namespace social.OpenData.UsersAPI
         #region GetHashCode()
 
         /// <summary>
-        /// Return the HashCode of this object.
+        /// Return the hash code of this object.
         /// </summary>
-        /// <returns>The HashCode of this object.</returns>
+        /// <returns>The hash code of this object.</returns>
         public override Int32 GetHashCode()
-            => InternalId.ToLower().GetHashCode();
+
+            => InternalId?.GetHashCode() ?? 0;
 
         #endregion
 
         #region (override) ToString()
 
         /// <summary>
-        /// Return a text representation of this object.
+        /// Return a text-representation of this object.
         /// </summary>
         public override String ToString()
-            => InternalId;
+
+            => InternalId ?? "";
 
         #endregion
 

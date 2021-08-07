@@ -37,14 +37,14 @@ namespace social.OpenData.UsersAPI
         #region Data
 
         /// <summary>
-        /// Private non-cryptographic random number generator.
-        /// </summary>
-        private static readonly Random _random = new Random(DateTime.Now.Millisecond);
-
-        /// <summary>
         /// The internal identification.
         /// </summary>
         private readonly String InternalId;
+
+        /// <summary>
+        /// Private non-cryptographic random number generator.
+        /// </summary>
+        private static readonly Random _random = new Random();
 
         #endregion
 
@@ -57,7 +57,7 @@ namespace social.OpenData.UsersAPI
             => InternalId.IsNullOrEmpty();
 
         /// <summary>
-        /// The length of the organization identification.
+        /// The length of the organization identificator.
         /// </summary>
         public UInt64 Length
             => (UInt64) InternalId?.Length;
@@ -69,10 +69,9 @@ namespace social.OpenData.UsersAPI
         /// <summary>
         /// Create a new organization identification based on the given string.
         /// </summary>
-        /// <param name="String">The string representation of the organization identification.</param>
-        private Organization_Id(String String)
+        private Organization_Id(String Text)
         {
-            InternalId = String;
+            InternalId = Text;
         }
 
         #endregion
@@ -81,88 +80,77 @@ namespace social.OpenData.UsersAPI
         #region (static) Random(Length)
 
         /// <summary>
-        /// Create a new user identification.
+        /// Create a new organization identification.
         /// </summary>
-        /// <param name="Length">The expected length of the user identification.</param>
+        /// <param name="Length">The expected length of the organization identification.</param>
         public static Organization_Id Random(Byte Length = 15)
 
             => new Organization_Id(_random.RandomString(Length).ToUpper());
 
         #endregion
 
-        #region (static) Parse(Text)
+        #region Parse   (Text)
 
         /// <summary>
         /// Parse the given string as an organization identification.
         /// </summary>
-        /// <param name="Text">A text representation of an organization identification.</param>
+        /// <param name="Text">A text-representation of an organization identification.</param>
         public static Organization_Id Parse(String Text)
         {
 
-            #region Initial checks
+            if (TryParse(Text, out Organization_Id organizationId))
+                return organizationId;
 
-            if (Text != null)
-                Text = Text.Trim();
-
-            if (Text.IsNullOrEmpty())
-                throw new ArgumentNullException(nameof(Text), "The given text representation of an organization identification must not be null or empty!");
-
-            #endregion
-
-            return new Organization_Id(Text);
+            throw new ArgumentException("Invalid text-representation of an organization identification: '" + Text + "'!",
+                                        nameof(Text));
 
         }
 
         #endregion
 
-        #region (static) TryParse(Text)
+        #region TryParse(Text)
 
         /// <summary>
         /// Try to parse the given string as an organization identification.
         /// </summary>
-        /// <param name="Text">A text representation of an organization identification.</param>
+        /// <param name="Text">A text-representation of an organization identification.</param>
         public static Organization_Id? TryParse(String Text)
         {
 
-            if (TryParse(Text, out Organization_Id _OrganizationId))
-                return _OrganizationId;
+            if (TryParse(Text, out Organization_Id organizationId))
+                return organizationId;
 
-            return new Organization_Id?();
+            return null;
 
         }
 
         #endregion
 
-        #region (static) TryParse(Text, out OrganizationId)
+        #region TryParse(Text, out OrganizationId)
 
         /// <summary>
         /// Try to parse the given string as an organization identification.
         /// </summary>
-        /// <param name="Text">A text representation of an organization identification.</param>
+        /// <param name="Text">A text-representation of an organization identification.</param>
         /// <param name="OrganizationId">The parsed organization identification.</param>
         public static Boolean TryParse(String Text, out Organization_Id OrganizationId)
         {
 
-            #region Initial checks
+            Text = Text?.Trim();
 
-            if (Text != null)
-                Text = Text.Trim();
-
-            if (Text.IsNullOrEmpty())
-                throw new ArgumentNullException(nameof(Text), "The given text representation of an organization identification must not be null or empty!");
-
-            #endregion
-
-            try
+            if (Text.IsNotNullOrEmpty())
             {
-                OrganizationId = new Organization_Id(Text);
-                return true;
+                try
+                {
+                    OrganizationId = new Organization_Id(Text);
+                    return true;
+                }
+                catch
+                { }
             }
-            catch (Exception)
-            {
-                OrganizationId = default(Organization_Id);
-                return false;
-            }
+
+            OrganizationId = default;
+            return false;
 
         }
 
@@ -171,136 +159,106 @@ namespace social.OpenData.UsersAPI
         #region Clone
 
         /// <summary>
-        /// Clone an organization identification.
+        /// Clone this organization identification.
         /// </summary>
-
         public Organization_Id Clone
-            => new Organization_Id(new String(InternalId.ToCharArray()));
 
-        #endregion
-
-
-        #region IndexOf(Text)
-
-        /// <summary>
-        /// Reports the zero-based index of the first occurrence of the specified string
-        /// in the current System.String object. A parameter specifies the type of search
-        /// to use for the specified string.
-        /// </summary>
-        /// <param name="Text">The string to seek.</param>
-        /// <returns>
-        /// The index position of the value parameter if that string is found, or -1 if it
-        /// is not. If value is System.String.Empty, the return value is 0.
-        /// </returns>
-        public Int32 IndexOf(String Text)
-            => InternalId.IndexOf(Text, StringComparison.OrdinalIgnoreCase);
+            => new Organization_Id(
+                   new String(InternalId?.ToCharArray())
+               );
 
         #endregion
 
 
         #region Operator overloading
 
-        #region Operator == (OrganizationId1, OrganizationId2)
+        #region Operator == (OrganizationIdId1, OrganizationIdId2)
 
         /// <summary>
         /// Compares two instances of this object.
         /// </summary>
-        /// <param name="OrganizationId1">A organization identification.</param>
-        /// <param name="OrganizationId2">Another organization identification.</param>
+        /// <param name="OrganizationIdId1">An organization identification.</param>
+        /// <param name="OrganizationIdId2">Another organization identification.</param>
         /// <returns>true|false</returns>
-        public static Boolean operator == (Organization_Id OrganizationId1, Organization_Id OrganizationId2)
-        {
+        public static Boolean operator == (Organization_Id OrganizationIdId1,
+                                           Organization_Id OrganizationIdId2)
 
-            // If both are null, or both are same instance, return true.
-            if (Object.ReferenceEquals(OrganizationId1, OrganizationId2))
-                return true;
-
-            // If one is null, but not both, return false.
-            if (((Object) OrganizationId1 == null) || ((Object) OrganizationId2 == null))
-                return false;
-
-            return OrganizationId1.Equals(OrganizationId2);
-
-        }
+            => OrganizationIdId1.Equals(OrganizationIdId2);
 
         #endregion
 
-        #region Operator != (OrganizationId1, OrganizationId2)
+        #region Operator != (OrganizationIdId1, OrganizationIdId2)
 
         /// <summary>
         /// Compares two instances of this object.
         /// </summary>
-        /// <param name="OrganizationId1">A organization identification.</param>
-        /// <param name="OrganizationId2">Another organization identification.</param>
+        /// <param name="OrganizationIdId1">An organization identification.</param>
+        /// <param name="OrganizationIdId2">Another organization identification.</param>
         /// <returns>true|false</returns>
-        public static Boolean operator != (Organization_Id OrganizationId1, Organization_Id OrganizationId2)
-            => !(OrganizationId1 == OrganizationId2);
+        public static Boolean operator != (Organization_Id OrganizationIdId1,
+                                           Organization_Id OrganizationIdId2)
+
+            => !OrganizationIdId1.Equals(OrganizationIdId2);
 
         #endregion
 
-        #region Operator <  (OrganizationId1, OrganizationId2)
+        #region Operator <  (OrganizationIdId1, OrganizationIdId2)
 
         /// <summary>
         /// Compares two instances of this object.
         /// </summary>
-        /// <param name="OrganizationId1">A organization identification.</param>
-        /// <param name="OrganizationId2">Another organization identification.</param>
+        /// <param name="OrganizationIdId1">An organization identification.</param>
+        /// <param name="OrganizationIdId2">Another organization identification.</param>
         /// <returns>true|false</returns>
-        public static Boolean operator < (Organization_Id OrganizationId1, Organization_Id OrganizationId2)
-        {
+        public static Boolean operator < (Organization_Id OrganizationIdId1,
+                                          Organization_Id OrganizationIdId2)
 
-            if ((Object) OrganizationId1 == null)
-                throw new ArgumentNullException(nameof(OrganizationId1), "The given OrganizationId1 must not be null!");
-
-            return OrganizationId1.CompareTo(OrganizationId2) < 0;
-
-        }
+            => OrganizationIdId1.CompareTo(OrganizationIdId2) < 0;
 
         #endregion
 
-        #region Operator <= (OrganizationId1, OrganizationId2)
+        #region Operator <= (OrganizationIdId1, OrganizationIdId2)
 
         /// <summary>
         /// Compares two instances of this object.
         /// </summary>
-        /// <param name="OrganizationId1">A organization identification.</param>
-        /// <param name="OrganizationId2">Another organization identification.</param>
+        /// <param name="OrganizationIdId1">An organization identification.</param>
+        /// <param name="OrganizationIdId2">Another organization identification.</param>
         /// <returns>true|false</returns>
-        public static Boolean operator <= (Organization_Id OrganizationId1, Organization_Id OrganizationId2)
-            => !(OrganizationId1 > OrganizationId2);
+        public static Boolean operator <= (Organization_Id OrganizationIdId1,
+                                           Organization_Id OrganizationIdId2)
+
+            => OrganizationIdId1.CompareTo(OrganizationIdId2) <= 0;
 
         #endregion
 
-        #region Operator >  (OrganizationId1, OrganizationId2)
+        #region Operator >  (OrganizationIdId1, OrganizationIdId2)
 
         /// <summary>
         /// Compares two instances of this object.
         /// </summary>
-        /// <param name="OrganizationId1">A organization identification.</param>
-        /// <param name="OrganizationId2">Another organization identification.</param>
+        /// <param name="OrganizationIdId1">An organization identification.</param>
+        /// <param name="OrganizationIdId2">Another organization identification.</param>
         /// <returns>true|false</returns>
-        public static Boolean operator > (Organization_Id OrganizationId1, Organization_Id OrganizationId2)
-        {
+        public static Boolean operator > (Organization_Id OrganizationIdId1,
+                                          Organization_Id OrganizationIdId2)
 
-            if ((Object) OrganizationId1 == null)
-                throw new ArgumentNullException(nameof(OrganizationId1), "The given OrganizationId1 must not be null!");
-
-            return OrganizationId1.CompareTo(OrganizationId2) > 0;
-
-        }
+            => OrganizationIdId1.CompareTo(OrganizationIdId2) > 0;
 
         #endregion
 
-        #region Operator >= (OrganizationId1, OrganizationId2)
+        #region Operator >= (OrganizationIdId1, OrganizationIdId2)
 
         /// <summary>
         /// Compares two instances of this object.
         /// </summary>
-        /// <param name="OrganizationId1">A organization identification.</param>
-        /// <param name="OrganizationId2">Another organization identification.</param>
+        /// <param name="OrganizationIdId1">An organization identification.</param>
+        /// <param name="OrganizationIdId2">Another organization identification.</param>
         /// <returns>true|false</returns>
-        public static Boolean operator >= (Organization_Id OrganizationId1, Organization_Id OrganizationId2)
-            => !(OrganizationId1 < OrganizationId2);
+        public static Boolean operator >= (Organization_Id OrganizationIdId1,
+                                           Organization_Id OrganizationIdId2)
+
+            => OrganizationIdId1.CompareTo(OrganizationIdId2) >= 0;
 
         #endregion
 
@@ -315,18 +273,11 @@ namespace social.OpenData.UsersAPI
         /// </summary>
         /// <param name="Object">An object to compare with.</param>
         public Int32 CompareTo(Object Object)
-        {
 
-            if (Object == null)
-                throw new ArgumentNullException(nameof(Object), "The given object must not be null!");
-
-            if (!(Object is Organization_Id))
-                throw new ArgumentException("The given object is not an organization identification!",
-                                            nameof(Object));
-
-            return CompareTo((Organization_Id) Object);
-
-        }
+            => Object is Organization_Id organizationId
+                   ? CompareTo(organizationId)
+                   : throw new ArgumentException("The given object is not an organization identification!",
+                                                 nameof(Object));
 
         #endregion
 
@@ -337,14 +288,10 @@ namespace social.OpenData.UsersAPI
         /// </summary>
         /// <param name="OrganizationId">An object to compare with.</param>
         public Int32 CompareTo(Organization_Id OrganizationId)
-        {
 
-            if ((Object) OrganizationId == null)
-                throw new ArgumentNullException(nameof(OrganizationId),  "The given organization identification must not be null!");
-
-            return String.Compare(InternalId, OrganizationId.InternalId, StringComparison.OrdinalIgnoreCase);
-
-        }
+            => String.Compare(InternalId,
+                              OrganizationId.InternalId,
+                              StringComparison.OrdinalIgnoreCase);
 
         #endregion
 
@@ -360,36 +307,24 @@ namespace social.OpenData.UsersAPI
         /// <param name="Object">An object to compare with.</param>
         /// <returns>true|false</returns>
         public override Boolean Equals(Object Object)
-        {
 
-            if (Object == null)
-                return false;
-
-            if (!(Object is Organization_Id))
-                return false;
-
-            return Equals((Organization_Id) Object);
-
-        }
+            => Object is Organization_Id organizationId &&
+                   Equals(organizationId);
 
         #endregion
 
         #region Equals(OrganizationId)
 
         /// <summary>
-        /// Compares two organization identifications for equality.
+        /// Compares two OrganizationIds for equality.
         /// </summary>
         /// <param name="OrganizationId">An organization identification to compare with.</param>
         /// <returns>True if both match; False otherwise.</returns>
         public Boolean Equals(Organization_Id OrganizationId)
-        {
 
-            if ((Object) OrganizationId == null)
-                return false;
-
-            return InternalId.ToLower().Equals(OrganizationId.InternalId?.ToLower());
-
-        }
+            => String.Equals(InternalId,
+                             OrganizationId.InternalId,
+                             StringComparison.OrdinalIgnoreCase);
 
         #endregion
 
@@ -398,21 +333,23 @@ namespace social.OpenData.UsersAPI
         #region GetHashCode()
 
         /// <summary>
-        /// Return the HashCode of this object.
+        /// Return the hash code of this object.
         /// </summary>
-        /// <returns>The HashCode of this object.</returns>
+        /// <returns>The hash code of this object.</returns>
         public override Int32 GetHashCode()
-            => InternalId.ToLower().GetHashCode();
+
+            => InternalId?.GetHashCode() ?? 0;
 
         #endregion
 
         #region (override) ToString()
 
         /// <summary>
-        /// Return a text representation of this object.
+        /// Return a text-representation of this object.
         /// </summary>
         public override String ToString()
-            => InternalId;
+
+            => InternalId ?? "";
 
         #endregion
 
