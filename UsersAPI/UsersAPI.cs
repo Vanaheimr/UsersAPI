@@ -721,7 +721,7 @@ namespace social.OpenData.UsersAPI
         /// <returns>True, when News identification was found; false else.</returns>
         public static Boolean ParseNewsId(this HTTPRequest          HTTPRequest,
                                           UsersAPI                  UsersAPI,
-                                          out NewsBanner_Id?       NewsBannerId,
+                                          out NewsBanner_Id?        NewsBannerId,
                                           out HTTPResponse.Builder  HTTPResponse)
         {
 
@@ -730,13 +730,13 @@ namespace social.OpenData.UsersAPI
             if (HTTPRequest == null)
                 throw new ArgumentNullException(nameof(HTTPRequest),  "The given HTTP request must not be null!");
 
-            if (UsersAPI     == null)
+            if (UsersAPI    == null)
                 throw new ArgumentNullException(nameof(UsersAPI),     "The given UsersAPI must not be null!");
 
             #endregion
 
             NewsBannerId  = null;
-            HTTPResponse   = null;
+            HTTPResponse  = null;
 
             if (HTTPRequest.ParsedURLParameters.Length < 1)
             {
@@ -856,6 +856,306 @@ namespace social.OpenData.UsersAPI
             }
 
             return true;
+
+        }
+
+        #endregion
+
+
+
+        #region CreateUser           (Id, EMail, Password, Name = null, Description = null, PublicKeyRing = null, SecretKeyRing = null, MobilePhone = null, IsPublic = true, IsDisabled = false, IsAuthenticated = false)
+
+        /// <summary>
+        /// Create a new user.
+        /// </summary>
+        /// <param name="UsersAPI">The Users API.</param>
+        /// <param name="Id">The unique identification of the user.</param>
+        /// <param name="EMail">The primary e-mail of the user.</param>
+        /// <param name="Password">An optional password of the user.</param>
+        /// <param name="Name">An offical (multi-language) name of the user.</param>
+        /// <param name="Description">An optional (multi-language) description of the user.</param>
+        /// <param name="PublicKeyRing">An optional PGP/GPG public keyring of the user.</param>
+        /// <param name="SecretKeyRing">An optional PGP/GPG secret keyring of the user.</param>
+        /// <param name="UserLanguage">The language setting of the user.</param>
+        /// <param name="Telephone">An optional telephone number of the user.</param>
+        /// <param name="MobilePhone">An optional mobile telephone number of the user.</param>
+        /// <param name="Use2AuthFactor">Whether to use a second authentication factor.</param>
+        /// <param name="Telegram">An optional telegram account name of the user.</param>
+        /// <param name="Homepage">The homepage of the user.</param>
+        /// <param name="GeoLocation">An optional geographical location of the user.</param>
+        /// <param name="Address">An optional address of the user.</param>
+        /// <param name="AcceptedEULA">Timestamp when the user accepted the End-User-License-Agreement.</param>
+        /// <param name="IsAuthenticated">The user will not be shown in user listings, as its primary e-mail address is not yet authenticated.</param>
+        /// <param name="IsDisabled">The user will be shown in user listings.</param>
+        /// 
+        /// <param name="DataSource">The source of all this data, e.g. an automatic importer.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
+        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
+        public async static Task<User> CreateUser(this UsersAPI       UsersAPI,
+                                                  User_Id             Id,
+                                                  SimpleEMailAddress  EMail,
+                                                  Password?           Password          = null,
+                                                  String              Name              = null,
+                                                  I18NString          Description       = null,
+                                                  PgpPublicKeyRing    PublicKeyRing     = null,
+                                                  PgpSecretKeyRing    SecretKeyRing     = null,
+                                                  Languages           UserLanguage      = Languages.en,
+                                                  PhoneNumber?        Telephone         = null,
+                                                  PhoneNumber?        MobilePhone       = null,
+                                                  Use2AuthFactor      Use2AuthFactor    = Use2AuthFactor.None,
+                                                  String              Telegram          = null,
+                                                  String              Homepage          = null,
+                                                  GeoCoordinate?      GeoLocation       = null,
+                                                  Address             Address           = null,
+                                                  DateTime?           AcceptedEULA      = null,
+                                                  Boolean             IsAuthenticated   = false,
+                                                  Boolean             IsDisabled        = false,
+
+                                                  String              DataSource        = "",
+                                                  EventTracking_Id    EventTrackingId   = null,
+                                                  User_Id?            CurrentUserId     = null)
+        {
+
+            var addUserResult = await UsersAPI.AddUser(new User(Id,
+                                                                EMail,
+                                                                Name,
+                                                                Description,
+                                                                PublicKeyRing,
+                                                                SecretKeyRing,
+                                                                UserLanguage,
+                                                                Telephone,
+                                                                MobilePhone,
+                                                                Use2AuthFactor,
+                                                                Telegram,
+                                                                Homepage,
+                                                                GeoLocation,
+                                                                Address,
+                                                                AcceptedEULA,
+                                                                IsAuthenticated,
+                                                                IsDisabled,
+                                                                DataSource: DataSource),
+
+                                                       async (_user, _eventTrackingId) => {
+                                                           if (Password.HasValue)
+                                                           {
+                                                               if (!await _user.API._TryChangePassword(_user.Id,
+                                                                                                       Password.Value,
+                                                                                                       null,
+                                                                                                       _eventTrackingId,
+                                                                                                       CurrentUserId))
+                                                               {
+                                                                   throw new ApplicationException("The password for '" + _user.Id + "' could not be changed, as the given current password does not match!");
+                                                               }
+                                                           }
+                                                       },
+
+                                                       EventTrackingId ?? EventTracking_Id.New,
+                                                       CurrentUserId);
+
+            return addUserResult.IsSuccess
+                       ? addUserResult.Object
+                       : null;
+
+        }
+
+        #endregion
+
+        #region CreateUser           (Id, EMail, Password, Name = null, Description = null, PublicKeyRing = null, SecretKeyRing = null, MobilePhone = null, IsPublic = true, IsDisabled = false, IsAuthenticated = false)
+
+        /// <summary>
+        /// Create a new user.
+        /// </summary>
+        /// <param name="UsersAPI">The Users API.</param>
+        /// <param name="Id">The unique identification of the user.</param>
+        /// <param name="EMail">The primary e-mail of the user.</param>
+        /// <param name="AccessRight">The organization membership of the new user.</param>
+        /// <param name="Organization">The organization of the new user.</param>
+        /// <param name="Password">An optional password of the user.</param>
+        /// <param name="Name">An offical (multi-language) name of the user.</param>
+        /// <param name="Description">An optional (multi-language) description of the user.</param>
+        /// <param name="PublicKeyRing">An optional PGP/GPG public keyring of the user.</param>
+        /// <param name="SecretKeyRing">An optional PGP/GPG secret keyring of the user.</param>
+        /// <param name="UserLanguage">The language setting of the user.</param>
+        /// <param name="Telephone">An optional telephone number of the user.</param>
+        /// <param name="MobilePhone">An optional mobile telephone number of the user.</param>
+        /// <param name="Use2AuthFactor">Whether to use a second authentication factor.</param>
+        /// <param name="Telegram">An optional telegram account name of the user.</param>
+        /// <param name="Homepage">The homepage of the user.</param>
+        /// <param name="GeoLocation">An optional geographical location of the user.</param>
+        /// <param name="Address">An optional address of the user.</param>
+        /// <param name="AcceptedEULA">Timestamp when the user accepted the End-User-License-Agreement.</param>
+        /// <param name="IsAuthenticated">The user will not be shown in user listings, as its primary e-mail address is not yet authenticated.</param>
+        /// <param name="IsDisabled">The user will be shown in user listings.</param>
+        /// 
+        /// <param name="DataSource">The source of all this data, e.g. an automatic importer.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
+        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
+        public async static Task<User> CreateUser(this UsersAPI               UsersAPI,
+                                                  User_Id                     Id,
+                                                  SimpleEMailAddress          EMail,
+                                                  User2OrganizationEdgeTypes  AccessRight,
+                                                  Organization                Organization,
+                                                  Password?                   Password          = null,
+                                                  String                      Name              = null,
+                                                  I18NString                  Description       = null,
+                                                  PgpPublicKeyRing            PublicKeyRing     = null,
+                                                  PgpSecretKeyRing            SecretKeyRing     = null,
+                                                  Languages                   UserLanguage      = Languages.en,
+                                                  PhoneNumber?                Telephone         = null,
+                                                  PhoneNumber?                MobilePhone       = null,
+                                                  Use2AuthFactor              Use2AuthFactor    = Use2AuthFactor.None,
+                                                  String                      Telegram          = null,
+                                                  String                      Homepage          = null,
+                                                  GeoCoordinate?              GeoLocation       = null,
+                                                  Address                     Address           = null,
+                                                  DateTime?                   AcceptedEULA      = null,
+                                                  Boolean                     IsAuthenticated   = false,
+                                                  Boolean                     IsDisabled        = false,
+
+                                                  String                      DataSource        = "",
+                                                  EventTracking_Id            EventTrackingId   = null,
+                                                  User_Id?                    CurrentUserId     = null)
+        {
+
+            var addUserResult = await UsersAPI.AddUser(new User(Id,
+                                                                EMail,
+                                                                Name,
+                                                                Description,
+                                                                PublicKeyRing,
+                                                                SecretKeyRing,
+                                                                UserLanguage,
+                                                                Telephone,
+                                                                MobilePhone,
+                                                                Use2AuthFactor,
+                                                                Telegram,
+                                                                Homepage,
+                                                                GeoLocation,
+                                                                Address,
+                                                                AcceptedEULA,
+                                                                IsAuthenticated,
+                                                                IsDisabled,
+                                                                DataSource: DataSource),
+
+                                                       AccessRight,
+                                                       Organization,
+
+                                                       async (_user, _eventTrackingId) => {
+                                                           if (Password.HasValue)
+                                                           {
+                                                               if (!await _user.API._TryChangePassword(_user.Id,
+                                                                                                       Password.Value,
+                                                                                                       null,
+                                                                                                       _eventTrackingId,
+                                                                                                       CurrentUserId))
+                                                               {
+                                                                   throw new ApplicationException("The password for '" + _user.Id + "' could not be changed, as the given current password does not match!");
+                                                               }
+                                                           }
+                                                       },
+
+                                                       EventTrackingId ?? EventTracking_Id.New,
+                                                       CurrentUserId);
+
+            return addUserResult.IsSuccess
+                       ? addUserResult.Object
+                       : null;
+
+        }
+
+        #endregion
+
+        #region CreateUserIfNotExists(Id, EMail, Password, Name = null, Description = null, PublicKeyRing = null, SecretKeyRing = null, MobilePhone = null, IsPublic = true, IsDisabled = false, IsAuthenticated = false)
+
+        /// <summary>
+        /// Create a new user, if he/she does not already exist.
+        /// </summary>
+        /// <param name="UsersAPI">The Users API.</param>
+        /// <param name="Id">The unique identification of the user.</param>
+        /// <param name="EMail">The primary e-mail of the user.</param>
+        /// <param name="Password">An optional password of the user.</param>
+        /// <param name="Name">An offical (multi-language) name of the user.</param>
+        /// <param name="Description">An optional (multi-language) description of the user.</param>
+        /// <param name="PublicKeyRing">An optional PGP/GPG public keyring of the user.</param>
+        /// <param name="SecretKeyRing">An optional PGP/GPG secret keyring of the user.</param>
+        /// <param name="UserLanguage">The language setting of the user.</param>
+        /// <param name="Telephone">An optional telephone number of the user.</param>
+        /// <param name="MobilePhone">An optional telephone number of the user.</param>
+        /// <param name="Use2AuthFactor">Whether to use a second authentication factor.</param>
+        /// <param name="Telegram">An optional telegram account name of the user.</param>
+        /// <param name="Homepage">The homepage of the user.</param>
+        /// <param name="GeoLocation">An optional geographical location of the user.</param>
+        /// <param name="Address">An optional address of the user.</param>
+        /// <param name="AcceptedEULA">Timestamp when the user accepted the End-User-License-Agreement.</param>
+        /// <param name="IsAuthenticated">The user will not be shown in user listings, as its primary e-mail address is not yet authenticated.</param>
+        /// <param name="IsDisabled">The user will be shown in user listings.</param>
+        /// 
+        /// <param name="DataSource">The source of all this data, e.g. an automatic importer.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
+        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
+        public async static Task<User> CreateUserIfNotExists(this UsersAPI       UsersAPI,
+                                                             User_Id             Id,
+                                                             SimpleEMailAddress  EMail,
+                                                             Password?           Password          = null,
+                                                             String              Name              = null,
+                                                             I18NString          Description       = null,
+                                                             PgpPublicKeyRing    PublicKeyRing     = null,
+                                                             PgpSecretKeyRing    SecretKeyRing     = null,
+                                                             Languages           UserLanguage      = Languages.en,
+                                                             PhoneNumber?        Telephone         = null,
+                                                             PhoneNumber?        MobilePhone       = null,
+                                                             Use2AuthFactor      Use2AuthFactor    = Use2AuthFactor.None,
+                                                             String              Telegram          = null,
+                                                             String              Homepage          = null,
+                                                             GeoCoordinate?      GeoLocation       = null,
+                                                             Address             Address           = null,
+                                                             DateTime?           AcceptedEULA      = null,
+                                                             Boolean             IsAuthenticated   = false,
+                                                             Boolean             IsDisabled        = false,
+
+                                                             String              DataSource        = "",
+                                                             EventTracking_Id    EventTrackingId   = null,
+                                                             User_Id?            CurrentUserId     = null)
+        {
+
+            var addUserResult = await UsersAPI.AddUserIfNotExists(new User(Id,
+                                                                           EMail,
+                                                                           Name,
+                                                                           Description,
+                                                                           PublicKeyRing,
+                                                                           SecretKeyRing,
+                                                                           UserLanguage,
+                                                                           Telephone,
+                                                                           MobilePhone,
+                                                                           Use2AuthFactor,
+                                                                           Telegram,
+                                                                           Homepage,
+                                                                           GeoLocation,
+                                                                           Address,
+                                                                           AcceptedEULA,
+                                                                           IsAuthenticated,
+                                                                           IsDisabled,
+                                                                           DataSource: DataSource),
+
+                                                                  async (_user, _eventTrackingId) => {
+                                                                      if (Password.HasValue)
+                                                                      {
+                                                                          if (!await _user.API._TryChangePassword(_user.Id,
+                                                                                                                  Password.Value,
+                                                                                                                  null,
+                                                                                                                  _eventTrackingId,
+                                                                                                                  CurrentUserId))
+                                                                          {
+                                                                              throw new ApplicationException("The password for '" + _user.Id + "' could not be changed, as the given current password does not match!");
+                                                                          }
+                                                                      }
+                                                                  },
+
+                                                                  EventTrackingId ?? EventTracking_Id.New,
+                                                                  CurrentUserId);
+
+            return addUserResult.IsSuccess
+                       ? addUserResult.Object
+                       : null;
 
         }
 
@@ -2975,7 +3275,7 @@ namespace social.OpenData.UsersAPI
                     From           = Robot.EMail,
                     To             = EMailRecipients,
                     Passphrase     = APIPassphrase,
-                    Subject        = "Your " + ServiceName + " account had been created",
+                    Subject        = "Your " + ServiceName + " account has been created",
 
                     HTMLText       = String.Concat(
                                          HTMLEMailHeader(ExternalDNSName, BasePath, EMailType.System),
@@ -3301,6 +3601,55 @@ namespace social.OpenData.UsersAPI
 
         #region (protected) SendHTTPSNotifications(AllNotificationURLs, JSONNotification)
 
+        #region (protected) LogRequest(...)
+
+        protected Task LogRequest(DateTime     Timestamp,
+                                  AHTTPClient  Client,
+                                  String       RemoteHost,
+                                  HTTPRequest  Request)
+        {
+
+            return Task.Run(() => {
+
+                using (var Logfile = File.AppendText(this.NotificationsPath +
+                                                     RemoteHost + "-Requests-" + Request.Timestamp.ToString("yyyy-MM") + ".log"))
+                {
+
+                    Logfile.WriteLine(
+                        String.Concat(Request.HTTPSource.ToString(), Environment.NewLine,
+                                      Request.Timestamp.ToIso8601(), Environment.NewLine,
+                                      Request.EventTrackingId, Environment.NewLine,
+                                      Request.EntirePDU, Environment.NewLine,
+                                      "======================================================================================"));
+
+                }
+
+            });
+
+        }
+
+        #endregion
+
+        #region (protected) LogResponse(...)
+
+        protected Task LogResponse(DateTime      Timestamp,
+                                   AHTTPClient   Client,
+                                   String        RemoteHost,
+                                   HTTPRequest   Request,
+                                   HTTPResponse  Response)
+        {
+
+            return Task.Run(() => {
+
+                Response.AppendLogfile(this.NotificationsPath +
+                                       RemoteHost + "-Responses-" + Request.Timestamp.ToString("yyyy-MM") + ".log");
+
+            });
+
+        }
+
+        #endregion
+
         protected async Task SendHTTPSNotifications(IEnumerable<HTTPSNotification>  AllNotificationURLs,
                                                     JObject                         JSONNotification)
         {
@@ -3591,111 +3940,8 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
-        #region Manage HTTP Resources
 
-        #region (private) GetResourceStream      (ResourceName)
-
-        private Stream GetResourceStream(String ResourceName)
-
-            => GetResourceStream(typeof(UsersAPI).Assembly, ResourceName);
-
-        #endregion
-
-        #region (private) GetResourceMemoryStream(ResourceName)
-
-        private MemoryStream GetResourceMemoryStream(String ResourceName)
-
-            => GetResourceMemoryStream(typeof(UsersAPI).Assembly, ResourceName);
-
-        #endregion
-
-        #region (private) GetResourceString      (ResourceName)
-
-        private String GetResourceString(String ResourceName)
-
-            => GetResourceString(typeof(UsersAPI).Assembly, ResourceName);
-
-        #endregion
-
-        #region (private) GetResourceBytes       (ResourceName)
-        private Byte[] GetResourceBytes(String ResourceName)
-
-            => GetResourceBytes(typeof(UsersAPI).Assembly, ResourceName);
-
-        #endregion
-
-        #region (private) MixWithHTMLTemplate    (ResourceName)
-
-        protected virtual String MixWithHTMLTemplate(String ResourceName)
-
-            => MixWithHTMLTemplate(ResourceName,
-                                   new Tuple<String, System.Reflection.Assembly>(UsersAPI.HTTPRoot, typeof(UsersAPI).    Assembly));
-
-        #endregion
-
-        #region (protected) GetUsersAPIRessource(Ressource)
-
-        /// <summary>
-        /// Get an embedded ressource of the UsersAPI.
-        /// </summary>
-        /// <param name="Ressource">The path and name of the ressource to load.</param>
-        protected Stream GetUsersAPIRessource(String Ressource)
-            => GetType().Assembly.GetManifestResourceStream(HTTPRoot + Ressource);
-
-        #endregion
-
-        #endregion
-
-        #region (protected) LogRequest(...)
-
-        protected Task LogRequest(DateTime     Timestamp,
-                                  AHTTPClient  Client,
-                                  String       RemoteHost,
-                                  HTTPRequest  Request)
-        {
-
-            return Task.Run(() => {
-
-                using (var Logfile = File.AppendText(this.NotificationsPath +
-                                                     RemoteHost + "-Requests-" + Request.Timestamp.ToString("yyyy-MM") + ".log"))
-                {
-
-                    Logfile.WriteLine(
-                        String.Concat(Request.HTTPSource.ToString(), Environment.NewLine,
-                                      Request.Timestamp.ToIso8601(), Environment.NewLine,
-                                      Request.EventTrackingId, Environment.NewLine,
-                                      Request.EntirePDU, Environment.NewLine,
-                                      "======================================================================================"));
-
-                }
-
-            });
-
-        }
-
-        #endregion
-
-        #region (protected) LogResponse(...)
-
-        protected Task LogResponse(DateTime      Timestamp,
-                                   AHTTPClient   Client,
-                                   String        RemoteHost,
-                                   HTTPRequest   Request,
-                                   HTTPResponse  Response)
-        {
-
-            return Task.Run(() => {
-
-                Response.AppendLogfile(this.NotificationsPath +
-                                       RemoteHost + "-Responses-" + Request.Timestamp.ToString("yyyy-MM") + ".log");
-
-            });
-
-        }
-
-        #endregion
-
-        #region (private) GenerateCookieUserData(ValidUser, Astronaut = null)
+        #region (private)   GenerateCookieUserData(ValidUser, Astronaut = null)
 
         private String GenerateCookieUserData(User  User,
                                               User  Astronaut  = null)
@@ -3713,7 +3959,7 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
-        #region (private) GenerateCookieSettings(Expires)
+        #region (private)   GenerateCookieSettings(Expires)
 
         private String GenerateCookieSettings(DateTime Expires)
 
@@ -4305,6 +4551,62 @@ namespace social.OpenData.UsersAPI
                 throw new ArgumentException("Event source '" + HTTPEventSourceId + "' could not be found!", nameof(HTTPEventSourceId));
 
         }
+
+        #endregion
+
+
+        #region Manage HTTP Resources
+
+        #region (private) GetResourceStream      (ResourceName)
+
+        private Stream GetResourceStream(String ResourceName)
+
+            => GetResourceStream(typeof(UsersAPI).Assembly, ResourceName);
+
+        #endregion
+
+        #region (private) GetResourceMemoryStream(ResourceName)
+
+        private MemoryStream GetResourceMemoryStream(String ResourceName)
+
+            => GetResourceMemoryStream(typeof(UsersAPI).Assembly, ResourceName);
+
+        #endregion
+
+        #region (private) GetResourceString      (ResourceName)
+
+        private String GetResourceString(String ResourceName)
+
+            => GetResourceString(typeof(UsersAPI).Assembly, ResourceName);
+
+        #endregion
+
+        #region (private) GetResourceBytes       (ResourceName)
+        private Byte[] GetResourceBytes(String ResourceName)
+
+            => GetResourceBytes(typeof(UsersAPI).Assembly, ResourceName);
+
+        #endregion
+
+        #region (private) MixWithHTMLTemplate    (ResourceName)
+
+        protected virtual String MixWithHTMLTemplate(String ResourceName)
+
+            => MixWithHTMLTemplate(ResourceName,
+                                   new Tuple<String, System.Reflection.Assembly>(UsersAPI.HTTPRoot, typeof(UsersAPI).    Assembly));
+
+        #endregion
+
+        #region (protected) GetUsersAPIRessource(Ressource)
+
+        /// <summary>
+        /// Get an embedded ressource of the UsersAPI.
+        /// </summary>
+        /// <param name="Ressource">The path and name of the ressource to load.</param>
+        protected Stream GetUsersAPIRessource(String Ressource)
+            => GetType().Assembly.GetManifestResourceStream(HTTPRoot + Ressource);
+
+        #endregion
 
         #endregion
 
@@ -5321,231 +5623,191 @@ namespace social.OpenData.UsersAPI
                                          HTTPResponseLogger:  AddUsersHTTPResponse,
                                          HTTPDelegate:        async Request => {
 
-                                             #region Get HTTP user and its organizations
-
-                                             // Will return HTTP 401 Unauthorized, when the HTTP user is unknown!
-                                             if (!TryGetHTTPUser(Request,
-                                                                 out User                   HTTPUser,
-                                                                 out HashSet<Organization>  HTTPOrganizations,
-                                                                 out HTTPResponse.Builder   ErrorResponse,
-                                                                 AccessLevel:               Access_Levels.ReadWrite,
-                                                                 Recursive:                 true))
-                                             {
-                                                 return ErrorResponse;
-                                             }
-
-                                             #endregion
-
-
-                                             #region Parse JSON...
-
-                                             if (!Request.TryParseJObjectRequestBody(out JObject JSONObj, out ErrorResponse))
-                                                 return ErrorResponse;
-
-                                             #region Parse UserId           [optional]
-
-                                             if (JSONObj.ParseOptionalStruct("@id",
-                                                                             "user identification",
-                                                                             User_Id.TryParse,
-                                                                             out User_Id?  UserIdBody,
-                                                                             out String    errorResponse))
+                                             try
                                              {
 
-                                                 if (errorResponse != null)
+                                                 #region Get HTTP user and its organizations
+
+                                                 // Will return HTTP 401 Unauthorized, when the HTTP user is unknown!
+                                                 if (!TryGetHTTPUser(Request,
+                                                                     out User                   HTTPUser,
+                                                                     out HashSet<Organization>  HTTPOrganizations,
+                                                                     out HTTPResponse.Builder   errorResponse,
+                                                                     AccessLevel:               Access_Levels.ReadWrite,
+                                                                     Recursive:                 true))
                                                  {
+                                                     return errorResponse;
+                                                 }
+
+                                                 #endregion
+
+
+                                                 #region Parse JSON HTTP body...
+
+                                                 if (!Request.TryParseJObjectRequestBody(out JObject JSONBody, out errorResponse))
+                                                     return errorResponse;
+
+                                                 #region Parse UserId           [optional]
+
+                                                 if (JSONBody.ParseOptionalStruct2("@id",
+                                                                                   "user identification",
+                                                                                   HTTPServer.DefaultHTTPServerName,
+                                                                                   User_Id.TryParse,
+                                                                                   out User_Id?  userIdBody,
+                                                                                   Request,
+                                                                                   out errorResponse))
+                                                 {
+                                                     if (errorResponse != null)
+                                                         return errorResponse;
+                                                 }
+
+                                                 #endregion
+
+                                                 #region Parse NewUser          [mandatory]
+
+                                                 if (!User.TryParseJSON(JSONBody,
+                                                                        out User    newUser,
+                                                                        out String  errorString,
+                                                                        userIdBody ?? User_Id.Random(),
+                                                                        MinUserIdLength,
+                                                                        MinUserNameLength))
+                                                 {
+
                                                      return new HTTPResponse.Builder(Request) {
                                                                 HTTPStatusCode             = HTTPStatusCode.BadRequest,
                                                                 Server                     = HTTPServer.DefaultServerName,
                                                                 Date                       = DateTime.UtcNow,
                                                                 AccessControlAllowOrigin   = "*",
-                                                                AccessControlAllowMethods  = "GET, SET",
+                                                                AccessControlAllowMethods  = "GET, ADD",
                                                                 AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
                                                                 ContentType                = HTTPContentType.JSON_UTF8,
                                                                 Content                    = JSONObject.Create(
-                                                                                                 new JProperty("description", errorResponse)
+                                                                                                 new JProperty("description", errorString)
                                                                                              ).ToUTF8Bytes()
                                                             }.AsImmutable;
+
                                                  }
 
-                                             }
+                                                 #endregion
 
-                                             #endregion
+                                                 #region Parse AccessRights     [optional]
 
-                                             #region Parse User             [mandatory]
-
-                                             if (!User.TryParseJSON(JSONObj,
-                                                                    out User newUser2,
-                                                                    out String Err,
-                                                                    UserIdBody ?? User_Id.Random(),
-                                                                    MinUserIdLength,
-                                                                    MinUserNameLength))
-                                             {
-
-                                                 return new HTTPResponse.Builder(Request) {
-                                                            HTTPStatusCode             = HTTPStatusCode.BadRequest,
-                                                            Server                     = HTTPServer.DefaultServerName,
-                                                            Date                       = DateTime.UtcNow,
-                                                            AccessControlAllowOrigin   = "*",
-                                                            AccessControlAllowMethods  = "GET, SET",
-                                                            AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
-                                                            ContentType                = HTTPContentType.JSON_UTF8,
-                                                            Content                    = JSONObject.Create(
-                                                                                             new JProperty("description", Err)
-                                                                                         ).ToUTF8Bytes()
-                                                        }.AsImmutable;
-
-                                             }
-
-                                             #endregion
-
-                                             #region Parse accessRights     [optional]
-
-                                             var accessRights = new List<Tuple<User2OrganizationEdgeTypes, Organization>>();
-
-                                             if (JSONObj.ParseOptional("accessRights",
-                                                                       "access rights",
-                                                                       HTTPServer.DefaultHTTPServerName,
-                                                                       out JArray accessRightsJSON,
-                                                                       Request,
-                                                                       out ErrorResponse))
-                                             {
-
-                                                 if (ErrorResponse != null)
-                                                     return ErrorResponse;
-
-                                             }
-
-                                             if (accessRightsJSON.SafeAny())
-                                             {
-                                                 foreach (var accessRightJSON in accessRightsJSON)
+                                                 if (JSONBody.ParseOptional("accessRights",
+                                                                            "access rights",
+                                                                            HTTPServer.DefaultHTTPServerName,
+                                                                            out JArray  accessRightsArray,
+                                                                            Request,
+                                                                            out errorResponse))
                                                  {
-
-                                                      #region Validate accessRight JSON object.
-
-                                                      if (!(accessRightJSON is JObject accessRightObject))
-                                                      {
-
-                                                          return new HTTPResponse.Builder(Request) {
-                                                                     HTTPStatusCode             = HTTPStatusCode.BadRequest,
-                                                                     Server                     = HTTPServer.DefaultServerName,
-                                                                     Date                       = DateTime.UtcNow,
-                                                                     AccessControlAllowOrigin   = "*",
-                                                                     AccessControlAllowMethods  = "GET, SET",
-                                                                     AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
-                                                                     ContentType                = HTTPContentType.JSON_UTF8,
-                                                                     Content                    = JSONObject.Create(
-                                                                                                      new JProperty("description", "Invalid 'accessRight' JSON object!")
-                                                                                                  ).ToUTF8Bytes()
-                                                                 }.AsImmutable;
-
-                                                      }
-
-                                                      #endregion
-
-                                                      #region Parse AccessRight     [mandatory]
-
-                                                      if (!accessRightObject.ParseMandatoryEnum("accessRight",
-                                                                                                "access right",
-                                                                                                HTTPServer.DefaultHTTPServerName,
-                                                                                                out User2OrganizationEdgeTypes accessRight,
-                                                                                                Request,
-                                                                                                out ErrorResponse))
-                                                      {
-                                                          return ErrorResponse;
-                                                      }
-
-                                                      #endregion
-
-                                                      #region Parse Organization    [mandatory]
-
-                                                      if (!accessRightObject.ParseMandatory("organizationId",
-                                                                                            "organization identification",
-                                                                                            HTTPServer.DefaultHTTPServerName,
-                                                                                            Organization_Id.TryParse,
-                                                                                            out Organization_Id organizationId,
-                                                                                            Request,
-                                                                                            out ErrorResponse))
-                                                      {
-                                                          return ErrorResponse;
-                                                      }
-
-                                                      if (!_Organizations.TryGetValue(organizationId, out Organization organization))
-                                                      {
-
-                                                          return new HTTPResponse.Builder(Request) {
-                                                                     HTTPStatusCode             = HTTPStatusCode.BadRequest,
-                                                                     Server                     = HTTPServer.DefaultServerName,
-                                                                     Date                       = DateTime.UtcNow,
-                                                                     AccessControlAllowOrigin   = "*",
-                                                                     AccessControlAllowMethods  = "GET, SET",
-                                                                     AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
-                                                                     ContentType                = HTTPContentType.JSON_UTF8,
-                                                                     Content                    = JSONObject.Create(
-                                                                                                     new JProperty("description", "The given organization '" + organizationId + "' does not exist!")
-                                                                                                 ).ToUTF8Bytes()
-                                                                 }.AsImmutable;
-
-                                                      }
-
-                                                      #endregion
-
-                                                      accessRights.Add(new Tuple<User2OrganizationEdgeTypes, Organization>(accessRight,
-                                                                                                                           organization));
-
+                                                     if (errorResponse != null)
+                                                         return errorResponse;
                                                  }
-                                             }
 
-                                             #endregion
+                                                 var accessRights = new List<Tuple<User2OrganizationEdgeTypes, Organization>>();
 
-                                             #endregion
+                                                 if (accessRightsArray.SafeAny())
+                                                 {
+                                                     foreach (var accessRightJSON in accessRightsArray)
+                                                     {
 
+                                                          #region Validate accessRight JSON object.
 
-                                             #region Adding new user
+                                                          if (!(accessRightJSON is JObject accessRightObject))
+                                                          {
 
-                                             var newUser = accessRightsJSON.SafeAny()
+                                                              return new HTTPResponse.Builder(Request) {
+                                                                         HTTPStatusCode             = HTTPStatusCode.BadRequest,
+                                                                         Server                     = HTTPServer.DefaultServerName,
+                                                                         Date                       = DateTime.UtcNow,
+                                                                         AccessControlAllowOrigin   = "*",
+                                                                         AccessControlAllowMethods  = "GET, SET",
+                                                                         AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
+                                                                         ContentType                = HTTPContentType.JSON_UTF8,
+                                                                         Content                    = JSONObject.Create(
+                                                                                                          new JProperty("description", "Invalid 'accessRight' JSON object!")
+                                                                                                      ).ToUTF8Bytes()
+                                                                     }.AsImmutable;
 
-                                                               ? await AddUser(newUser2,
-                                                                               accessRights.First().Item1,
-                                                                               accessRights.First().Item2,
-                                                                               (_user, _eventTrackingId) => {
-                                                                               },
-                                                                               Request.EventTrackingId,
-                                                                               CurrentUserId: HTTPUser.Id)
+                                                          }
 
-                                                               : await AddUser(newUser2,
-                                                                               (_user, _eventTrackingId) => {
-                                                                               },
-                                                                               Request.EventTrackingId,
-                                                                               CurrentUserId: HTTPUser.Id);
+                                                          #endregion
 
-                                             if (newUser == null)
-                                             {
+                                                          #region Parse AccessRight     [mandatory]
 
-                                                 return new HTTPResponse.Builder(Request) {
-                                                            HTTPStatusCode             = HTTPStatusCode.BadRequest,
-                                                            Server                     = HTTPServer.DefaultServerName,
-                                                            Date                       = DateTime.UtcNow,
-                                                            AccessControlAllowOrigin   = "*",
-                                                            AccessControlAllowMethods  = "ADD, SET, GET",
-                                                            AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
-                                                            ContentType                = HTTPContentType.JSON_UTF8,
-                                                            Content                    = JSONObject.Create(
-                                                                                             new JProperty("description", "Could create the new user!")
-                                                                                         ).ToUTF8Bytes()
-                                                        }.AsImmutable;
+                                                          if (!accessRightObject.ParseMandatoryEnum("accessRight",
+                                                                                                    "access right",
+                                                                                                    HTTPServer.DefaultHTTPServerName,
+                                                                                                    out User2OrganizationEdgeTypes accessRight,
+                                                                                                    Request,
+                                                                                                    out errorResponse))
+                                                          {
+                                                              return errorResponse;
+                                                          }
 
-                                             }
+                                                          #endregion
 
-                                             #endregion
+                                                          #region Parse Organization    [mandatory]
 
-                                             #region Set user organization access rights
+                                                          if (!accessRightObject.ParseMandatory("organizationId",
+                                                                                                "organization identification",
+                                                                                                HTTPServer.DefaultHTTPServerName,
+                                                                                                Organization_Id.TryParse,
+                                                                                                out Organization_Id organizationId,
+                                                                                                Request,
+                                                                                                out errorResponse))
+                                                          {
+                                                              return errorResponse;
+                                                          }
 
-                                             foreach (var accessRight in accessRights)
-                                             {
+                                                          if (!_Organizations.TryGetValue(organizationId, out Organization organization))
+                                                          {
 
-                                                 var success = await AddToOrganization(newUser, accessRight.Item1, accessRight.Item2);
+                                                              return new HTTPResponse.Builder(Request) {
+                                                                         HTTPStatusCode             = HTTPStatusCode.BadRequest,
+                                                                         Server                     = HTTPServer.DefaultServerName,
+                                                                         Date                       = DateTime.UtcNow,
+                                                                         AccessControlAllowOrigin   = "*",
+                                                                         AccessControlAllowMethods  = "GET, SET",
+                                                                         AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
+                                                                         ContentType                = HTTPContentType.JSON_UTF8,
+                                                                         Content                    = JSONObject.Create(
+                                                                                                         new JProperty("description", "The given organization '" + organizationId + "' does not exist!")
+                                                                                                     ).ToUTF8Bytes()
+                                                                     }.AsImmutable;
 
-                                                 if (!success)
+                                                          }
+
+                                                          #endregion
+
+                                                          accessRights.Add(new Tuple<User2OrganizationEdgeTypes, Organization>(accessRight,
+                                                                                                                               organization));
+
+                                                     }
+                                                 }
+
+                                                 #endregion
+
+                                                 #endregion
+
+                                                 #region Add the new user... and set the optional first access right
+
+                                                 var newUserResponse = accessRightsArray.SafeAny()
+
+                                                                   ? await AddUser(newUser,
+                                                                                   accessRights.First().Item1,
+                                                                                   accessRights.First().Item2,
+                                                                                   (_user, _eventTrackingId) => {
+                                                                                   },
+                                                                                   Request.EventTrackingId,
+                                                                                   CurrentUserId: HTTPUser.Id)
+
+                                                                   : await AddUser(newUser,
+                                                                                   (_user, _eventTrackingId) => {
+                                                                                   },
+                                                                                   Request.EventTrackingId,
+                                                                                   CurrentUserId: HTTPUser.Id);
+
+                                                 if (newUserResponse == null)
                                                  {
 
                                                      return new HTTPResponse.Builder(Request) {
@@ -5557,123 +5819,122 @@ namespace social.OpenData.UsersAPI
                                                                 AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
                                                                 ContentType                = HTTPContentType.JSON_UTF8,
                                                                 Content                    = JSONObject.Create(
-                                                                                                 new JProperty("description", "Could not add the new user to organization '" + accessRight.Item2.Id + "'!")
+                                                                                                 new JProperty("description", "Could create the new user!")
                                                                                              ).ToUTF8Bytes()
                                                             }.AsImmutable;
 
                                                  }
 
-                                             }
+                                                 #endregion
 
-                                             #endregion
+                                                 #region Set additional user organization access rights
 
+                                                 if (accessRights.Count > 1)
+                                                 {
+                                                     foreach (var accessRight in accessRights.Skip(1))
+                                                     {
 
-                                             #region Send 'new user' e-mail
+                                                         var success = await AddToOrganization(newUser,
+                                                                                               accessRight.Item1,
+                                                                                               accessRight.Item2);
 
-                                             var MailSentResult = MailSentStatus.failed;
+                                                         if (!success)
+                                                         {
 
-                                             try
-                                             {
+                                                             return new HTTPResponse.Builder(Request) {
+                                                                        HTTPStatusCode             = HTTPStatusCode.BadRequest,
+                                                                        Server                     = HTTPServer.DefaultServerName,
+                                                                        Date                       = DateTime.UtcNow,
+                                                                        AccessControlAllowOrigin   = "*",
+                                                                        AccessControlAllowMethods  = "ADD, SET, GET",
+                                                                        AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
+                                                                        ContentType                = HTTPContentType.JSON_UTF8,
+                                                                        Content                    = JSONObject.Create(
+                                                                                                         new JProperty("description", "Could not add the new user to organization '" + accessRight.Item2.Id + "'!")
+                                                                                                     ).ToUTF8Bytes()
+                                                                    }.AsImmutable;
+
+                                                         }
+
+                                                     }
+                                                 }
+
+                                                 #endregion
+
+                                                 #region Setup the password reset
 
                                                  var SetPasswordRequest = await ResetPassword(newUser.Id,
                                                                                               SecurityToken_Id.Random(40, _Random),
-                                                                                              SecurityToken_Id.Parse(_Random.RandomString(5) + "-" + _Random.RandomString(5)));
+                                                                                              newUser.Use2AuthFactor == Use2AuthFactor.MobilePhoneSMS &&
+                                                                                              newUser.MobilePhone.HasValue
+                                                                                                  ? SecurityToken_Id.Parse(_Random.RandomString(5) + "-" + _Random.RandomString(5))
+                                                                                                  : null);
 
-                                                 var MailResultTask = APISMTPClient.Send(NewUserSignUpEMailCreator(newUser,
-                                                                                                                   newUser.EMail,
-                                                                                                                   SetPasswordRequest.SecurityToken1,
-                                                                                                                   newUser.MobilePhone.HasValue,
-                                                                                                                   //"https://" + Request.Host.SimpleString,
-                                                                                                                   DefaultLanguage));
+                                                 #endregion
 
-                                                 if (MailResultTask.Wait(60000))
-                                                     MailSentResult = MailResultTask.Result;
 
-                                                 if (MailSentResult != MailSentStatus.ok)
-                                                     DebugX.Log("Could not send new user e-mail: " + MailSentResult + "!");
+                                                 #region Send 'new user' e-mail
+
+                                                 var MailSentResult = MailSentStatus.failed;
+
+                                                 try
+                                                 {
+
+                                                     var MailResultTask = APISMTPClient.Send(NewUserSignUpEMailCreator(newUser,
+                                                                                                                       newUser.EMail,
+                                                                                                                       SetPasswordRequest.SecurityToken1,
+                                                                                                                       newUser.MobilePhone.HasValue,
+                                                                                                                       DefaultLanguage));
+
+                                                     if (MailResultTask.Wait(60000))
+                                                         MailSentResult = MailResultTask.Result;
+
+                                                     if (MailSentResult != MailSentStatus.ok)
+                                                         DebugX.Log("Could not send new user e-mail: " + MailSentResult + "!");
+
+                                                 }
+                                                 catch (Exception e)
+                                                 {
+
+                                                     while (e.InnerException != null)
+                                                         e = e.InnerException;
+
+                                                     DebugX.Log("Could not send new user e-mail: " + e.Message);
+
+                                                 }
+
+                                                 #endregion
+
+
+
+                                                 return new HTTPResponse.Builder(Request) {
+                                                            HTTPStatusCode              = HTTPStatusCode.Created,
+                                                            Server                      = HTTPServer.DefaultServerName,
+                                                            Date                        = DateTime.UtcNow,
+                                                            AccessControlAllowOrigin    = "*",
+                                                            AccessControlAllowMethods   = "ADD, GET",
+                                                            AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
+                                                            ContentType                 = HTTPContentType.JSON_UTF8,
+                                                            Content                     = newUser.ToJSON(Embedded: false).ToUTF8Bytes(),
+                                                            Connection                  = "close"
+                                                        }.AsImmutable;
 
                                              }
                                              catch (Exception e)
                                              {
-
-                                                 while (e.InnerException != null)
-                                                     e = e.InnerException;
-
-                                                 DebugX.Log("Could not send new user e-mail: " + e.Message);
-
+                                                 return new HTTPResponse.Builder(Request) {
+                                                            HTTPStatusCode             = HTTPStatusCode.InternalServerError,
+                                                            Server                     = HTTPServer.DefaultServerName,
+                                                            Date                       = DateTime.UtcNow,
+                                                            AccessControlAllowOrigin   = "*",
+                                                            AccessControlAllowMethods  = "ADD, GET",
+                                                            AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
+                                                            ContentType                = HTTPContentType.JSON_UTF8,
+                                                            Content                    = JSONObject.Create(
+                                                                                             new JProperty("description", "Could not create the given user! " + e.Message)
+                                                                                         ).ToUTF8Bytes()
+                                                        }.AsImmutable;
                                              }
-
-                                             #endregion
-
-
-
-
-                                              //SMSAPIResponseStatus SMSSentResult = null;
-
-                                              //try
-                                              //{
-
-                                              //    if (_SMSAPI != null && MobilePhone.HasValue)
-                                              //    {
-
-                                              //                                     // Be careful what to send to endusers!
-                                              //                                     // "Your new account is 'hsadgsagd'!" makes them type also ' and ! characters!
-                                              //        SMSSentResult = _SMSAPI.Send("Dear '" + Name + "' your 2nd security token for your new account is: " + SetPasswordRequest.SecurityToken2,
-                                              //                                     MobilePhone.Value.ToString()).
-                                              //                                SetSender("CardiCloud").
-                                              //                                Execute();
-
-                                              //    }
-
-                                              //    #endregion
-
-                                              //    #region Send Admin-Mail...
-
-                                              //    var AdminMail = new TextEMailBuilder() {
-                                              //        From        = Robot.EMail,
-                                              //        To          = APIAdminEMails,
-                                              //        Subject     = "New user registered: " + Name + "/" + UserId + " <" + UserEMail + ">",
-                                              //        Text        = "New user registered: " + Name + "/" + UserId + " <" + UserEMail + ">",
-                                              //        Passphrase  = APIPassphrase
-                                              //    };
-
-                                              //    var MailResultTask2 = APISMTPClient.Send(AdminMail).Wait(30000);
-
-                                              //    #endregion
-
-                                              //}
-                                              //catch (Exception e)
-                                              //{
-
-                                              //    while (e.InnerException != null)
-                                              //        e = e.InnerException;
-
-                                              //    return new HTTPResponse.Builder(Request) {
-                                              //               HTTPStatusCode             = HTTPStatusCode.InternalServerError,
-                                              //               Server                     = HTTPServer.DefaultServerName,
-                                              //               Date                       = DateTime.UtcNow,
-                                              //               AccessControlAllowOrigin   = "*",
-                                              //               AccessControlAllowMethods  = "ADD, SET, GET",
-                                              //               AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
-                                              //               ContentType                = HTTPContentType.JSON_UTF8,
-                                              //               Content                    = JSONObject.Create(
-                                              //                                                new JProperty("description", "Could not create the given user! " + e.Message)
-                                              //                                            ).ToUTF8Bytes()
-                                              //           }.AsImmutable;
-
-                                              //}
-
-                                              return new HTTPResponse.Builder(Request) {
-                                                         HTTPStatusCode              = HTTPStatusCode.Created,
-                                                         Server                      = HTTPServer.DefaultServerName,
-                                                         Date                        = DateTime.UtcNow,
-                                                         AccessControlAllowOrigin    = "*",
-                                                         AccessControlAllowMethods   = "ADD, SET, GET",
-                                                         AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
-                                                         ContentType                 = HTTPContentType.JSON_UTF8,
-                                                         Content                     = newUser.ToJSON().ToUTF8Bytes(),
-                                                         Connection                  = "close"
-                                                     }.AsImmutable;
 
                                          });
 
@@ -5711,534 +5972,372 @@ namespace social.OpenData.UsersAPI
 
             #endregion
 
+
             #region ADD         ~/users/{UserId}
 
             // -------------------------------------------------------------------------------
             // curl -v -X ADD -H "Accept: application/json" http://127.0.0.1:2100/users/ahzf
             // -------------------------------------------------------------------------------
             HTTPServer.AddMethodCallback(HTTPHostname.Any,
-                                          HTTPMethod.ADD,
-                                          HTTPPath.Parse("/users/{UserId}"),
-                                          HTTPContentType.JSON_UTF8,
-                                          HTTPRequestLogger:   AddUserHTTPRequest,
-                                          HTTPResponseLogger:  AddUserHTTPResponse,
-                                          HTTPDelegate:        async Request => {
-
-                                              #region Get HTTP user and its organizations
-
-                                              // Will return HTTP 401 Unauthorized, when the HTTP user is unknown!
-                                              if (!TryGetHTTPUser(Request,
-                                                                  out User                   HTTPUser,
-                                                                  out HashSet<Organization>  HTTPOrganizations,
-                                                                  out HTTPResponse.Builder   ErrorResponse,
-                                                                  AccessLevel:               Access_Levels.ReadWrite,
-                                                                  Recursive:                 true))
-                                              {
-                                                  return ErrorResponse;
-                                              }
-
-                                              #endregion
-
-                                              #region Check UserId URL parameter
-
-                                              if (!Request.ParseUserId(this,
-                                                                       out User_Id? UserIdURL,
-                                                                       out ErrorResponse))
-                                              {
-                                                  return ErrorResponse;
-                                              }
-
-                                              #endregion
-
-
-                                              #region Parse JSON and create the new user...
-
-                                              if (!Request.TryParseJObjectRequestBody(out JObject JSONObj, out ErrorResponse))
-                                                  return ErrorResponse;
-
-                                              #region Parse UserId           [optional]
-
-                                              // Verify that a given user identification
-                                              //   is at least valid.
-                                              if (JSONObj.ParseOptionalStruct2("@id",
-                                                                              "user identification",
-                                                                              HTTPServer.DefaultHTTPServerName,
-                                                                              User_Id.TryParse,
-                                                                              out User_Id? UserIdBody,
-                                                                              Request,
-                                                                              out ErrorResponse))
-                                              {
-
-                                                  if (ErrorResponse != null)
-                                                      return ErrorResponse;
-
-                                              }
-
-                                              if (!UserIdURL.HasValue && !UserIdBody.HasValue)
-                                              {
-
-                                                  return new HTTPResponse.Builder(Request) {
-                                                             HTTPStatusCode             = HTTPStatusCode.BadRequest,
-                                                             Server                     = HTTPServer.DefaultServerName,
-                                                             Date                       = DateTime.UtcNow,
-                                                             AccessControlAllowOrigin   = "*",
-                                                             AccessControlAllowMethods  = "GET, SET",
-                                                             AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
-                                                             ContentType                = HTTPContentType.JSON_UTF8,
-                                                             Content                    = JSONObject.Create(
-                                                                                              new JProperty("description", "The user identification is missing!")
-                                                                                          ).ToUTF8Bytes()
-                                                         }.AsImmutable;
-
-                                              }
-
-                                              if (UserIdURL.HasValue && UserIdBody.HasValue && UserIdURL.Value != UserIdBody.Value)
-                                              {
-
-                                                  return new HTTPResponse.Builder(Request) {
-                                                             HTTPStatusCode             = HTTPStatusCode.BadRequest,
-                                                             Server                     = HTTPServer.DefaultServerName,
-                                                             Date                       = DateTime.UtcNow,
-                                                             AccessControlAllowOrigin   = "*",
-                                                             AccessControlAllowMethods  = "GET, SET",
-                                                             AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
-                                                             ContentType                = HTTPContentType.JSON_UTF8,
-                                                             Content                    = JSONObject.Create(
-                                                                                              new JProperty("description", "The optional user identification given within the JSON body does not match the one given in the URL!")
-                                                                                          ).ToUTF8Bytes()
-                                                         }.AsImmutable;
-
-                                              }
-
-                                              if (!User_Id.TryParse(Request.ParsedURLParameters[0], out User_Id UserId) ||
-                                                   UserId.Length < MinUserIdLength)
-                                              {
-
-                                                  return new HTTPResponse.Builder(Request) {
-                                                             HTTPStatusCode             = HTTPStatusCode.BadRequest,
-                                                             Server                     = HTTPServer.DefaultServerName,
-                                                             Date                       = DateTime.UtcNow,
-                                                             AccessControlAllowOrigin   = "*",
-                                                             AccessControlAllowMethods  = "GET, SET",
-                                                             AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
-                                                             ContentType                = HTTPContentType.JSON_UTF8,
-                                                             Content                    = JSONObject.Create(
-                                                                                              new JProperty("description", "The given user identification is invalid!")
-                                                                                          ).ToUTF8Bytes()
-                                                         }.AsImmutable;
-
-                                              }
-
-                                              if (_Users.ContainsKey(UserId))
-                                              {
-
-                                                  return new HTTPResponse.Builder(Request) {
-                                                             HTTPStatusCode             = HTTPStatusCode.BadRequest,
-                                                             Server                     = HTTPServer.DefaultServerName,
-                                                             Date                       = DateTime.UtcNow,
-                                                             AccessControlAllowOrigin   = "*",
-                                                             AccessControlAllowMethods  = "GET, SET",
-                                                             AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
-                                                             ContentType                = HTTPContentType.JSON_UTF8,
-                                                             Content                    = JSONObject.Create(
-                                                                                              new JProperty("description", "The given user identification already exists!")
-                                                                                          ).ToUTF8Bytes()
-                                                         }.AsImmutable;
-
-                                              }
-
-                                              #endregion
-
-                                              #region Parse Context          [mandatory]
-
-                                              if (!JSONObj.ParseMandatory("@context",
-                                                                          "JSON-LinkedData context information",
-                                                                          HTTPServer.DefaultServerName,
-                                                                          JSONLDContext.TryParse,
-                                                                          out JSONLDContext Context,
-                                                                          Request,
-                                                                          out ErrorResponse))
-                                              {
-                                                  return ErrorResponse;
-                                              }
-
-                                              if (Context != User.DefaultJSONLDContext)
-                                              {
-
-                                                  return new HTTPResponse.Builder(Request) {
-                                                             HTTPStatusCode             = HTTPStatusCode.BadRequest,
-                                                             Server                     = HTTPServer.DefaultServerName,
-                                                             Date                       = DateTime.UtcNow,
-                                                             AccessControlAllowOrigin   = "*",
-                                                             AccessControlAllowMethods  = "GET, SET",
-                                                             AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
-                                                             ContentType                = HTTPContentType.JSON_UTF8,
-                                                             Content                    = JSONObject.Create(
-                                                                                              new JProperty("description", @"The given JSON-LD ""@context"" information '" + Context + "' is not supported!")
-                                                                                          ).ToUTF8Bytes()
-                                                         }.AsImmutable;
-
-                                              }
-
-                                              #endregion
-
-                                              #region Parse Name             [mandatory]
-
-                                              if (!JSONObj.ParseMandatoryText("name",
-                                                                              "Username",
-                                                                              HTTPServer.DefaultServerName,
-                                                                              out String Name,
-                                                                              Request,
-                                                                              out ErrorResponse))
-                                              {
-                                                  return ErrorResponse;
-                                              }
-
-                                              if (Name.IsNullOrEmpty() || Name.Length < 4)
-                                              {
-
-                                                  return new HTTPResponse.Builder(Request) {
-                                                             HTTPStatusCode             = HTTPStatusCode.BadRequest,
-                                                             Server                     = HTTPServer.DefaultServerName,
-                                                             Date                       = DateTime.UtcNow,
-                                                             AccessControlAllowOrigin   = "*",
-                                                             AccessControlAllowMethods  = "GET, SET",
-                                                             AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
-                                                             ContentType                = HTTPContentType.JSON_UTF8,
-                                                             Content                    = JSONObject.Create(
-                                                                                              new JProperty("description", "Invalid user name!")
-                                                                                          ).ToUTF8Bytes()
-                                                         }.AsImmutable;
-
-                                              }
-
-                                              #endregion
-
-                                              #region Parse E-Mail           [mandatory]
-
-                                              if (!JSONObj.ParseMandatory("email",
-                                                                          "E-Mail",
-                                                                          HTTPServer.DefaultServerName,
-                                                                          SimpleEMailAddress.TryParse,
-                                                                          out SimpleEMailAddress UserEMail,
-                                                                          Request,
-                                                                          out ErrorResponse))
-                                              {
-                                                  return ErrorResponse;
-                                              }
-
-                                              //ToDo: See rfc5322 for more complex regular expression!
-                                              //      [a-z0-9!#$%&'*+/=?^_`{|}~-]+
-                                              // (?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*
-                                              //                 @
-                                              // (?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+
-                                              //    [a-z0-9](?:[a-z0-9-]*[a-z0-9])?
-                                              var matches = Regex.Match(JSONObj.GetOptional("email").Trim(), @"([^\@]+)\@([^\@]+\.[^\@]{2,})");
-
-                                              if (!matches.Success)
-                                              {
-
-                                                  return new HTTPResponse.Builder(Request) {
-                                                             HTTPStatusCode             = HTTPStatusCode.BadRequest,
-                                                             Server                     = HTTPServer.DefaultServerName,
-                                                             Date                       = DateTime.UtcNow,
-                                                             AccessControlAllowOrigin   = "*",
-                                                             AccessControlAllowMethods  = "GET, SET",
-                                                             AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
-                                                             ContentType                = HTTPContentType.JSON_UTF8,
-                                                             Content                    = JSONObject.Create(
-                                                                                              new JProperty("description", "Invalid e-mail address!")
-                                                                                          ).ToUTF8Bytes()
-                                                         }.AsImmutable;
-
-                                              }
-
-                                              //ToDo: CNAMEs are also okay according to rfc5321#section-5
-                                              var MailServerA     = DNSClient.Query<A>   (matches.Groups[2].Value);
-                                              var MailServerAAAA  = DNSClient.Query<AAAA>(matches.Groups[2].Value);
-                                              var MailServerMX    = DNSClient.Query<MX>  (matches.Groups[2].Value);
-
-                                              Task.WaitAll(MailServerA, MailServerAAAA, MailServerMX);
-
-                                              if (!MailServerA.   Result.Any() &
-                                                  !MailServerAAAA.Result.Any() &
-                                                  !MailServerMX.  Result.Any())
-                                              {
-
-                                                  return new HTTPResponse.Builder(Request) {
-                                                             HTTPStatusCode             = HTTPStatusCode.BadRequest,
-                                                             Server                     = HTTPServer.DefaultServerName,
-                                                             Date                       = DateTime.UtcNow,
-                                                             AccessControlAllowOrigin   = "*",
-                                                             AccessControlAllowMethods  = "GET, SET",
-                                                             AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
-                                                             ContentType                = HTTPContentType.JSON_UTF8,
-                                                             Content                    = JSONObject.Create(
-                                                                                              new JProperty("description", "Invalid domain name of the given e-mail address!")
-                                                                                          ).ToUTF8Bytes()
-                                                         }.AsImmutable;
-
-                                              }
-
-                                              #endregion
-
-                                              #region Parse AccessLevel      [mandatory]
-
-                                              if (!JSONObj.ParseMandatoryText("accessLevel",
-                                                                              "access level",
-                                                                              HTTPServer.DefaultServerName,
-                                                                              out String AccessLevel,
-                                                                              Request,
-                                                                              out ErrorResponse))
-                                              {
-                                                  return ErrorResponse;
-                                              }
-
-                                              if (AccessLevel != "guest" && AccessLevel != "member" && AccessLevel != "admin")
-                                              {
-
-                                                  return new HTTPResponse.Builder(Request) {
-                                                             HTTPStatusCode             = HTTPStatusCode.BadRequest,
-                                                             Server                     = HTTPServer.DefaultServerName,
-                                                             Date                       = DateTime.UtcNow,
-                                                             AccessControlAllowOrigin   = "*",
-                                                             AccessControlAllowMethods  = "GET, SET",
-                                                             AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
-                                                             ContentType                = HTTPContentType.JSON_UTF8,
-                                                             Content                    = JSONObject.Create(
-                                                                                              new JProperty("description", "Invalid user access level!")
-                                                                                          ).ToUTF8Bytes()
-                                                         }.AsImmutable;
-
-                                              }
-
-                                              #endregion
-
-                                              #region Parse MobilePhone      [optional]
-
-                                              if (JSONObj.ParseOptional("mobilePhone",
-                                                                        "mobile phone number",
-                                                                        HTTPServer.DefaultServerName,
-                                                                        PhoneNumber.TryParse,
-                                                                        out PhoneNumber? MobilePhone,
-                                                                        Request,
-                                                                        out ErrorResponse))
-                                              {
-
-                                                  if (ErrorResponse != null)
-                                                      return ErrorResponse;
-
-                                              }
-
-                                              #endregion
-
-                                              #region Parse Description      [optional]
-
-                                              if (JSONObj.ParseOptional("description",
-                                                                        "user description",
-                                                                        HTTPServer.DefaultHTTPServerName,
-                                                                        out I18NString Description,
-                                                                        Request,
-                                                                        out ErrorResponse))
-                                              {
-
-                                                  if (ErrorResponse != null)
-                                                      return ErrorResponse;
-
-                                              }
-
-                                              #endregion
-
-                                              #region Parse Organization     [optional]
-
-                                              Organization _Organization = null;
-
-                                              // Verify that a given user identification
-                                              //   is at least valid.
-                                              if (JSONObj.ParseOptionalStruct2("organization",
-                                                                              "organization",
-                                                                              HTTPServer.DefaultHTTPServerName,
-                                                                              Organization_Id.TryParse,
-                                                                              out Organization_Id? OrganizationId,
-                                                                              Request,
-                                                                              out ErrorResponse))
-                                              {
-
-                                                  if (ErrorResponse != null)
-                                                      return ErrorResponse;
-
-                                                  if (!_Organizations.TryGetValue(OrganizationId.Value, out _Organization))
-                                                  {
-
-                                                      return new HTTPResponse.Builder(Request) {
-                                                                 HTTPStatusCode             = HTTPStatusCode.BadRequest,
-                                                                 Server                     = HTTPServer.DefaultServerName,
-                                                                 Date                       = DateTime.UtcNow,
-                                                                 AccessControlAllowOrigin   = "*",
-                                                                 AccessControlAllowMethods  = "GET, SET",
-                                                                 AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
-                                                                 ContentType                = HTTPContentType.JSON_UTF8,
-                                                                 Content                    = JSONObject.Create(
-                                                                                                  new JProperty("description", "The given user identification already exists!")
-                                                                                              ).ToUTF8Bytes()
-                                                             }.AsImmutable;
-
-                                                  }
-
-                                              }
-
-                                              #endregion
-
-                                              PgpPublicKeyRing _PublicKeyRing = null;
-
-                                              #endregion
-
-
-                                              var MailSentResult = MailSentStatus.failed;
-                                              SMSAPIResponseStatus SMSSentResult = null;
-
-                                              try
-                                              {
-
-                                                  var NewUser = await CreateUser(Id:             UserId,
-                                                                                 Name:           Name,
-                                                                                 EMail:          UserEMail,
-                                                                                 MobilePhone:    MobilePhone,
-                                                                                 Description:    Description,
-                                                                                 PublicKeyRing:  _PublicKeyRing,
-                                                                                 CurrentUserId:  HTTPUser.Id);
-
-                                                  var SetPasswordRequest  = await ResetPassword(UserIdURL.Value,
-                                                                                                SecurityToken_Id.Random(40, _Random),
-                                                                                                SecurityToken_Id.Parse(_Random.RandomString(5) + "-" + _Random.RandomString(5)));
-
-                                                  #region Send e-mail...
-
-                                                  var MailResultTask  = APISMTPClient.Send(NewUserSignUpEMailCreator(NewUser,
-                                                                                                                     new EMailAddress(NewUser.Name,
-                                                                                                                                      UserEMail,
-                                                                                                                                      _PublicKeyRing),
-                                                                                                                     SetPasswordRequest.SecurityToken1,
-                                                                                                                     MobilePhone.HasValue,
-                                                                                                                     //"https://" + Request.Host.SimpleString,
-                                                                                                                     DefaultLanguage));
-
-                                                  if (MailResultTask.Wait(60000))
-                                                      MailSentResult  = MailResultTask.Result;
-
-                                                  #endregion
-
-                                                  #region Send SMS...
-
-                                                  if (_SMSAPI != null && MobilePhone.HasValue)
-                                                  {
-
-                                                                                   // Be careful what to send to endusers!
-                                                                                   // "Your new account is 'hsadgsagd'!" makes them type also ' and ! characters!
-                                                      SMSSentResult = _SMSAPI.Send("Dear '" + Name + "' your 2nd security token for your new account is: " + SetPasswordRequest.SecurityToken2,
-                                                                                   MobilePhone.Value.ToString()).
-                                                                              SetSender("CardiCloud").
-                                                                              Execute();
-
-                                                  }
-
-                                                  #endregion
-
-                                                  if (MailSentResult == MailSentStatus.ok) //ToDo: Verify SMS!
-                                                  {
-
-                                                      if (_Organization != null)
-                                                      {
-
-                                                          switch (AccessLevel)
+                                         HTTPMethod.ADD,
+                                         HTTPPath.Parse("/users/{UserId}"),
+                                         HTTPContentType.JSON_UTF8,
+                                         HTTPRequestLogger:   AddUserHTTPRequest,
+                                         HTTPResponseLogger:  AddUserHTTPResponse,
+                                         HTTPDelegate:        async Request => {
+
+                                             try
+                                             {
+
+                                                 #region Get HTTP user and its organizations
+
+                                                 // Will return HTTP 401 Unauthorized, when the HTTP user is unknown!
+                                                 if (!TryGetHTTPUser(Request,
+                                                                     out User                   HTTPUser,
+                                                                     out HashSet<Organization>  HTTPOrganizations,
+                                                                     out HTTPResponse.Builder   errorResponse,
+                                                                     AccessLevel:               Access_Levels.ReadWrite,
+                                                                     Recursive:                 true))
+                                                 {
+                                                     return errorResponse;
+                                                 }
+
+                                                 #endregion
+
+                                                 #region Check UserId URL parameter
+
+                                                 if (!Request.ParseUserId(this,
+                                                                          out User_Id?  UserIdURL,
+                                                                          out           errorResponse))
+                                                 {
+                                                     return errorResponse;
+                                                 }
+
+                                                 #endregion
+
+
+                                                 #region Parse JSON HTTP body...
+
+                                                 if (!Request.TryParseJObjectRequestBody(out JObject JSONBody, out errorResponse))
+                                                     return errorResponse;
+
+                                                 #region Parse UserId           [optional]
+
+                                                 if (JSONBody.ParseOptionalStruct2("@id",
+                                                                                   "user identification",
+                                                                                   HTTPServer.DefaultHTTPServerName,
+                                                                                   User_Id.TryParse,
+                                                                                   out User_Id?  userIdBody,
+                                                                                   Request,
+                                                                                   out errorResponse))
+                                                 {
+                                                     if (errorResponse != null)
+                                                         return errorResponse;
+                                                 }
+
+                                                 #endregion
+
+                                                 #region Parse NewUser          [mandatory]
+
+                                                 if (!User.TryParseJSON(JSONBody,
+                                                                        out User    newUser,
+                                                                        out String  errorString,
+                                                                        UserIdURL,
+                                                                        MinUserIdLength,
+                                                                        MinUserNameLength))
+                                                 {
+
+                                                     return new HTTPResponse.Builder(Request) {
+                                                                HTTPStatusCode             = HTTPStatusCode.BadRequest,
+                                                                Server                     = HTTPServer.DefaultServerName,
+                                                                Date                       = DateTime.UtcNow,
+                                                                AccessControlAllowOrigin   = "*",
+                                                                AccessControlAllowMethods  = "GET, SET",
+                                                                AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
+                                                                ContentType                = HTTPContentType.JSON_UTF8,
+                                                                Content                    = JSONObject.Create(
+                                                                                                 new JProperty("description", errorString)
+                                                                                             ).ToUTF8Bytes()
+                                                            }.AsImmutable;
+
+                                                 }
+
+                                                 #endregion
+
+                                                 #region Parse AccessRights     [optional]
+
+                                                 if (JSONBody.ParseOptional("accessRights",
+                                                                            "access rights",
+                                                                            HTTPServer.DefaultHTTPServerName,
+                                                                            out JArray  accessRightsArray,
+                                                                            Request,
+                                                                            out errorResponse))
+                                                 {
+                                                     if (errorResponse != null)
+                                                         return errorResponse;
+                                                 }
+
+                                                 var accessRights = new List<Tuple<User2OrganizationEdgeTypes, Organization>>();
+
+                                                 if (accessRightsArray.SafeAny())
+                                                 {
+                                                     foreach (var accessRightJSON in accessRightsArray)
+                                                     {
+
+                                                          #region Validate accessRight JSON object.
+
+                                                          if (!(accessRightJSON is JObject accessRightObject))
                                                           {
 
-                                                              case "guest":
-                                                                  await AddToOrganization(NewUser, User2OrganizationEdgeTypes.IsGuest,   _Organization);
-                                                                  break;
-
-                                                              case "member":
-                                                                  await AddToOrganization(NewUser, User2OrganizationEdgeTypes.IsMember,  _Organization);
-                                                                  break;
-
-                                                              case "admin":
-                                                                  await AddToOrganization(NewUser, User2OrganizationEdgeTypes.IsAdmin,   _Organization);
-                                                                  break;
+                                                              return new HTTPResponse.Builder(Request) {
+                                                                         HTTPStatusCode             = HTTPStatusCode.BadRequest,
+                                                                         Server                     = HTTPServer.DefaultServerName,
+                                                                         Date                       = DateTime.UtcNow,
+                                                                         AccessControlAllowOrigin   = "*",
+                                                                         AccessControlAllowMethods  = "GET, SET",
+                                                                         AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
+                                                                         ContentType                = HTTPContentType.JSON_UTF8,
+                                                                         Content                    = JSONObject.Create(
+                                                                                                          new JProperty("description", "Invalid 'accessRight' JSON object!")
+                                                                                                      ).ToUTF8Bytes()
+                                                                     }.AsImmutable;
 
                                                           }
 
-                                                      }
+                                                          #endregion
 
-                                                  }
-                                                  else
-                                                  {
+                                                          #region Parse AccessRight     [mandatory]
 
-                                                      return new HTTPResponse.Builder(Request) {
-                                                                 HTTPStatusCode             = HTTPStatusCode.InternalServerError,
-                                                                 Server                     = HTTPServer.DefaultServerName,
-                                                                 Date                       = DateTime.UtcNow,
-                                                                 AccessControlAllowOrigin   = "*",
-                                                                 AccessControlAllowMethods  = "ADD, SET, GET",
-                                                                 AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
-                                                                 ContentType                = HTTPContentType.JSON_UTF8,
-                                                                 Content                    = JSONObject.Create(
-                                                                                                  new JProperty("description",     "Could not send an e-mail to the user!"),
-                                                                                                  new JProperty("mailSentResult",  MailSentResult.ToString())
-                                                                                              ).ToUTF8Bytes()
-                                                             }.AsImmutable;
+                                                          if (!accessRightObject.ParseMandatoryEnum("accessRight",
+                                                                                                    "access right",
+                                                                                                    HTTPServer.DefaultHTTPServerName,
+                                                                                                    out User2OrganizationEdgeTypes accessRight,
+                                                                                                    Request,
+                                                                                                    out errorResponse))
+                                                          {
+                                                              return errorResponse;
+                                                          }
 
-                                                  }
+                                                          #endregion
 
-                                                  //else if (SMSSentResult != ???)
-                                                  //{
-                                                  //}
+                                                          #region Parse Organization    [mandatory]
+
+                                                          if (!accessRightObject.ParseMandatory("organizationId",
+                                                                                                "organization identification",
+                                                                                                HTTPServer.DefaultHTTPServerName,
+                                                                                                Organization_Id.TryParse,
+                                                                                                out Organization_Id organizationId,
+                                                                                                Request,
+                                                                                                out errorResponse))
+                                                          {
+                                                              return errorResponse;
+                                                          }
+
+                                                          if (!_Organizations.TryGetValue(organizationId, out Organization organization))
+                                                          {
+
+                                                              return new HTTPResponse.Builder(Request) {
+                                                                         HTTPStatusCode             = HTTPStatusCode.BadRequest,
+                                                                         Server                     = HTTPServer.DefaultServerName,
+                                                                         Date                       = DateTime.UtcNow,
+                                                                         AccessControlAllowOrigin   = "*",
+                                                                         AccessControlAllowMethods  = "GET, SET",
+                                                                         AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
+                                                                         ContentType                = HTTPContentType.JSON_UTF8,
+                                                                         Content                    = JSONObject.Create(
+                                                                                                         new JProperty("description", "The given organization '" + organizationId + "' does not exist!")
+                                                                                                     ).ToUTF8Bytes()
+                                                                     }.AsImmutable;
+
+                                                          }
+
+                                                          #endregion
+
+                                                          accessRights.Add(new Tuple<User2OrganizationEdgeTypes, Organization>(accessRight,
+                                                                                                                               organization));
+
+                                                     }
+                                                 }
+
+                                                 #endregion
+
+                                                 #endregion
+
+                                                 #region Add the new user... and set the optional first access right
+
+                                                 var newUserResponse = accessRightsArray.SafeAny()
+
+                                                                   ? await AddUser(newUser,
+                                                                                   accessRights.First().Item1,
+                                                                                   accessRights.First().Item2,
+                                                                                   (_user, _eventTrackingId) => {
+                                                                                   },
+                                                                                   Request.EventTrackingId,
+                                                                                   CurrentUserId: HTTPUser.Id)
+
+                                                                   : await AddUser(newUser,
+                                                                                   (_user, _eventTrackingId) => {
+                                                                                   },
+                                                                                   Request.EventTrackingId,
+                                                                                   CurrentUserId: HTTPUser.Id);
+
+                                                 if (newUserResponse == null)
+                                                 {
+
+                                                     return new HTTPResponse.Builder(Request) {
+                                                                HTTPStatusCode             = HTTPStatusCode.BadRequest,
+                                                                Server                     = HTTPServer.DefaultServerName,
+                                                                Date                       = DateTime.UtcNow,
+                                                                AccessControlAllowOrigin   = "*",
+                                                                AccessControlAllowMethods  = "ADD, SET, GET",
+                                                                AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
+                                                                ContentType                = HTTPContentType.JSON_UTF8,
+                                                                Content                    = JSONObject.Create(
+                                                                                                 new JProperty("description", "Could create the new user!")
+                                                                                             ).ToUTF8Bytes()
+                                                            }.AsImmutable;
+
+                                                 }
+
+                                                 #endregion
+
+                                                 #region Set additional user organization access rights
+
+                                                 if (accessRights.Count > 1)
+                                                 {
+                                                     foreach (var accessRight in accessRights.Skip(1))
+                                                     {
+
+                                                         var success = await AddToOrganization(newUser,
+                                                                                               accessRight.Item1,
+                                                                                               accessRight.Item2);
+
+                                                         if (!success)
+                                                         {
+
+                                                             return new HTTPResponse.Builder(Request) {
+                                                                        HTTPStatusCode             = HTTPStatusCode.BadRequest,
+                                                                        Server                     = HTTPServer.DefaultServerName,
+                                                                        Date                       = DateTime.UtcNow,
+                                                                        AccessControlAllowOrigin   = "*",
+                                                                        AccessControlAllowMethods  = "ADD, SET, GET",
+                                                                        AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
+                                                                        ContentType                = HTTPContentType.JSON_UTF8,
+                                                                        Content                    = JSONObject.Create(
+                                                                                                         new JProperty("description", "Could not add the new user to organization '" + accessRight.Item2.Id + "'!")
+                                                                                                     ).ToUTF8Bytes()
+                                                                    }.AsImmutable;
+
+                                                         }
+
+                                                     }
+                                                 }
+
+                                                 #endregion
+
+                                                 #region Setup the password reset
+
+                                                 var SetPasswordRequest = await ResetPassword(newUser.Id,
+                                                                                              SecurityToken_Id.Random(40, _Random),
+                                                                                              newUser.Use2AuthFactor == Use2AuthFactor.MobilePhoneSMS &&
+                                                                                              newUser.MobilePhone.HasValue
+                                                                                                  ? SecurityToken_Id.Parse(_Random.RandomString(5) + "-" + _Random.RandomString(5))
+                                                                                                  : null);
+
+                                                 #endregion
 
 
-                                                  #region Send Admin-Mail...
+                                                 #region Send 'new user' e-mail
 
-                                                  var AdminMail = new TextEMailBuilder() {
-                                                      From        = Robot.EMail,
-                                                      To          = APIAdminEMails,
-                                                      Subject     = "New user registered: " + Name + "/" + UserId + " <" + UserEMail + ">",
-                                                      Text        = "New user registered: " + Name + "/" + UserId + " <" + UserEMail + ">",
-                                                      Passphrase  = APIPassphrase
-                                                  };
+                                                 var MailSentResult = MailSentStatus.failed;
 
-                                                  var MailResultTask2 = APISMTPClient.Send(AdminMail).Wait(30000);
+                                                 try
+                                                 {
 
-                                                  #endregion
+                                                     var MailResultTask = APISMTPClient.Send(NewUserSignUpEMailCreator(newUser,
+                                                                                                                       newUser.EMail,
+                                                                                                                       SetPasswordRequest.SecurityToken1,
+                                                                                                                       newUser.MobilePhone.HasValue,
+                                                                                                                       DefaultLanguage));
 
-                                              }
-                                              catch (Exception e)
-                                              {
+                                                     if (MailResultTask.Wait(60000))
+                                                         MailSentResult = MailResultTask.Result;
 
-                                                  while (e.InnerException != null)
-                                                      e = e.InnerException;
+                                                     if (MailSentResult != MailSentStatus.ok)
+                                                         DebugX.Log("Could not send new user e-mail: " + MailSentResult + "!");
 
-                                                  return new HTTPResponse.Builder(Request) {
-                                                             HTTPStatusCode             = HTTPStatusCode.InternalServerError,
-                                                             Server                     = HTTPServer.DefaultServerName,
-                                                             Date                       = DateTime.UtcNow,
-                                                             AccessControlAllowOrigin   = "*",
-                                                             AccessControlAllowMethods  = "ADD, SET, GET",
-                                                             AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
-                                                             ContentType                = HTTPContentType.JSON_UTF8,
-                                                             Content                    = JSONObject.Create(
-                                                                                              new JProperty("description", "Could not create the given user! " + e.Message)
-                                                                                          ).ToUTF8Bytes()
-                                                         }.AsImmutable;
+                                                 }
+                                                 catch (Exception e)
+                                                 {
 
-                                              }
+                                                     while (e.InnerException != null)
+                                                         e = e.InnerException;
 
-                                              return new HTTPResponse.Builder(Request) {
-                                                         HTTPStatusCode              = HTTPStatusCode.Created,
-                                                         Server                      = HTTPServer.DefaultServerName,
-                                                         Date                        = DateTime.UtcNow,
-                                                         AccessControlAllowOrigin    = "*",
-                                                         AccessControlAllowMethods   = "ADD, SET, GET",
-                                                         AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
-                                                         Connection                  = "close"
-                                                     }.AsImmutable;
+                                                     DebugX.Log("Could not send new user e-mail: " + e.Message);
+
+                                                 }
+
+                                                 #endregion
+
+                                                 #region Send SMS...
+
+                                                 //if (_SMSAPI != null && newUser.MobilePhone.HasValue)
+                                                 //{
+
+                                                 //                                 // Be careful what to send to endusers!
+                                                 //                                 // "Your new account is 'hsadgsagd'!" makes them type also ' and ! characters!
+                                                 //    var SMSSentResult = _SMSAPI.Send("Dear '" + Name + "' your 2nd security token for your new account is: " + SetPasswordRequest.SecurityToken2,
+                                                 //                                     MobilePhone.Value.ToString()).
+                                                 //                                SetSender("CardiCloud").
+                                                 //                                Execute();
+
+                                                 //}
+
+                                                 #endregion
+
+                                                 #region Send Admin-Mail...
+
+                                                 //var AdminMail = new TextEMailBuilder() {
+                                                 //    From        = Robot.EMail,
+                                                 //    To          = APIAdminEMails,
+                                                 //    Subject     = "New user registered: " + Name + "/" + UserId + " <" + UserEMail + ">",
+                                                 //    Text        = "New user registered: " + Name + "/" + UserId + " <" + UserEMail + ">",
+                                                 //    Passphrase  = APIPassphrase
+                                                 //};
+
+                                                 //var MailResultTask2 = APISMTPClient.Send(AdminMail).Wait(30000);
+
+                                                 #endregion
+
+
+                                                 return new HTTPResponse.Builder(Request) {
+                                                            HTTPStatusCode              = HTTPStatusCode.Created,
+                                                            Server                      = HTTPServer.DefaultServerName,
+                                                            Date                        = DateTime.UtcNow,
+                                                            AccessControlAllowOrigin    = "*",
+                                                            AccessControlAllowMethods   = "ADD, GET",
+                                                            AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
+                                                            ContentType                 = HTTPContentType.JSON_UTF8,
+                                                            Content                     = newUser.ToJSON(Embedded: false).ToUTF8Bytes(),
+                                                            Connection                  = "close"
+                                                        }.AsImmutable;
+
+                                             }
+                                             catch (Exception e)
+                                             {
+                                                 return new HTTPResponse.Builder(Request) {
+                                                            HTTPStatusCode             = HTTPStatusCode.InternalServerError,
+                                                            Server                     = HTTPServer.DefaultServerName,
+                                                            Date                       = DateTime.UtcNow,
+                                                            AccessControlAllowOrigin   = "*",
+                                                            AccessControlAllowMethods  = "ADD, SET, GET",
+                                                            AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
+                                                            ContentType                = HTTPContentType.JSON_UTF8,
+                                                            Content                    = JSONObject.Create(
+                                                                                             new JProperty("description", "Could not create the given user! " + e.Message)
+                                                                                         ).ToUTF8Bytes()
+                                                        }.AsImmutable;
+                                             }
 
                                          });
 
@@ -7168,12 +7267,198 @@ namespace social.OpenData.UsersAPI
             #endregion
 
 
+            #region SET         ~/users/{UserId}/password
+
+            HTTPServer.AddMethodCallback(Hostname,
+                                         HTTPMethod.SET,
+                                         URLPathPrefix + "users/{UserId}/password",
+                                         HTTPContentType.JSON_UTF8,
+                                         HTTPRequestLogger:   ChangePasswordRequest,
+                                         HTTPResponseLogger:  ChangePasswordResponse,
+                                         HTTPDelegate:        async Request => {
+
+                                             #region Get HTTP user and its organizations
+
+                                             // Will return HTTP 401 Unauthorized, when the HTTP user is unknown!
+                                             if (!TryGetHTTPUser(Request,
+                                                                 out User                   HTTPUser,
+                                                                 out HashSet<Organization>  HTTPOrganizations,
+                                                                 out HTTPResponse.Builder   Response,
+                                                                 AccessLevel:               Access_Levels.ReadWrite,
+                                                                 Recursive:                 true))
+                                             {
+                                                 return Response;
+                                             }
+
+                                             #endregion
+
+                                             #region Check UserId URL parameter
+
+                                             if (!Request.ParseUserId(this,
+                                                                      out User_Id?              UserIdURL,
+                                                                      out HTTPResponse.Builder  HTTPResponse))
+                                             {
+                                                 return HTTPResponse;
+                                             }
+
+                                             #endregion
+
+                                             #region Parse JSON
+
+                                             if (!Request.TryParseJObjectRequestBody(out JObject JSONObj, out HTTPResponse))
+                                                 return HTTPResponse;
+
+                                             var ErrorResponse    = "";
+                                             var CurrentPassword  = JSONObj.GetString("currentPassword");
+                                             var NewPassword      = JSONObj.GetString("newPassword");
+
+                                             if (CurrentPassword.IsNullOrEmpty() || NewPassword.IsNullOrEmpty())
+                                             {
+
+                                                 return new HTTPResponse.Builder(Request) {
+                                                                HTTPStatusCode             = HTTPStatusCode.BadRequest,
+                                                                Server                     = HTTPServer.DefaultServerName,
+                                                                Date                       = DateTime.UtcNow,
+                                                                AccessControlAllowOrigin   = "*",
+                                                                AccessControlAllowMethods  = "GET, SET",
+                                                                AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
+                                                                ETag                       = "1",
+                                                                ContentType                = HTTPContentType.JSON_UTF8,
+                                                                Content                    = JSONObject.Create(
+                                                                                                 new JProperty("description",  ErrorResponse)
+                                                                                             ).ToUTF8Bytes()
+                                                            }.AsImmutable;
+
+                                             }
+
+                                             #endregion
+
+
+                                             // Has the current HTTP user the required
+                                             // access rights to update?
+                                             if (HTTPUser.Id != UserIdURL.Value)
+                                             {
+
+                                                 return new HTTPResponse.Builder(Request) {
+                                                            HTTPStatusCode              = HTTPStatusCode.Forbidden,
+                                                            Server                      = HTTPServer.DefaultServerName,
+                                                            Date                        = DateTime.UtcNow,
+                                                            AccessControlAllowOrigin    = "*",
+                                                            AccessControlAllowMethods   = "GET, SET, CHOWN",
+                                                            AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
+                                                            Connection                  = "close"
+                                                        }.AsImmutable;
+
+                                             }
+
+                                             if (TryChangePassword(UserIdURL.Value,
+                                                                   Password.Parse(NewPassword),
+                                                                   CurrentPassword,
+                                                                   Request.EventTrackingId,
+                                                                   HTTPUser.Id).Result)
+                                             {
+
+                                                 var MailSentResult = await APISMTPClient.Send(PasswordChangedEMailCreator(HTTPUser,
+                                                                                                                           HTTPUser.EMail,
+                                                                                                                           //"https://" + Request.Host.SimpleString,
+                                                                                                                           DefaultLanguage));
+
+                                                 return new HTTPResponse.Builder(Request) {
+                                                                HTTPStatusCode              = HTTPStatusCode.OK,
+                                                                Server                      = HTTPServer.DefaultServerName,
+                                                                Date                        = DateTime.UtcNow,
+                                                                AccessControlAllowOrigin    = "*",
+                                                                AccessControlAllowMethods   = "SET",
+                                                                AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
+                                                                Connection                  = "close"
+                                                            }.AsImmutable;
+
+                                             }
+
+                                             else
+                                             {
+
+                                                 return new HTTPResponse.Builder(Request) {
+                                                                HTTPStatusCode              = HTTPStatusCode.Forbidden,
+                                                                Server                      = HTTPServer.DefaultServerName,
+                                                                Date                        = DateTime.UtcNow,
+                                                                AccessControlAllowOrigin    = "*",
+                                                                AccessControlAllowMethods   = "SET",
+                                                                AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
+                                                                Connection                  = "close"
+                                                            }.AsImmutable;
+
+                                             }
+
+                                         });
+
+            #endregion
+
             #region GET         ~/users/{UserId}/profilephoto
 
             HTTPServer.RegisterFilesystemFile(HTTPHostname.Any,
                                               URLPathPrefix + "users/{UserId}/profilephoto",
                                               URLParams => "LocalHTTPRoot/data/Users/" + URLParams[0] + ".png",
                                               DefaultFile: "HTTPRoot/images/defaults/DefaultUser.png");
+
+            #endregion
+
+
+            #region GET         ~/users/{UserId}/organizations
+
+            // ------------------------------------------------------------------------------------------
+            // curl -v -H "Accept: application/json" http://127.0.0.1:2000/users/{UserId}/organizations?summary
+            // ------------------------------------------------------------------------------------------
+            HTTPServer.AddMethodCallback(Hostname,
+                                         HTTPMethod.GET,
+                                         URLPathPrefix + "users/{UserId}/organizations",
+                                         HTTPContentType.JSON_UTF8,
+                                         HTTPDelegate: Request => {
+
+                                             #region Get HTTP user and its organizations
+
+                                             // Will return HTTP 401 Unauthorized, when the HTTP user is unknown!
+                                             if (!TryGetHTTPUser(Request,
+                                                                 out User                   HTTPUser,
+                                                                 out HashSet<Organization>  HTTPOrganizations,
+                                                                 out HTTPResponse.Builder   Response,
+                                                                 Recursive: true))
+                                             {
+                                                 return Task.FromResult(Response.AsImmutable);
+                                             }
+
+                                             #endregion
+
+                                             var AllMyOrganizations = new OrganizationInfo(NoOwner, HTTPUser).Childs;
+
+                                             var summary = Request.QueryString.GetBoolean("summary", false);
+
+                                             if (summary)
+                                             {
+                                                 // [
+                                                 //     {
+                                                 //         "@id":   "hamzatest",
+                                                 //         "name":  { "deu": "Hamza_tests" }
+                                                 //     },
+                                                 //     ...
+                                                 // ]
+                                             }
+
+                                             return Task.FromResult(
+                                                 new HTTPResponse.Builder(Request) {
+                                                     HTTPStatusCode             = HTTPStatusCode.OK,
+                                                     Server                     = HTTPServer.DefaultServerName,
+                                                     Date                       = DateTime.UtcNow,
+                                                     AccessControlAllowOrigin   = "*",
+                                                     AccessControlAllowMethods  = "GET, COUNT, OPTIONS",
+                                                     AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
+                                                     ETag                       = "1",
+                                                     ContentType                = HTTPContentType.JSON_UTF8,
+                                                     Content                    = AllMyOrganizations.ToJSON().ToUTF8Bytes(),
+                                                     Vary                       = "Accept"
+                                                 }.AsImmutable);
+
+                                         });
 
             #endregion
 
@@ -7682,64 +7967,6 @@ namespace social.OpenData.UsersAPI
             #endregion
 
 
-            #region GET         ~/users/{UserId}/organizations
-
-            // ------------------------------------------------------------------------------------------
-            // curl -v -H "Accept: application/json" http://127.0.0.1:2000/users/{UserId}/organizations?summary
-            // ------------------------------------------------------------------------------------------
-            HTTPServer.AddMethodCallback(Hostname,
-                                         HTTPMethod.GET,
-                                         URLPathPrefix + "users/{UserId}/organizations",
-                                         HTTPContentType.JSON_UTF8,
-                                         HTTPDelegate: Request => {
-
-                                             #region Get HTTP user and its organizations
-
-                                             // Will return HTTP 401 Unauthorized, when the HTTP user is unknown!
-                                             if (!TryGetHTTPUser(Request,
-                                                                 out User                   HTTPUser,
-                                                                 out HashSet<Organization>  HTTPOrganizations,
-                                                                 out HTTPResponse.Builder   Response,
-                                                                 Recursive: true))
-                                             {
-                                                 return Task.FromResult(Response.AsImmutable);
-                                             }
-
-                                             #endregion
-
-                                             var AllMyOrganizations = new OrganizationInfo(NoOwner, HTTPUser).Childs;
-
-                                             var summary = Request.QueryString.GetBoolean("summary", false);
-
-                                             if (summary)
-                                             {
-                                                 // [
-                                                 //     {
-                                                 //         "@id":   "hamzatest",
-                                                 //         "name":  { "deu": "Hamza_tests" }
-                                                 //     },
-                                                 //     ...
-                                                 // ]
-                                             }
-
-                                             return Task.FromResult(
-                                                 new HTTPResponse.Builder(Request) {
-                                                     HTTPStatusCode             = HTTPStatusCode.OK,
-                                                     Server                     = HTTPServer.DefaultServerName,
-                                                     Date                       = DateTime.UtcNow,
-                                                     AccessControlAllowOrigin   = "*",
-                                                     AccessControlAllowMethods  = "GET, COUNT, OPTIONS",
-                                                     AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
-                                                     ETag                       = "1",
-                                                     ContentType                = HTTPContentType.JSON_UTF8,
-                                                     Content                    = AllMyOrganizations.ToJSON().ToUTF8Bytes(),
-                                                     Vary                       = "Accept"
-                                                 }.AsImmutable);
-
-                                         });
-
-            #endregion
-
             #region GET         ~/users/{UserId}/APIKeys
 
             // --------------------------------------------------------------------------------
@@ -7751,182 +7978,359 @@ namespace social.OpenData.UsersAPI
                                          HTTPContentType.JSON_UTF8,
                                          HTTPDelegate: Request => {
 
-                                             #region Get HTTP user and its organizations
-
-                                             // Will return HTTP 401 Unauthorized, when the HTTP user is unknown!
-                                             if (!TryGetHTTPUser(Request,
-                                                                 out User                   HTTPUser,
-                                                                 out HashSet<Organization>  HTTPOrganizations,
-                                                                 out HTTPResponse.Builder   Response,
-                                                                 Recursive: true))
+                                             try
                                              {
-                                                 return Task.FromResult(Response.AsImmutable);
+
+                                                 #region Get HTTP user and its organizations
+
+                                                 // Will return HTTP 401 Unauthorized, when the HTTP user is unknown!
+                                                 if (!TryGetHTTPUser(Request,
+                                                                     out User                   HTTPUser,
+                                                                     out HashSet<Organization>  HTTPOrganizations,
+                                                                     out HTTPResponse.Builder   errorResponse,
+                                                                     Recursive: true))
+                                                 {
+                                                     return Task.FromResult(errorResponse.AsImmutable);
+                                                 }
+
+                                                 #endregion
+
+                                                 var apiKeys = _APIKeys.Values.
+                                                                        Where(apikey => apikey.User == HTTPUser).
+                                                                        ToArray();
+
+                                                 return Task.FromResult(apiKeys.SafeAny()
+
+                                                                            ? new HTTPResponse.Builder(Request) {
+                                                                                      HTTPStatusCode             = HTTPStatusCode.OK,
+                                                                                      Server                     = HTTPServer.DefaultServerName,
+                                                                                      Date                       = DateTime.UtcNow,
+                                                                                      AccessControlAllowOrigin   = "*",
+                                                                                      AccessControlAllowMethods  = "GET, SET",
+                                                                                      AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
+                                                                                      ETag                       = "1",
+                                                                                      ContentType                = HTTPContentType.JSON_UTF8,
+                                                                                      Content                    = new JArray(
+                                                                                                                       apiKeys.Select(apiKey => apiKey.ToJSON(true))
+                                                                                                                   ).ToUTF8Bytes(),
+                                                                                      Connection                 = "close",
+                                                                                      Vary                       = "Accept"
+                                                                                  }.AsImmutable
+
+                                                                            : new HTTPResponse.Builder(Request) {
+                                                                                      HTTPStatusCode             = HTTPStatusCode.NotFound,
+                                                                                      Server                     = HTTPServer.DefaultServerName,
+                                                                                      Date                       = DateTime.UtcNow,
+                                                                                      AccessControlAllowOrigin   = "*",
+                                                                                      AccessControlAllowMethods  = "GET, SET",
+                                                                                      AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
+                                                                                      Connection                 = "close",
+                                                                                      Vary                       = "Accept"
+                                                                                  }.AsImmutable);
+
                                              }
-
-                                             #endregion
-
-                                             var apiKeys = _APIKeys.Values.
-                                                                    Where(apikey => apikey.User == HTTPUser).
-                                                                    ToArray();
-
-                                             return Task.FromResult(apiKeys.SafeAny()
-
-                                                                        ? new HTTPResponse.Builder(Request) {
-                                                                                  HTTPStatusCode             = HTTPStatusCode.OK,
-                                                                                  Server                     = HTTPServer.DefaultServerName,
-                                                                                  Date                       = DateTime.UtcNow,
-                                                                                  AccessControlAllowOrigin   = "*",
-                                                                                  AccessControlAllowMethods  = "GET, SET",
-                                                                                  AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
-                                                                                  ETag                       = "1",
-                                                                                  ContentType                = HTTPContentType.JSON_UTF8,
-                                                                                  Content                    = new JArray(
-                                                                                                                   apiKeys.Select(_ => _.ToJSON(true))
-                                                                                                               ).ToUTF8Bytes(),
-                                                                                  Connection                 = "close",
-                                                                                  Vary                       = "Accept"
-                                                                              }.AsImmutable
-
-                                                                        : new HTTPResponse.Builder(Request) {
-                                                                                  HTTPStatusCode             = HTTPStatusCode.NotFound,
-                                                                                  Server                     = HTTPServer.DefaultServerName,
-                                                                                  Date                       = DateTime.UtcNow,
-                                                                                  AccessControlAllowOrigin   = "*",
-                                                                                  AccessControlAllowMethods  = "GET, SET",
-                                                                                  AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
-                                                                                  Connection                 = "close",
-                                                                                  Vary                       = "Accept"
-                                                                              }.AsImmutable);
+                                             catch (Exception e)
+                                             {
+                                                 return Task.FromResult(
+                                                            new HTTPResponse.Builder(Request) {
+                                                                HTTPStatusCode             = HTTPStatusCode.InternalServerError,
+                                                                Server                     = HTTPServer.DefaultServerName,
+                                                                Date                       = DateTime.UtcNow,
+                                                                AccessControlAllowOrigin   = "*",
+                                                                AccessControlAllowMethods  = "ADD, GET",
+                                                                AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
+                                                                ContentType                = HTTPContentType.JSON_UTF8,
+                                                                Content                    = JSONObject.Create(
+                                                                                                 new JProperty("description", "Could not fetch the requestes API keys! " + e.Message)
+                                                                                             ).ToUTF8Bytes()
+                                                            }.AsImmutable);
+                                             }
 
             });
 
             #endregion
 
-            #region SET         ~/users/{UserId}/password
+            #region ADD         ~/users/{UserId}/APIKeys
 
-
+            // ---------------------------------------------------------------------------------------
+            // curl -v -X ADD -H "Accept: application/json" http://127.0.0.1:2100/users/ahzf/APIKeys
+            // ---------------------------------------------------------------------------------------
             HTTPServer.AddMethodCallback(Hostname,
-                                         HTTPMethod.SET,
-                                         URLPathPrefix + "users/{UserId}/password",
+                                         HTTPMethod.ADD,
+                                         URLPathPrefix + "users/{UserId}/APIKeys",
                                          HTTPContentType.JSON_UTF8,
-                                         HTTPRequestLogger:   ChangePasswordRequest,
-                                         HTTPResponseLogger:  ChangePasswordResponse,
-                                         HTTPDelegate:        async Request => {
+                                         HTTPDelegate: async Request => {
 
-                                             #region Get HTTP user and its organizations
-
-                                             // Will return HTTP 401 Unauthorized, when the HTTP user is unknown!
-                                             if (!TryGetHTTPUser(Request,
-                                                                 out User                   HTTPUser,
-                                                                 out HashSet<Organization>  HTTPOrganizations,
-                                                                 out HTTPResponse.Builder   Response,
-                                                                 AccessLevel:               Access_Levels.ReadWrite,
-                                                                 Recursive:                 true))
-                                             {
-                                                 return Response;
-                                             }
-
-                                             #endregion
-
-                                             #region Check UserId URL parameter
-
-                                             if (!Request.ParseUserId(this,
-                                                                      out User_Id?              UserIdURL,
-                                                                      out HTTPResponse.Builder  HTTPResponse))
-                                             {
-                                                 return HTTPResponse;
-                                             }
-
-                                             #endregion
-
-                                             #region Parse JSON
-
-                                             if (!Request.TryParseJObjectRequestBody(out JObject JSONObj, out HTTPResponse))
-                                                 return HTTPResponse;
-
-                                             var ErrorResponse    = "";
-                                             var CurrentPassword  = JSONObj.GetString("currentPassword");
-                                             var NewPassword      = JSONObj.GetString("newPassword");
-
-                                             if (CurrentPassword.IsNullOrEmpty() || NewPassword.IsNullOrEmpty())
+                                             try
                                              {
 
-                                                 return new HTTPResponse.Builder(Request) {
+                                                 #region Get HTTP user and its organizations
+
+                                                 // Will return HTTP 401 Unauthorized, when the HTTP user is unknown!
+                                                 if (!TryGetHTTPUser(Request,
+                                                                     out User                   HTTPUser,
+                                                                     out HashSet<Organization>  HTTPOrganizations,
+                                                                     out HTTPResponse.Builder   errorResponse,
+                                                                     Recursive: true))
+                                                 {
+                                                     return errorResponse;
+                                                 }
+
+                                                 #endregion
+
+                                                 #region Parse JSON HTTP body...
+
+                                                 if (!Request.TryParseJObjectRequestBody(out JObject JSONBody, out errorResponse))
+                                                     return errorResponse;
+
+                                                 #region Parse APIKeyInfo    [mandatory]
+
+                                                 if (!APIKeyInfo.TryParseJSON(JSONBody,
+                                                                              _Users.TryGetValue,
+                                                                              out APIKeyInfo  apiKeyInfo,
+                                                                              out String      errorString))
+                                                 {
+
+                                                     return new HTTPResponse.Builder(Request) {
                                                                 HTTPStatusCode             = HTTPStatusCode.BadRequest,
                                                                 Server                     = HTTPServer.DefaultServerName,
                                                                 Date                       = DateTime.UtcNow,
                                                                 AccessControlAllowOrigin   = "*",
                                                                 AccessControlAllowMethods  = "GET, SET",
                                                                 AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
-                                                                ETag                       = "1",
                                                                 ContentType                = HTTPContentType.JSON_UTF8,
                                                                 Content                    = JSONObject.Create(
-                                                                                                 new JProperty("description",  ErrorResponse)
+                                                                                                 new JProperty("description", errorString)
                                                                                              ).ToUTF8Bytes()
                                                             }.AsImmutable;
 
+                                                 }
+
+                                                 #endregion
+
+                                                 #endregion
+
+
+                                                 #region Validate user
+
+                                                 if (apiKeyInfo.User != HTTPUser)
+                                                 {
+                                                     return new HTTPResponse.Builder(Request) {
+                                                                HTTPStatusCode             = HTTPStatusCode.Forbidden,
+                                                                Server                     = HTTPServer.DefaultServerName,
+                                                                Date                       = DateTime.UtcNow,
+                                                                AccessControlAllowOrigin   = "*",
+                                                                AccessControlAllowMethods  = "GET, SET",
+                                                                AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
+                                                                ContentType                = HTTPContentType.JSON_UTF8,
+                                                                Content                    = JSONObject.Create(
+                                                                                                 new JProperty("description", "This operation is not allowed!")
+                                                                                             ).ToUTF8Bytes()
+                                                            }.AsImmutable;
+                                                 }
+
+                                                 #endregion
+
+
+                                                 var result = await AddAPIKey(apiKeyInfo,
+                                                                              null,
+                                                                              Request.EventTrackingId,
+                                                                              HTTPUser.Id);
+
+                                                 return result != null
+
+                                                            ? new HTTPResponse.Builder(Request) {
+                                                                      HTTPStatusCode             = HTTPStatusCode.OK,
+                                                                      Server                     = HTTPServer.DefaultServerName,
+                                                                      Date                       = DateTime.UtcNow,
+                                                                      AccessControlAllowOrigin   = "*",
+                                                                      AccessControlAllowMethods  = "GET, SET",
+                                                                      AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
+                                                                      ContentType                = HTTPContentType.JSON_UTF8,
+                                                                      Content                    = apiKeyInfo.ToJSON().ToUTF8Bytes(),
+                                                                      Connection                 = "close",
+                                                                      Vary                       = "Accept"
+                                                                  }.AsImmutable
+
+                                                            : new HTTPResponse.Builder(Request) {
+                                                                      HTTPStatusCode             = HTTPStatusCode.BadRequest,
+                                                                      Server                     = HTTPServer.DefaultServerName,
+                                                                      Date                       = DateTime.UtcNow,
+                                                                      AccessControlAllowOrigin   = "*",
+                                                                      AccessControlAllowMethods  = "GET, SET",
+                                                                      AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
+                                                                      ContentType                = HTTPContentType.JSON_UTF8,
+                                                                      Content                    = JSONObject.Create(
+                                                                                                       new JProperty("description", errorString)
+                                                                                                   ).ToUTF8Bytes()
+                                                                  }.AsImmutable;
+
+                                             }
+                                             catch (Exception e)
+                                             {
+                                                 return new HTTPResponse.Builder(Request) {
+                                                            HTTPStatusCode             = HTTPStatusCode.InternalServerError,
+                                                            Server                     = HTTPServer.DefaultServerName,
+                                                            Date                       = DateTime.UtcNow,
+                                                            AccessControlAllowOrigin   = "*",
+                                                            AccessControlAllowMethods  = "ADD, GET",
+                                                            AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
+                                                            ContentType                = HTTPContentType.JSON_UTF8,
+                                                            Content                    = JSONObject.Create(
+                                                                                             new JProperty("description", "Could not fetch the requestes API keys! " + e.Message)
+                                                                                         ).ToUTF8Bytes()
+                                                        }.AsImmutable;
                                              }
 
-                                             #endregion
+            });
 
+            #endregion
 
-                                             // Has the current HTTP user the required
-                                             // access rights to update?
-                                             if (HTTPUser.Id != UserIdURL.Value)
+            #region DELETE      ~/users/{UserId}/APIKeys
+
+            // ---------------------------------------------------------------------------------------------------
+            // curl -v -X DELETE -H "Accept: application/json" http://127.0.0.1:2100/users/ahzf/APIKeys/abcdefgh
+            // ---------------------------------------------------------------------------------------------------
+            HTTPServer.AddMethodCallback(Hostname,
+                                         HTTPMethod.DELETE,
+                                         URLPathPrefix + "users/{UserId}/APIKeys/{APIKeyId}",
+                                         HTTPContentType.JSON_UTF8,
+                                         HTTPDelegate: async Request => {
+
+                                             try
                                              {
 
+                                                 #region Get HTTP user and its organizations
+
+                                                 // Will return HTTP 401 Unauthorized, when the HTTP user is unknown!
+                                                 if (!TryGetHTTPUser(Request,
+                                                                     out User                   HTTPUser,
+                                                                     out HashSet<Organization>  HTTPOrganizations,
+                                                                     out HTTPResponse.Builder   errorResponse,
+                                                                     Recursive: true))
+                                                 {
+                                                     return errorResponse;
+                                                 }
+
+                                                 #endregion
+
+
+                                                 #region Validate user
+
+                                                 if (Request.ParsedURLParameters.Length < 1)
+                                                 {
+                                                     return new HTTPResponse.Builder(Request) {
+                                                                HTTPStatusCode  = HTTPStatusCode.BadRequest,
+                                                                Server                     = HTTPServer.DefaultServerName,
+                                                                Date                       = DateTime.UtcNow,
+                                                                AccessControlAllowOrigin   = "*",
+                                                                AccessControlAllowMethods  = "GET, SET",
+                                                                AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
+                                                                ContentType                = HTTPContentType.JSON_UTF8,
+                                                                Content                    = JSONObject.Create(
+                                                                                                 new JProperty("description", "Missing API key!")
+                                                                                             ).ToUTF8Bytes(),
+                                                                Connection                 = "close",
+                                                                Vary                       = "Accept"
+                                                            };
+                                                 }
+
+                                                 var apiKey = APIKey.TryParse(Request.ParsedURLParameters[0]);
+
+                                                 if (!apiKey.HasValue)
+                                                 {
+                                                     return new HTTPResponse.Builder(Request) {
+                                                                HTTPStatusCode  = HTTPStatusCode.BadRequest,
+                                                                Server                     = HTTPServer.DefaultServerName,
+                                                                Date                       = DateTime.UtcNow,
+                                                                AccessControlAllowOrigin   = "*",
+                                                                AccessControlAllowMethods  = "GET, SET",
+                                                                AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
+                                                                ContentType                = HTTPContentType.JSON_UTF8,
+                                                                Content                    = JSONObject.Create(
+                                                                                                 new JProperty("description", "Invalid API key!")
+                                                                                             ).ToUTF8Bytes(),
+                                                                Connection                 = "close",
+                                                                Vary                       = "Accept"
+                                                            };
+                                                 }
+
+                                                 if (!TryGetAPIKey(apiKey.Value, out APIKeyInfo apiKeyInfo))
+                                                 {
+                                                     return new HTTPResponse.Builder(Request) {
+                                                                HTTPStatusCode  = HTTPStatusCode.NotFound,
+                                                                Server                     = HTTPServer.DefaultServerName,
+                                                                Date                       = DateTime.UtcNow,
+                                                                AccessControlAllowOrigin   = "*",
+                                                                AccessControlAllowMethods  = "GET, SET",
+                                                                AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
+                                                                ContentType                = HTTPContentType.JSON_UTF8,
+                                                                Content                    = JSONObject.Create(
+                                                                                                 new JProperty("description", "Unknown API key!")
+                                                                                             ).ToUTF8Bytes(),
+                                                                Connection                 = "close",
+                                                                Vary                       = "Accept"
+                                                            };
+                                                 }
+
+                                                 if (apiKeyInfo.User != HTTPUser)
+                                                 {
+                                                     return new HTTPResponse.Builder(Request) {
+                                                                HTTPStatusCode             = HTTPStatusCode.Forbidden,
+                                                                Server                     = HTTPServer.DefaultServerName,
+                                                                Date                       = DateTime.UtcNow,
+                                                                AccessControlAllowOrigin   = "*",
+                                                                AccessControlAllowMethods  = "GET, SET",
+                                                                AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
+                                                                ContentType                = HTTPContentType.JSON_UTF8,
+                                                                Content                    = JSONObject.Create(
+                                                                                                 new JProperty("description", "This operation is not allowed!")
+                                                                                             ).ToUTF8Bytes(),
+                                                                Connection                 = "close",
+                                                                Vary                       = "Accept"
+                                                            }.AsImmutable;
+                                                 }
+
+                                                 #endregion
+
+
+                                                 await RemoveAPIKey(apiKeyInfo,
+                                                                    null,
+                                                                    Request.EventTrackingId,
+                                                                    HTTPUser.Id);
+
+
                                                  return new HTTPResponse.Builder(Request) {
-                                                            HTTPStatusCode              = HTTPStatusCode.Forbidden,
-                                                            Server                      = HTTPServer.DefaultServerName,
-                                                            Date                        = DateTime.UtcNow,
-                                                            AccessControlAllowOrigin    = "*",
-                                                            AccessControlAllowMethods   = "GET, SET, CHOWN",
-                                                            AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
-                                                            Connection                  = "close"
+                                                            HTTPStatusCode             = HTTPStatusCode.OK,
+                                                            Server                     = HTTPServer.DefaultServerName,
+                                                            Date                       = DateTime.UtcNow,
+                                                            AccessControlAllowOrigin   = "*",
+                                                            AccessControlAllowMethods  = "GET, SET",
+                                                            AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
+                                                            ContentType                = HTTPContentType.JSON_UTF8,
+                                                            Content                    = apiKeyInfo.ToJSON().ToUTF8Bytes(),
+                                                            Connection                 = "close",
+                                                            Vary                       = "Accept"
                                                         }.AsImmutable;
 
                                              }
-
-                                             if (TryChangePassword(UserIdURL.Value,
-                                                                   Password.Parse(NewPassword),
-                                                                   CurrentPassword,
-                                                                   Request.EventTrackingId,
-                                                                   HTTPUser.Id).Result)
+                                             catch (Exception e)
                                              {
-
-                                                 var MailSentResult = await APISMTPClient.Send(PasswordChangedEMailCreator(HTTPUser,
-                                                                                                                           HTTPUser.EMail,
-                                                                                                                           //"https://" + Request.Host.SimpleString,
-                                                                                                                           DefaultLanguage));
-
                                                  return new HTTPResponse.Builder(Request) {
-                                                                HTTPStatusCode              = HTTPStatusCode.OK,
-                                                                Server                      = HTTPServer.DefaultServerName,
-                                                                Date                        = DateTime.UtcNow,
-                                                                AccessControlAllowOrigin    = "*",
-                                                                AccessControlAllowMethods   = "SET",
-                                                                AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
-                                                                Connection                  = "close"
-                                                            }.AsImmutable;
-
+                                                            HTTPStatusCode             = HTTPStatusCode.InternalServerError,
+                                                            Server                     = HTTPServer.DefaultServerName,
+                                                            Date                       = DateTime.UtcNow,
+                                                            AccessControlAllowOrigin   = "*",
+                                                            AccessControlAllowMethods  = "ADD, GET",
+                                                            AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
+                                                            ContentType                = HTTPContentType.JSON_UTF8,
+                                                            Content                    = JSONObject.Create(
+                                                                                             new JProperty("description", "Could not delete the requested API key! " + e.Message)
+                                                                                         ).ToUTF8Bytes()
+                                                        }.AsImmutable;
                                              }
 
-                                             else
-                                             {
-
-                                                 return new HTTPResponse.Builder(Request) {
-                                                                HTTPStatusCode              = HTTPStatusCode.Forbidden,
-                                                                Server                      = HTTPServer.DefaultServerName,
-                                                                Date                        = DateTime.UtcNow,
-                                                                AccessControlAllowOrigin    = "*",
-                                                                AccessControlAllowMethods   = "SET",
-                                                                AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
-                                                                Connection                  = "close"
-                                                            }.AsImmutable;
-
-                                             }
-
-                                         });
+            });
 
             #endregion
 
@@ -12875,7 +13279,7 @@ namespace social.OpenData.UsersAPI
                 #endregion
 
 
-                #region Add notification
+                #region Add    notification
 
                 case "addNotification":
 
@@ -13107,21 +13511,40 @@ namespace social.OpenData.UsersAPI
                 #endregion
 
 
-                #region Add API key
+                #region Add    API key
 
                 case "addAPIKey":
-
-                    if (APIKeyInfo.TryParseJSON(Data,
-                                                out APIKeyInfo _APIKey,
-                                                _Users.TryGetValue,
-                                                out ErrorResponse))
                     {
-                        _APIKeys.AddAndReturnValue(_APIKey.APIKey, _APIKey);
+                        if (APIKeyInfo.TryParseJSON(Data,
+                                                    _Users.TryGetValue,
+                                                    out APIKeyInfo apiKey,
+                                                    out ErrorResponse))
+                        {
+                            _APIKeys.Add(apiKey.APIKey, apiKey);
+                        }
+
+                        else
+                            DebugX.Log(String.Concat(nameof(UsersAPI), " ", Command, Sender.IsNotNullOrEmpty() ? " via " + Sender : "", LineNumber.HasValue ? ", line " + LineNumber.Value : "", ": ", ErrorResponse));
                     }
+                    break;
 
-                    else
-                        DebugX.Log(String.Concat(nameof(UsersAPI), " ", Command, Sender.IsNotNullOrEmpty() ? " via " + Sender : "", LineNumber.HasValue ? ", line " + LineNumber.Value : "", ": ", ErrorResponse));
+                #endregion
 
+                #region Remove API key
+
+                case "removeAPIKey":
+                    {
+                        if (APIKeyInfo.TryParseJSON(Data,
+                                                    _Users.TryGetValue,
+                                                    out APIKeyInfo apiKey,
+                                                    out ErrorResponse))
+                        {
+                            _APIKeys.Remove(apiKey.APIKey);
+                        }
+
+                        else
+                            DebugX.Log(String.Concat(nameof(UsersAPI), " ", Command, Sender.IsNotNullOrEmpty() ? " via " + Sender : "", LineNumber.HasValue ? ", line " + LineNumber.Value : "", ": ", ErrorResponse));
+                    }
                     break;
 
                 #endregion
@@ -13933,7 +14356,7 @@ namespace social.OpenData.UsersAPI
         #endregion
 
 
-        #region (protected) WriteToDatabaseFileAndNotify(User, MessageType,  OldUser = null, CurrentUserId = null)
+        #region (protected internal) WriteToDatabaseFileAndNotify(User, MessageType,  OldUser = null, CurrentUserId = null)
 
         /// <summary>
         /// Write the given user to the database and send out notifications.
@@ -13944,11 +14367,11 @@ namespace social.OpenData.UsersAPI
         /// <param name="OldUser">The old/updated user.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">The invoking user identification</param>
-        protected async Task WriteToDatabaseFileAndNotify<TUser>(TUser                    User,
-                                                                 NotificationMessageType  MessageType,
-                                                                 TUser                    OldUser           = null,
-                                                                 EventTracking_Id         EventTrackingId   = null,
-                                                                 User_Id?                 CurrentUserId     = null)
+        protected internal async Task WriteToDatabaseFileAndNotify<TUser>(TUser                    User,
+                                                                          NotificationMessageType  MessageType,
+                                                                          TUser                    OldUser           = null,
+                                                                          EventTracking_Id         EventTrackingId   = null,
+                                                                          User_Id?                 CurrentUserId     = null)
 
             where TUser : User
 
@@ -13978,7 +14401,7 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
-        #region (protected) SendNotifications           (User, MessageTypes, OldUser = null, CurrentUserId = null)
+        #region (protected internal) SendNotifications           (User, MessageTypes, OldUser = null, CurrentUserId = null)
 
         /// <summary>
         /// Send user notifications.
@@ -13989,11 +14412,11 @@ namespace social.OpenData.UsersAPI
         /// <param name="OldUser">The old/updated user.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">The invoking user identification</param>
-        protected async Task SendNotifications<TUser>(TUser                    User,
-                                                      NotificationMessageType  MessageType,
-                                                      TUser                    OldUser           = null,
-                                                      EventTracking_Id         EventTrackingId   = null,
-                                                      User_Id?                 CurrentUserId     = null)
+        protected internal async Task SendNotifications<TUser>(TUser                    User,
+                                                               NotificationMessageType  MessageType,
+                                                               TUser                    OldUser           = null,
+                                                               EventTracking_Id         EventTrackingId   = null,
+                                                               User_Id?                 CurrentUserId     = null)
 
             where TUser : User
 
@@ -14360,10 +14783,10 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
-        #region (protected) GetUserSerializator(Request, User)
+        #region (protected internal) GetUserSerializator(Request, User)
 
-        protected UserToJSONDelegate GetUserSerializator(HTTPRequest  Request,
-                                                         User         User)
+        protected internal UserToJSONDelegate GetUserSerializator(HTTPRequest  Request,
+                                                                  User         User)
         {
 
             switch (User?.Id.ToString())
@@ -14404,7 +14827,7 @@ namespace social.OpenData.UsersAPI
         public event OnUserAddedDelegate OnUserAdded;
 
 
-        #region (protected) _AddUser(User,                            OnAdded = null, CurrentUserId = null)
+        #region (protected internal) _AddUser(User,                            OnAdded = null, CurrentUserId = null)
 
         /// <summary>
         /// Add the given user to the API.
@@ -14413,35 +14836,41 @@ namespace social.OpenData.UsersAPI
         /// <param name="OnAdded">A delegate run whenever the user had been added successfully.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
-        protected async Task<User> _AddUser(User                            User,
-                                            Action<User, EventTracking_Id>  OnAdded           = null,
-                                            EventTracking_Id                EventTrackingId   = null,
-                                            User_Id?                        CurrentUserId     = null)
+        protected internal async Task<AddUserResult> _AddUser(User                            User,
+                                                              Action<User, EventTracking_Id>  OnAdded           = null,
+                                                              EventTracking_Id                EventTrackingId   = null,
+                                                              User_Id?                        CurrentUserId     = null)
         {
 
             if (User is null)
-                throw new ArgumentNullException(nameof(User),
-                                                "The given user must not be null!");
+                return AddUserResult.ArgumentError(User,
+                                                   nameof(User),
+                                                   "The given user must not be null!");
 
             if (User.API != null && User.API != this)
-                throw new ArgumentException    ("The given user is already attached to another API!",
-                                                nameof(User));
+                return AddUserResult.ArgumentError(User,
+                                                   nameof(User),
+                                                   "The given user is already attached to another API!");
 
             if (_Users.ContainsKey(User.Id))
-                throw new ArgumentException    ("User identification '" + User.Id + "' already exists!",
-                                                nameof(User));
+                return AddUserResult.ArgumentError(User,
+                                                   nameof(User),
+                                                   "User identification '" + User.Id + "' already exists!");
 
             if (User.Id.Length < MinUserIdLength)
-                throw new ArgumentException    ("User identification '" + User.Id + "' is too short!",
-                                                nameof(User));
+                return AddUserResult.ArgumentError(User,
+                                                   nameof(User),
+                                                   "User identification '" + User.Id + "' is too short!");
 
             if (User.Name.IsNullOrEmpty() || User.Name.Trim().IsNullOrEmpty())
-                throw new ArgumentNullException(nameof(User.Name),
-                                                "The given user name must not be null!");
+                return AddUserResult.ArgumentError(User,
+                                                   nameof(User),
+                                                   "The given user name must not be null!");
 
             if (User.Name.Length < MinUserNameLength)
-                throw new ArgumentException    ("User name '" + User.Name + "' is too short!",
-                                                nameof(User.Name));
+                return AddUserResult.ArgumentError(User,
+                                                   nameof(User),
+                                                   "User name '" + User.Name + "' is too short!");
 
             User.API = this;
 
@@ -14493,13 +14922,13 @@ namespace social.OpenData.UsersAPI
             OnAdded?.Invoke(User,
                             eventTrackingId);
 
-            return User;
+            return AddUserResult.Success(User);
 
         }
 
         #endregion
 
-        #region AddUser             (User,                            OnAdded = null, CurrentUserId = null)
+        #region AddUser                (User,                            OnAdded = null, CurrentUserId = null)
 
         /// <summary>
         /// Add the given user.
@@ -14508,10 +14937,10 @@ namespace social.OpenData.UsersAPI
         /// <param name="OnAdded">A delegate run whenever the user had been added successfully.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
-        public async Task<User> AddUser(User                            User,
-                                        Action<User, EventTracking_Id>  OnAdded           = null,
-                                        EventTracking_Id                EventTrackingId   = null,
-                                        User_Id?                        CurrentUserId     = null)
+        public async Task<AddUserResult> AddUser(User                            User,
+                                                 Action<User, EventTracking_Id>  OnAdded           = null,
+                                                 EventTracking_Id                EventTrackingId   = null,
+                                                 User_Id?                        CurrentUserId     = null)
         {
 
             if (User is null)
@@ -14555,12 +14984,12 @@ namespace social.OpenData.UsersAPI
         /// <param name="OnAdded">A delegate run whenever the user had been added successfully.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
-        public async Task<User> AddUser(User                            User,
-                                        User2OrganizationEdgeTypes      AccessRight,
-                                        Organization                    Organization,
-                                        Action<User, EventTracking_Id>  OnAdded           = null,
-                                        EventTracking_Id                EventTrackingId   = null,
-                                        User_Id?                        CurrentUserId     = null)
+        public async Task<AddUserResult> AddUser(User                            User,
+                                                 User2OrganizationEdgeTypes      AccessRight,
+                                                 Organization                    Organization,
+                                                 Action<User, EventTracking_Id>  OnAdded           = null,
+                                                 EventTracking_Id                EventTrackingId   = null,
+                                                 User_Id?                        CurrentUserId     = null)
         {
 
             if (User is null)
@@ -14620,7 +15049,7 @@ namespace social.OpenData.UsersAPI
 
         #region AddUserIfNotExists(User, (Membership, Organization), OnAdded = null,                   CurrentUserId = null)
 
-        #region (protected) _AddUserIfNotExists(User,                           OnAdded = null, CurrentUserId = null)
+        #region (protected internal) _AddUserIfNotExists(User,                           OnAdded = null, CurrentUserId = null)
 
         /// <summary>
         /// When it has not been created before, add the given user to the API.
@@ -14629,26 +15058,39 @@ namespace social.OpenData.UsersAPI
         /// <param name="OnAdded">A delegate run whenever the user had been added successfully.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
-        protected async Task<User> _AddUserIfNotExists(User                            User,
-                                                       Action<User, EventTracking_Id>  OnAdded           = null,
-                                                       EventTracking_Id                EventTrackingId   = null,
-                                                       User_Id?                        CurrentUserId     = null)
+        protected internal async Task<AddUserIfNotExistsResult> _AddUserIfNotExists(User                            User,
+                                                                                    Action<User, EventTracking_Id>  OnAdded           = null,
+                                                                                    EventTracking_Id                EventTrackingId   = null,
+                                                                                    User_Id?                        CurrentUserId     = null)
         {
 
             if (User is null)
-                throw new ArgumentNullException(nameof(User),
-                                                "The given user must not be null!");
+                return AddUserIfNotExistsResult.ArgumentError(User,
+                                                              nameof(User),
+                                                              "The given user must not be null!");
 
             if (User.API != null && User.API != this)
-                throw new ArgumentException    ("The given user is already attached to another API!",
-                                                nameof(User));
+                return AddUserIfNotExistsResult.ArgumentError(User,
+                                                              nameof(User),
+                                                              "The given user is already attached to another API!");
 
             if (_Users.ContainsKey(User.Id))
-                return _Users[User.Id];
+                return AddUserIfNotExistsResult.Success(_Users[User.Id]);
 
             if (User.Id.Length < MinUserIdLength)
-                throw new ArgumentException    ("User identification '" + User.Id + "' is too short!",
-                                                nameof(User));
+                return AddUserIfNotExistsResult.ArgumentError(User,
+                                                              nameof(User),
+                                                              "User identification '" + User.Id + "' is too short!");
+
+            if (User.Name.IsNullOrEmpty() || User.Name.Trim().IsNullOrEmpty())
+                return AddUserIfNotExistsResult.ArgumentError(User,
+                                                              nameof(User),
+                                                              "The given user name must not be null!");
+
+            if (User.Name.Length < MinUserNameLength)
+                return AddUserIfNotExistsResult.ArgumentError(User,
+                                                              nameof(User),
+                                                              "User name '" + User.Name + "' is too short!");
 
             User.API = this;
 
@@ -14699,7 +15141,7 @@ namespace social.OpenData.UsersAPI
             OnAdded?.Invoke(User,
                             eventTrackingId);
 
-            return User;
+            return AddUserIfNotExistsResult.Success(User);
 
         }
 
@@ -14714,10 +15156,10 @@ namespace social.OpenData.UsersAPI
         /// <param name="OnAdded">A delegate run whenever the user had been added successfully.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
-        public async Task<User> AddUserIfNotExists(User                            User,
-                                                   Action<User, EventTracking_Id>  OnAdded           = null,
-                                                   EventTracking_Id                EventTrackingId   = null,
-                                                   User_Id?                        CurrentUserId     = null)
+        public async Task<AddUserIfNotExistsResult> AddUserIfNotExists(User                            User,
+                                                                       Action<User, EventTracking_Id>  OnAdded           = null,
+                                                                       EventTracking_Id                EventTrackingId   = null,
+                                                                       User_Id?                        CurrentUserId     = null)
         {
 
             try
@@ -14758,12 +15200,12 @@ namespace social.OpenData.UsersAPI
         /// <param name="OnAdded">A delegate run whenever the user had been added successfully.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
-        public async Task<User> AddUserIfNotExists(User                            User,
-                                                   User2OrganizationEdgeTypes      Membership,
-                                                   Organization                    Organization,
-                                                   Action<User, EventTracking_Id>  OnAdded              = null,
-                                                   EventTracking_Id                EventTrackingId      = null,
-                                                   User_Id?                        CurrentUserId        = null)
+        public async Task<AddUserIfNotExistsResult> AddUserIfNotExists(User                            User,
+                                                                       User2OrganizationEdgeTypes      Membership,
+                                                                       Organization                    Organization,
+                                                                       Action<User, EventTracking_Id>  OnAdded              = null,
+                                                                       EventTracking_Id                EventTrackingId      = null,
+                                                                       User_Id?                        CurrentUserId        = null)
         {
 
             if (User is null)
@@ -14823,7 +15265,7 @@ namespace social.OpenData.UsersAPI
 
         #region AddOrUpdateUser   (User, (Membership, Organization), OnAdded = null, OnUpdated = null, CurrentUserId = null)
 
-        #region (protected) _AddOrUpdateUser(User,                           OnAdded = null, OnUpdated = null, CurrentUserId = null)
+        #region (protected internal) _AddOrUpdateUser(User,                           OnAdded = null, OnUpdated = null, CurrentUserId = null)
 
         /// <summary>
         /// Add or update the given user to/within the API.
@@ -14833,11 +15275,11 @@ namespace social.OpenData.UsersAPI
         /// <param name="OnUpdated">A delegate run whenever the user had been updated successfully.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
-        protected async Task<User> _AddOrUpdateUser(User                            User,
-                                                    Action<User, EventTracking_Id>  OnAdded           = null,
-                                                    Action<User, EventTracking_Id>  OnUpdated         = null,
-                                                    EventTracking_Id                EventTrackingId   = null,
-                                                    User_Id?                        CurrentUserId     = null)
+        protected internal async Task<User> _AddOrUpdateUser(User                            User,
+                                                             Action<User, EventTracking_Id>  OnAdded           = null,
+                                                             Action<User, EventTracking_Id>  OnUpdated         = null,
+                                                             EventTracking_Id                EventTrackingId   = null,
+                                                             User_Id?                        CurrentUserId     = null)
         {
 
             if (User is null)
@@ -15074,7 +15516,7 @@ namespace social.OpenData.UsersAPI
         public event OnUserUpdatedDelegate OnUserUpdated;
 
 
-        #region (protected) _UpdateUser(User, OnUpdated = null, CurrentUserId = null)
+        #region (protected internal) _UpdateUser(User, OnUpdated = null, CurrentUserId = null)
 
         /// <summary>
         /// Update the given user to/within the API.
@@ -15083,10 +15525,10 @@ namespace social.OpenData.UsersAPI
         /// <param name="OnUpdated">A delegate run whenever the user had been updated successfully.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
-        protected async Task<User> _UpdateUser(User                            User,
-                                               Action<User, EventTracking_Id>  OnUpdated         = null,
-                                               EventTracking_Id                EventTrackingId   = null,
-                                               User_Id?                        CurrentUserId     = null)
+        protected internal async Task<User> _UpdateUser(User                            User,
+                                                        Action<User, EventTracking_Id>  OnUpdated         = null,
+                                                        EventTracking_Id                EventTrackingId   = null,
+                                                        User_Id?                        CurrentUserId     = null)
         {
 
             if (User is null)
@@ -15184,7 +15626,7 @@ namespace social.OpenData.UsersAPI
         #endregion
 
 
-        #region (protected) _UpdateUser(UserId, UpdateDelegate, OnUpdated = null, CurrentUserId = null)
+        #region (protected internal) _UpdateUser(UserId, UpdateDelegate, OnUpdated = null, CurrentUserId = null)
 
         /// <summary>
         /// Update the given user.
@@ -15194,11 +15636,11 @@ namespace social.OpenData.UsersAPI
         /// <param name="OnUpdated">A delegate run whenever the user had been updated successfully.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
-        protected async Task<User> _UpdateUser(User_Id                         UserId,
-                                               Action<User.Builder>            UpdateDelegate,
-                                               Action<User, EventTracking_Id>  OnUpdated         = null,
-                                               EventTracking_Id                EventTrackingId   = null,
-                                               User_Id?                        CurrentUserId     = null)
+        protected internal async Task<User> _UpdateUser(User_Id                         UserId,
+                                                        Action<User.Builder>            UpdateDelegate,
+                                                        Action<User, EventTracking_Id>  OnUpdated         = null,
+                                                        EventTracking_Id                EventTrackingId   = null,
+                                                        User_Id?                        CurrentUserId     = null)
         {
 
             if (UserId.IsNullOrEmpty)
@@ -15304,272 +15746,13 @@ namespace social.OpenData.UsersAPI
         #endregion
 
 
-        #region CreateUser           (Id, EMail, Password, Name = null, Description = null, PublicKeyRing = null, SecretKeyRing = null, MobilePhone = null, IsPublic = true, IsDisabled = false, IsAuthenticated = false)
-
-        /// <summary>
-        /// Create a new user.
-        /// </summary>
-        /// <param name="Id">The unique identification of the user.</param>
-        /// <param name="EMail">The primary e-mail of the user.</param>
-        /// <param name="Password">An optional password of the user.</param>
-        /// <param name="Name">An offical (multi-language) name of the user.</param>
-        /// <param name="Description">An optional (multi-language) description of the user.</param>
-        /// <param name="PublicKeyRing">An optional PGP/GPG public keyring of the user.</param>
-        /// <param name="SecretKeyRing">An optional PGP/GPG secret keyring of the user.</param>
-        /// <param name="UserLanguage">The language setting of the user.</param>
-        /// <param name="Telephone">An optional telephone number of the user.</param>
-        /// <param name="MobilePhone">An optional mobile telephone number of the user.</param>
-        /// <param name="Homepage">The homepage of the user.</param>
-        /// <param name="GeoLocation">An optional geographical location of the user.</param>
-        /// <param name="Address">An optional address of the user.</param>
-        /// <param name="AcceptedEULA">Timestamp when the user accepted the End-User-License-Agreement.</param>
-        /// <param name="IsAuthenticated">The user will not be shown in user listings, as its primary e-mail address is not yet authenticated.</param>
-        /// <param name="IsDisabled">The user will be shown in user listings.</param>
-        /// <param name="DataSource">The source of all this data, e.g. an automatic importer.</param>
-        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
-        public async Task<User> CreateUser(User_Id                     Id,
-                                           SimpleEMailAddress          EMail,
-                                           Password?                   Password             = null,
-                                           String                      Name                 = null,
-                                           I18NString                  Description          = null,
-                                           PgpPublicKeyRing            PublicKeyRing        = null,
-                                           PgpSecretKeyRing            SecretKeyRing        = null,
-                                           Languages                   UserLanguage         = Languages.en,
-                                           PhoneNumber?                Telephone            = null,
-                                           PhoneNumber?                MobilePhone          = null,
-                                           String                      Telegram             = null,
-                                           String                      Homepage             = null,
-                                           GeoCoordinate?              GeoLocation          = null,
-                                           Address                     Address              = null,
-                                           DateTime?                   AcceptedEULA         = null,
-                                           Boolean                     IsAuthenticated      = false,
-                                           Boolean                     IsDisabled           = false,
-                                           
-                                           String                      DataSource           = "",
-                                           User_Id?                    CurrentUserId        = null)
-
-            => await AddUser(new User(Id,
-                                      EMail,
-                                      Name,
-                                      Description,
-                                      PublicKeyRing,
-                                      SecretKeyRing,
-                                      UserLanguage,
-                                      Telephone,
-                                      MobilePhone,
-                                      Telegram,
-                                      Homepage,
-                                      GeoLocation,
-                                      Address,
-                                      AcceptedEULA,
-                                      IsAuthenticated,
-                                      IsDisabled,
-                                      DataSource: DataSource),
-
-                             (user, eventTrackingId) => {
-
-                                 if (Password.HasValue &&
-                                     !_TryChangePassword(user.Id,
-                                                         Password.Value,
-                                                         null,
-                                                         eventTrackingId,
-                                                         CurrentUserId).Result)
-                                 {
-                                     throw new ApplicationException("The password for '" + user.Id + "' could not be changed, as the given current password does not match!");
-                                 }
-
-                             },
-
-                             EventTracking_Id.New,
-                             CurrentUserId);
-
-        #endregion
-
-        #region CreateUser           (Id, EMail, Password, Name = null, Description = null, PublicKeyRing = null, SecretKeyRing = null, MobilePhone = null, IsPublic = true, IsDisabled = false, IsAuthenticated = false)
-
-        /// <summary>
-        /// Create a new user.
-        /// </summary>
-        /// <param name="Id">The unique identification of the user.</param>
-        /// <param name="EMail">The primary e-mail of the user.</param>
-        /// <param name="Password">An optional password of the user.</param>
-        /// <param name="Name">An offical (multi-language) name of the user.</param>
-        /// <param name="Description">An optional (multi-language) description of the user.</param>
-        /// <param name="PublicKeyRing">An optional PGP/GPG public keyring of the user.</param>
-        /// <param name="SecretKeyRing">An optional PGP/GPG secret keyring of the user.</param>
-        /// <param name="UserLanguage">The language setting of the user.</param>
-        /// <param name="Telephone">An optional telephone number of the user.</param>
-        /// <param name="MobilePhone">An optional mobile telephone number of the user.</param>
-        /// <param name="Homepage">The homepage of the user.</param>
-        /// <param name="GeoLocation">An optional geographical location of the user.</param>
-        /// <param name="Address">An optional address of the user.</param>
-        /// <param name="AcceptedEULA">Timestamp when the user accepted the End-User-License-Agreement.</param>
-        /// <param name="IsAuthenticated">The user will not be shown in user listings, as its primary e-mail address is not yet authenticated.</param>
-        /// <param name="IsDisabled">The user will be shown in user listings.</param>
-        /// <param name="DataSource">The source of all this data, e.g. an automatic importer.</param>
-        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
-        public async Task<User> CreateUser(User_Id                     Id,
-                                           SimpleEMailAddress          EMail,
-                                           User2OrganizationEdgeTypes  EdgeLabel,
-                                           Organization                ParentOrganization,
-                                           Password?                   Password             = null,
-                                           String                      Name                 = null,
-                                           I18NString                  Description          = null,
-                                           PgpPublicKeyRing            PublicKeyRing        = null,
-                                           PgpSecretKeyRing            SecretKeyRing        = null,
-                                           Languages                   UserLanguage         = Languages.en,
-                                           PhoneNumber?                Telephone            = null,
-                                           PhoneNumber?                MobilePhone          = null,
-                                           String                      Telegram             = null,
-                                           String                      Homepage             = null,
-                                           GeoCoordinate?              GeoLocation          = null,
-                                           Address                     Address              = null,
-                                           DateTime?                   AcceptedEULA         = null,
-                                           Boolean                     IsAuthenticated      = false,
-                                           Boolean                     IsDisabled           = false,
-                                           
-                                           String                      DataSource           = "",
-                                           User_Id?                    CurrentUserId        = null)
-
-            => await AddUser(new User(Id,
-                                      EMail,
-                                      Name,
-                                      Description,
-                                      PublicKeyRing,
-                                      SecretKeyRing,
-                                      UserLanguage,
-                                      Telephone,
-                                      MobilePhone,
-                                      Telegram,
-                                      Homepage,
-                                      GeoLocation,
-                                      Address,
-                                      AcceptedEULA,
-                                      IsAuthenticated,
-                                      IsDisabled,
-                                      DataSource: DataSource),
-
-                             EdgeLabel,
-                             ParentOrganization,
-
-                             (user, eventTrackingId) => {
-
-                                 if (Password.HasValue &&
-                                     !_TryChangePassword(user.Id,
-                                                         Password.Value,
-                                                         null,
-                                                         eventTrackingId,
-                                                         CurrentUserId).Result)
-                                 {
-                                     throw new ApplicationException("The password for '" + user.Id + "' could not be changed, as the given current password does not match!");
-                                 }
-
-                             },
-
-                             EventTracking_Id.New,
-                             CurrentUserId);
-
-        #endregion
-
-        #region CreateUserIfNotExists(Id, EMail, Password, Name = null, Description = null, PublicKeyRing = null, SecretKeyRing = null, MobilePhone = null, IsPublic = true, IsDisabled = false, IsAuthenticated = false)
-
-        /// <summary>
-        /// Create a new user.
-        /// </summary>
-        /// <param name="Id">The unique identification of the user.</param>
-        /// <param name="EMail">The primary e-mail of the user.</param>
-        /// <param name="Password">An optional password of the user.</param>
-        /// <param name="Name">An offical (multi-language) name of the user.</param>
-        /// <param name="Description">An optional (multi-language) description of the user.</param>
-        /// <param name="PublicKeyRing">An optional PGP/GPG public keyring of the user.</param>
-        /// <param name="SecretKeyRing">An optional PGP/GPG secret keyring of the user.</param>
-        /// <param name="UserLanguage">The language setting of the user.</param>
-        /// <param name="Telephone">An optional telephone number of the user.</param>
-        /// <param name="MobilePhone">An optional telephone number of the user.</param>
-        /// <param name="Homepage">The homepage of the user.</param>
-        /// <param name="GeoLocation">An optional geographical location of the user.</param>
-        /// <param name="Address">An optional address of the user.</param>
-        /// <param name="PrivacyLevel">Whether the user will be shown in user listings, or not.</param>
-        /// <param name="AcceptedEULA">Timestamp when the user accepted the End-User-License-Agreement.</param>
-        /// <param name="IsAuthenticated">The user will not be shown in user listings, as its primary e-mail address is not yet authenticated.</param>
-        /// <param name="IsDisabled">The user will be shown in user listings.</param>
-        /// <param name="DataSource">The source of all this data, e.g. an automatic importer.</param>
-        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
-        public async Task<User> CreateUserIfNotExists(User_Id             Id,
-                                                      SimpleEMailAddress  EMail,
-                                                      Password?           Password          = null,
-                                                      String              Name              = null,
-                                                      I18NString          Description       = null,
-                                                      PgpPublicKeyRing    PublicKeyRing     = null,
-                                                      PgpSecretKeyRing    SecretKeyRing     = null,
-                                                      Languages           UserLanguage      = Languages.en,
-                                                      PhoneNumber?        Telephone         = null,
-                                                      PhoneNumber?        MobilePhone       = null,
-                                                      String              Telegram          = null,
-                                                      String              Homepage          = null,
-                                                      GeoCoordinate?      GeoLocation       = null,
-                                                      Address             Address           = null,
-                                                      PrivacyLevel        PrivacyLevel      = PrivacyLevel.Private,
-                                                      DateTime?           AcceptedEULA      = null,
-                                                      Boolean             IsAuthenticated   = false,
-                                                      Boolean             IsDisabled        = false,
-                                                      String              DataSource        = "",
-                                                      User_Id?            CurrentUserId     = null)
-
-
-            => await AddUserIfNotExists(new User(Id,
-                                                 EMail,
-                                                 Name,
-                                                 Description,
-                                                 PublicKeyRing,
-                                                 SecretKeyRing,
-                                                 UserLanguage,
-                                                 Telephone,
-                                                 MobilePhone,
-                                                 Telegram,
-                                                 Homepage,
-                                                 GeoLocation,
-                                                 Address,
-                                                 AcceptedEULA,
-                                                 IsAuthenticated,
-                                                 IsDisabled,
-                                                 DataSource: DataSource),
-
-                                    async (user, eventTrackingId) => {
-
-                                        if (Password.HasValue &&
-                                            !_TryChangePassword(user.Id,
-                                                                Password.Value,
-                                                                null,
-                                                                eventTrackingId,
-                                                                CurrentUserId).Result)
-                                        {
-                                            throw new ApplicationException("The password for '" + user.Id + "' could not be changed, as the given current password does not match!");
-                                        }
-
-                                        //if (Password.HasValue &&
-                                        //    !await _TrySetToPassword(user.Id,
-                                        //                             Password.Value,
-                                        //                             CurrentUserId))
-                                        //{
-                                        //    throw new ApplicationException("The password for '" + user.Id + "' could not be set!");
-                                        //}
-
-                                    },
-
-                                    EventTracking_Id.New,
-                                    CurrentUserId);
-
-        #endregion
-
-
         #region UserExists(UserId)
 
         /// <summary>
         /// Determines whether the given user identification exists within this API.
         /// </summary>
         /// <param name="UserId">The unique identification of an user.</param>
-        protected Boolean _UserExists(User_Id UserId)
+        protected internal Boolean _UserExists(User_Id UserId)
 
             => !UserId.IsNullOrEmpty && _Users.ContainsKey(UserId);
 
@@ -15615,7 +15798,7 @@ namespace social.OpenData.UsersAPI
         /// Get the user having the given unique identification.
         /// </summary>
         /// <param name="UserId">The unique identification of an user.</param>
-        protected User _GetUser(User_Id UserId)
+        protected internal User _GetUser(User_Id UserId)
         {
 
             if (!UserId.IsNullOrEmpty && _Users.TryGetValue(UserId, out User user))
@@ -15665,7 +15848,7 @@ namespace social.OpenData.UsersAPI
         /// </summary>
         /// <param name="UserId">The unique identification of an user.</param>
         /// <param name="User">The user.</param>
-        protected Boolean _TryGetUser(User_Id UserId, out User User)
+        protected internal Boolean _TryGetUser(User_Id UserId, out User User)
         {
 
             if (!UserId.IsNullOrEmpty && _Users.TryGetValue(UserId, out User user))
@@ -15726,7 +15909,7 @@ namespace social.OpenData.UsersAPI
         /// Find all users having the given user name.
         /// </summary>
         /// <param name="Username">The name of a user (might not be unique).</param>
-        protected IEnumerable<User> _SearchUsersByName(String Username)
+        protected internal IEnumerable<User> _SearchUsersByName(String Username)
 
             => _Users.Values.Where(user => user.Name.Equals(Username ?? ""));
 
@@ -15770,7 +15953,7 @@ namespace social.OpenData.UsersAPI
         /// </summary>
         /// <param name="Username">The name of a user (might not be unique).</param>
         /// <param name="Users">An enumeration of matching users.</param>
-        protected Boolean _TrySearchUsersByName(String Username, out IEnumerable<User> Users)
+        protected internal Boolean _TrySearchUsersByName(String Username, out IEnumerable<User> Users)
         {
 
             var foundUsers = new List<User>();
@@ -15845,58 +16028,13 @@ namespace social.OpenData.UsersAPI
         public event OnUserRemovedDelegate OnUserRemoved;
 
 
-        #region (class) DeleteUserResult
-
-        public class DeleteUserResult
-        {
-
-            public Boolean     IsSuccess           { get; }
-
-            public I18NString  ErrorDescription    { get; }
-
-
-            private DeleteUserResult(Boolean     IsSuccess,
-                                     I18NString  ErrorDescription  = null)
-            {
-                this.IsSuccess         = IsSuccess;
-                this.ErrorDescription  = ErrorDescription;
-            }
-
-
-            public static DeleteUserResult Success
-
-                => new DeleteUserResult(true);
-
-            public static DeleteUserResult Failed(I18NString Reason)
-
-                => new DeleteUserResult(false,
-                                        Reason);
-
-            public static DeleteUserResult Failed(Exception Exception)
-
-                => new DeleteUserResult(false,
-                                        I18NString.Create(Languages.en,
-                                                          Exception.Message));
-
-            public override String ToString()
-
-                => IsSuccess
-                       ? "Success"
-                       : "Failed" + (ErrorDescription.IsNullOrEmpty()
-                                         ? ": " + ErrorDescription.FirstText()
-                                         : "!");
-
-        }
-
-        #endregion
-
-        #region (protected virtual) CanDeleteUser(User)
+        #region (protected internal virtual) CanDeleteUser(User)
 
         /// <summary>
         /// Determines whether the user can safely be removed from the API.
         /// </summary>
         /// <param name="User">The user to be removed.</param>
-        protected virtual I18NString CanDeleteUser(User User)
+        protected internal virtual I18NString CanDeleteUser(User User)
         {
 
             if (User.User2Organization_OutEdges.Any())
@@ -15908,8 +16046,7 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
-
-        #region (protected) _RemoveUser(User, OnRemoved = null, CurrentUserId = null)
+        #region (protected internal) _RemoveUser(User, OnRemoved = null, CurrentUserId = null)
 
         /// <summary>
         /// Remove the given user from the API.
@@ -15918,10 +16055,10 @@ namespace social.OpenData.UsersAPI
         /// <param name="OnRemoved">A delegate run whenever the user had been removed successfully.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
-        protected async Task<DeleteUserResult> _RemoveUser(User                            User,
-                                                           Action<User, EventTracking_Id>  OnRemoved         = null,
-                                                           EventTracking_Id                EventTrackingId   = null,
-                                                           User_Id?                        CurrentUserId     = null)
+        protected internal async Task<DeleteUserResult> _RemoveUser(User                            User,
+                                                                    Action<User, EventTracking_Id>  OnRemoved         = null,
+                                                                    EventTracking_Id                EventTrackingId   = null,
+                                                                    User_Id?                        CurrentUserId     = null)
         {
 
             if (User is null)
@@ -15974,7 +16111,7 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
-        #region RemoveUser             (User, OnRemoved = null, CurrentUserId = null)
+        #region RemoveUser                      (User, OnRemoved = null, CurrentUserId = null)
 
         /// <summary>
         /// Remove the given user from the API.
@@ -16034,7 +16171,7 @@ namespace social.OpenData.UsersAPI
         /// <summary>
         /// An enumeration of all user groups.
         /// </summary>
-        protected readonly Dictionary<UserGroup_Id, UserGroup> _UserGroups;
+        protected internal readonly Dictionary<UserGroup_Id, UserGroup> _UserGroups;
 
         /// <summary>
         /// An enumeration of all user groups.
@@ -16064,7 +16201,7 @@ namespace social.OpenData.UsersAPI
         #endregion
 
 
-        #region (protected) WriteToDatabaseFileAndNotify(UserGroup, MessageType,  OldUserGroup = null, CurrentUserId = null)
+        #region (protected internal) WriteToDatabaseFileAndNotify(UserGroup, MessageType,  OldUserGroup = null, CurrentUserId = null)
 
         /// <summary>
         /// Write the given user group to the database and send out notifications.
@@ -16074,7 +16211,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="OldUserGroup">The old/updated user group.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">The invoking user identification</param>
-        protected async Task WriteToDatabaseFileAndNotify(UserGroup                UserGroup,
+        protected internal async Task WriteToDatabaseFileAndNotify(UserGroup                UserGroup,
                                                           NotificationMessageType  MessageType,
                                                           UserGroup                OldUserGroup      = null,
                                                           EventTracking_Id         EventTrackingId   = null,
@@ -16105,7 +16242,7 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
-        #region (protected) SendNotifications           (UserGroup, MessageTypes, OldUserGroup = null, CurrentUserId = null)
+        #region (protected internal) SendNotifications           (UserGroup, MessageTypes, OldUserGroup = null, CurrentUserId = null)
 
         /// <summary>
         /// Send user group notifications.
@@ -16115,7 +16252,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="OldUserGroup">The old/updated user group.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">The invoking user identification</param>
-        protected async Task SendNotifications(UserGroup                UserGroup,
+        protected internal async Task SendNotifications(UserGroup                UserGroup,
                                                NotificationMessageType  MessageType,
                                                UserGroup                OldUserGroup      = null,
                                                EventTracking_Id         EventTrackingId   = null,
@@ -16146,7 +16283,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="OldUserGroup">The old/updated user group.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">The invoking user identification</param>
-        protected async Task SendNotifications(UserGroup                             UserGroup,
+        protected internal async Task SendNotifications(UserGroup                             UserGroup,
                                                IEnumerable<NotificationMessageType>  MessageTypes,
                                                UserGroup                             OldUserGroup      = null,
                                                EventTracking_Id                      EventTrackingId   = null,
@@ -16182,9 +16319,9 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
-        #region (protected) GetUserGroupSerializator(Request, User)
+        #region (protected internal) GetUserGroupSerializator(Request, User)
 
-        protected UserGroupToJSONDelegate GetUserGroupSerializator(HTTPRequest  Request,
+        protected internal UserGroupToJSONDelegate GetUserGroupSerializator(HTTPRequest  Request,
                                                                    User         User)
         {
 
@@ -16236,7 +16373,7 @@ namespace social.OpenData.UsersAPI
         public event OnUserGroupAddedDelegate OnUserGroupAdded;
 
 
-        #region (protected) _AddUserGroup(UserGroup,                                OnAdded = null, CurrentUserId = null)
+        #region (protected internal) _AddUserGroup(UserGroup,                                OnAdded = null, CurrentUserId = null)
 
         /// <summary>
         /// Add the given user group to the API.
@@ -16245,7 +16382,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="OnAdded">A delegate run whenever the user group had been added successfully.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
-        protected async Task<UserGroup> _AddUserGroup(UserGroup                            UserGroup,
+        protected internal async Task<UserGroup> _AddUserGroup(UserGroup                            UserGroup,
                                                       Action<UserGroup, EventTracking_Id>  OnAdded           = null,
                                                       EventTracking_Id                     EventTrackingId   = null,
                                                       User_Id?                             CurrentUserId     = null)
@@ -16351,7 +16488,7 @@ namespace social.OpenData.UsersAPI
 
         #region AddUserGroupIfNotExists(UserGroup, OnAdded = null,                   CurrentUserId = null)
 
-        #region (protected) _AddUserGroupIfNotExists(UserGroup,                                OnAdded = null, CurrentUserId = null)
+        #region (protected internal) _AddUserGroupIfNotExists(UserGroup,                                OnAdded = null, CurrentUserId = null)
 
         /// <summary>
         /// When it has not been created before, add the given user group to the API.
@@ -16360,7 +16497,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="OnAdded">A delegate run whenever the user group had been added successfully.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
-        protected async Task<UserGroup> _AddUserGroupIfNotExists(UserGroup                            UserGroup,
+        protected internal async Task<UserGroup> _AddUserGroupIfNotExists(UserGroup                            UserGroup,
                                                                  Action<UserGroup, EventTracking_Id>  OnAdded           = null,
                                                                  EventTracking_Id                     EventTrackingId   = null,
                                                                  User_Id?                             CurrentUserId     = null)
@@ -16461,7 +16598,7 @@ namespace social.OpenData.UsersAPI
 
         #region AddOrUpdateUserGroup   (UserGroup, OnAdded = null, OnUpdated = null, CurrentUserId = null)
 
-        #region (protected) _AddOrUpdateUserGroup   (UserGroup,   OnAdded = null, OnUpdated = null, CurrentUserId = null)
+        #region (protected internal) _AddOrUpdateUserGroup   (UserGroup,   OnAdded = null, OnUpdated = null, CurrentUserId = null)
 
         /// <summary>
         /// Add or update the given user group to/within the API.
@@ -16471,7 +16608,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="OnUpdated">A delegate run whenever the user group had been updated successfully.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional user group identification initiating this command/request.</param>
-        protected async Task<UserGroup> _AddOrUpdateUserGroup(UserGroup                            UserGroup,
+        protected internal async Task<UserGroup> _AddOrUpdateUserGroup(UserGroup                            UserGroup,
                                                               Action<UserGroup, EventTracking_Id>  OnAdded           = null,
                                                               Action<UserGroup, EventTracking_Id>  OnUpdated         = null,
                                                               EventTracking_Id                     EventTrackingId   = null,
@@ -16631,7 +16768,7 @@ namespace social.OpenData.UsersAPI
         public event OnUserGroupUpdatedDelegate OnUserGroupUpdated;
 
 
-        #region (protected) _UpdateUserGroup(UserGroup, OnUpdated = null, CurrentUserId = null)
+        #region (protected internal) _UpdateUserGroup(UserGroup, OnUpdated = null, CurrentUserId = null)
 
         /// <summary>
         /// Update the given user group to/within the API.
@@ -16640,7 +16777,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="OnUpdated">A delegate run whenever the user group had been updated successfully.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional user group identification initiating this command/request.</param>
-        protected async Task<UserGroup> _UpdateUserGroup(UserGroup                            UserGroup,
+        protected internal async Task<UserGroup> _UpdateUserGroup(UserGroup                            UserGroup,
                                                          Action<UserGroup, EventTracking_Id>  OnUpdated         = null,
                                                          EventTracking_Id                     EventTrackingId   = null,
                                                          User_Id?                             CurrentUserId     = null)
@@ -16741,7 +16878,7 @@ namespace social.OpenData.UsersAPI
         #endregion
 
 
-        #region (protected) _UpdateUserGroup(UserGroupId, UpdateDelegate, OnUpdated = null, CurrentUserId = null)
+        #region (protected internal) _UpdateUserGroup(UserGroupId, UpdateDelegate, OnUpdated = null, CurrentUserId = null)
 
         /// <summary>
         /// Update the given user group.
@@ -16751,7 +16888,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="OnUpdated">A delegate run whenever the user group had been updated successfully.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional user group identification initiating this command/request.</param>
-        protected async Task<UserGroup> _UpdateUserGroup(UserGroup_Id                         UserGroupId,
+        protected internal async Task<UserGroup> _UpdateUserGroup(UserGroup_Id                         UserGroupId,
                                                          Action<UserGroup.Builder>            UpdateDelegate,
                                                          Action<UserGroup, EventTracking_Id>  OnUpdated         = null,
                                                          EventTracking_Id                     EventTrackingId   = null,
@@ -16866,7 +17003,7 @@ namespace social.OpenData.UsersAPI
         /// Determines whether the given user group identification exists within this API.
         /// </summary>
         /// <param name="UserGroupId">The unique identification of an user group.</param>
-        protected Boolean _UserGroupExists(UserGroup_Id UserGroupId)
+        protected internal Boolean _UserGroupExists(UserGroup_Id UserGroupId)
 
             => !UserGroupId.IsNullOrEmpty && _UserGroups.ContainsKey(UserGroupId);
 
@@ -16912,7 +17049,7 @@ namespace social.OpenData.UsersAPI
         /// Get the user group having the given unique identification.
         /// </summary>
         /// <param name="UserGroupId">The unique identification of an user group.</param>
-        protected UserGroup _GetUserGroup(UserGroup_Id UserGroupId)
+        protected internal UserGroup _GetUserGroup(UserGroup_Id UserGroupId)
         {
 
             if (!UserGroupId.IsNullOrEmpty && _UserGroups.TryGetValue(UserGroupId, out UserGroup userGroup))
@@ -16962,7 +17099,7 @@ namespace social.OpenData.UsersAPI
         /// </summary>
         /// <param name="UserGroupId">The unique identification of an user group.</param>
         /// <param name="UserGroup">The user group.</param>
-        protected Boolean _TryGetUserGroup(UserGroup_Id UserGroupId, out UserGroup UserGroup)
+        protected internal Boolean _TryGetUserGroup(UserGroup_Id UserGroupId, out UserGroup UserGroup)
         {
 
             if (!UserGroupId.IsNullOrEmpty && _UserGroups.TryGetValue(UserGroupId, out UserGroup userGroup))
@@ -17309,13 +17446,13 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
-        #region (protected virtual) CanDeleteUserGroup(UserGroup)
+        #region (protected internal virtual) CanDeleteUserGroup(UserGroup)
 
         /// <summary>
         /// Determines whether the user group can safely be removed from the API.
         /// </summary>
         /// <param name="UserGroup">The user group to be removed.</param>
-        protected virtual I18NString CanDeleteUserGroup(UserGroup UserGroup)
+        protected internal virtual I18NString CanDeleteUserGroup(UserGroup UserGroup)
         {
             return new I18NString(Languages.en, "Currently not possible!");
         }
@@ -17323,7 +17460,7 @@ namespace social.OpenData.UsersAPI
         #endregion
 
 
-        #region (protected) _RemoveUserGroup(UserGroup, OnRemoved = null, CurrentUserId = null)
+        #region (protected internal) _RemoveUserGroup(UserGroup, OnRemoved = null, CurrentUserId = null)
 
         /// <summary>
         /// Remove the given user group from the API.
@@ -17332,7 +17469,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="OnRemoved">A delegate run whenever the user group had been removed successfully.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional user group identification initiating this command/request.</param>
-        protected async Task<DeleteUserGroupResult> _RemoveUserGroup(UserGroup                            UserGroup,
+        protected internal async Task<DeleteUserGroupResult> _RemoveUserGroup(UserGroup                            UserGroup,
                                                                      Action<UserGroup, EventTracking_Id>  OnRemoved         = null,
                                                                      EventTracking_Id                     EventTrackingId   = null,
                                                                      User_Id?                             CurrentUserId     = null)
@@ -17481,7 +17618,7 @@ namespace social.OpenData.UsersAPI
 
         #region TryChangePassword(UserId, NewPassword, CurrentPassword = null, CurrentUserId = null)
 
-        protected async Task<Boolean> _TryChangePassword(User_Id           UserId,
+        protected internal async Task<Boolean> _TryChangePassword(User_Id           UserId,
                                                          Password          NewPassword,
                                                          String            CurrentPassword   = null,
                                                          EventTracking_Id  EventTrackingId   = null,
@@ -17697,7 +17834,7 @@ namespace social.OpenData.UsersAPI
         /// <summary>
         /// An enumeration of all API keys.
         /// </summary>
-        protected readonly Dictionary<APIKey, APIKeyInfo> _APIKeys;
+        protected internal readonly Dictionary<APIKey, APIKeyInfo> _APIKeys;
 
         /// <summary>
         /// An enumeration of all API keys.
@@ -17727,7 +17864,7 @@ namespace social.OpenData.UsersAPI
         #endregion
 
 
-        #region (protected) WriteToDatabaseFileAndNotify(APIKeyInfo, MessageType,  OldAPIKeyInfo = null, CurrentUserId = null)
+        #region (protected internal) WriteToDatabaseFileAndNotify(APIKeyInfo, MessageType,  OldAPIKeyInfo = null, CurrentUserId = null)
 
         /// <summary>
         /// Write the given API key to the database and send out notifications.
@@ -17737,7 +17874,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="OldAPIKeyInfo">The old/updated API key.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">The invoking user identification</param>
-        protected async Task WriteToDatabaseFileAndNotify(APIKeyInfo               APIKeyInfo,
+        protected internal async Task WriteToDatabaseFileAndNotify(APIKeyInfo               APIKeyInfo,
                                                           NotificationMessageType  MessageType,
                                                           APIKeyInfo               OldAPIKeyInfo     = null,
                                                           EventTracking_Id         EventTrackingId   = null,
@@ -17764,7 +17901,7 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
-        #region (protected) SendNotifications           (APIKeyInfo, MessageTypes, OldAPIKeyInfo = null, CurrentUserId = null)
+        #region (protected internal) SendNotifications           (APIKeyInfo, MessageTypes, OldAPIKeyInfo = null, CurrentUserId = null)
 
         /// <summary>
         /// Send API key notifications.
@@ -17774,7 +17911,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="OldAPIKeyInfo">The old/updated API key.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">The invoking user identification</param>
-        protected Task SendNotifications(APIKeyInfo               APIKeyInfo,
+        protected internal Task SendNotifications(APIKeyInfo               APIKeyInfo,
                                          NotificationMessageType  MessageType,
                                          APIKeyInfo               OldAPIKeyInfo     = null,
                                          EventTracking_Id         EventTrackingId   = null,
@@ -17795,7 +17932,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="OldAPIKeyInfo">The old/updated API key.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">The invoking user identification</param>
-        protected async Task SendNotifications(APIKeyInfo                            APIKeyInfo,
+        protected internal async Task SendNotifications(APIKeyInfo                            APIKeyInfo,
                                                IEnumerable<NotificationMessageType>  MessageTypes,
                                                APIKeyInfo                            OldAPIKeyInfo     = null,
                                                EventTracking_Id                      EventTrackingId   = null,
@@ -17850,7 +17987,7 @@ namespace social.OpenData.UsersAPI
         public event OnAPIKeyAddedDelegate OnAPIKeyAdded;
 
 
-        #region (protected) _AddAPIKey(APIKey,                                OnAdded = null, CurrentUserId = null)
+        #region (protected internal) _AddAPIKey(APIKey,                                OnAdded = null, CurrentUserId = null)
 
         /// <summary>
         /// Add the given API key to the API.
@@ -17859,7 +17996,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="OnAdded">A delegate run whenever the API key had been added successfully.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
-        protected async Task<APIKeyInfo> _AddAPIKey(APIKeyInfo                            APIKey,
+        protected internal async Task<APIKeyInfo> _AddAPIKey(APIKeyInfo                            APIKey,
                                                     Action<APIKeyInfo, EventTracking_Id>  OnAdded           = null,
                                                     EventTracking_Id                      EventTrackingId   = null,
                                                     User_Id?                              CurrentUserId     = null)
@@ -17965,7 +18102,7 @@ namespace social.OpenData.UsersAPI
 
         #region AddAPIKeyIfNotExists(APIKey, OnAdded = null,                   CurrentAPIKeyId = null)
 
-        #region (protected) _AddAPIKeyIfNotExists(APIKey,                                OnAdded = null, CurrentUserId = null)
+        #region (protected internal) _AddAPIKeyIfNotExists(APIKey,                                OnAdded = null, CurrentUserId = null)
 
         /// <summary>
         /// When it has not been created before, add the given API key to the API.
@@ -17974,7 +18111,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="OnAdded">A delegate run whenever the API key had been added successfully.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
-        protected async Task<APIKeyInfo> _AddAPIKeyIfNotExists(APIKeyInfo                            APIKey,
+        protected internal async Task<APIKeyInfo> _AddAPIKeyIfNotExists(APIKeyInfo                            APIKey,
                                                                Action<APIKeyInfo, EventTracking_Id>  OnAdded           = null,
                                                                EventTracking_Id                      EventTrackingId   = null,
                                                                User_Id?                              CurrentUserId     = null)
@@ -18075,7 +18212,7 @@ namespace social.OpenData.UsersAPI
 
         #region AddOrUpdateAPIKey   (APIKey, OnAdded = null, OnUpdated = null, CurrentUserId = null)
 
-        #region (protected) _AddOrUpdateAPIKey   (APIKey,   OnAdded = null, OnUpdated = null, CurrentUserId = null)
+        #region (protected internal) _AddOrUpdateAPIKey   (APIKey,   OnAdded = null, OnUpdated = null, CurrentUserId = null)
 
         /// <summary>
         /// Add or update the given API key to/within the API.
@@ -18085,7 +18222,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="OnUpdated">A delegate run whenever the API key had been updated successfully.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional API key identification initiating this command/request.</param>
-        protected async Task<APIKeyInfo> _AddOrUpdateAPIKey(APIKeyInfo                            APIKey,
+        protected internal async Task<APIKeyInfo> _AddOrUpdateAPIKey(APIKeyInfo                            APIKey,
                                                             Action<APIKeyInfo, EventTracking_Id>  OnAdded           = null,
                                                             Action<APIKeyInfo, EventTracking_Id>  OnUpdated         = null,
                                                             EventTracking_Id                      EventTrackingId   = null,
@@ -18245,7 +18382,7 @@ namespace social.OpenData.UsersAPI
         public event OnAPIKeyUpdatedDelegate OnAPIKeyUpdated;
 
 
-        #region (protected) _UpdateAPIKey(APIKey, OnUpdated = null, CurrentUserId = null)
+        #region (protected internal) _UpdateAPIKey(APIKey, OnUpdated = null, CurrentUserId = null)
 
         /// <summary>
         /// Update the given API key to/within the API.
@@ -18254,7 +18391,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="OnUpdated">A delegate run whenever the API key had been updated successfully.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional API key identification initiating this command/request.</param>
-        protected async Task<APIKeyInfo> _UpdateAPIKey(APIKeyInfo                            APIKey,
+        protected internal async Task<APIKeyInfo> _UpdateAPIKey(APIKeyInfo                            APIKey,
                                                        Action<APIKeyInfo, EventTracking_Id>  OnUpdated         = null,
                                                        EventTracking_Id                      EventTrackingId   = null,
                                                        User_Id?                              CurrentUserId     = null)
@@ -18363,7 +18500,7 @@ namespace social.OpenData.UsersAPI
         /// Determines whether the given API key identification exists within this API.
         /// </summary>
         /// <param name="APIKey">The unique identification of an API key.</param>
-        protected Boolean _APIKeyExists(APIKey APIKey)
+        protected internal Boolean _APIKeyExists(APIKey APIKey)
 
             => !APIKey.IsNullOrEmpty && _APIKeys.ContainsKey(APIKey);
 
@@ -18406,7 +18543,7 @@ namespace social.OpenData.UsersAPI
         /// Determines whether the given API key is valid within this API.
         /// </summary>
         /// <param name="APIKeyInfo">The API key.</param>
-        protected Boolean _APIKeyIsValid(APIKeyInfo APIKeyInfo)
+        protected internal Boolean _APIKeyIsValid(APIKeyInfo APIKeyInfo)
 
             =>   APIKeyInfo != null &&
                (!APIKeyInfo.NotBefore.HasValue || DateTime.UtcNow >= APIKeyInfo.NotBefore) &&
@@ -18418,7 +18555,7 @@ namespace social.OpenData.UsersAPI
         /// Determines whether the given API key is valid within this API.
         /// </summary>
         /// <param name="APIKey">The API key.</param>
-        protected Boolean _APIKeyIsValid(APIKey APIKey)
+        protected internal Boolean _APIKeyIsValid(APIKey APIKey)
 
             => TryGetAPIKey(APIKey, out APIKeyInfo apiKeyInfo) &&
                _APIKeyIsValid(apiKeyInfo);
@@ -18428,7 +18565,7 @@ namespace social.OpenData.UsersAPI
         /// Determines whether the given API key is valid within this API.
         /// </summary>
         /// <param name="APIKey">The API key.</param>
-        protected Boolean _APIKeyIsValid(APIKey? APIKey)
+        protected internal Boolean _APIKeyIsValid(APIKey? APIKey)
 
             => APIKey.HasValue &&
                _APIKeyIsValid(APIKey.Value);
@@ -18532,7 +18669,7 @@ namespace social.OpenData.UsersAPI
         /// Get the API key having the given unique identification.
         /// </summary>
         /// <param name="APIKey">The unique identification of an API key.</param>
-        protected APIKeyInfo _GetAPIKey(APIKey APIKey)
+        protected internal APIKeyInfo _GetAPIKey(APIKey APIKey)
         {
 
             if (!APIKey.IsNullOrEmpty && _APIKeys.TryGetValue(APIKey, out APIKeyInfo apiKey))
@@ -18582,7 +18719,7 @@ namespace social.OpenData.UsersAPI
         /// </summary>
         /// <param name="APIKey">The unique identification of an API key.</param>
         /// <param name="APIKeyInfo">The API key.</param>
-        protected Boolean _TryGetAPIKey(APIKey APIKey, out APIKeyInfo APIKeyInfo)
+        protected internal Boolean _TryGetAPIKey(APIKey APIKey, out APIKeyInfo APIKeyInfo)
         {
 
             if (!APIKey.IsNullOrEmpty && _APIKeys.TryGetValue(APIKey, out APIKeyInfo apiKeyInfo))
@@ -18643,7 +18780,7 @@ namespace social.OpenData.UsersAPI
         /// </summary>
         /// <param name="APIKey">The unique identification of the API key.</param>
         /// <param name="APIKeyInfo">The API key.</param>
-        protected Boolean _TryGetValidAPIKey(APIKey APIKey, out APIKeyInfo APIKeyInfo)
+        protected internal Boolean _TryGetValidAPIKey(APIKey APIKey, out APIKeyInfo APIKeyInfo)
 
         {
 
@@ -18664,7 +18801,7 @@ namespace social.OpenData.UsersAPI
         /// </summary>
         /// <param name="APIKey">The unique identification of the API key.</param>
         /// <param name="APIKeyInfo">The API key.</param>
-        protected Boolean _TryGetValidAPIKey(APIKey? APIKey, out APIKeyInfo APIKeyInfo)
+        protected internal Boolean _TryGetValidAPIKey(APIKey? APIKey, out APIKeyInfo APIKeyInfo)
 
         {
 
@@ -18763,7 +18900,7 @@ namespace social.OpenData.UsersAPI
         /// Return all API keys for the given user.
         /// </summary>
         /// <param name="User">An user.</param>
-        protected IEnumerable<APIKeyInfo> _GetAPIKeysForUser(User User)
+        protected internal IEnumerable<APIKeyInfo> _GetAPIKeysForUser(User User)
 
             => _APIKeys.Values.
                         Where(apiKey => apiKey.User == User).
@@ -18808,7 +18945,7 @@ namespace social.OpenData.UsersAPI
         /// Return all API keys for the given user.
         /// </summary>
         /// <param name="User">An user.</param>
-        protected IEnumerable<APIKeyInfo> _GetValidAPIKeysForUser(User User)
+        protected internal IEnumerable<APIKeyInfo> _GetValidAPIKeysForUser(User User)
 
             => _APIKeys.Values.
                         Where(apiKey => apiKey.User == User &&
@@ -18869,7 +19006,7 @@ namespace social.OpenData.UsersAPI
         public event OnAPIKeyRemovedDelegate OnAPIKeyRemoved;
 
 
-        #region (protected) _RemoveAPIKey(APIKey, OnRemoved = null, CurrentUserId = null)
+        #region (protected internal) _RemoveAPIKey(APIKey, OnRemoved = null, CurrentUserId = null)
 
         /// <summary>
         /// Remove the given API key from the API.
@@ -18878,7 +19015,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="OnRemoved">A delegate run whenever the API key had been removed successfully.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional API key identification initiating this command/request.</param>
-        protected async Task _RemoveAPIKey(APIKeyInfo                            APIKey,
+        protected internal async Task _RemoveAPIKey(APIKeyInfo                            APIKey,
                                            Action<APIKeyInfo, EventTracking_Id>  OnRemoved         = null,
                                            EventTracking_Id                      EventTrackingId   = null,
                                            User_Id?                              CurrentUserId     = null)
@@ -18979,7 +19116,7 @@ namespace social.OpenData.UsersAPI
         /// <summary>
         /// An enumeration of all messages.
         /// </summary>
-        protected readonly Dictionary<Message_Id, Message> _Messages;
+        protected internal readonly Dictionary<Message_Id, Message> _Messages;
 
         /// <summary>
         /// An enumeration of all messages.
@@ -19009,7 +19146,7 @@ namespace social.OpenData.UsersAPI
         #endregion
 
 
-        #region (protected) WriteToDatabaseFileAndNotify(Message, MessageType,  OldMessage = null, CurrentUserId = null)
+        #region (protected internal) WriteToDatabaseFileAndNotify(Message, MessageType,  OldMessage = null, CurrentUserId = null)
 
         /// <summary>
         /// Write the given message to the database and send out notifications.
@@ -19019,7 +19156,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="OldMessage">The old/updated message.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">The invoking user identification</param>
-        protected async Task WriteToDatabaseFileAndNotify(Message              Message,
+        protected internal async Task WriteToDatabaseFileAndNotify(Message              Message,
                                                           NotificationMessageType  MessageType,
                                                           Message              OldMessage    = null,
                                                           EventTracking_Id         EventTrackingId   = null,
@@ -19050,7 +19187,7 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
-        #region (protected) SendNotifications           (Message, MessageTypes, OldMessage = null, CurrentUserId = null)
+        #region (protected internal) SendNotifications           (Message, MessageTypes, OldMessage = null, CurrentUserId = null)
 
         /// <summary>
         /// Send message notifications.
@@ -19060,7 +19197,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="OldMessage">The old/updated message.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">The invoking user identification</param>
-        protected async Task SendNotifications(Message              Message,
+        protected internal async Task SendNotifications(Message              Message,
                                                NotificationMessageType  MessageType,
                                                Message              OldMessage    = null,
                                                EventTracking_Id         EventTrackingId   = null,
@@ -19091,7 +19228,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="OldMessage">The old/updated message.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">The invoking user identification</param>
-        protected async Task SendNotifications(Message                           Message,
+        protected internal async Task SendNotifications(Message                           Message,
                                                IEnumerable<NotificationMessageType>  MessageTypes,
                                                Message                           OldMessage    = null,
                                                EventTracking_Id                      EventTrackingId   = null,
@@ -19127,9 +19264,9 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
-        #region (protected) GetMessageSerializator(Request, User)
+        #region (protected internal) GetMessageSerializator(Request, User)
 
-        //protected MessageToJSONDelegate GetMessageSerializator(HTTPRequest  Request,
+        //protected internal MessageToJSONDelegate GetMessageSerializator(HTTPRequest  Request,
         //                                                               User         User)
         //{
 
@@ -19175,7 +19312,7 @@ namespace social.OpenData.UsersAPI
         public event OnMessageAddedDelegate OnMessageAdded;
 
 
-        #region (protected) _AddMessage(Message,                                OnAdded = null, CurrentUserId = null)
+        #region (protected internal) _AddMessage(Message,                                OnAdded = null, CurrentUserId = null)
 
         /// <summary>
         /// Add the given message to the API.
@@ -19184,7 +19321,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="OnAdded">A delegate run whenever the message had been added successfully.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
-        protected async Task<Message> _AddMessage(Message                            Message,
+        protected internal async Task<Message> _AddMessage(Message                            Message,
                                                           Action<Message, EventTracking_Id>  OnAdded           = null,
                                                           EventTracking_Id                       EventTrackingId   = null,
                                                           User_Id?                               CurrentUserId     = null)
@@ -19290,7 +19427,7 @@ namespace social.OpenData.UsersAPI
 
         #region AddMessageIfNotExists(Message, OnAdded = null,                   CurrentUserId = null)
 
-        #region (protected) _AddMessageIfNotExists(Message,                                OnAdded = null, CurrentUserId = null)
+        #region (protected internal) _AddMessageIfNotExists(Message,                                OnAdded = null, CurrentUserId = null)
 
         /// <summary>
         /// When it has not been created before, add the given message to the API.
@@ -19299,7 +19436,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="OnAdded">A delegate run whenever the message had been added successfully.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
-        protected async Task<Message> _AddMessageIfNotExists(Message                            Message,
+        protected internal async Task<Message> _AddMessageIfNotExists(Message                            Message,
                                                                      Action<Message, EventTracking_Id>  OnAdded           = null,
                                                                      EventTracking_Id                       EventTrackingId   = null,
                                                                      User_Id?                               CurrentUserId     = null)
@@ -19400,7 +19537,7 @@ namespace social.OpenData.UsersAPI
 
         #region AddOrUpdateMessage   (Message, OnAdded = null, OnUpdated = null, CurrentUserId = null)
 
-        #region (protected) _AddOrUpdateMessage   (Message,   OnAdded = null, OnUpdated = null, CurrentUserId = null)
+        #region (protected internal) _AddOrUpdateMessage   (Message,   OnAdded = null, OnUpdated = null, CurrentUserId = null)
 
         /// <summary>
         /// Add or update the given message to/within the API.
@@ -19410,7 +19547,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="OnUpdated">A delegate run whenever the message had been updated successfully.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional message identification initiating this command/request.</param>
-        protected async Task<Message> _AddOrUpdateMessage(Message                            Message,
+        protected internal async Task<Message> _AddOrUpdateMessage(Message                            Message,
                                                                   Action<Message, EventTracking_Id>  OnAdded           = null,
                                                                   Action<Message, EventTracking_Id>  OnUpdated         = null,
                                                                   EventTracking_Id                       EventTrackingId   = null,
@@ -19570,7 +19707,7 @@ namespace social.OpenData.UsersAPI
         public event OnMessageUpdatedDelegate OnMessageUpdated;
 
 
-        #region (protected) _UpdateMessage(Message, OnUpdated = null, CurrentUserId = null)
+        #region (protected internal) _UpdateMessage(Message, OnUpdated = null, CurrentUserId = null)
 
         /// <summary>
         /// Update the given message to/within the API.
@@ -19579,7 +19716,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="OnUpdated">A delegate run whenever the message had been updated successfully.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional message identification initiating this command/request.</param>
-        protected async Task<Message> _UpdateMessage(Message                            Message,
+        protected internal async Task<Message> _UpdateMessage(Message                            Message,
                                                              Action<Message, EventTracking_Id>  OnUpdated         = null,
                                                              EventTracking_Id                       EventTrackingId   = null,
                                                              User_Id?                               CurrentUserId     = null)
@@ -19680,7 +19817,7 @@ namespace social.OpenData.UsersAPI
         #endregion
 
 
-        #region (protected) _UpdateMessage(MessageId, UpdateDelegate, OnUpdated = null, CurrentUserId = null)
+        #region (protected internal) _UpdateMessage(MessageId, UpdateDelegate, OnUpdated = null, CurrentUserId = null)
 
         /// <summary>
         /// Update the given message.
@@ -19690,7 +19827,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="OnUpdated">A delegate run whenever the message had been updated successfully.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional message identification initiating this command/request.</param>
-        protected async Task<Message> _UpdateMessage(Message_Id                         MessageId,
+        protected internal async Task<Message> _UpdateMessage(Message_Id                         MessageId,
                                                              Action<Message.Builder>            UpdateDelegate,
                                                              Action<Message, EventTracking_Id>  OnUpdated         = null,
                                                              EventTracking_Id                       EventTrackingId   = null,
@@ -19805,7 +19942,7 @@ namespace social.OpenData.UsersAPI
         /// Determines whether the given message identification exists within this API.
         /// </summary>
         /// <param name="MessageId">The unique identification of an message.</param>
-        protected Boolean _MessageExists(Message_Id MessageId)
+        protected internal Boolean _MessageExists(Message_Id MessageId)
 
             => !MessageId.IsNullOrEmpty && _Messages.ContainsKey(MessageId);
 
@@ -19851,7 +19988,7 @@ namespace social.OpenData.UsersAPI
         /// Get the message having the given unique identification.
         /// </summary>
         /// <param name="MessageId">The unique identification of an message.</param>
-        protected Message _GetMessage(Message_Id MessageId)
+        protected internal Message _GetMessage(Message_Id MessageId)
         {
 
             if (!MessageId.IsNullOrEmpty && _Messages.TryGetValue(MessageId, out Message message))
@@ -19901,7 +20038,7 @@ namespace social.OpenData.UsersAPI
         /// </summary>
         /// <param name="MessageId">The unique identification of an message.</param>
         /// <param name="Message">The message.</param>
-        protected Boolean _TryGetMessage(Message_Id MessageId, out Message Message)
+        protected internal Boolean _TryGetMessage(Message_Id MessageId, out Message Message)
         {
 
             if (!MessageId.IsNullOrEmpty && _Messages.TryGetValue(MessageId, out Message message))
@@ -20021,13 +20158,13 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
-        #region (protected virtual) CanDeleteMessage(Message)
+        #region (protected internal virtual) CanDeleteMessage(Message)
 
         /// <summary>
         /// Determines whether the message can safely be removed from the API.
         /// </summary>
         /// <param name="Message">The message to be removed.</param>
-        protected virtual I18NString CanDeleteMessage(Message Message)
+        protected internal virtual I18NString CanDeleteMessage(Message Message)
         {
             return new I18NString(Languages.en, "Currently not possible!");
         }
@@ -20035,7 +20172,7 @@ namespace social.OpenData.UsersAPI
         #endregion
 
 
-        #region (protected) _RemoveMessage(Message, OnRemoved = null, CurrentUserId = null)
+        #region (protected internal) _RemoveMessage(Message, OnRemoved = null, CurrentUserId = null)
 
         /// <summary>
         /// Remove the given message from the API.
@@ -20044,7 +20181,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="OnRemoved">A delegate run whenever the message had been removed successfully.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional message identification initiating this command/request.</param>
-        protected async Task<DeleteMessageResult> _RemoveMessage(Message                            Message,
+        protected internal async Task<DeleteMessageResult> _RemoveMessage(Message                            Message,
                                                                          Action<Message, EventTracking_Id>  OnRemoved         = null,
                                                                          EventTracking_Id                       EventTrackingId   = null,
                                                                          User_Id?                               CurrentUserId     = null)
@@ -25338,7 +25475,7 @@ namespace social.OpenData.UsersAPI
 
         #region Data
 
-        protected readonly ConcurrentDictionary<ServiceTicket_Id, ServiceTicket> _ServiceTickets;
+        protected internal readonly ConcurrentDictionary<ServiceTicket_Id, ServiceTicket> _ServiceTickets;
 
         /// <summary>
         /// Return an enumeration of all service tickets.
@@ -26177,7 +26314,7 @@ namespace social.OpenData.UsersAPI
         /// <summary>
         /// An enumeration of all news postings.
         /// </summary>
-        protected readonly Dictionary<NewsPosting_Id, NewsPosting> _NewsPostings;
+        protected internal readonly Dictionary<NewsPosting_Id, NewsPosting> _NewsPostings;
 
         /// <summary>
         /// An enumeration of all news postings.
@@ -26207,7 +26344,7 @@ namespace social.OpenData.UsersAPI
         #endregion
 
 
-        #region (protected) WriteToDatabaseFileAndNotify(NewsPosting, MessageType,  OldNewsPosting = null, CurrentUserId = null)
+        #region (protected internal) WriteToDatabaseFileAndNotify(NewsPosting, MessageType,  OldNewsPosting = null, CurrentUserId = null)
 
         /// <summary>
         /// Write the given news posting to the database and send out notifications.
@@ -26217,7 +26354,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="OldNewsPosting">The old/updated news posting.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">The invoking user identification</param>
-        protected async Task WriteToDatabaseFileAndNotify(NewsPosting              NewsPosting,
+        protected internal async Task WriteToDatabaseFileAndNotify(NewsPosting              NewsPosting,
                                                           NotificationMessageType  MessageType,
                                                           NewsPosting              OldNewsPosting    = null,
                                                           EventTracking_Id         EventTrackingId   = null,
@@ -26248,7 +26385,7 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
-        #region (protected) SendNotifications           (NewsPosting, MessageTypes, OldNewsPosting = null, CurrentUserId = null)
+        #region (protected internal) SendNotifications           (NewsPosting, MessageTypes, OldNewsPosting = null, CurrentUserId = null)
 
         /// <summary>
         /// Send news posting notifications.
@@ -26258,7 +26395,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="OldNewsPosting">The old/updated news posting.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">The invoking user identification</param>
-        protected async Task SendNotifications(NewsPosting              NewsPosting,
+        protected internal async Task SendNotifications(NewsPosting              NewsPosting,
                                                NotificationMessageType  MessageType,
                                                NewsPosting              OldNewsPosting    = null,
                                                EventTracking_Id         EventTrackingId   = null,
@@ -26289,7 +26426,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="OldNewsPosting">The old/updated news posting.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">The invoking user identification</param>
-        protected async Task SendNotifications(NewsPosting                           NewsPosting,
+        protected internal async Task SendNotifications(NewsPosting                           NewsPosting,
                                                IEnumerable<NotificationMessageType>  MessageTypes,
                                                NewsPosting                           OldNewsPosting    = null,
                                                EventTracking_Id                      EventTrackingId   = null,
@@ -26325,9 +26462,9 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
-        #region (protected) GetNewsPostingSerializator(Request, User)
+        #region (protected internal) GetNewsPostingSerializator(Request, User)
 
-        protected NewsPostingToJSONDelegate GetNewsPostingSerializator(HTTPRequest  Request,
+        protected internal NewsPostingToJSONDelegate GetNewsPostingSerializator(HTTPRequest  Request,
                                                                        User         User)
         {
 
@@ -26373,7 +26510,7 @@ namespace social.OpenData.UsersAPI
         public event OnNewsPostingAddedDelegate OnNewsPostingAdded;
 
 
-        #region (protected) _AddNewsPosting(NewsPosting,                                OnAdded = null, CurrentUserId = null)
+        #region (protected internal) _AddNewsPosting(NewsPosting,                                OnAdded = null, CurrentUserId = null)
 
         /// <summary>
         /// Add the given news posting to the API.
@@ -26382,7 +26519,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="OnAdded">A delegate run whenever the news posting had been added successfully.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
-        protected async Task<NewsPosting> _AddNewsPosting(NewsPosting                            NewsPosting,
+        protected internal async Task<NewsPosting> _AddNewsPosting(NewsPosting                            NewsPosting,
                                                           Action<NewsPosting, EventTracking_Id>  OnAdded           = null,
                                                           EventTracking_Id                       EventTrackingId   = null,
                                                           User_Id?                               CurrentUserId     = null)
@@ -26488,7 +26625,7 @@ namespace social.OpenData.UsersAPI
 
         #region AddNewsPostingIfNotExists(NewsPosting, OnAdded = null,                   CurrentUserId = null)
 
-        #region (protected) _AddNewsPostingIfNotExists(NewsPosting,                                OnAdded = null, CurrentUserId = null)
+        #region (protected internal) _AddNewsPostingIfNotExists(NewsPosting,                                OnAdded = null, CurrentUserId = null)
 
         /// <summary>
         /// When it has not been created before, add the given news posting to the API.
@@ -26497,7 +26634,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="OnAdded">A delegate run whenever the news posting had been added successfully.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
-        protected async Task<NewsPosting> _AddNewsPostingIfNotExists(NewsPosting                            NewsPosting,
+        protected internal async Task<NewsPosting> _AddNewsPostingIfNotExists(NewsPosting                            NewsPosting,
                                                                      Action<NewsPosting, EventTracking_Id>  OnAdded           = null,
                                                                      EventTracking_Id                       EventTrackingId   = null,
                                                                      User_Id?                               CurrentUserId     = null)
@@ -26598,7 +26735,7 @@ namespace social.OpenData.UsersAPI
 
         #region AddOrUpdateNewsPosting   (NewsPosting, OnAdded = null, OnUpdated = null, CurrentUserId = null)
 
-        #region (protected) _AddOrUpdateNewsPosting   (NewsPosting,   OnAdded = null, OnUpdated = null, CurrentUserId = null)
+        #region (protected internal) _AddOrUpdateNewsPosting   (NewsPosting,   OnAdded = null, OnUpdated = null, CurrentUserId = null)
 
         /// <summary>
         /// Add or update the given news posting to/within the API.
@@ -26608,7 +26745,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="OnUpdated">A delegate run whenever the news posting had been updated successfully.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional news posting identification initiating this command/request.</param>
-        protected async Task<NewsPosting> _AddOrUpdateNewsPosting(NewsPosting                            NewsPosting,
+        protected internal async Task<NewsPosting> _AddOrUpdateNewsPosting(NewsPosting                            NewsPosting,
                                                                   Action<NewsPosting, EventTracking_Id>  OnAdded           = null,
                                                                   Action<NewsPosting, EventTracking_Id>  OnUpdated         = null,
                                                                   EventTracking_Id                       EventTrackingId   = null,
@@ -26768,7 +26905,7 @@ namespace social.OpenData.UsersAPI
         public event OnNewsPostingUpdatedDelegate OnNewsPostingUpdated;
 
 
-        #region (protected) _UpdateNewsPosting(NewsPosting, OnUpdated = null, CurrentUserId = null)
+        #region (protected internal) _UpdateNewsPosting(NewsPosting, OnUpdated = null, CurrentUserId = null)
 
         /// <summary>
         /// Update the given news posting to/within the API.
@@ -26777,7 +26914,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="OnUpdated">A delegate run whenever the news posting had been updated successfully.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional news posting identification initiating this command/request.</param>
-        protected async Task<NewsPosting> _UpdateNewsPosting(NewsPosting                            NewsPosting,
+        protected internal async Task<NewsPosting> _UpdateNewsPosting(NewsPosting                            NewsPosting,
                                                              Action<NewsPosting, EventTracking_Id>  OnUpdated         = null,
                                                              EventTracking_Id                       EventTrackingId   = null,
                                                              User_Id?                               CurrentUserId     = null)
@@ -26878,7 +27015,7 @@ namespace social.OpenData.UsersAPI
         #endregion
 
 
-        #region (protected) _UpdateNewsPosting(NewsPostingId, UpdateDelegate, OnUpdated = null, CurrentUserId = null)
+        #region (protected internal) _UpdateNewsPosting(NewsPostingId, UpdateDelegate, OnUpdated = null, CurrentUserId = null)
 
         /// <summary>
         /// Update the given news posting.
@@ -26888,7 +27025,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="OnUpdated">A delegate run whenever the news posting had been updated successfully.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional news posting identification initiating this command/request.</param>
-        protected async Task<NewsPosting> _UpdateNewsPosting(NewsPosting_Id                         NewsPostingId,
+        protected internal async Task<NewsPosting> _UpdateNewsPosting(NewsPosting_Id                         NewsPostingId,
                                                              Action<NewsPosting.Builder>            UpdateDelegate,
                                                              Action<NewsPosting, EventTracking_Id>  OnUpdated         = null,
                                                              EventTracking_Id                       EventTrackingId   = null,
@@ -27003,7 +27140,7 @@ namespace social.OpenData.UsersAPI
         /// Determines whether the given news posting identification exists within this API.
         /// </summary>
         /// <param name="NewsPostingId">The unique identification of an news posting.</param>
-        protected Boolean _NewsPostingExists(NewsPosting_Id NewsPostingId)
+        protected internal Boolean _NewsPostingExists(NewsPosting_Id NewsPostingId)
 
             => !NewsPostingId.IsNullOrEmpty && _NewsPostings.ContainsKey(NewsPostingId);
 
@@ -27049,7 +27186,7 @@ namespace social.OpenData.UsersAPI
         /// Get the news posting having the given unique identification.
         /// </summary>
         /// <param name="NewsPostingId">The unique identification of an news posting.</param>
-        protected NewsPosting _GetNewsPosting(NewsPosting_Id NewsPostingId)
+        protected internal NewsPosting _GetNewsPosting(NewsPosting_Id NewsPostingId)
         {
 
             if (!NewsPostingId.IsNullOrEmpty && _NewsPostings.TryGetValue(NewsPostingId, out NewsPosting newsPosting))
@@ -27099,7 +27236,7 @@ namespace social.OpenData.UsersAPI
         /// </summary>
         /// <param name="NewsPostingId">The unique identification of an news posting.</param>
         /// <param name="NewsPosting">The news posting.</param>
-        protected Boolean _TryGetNewsPosting(NewsPosting_Id NewsPostingId, out NewsPosting NewsPosting)
+        protected internal Boolean _TryGetNewsPosting(NewsPosting_Id NewsPostingId, out NewsPosting NewsPosting)
         {
 
             if (!NewsPostingId.IsNullOrEmpty && _NewsPostings.TryGetValue(NewsPostingId, out NewsPosting newsPosting))
@@ -27219,13 +27356,13 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
-        #region (protected virtual) CanDeleteNewsPosting(NewsPosting)
+        #region (protected internal virtual) CanDeleteNewsPosting(NewsPosting)
 
         /// <summary>
         /// Determines whether the news posting can safely be removed from the API.
         /// </summary>
         /// <param name="NewsPosting">The news posting to be removed.</param>
-        protected virtual I18NString CanDeleteNewsPosting(NewsPosting NewsPosting)
+        protected internal virtual I18NString CanDeleteNewsPosting(NewsPosting NewsPosting)
         {
             return new I18NString(Languages.en, "Currently not possible!");
         }
@@ -27233,7 +27370,7 @@ namespace social.OpenData.UsersAPI
         #endregion
 
 
-        #region (protected) _RemoveNewsPosting(NewsPosting, OnRemoved = null, CurrentUserId = null)
+        #region (protected internal) _RemoveNewsPosting(NewsPosting, OnRemoved = null, CurrentUserId = null)
 
         /// <summary>
         /// Remove the given news posting from the API.
@@ -27242,7 +27379,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="OnRemoved">A delegate run whenever the news posting had been removed successfully.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional news posting identification initiating this command/request.</param>
-        protected async Task<DeleteNewsPostingResult> _RemoveNewsPosting(NewsPosting                            NewsPosting,
+        protected internal async Task<DeleteNewsPostingResult> _RemoveNewsPosting(NewsPosting                            NewsPosting,
                                                                          Action<NewsPosting, EventTracking_Id>  OnRemoved         = null,
                                                                          EventTracking_Id                       EventTrackingId   = null,
                                                                          User_Id?                               CurrentUserId     = null)
@@ -27358,7 +27495,7 @@ namespace social.OpenData.UsersAPI
         /// <summary>
         /// An enumeration of all news banners.
         /// </summary>
-        protected readonly Dictionary<NewsBanner_Id, NewsBanner> _NewsBanners;
+        protected internal readonly Dictionary<NewsBanner_Id, NewsBanner> _NewsBanners;
 
         /// <summary>
         /// An enumeration of all news banners.
@@ -27388,7 +27525,7 @@ namespace social.OpenData.UsersAPI
         #endregion
 
 
-        #region (protected) WriteToDatabaseFileAndNotify(NewsBanner, MessageType,  OldNewsBanner = null, CurrentUserId = null)
+        #region (protected internal) WriteToDatabaseFileAndNotify(NewsBanner, MessageType,  OldNewsBanner = null, CurrentUserId = null)
 
         /// <summary>
         /// Write the given news banner to the database and send out notifications.
@@ -27398,7 +27535,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="OldNewsBanner">The old/updated news banner.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">The invoking user identification</param>
-        protected async Task WriteToDatabaseFileAndNotify(NewsBanner              NewsBanner,
+        protected internal async Task WriteToDatabaseFileAndNotify(NewsBanner              NewsBanner,
                                                           NotificationMessageType  MessageType,
                                                           NewsBanner              OldNewsBanner    = null,
                                                           EventTracking_Id         EventTrackingId   = null,
@@ -27429,7 +27566,7 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
-        #region (protected) SendNotifications           (NewsBanner, MessageTypes, OldNewsBanner = null, CurrentUserId = null)
+        #region (protected internal) SendNotifications           (NewsBanner, MessageTypes, OldNewsBanner = null, CurrentUserId = null)
 
         /// <summary>
         /// Send news banner notifications.
@@ -27439,7 +27576,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="OldNewsBanner">The old/updated news banner.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">The invoking user identification</param>
-        protected async Task SendNotifications(NewsBanner              NewsBanner,
+        protected internal async Task SendNotifications(NewsBanner              NewsBanner,
                                                NotificationMessageType  MessageType,
                                                NewsBanner              OldNewsBanner    = null,
                                                EventTracking_Id         EventTrackingId   = null,
@@ -27470,7 +27607,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="OldNewsBanner">The old/updated news banner.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">The invoking user identification</param>
-        protected async Task SendNotifications(NewsBanner                           NewsBanner,
+        protected internal async Task SendNotifications(NewsBanner                           NewsBanner,
                                                IEnumerable<NotificationMessageType>  MessageTypes,
                                                NewsBanner                           OldNewsBanner    = null,
                                                EventTracking_Id                      EventTrackingId   = null,
@@ -27506,9 +27643,9 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
-        #region (protected) GetNewsBannerSerializator(Request, User)
+        #region (protected internal) GetNewsBannerSerializator(Request, User)
 
-        protected NewsBannerToJSONDelegate GetNewsBannerSerializator(HTTPRequest  Request,
+        protected internal NewsBannerToJSONDelegate GetNewsBannerSerializator(HTTPRequest  Request,
                                                                        User         User)
         {
 
@@ -27554,7 +27691,7 @@ namespace social.OpenData.UsersAPI
         public event OnNewsBannerAddedDelegate OnNewsBannerAdded;
 
 
-        #region (protected) _AddNewsBanner(NewsBanner,                                OnAdded = null, CurrentUserId = null)
+        #region (protected internal) _AddNewsBanner(NewsBanner,                                OnAdded = null, CurrentUserId = null)
 
         /// <summary>
         /// Add the given news banner to the API.
@@ -27563,7 +27700,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="OnAdded">A delegate run whenever the news banner had been added successfully.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
-        protected async Task<NewsBanner> _AddNewsBanner(NewsBanner                            NewsBanner,
+        protected internal async Task<NewsBanner> _AddNewsBanner(NewsBanner                            NewsBanner,
                                                           Action<NewsBanner, EventTracking_Id>  OnAdded           = null,
                                                           EventTracking_Id                       EventTrackingId   = null,
                                                           User_Id?                               CurrentUserId     = null)
@@ -27669,7 +27806,7 @@ namespace social.OpenData.UsersAPI
 
         #region AddNewsBannerIfNotExists(NewsBanner, OnAdded = null,                   CurrentUserId = null)
 
-        #region (protected) _AddNewsBannerIfNotExists(NewsBanner,                                OnAdded = null, CurrentUserId = null)
+        #region (protected internal) _AddNewsBannerIfNotExists(NewsBanner,                                OnAdded = null, CurrentUserId = null)
 
         /// <summary>
         /// When it has not been created before, add the given news banner to the API.
@@ -27678,7 +27815,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="OnAdded">A delegate run whenever the news banner had been added successfully.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
-        protected async Task<NewsBanner> _AddNewsBannerIfNotExists(NewsBanner                            NewsBanner,
+        protected internal async Task<NewsBanner> _AddNewsBannerIfNotExists(NewsBanner                            NewsBanner,
                                                                      Action<NewsBanner, EventTracking_Id>  OnAdded           = null,
                                                                      EventTracking_Id                       EventTrackingId   = null,
                                                                      User_Id?                               CurrentUserId     = null)
@@ -27779,7 +27916,7 @@ namespace social.OpenData.UsersAPI
 
         #region AddOrUpdateNewsBanner   (NewsBanner, OnAdded = null, OnUpdated = null, CurrentUserId = null)
 
-        #region (protected) _AddOrUpdateNewsBanner   (NewsBanner,   OnAdded = null, OnUpdated = null, CurrentUserId = null)
+        #region (protected internal) _AddOrUpdateNewsBanner   (NewsBanner,   OnAdded = null, OnUpdated = null, CurrentUserId = null)
 
         /// <summary>
         /// Add or update the given news banner to/within the API.
@@ -27789,7 +27926,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="OnUpdated">A delegate run whenever the news banner had been updated successfully.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional news banner identification initiating this command/request.</param>
-        protected async Task<NewsBanner> _AddOrUpdateNewsBanner(NewsBanner                            NewsBanner,
+        protected internal async Task<NewsBanner> _AddOrUpdateNewsBanner(NewsBanner                            NewsBanner,
                                                                   Action<NewsBanner, EventTracking_Id>  OnAdded           = null,
                                                                   Action<NewsBanner, EventTracking_Id>  OnUpdated         = null,
                                                                   EventTracking_Id                       EventTrackingId   = null,
@@ -27949,7 +28086,7 @@ namespace social.OpenData.UsersAPI
         public event OnNewsBannerUpdatedDelegate OnNewsBannerUpdated;
 
 
-        #region (protected) _UpdateNewsBanner(NewsBanner, OnUpdated = null, CurrentUserId = null)
+        #region (protected internal) _UpdateNewsBanner(NewsBanner, OnUpdated = null, CurrentUserId = null)
 
         /// <summary>
         /// Update the given news banner to/within the API.
@@ -27958,7 +28095,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="OnUpdated">A delegate run whenever the news banner had been updated successfully.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional news banner identification initiating this command/request.</param>
-        protected async Task<NewsBanner> _UpdateNewsBanner(NewsBanner                            NewsBanner,
+        protected internal async Task<NewsBanner> _UpdateNewsBanner(NewsBanner                            NewsBanner,
                                                              Action<NewsBanner, EventTracking_Id>  OnUpdated         = null,
                                                              EventTracking_Id                       EventTrackingId   = null,
                                                              User_Id?                               CurrentUserId     = null)
@@ -28059,7 +28196,7 @@ namespace social.OpenData.UsersAPI
         #endregion
 
 
-        #region (protected) _UpdateNewsBanner(NewsBannerId, UpdateDelegate, OnUpdated = null, CurrentUserId = null)
+        #region (protected internal) _UpdateNewsBanner(NewsBannerId, UpdateDelegate, OnUpdated = null, CurrentUserId = null)
 
         /// <summary>
         /// Update the given news banner.
@@ -28069,7 +28206,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="OnUpdated">A delegate run whenever the news banner had been updated successfully.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional news banner identification initiating this command/request.</param>
-        protected async Task<NewsBanner> _UpdateNewsBanner(NewsBanner_Id                         NewsBannerId,
+        protected internal async Task<NewsBanner> _UpdateNewsBanner(NewsBanner_Id                         NewsBannerId,
                                                              Action<NewsBanner.Builder>            UpdateDelegate,
                                                              Action<NewsBanner, EventTracking_Id>  OnUpdated         = null,
                                                              EventTracking_Id                       EventTrackingId   = null,
@@ -28184,7 +28321,7 @@ namespace social.OpenData.UsersAPI
         /// Determines whether the given news banner identification exists within this API.
         /// </summary>
         /// <param name="NewsBannerId">The unique identification of an news banner.</param>
-        protected Boolean _NewsBannerExists(NewsBanner_Id NewsBannerId)
+        protected internal Boolean _NewsBannerExists(NewsBanner_Id NewsBannerId)
 
             => !NewsBannerId.IsNullOrEmpty && _NewsBanners.ContainsKey(NewsBannerId);
 
@@ -28230,7 +28367,7 @@ namespace social.OpenData.UsersAPI
         /// Get the news banner having the given unique identification.
         /// </summary>
         /// <param name="NewsBannerId">The unique identification of an news banner.</param>
-        protected NewsBanner _GetNewsBanner(NewsBanner_Id NewsBannerId)
+        protected internal NewsBanner _GetNewsBanner(NewsBanner_Id NewsBannerId)
         {
 
             if (!NewsBannerId.IsNullOrEmpty && _NewsBanners.TryGetValue(NewsBannerId, out NewsBanner newsBanner))
@@ -28280,7 +28417,7 @@ namespace social.OpenData.UsersAPI
         /// </summary>
         /// <param name="NewsBannerId">The unique identification of an news banner.</param>
         /// <param name="NewsBanner">The news banner.</param>
-        protected Boolean _TryGetNewsBanner(NewsBanner_Id NewsBannerId, out NewsBanner NewsBanner)
+        protected internal Boolean _TryGetNewsBanner(NewsBanner_Id NewsBannerId, out NewsBanner NewsBanner)
         {
 
             if (!NewsBannerId.IsNullOrEmpty && _NewsBanners.TryGetValue(NewsBannerId, out NewsBanner newsBanner))
@@ -28400,13 +28537,13 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
-        #region (protected virtual) CanDeleteNewsBanner(NewsBanner)
+        #region (protected internal virtual) CanDeleteNewsBanner(NewsBanner)
 
         /// <summary>
         /// Determines whether the news banner can safely be removed from the API.
         /// </summary>
         /// <param name="NewsBanner">The news banner to be removed.</param>
-        protected virtual I18NString CanDeleteNewsBanner(NewsBanner NewsBanner)
+        protected internal virtual I18NString CanDeleteNewsBanner(NewsBanner NewsBanner)
         {
             return new I18NString(Languages.en, "Currently not possible!");
         }
@@ -28414,7 +28551,7 @@ namespace social.OpenData.UsersAPI
         #endregion
 
 
-        #region (protected) _RemoveNewsBanner(NewsBanner, OnRemoved = null, CurrentUserId = null)
+        #region (protected internal) _RemoveNewsBanner(NewsBanner, OnRemoved = null, CurrentUserId = null)
 
         /// <summary>
         /// Remove the given news banner from the API.
@@ -28423,7 +28560,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="OnRemoved">A delegate run whenever the news banner had been removed successfully.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional news banner identification initiating this command/request.</param>
-        protected async Task<DeleteNewsBannerResult> _RemoveNewsBanner(NewsBanner                            NewsBanner,
+        protected internal async Task<DeleteNewsBannerResult> _RemoveNewsBanner(NewsBanner                            NewsBanner,
                                                                          Action<NewsBanner, EventTracking_Id>  OnRemoved         = null,
                                                                          EventTracking_Id                       EventTrackingId   = null,
                                                                          User_Id?                               CurrentUserId     = null)
@@ -28539,7 +28676,7 @@ namespace social.OpenData.UsersAPI
         /// <summary>
         /// An enumeration of all FAQs.
         /// </summary>
-        protected readonly Dictionary<FAQ_Id, FAQ> _FAQs;
+        protected internal readonly Dictionary<FAQ_Id, FAQ> _FAQs;
 
         /// <summary>
         /// An enumeration of all FAQs.
@@ -28569,7 +28706,7 @@ namespace social.OpenData.UsersAPI
         #endregion
 
 
-        #region (protected) WriteToDatabaseFileAndNotify(FAQ, MessageType,  OldFAQ = null, CurrentUserId = null)
+        #region (protected internal) WriteToDatabaseFileAndNotify(FAQ, MessageType,  OldFAQ = null, CurrentUserId = null)
 
         /// <summary>
         /// Write the given FAQ to the database and send out notifications.
@@ -28579,7 +28716,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="OldFAQ">The old/updated FAQ.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">The invoking user identification</param>
-        protected async Task WriteToDatabaseFileAndNotify(FAQ              FAQ,
+        protected internal async Task WriteToDatabaseFileAndNotify(FAQ              FAQ,
                                                           NotificationMessageType  MessageType,
                                                           FAQ              OldFAQ    = null,
                                                           EventTracking_Id         EventTrackingId   = null,
@@ -28610,7 +28747,7 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
-        #region (protected) SendNotifications           (FAQ, MessageTypes, OldFAQ = null, CurrentUserId = null)
+        #region (protected internal) SendNotifications           (FAQ, MessageTypes, OldFAQ = null, CurrentUserId = null)
 
         /// <summary>
         /// Send FAQ notifications.
@@ -28620,7 +28757,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="OldFAQ">The old/updated FAQ.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">The invoking user identification</param>
-        protected async Task SendNotifications(FAQ              FAQ,
+        protected internal async Task SendNotifications(FAQ              FAQ,
                                                NotificationMessageType  MessageType,
                                                FAQ              OldFAQ    = null,
                                                EventTracking_Id         EventTrackingId   = null,
@@ -28651,7 +28788,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="OldFAQ">The old/updated FAQ.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">The invoking user identification</param>
-        protected async Task SendNotifications(FAQ                           FAQ,
+        protected internal async Task SendNotifications(FAQ                           FAQ,
                                                IEnumerable<NotificationMessageType>  MessageTypes,
                                                FAQ                           OldFAQ    = null,
                                                EventTracking_Id                      EventTrackingId   = null,
@@ -28687,9 +28824,9 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
-        #region (protected) GetFAQSerializator(Request, User)
+        #region (protected internal) GetFAQSerializator(Request, User)
 
-        protected FAQToJSONDelegate GetFAQSerializator(HTTPRequest  Request,
+        protected internal FAQToJSONDelegate GetFAQSerializator(HTTPRequest  Request,
                                                                        User         User)
         {
 
@@ -28735,7 +28872,7 @@ namespace social.OpenData.UsersAPI
         public event OnFAQAddedDelegate OnFAQAdded;
 
 
-        #region (protected) _AddFAQ(FAQ,                                OnAdded = null, CurrentUserId = null)
+        #region (protected internal) _AddFAQ(FAQ,                                OnAdded = null, CurrentUserId = null)
 
         /// <summary>
         /// Add the given FAQ to the API.
@@ -28744,7 +28881,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="OnAdded">A delegate run whenever the FAQ had been added successfully.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
-        protected async Task<FAQ> _AddFAQ(FAQ                            FAQ,
+        protected internal async Task<FAQ> _AddFAQ(FAQ                            FAQ,
                                                           Action<FAQ, EventTracking_Id>  OnAdded           = null,
                                                           EventTracking_Id                       EventTrackingId   = null,
                                                           User_Id?                               CurrentUserId     = null)
@@ -28850,7 +28987,7 @@ namespace social.OpenData.UsersAPI
 
         #region AddFAQIfNotExists(FAQ, OnAdded = null,                   CurrentUserId = null)
 
-        #region (protected) _AddFAQIfNotExists(FAQ,                                OnAdded = null, CurrentUserId = null)
+        #region (protected internal) _AddFAQIfNotExists(FAQ,                                OnAdded = null, CurrentUserId = null)
 
         /// <summary>
         /// When it has not been created before, add the given FAQ to the API.
@@ -28859,7 +28996,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="OnAdded">A delegate run whenever the FAQ had been added successfully.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
-        protected async Task<FAQ> _AddFAQIfNotExists(FAQ                            FAQ,
+        protected internal async Task<FAQ> _AddFAQIfNotExists(FAQ                            FAQ,
                                                                      Action<FAQ, EventTracking_Id>  OnAdded           = null,
                                                                      EventTracking_Id                       EventTrackingId   = null,
                                                                      User_Id?                               CurrentUserId     = null)
@@ -28960,7 +29097,7 @@ namespace social.OpenData.UsersAPI
 
         #region AddOrUpdateFAQ   (FAQ, OnAdded = null, OnUpdated = null, CurrentUserId = null)
 
-        #region (protected) _AddOrUpdateFAQ   (FAQ,   OnAdded = null, OnUpdated = null, CurrentUserId = null)
+        #region (protected internal) _AddOrUpdateFAQ   (FAQ,   OnAdded = null, OnUpdated = null, CurrentUserId = null)
 
         /// <summary>
         /// Add or update the given FAQ to/within the API.
@@ -28970,7 +29107,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="OnUpdated">A delegate run whenever the FAQ had been updated successfully.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional FAQ identification initiating this command/request.</param>
-        protected async Task<FAQ> _AddOrUpdateFAQ(FAQ                            FAQ,
+        protected internal async Task<FAQ> _AddOrUpdateFAQ(FAQ                            FAQ,
                                                                   Action<FAQ, EventTracking_Id>  OnAdded           = null,
                                                                   Action<FAQ, EventTracking_Id>  OnUpdated         = null,
                                                                   EventTracking_Id                       EventTrackingId   = null,
@@ -29130,7 +29267,7 @@ namespace social.OpenData.UsersAPI
         public event OnFAQUpdatedDelegate OnFAQUpdated;
 
 
-        #region (protected) _UpdateFAQ(FAQ, OnUpdated = null, CurrentUserId = null)
+        #region (protected internal) _UpdateFAQ(FAQ, OnUpdated = null, CurrentUserId = null)
 
         /// <summary>
         /// Update the given FAQ to/within the API.
@@ -29139,7 +29276,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="OnUpdated">A delegate run whenever the FAQ had been updated successfully.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional FAQ identification initiating this command/request.</param>
-        protected async Task<FAQ> _UpdateFAQ(FAQ                            FAQ,
+        protected internal async Task<FAQ> _UpdateFAQ(FAQ                            FAQ,
                                                              Action<FAQ, EventTracking_Id>  OnUpdated         = null,
                                                              EventTracking_Id                       EventTrackingId   = null,
                                                              User_Id?                               CurrentUserId     = null)
@@ -29240,7 +29377,7 @@ namespace social.OpenData.UsersAPI
         #endregion
 
 
-        #region (protected) _UpdateFAQ(FAQId, UpdateDelegate, OnUpdated = null, CurrentUserId = null)
+        #region (protected internal) _UpdateFAQ(FAQId, UpdateDelegate, OnUpdated = null, CurrentUserId = null)
 
         /// <summary>
         /// Update the given FAQ.
@@ -29250,7 +29387,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="OnUpdated">A delegate run whenever the FAQ had been updated successfully.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional FAQ identification initiating this command/request.</param>
-        protected async Task<FAQ> _UpdateFAQ(FAQ_Id                         FAQId,
+        protected internal async Task<FAQ> _UpdateFAQ(FAQ_Id                         FAQId,
                                                              Action<FAQ.Builder>            UpdateDelegate,
                                                              Action<FAQ, EventTracking_Id>  OnUpdated         = null,
                                                              EventTracking_Id                       EventTrackingId   = null,
@@ -29365,7 +29502,7 @@ namespace social.OpenData.UsersAPI
         /// Determines whether the given FAQ identification exists within this API.
         /// </summary>
         /// <param name="FAQId">The unique identification of an FAQ.</param>
-        protected Boolean _FAQExists(FAQ_Id FAQId)
+        protected internal Boolean _FAQExists(FAQ_Id FAQId)
 
             => !FAQId.IsNullOrEmpty && _FAQs.ContainsKey(FAQId);
 
@@ -29411,7 +29548,7 @@ namespace social.OpenData.UsersAPI
         /// Get the FAQ having the given unique identification.
         /// </summary>
         /// <param name="FAQId">The unique identification of an FAQ.</param>
-        protected FAQ _GetFAQ(FAQ_Id FAQId)
+        protected internal FAQ _GetFAQ(FAQ_Id FAQId)
         {
 
             if (!FAQId.IsNullOrEmpty && _FAQs.TryGetValue(FAQId, out FAQ faq))
@@ -29461,7 +29598,7 @@ namespace social.OpenData.UsersAPI
         /// </summary>
         /// <param name="FAQId">The unique identification of an FAQ.</param>
         /// <param name="FAQ">The FAQ.</param>
-        protected Boolean _TryGetFAQ(FAQ_Id FAQId, out FAQ FAQ)
+        protected internal Boolean _TryGetFAQ(FAQ_Id FAQId, out FAQ FAQ)
         {
 
             if (!FAQId.IsNullOrEmpty && _FAQs.TryGetValue(FAQId, out FAQ faq))
@@ -29581,13 +29718,13 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
-        #region (protected virtual) CanDeleteFAQ(FAQ)
+        #region (protected internal virtual) CanDeleteFAQ(FAQ)
 
         /// <summary>
         /// Determines whether the FAQ can safely be removed from the API.
         /// </summary>
         /// <param name="FAQ">The FAQ to be removed.</param>
-        protected virtual I18NString CanDeleteFAQ(FAQ FAQ)
+        protected internal virtual I18NString CanDeleteFAQ(FAQ FAQ)
         {
             return new I18NString(Languages.en, "Currently not possible!");
         }
@@ -29595,7 +29732,7 @@ namespace social.OpenData.UsersAPI
         #endregion
 
 
-        #region (protected) _RemoveFAQ(FAQ, OnRemoved = null, CurrentUserId = null)
+        #region (protected internal) _RemoveFAQ(FAQ, OnRemoved = null, CurrentUserId = null)
 
         /// <summary>
         /// Remove the given FAQ from the API.
@@ -29604,7 +29741,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="OnRemoved">A delegate run whenever the FAQ had been removed successfully.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional FAQ identification initiating this command/request.</param>
-        protected async Task<DeleteFAQResult> _RemoveFAQ(FAQ                            FAQ,
+        protected internal async Task<DeleteFAQResult> _RemoveFAQ(FAQ                            FAQ,
                                                                          Action<FAQ, EventTracking_Id>  OnRemoved         = null,
                                                                          EventTracking_Id                       EventTrackingId   = null,
                                                                          User_Id?                               CurrentUserId     = null)
@@ -29715,7 +29852,7 @@ namespace social.OpenData.UsersAPI
 
         #region DataLicenses
 
-        protected readonly Dictionary<DataLicense_Id, DataLicense> _DataLicenses;
+        protected internal readonly Dictionary<DataLicense_Id, DataLicense> _DataLicenses;
 
         /// <summary>
         /// Return an enumeration of all data licenses.

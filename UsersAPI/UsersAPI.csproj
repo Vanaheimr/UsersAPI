@@ -86,6 +86,10 @@
     <Compile Include="Entities\ServiceTickets\ServiceTicket_Id.cs" />
     <Compile Include="Entities\User\Group\UserGroup.cs" />
     <Compile Include="Entities\User\Group\UserGroup_Id.cs" />
+    <Compile Include="Entities\User\Results\AddResult.cs" />
+    <Compile Include="Entities\User\Results\AddUserIfNotExistsResult.cs" />
+    <Compile Include="Entities\User\Results\DeleteUserResult.cs" />
+    <Compile Include="Entities\User\Results\AddUserResult.cs" />
     <Compile Include="GlobalSuppressions.cs" />
     <Compile Include="Entities\Notification\NotificationVisibility.cs" />
     <Compile Include="Entities\Notification\NotificationTag.cs" />

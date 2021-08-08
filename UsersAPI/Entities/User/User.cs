@@ -95,6 +95,21 @@ namespace social.OpenData.UsersAPI
 
     }
 
+    public enum Use2AuthFactor
+    {
+
+        /// <summary>
+        /// Do not use any second authentication factor.
+        /// </summary>
+        None,
+
+        /// <summary>
+        /// Use a SMS via the user's mobile phone as second authentication factor.
+        /// </summary>
+        MobilePhoneSMS
+
+    }
+
 
 
     /// <summary>
@@ -195,7 +210,12 @@ namespace social.OpenData.UsersAPI
         public PhoneNumber?               MobilePhone          { get; }
 
         /// <summary>
-        /// The telegram user name.       
+        /// Whether to use a second authentication factor.
+        /// </summary>
+        public Use2AuthFactor             Use2AuthFactor       { get; }
+
+        /// <summary>
+        /// The telegram user name.
         /// </summary>
         [Optional]
         public String                     Telegram             { get; }
@@ -664,7 +684,8 @@ namespace social.OpenData.UsersAPI
         /// <param name="UserLanguage">The language setting of the user.</param>
         /// <param name="Telephone">An optional telephone number of the user.</param>
         /// <param name="MobilePhone">An optional mobile telephone number of the user.</param>
-        /// <param name="Telegram">The telegram user name.</param>
+        /// <param name="Use2AuthFactor">Whether to use a second authentication factor.</param>
+        /// <param name="Telegram">An optional telegram account name of the user.</param>
         /// <param name="Homepage">The homepage of the user.</param>
         /// <param name="GeoLocation">An optional geographical location of the user.</param>
         /// <param name="Address">An optional address of the user.</param>
@@ -687,6 +708,7 @@ namespace social.OpenData.UsersAPI
                       Languages                           UserLanguage             = Languages.en,
                       PhoneNumber?                        Telephone                = null,
                       PhoneNumber?                        MobilePhone              = null,
+                      Use2AuthFactor                      Use2AuthFactor           = Use2AuthFactor.None,
                       String                              Telegram                 = null,
                       String                              Homepage                 = null,
                       GeoCoordinate?                      GeoLocation              = null,
@@ -733,6 +755,7 @@ namespace social.OpenData.UsersAPI
             this.UserLanguage                 = UserLanguage;
             this.Telephone                    = Telephone;
             this.MobilePhone                  = MobilePhone;
+            this.Use2AuthFactor               = Use2AuthFactor;
             this.Telegram                     = Telegram;
             this.Homepage                     = Homepage;
             this.Description                  = Description   ?? new I18NString();
@@ -960,48 +983,52 @@ namespace social.OpenData.UsersAPI
                                    null,
                                    new JProperty[] {
 
-                                       new JProperty("name",                 Name),
+                                       new JProperty("name",                   Name),
 
                                        Description.IsNeitherNullNorEmpty()
-                                           ? new JProperty("description",    Description.ToJSON())
+                                           ? new JProperty("description",      Description.ToJSON())
                                            : null,
 
-                                       new JProperty("email",                EMail.Address.ToString()),
+                                       new JProperty("email",                  EMail.Address.ToString()),
 
                                        PublicKeyRing != null
-                                           ? new JProperty("publicKeyRing",  PublicKeyRing.GetEncoded().ToHexString())
+                                           ? new JProperty("publicKeyRing",    PublicKeyRing.GetEncoded().ToHexString())
                                            : null,
 
                                        SecretKeyRing != null
-                                           ? new JProperty("secretKeyRing",  SecretKeyRing.GetEncoded().ToHexString())
+                                           ? new JProperty("secretKeyRing",    SecretKeyRing.GetEncoded().ToHexString())
                                            : null,
 
-                                       new JProperty("language",             UserLanguage.AsText()),
+                                       new JProperty("language",               UserLanguage.AsText()),
 
                                        Telephone.HasValue
-                                           ? new JProperty("telephone",      Telephone.ToString())
+                                           ? new JProperty("telephone",        Telephone.ToString())
                                            : null,
 
                                        MobilePhone.HasValue
-                                           ? new JProperty("mobilePhone",    MobilePhone.ToString())
+                                           ? new JProperty("mobilePhone",      MobilePhone.ToString())
+                                           : null,
+
+                                       Use2AuthFactor != Use2AuthFactor.None
+                                           ? new JProperty("use2AuthFactor",   Use2AuthFactor.ToString())
                                            : null,
 
                                        Telegram.IsNotNullOrEmpty()
-                                           ? new JProperty("telegram",       Telegram)
+                                           ? new JProperty("telegram",         Telegram)
                                            : null,
 
                                        Homepage.IsNotNullOrEmpty()
-                                           ? new JProperty("homepage",       Homepage.ToString())
+                                           ? new JProperty("homepage",         Homepage.ToString())
                                            : null,
 
                                        PrivacyLevel.ToJSON(),
 
                                        AcceptedEULA.HasValue
-                                           ? new JProperty("acceptedEULA",   AcceptedEULA.Value.ToIso8601())
+                                           ? new JProperty("acceptedEULA",     AcceptedEULA.Value.ToIso8601())
                                            : null,
 
-                                       new JProperty("isAuthenticated",      IsAuthenticated),
-                                       new JProperty("isDisabled",           IsDisabled)
+                                       new JProperty("isAuthenticated",        IsAuthenticated),
+                                       new JProperty("isDisabled",             IsDisabled)
 
                                        //new JProperty("signatures",           new JArray()),
 
@@ -1020,14 +1047,14 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
-        #region (static) TryParseJSON(JSONObject, ..., out User, out ErrorResponse)
+        #region (static) TryParseJSON(JSONObject, ..., out User, out ErrorResponse, ...)
 
         public static Boolean TryParseJSON(JObject     JSONObject,
                                            out User    User,
                                            out String  ErrorResponse,
-                                           User_Id?    UserIdURL = null,
-                                           Byte? MinUserIdLength = 0,
-                                           Byte? MinUserNameLength = 0)
+                                           User_Id?    UserIdURL           = null,
+                                           Byte?       MinUserIdLength     = 0,
+                                           Byte?       MinUserNameLength   = 0)
         {
 
             try
@@ -1217,6 +1244,21 @@ namespace social.OpenData.UsersAPI
 
                 #endregion
 
+                #region Parse Use2AuthFactor   [optional]
+
+                if (JSONObject.ParseOptionalEnum("use2AuthFactor",
+                                                 "use a second authentication factor",
+                                                 out Use2AuthFactor? Use2AuthFactor,
+                                                 out ErrorResponse))
+                {
+
+                    if (ErrorResponse != null)
+                        return false;
+
+                }
+
+                #endregion
+
                 #region Parse Telegram         [optional]
 
                 if (JSONObject.ParseOptional("telegram",
@@ -1327,28 +1369,33 @@ namespace social.OpenData.UsersAPI
 
 
                 User = new User(userId,
-
                                 EMail,
                                 Name,
                                 Description,
                                 PublicKeyRing,
                                 SecretKeyRing,
-                                UserLanguage ?? Languages.en,
+                                UserLanguage    ?? Languages.en,
                                 Telephone,
                                 MobilePhone,
+                                Use2AuthFactor  ?? OpenData.UsersAPI.Use2AuthFactor.None,
                                 Telegram,
                                 Homepage,
                                 GeoLocation,
                                 Address,
                                 AcceptedEULA,
                                 IsAuthenticated ?? false,
-                                IsDisabled      ?? false);
+                                IsDisabled      ?? false,
 
-                                //CustomData,
-                                //AttachedFiles,
-                                //JSONLDContext,
-                                //DataSource,
-                                //LastChange);
+                                null,
+                                null,
+                                null,
+                                null,
+
+                                null, //CustomData,
+                                null, //AttachedFiles,
+                                null, //JSONLDContext,
+                                DataSource,
+                                null); //LastChange
 
                 ErrorResponse = null;
                 return true;
@@ -1619,6 +1666,7 @@ namespace social.OpenData.UsersAPI
                            UserLanguage,
                            Telephone,
                            MobilePhone,
+                           Use2AuthFactor,
                            Telegram,
                            Homepage,
                            GeoLocation,
@@ -1699,6 +1747,11 @@ namespace social.OpenData.UsersAPI
             /// </summary>
             [Optional]
             public PhoneNumber?           MobilePhone          { get; set; }
+
+            /// <summary>
+            /// Whether to use a second authentication factor.
+            /// </summary>
+            public Use2AuthFactor?        Use2AuthFactor       { get; set; }
 
             /// <summary>
             /// The telegram user name.
@@ -2141,6 +2194,8 @@ namespace social.OpenData.UsersAPI
             /// <param name="UserLanguage">The language setting of the user.</param>
             /// <param name="Telephone">An optional telephone number of the user.</param>
             /// <param name="MobilePhone">An optional telephone number of the user.</param>
+            /// <param name="Use2AuthFactor">Whether to use a second authentication factor.</param>
+            /// <param name="Telegram">An optional telegram account name of the user.</param>
             /// <param name="Homepage">The homepage of the user.</param>
             /// <param name="GeoLocation">An optional geographical location of the user.</param>
             /// <param name="Address">An optional address of the user.</param>
@@ -2157,6 +2212,7 @@ namespace social.OpenData.UsersAPI
                            Languages                           UserLanguage             = Languages.en,
                            PhoneNumber?                        Telephone                = null,
                            PhoneNumber?                        MobilePhone              = null,
+                           Use2AuthFactor?                     Use2AuthFactor           = null,
                            String                              Telegram                 = null,
                            String                              Homepage                 = null,
                            GeoCoordinate?                      GeoLocation              = null,
@@ -2197,6 +2253,7 @@ namespace social.OpenData.UsersAPI
                 this.UserLanguage                 = UserLanguage;
                 this.Telephone                    = Telephone;
                 this.MobilePhone                  = MobilePhone;
+                this.Use2AuthFactor               = Use2AuthFactor;
                 this.Telegram                     = Telegram;
                 this.Homepage                     = Homepage;
                 this.GeoLocation                  = GeoLocation;
@@ -2454,6 +2511,7 @@ namespace social.OpenData.UsersAPI
                             UserLanguage,
                             Telephone,
                             MobilePhone,
+                            Use2AuthFactor ?? OpenData.UsersAPI.Use2AuthFactor.None,
                             Telegram,
                             Homepage,
                             GeoLocation,

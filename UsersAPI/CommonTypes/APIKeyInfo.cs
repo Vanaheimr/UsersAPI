@@ -164,18 +164,23 @@ namespace social.OpenData.UsersAPI
         #endregion
 
 
-        #region ToJSON(IncludeCryptoHash)
+        #region ToJSON(Embedded = false, IncludeCryptoHash = true)
 
         /// <summary>
         /// Return a JSON representation of this object.
         /// </summary>
+        /// <param name="Embedded">Whether this data is embedded into another data structure.</param>
         /// <param name="IncludeCryptoHash">Whether to include the cryptograhical hash value of this object.</param>
-        public JObject ToJSON(Boolean IncludeCryptoHash)
+        public JObject ToJSON(Boolean  Embedded            = false,
+                              Boolean  IncludeCryptoHash   = true)
 
             => JSONObject.Create(
 
                    new JProperty("@id",                 APIKey.        ToString()),
-                   new JProperty("@context",            JSONLDContext. ToString()),
+
+                   Embedded
+                       ? null
+                       : new JProperty("@context",      JSONLDContext.ToString()),
 
                    new JProperty("userId",              User.Id.       ToString()),
                    new JProperty("description",         Description.   ToJSON()),
@@ -201,8 +206,8 @@ namespace social.OpenData.UsersAPI
         #region (static) TryParseJSON(JSONObject, ..., out APIKeyInfo, out ErrorResponse)
 
         public static Boolean TryParseJSON(JObject               JSONObject,
-                                           out APIKeyInfo        APIKeyInfo,
                                            UserProviderDelegate  UserProvider,
+                                           out APIKeyInfo        APIKeyInfo,
                                            out String            ErrorResponse,
                                            APIKey?               APIKeyURI = null)
         {
