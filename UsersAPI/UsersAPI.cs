@@ -1223,6 +1223,8 @@ namespace social.OpenData.UsersAPI
         public  const             Byte                                          DefaultMinUserGroupIdLength             = 4;
         public  const             UInt16                                        DefaultMinAPIKeyLength                  = 20;
         public  const             Byte                                          DefaultMinMessageIdLength               = 8;
+        public  const             Byte                                          DefaultMinOrganizationIdLength          = 4;
+        public  const             Byte                                          DefaultMinOrganizationGroupIdLength     = 4;
         public  const             Byte                                          DefaultMinNotificationMessageIdLength   = 8;
         public  const             Byte                                          DefaultMinNewsPostingIdLength           = 8;
         public  const             Byte                                          DefaultMinNewsBannerIdLength            = 8;
@@ -1418,6 +1420,16 @@ namespace social.OpenData.UsersAPI
         /// The minimal message identification length.
         /// </summary>
         public Byte                          MinMessageIdLength                 { get; }
+
+        /// <summary>
+        /// The minimal message identification length.
+        /// </summary>
+        public Byte                          MinOrganizationIdLength            { get; }
+
+        /// <summary>
+        /// The minimal message identification length.
+        /// </summary>
+        public Byte                          MinOrganizationGroupIdLength       { get; }
 
         /// <summary>
         /// The minimal notification message identification length.
@@ -2330,6 +2342,8 @@ namespace social.OpenData.UsersAPI
                         Byte?                                MinUserGroupIdLength               = null,
                         UInt16?                              MinAPIKeyLength                    = null,
                         Byte?                                MinMessageIdLength                 = null,
+                        Byte?                                MinOrganizationIdLength            = null,
+                        Byte?                                MinOrganizationGroupIdLength       = null,
                         Byte?                                MinNotificationMessageIdLength     = null,
                         Byte?                                MinNewsPostingIdLength             = null,
                         Byte?                                MinNewsBannerIdLength              = null,
@@ -2411,6 +2425,8 @@ namespace social.OpenData.UsersAPI
                    MinUserGroupIdLength,
                    MinAPIKeyLength,
                    MinMessageIdLength,
+                   MinOrganizationIdLength,
+                   MinOrganizationGroupIdLength,
                    MinNotificationMessageIdLength,
                    MinNewsPostingIdLength,
                    MinNewsBannerIdLength,
@@ -2479,53 +2495,55 @@ namespace social.OpenData.UsersAPI
         /// <param name="LoggingPath">The path for all logfiles.</param>
         /// <param name="DatabaseFileName">The name of the database file for this API.</param>
         /// <param name="LogfileName">The name of the logfile for this API.</param>
-        protected UsersAPI(HTTPServer                           HTTPServer,
-                           HTTPHostname?                        HTTPHostname                     = null,
-                           String                               ServiceName                      = "GraphDefined Users API",
-                           String                               ExternalDNSName                  = null,
-                           HTTPPath?                            URLPathPrefix                    = null,
-                           HTTPPath?                            BasePath                         = null,
-                           String                               HTMLTemplate                     = null,
-                           JObject                              APIVersionHashes                 = null,
+        protected UsersAPI(HTTPServer                    HTTPServer,
+                           HTTPHostname?                 HTTPHostname                     = null,
+                           String                        ServiceName                      = "GraphDefined Users API",
+                           String                        ExternalDNSName                  = null,
+                           HTTPPath?                     URLPathPrefix                    = null,
+                           HTTPPath?                     BasePath                         = null,
+                           String                        HTMLTemplate                     = null,
+                           JObject                       APIVersionHashes                 = null,
 
-                           EMailAddress                         APIEMailAddress                  = null,
-                           String                               APIPassphrase                    = null,
-                           EMailAddressList                     APIAdminEMails                   = null,
-                           SMTPClient                           APISMTPClient                    = null,
+                           EMailAddress                  APIEMailAddress                  = null,
+                           String                        APIPassphrase                    = null,
+                           EMailAddressList              APIAdminEMails                   = null,
+                           SMTPClient                    APISMTPClient                    = null,
 
-                           Credentials                          SMSAPICredentials                = null,
-                           String                               SMSSenderName                    = null,
-                           IEnumerable<PhoneNumber>             APIAdminSMS                      = null,
+                           Credentials                   SMSAPICredentials                = null,
+                           String                        SMSSenderName                    = null,
+                           IEnumerable<PhoneNumber>      APIAdminSMS                      = null,
 
-                           String                               TelegramBotToken                 = null,
+                           String                        TelegramBotToken                 = null,
 
-                           HTTPCookieName?                      CookieName                       = null,
-                           Boolean                              UseSecureCookies                 = true,
-                           Languages?                           Language                         = null,
-                           Byte?                                MinUserIdLength                  = null,
-                           Byte?                                MinRealmLength                   = null,
-                           Byte?                                MinUserNameLength                = null,
-                           Byte?                                MinUserGroupIdLength             = null,
-                           UInt16?                              MinAPIKeyLength                  = null,
-                           Byte?                                MinMessageIdLength               = null,
-                           Byte?                                MinNotificationMessageIdLength   = null,
-                           Byte?                                MinNewsPostingIdLength           = null,
-                           Byte?                                MinNewsBannerIdLength            = null,
-                           Byte?                                MinFAQIdLength                   = null,
-                           PasswordQualityCheckDelegate         PasswordQualityCheck             = null,
-                           TimeSpan?                            SignInSessionLifetime            = null,
+                           HTTPCookieName?               CookieName                       = null,
+                           Boolean                       UseSecureCookies                 = true,
+                           Languages?                    Language                         = null,
+                           Byte?                         MinUserIdLength                  = null,
+                           Byte?                         MinRealmLength                   = null,
+                           Byte?                         MinUserNameLength                = null,
+                           Byte?                         MinUserGroupIdLength             = null,
+                           UInt16?                       MinAPIKeyLength                  = null,
+                           Byte?                         MinMessageIdLength               = null,
+                           Byte?                         MinOrganizationIdLength          = null,
+                           Byte?                         MinOrganizationGroupIdLength     = null,
+                           Byte?                         MinNotificationMessageIdLength   = null,
+                           Byte?                         MinNewsPostingIdLength           = null,
+                           Byte?                         MinNewsBannerIdLength            = null,
+                           Byte?                         MinFAQIdLength                   = null,
+                           PasswordQualityCheckDelegate  PasswordQualityCheck             = null,
+                           TimeSpan?                     SignInSessionLifetime            = null,
 
-                           TimeSpan?                            MaintenanceEvery                 = null,
-                           Boolean                              DisableMaintenanceTasks          = false,
-                           TimeSpan?                            WardenInitialDelay               = null,
-                           TimeSpan?                            WardenCheckEvery                 = null,
+                           TimeSpan?                     MaintenanceEvery                 = null,
+                           Boolean                       DisableMaintenanceTasks          = false,
+                           TimeSpan?                     WardenInitialDelay               = null,
+                           TimeSpan?                     WardenCheckEvery                 = null,
 
-                           Boolean                              SkipURLTemplates                 = false,
-                           Boolean                              DisableNotifications             = false,
-                           Boolean                              DisableLogfile                   = false,
-                           String                               LoggingPath                      = DefaultUsersAPI_LoggingPath,
-                           String                               DatabaseFileName                 = DefaultUsersAPI_DatabaseFileName,
-                           String                               LogfileName                      = DefaultUsersAPI_LogfileName)
+                           Boolean                       SkipURLTemplates                 = false,
+                           Boolean                       DisableNotifications             = false,
+                           Boolean                       DisableLogfile                   = false,
+                           String                        LoggingPath                      = DefaultUsersAPI_LoggingPath,
+                           String                        DatabaseFileName                 = DefaultUsersAPI_DatabaseFileName,
+                           String                        LogfileName                      = DefaultUsersAPI_LogfileName)
 
             : base(HTTPServer,
                    HTTPHostname,
@@ -2596,8 +2614,9 @@ namespace social.OpenData.UsersAPI
             this.MinUserNameLength               = MinUserNameLength              ?? DefaultMinUserNameLength;
             this.MinUserGroupIdLength            = MinUserGroupIdLength           ?? DefaultMinUserGroupIdLength;
             this.MinAPIKeyLength                 = MinAPIKeyLength                ?? DefaultMinAPIKeyLength;
-            this.MinNewsPostingIdLength          = MinNewsPostingIdLength         ?? DefaultMinNewsPostingIdLength;
             this.MinMessageIdLength              = MinMessageIdLength             ?? DefaultMinMessageIdLength;
+            this.MinOrganizationIdLength         = MinOrganizationIdLength        ?? DefaultMinOrganizationIdLength;
+            this.MinOrganizationGroupIdLength    = MinOrganizationGroupIdLength   ?? DefaultMinOrganizationGroupIdLength;
             this.MinNotificationMessageIdLength  = MinNotificationMessageIdLength ?? DefaultMinNotificationMessageIdLength;
             this.MinNewsPostingIdLength          = MinNewsPostingIdLength         ?? DefaultMinNewsPostingIdLength;
             this.MinNewsBannerIdLength           = MinNewsBannerIdLength          ?? DefaultMinNewsBannerIdLength;
@@ -3874,6 +3893,8 @@ namespace social.OpenData.UsersAPI
                                                Byte?                                MinUserGroupIdLength             = null,
                                                UInt16?                              MinAPIKeyLength                  = null,
                                                Byte?                                MinMessageIdLength               = null,
+                                               Byte?                                MinOrganizationIdLength          = null,
+                                               Byte?                                MinOrganizationGroupIdLength     = null,
                                                Byte?                                MinNotificationMessageIdLength   = null,
                                                Byte?                                MinNewsPostingIdLength           = null,
                                                Byte?                                MinNewsBannerIdLength            = null,
@@ -3921,6 +3942,8 @@ namespace social.OpenData.UsersAPI
                             MinUserGroupIdLength,
                             MinAPIKeyLength,
                             MinMessageIdLength,
+                            MinOrganizationIdLength,
+                            MinOrganizationGroupIdLength,
                             MinNotificationMessageIdLength,
                             MinNewsPostingIdLength,
                             MinNewsBannerIdLength,
@@ -5904,7 +5927,6 @@ namespace social.OpenData.UsersAPI
                                                  }
 
                                                  #endregion
-
 
 
                                                  return new HTTPResponse.Builder(Request) {
@@ -16265,10 +16287,10 @@ namespace social.OpenData.UsersAPI
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">The invoking user identification</param>
         protected internal async Task WriteToDatabaseFileAndNotify(UserGroup                UserGroup,
-                                                          NotificationMessageType  MessageType,
-                                                          UserGroup                OldUserGroup      = null,
-                                                          EventTracking_Id         EventTrackingId   = null,
-                                                          User_Id?                 CurrentUserId     = null)
+                                                                   NotificationMessageType  MessageType,
+                                                                   UserGroup                OldUserGroup      = null,
+                                                                   EventTracking_Id         EventTrackingId   = null,
+                                                                   User_Id?                 CurrentUserId     = null)
         {
 
             if (UserGroup is null)
@@ -16306,10 +16328,10 @@ namespace social.OpenData.UsersAPI
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">The invoking user identification</param>
         protected internal async Task SendNotifications(UserGroup                UserGroup,
-                                               NotificationMessageType  MessageType,
-                                               UserGroup                OldUserGroup      = null,
-                                               EventTracking_Id         EventTrackingId   = null,
-                                               User_Id?                 CurrentUserId     = null)
+                                                        NotificationMessageType  MessageType,
+                                                        UserGroup                OldUserGroup      = null,
+                                                        EventTracking_Id         EventTrackingId   = null,
+                                                        User_Id?                 CurrentUserId     = null)
         {
 
             if (UserGroup is null)
@@ -16337,10 +16359,10 @@ namespace social.OpenData.UsersAPI
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">The invoking user identification</param>
         protected internal async Task SendNotifications(UserGroup                             UserGroup,
-                                               IEnumerable<NotificationMessageType>  MessageTypes,
-                                               UserGroup                             OldUserGroup      = null,
-                                               EventTracking_Id                      EventTrackingId   = null,
-                                               User_Id?                              CurrentUserId     = null)
+                                                        IEnumerable<NotificationMessageType>  MessageTypes,
+                                                        UserGroup                             OldUserGroup      = null,
+                                                        EventTracking_Id                      EventTrackingId   = null,
+                                                        User_Id?                              CurrentUserId     = null)
         {
 
             if (UserGroup is null)
@@ -16375,7 +16397,7 @@ namespace social.OpenData.UsersAPI
         #region (protected internal) GetUserGroupSerializator(Request, User)
 
         protected internal UserGroupToJSONDelegate GetUserGroupSerializator(HTTPRequest  Request,
-                                                                   User         User)
+                                                                            User         User)
         {
 
             switch (User?.Id.ToString())
@@ -16436,9 +16458,9 @@ namespace social.OpenData.UsersAPI
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
         protected internal async Task<UserGroup> _AddUserGroup(UserGroup                            UserGroup,
-                                                      Action<UserGroup, EventTracking_Id>  OnAdded           = null,
-                                                      EventTracking_Id                     EventTrackingId   = null,
-                                                      User_Id?                             CurrentUserId     = null)
+                                                               Action<UserGroup, EventTracking_Id>  OnAdded           = null,
+                                                               EventTracking_Id                     EventTrackingId   = null,
+                                                               User_Id?                             CurrentUserId     = null)
         {
 
             if (UserGroup is null)
@@ -16551,9 +16573,9 @@ namespace social.OpenData.UsersAPI
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
         protected internal async Task<UserGroup> _AddUserGroupIfNotExists(UserGroup                            UserGroup,
-                                                                 Action<UserGroup, EventTracking_Id>  OnAdded           = null,
-                                                                 EventTracking_Id                     EventTrackingId   = null,
-                                                                 User_Id?                             CurrentUserId     = null)
+                                                                          Action<UserGroup, EventTracking_Id>  OnAdded           = null,
+                                                                          EventTracking_Id                     EventTrackingId   = null,
+                                                                          User_Id?                             CurrentUserId     = null)
         {
 
             if (UserGroup is null)
@@ -16662,10 +16684,10 @@ namespace social.OpenData.UsersAPI
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional user group identification initiating this command/request.</param>
         protected internal async Task<UserGroup> _AddOrUpdateUserGroup(UserGroup                            UserGroup,
-                                                              Action<UserGroup, EventTracking_Id>  OnAdded           = null,
-                                                              Action<UserGroup, EventTracking_Id>  OnUpdated         = null,
-                                                              EventTracking_Id                     EventTrackingId   = null,
-                                                              User_Id?                             CurrentUserId     = null)
+                                                                       Action<UserGroup, EventTracking_Id>  OnAdded           = null,
+                                                                       Action<UserGroup, EventTracking_Id>  OnUpdated         = null,
+                                                                       EventTracking_Id                     EventTrackingId   = null,
+                                                                       User_Id?                             CurrentUserId     = null)
         {
 
             if (UserGroup is null)
@@ -16831,9 +16853,9 @@ namespace social.OpenData.UsersAPI
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional user group identification initiating this command/request.</param>
         protected internal async Task<UserGroup> _UpdateUserGroup(UserGroup                            UserGroup,
-                                                         Action<UserGroup, EventTracking_Id>  OnUpdated         = null,
-                                                         EventTracking_Id                     EventTrackingId   = null,
-                                                         User_Id?                             CurrentUserId     = null)
+                                                                  Action<UserGroup, EventTracking_Id>  OnUpdated         = null,
+                                                                  EventTracking_Id                     EventTrackingId   = null,
+                                                                  User_Id?                             CurrentUserId     = null)
         {
 
             if (UserGroup is null)
@@ -16942,10 +16964,10 @@ namespace social.OpenData.UsersAPI
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional user group identification initiating this command/request.</param>
         protected internal async Task<UserGroup> _UpdateUserGroup(UserGroup_Id                         UserGroupId,
-                                                         Action<UserGroup.Builder>            UpdateDelegate,
-                                                         Action<UserGroup, EventTracking_Id>  OnUpdated         = null,
-                                                         EventTracking_Id                     EventTrackingId   = null,
-                                                         User_Id?                             CurrentUserId     = null)
+                                                                  Action<UserGroup.Builder>            UpdateDelegate,
+                                                                  Action<UserGroup, EventTracking_Id>  OnUpdated         = null,
+                                                                  EventTracking_Id                     EventTrackingId   = null,
+                                                                  User_Id?                             CurrentUserId     = null)
         {
 
             if (UserGroupId.IsNullOrEmpty)
@@ -17454,51 +17476,6 @@ namespace social.OpenData.UsersAPI
         public event OnUserGroupRemovedDelegate OnUserGroupRemoved;
 
 
-        #region (class) DeleteUserGroupResult
-
-        public class DeleteUserGroupResult
-        {
-
-            public Boolean     IsSuccess           { get; }
-
-            public I18NString  ErrorDescription    { get; }
-
-
-            private DeleteUserGroupResult(Boolean     IsSuccess,
-                                          I18NString  ErrorDescription  = null)
-            {
-                this.IsSuccess         = IsSuccess;
-                this.ErrorDescription  = ErrorDescription;
-            }
-
-
-            public static DeleteUserGroupResult Success
-
-                => new DeleteUserGroupResult(true);
-
-            public static DeleteUserGroupResult Failed(I18NString Reason)
-
-                => new DeleteUserGroupResult(false,
-                                             Reason);
-
-            public static DeleteUserGroupResult Failed(Exception Exception)
-
-                => new DeleteUserGroupResult(false,
-                                             I18NString.Create(Languages.en,
-                                                               Exception.Message));
-
-            public override String ToString()
-
-                => IsSuccess
-                       ? "Success"
-                       : "Failed" + (ErrorDescription.IsNullOrEmpty()
-                                         ? ": " + ErrorDescription.FirstText()
-                                         : "!");
-
-        }
-
-        #endregion
-
         #region (protected internal virtual) CanDeleteUserGroup(UserGroup)
 
         /// <summary>
@@ -17512,7 +17489,6 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
-
         #region (protected internal) _RemoveUserGroup(UserGroup, OnRemoved = null, CurrentUserId = null)
 
         /// <summary>
@@ -17523,9 +17499,9 @@ namespace social.OpenData.UsersAPI
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional user group identification initiating this command/request.</param>
         protected internal async Task<DeleteUserGroupResult> _RemoveUserGroup(UserGroup                            UserGroup,
-                                                                     Action<UserGroup, EventTracking_Id>  OnRemoved         = null,
-                                                                     EventTracking_Id                     EventTrackingId   = null,
-                                                                     User_Id?                             CurrentUserId     = null)
+                                                                              Action<UserGroup, EventTracking_Id>  OnRemoved         = null,
+                                                                              EventTracking_Id                     EventTrackingId   = null,
+                                                                              User_Id?                             CurrentUserId     = null)
         {
 
             if (UserGroup is null)
@@ -24154,10 +24130,13 @@ namespace social.OpenData.UsersAPI
 
         #region Data
 
-        protected readonly Dictionary<OrganizationGroup_Id, OrganizationGroup> _OrganizationGroups;
+        /// <summary>
+        /// An enumeration of all organization groups.
+        /// </summary>
+        protected internal readonly Dictionary<OrganizationGroup_Id, OrganizationGroup> _OrganizationGroups;
 
         /// <summary>
-        /// Return an enumeration of all groups.
+        /// An enumeration of all organization groups.
         /// </summary>
         public IEnumerable<OrganizationGroup> OrganizationGroups
         {
@@ -24184,22 +24163,137 @@ namespace social.OpenData.UsersAPI
         #endregion
 
 
-        #region (protected) GetOrganizationGroupSerializator(Request, User)
+        #region (protected internal) WriteToDatabaseFileAndNotify(OrganizationGroup, MessageType,  OldOrganizationGroup = null, CurrentUserId = null)
 
-        protected OrganizationGroupToJSONDelegate GetOrganizationGroupSerializator(HTTPRequest  Request,
-                                                                                   User         User)
+        /// <summary>
+        /// Write the given organization group to the database and send out notifications.
+        /// </summary>
+        /// <param name="OrganizationGroup">The organization group.</param>
+        /// <param name="MessageType">The user notification.</param>
+        /// <param name="OldOrganizationGroup">The old/updated organization group.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
+        /// <param name="CurrentUserId">The invoking user identification</param>
+        protected internal async Task WriteToDatabaseFileAndNotify(OrganizationGroup        OrganizationGroup,
+                                                                   NotificationMessageType  MessageType,
+                                                                   OrganizationGroup        OldOrganizationGroup   = null,
+                                                                   EventTracking_Id         EventTrackingId        = null,
+                                                                   User_Id?                 CurrentUserId          = null)
+        {
+
+            if (OrganizationGroup is null)
+                throw new ArgumentNullException(nameof(OrganizationGroup),    "The given organization group must not be null or empty!");
+
+            if (MessageType.IsNullOrEmpty)
+                throw new ArgumentNullException(nameof(MessageType),  "The given message type must not be null or empty!");
+
+
+            var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
+
+            await WriteToDatabaseFile(MessageType,
+                                      OrganizationGroup.ToJSON(false, true),
+                                      eventTrackingId,
+                                      CurrentUserId);
+
+            await SendNotifications(OrganizationGroup,
+                                    MessageType,
+                                    OldOrganizationGroup,
+                                    eventTrackingId,
+                                    CurrentUserId);
+
+        }
+
+        #endregion
+
+        #region (protected internal) SendNotifications           (OrganizationGroup, MessageTypes, OldOrganizationGroup = null, CurrentUserId = null)
+
+        /// <summary>
+        /// Send organization group notifications.
+        /// </summary>
+        /// <param name="OrganizationGroup">The organization group.</param>
+        /// <param name="MessageType">The user notification.</param>
+        /// <param name="OldOrganizationGroup">The old/updated organization group.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
+        /// <param name="CurrentUserId">The invoking user identification</param>
+        protected internal async Task SendNotifications(OrganizationGroup        OrganizationGroup,
+                                                        NotificationMessageType  MessageType,
+                                                        OrganizationGroup        OldOrganizationGroup   = null,
+                                                        EventTracking_Id         EventTrackingId        = null,
+                                                        User_Id?                 CurrentUserId          = null)
+        {
+
+            if (OrganizationGroup is null)
+                throw new ArgumentNullException(nameof(OrganizationGroup),    "The given organization group must not be null or empty!");
+
+            if (MessageType.IsNullOrEmpty)
+                throw new ArgumentNullException(nameof(MessageType),  "The given message type must not be null or empty!");
+
+
+            await SendNotifications(OrganizationGroup,
+                                    new NotificationMessageType[] { MessageType },
+                                    OldOrganizationGroup,
+                                    EventTrackingId,
+                                    CurrentUserId);
+
+        }
+
+
+        /// <summary>
+        /// Send organization group notifications.
+        /// </summary>
+        /// <param name="OrganizationGroup">The organization group.</param>
+        /// <param name="MessageTypes">The user notifications.</param>
+        /// <param name="OldOrganizationGroup">The old/updated organization group.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
+        /// <param name="CurrentUserId">The invoking user identification</param>
+        protected internal async Task SendNotifications(OrganizationGroup                     OrganizationGroup,
+                                                        IEnumerable<NotificationMessageType>  MessageTypes,
+                                                        OrganizationGroup                     OldOrganizationGroup   = null,
+                                                        EventTracking_Id                      EventTrackingId        = null,
+                                                        User_Id?                              CurrentUserId          = null)
+        {
+
+            if (OrganizationGroup is null)
+                throw new ArgumentNullException(nameof(OrganizationGroup),     "The given organization group must not be null or empty!");
+
+            var messageTypesHash = new HashSet<NotificationMessageType>(MessageTypes.Where(messageType => !messageType.IsNullOrEmpty));
+
+            if (messageTypesHash.IsNullOrEmpty())
+                throw new ArgumentNullException(nameof(MessageTypes),  "The given enumeration of message types must not be null or empty!");
+
+            if (messageTypesHash.Contains(addUserIfNotExists_MessageType))
+                messageTypesHash.Add(addUser_MessageType);
+
+            if (messageTypesHash.Contains(addOrUpdateUser_MessageType))
+                messageTypesHash.Add(OldOrganizationGroup == null
+                                       ? addUser_MessageType
+                                       : updateUser_MessageType);
+
+            var messageTypes = messageTypesHash.ToArray();
+
+
+            if (!DisableNotifications)
+            {
+
+
+            }
+
+        }
+
+        #endregion
+
+        #region (protected internal) GetOrganizationGroupSerializator(Request, User)
+
+        protected internal OrganizationGroupToJSONDelegate GetOrganizationGroupSerializator(HTTPRequest  Request,
+                                                                                            User         User)
         {
 
             switch (User?.Id.ToString())
             {
 
-                //case __issapi:
-                //    return ISSNotificationExtentions.ToISSJSON;
-
                 default:
                     return (organizationGroup,
                             embedded,
-                            expandOrganizations,
+                            expandUsers,
                             expandParentGroup,
                             expandSubgroups,
                             expandAttachedFiles,
@@ -24207,7 +24301,7 @@ namespace social.OpenData.UsersAPI
                             includeCryptoHash)
 
                             => organizationGroup.ToJSON(embedded,
-                                                        expandOrganizations,
+                                                        expandUsers,
                                                         expandParentGroup,
                                                         expandSubgroups,
                                                         expandAttachedFiles,
@@ -24221,166 +24315,806 @@ namespace social.OpenData.UsersAPI
         #endregion
 
 
-        #region CreateOrganizationGroup           (Id, Name = null, Description = null)
-
-        public async Task<OrganizationGroup> CreateOrganizationGroup(OrganizationGroup_Id  Id,
-                                                                     User_Id               CurrentUserId,
-                                                                     I18NString            Name         = null,
-                                                                     I18NString            Description  = null)
-        {
-
-            try
-            {
-
-                await OrganizationGroupsSemaphore.WaitAsync();
-
-                if (_OrganizationGroups.ContainsKey(Id))
-                    throw new ArgumentException("The given group identification already exists!", nameof(Id));
-
-
-                var OrganizationGroup = new OrganizationGroup(Id,
-                                      Name,
-                                      Description);
-
-                if (OrganizationGroup.Id.ToString() != AdminGroupName)
-                    await WriteToDatabaseFile(addOrganizationGroup_MessageType,
-                                              OrganizationGroup.ToJSON(),
-                                              EventTracking_Id.New,
-                                              CurrentUserId);
-
-                return _OrganizationGroups.AddAndReturnValue(OrganizationGroup.Id, OrganizationGroup);
-
-            }
-            finally
-            {
-                OrganizationGroupsSemaphore.Release();
-            }
-
-        }
-
-        #endregion
-
-        #region CreateOrganizationGroupIfNotExists(Id, Name = null, Description = null)
-
-        public async Task<OrganizationGroup> CreateOrganizationGroupIfNotExists(OrganizationGroup_Id  Id,
-                                                                                User_Id               CurrentUserId,
-                                                                                I18NString            Name         = null,
-                                                                                I18NString            Description  = null)
-        {
-
-            try
-            {
-
-                await OrganizationGroupsSemaphore.WaitAsync();
-
-                if (_OrganizationGroups.ContainsKey(Id))
-                    return _OrganizationGroups[Id];
-
-                var OrganizationGroup = new OrganizationGroup(Id,
-                                      Name,
-                                      Description);
-
-                if (OrganizationGroup.Id.ToString() != AdminGroupName)
-                    await WriteToDatabaseFile(addOrganizationGroup_MessageType,
-                                              OrganizationGroup.ToJSON(),
-                                              EventTracking_Id.New,
-                                              CurrentUserId);
-
-                return _OrganizationGroups.AddAndReturnValue(OrganizationGroup.Id, OrganizationGroup);
-
-            }
-            finally
-            {
-                OrganizationGroupsSemaphore.Release();
-            }
-
-        }
-
-        #endregion
-
-
-        #region Contains(OrganizationGroupId)
+        #region AddOrganizationGroup           (OrganizationGroup, OnAdded = null,                   CurrentUserId = null)
 
         /// <summary>
-        /// Whether this API contains a group having the given unique identification.
+        /// A delegate called whenever a organization group was added.
         /// </summary>
-        /// <param name="OrganizationGroupId">The unique identification of the group.</param>
-        public Boolean Contains(OrganizationGroup_Id OrganizationGroupId)
-        {
-
-            try
-            {
-
-                OrganizationGroupsSemaphore.Wait();
-
-                return _OrganizationGroups.ContainsKey(OrganizationGroupId);
-
-            }
-            finally
-            {
-                OrganizationGroupsSemaphore.Release();
-            }
-
-        }
-
-        #endregion
-
-        #region Get     (OrganizationGroupId)
+        /// <param name="Timestamp">The timestamp when the organization group was added.</param>
+        /// <param name="OrganizationGroup">The added organization group.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
+        /// <param name="CurrentUserId">The invoking user identification</param>
+        public delegate Task OnOrganizationGroupAddedDelegate(DateTime           Timestamp,
+                                                              OrganizationGroup  OrganizationGroup,
+                                                              EventTracking_Id   EventTrackingId   = null,
+                                                              User_Id?           CurrentUserId     = null);
 
         /// <summary>
-        /// Get the group having the given unique identification.
+        /// An event fired whenever a organization group was added.
         /// </summary>
-        /// <param name="OrganizationGroupId">The unique identification of the group.</param>
-        public async Task<OrganizationGroup> Get(OrganizationGroup_Id  OrganizationGroupId)
-        {
+        public event OnOrganizationGroupAddedDelegate OnOrganizationGroupAdded;
 
-            try
-            {
 
-                await OrganizationGroupsSemaphore.WaitAsync();
-
-                if (_OrganizationGroups.TryGetValue(OrganizationGroupId, out OrganizationGroup OrganizationGroup))
-                    return OrganizationGroup;
-
-                return null;
-
-            }
-            finally
-            {
-                OrganizationGroupsSemaphore.Release();
-            }
-
-        }
-
-        #endregion
-
-        #region TryGet  (OrganizationGroupId, out OrganizationGroup)
+        #region (protected internal) _AddOrganizationGroup(OrganizationGroup,                                OnAdded = null, CurrentUserId = null)
 
         /// <summary>
-        /// Try to get the group having the given unique identification.
+        /// Add the given organization group to the API.
         /// </summary>
-        /// <param name="OrganizationGroupId">The unique identification of the group.</param>
-        /// <param name="OrganizationGroup">The group.</param>
-        public Boolean TryGet(OrganizationGroup_Id   OrganizationGroupId,
-                              out OrganizationGroup  OrganizationGroup)
+        /// <param name="OrganizationGroup">A new organization group to be added to this API.</param>
+        /// <param name="OnAdded">A delegate run whenever the organization group had been added successfully.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
+        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
+        protected internal async Task<OrganizationGroup> _AddOrganizationGroup(OrganizationGroup                            OrganizationGroup,
+                                                                               Action<OrganizationGroup, EventTracking_Id>  OnAdded           = null,
+                                                                               EventTracking_Id                             EventTrackingId   = null,
+                                                                               User_Id?                                     CurrentUserId     = null)
         {
+
+            if (OrganizationGroup is null)
+                throw new ArgumentNullException(nameof(OrganizationGroup),
+                                                "The given organization group must not be null!");
+
+            if (OrganizationGroup.API != null && OrganizationGroup.API != this)
+                throw new ArgumentException    ("The given organization group is already attached to another API!",
+                                                nameof(OrganizationGroup));
+
+            if (_OrganizationGroups.ContainsKey(OrganizationGroup.Id))
+                throw new ArgumentException    ("User group identification '" + OrganizationGroup.Id + "' already exists!",
+                                                nameof(OrganizationGroup));
+
+            if (OrganizationGroup.Id.Length < MinOrganizationGroupIdLength)
+                throw new ArgumentException    ("User group identification '" + OrganizationGroup.Id + "' is too short!",
+                                                nameof(OrganizationGroup));
+
+            OrganizationGroup.API = this;
+
+
+            var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
+
+            await WriteToDatabaseFile(addOrganizationGroup_MessageType,
+                                      OrganizationGroup.ToJSON(false, true),
+                                      eventTrackingId,
+                                      CurrentUserId);
+
+            _OrganizationGroups.Add(OrganizationGroup.Id, OrganizationGroup);
+
+
+            var OnOrganizationGroupAddedLocal = OnOrganizationGroupAdded;
+            if (OnOrganizationGroupAddedLocal != null)
+                await OnOrganizationGroupAddedLocal?.Invoke(DateTime.UtcNow,
+                                                            OrganizationGroup,
+                                                            eventTrackingId,
+                                                            CurrentUserId);
+
+            await SendNotifications(OrganizationGroup,
+                                    addUser_MessageType,
+                                    null,
+                                    eventTrackingId,
+                                    CurrentUserId);
+
+            OnAdded?.Invoke(OrganizationGroup,
+                            eventTrackingId);
+
+            return OrganizationGroup;
+
+        }
+
+        #endregion
+
+        #region AddOrganizationGroup             (OrganizationGroup,                                OnAdded = null, CurrentUserId = null)
+
+        /// <summary>
+        /// Add the given organization group.
+        /// </summary>
+        /// <param name="OrganizationGroup">A new organization group.</param>
+        /// <param name="OnAdded">A delegate run whenever the organization group had been added successfully.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
+        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
+        public async Task<OrganizationGroup> AddOrganizationGroup(OrganizationGroup                            OrganizationGroup,
+                                                                  Action<OrganizationGroup, EventTracking_Id>  OnAdded           = null,
+                                                                  EventTracking_Id                             EventTrackingId   = null,
+                                                                  User_Id?                                     CurrentUserId     = null)
+        {
+
+            if (OrganizationGroup is null)
+                throw new ArgumentNullException(nameof(OrganizationGroup), "The given organization group must not be null!");
 
             try
             {
 
-                OrganizationGroupsSemaphore.Wait();
+                return (await OrganizationGroupsSemaphore.WaitAsync(SemaphoreSlimTimeout))
 
-                return _OrganizationGroups.TryGetValue(OrganizationGroupId, out OrganizationGroup);
+                            ? await _AddOrganizationGroup(OrganizationGroup,
+                                                          OnAdded,
+                                                          EventTrackingId,
+                                                          CurrentUserId)
+
+                            : null;
 
             }
             finally
             {
-                OrganizationGroupsSemaphore.Release();
+                try
+                {
+                    OrganizationGroupsSemaphore.Release();
+                }
+                catch
+                { }
             }
 
         }
 
         #endregion
+
+        #endregion
+
+        #region AddOrganizationGroupIfNotExists(OrganizationGroup, OnAdded = null,                   CurrentUserId = null)
+
+        #region (protected internal) _AddOrganizationGroupIfNotExists(OrganizationGroup,                                OnAdded = null, CurrentUserId = null)
+
+        /// <summary>
+        /// When it has not been created before, add the given organization group to the API.
+        /// </summary>
+        /// <param name="OrganizationGroup">A new organization group to be added to this API.</param>
+        /// <param name="OnAdded">A delegate run whenever the organization group had been added successfully.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
+        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
+        protected internal async Task<OrganizationGroup> _AddOrganizationGroupIfNotExists(OrganizationGroup                            OrganizationGroup,
+                                                                                          Action<OrganizationGroup, EventTracking_Id>  OnAdded           = null,
+                                                                                          EventTracking_Id                             EventTrackingId   = null,
+                                                                                          User_Id?                                     CurrentUserId     = null)
+        {
+
+            if (OrganizationGroup is null)
+                throw new ArgumentNullException(nameof(OrganizationGroup),
+                                                "The given organization group must not be null!");
+
+            if (OrganizationGroup.API != null && OrganizationGroup.API != this)
+                throw new ArgumentException    ("The given organization group is already attached to another API!",
+                                                nameof(OrganizationGroup));
+
+            if (_OrganizationGroups.ContainsKey(OrganizationGroup.Id))
+                return _OrganizationGroups[OrganizationGroup.Id];
+
+            if (OrganizationGroup.Id.Length < MinOrganizationGroupIdLength)
+                throw new ArgumentException    ("User group identification '" + OrganizationGroup.Id + "' is too short!",
+                                                nameof(OrganizationGroup));
+
+            OrganizationGroup.API = this;
+
+
+            var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
+
+            await WriteToDatabaseFile(addOrganizationGroupIfNotExists_MessageType,
+                                      OrganizationGroup.ToJSON(false, true),
+                                      eventTrackingId,
+                                      CurrentUserId);
+
+            _OrganizationGroups.Add(OrganizationGroup.Id, OrganizationGroup);
+
+            var OnOrganizationGroupAddedLocal = OnOrganizationGroupAdded;
+            if (OnOrganizationGroupAddedLocal != null)
+                await OnOrganizationGroupAddedLocal?.Invoke(DateTime.UtcNow,
+                                                            OrganizationGroup,
+                                                            eventTrackingId,
+                                                            CurrentUserId);
+
+            await SendNotifications(OrganizationGroup,
+                                    addOrganizationGroupIfNotExists_MessageType,
+                                    null,
+                                    eventTrackingId,
+                                    CurrentUserId);
+
+            OnAdded?.Invoke(OrganizationGroup,
+                            eventTrackingId);
+
+            return OrganizationGroup;
+
+        }
+
+        #endregion
+
+        #region AddOrganizationGroupIfNotExists             (OrganizationGroup,                                OnAdded = null, CurrentUserId = null)
+
+        /// <summary>
+        /// Add the given organization group.
+        /// </summary>
+        /// <param name="OrganizationGroup">A new organization group.</param>
+        /// <param name="OnAdded">A delegate run whenever the organization group had been added successfully.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
+        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
+        public async Task<OrganizationGroup> AddOrganizationGroupIfNotExists(OrganizationGroup                            OrganizationGroup,
+                                                                             Action<OrganizationGroup, EventTracking_Id>  OnAdded           = null,
+                                                                             EventTracking_Id                             EventTrackingId   = null,
+                                                                             User_Id?                                     CurrentUserId     = null)
+        {
+
+            try
+            {
+
+                return (await OrganizationGroupsSemaphore.WaitAsync(SemaphoreSlimTimeout))
+
+                            ? await _AddOrganizationGroupIfNotExists(OrganizationGroup,
+                                                                     OnAdded,
+                                                                     EventTrackingId,
+                                                                     CurrentUserId)
+
+                            : null;
+
+            }
+            finally
+            {
+                try
+                {
+                    OrganizationGroupsSemaphore.Release();
+                }
+                catch
+                { }
+            }
+
+        }
+
+        #endregion
+
+        #endregion
+
+        #region AddOrUpdateOrganizationGroup   (OrganizationGroup, OnAdded = null, OnUpdated = null, CurrentUserId = null)
+
+        #region (protected internal) _AddOrUpdateOrganizationGroup   (OrganizationGroup,   OnAdded = null, OnUpdated = null, CurrentUserId = null)
+
+        /// <summary>
+        /// Add or update the given organization group to/within the API.
+        /// </summary>
+        /// <param name="OrganizationGroup">A organization group.</param>
+        /// <param name="OnAdded">A delegate run whenever the organization group had been added successfully.</param>
+        /// <param name="OnUpdated">A delegate run whenever the organization group had been updated successfully.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
+        /// <param name="CurrentUserId">An optional organization group identification initiating this command/request.</param>
+        protected internal async Task<OrganizationGroup> _AddOrUpdateOrganizationGroup(OrganizationGroup                            OrganizationGroup,
+                                                                                       Action<OrganizationGroup, EventTracking_Id>  OnAdded           = null,
+                                                                                       Action<OrganizationGroup, EventTracking_Id>  OnUpdated         = null,
+                                                                                       EventTracking_Id                             EventTrackingId   = null,
+                                                                                       User_Id?                                     CurrentUserId     = null)
+        {
+
+            if (OrganizationGroup is null)
+                throw new ArgumentNullException(nameof(OrganizationGroup),
+                                                "The given organization group must not be null!");
+
+            if (OrganizationGroup.API != null && OrganizationGroup.API != this)
+                throw new ArgumentException    ("The given organization group is already attached to another API!",
+                                                nameof(OrganizationGroup));
+
+            if (_OrganizationGroups.ContainsKey(OrganizationGroup.Id))
+                return _OrganizationGroups[OrganizationGroup.Id];
+
+            if (OrganizationGroup.Id.Length < MinOrganizationGroupIdLength)
+                throw new ArgumentException    ("OrganizationGroup identification '" + OrganizationGroup.Id + "' is too short!",
+                                                nameof(OrganizationGroup));
+
+            OrganizationGroup.API = this;
+
+
+            var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
+
+            await WriteToDatabaseFile(addOrUpdateOrganizationGroup_MessageType,
+                                      OrganizationGroup.ToJSON(false, true),
+                                      eventTrackingId,
+                                      CurrentUserId);
+
+            if (_OrganizationGroups.TryGetValue(OrganizationGroup.Id, out OrganizationGroup OldOrganizationGroup))
+            {
+                _OrganizationGroups.Remove(OldOrganizationGroup.Id);
+                OrganizationGroup.CopyAllLinkedDataFrom(OldOrganizationGroup);
+            }
+
+            _OrganizationGroups.Add(OrganizationGroup.Id, OrganizationGroup);
+
+            if (OldOrganizationGroup != null)
+            {
+
+                var OnOrganizationGroupUpdatedLocal = OnOrganizationGroupUpdated;
+                if (OnOrganizationGroupUpdatedLocal != null)
+                    await OnOrganizationGroupUpdatedLocal?.Invoke(DateTime.UtcNow,
+                                                                  OrganizationGroup,
+                                                                  OldOrganizationGroup,
+                                                                  eventTrackingId,
+                                                                  CurrentUserId);
+
+                await SendNotifications(OrganizationGroup,
+                                        updateOrganizationGroup_MessageType,
+                                        OldOrganizationGroup,
+                                        eventTrackingId,
+                                        CurrentUserId);
+
+                OnUpdated?.Invoke(OrganizationGroup,
+                                  eventTrackingId);
+
+            }
+            else
+            {
+
+                var OnOrganizationGroupAddedLocal = OnOrganizationGroupAdded;
+                if (OnOrganizationGroupAddedLocal != null)
+                    await OnOrganizationGroupAddedLocal?.Invoke(DateTime.UtcNow,
+                                                                OrganizationGroup,
+                                                                eventTrackingId,
+                                                                CurrentUserId);
+
+                await SendNotifications(OrganizationGroup,
+                                        addOrganizationGroup_MessageType,
+                                        null,
+                                        eventTrackingId,
+                                        CurrentUserId);
+
+                OnAdded?.Invoke(OrganizationGroup,
+                                eventTrackingId);
+
+            }
+
+            return OrganizationGroup;
+
+        }
+
+        #endregion
+
+        #region AddOrUpdateOrganizationGroup   (OrganizationGroup,   OnAdded = null, OnUpdated = null, CurrentUserId = null)
+
+        /// <summary>
+        /// Add or update the given organization group to/within the API.
+        /// </summary>
+        /// <param name="OrganizationGroup">A organization group.</param>
+        /// <param name="OnAdded">A delegate run whenever the organization group had been added successfully.</param>
+        /// <param name="OnUpdated">A delegate run whenever the organization group had been updated successfully.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
+        /// <param name="CurrentUserId">An optional organization group identification initiating this command/request.</param>
+        public async Task<OrganizationGroup> AddOrUpdateOrganizationGroup(OrganizationGroup                            OrganizationGroup,
+                                                                          Action<OrganizationGroup, EventTracking_Id>  OnAdded           = null,
+                                                                          Action<OrganizationGroup, EventTracking_Id>  OnUpdated         = null,
+                                                                          EventTracking_Id                             EventTrackingId   = null,
+                                                                          User_Id?                                     CurrentUserId     = null)
+        {
+
+            if (OrganizationGroup is null)
+                throw new ArgumentNullException(nameof(OrganizationGroup), "The given organization group must not be null!");
+
+            try
+            {
+
+                return (await OrganizationGroupsSemaphore.WaitAsync(SemaphoreSlimTimeout))
+
+                            ? await _AddOrUpdateOrganizationGroup(OrganizationGroup,
+                                                                  OnAdded,
+                                                                  OnUpdated,
+                                                                  EventTrackingId,
+                                                                  CurrentUserId)
+
+                            : null;
+
+            }
+            finally
+            {
+                try
+                {
+                    OrganizationGroupsSemaphore.Release();
+                }
+                catch
+                { }
+            }
+
+        }
+
+        #endregion
+
+        #endregion
+
+        #region UpdateOrganizationGroup        (OrganizationGroup,                 OnUpdated = null, CurrentUserId = null)
+
+        /// <summary>
+        /// A delegate called whenever a organization group was updated.
+        /// </summary>
+        /// <param name="Timestamp">The timestamp when the organization group was updated.</param>
+        /// <param name="OrganizationGroup">The updated organization group.</param>
+        /// <param name="OldOrganizationGroup">The old organization group.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
+        /// <param name="CurrentUserId">The invoking organization group identification</param>
+        public delegate Task OnOrganizationGroupUpdatedDelegate(DateTime           Timestamp,
+                                                                OrganizationGroup  OrganizationGroup,
+                                                                OrganizationGroup  OldOrganizationGroup,
+                                                                EventTracking_Id   EventTrackingId   = null,
+                                                                User_Id?           CurrentUserId     = null);
+
+        /// <summary>
+        /// An event fired whenever a organization group was updated.
+        /// </summary>
+        public event OnOrganizationGroupUpdatedDelegate OnOrganizationGroupUpdated;
+
+
+        #region (protected internal) _UpdateOrganizationGroup(OrganizationGroup, OnUpdated = null, CurrentUserId = null)
+
+        /// <summary>
+        /// Update the given organization group to/within the API.
+        /// </summary>
+        /// <param name="OrganizationGroup">A organization group.</param>
+        /// <param name="OnUpdated">A delegate run whenever the organization group had been updated successfully.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
+        /// <param name="CurrentUserId">An optional organization group identification initiating this command/request.</param>
+        protected internal async Task<OrganizationGroup> _UpdateOrganizationGroup(OrganizationGroup                            OrganizationGroup,
+                                                                                  Action<OrganizationGroup, EventTracking_Id>  OnUpdated         = null,
+                                                                                  EventTracking_Id                             EventTrackingId   = null,
+                                                                                  User_Id?                                     CurrentUserId     = null)
+        {
+
+            if (OrganizationGroup is null)
+                throw new ArgumentNullException(nameof(OrganizationGroup),
+                                                "The given organization group must not be null!");
+
+            if (OrganizationGroup.API != null && OrganizationGroup.API != this)
+                throw new ArgumentException    ("The given organization group is already attached to another API!",
+                                                nameof(OrganizationGroup));
+
+            if (!_OrganizationGroups.TryGetValue(OrganizationGroup.Id, out OrganizationGroup OldOrganizationGroup))
+                throw new ArgumentException    ("The given organization group '" + OrganizationGroup.Id + "' does not exists in this API!",
+                                                nameof(OrganizationGroup));
+
+            OrganizationGroup.API = this;
+
+
+            var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
+
+            await WriteToDatabaseFile(updateOrganizationGroup_MessageType,
+                                      OrganizationGroup.ToJSON(),
+                                      eventTrackingId,
+                                      CurrentUserId);
+
+            _OrganizationGroups.Remove(OldOrganizationGroup.Id);
+            OrganizationGroup.CopyAllLinkedDataFrom(OldOrganizationGroup);
+
+
+            var OnOrganizationGroupUpdatedLocal = OnOrganizationGroupUpdated;
+            if (OnOrganizationGroupUpdatedLocal != null)
+                await OnOrganizationGroupUpdatedLocal?.Invoke(DateTime.UtcNow,
+                                                              OrganizationGroup,
+                                                              OldOrganizationGroup,
+                                                              eventTrackingId,
+                                                              CurrentUserId);
+
+            await SendNotifications(OrganizationGroup,
+                                    updateOrganizationGroup_MessageType,
+                                    OldOrganizationGroup,
+                                    eventTrackingId,
+                                    CurrentUserId);
+
+            OnUpdated?.Invoke(OrganizationGroup,
+                              eventTrackingId);
+
+            return OrganizationGroup;
+
+        }
+
+        #endregion
+
+        #region UpdateOrganizationGroup             (OrganizationGroup, OnUpdated = null, CurrentUserId = null)
+
+        /// <summary>
+        /// Update the given organization group to/within the API.
+        /// </summary>
+        /// <param name="OrganizationGroup">A organization group.</param>
+        /// <param name="OnUpdated">A delegate run whenever the organization group had been updated successfully.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
+        /// <param name="CurrentUserId">An optional organization group identification initiating this command/request.</param>
+        public async Task<OrganizationGroup> UpdateOrganizationGroup(OrganizationGroup                            OrganizationGroup,
+                                                                     Action<OrganizationGroup, EventTracking_Id>  OnUpdated         = null,
+                                                                     EventTracking_Id                             EventTrackingId   = null,
+                                                                     User_Id?                                     CurrentUserId     = null)
+        {
+
+            if (OrganizationGroup is null)
+                throw new ArgumentNullException(nameof(OrganizationGroup), "The given organization group must not be null!");
+
+            try
+            {
+
+                return (await OrganizationGroupsSemaphore.WaitAsync(SemaphoreSlimTimeout))
+
+                            ? await _UpdateOrganizationGroup(OrganizationGroup,
+                                                             OnUpdated,
+                                                             EventTrackingId,
+                                                             CurrentUserId)
+
+                            : null;
+
+            }
+            finally
+            {
+                try
+                {
+                    OrganizationGroupsSemaphore.Release();
+                }
+                catch
+                { }
+            }
+
+        }
+
+        #endregion
+
+
+        #region (protected internal) _UpdateOrganizationGroup(OrganizationGroupId, UpdateDelegate, OnUpdated = null, CurrentUserId = null)
+
+        /// <summary>
+        /// Update the given organization group.
+        /// </summary>
+        /// <param name="OrganizationGroupId">An organization group identification.</param>
+        /// <param name="UpdateDelegate">A delegate to update the given organization group.</param>
+        /// <param name="OnUpdated">A delegate run whenever the organization group had been updated successfully.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
+        /// <param name="CurrentUserId">An optional organization group identification initiating this command/request.</param>
+        protected internal async Task<OrganizationGroup> _UpdateOrganizationGroup(OrganizationGroup_Id                         OrganizationGroupId,
+                                                                                  Action<OrganizationGroup.Builder>            UpdateDelegate,
+                                                                                  Action<OrganizationGroup, EventTracking_Id>  OnUpdated         = null,
+                                                                                  EventTracking_Id                             EventTrackingId   = null,
+                                                                                  User_Id?                                     CurrentUserId     = null)
+        {
+
+            if (OrganizationGroupId.IsNullOrEmpty)
+                throw new ArgumentNullException(nameof(OrganizationGroupId),
+                                                "The given organization group identification must not be null or empty!");
+
+            if (UpdateDelegate == null)
+                throw new ArgumentNullException(nameof(UpdateDelegate),
+                                                "The given update delegate must not be null!");
+
+            if (!_OrganizationGroups.TryGetValue(OrganizationGroupId, out OrganizationGroup OldOrganizationGroup))
+                throw new ArgumentException    ("The given organization group '" + OrganizationGroupId + "' does not exists in this API!",
+                                                nameof(OrganizationGroupId));
+
+            var Builder = OldOrganizationGroup.ToBuilder();
+            UpdateDelegate(Builder);
+            var NewOrganizationGroup = Builder.ToImmutable;
+
+
+            var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
+
+            await WriteToDatabaseFile(updateOrganizationGroup_MessageType,
+                                      NewOrganizationGroup.ToJSON(),
+                                      eventTrackingId,
+                                      CurrentUserId);
+
+            _OrganizationGroups.Remove(OldOrganizationGroup.Id);
+            NewOrganizationGroup.CopyAllLinkedDataFrom(OldOrganizationGroup);
+
+
+            var OnOrganizationGroupUpdatedLocal = OnOrganizationGroupUpdated;
+            if (OnOrganizationGroupUpdatedLocal != null)
+                await OnOrganizationGroupUpdatedLocal?.Invoke(DateTime.UtcNow,
+                                                              NewOrganizationGroup,
+                                                              OldOrganizationGroup,
+                                                              eventTrackingId,
+                                                              CurrentUserId);
+
+            await SendNotifications(NewOrganizationGroup,
+                                    updateOrganizationGroup_MessageType,
+                                    OldOrganizationGroup,
+                                    eventTrackingId,
+                                    CurrentUserId);
+
+            OnUpdated?.Invoke(NewOrganizationGroup,
+                              eventTrackingId);
+
+            return NewOrganizationGroup;
+
+        }
+
+        #endregion
+
+        #region UpdateOrganizationGroup             (OrganizationGroupId, UpdateDelegate, OnUpdated = null, CurrentUserId = null)
+
+        /// <summary>
+        /// Update the given organization group.
+        /// </summary>
+        /// <param name="OrganizationGroupId">An organization group identification.</param>
+        /// <param name="UpdateDelegate">A delegate to update the given organization group.</param>
+        /// <param name="OnUpdated">A delegate run whenever the organization group had been updated successfully.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
+        /// <param name="CurrentUserId">An optional organization group identification initiating this command/request.</param>
+        public async Task<OrganizationGroup> UpdateOrganizationGroup(OrganizationGroup_Id                         OrganizationGroupId,
+                                                                     Action<OrganizationGroup.Builder>            UpdateDelegate,
+                                                                     Action<OrganizationGroup, EventTracking_Id>  OnUpdated         = null,
+                                                                     EventTracking_Id                             EventTrackingId   = null,
+                                                                     User_Id?                                     CurrentUserId     = null)
+        {
+
+            if (OrganizationGroupId.IsNullOrEmpty)
+                throw new ArgumentNullException(nameof(OrganizationGroupId), "The given organization group identification must not be null or empty!");
+
+            try
+            {
+
+                return (await OrganizationGroupsSemaphore.WaitAsync(SemaphoreSlimTimeout))
+
+                            ? await _UpdateOrganizationGroup(OrganizationGroupId,
+                                                             UpdateDelegate,
+                                                             OnUpdated,
+                                                             EventTrackingId,
+                                                             CurrentUserId)
+
+                            : null;
+
+            }
+            finally
+            {
+                try
+                {
+                    OrganizationGroupsSemaphore.Release();
+                }
+                catch
+                { }
+            }
+
+        }
+
+        #endregion
+
+        #endregion
+
+
+        #region OrganizationGroupExists(OrganizationGroupId)
+
+        /// <summary>
+        /// Determines whether the given organization group identification exists within this API.
+        /// </summary>
+        /// <param name="OrganizationGroupId">The unique identification of an organization group.</param>
+        protected internal Boolean _OrganizationGroupExists(OrganizationGroup_Id OrganizationGroupId)
+
+            => !OrganizationGroupId.IsNullOrEmpty && _OrganizationGroups.ContainsKey(OrganizationGroupId);
+
+
+        /// <summary>
+        /// Determines whether the given organization group identification exists within this API.
+        /// </summary>
+        /// <param name="OrganizationGroupId">The unique identification of an organization group.</param>
+        public Boolean OrganizationGroupExists(OrganizationGroup_Id OrganizationGroupId)
+        {
+
+            try
+            {
+
+                if (OrganizationGroupsSemaphore.Wait(SemaphoreSlimTimeout) &&
+                    _OrganizationGroupExists(OrganizationGroupId))
+                {
+                    return true;
+                }
+
+            }
+            catch
+            { }
+            finally
+            {
+                try
+                {
+                    OrganizationGroupsSemaphore.Release();
+                }
+                catch
+                { }
+            }
+
+            return false;
+
+        }
+
+        #endregion
+
+        #region GetOrganizationGroup   (OrganizationGroupId)
+
+        /// <summary>
+        /// Get the organization group having the given unique identification.
+        /// </summary>
+        /// <param name="OrganizationGroupId">The unique identification of an organization group.</param>
+        protected internal OrganizationGroup _GetOrganizationGroup(OrganizationGroup_Id OrganizationGroupId)
+        {
+
+            if (!OrganizationGroupId.IsNullOrEmpty && _OrganizationGroups.TryGetValue(OrganizationGroupId, out OrganizationGroup organizationGroup))
+                return organizationGroup;
+
+            return null;
+
+        }
+
+
+        /// <summary>
+        /// Get the organization group having the given unique identification.
+        /// </summary>
+        /// <param name="OrganizationGroupId">The unique identification of the organization group.</param>
+        public OrganizationGroup GetOrganizationGroup(OrganizationGroup_Id OrganizationGroupId)
+        {
+
+            try
+            {
+
+                if (OrganizationGroupsSemaphore.Wait(SemaphoreSlimTimeout))
+                    return _GetOrganizationGroup(OrganizationGroupId);
+
+            }
+            catch
+            { }
+            finally
+            {
+                try
+                {
+                    OrganizationGroupsSemaphore.Release();
+                }
+                catch
+                { }
+            }
+
+            return null;
+
+        }
+
+        #endregion
+
+        #region TryGetOrganizationGroup(OrganizationGroupId, out OrganizationGroup)
+
+        /// <summary>
+        /// Try to get the organization group having the given unique identification.
+        /// </summary>
+        /// <param name="OrganizationGroupId">The unique identification of an organization group.</param>
+        /// <param name="OrganizationGroup">The organization group.</param>
+        protected internal Boolean _TryGetOrganizationGroup(OrganizationGroup_Id OrganizationGroupId, out OrganizationGroup OrganizationGroup)
+        {
+
+            if (!OrganizationGroupId.IsNullOrEmpty && _OrganizationGroups.TryGetValue(OrganizationGroupId, out OrganizationGroup organizationGroup))
+            {
+                OrganizationGroup = organizationGroup;
+                return true;
+            }
+
+            OrganizationGroup = null;
+            return false;
+
+        }
+
+
+        /// <summary>
+        /// Try to get the organization group having the given unique identification.
+        /// </summary>
+        /// <param name="OrganizationGroupId">The unique identification of an organization group.</param>
+        /// <param name="OrganizationGroup">The organization group.</param>
+        public Boolean TryGetOrganizationGroup(OrganizationGroup_Id   OrganizationGroupId,
+                                               out OrganizationGroup  OrganizationGroup)
+        {
+
+            try
+            {
+
+                if (OrganizationGroupsSemaphore.Wait(SemaphoreSlimTimeout) &&
+                    _TryGetOrganizationGroup(OrganizationGroupId, out OrganizationGroup organizationGroup))
+                {
+                    OrganizationGroup = organizationGroup;
+                    return true;
+                }
+
+            }
+            catch
+            { }
+            finally
+            {
+                try
+                {
+                    OrganizationGroupsSemaphore.Release();
+                }
+                catch
+                { }
+            }
+
+            OrganizationGroup = null;
+            return false;
+
+        }
+
+        #endregion
+
 
         #region SearchOrganizationGroupsByName(OrganizationGroupName)
 
@@ -24509,53 +25243,152 @@ namespace social.OpenData.UsersAPI
         #endregion
 
 
-        #region AddToOrganizationGroup(Organization, Edge, OrganizationGroup, PrivacyLevel = Private)
+        #region RemoveOrganizationGroup(OrganizationGroup, OnRemoved = null, CurrentUserId = null)
 
-        //public async Task<Boolean> AddToOrganizationGroup(Organization                 Organization,
-        //                                          Organization2GroupEdgeTypes  Edge,
-        //                                          OrganizationGroup            OrganizationGroup,
-        //                                          PrivacyLevel         PrivacyLevel   = PrivacyLevel.Private,
-        //                                          Organization_Id?             CurrentUserId  = null)
+        /// <summary>
+        /// A delegate called whenever a organization group was removed.
+        /// </summary>
+        /// <param name="Timestamp">The timestamp when the organization group was removed.</param>
+        /// <param name="OrganizationGroup">The removed organization group.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
+        /// <param name="CurrentUserId">The invoking organization group identification</param>
+        public delegate Task OnOrganizationGroupRemovedDelegate(DateTime           Timestamp,
+                                                                OrganizationGroup  OrganizationGroup,
+                                                                EventTracking_Id   EventTrackingId   = null,
+                                                                User_Id?           CurrentUserId     = null);
 
-        //{
+        /// <summary>
+        /// An event fired whenever a organization group was removed.
+        /// </summary>
+        public event OnOrganizationGroupRemovedDelegate OnOrganizationGroupRemoved;
 
-        //    try
-        //    {
 
-        //        await OrganizationsSemaphore.WaitAsync();
-        //        await OrganizationGroupsSemaphore.WaitAsync();
+        #region (protected internal virtual) CanDeleteOrganizationGroup(OrganizationGroup)
 
-        //        if (!Organization.OutEdges(OrganizationGroup).Any(edge => edge == Edge))
-        //        {
+        /// <summary>
+        /// Determines whether the organization group can safely be removed from the API.
+        /// </summary>
+        /// <param name="OrganizationGroup">The organization group to be removed.</param>
+        protected internal virtual I18NString CanDeleteOrganizationGroup(OrganizationGroup OrganizationGroup)
+        {
+            return new I18NString(Languages.en, "Currently not possible!");
+        }
 
-        //            Organization.AddOutgoingEdge(Edge, OrganizationGroup, PrivacyLevel);
+        #endregion
 
-        //            if (!OrganizationGroup.Edges(OrganizationGroup).Any(edge => edge == Edge))
-        //                OrganizationGroup.AddIncomingEdge(Organization, Edge,  PrivacyLevel);
+        #region (protected internal) _RemoveOrganizationGroup(OrganizationGroup, OnRemoved = null, CurrentUserId = null)
 
-        //            await WriteToDatabaseFile(NotificationMessageType.Parse("addOrganizationToOrganizationGroup"),
-        //                                 new JObject(
-        //                                     new JProperty("organization",   Organization.Id.ToString()),
-        //                                     new JProperty("edge",   Edge.   ToString()),
-        //                                     new JProperty("group",  OrganizationGroup.  ToString()),
-        //                                     PrivacyLevel.ToJSON()
-        //                                 ),
-        //                                 CurrentUserId);
+        /// <summary>
+        /// Remove the given organization group from the API.
+        /// </summary>
+        /// <param name="OrganizationGroup">The organization group to be removed from this API.</param>
+        /// <param name="OnRemoved">A delegate run whenever the organization group had been removed successfully.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
+        /// <param name="CurrentUserId">An optional organization group identification initiating this command/request.</param>
+        protected internal async Task<DeleteOrganizationGroupResult> _RemoveOrganizationGroup(OrganizationGroup                            OrganizationGroup,
+                                                                                              Action<OrganizationGroup, EventTracking_Id>  OnRemoved         = null,
+                                                                                              EventTracking_Id                             EventTrackingId   = null,
+                                                                                              User_Id?                                     CurrentUserId     = null)
+        {
 
-        //            return true;
+            if (OrganizationGroup is null)
+                throw new ArgumentNullException(nameof(OrganizationGroup),
+                                                "The given organization group must not be null!");
 
-        //        }
+            if (OrganizationGroup.API != this || !_OrganizationGroups.TryGetValue(OrganizationGroup.Id, out OrganizationGroup OrganizationGroupToBeRemoved))
+                throw new ArgumentException    ("The given organization group '" + OrganizationGroup.Id + "' does not exists in this API!",
+                                                nameof(OrganizationGroup));
 
-        //        return false;
 
-        //    }
-        //    finally
-        //    {
-        //        OrganizationsSemaphore.Release();
-        //        OrganizationGroupsSemaphore.Release();
-        //    }
+            var result = CanDeleteOrganizationGroup(OrganizationGroup);
 
-        //}
+            if (result == null)
+            {
+
+                var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
+
+                await WriteToDatabaseFile(removeOrganizationGroup_MessageType,
+                                          OrganizationGroup.ToJSON(false, true),
+                                          eventTrackingId,
+                                          CurrentUserId);
+
+                _OrganizationGroups.Remove(OrganizationGroup.Id);
+
+
+                var OnOrganizationGroupRemovedLocal = OnOrganizationGroupRemoved;
+                if (OnOrganizationGroupRemovedLocal != null)
+                    await OnOrganizationGroupRemovedLocal?.Invoke(DateTime.UtcNow,
+                                                          OrganizationGroup,
+                                                          eventTrackingId,
+                                                          CurrentUserId);
+
+                await SendNotifications(OrganizationGroup,
+                                        removeOrganizationGroup_MessageType,
+                                        null,
+                                        eventTrackingId,
+                                        CurrentUserId);
+
+                OnRemoved?.Invoke(OrganizationGroup,
+                                  eventTrackingId);
+
+                return DeleteOrganizationGroupResult.Success;
+
+            }
+            else
+                return DeleteOrganizationGroupResult.Failed(result);
+
+        }
+
+        #endregion
+
+        #region RemoveOrganizationGroup(OrganizationGroup, OnRemoved = null, CurrentUserId = null)
+
+        /// <summary>
+        /// Remove the given organization group from the API.
+        /// </summary>
+        /// <param name="OrganizationGroup">The organization group to be removed from this API.</param>
+        /// <param name="OnRemoved">A delegate run whenever the organization group had been removed successfully.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
+        /// <param name="CurrentUserId">An optional organization group identification initiating this command/request.</param>
+        public async Task<DeleteOrganizationGroupResult> RemoveOrganizationGroup(OrganizationGroup                            OrganizationGroup,
+                                                                                 Action<OrganizationGroup, EventTracking_Id>  OnRemoved         = null,
+                                                                                 EventTracking_Id                             EventTrackingId   = null,
+                                                                                 User_Id?                                     CurrentUserId     = null)
+        {
+
+            if (OrganizationGroup is null)
+                throw new ArgumentNullException(nameof(OrganizationGroup), "The given organization group must not be null!");
+
+            try
+            {
+
+                return (await OrganizationGroupsSemaphore.WaitAsync(SemaphoreSlimTimeout))
+
+                            ? await _RemoveOrganizationGroup(OrganizationGroup,
+                                                     OnRemoved,
+                                                     EventTrackingId,
+                                                     CurrentUserId)
+
+                            : null;
+
+            }
+            catch (Exception e)
+            {
+                return DeleteOrganizationGroupResult.Failed(e);
+            }
+            finally
+            {
+                try
+                {
+                    OrganizationGroupsSemaphore.Release();
+                }
+                catch
+                { }
+            }
+
+        }
+
+        #endregion
 
         #endregion
 
