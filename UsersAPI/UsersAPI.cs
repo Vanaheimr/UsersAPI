@@ -132,7 +132,7 @@ namespace social.OpenData.UsersAPI
 
             }
 
-            UserId = User_Id.TryParse(HTTPRequest.ParsedURLParameters[0], "");
+            UserId = User_Id.TryParse(HTTPRequest.ParsedURLParameters[0]);
 
             if (!UserId.HasValue)
             {
@@ -203,7 +203,7 @@ namespace social.OpenData.UsersAPI
 
             }
 
-            UserId = User_Id.TryParse(HTTPRequest.ParsedURLParameters[0], "");
+            UserId = User_Id.TryParse(HTTPRequest.ParsedURLParameters[0]);
 
             if (!UserId.HasValue) {
 
@@ -7995,38 +7995,57 @@ namespace social.OpenData.UsersAPI
 
                                                  #endregion
 
-                                                 var apiKeys = _APIKeys.Values.
-                                                                        Where(apikey => apikey.User == HTTPUser).
-                                                                        ToArray();
+                                                 #region Check UserId URL parameter
 
-                                                 return Task.FromResult(apiKeys.SafeAny()
+                                                 if (!Request.ParseUser(this,
+                                                                        out User_Id?  UserId,
+                                                                        out User      User,
+                                                                        out           errorResponse))
+                                                 {
+                                                     return Task.FromResult(errorResponse.AsImmutable);
+                                                 }
 
-                                                                            ? new HTTPResponse.Builder(Request) {
-                                                                                      HTTPStatusCode             = HTTPStatusCode.OK,
-                                                                                      Server                     = HTTPServer.DefaultServerName,
-                                                                                      Date                       = DateTime.UtcNow,
-                                                                                      AccessControlAllowOrigin   = "*",
-                                                                                      AccessControlAllowMethods  = "GET, SET",
-                                                                                      AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
-                                                                                      ETag                       = "1",
-                                                                                      ContentType                = HTTPContentType.JSON_UTF8,
-                                                                                      Content                    = new JArray(
-                                                                                                                       apiKeys.Select(apiKey => apiKey.ToJSON(true))
-                                                                                                                   ).ToUTF8Bytes(),
-                                                                                      Connection                 = "close",
-                                                                                      Vary                       = "Accept"
-                                                                                  }.AsImmutable
+                                                 #endregion
 
-                                                                            : new HTTPResponse.Builder(Request) {
-                                                                                      HTTPStatusCode             = HTTPStatusCode.NotFound,
-                                                                                      Server                     = HTTPServer.DefaultServerName,
-                                                                                      Date                       = DateTime.UtcNow,
-                                                                                      AccessControlAllowOrigin   = "*",
-                                                                                      AccessControlAllowMethods  = "GET, SET",
-                                                                                      AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
-                                                                                      Connection                 = "close",
-                                                                                      Vary                       = "Accept"
-                                                                                  }.AsImmutable);
+                                                 #region Validate user
+
+                                                 if (HTTPUser != User && !CanImpersonate(HTTPUser, User))
+                                                 {
+                                                     return Task.FromResult(
+                                                            new HTTPResponse.Builder(Request) {
+                                                                HTTPStatusCode             = HTTPStatusCode.Forbidden,
+                                                                Server                     = HTTPServer.DefaultServerName,
+                                                                Date                       = DateTime.UtcNow,
+                                                                AccessControlAllowOrigin   = "*",
+                                                                AccessControlAllowMethods  = "ADD, GET",
+                                                                AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
+                                                                ContentType                = HTTPContentType.JSON_UTF8,
+                                                                Content                    = JSONObject.Create(
+                                                                                                 new JProperty("description", "This operation is not allowed!")
+                                                                                             ).ToUTF8Bytes(),
+                                                                Connection                 = "close",
+                                                                Vary                       = "Accept"
+                                                            }.AsImmutable);
+                                                 }
+
+                                                 #endregion
+
+                                                 return Task.FromResult(new HTTPResponse.Builder(Request) {
+                                                                            HTTPStatusCode             = HTTPStatusCode.OK,
+                                                                            Server                     = HTTPServer.DefaultServerName,
+                                                                            Date                       = DateTime.UtcNow,
+                                                                            AccessControlAllowOrigin   = "*",
+                                                                            AccessControlAllowMethods  = "ADD, GET",
+                                                                            AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
+                                                                            ETag                       = "1",
+                                                                            ContentType                = HTTPContentType.JSON_UTF8,
+                                                                            Content                    = new JArray(
+                                                                                                             GetAPIKeysForUser(User).
+                                                                                                             SafeSelect       (apiKey => apiKey.ToJSON(Embedded: false))
+                                                                                                         ).ToUTF8Bytes(),
+                                                                            Connection                 = "close",
+                                                                            Vary                       = "Accept"
+                                                                        }.AsImmutable);
 
                                              }
                                              catch (Exception e)
@@ -8042,7 +8061,9 @@ namespace social.OpenData.UsersAPI
                                                                 ContentType                = HTTPContentType.JSON_UTF8,
                                                                 Content                    = JSONObject.Create(
                                                                                                  new JProperty("description", "Could not fetch the requestes API keys! " + e.Message)
-                                                                                             ).ToUTF8Bytes()
+                                                                                             ).ToUTF8Bytes(),
+                                                                Connection                 = "close",
+                                                                Vary                       = "Accept"
                                                             }.AsImmutable);
                                              }
 
@@ -8078,6 +8099,18 @@ namespace social.OpenData.UsersAPI
 
                                                  #endregion
 
+                                                 #region Check UserId URL parameter
+
+                                                 if (!Request.ParseUser(this,
+                                                                        out User_Id?  UserId,
+                                                                        out User      User,
+                                                                        out           errorResponse))
+                                                 {
+                                                     return errorResponse;
+                                                 }
+
+                                                 #endregion
+
                                                  #region Parse JSON HTTP body...
 
                                                  if (!Request.TryParseJObjectRequestBody(out JObject JSONBody, out errorResponse))
@@ -8096,7 +8129,7 @@ namespace social.OpenData.UsersAPI
                                                                 Server                     = HTTPServer.DefaultServerName,
                                                                 Date                       = DateTime.UtcNow,
                                                                 AccessControlAllowOrigin   = "*",
-                                                                AccessControlAllowMethods  = "GET, SET",
+                                                                AccessControlAllowMethods  = "ADD, GET",
                                                                 AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
                                                                 ContentType                = HTTPContentType.JSON_UTF8,
                                                                 Content                    = JSONObject.Create(
@@ -8110,22 +8143,23 @@ namespace social.OpenData.UsersAPI
 
                                                  #endregion
 
-
                                                  #region Validate user
 
-                                                 if (apiKeyInfo.User != HTTPUser)
+                                                 if (apiKeyInfo.User != User || (HTTPUser != User && !CanImpersonate(HTTPUser, User)))
                                                  {
                                                      return new HTTPResponse.Builder(Request) {
                                                                 HTTPStatusCode             = HTTPStatusCode.Forbidden,
                                                                 Server                     = HTTPServer.DefaultServerName,
                                                                 Date                       = DateTime.UtcNow,
                                                                 AccessControlAllowOrigin   = "*",
-                                                                AccessControlAllowMethods  = "GET, SET",
+                                                                AccessControlAllowMethods  = "ADD, GET",
                                                                 AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
                                                                 ContentType                = HTTPContentType.JSON_UTF8,
                                                                 Content                    = JSONObject.Create(
                                                                                                  new JProperty("description", "This operation is not allowed!")
-                                                                                             ).ToUTF8Bytes()
+                                                                                             ).ToUTF8Bytes(),
+                                                                Connection                 = "close",
+                                                                Vary                       = "Accept"
                                                             }.AsImmutable;
                                                  }
 
@@ -8144,7 +8178,7 @@ namespace social.OpenData.UsersAPI
                                                                       Server                     = HTTPServer.DefaultServerName,
                                                                       Date                       = DateTime.UtcNow,
                                                                       AccessControlAllowOrigin   = "*",
-                                                                      AccessControlAllowMethods  = "GET, SET",
+                                                                      AccessControlAllowMethods  = "ADD, GET",
                                                                       AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
                                                                       ContentType                = HTTPContentType.JSON_UTF8,
                                                                       Content                    = apiKeyInfo.ToJSON().ToUTF8Bytes(),
@@ -8157,7 +8191,7 @@ namespace social.OpenData.UsersAPI
                                                                       Server                     = HTTPServer.DefaultServerName,
                                                                       Date                       = DateTime.UtcNow,
                                                                       AccessControlAllowOrigin   = "*",
-                                                                      AccessControlAllowMethods  = "GET, SET",
+                                                                      AccessControlAllowMethods  = "ADD, GET",
                                                                       AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
                                                                       ContentType                = HTTPContentType.JSON_UTF8,
                                                                       Content                    = JSONObject.Create(
@@ -8178,7 +8212,9 @@ namespace social.OpenData.UsersAPI
                                                             ContentType                = HTTPContentType.JSON_UTF8,
                                                             Content                    = JSONObject.Create(
                                                                                              new JProperty("description", "Could not fetch the requestes API keys! " + e.Message)
-                                                                                         ).ToUTF8Bytes()
+                                                                                         ).ToUTF8Bytes(),
+                                                            Connection                 = "close",
+                                                            Vary                       = "Accept"
                                                         }.AsImmutable;
                                              }
 
@@ -8186,7 +8222,7 @@ namespace social.OpenData.UsersAPI
 
             #endregion
 
-            #region DELETE      ~/users/{UserId}/APIKeys
+            #region DELETE      ~/users/{UserId}/APIKeys/{APIKeyId}
 
             // ---------------------------------------------------------------------------------------------------
             // curl -v -X DELETE -H "Accept: application/json" http://127.0.0.1:2100/users/ahzf/APIKeys/abcdefgh
@@ -8214,8 +8250,19 @@ namespace social.OpenData.UsersAPI
 
                                                  #endregion
 
+                                                 #region Check UserId URL parameter
 
-                                                 #region Validate user
+                                                 if (!Request.ParseUser(this,
+                                                                        out User_Id?  UserId,
+                                                                        out User      User,
+                                                                        out           errorResponse))
+                                                 {
+                                                     return errorResponse;
+                                                 }
+
+                                                 #endregion
+
+                                                 #region Get API key
 
                                                  if (Request.ParsedURLParameters.Length < 1)
                                                  {
@@ -8224,7 +8271,7 @@ namespace social.OpenData.UsersAPI
                                                                 Server                     = HTTPServer.DefaultServerName,
                                                                 Date                       = DateTime.UtcNow,
                                                                 AccessControlAllowOrigin   = "*",
-                                                                AccessControlAllowMethods  = "GET, SET",
+                                                                AccessControlAllowMethods  = "DELETE",
                                                                 AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
                                                                 ContentType                = HTTPContentType.JSON_UTF8,
                                                                 Content                    = JSONObject.Create(
@@ -8244,7 +8291,7 @@ namespace social.OpenData.UsersAPI
                                                                 Server                     = HTTPServer.DefaultServerName,
                                                                 Date                       = DateTime.UtcNow,
                                                                 AccessControlAllowOrigin   = "*",
-                                                                AccessControlAllowMethods  = "GET, SET",
+                                                                AccessControlAllowMethods  = "DELETE",
                                                                 AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
                                                                 ContentType                = HTTPContentType.JSON_UTF8,
                                                                 Content                    = JSONObject.Create(
@@ -8262,7 +8309,7 @@ namespace social.OpenData.UsersAPI
                                                                 Server                     = HTTPServer.DefaultServerName,
                                                                 Date                       = DateTime.UtcNow,
                                                                 AccessControlAllowOrigin   = "*",
-                                                                AccessControlAllowMethods  = "GET, SET",
+                                                                AccessControlAllowMethods  = "DELETE",
                                                                 AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
                                                                 ContentType                = HTTPContentType.JSON_UTF8,
                                                                 Content                    = JSONObject.Create(
@@ -8273,14 +8320,18 @@ namespace social.OpenData.UsersAPI
                                                             };
                                                  }
 
-                                                 if (apiKeyInfo.User != HTTPUser)
+                                                 #endregion
+
+                                                 #region Validate user
+
+                                                 if (apiKeyInfo.User != User || (HTTPUser != User && !CanImpersonate(HTTPUser, User)))
                                                  {
                                                      return new HTTPResponse.Builder(Request) {
                                                                 HTTPStatusCode             = HTTPStatusCode.Forbidden,
                                                                 Server                     = HTTPServer.DefaultServerName,
                                                                 Date                       = DateTime.UtcNow,
                                                                 AccessControlAllowOrigin   = "*",
-                                                                AccessControlAllowMethods  = "GET, SET",
+                                                                AccessControlAllowMethods  = "DELETE",
                                                                 AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
                                                                 ContentType                = HTTPContentType.JSON_UTF8,
                                                                 Content                    = JSONObject.Create(
@@ -8305,7 +8356,7 @@ namespace social.OpenData.UsersAPI
                                                             Server                     = HTTPServer.DefaultServerName,
                                                             Date                       = DateTime.UtcNow,
                                                             AccessControlAllowOrigin   = "*",
-                                                            AccessControlAllowMethods  = "GET, SET",
+                                                            AccessControlAllowMethods  = "DELETE",
                                                             AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
                                                             ContentType                = HTTPContentType.JSON_UTF8,
                                                             Content                    = apiKeyInfo.ToJSON().ToUTF8Bytes(),
@@ -8321,12 +8372,14 @@ namespace social.OpenData.UsersAPI
                                                             Server                     = HTTPServer.DefaultServerName,
                                                             Date                       = DateTime.UtcNow,
                                                             AccessControlAllowOrigin   = "*",
-                                                            AccessControlAllowMethods  = "ADD, GET",
+                                                            AccessControlAllowMethods  = "DELETE",
                                                             AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
                                                             ContentType                = HTTPContentType.JSON_UTF8,
                                                             Content                    = JSONObject.Create(
                                                                                              new JProperty("description", "Could not delete the requested API key! " + e.Message)
-                                                                                         ).ToUTF8Bytes()
+                                                                                         ).ToUTF8Bytes(),
+                                                            Connection                 = "close",
+                                                            Vary                       = "Accept"
                                                         }.AsImmutable;
                                              }
 
