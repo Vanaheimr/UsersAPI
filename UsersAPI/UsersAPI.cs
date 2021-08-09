@@ -953,7 +953,7 @@ namespace social.OpenData.UsersAPI
                                                        CurrentUserId);
 
             return addUserResult.IsSuccess
-                       ? addUserResult.Object
+                       ? addUserResult.User
                        : null;
 
         }
@@ -1057,7 +1057,7 @@ namespace social.OpenData.UsersAPI
                                                        CurrentUserId);
 
             return addUserResult.IsSuccess
-                       ? addUserResult.Object
+                       ? addUserResult.User
                        : null;
 
         }
@@ -1154,7 +1154,7 @@ namespace social.OpenData.UsersAPI
                                                                   CurrentUserId);
 
             return addUserResult.IsSuccess
-                       ? addUserResult.Object
+                       ? addUserResult.User
                        : null;
 
         }
@@ -1165,6 +1165,7 @@ namespace social.OpenData.UsersAPI
         #region CreateOrganization           (Id, Name = null, Description = null, ParentOrganization = null)
 
         public async static Task<Organization> CreateOrganization(this UsersAPI             UsersAPI,
+
                                                                   Organization_Id           Id,
                                                                   I18NString                Name                 = null,
                                                                   I18NString                Description          = null,
@@ -1175,8 +1176,11 @@ namespace social.OpenData.UsersAPI
                                                                   GeoCoordinate?            GeoLocation          = null,
                                                                   Func<Tags.Builder, Tags>  Tags                 = null,
                                                                   Boolean                   IsDisabled           = false,
-                                                                  String                    DataSource           = "",
+
                                                                   Organization              ParentOrganization   = null,
+
+                                                                  String                    DataSource           = "",
+                                                                  EventTracking_Id          EventTrackingId      = null,
                                                                   User_Id?                  CurrentUserId        = null)
         {
 
@@ -1192,9 +1196,11 @@ namespace social.OpenData.UsersAPI
                                                                                         IsDisabled,
                                                                                         DataSource: DataSource),
                                                                        ParentOrganization,
+                                                                       null,
+                                                                       EventTrackingId ?? EventTracking_Id.New,
                                                                        CurrentUserId);
 
-            return addOrganizationResult;
+            return addOrganizationResult.Organization;
 
         }
 
@@ -1203,6 +1209,7 @@ namespace social.OpenData.UsersAPI
         #region CreateOrganizationIfNotExists(Id, Name = null, Description = null, ParentOrganization = null)
 
         public async static Task<Organization> CreateOrganizationIfNotExists(this UsersAPI             UsersAPI,
+
                                                                              Organization_Id           Id,
                                                                              I18NString                Name                 = null,
                                                                              I18NString                Description          = null,
@@ -1213,8 +1220,11 @@ namespace social.OpenData.UsersAPI
                                                                              GeoCoordinate?            GeoLocation          = null,
                                                                              Func<Tags.Builder, Tags>  Tags                 = null,
                                                                              Boolean                   IsDisabled           = false,
-                                                                             String                    DataSource           = "",
+
                                                                              Organization              ParentOrganization   = null,
+
+                                                                             String                    DataSource           = "",
+                                                                             EventTracking_Id          EventTrackingId      = null,
                                                                              User_Id?                  CurrentUserId        = null)
         {
 
@@ -8802,7 +8812,7 @@ namespace social.OpenData.UsersAPI
                                                      Server                         = HTTPServer.DefaultServerName,
                                                      Date                           = DateTime.UtcNow,
                                                      AccessControlAllowOrigin       = "*",
-                                                     AccessControlAllowMethods      = "GET, COUNT, OPTIONS",
+                                                     AccessControlAllowMethods      = "OPTIONS, GET, COUNT, ADD",
                                                      AccessControlAllowHeaders      = "Content-Type, Accept, Authorization",
                                                      ETag                           = "1",
                                                      ContentType                    = HTTPContentType.JSON_UTF8,
@@ -8853,7 +8863,7 @@ namespace social.OpenData.UsersAPI
                                                          Server                     = HTTPServer.DefaultServerName,
                                                          Date                       = DateTime.UtcNow,
                                                          AccessControlAllowOrigin   = "*",
-                                                         AccessControlAllowMethods  = "GET",
+                                                         AccessControlAllowMethods  = "OPTIONS, GET, COUNT, ADD",
                                                          AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
                                                          ContentType                = HTTPContentType.HTML_UTF8,
                                                          Content                    = MixWithHTMLTemplate("organization.organizations.shtml").ToUTF8Bytes(),
@@ -8898,7 +8908,7 @@ namespace social.OpenData.UsersAPI
                                                      Server                     = HTTPServer.DefaultServerName,
                                                      Date                       = DateTime.UtcNow,
                                                      AccessControlAllowOrigin   = "*",
-                                                     AccessControlAllowMethods  = "GET, COUNT, OPTIONS",
+                                                     AccessControlAllowMethods  = "OPTIONS, GET, COUNT, ADD",
                                                      AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
                                                      ETag                       = "1",
                                                      ContentType                = HTTPContentType.JSON_UTF8,
@@ -8912,7 +8922,7 @@ namespace social.OpenData.UsersAPI
 
             #endregion
 
-            #region Add         ~/organizations
+            #region ADD         ~/organizations
 
             // ---------------------------------------------------------------------------------------------
             // curl -v -X Add \
@@ -8990,7 +9000,7 @@ namespace social.OpenData.UsersAPI
                                                                 Server                     = HTTPServer.DefaultServerName,
                                                                 Date                       = DateTime.UtcNow,
                                                                 AccessControlAllowOrigin   = "*",
-                                                                AccessControlAllowMethods  = "GET, SET",
+                                                                AccessControlAllowMethods  = "OPTIONS, GET, COUNT, ADD",
                                                                 AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
                                                                 ContentType                = HTTPContentType.JSON_UTF8,
                                                                 Content                    = JSONObject.Create(
@@ -9005,21 +9015,37 @@ namespace social.OpenData.UsersAPI
                                                  try
                                                  {
 
-                                                     var _NewChildOrganization = await AddOrganization(newOrganization,
-                                                                                           ParentOrganization: ParentOrganization,
-                                                                                           CurrentUserId:      HTTPUser.Id);
+                                                     var result = await AddOrganization(newOrganization,
+                                                                                        ParentOrganization,
+                                                                                        null,
+                                                                                        Request.EventTrackingId,
+                                                                                        HTTPUser.Id);
 
-                                                     return new HTTPResponse.Builder(Request) {
-                                                                HTTPStatusCode              = HTTPStatusCode.Created,
-                                                                Server                      = HTTPServer.DefaultServerName,
-                                                                Date                        = DateTime.UtcNow,
-                                                                AccessControlAllowOrigin    = "*",
-                                                                AccessControlAllowMethods   = "GET, SET",
-                                                                AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
-                                                                ContentType                 = HTTPContentType.JSON_UTF8,
-                                                                Content                     = _NewChildOrganization.ToJSON().ToUTF8Bytes(),
-                                                                Connection                  = "close"
-                                                            }.AsImmutable;
+                                                     return result?.IsSuccess == true
+
+                                                                ? new HTTPResponse.Builder(Request) {
+                                                                      HTTPStatusCode              = HTTPStatusCode.Created,
+                                                                      Server                      = HTTPServer.DefaultServerName,
+                                                                      Date                        = DateTime.UtcNow,
+                                                                      AccessControlAllowOrigin    = "*",
+                                                                      AccessControlAllowMethods   = "OPTIONS, GET, COUNT, ADD",
+                                                                      AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
+                                                                      ContentType                 = HTTPContentType.JSON_UTF8,
+                                                                      Content                     = result.Organization.ToJSON().ToUTF8Bytes(),
+                                                                      Connection                  = "close"
+                                                                  }.AsImmutable
+
+                                                                : new HTTPResponse.Builder(Request) {
+                                                                      HTTPStatusCode              = HTTPStatusCode.BadRequest,
+                                                                      Server                      = HTTPServer.DefaultServerName,
+                                                                      Date                        = DateTime.UtcNow,
+                                                                      AccessControlAllowOrigin    = "*",
+                                                                      AccessControlAllowMethods   = "OPTIONS, GET, COUNT, ADD",
+                                                                      AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
+                                                                      ContentType                 = HTTPContentType.JSON_UTF8,
+                                                                      Content                     = result.ToJSON().ToUTF8Bytes(),
+                                                                      Connection                  = "close"
+                                                                  }.AsImmutable;
 
                                                  }
                                                  catch (Exception e)
@@ -9030,7 +9056,7 @@ namespace social.OpenData.UsersAPI
                                                                 Server                     = HTTPServer.DefaultServerName,
                                                                 Date                       = DateTime.UtcNow,
                                                                 AccessControlAllowOrigin   = "*",
-                                                                AccessControlAllowMethods  = "GET, SET",
+                                                                AccessControlAllowMethods  = "OPTIONS, GET, COUNT, ADD",
                                                                 AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
                                                                 ContentType                = HTTPContentType.JSON_UTF8,
                                                                 Content                    = JSONObject.Create(
@@ -9049,7 +9075,7 @@ namespace social.OpenData.UsersAPI
                                                         Server                     = HTTPServer.DefaultServerName,
                                                         Date                       = DateTime.UtcNow,
                                                         AccessControlAllowOrigin   = "*",
-                                                        AccessControlAllowMethods  = "GET, SET",
+                                                        AccessControlAllowMethods  = "OPTIONS, GET, COUNT, ADD",
                                                         AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
                                                         ContentType                = HTTPContentType.JSON_UTF8,
                                                         Content                    = JSONObject.Create(
@@ -9465,23 +9491,29 @@ namespace social.OpenData.UsersAPI
                                                  try
                                                  {
 
-                                                     var _NewChildOrganization = await AddOrganization(new Organization(NewChildOrganization.Id,
-                                                                                                                        NewChildOrganization.Name,
-                                                                                                                        NewChildOrganization.Description
-                                                                                                                        //Website,
-                                                                                                                        //EMail,
-                                                                                                                        //Telephone,
-                                                                                                                        //Address,
-                                                                                                                        //GeoLocation,
-                                                                                                                        //Tags,
-                                                                                                                        //IsDisabled,
-                                                                                                                        //DataSource: DataSource
-                                                                                                                        ),
-                                                                                                       ParentOrganization,
-                                                                                                       HTTPUser.Id);
+                                                     var result = await AddOrganization(new Organization(NewChildOrganization.Id,
+                                                                                                         NewChildOrganization.Name,
+                                                                                                         NewChildOrganization.Description
+                                                                                                         //Website,
+                                                                                                         //EMail,
+                                                                                                         //Telephone,
+                                                                                                         //Address,
+                                                                                                         //GeoLocation,
+                                                                                                         //Tags,
+                                                                                                         //IsDisabled,
+                                                                                                         //DataSource: DataSource
+                                                                                                         ),
+                                                                                        ParentOrganization,
+                                                                                        async (_organization, _eventTrackingId) => {
 
-                                                     foreach (var admin in Admins)
-                                                         await AddToOrganization(admin, User2OrganizationEdgeTypes.IsAdmin, _NewChildOrganization);
+                                                                                            foreach (var admin in Admins)
+                                                                                                await _AddToOrganization(admin,
+                                                                                                                         User2OrganizationEdgeTypes.IsAdmin,
+                                                                                                                         _organization);
+
+                                                                                        },
+                                                                                        Request.EventTrackingId,
+                                                                                        HTTPUser.Id);
 
                                                  }
                                                  catch (Exception e)
@@ -15106,9 +15138,6 @@ namespace social.OpenData.UsersAPI
                                                  User_Id?                        CurrentUserId     = null)
         {
 
-            if (User is null)
-                throw new ArgumentNullException(nameof(User), "The given user must not be null!");
-
             try
             {
 
@@ -15119,8 +15148,13 @@ namespace social.OpenData.UsersAPI
                                              EventTrackingId,
                                              CurrentUserId)
 
-                            : null;
+                            : AddUserResult.Failed(User,
+                                                   "Internal locking failed!");
 
+            }
+            catch (Exception e)
+            {
+                return AddUserResult.Failed(User, e);
             }
             finally
             {
@@ -15155,22 +15189,8 @@ namespace social.OpenData.UsersAPI
                                                  User_Id?                        CurrentUserId     = null)
         {
 
-            if (User is null)
-                throw new ArgumentNullException("The given user must not be null!",
-                                                nameof(User));
-
-            if (Organization is null)
-                throw new ArgumentNullException("The given organization of the user must not be null!",
-                                                nameof(Organization));
-
-            if (Organization.API != this)
-                throw new ArgumentException    ("The given organization of the user is not attached to this API!",
-                                                nameof(Organization));
-
             try
             {
-
-                var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
 
                 // The new user does not yet have an organization,
                 // therefore organization notifications do not work here yet!
@@ -15187,11 +15207,16 @@ namespace social.OpenData.UsersAPI
                                                   OnAdded(_user,
                                                           _eventTrackingId);
                                               },
-                                              eventTrackingId,
+                                              EventTrackingId ?? EventTracking_Id.New,
                                               CurrentUserId)
 
-                             : null;
+                             : AddUserResult.Failed(User,
+                                                    "Internal locking failed!");
 
+            }
+            catch (Exception e)
+            {
+                return AddUserResult.Failed(User, e);
             }
             finally
             {
@@ -15335,8 +15360,13 @@ namespace social.OpenData.UsersAPI
                                                         EventTrackingId,
                                                         CurrentUserId)
 
-                            : null;
+                            : AddUserIfNotExistsResult.Failed(User,
+                                                              "Internal locking failed!");
 
+            }
+            catch (Exception e)
+            {
+                return AddUserIfNotExistsResult.Failed(User, e);
             }
             finally
             {
@@ -15366,27 +15396,13 @@ namespace social.OpenData.UsersAPI
         public async Task<AddUserIfNotExistsResult> AddUserIfNotExists(User                            User,
                                                                        User2OrganizationEdgeTypes      Membership,
                                                                        Organization                    Organization,
-                                                                       Action<User, EventTracking_Id>  OnAdded              = null,
-                                                                       EventTracking_Id                EventTrackingId      = null,
-                                                                       User_Id?                        CurrentUserId        = null)
+                                                                       Action<User, EventTracking_Id>  OnAdded           = null,
+                                                                       EventTracking_Id                EventTrackingId   = null,
+                                                                       User_Id?                        CurrentUserId     = null)
         {
-
-            if (User is null)
-                throw new ArgumentNullException(nameof(User),
-                                                "The given user must not be null!");
-
-            if (Organization is null)
-                throw new ArgumentNullException(nameof(Organization),
-                                                "The given organization must not be null!");
-
-            if (Organization.API != this)
-                throw new ArgumentException    ("The given organization is not attached to this API!",
-                                                nameof(Organization));
 
             try
             {
-
-                var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
 
                 // The new user does not yet have an organization,
                 // therefore organization notifications do not work here yet!
@@ -15403,11 +15419,16 @@ namespace social.OpenData.UsersAPI
                                                              OnAdded(_user,
                                                                      _eventTrackingId);
                                                          },
-                                                         eventTrackingId,
+                                                         EventTrackingId,
                                                          CurrentUserId)
 
-                             : null;
+                             : AddUserIfNotExistsResult.Failed(User,
+                                                               "Internal locking failed!");
 
+            }
+            catch (Exception e)
+            {
+                return AddUserIfNotExistsResult.Failed(User, e);
             }
             finally
             {
@@ -16220,7 +16241,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="OnRemoved">A delegate run whenever the user had been removed successfully.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
-        protected internal async Task<DeleteUserResult> _RemoveUser(User                            User,
+        protected internal async Task<RemoveUserResult> _RemoveUser(User                            User,
                                                                     Action<User, EventTracking_Id>  OnRemoved         = null,
                                                                     EventTracking_Id                EventTrackingId   = null,
                                                                     User_Id?                        CurrentUserId     = null)
@@ -16270,11 +16291,11 @@ namespace social.OpenData.UsersAPI
                 OnRemoved?.Invoke(User,
                                   eventTrackingId);
 
-                return DeleteUserResult.Success;
+                return RemoveUserResult.Success(User);
 
             }
             else
-                return DeleteUserResult.Failed(result);
+                return RemoveUserResult.Failed(User, result);
 
         }
 
@@ -16289,14 +16310,11 @@ namespace social.OpenData.UsersAPI
         /// <param name="OnRemoved">A delegate run whenever the user had been removed successfully.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
-        public async Task<DeleteUserResult> RemoveUser(User                            User,
+        public async Task<RemoveUserResult> RemoveUser(User                            User,
                                                        Action<User, EventTracking_Id>  OnRemoved         = null,
                                                        EventTracking_Id                EventTrackingId   = null,
                                                        User_Id?                        CurrentUserId     = null)
         {
-
-            if (User is null)
-                throw new ArgumentNullException(nameof(User), "The given user must not be null!");
 
             try
             {
@@ -16308,12 +16326,13 @@ namespace social.OpenData.UsersAPI
                                                 EventTrackingId,
                                                 CurrentUserId)
 
-                            : null;
+                            : RemoveUserResult.Failed(User,
+                                                      "Internal locking failed!");
 
             }
             catch (Exception e)
             {
-                return DeleteUserResult.Failed(e);
+                return RemoveUserResult.Failed(User, e);
             }
             finally
             {
@@ -17592,7 +17611,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="OnRemoved">A delegate run whenever the user group had been removed successfully.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional user group identification initiating this command/request.</param>
-        protected internal async Task<DeleteUserGroupResult> _RemoveUserGroup(UserGroup                            UserGroup,
+        protected internal async Task<RemoveUserGroupResult> _RemoveUserGroup(UserGroup                            UserGroup,
                                                                               Action<UserGroup, EventTracking_Id>  OnRemoved         = null,
                                                                               EventTracking_Id                     EventTrackingId   = null,
                                                                               User_Id?                             CurrentUserId     = null)
@@ -17638,11 +17657,11 @@ namespace social.OpenData.UsersAPI
                 OnRemoved?.Invoke(UserGroup,
                                   eventTrackingId);
 
-                return DeleteUserGroupResult.Success;
+                return RemoveUserGroupResult.Success(UserGroup);
 
             }
             else
-                return DeleteUserGroupResult.Failed(result);
+                return RemoveUserGroupResult.Failed(UserGroup, result);
 
         }
 
@@ -17657,7 +17676,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="OnRemoved">A delegate run whenever the user group had been removed successfully.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional user group identification initiating this command/request.</param>
-        public async Task<DeleteUserGroupResult> RemoveUserGroup(UserGroup                            UserGroup,
+        public async Task<RemoveUserGroupResult> RemoveUserGroup(UserGroup                            UserGroup,
                                                                  Action<UserGroup, EventTracking_Id>  OnRemoved         = null,
                                                                  EventTracking_Id                     EventTrackingId   = null,
                                                                  User_Id?                             CurrentUserId     = null)
@@ -17676,12 +17695,13 @@ namespace social.OpenData.UsersAPI
                                                      EventTrackingId,
                                                      CurrentUserId)
 
-                            : null;
+                            : RemoveUserGroupResult.Failed(UserGroup,
+                                                           "Internal locking failed!");
 
             }
             catch (Exception e)
             {
-                return DeleteUserGroupResult.Failed(e);
+                return RemoveUserGroupResult.Failed(UserGroup, e);
             }
             finally
             {
@@ -23415,101 +23435,238 @@ namespace social.OpenData.UsersAPI
 
 
 
-        #region AddOrganization           (Organization,   ParentOrganization = null, CurrentUserId = null)
+        #region AddOrganization           (Organization, (ParentOrganization = null), OnAdded = null,                   CurrentUserId = null)
 
         /// <summary>
-        /// A delegate called whenever an organization was added.
+        /// A delegate called whenever a organization was added.
         /// </summary>
         /// <param name="Timestamp">The timestamp when the organization was added.</param>
         /// <param name="Organization">The added organization.</param>
-        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
-        public delegate Task OnOrganizationAddedDelegate(DateTime      Timestamp,
-                                                         Organization  Organization,
-                                                         User_Id?      CurrentUserId  = null);
+        /// <param name="EventTrackingId">An unique event tracking identification for correlating this request with other events.</param>
+        /// <param name="CurrentUserId">An optional organization identification initiating this command/request.</param>
+        public delegate Task OnOrganizationAddedDelegate(DateTime          Timestamp,
+                                                         Organization      Organization,
+                                                         EventTracking_Id  EventTrackingId   = null,
+                                                         User_Id?          CurrentUserId     = null);
 
         /// <summary>
-        /// An event fired whenever an organization was added.
+        /// An event fired whenever a organization was added.
         /// </summary>
         public event OnOrganizationAddedDelegate OnOrganizationAdded;
 
 
-
-        #region AddOrganization           (Organization,   ParentOrganization = null, CurrentUserId = null)
+        #region (protected internal) _AddOrganization(Organization,                            OnAdded = null, CurrentUserId = null)
 
         /// <summary>
         /// Add the given organization to the API.
         /// </summary>
         /// <param name="Organization">A new organization to be added to this API.</param>
-        /// <param name="ParentOrganization">The parent organization of the organization to be added.</param>
-        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
-        public async Task<Organization> AddOrganization(Organization  Organization,
-                                                        Organization  ParentOrganization   = null,
-                                                        User_Id?      CurrentUserId        = null)
+        /// <param name="OnAdded">A delegate run whenever the organization had been added successfully.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
+        /// <param name="CurrentUserId">An optional organization identification initiating this command/request.</param>
+        protected internal async Task<AddOrganizationResult> _AddOrganization(Organization                            Organization,
+                                                                              Action<Organization, EventTracking_Id>  OnAdded           = null,
+                                                                              EventTracking_Id                        EventTrackingId   = null,
+                                                                              User_Id?                                CurrentUserId     = null)
+        {
+
+            if (Organization is null)
+                return AddOrganizationResult.ArgumentError(Organization,
+                                                           nameof(Organization),
+                                                           "The given organization must not be null!");
+
+            if (Organization.API != null && Organization.API != this)
+                return AddOrganizationResult.ArgumentError(Organization,
+                                                           nameof(Organization),
+                                                           "The given organization is already attached to another API!");
+
+            if (_Organizations.ContainsKey(Organization.Id))
+                return AddOrganizationResult.ArgumentError(Organization,
+                                                           nameof(Organization),
+                                                           "Organization identification '" + Organization.Id + "' already exists!");
+
+            if (Organization.Id.Length < MinOrganizationIdLength)
+                return AddOrganizationResult.ArgumentError(Organization,
+                                                           nameof(Organization),
+                                                           "Organization identification '" + Organization.Id + "' is too short!");
+
+            if (Organization.Name.IsNullOrEmpty() || Organization.Name.IsNullOrEmpty())
+                return AddOrganizationResult.ArgumentError(Organization,
+                                                           nameof(Organization),
+                                                           "The given organization name must not be null!");
+
+            //if (Organization.Name.Length < MinOrganizationNameLength)
+            //    return AddOrganizationResult.ArgumentError(Organization,
+            //                                       nameof(Organization),
+            //                                       "Organization name '" + Organization.Name + "' is too short!");
+
+            Organization.API = this;
+
+
+            var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
+
+            await WriteToDatabaseFile(addOrganization_MessageType,
+                                      Organization.ToJSON(false, true),
+                                      eventTrackingId,
+                                      CurrentUserId);
+
+            _Organizations.Add(Organization.Id, Organization);
+
+
+            var OnOrganizationAddedLocal = OnOrganizationAdded;
+            if (OnOrganizationAddedLocal != null)
+                await OnOrganizationAddedLocal?.Invoke(DateTime.UtcNow,
+                                                       Organization,
+                                                       EventTrackingId,
+                                                       CurrentUserId);
+
+            await SendNotifications(Organization,
+                                    addOrganization_MessageType,
+                                    null,
+                                    EventTrackingId,
+                                    CurrentUserId);
+
+            OnAdded?.Invoke(Organization,
+                            eventTrackingId);
+
+            return AddOrganizationResult.Success(Organization);
+
+        }
+
+        #endregion
+
+        #region AddOrganization                      (Organization,                            OnAdded = null, CurrentUserId = null)
+
+        /// <summary>
+        /// Add the given organization.
+        /// </summary>
+        /// <param name="Organization">A new organization.</param>
+        /// <param name="OnAdded">A delegate run whenever the organization had been added successfully.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
+        /// <param name="CurrentUserId">An optional organization identification initiating this command/request.</param>
+        public async Task<AddOrganizationResult> AddOrganization(Organization                            Organization,
+                                                                 Action<Organization, EventTracking_Id>  OnAdded           = null,
+                                                                 EventTracking_Id                        EventTrackingId   = null,
+                                                                 User_Id?                                CurrentUserId     = null)
         {
 
             try
             {
 
-                await OrganizationsSemaphore.WaitAsync();
+                return (await OrganizationsSemaphore.WaitAsync(SemaphoreSlimTimeout))
 
-                if (Organization.API != null && Organization.API != this)
-                    throw new ArgumentException(nameof(Organization),  "The given organization is already attached to another API!");
+                            ? await _AddOrganization(Organization,
+                                                     OnAdded,
+                                                     EventTrackingId,
+                                                     CurrentUserId)
 
-                if (_Organizations.ContainsKey(Organization.Id))
-                    throw new ArgumentException(nameof(Organization),  "Organization identification '" + Organization.Id + "' already exists!");
+                            : AddOrganizationResult.Failed(Organization,
+                                                           "Internal locking failed!");
 
-                if (ParentOrganization == null)
-                    ParentOrganization = NoOwner;
-
-                if (ParentOrganization != null && !_Organizations.ContainsKey(ParentOrganization.Id))
-                    throw new Exception("Parent organization '" + ParentOrganization.Id + "' does not exists in this API!");
-
-                Organization.API = this;
-
-
-                // Check Admin!
-                if (CurrentUserId.HasValue)
-                {
-                    if (!(GetUser(CurrentUserId.Value)).
-                             Organizations(Access_Levels.ReadWrite, true).
-                             Contains(ParentOrganization))
-                    {
-                        throw new Exception("Not allowed!");
-                    }
-                }
-
-
-                // The new organization does not yet have a parent organization,
-                // therefore notifications do not work here now!
-                await WriteToDatabaseFile(addOrganization_MessageType,
-                                          Organization.ToJSON(false, true),
-                                          EventTracking_Id.New,
-                                          CurrentUserId);
-
-                var newOrganization = _Organizations.AddAndReturnValue(Organization.Id, Organization);
-
-                if (ParentOrganization != null)
-                {
-
-                    await _LinkOrganizations(newOrganization,
-                                             Organization2OrganizationEdgeTypes.IsChildOf,
-                                             ParentOrganization,
-                                             CurrentUserId: CurrentUserId);
-
-                    await SendNotifications(Organization,
-                                            addOrganization_MessageType,
-                                            null,
-                                            null,
-                                            CurrentUserId);
-
-                }
-
-                return newOrganization;
-
+            }
+            catch (Exception e)
+            {
+                return AddOrganizationResult.Failed(Organization, e);
             }
             finally
             {
-                OrganizationsSemaphore.Release();
+                try
+                {
+                    OrganizationsSemaphore.Release();
+                }
+                catch
+                { }
+            }
+
+        }
+
+        #endregion
+
+        #region AddOrganization                      (Organization, ParentOrganization = null, OnAdded = null, CurrentUserId = null)
+
+        /// <summary>
+        /// Add the given organization and add him/her to the given organization.
+        /// </summary>
+        /// <param name="Organization">A new organization.</param>
+        /// <param name="ParentOrganization">The parent organization of the new organization.</param>
+        /// <param name="OnAdded">A delegate run whenever the organization had been added successfully.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
+        /// <param name="CurrentUserId">An optional organization identification initiating this command/request.</param>
+        public async Task<AddOrganizationResult> AddOrganization(Organization                            Organization,
+                                                                 Organization                            ParentOrganization   = null,
+                                                                 Action<Organization, EventTracking_Id>  OnAdded              = null,
+                                                                 EventTracking_Id                        EventTrackingId      = null,
+                                                                 User_Id?                                CurrentUserId        = null)
+        {
+
+            if (ParentOrganization is null)
+                ParentOrganization = NoOwner;
+
+            else if (!_Organizations.ContainsKey(ParentOrganization.Id))
+                return AddOrganizationResult.ArgumentError(Organization,
+                                                           nameof(ParentOrganization),
+                                                           "Parent organization '" + ParentOrganization.Id + "' does not exists in this API!");
+
+            try
+            {
+
+                // The new organization does not yet have an organization,
+                // therefore organization notifications do not work here yet!
+                if (await OrganizationsSemaphore.WaitAsync(SemaphoreSlimTimeout))
+                {
+
+                    // Check if the user is allowed to create and link the given organizations!
+                    if (CurrentUserId.HasValue &&
+                       !GetUser(CurrentUserId.Value).
+                            Organizations(Access_Levels.ReadWrite, true).
+                            Contains     (ParentOrganization))
+                    {
+                        return AddOrganizationResult.Failed(Organization,
+                                                            "Your are not allowed to create this sub organization!",
+                                                            ParentOrganization);
+                    }
+
+                    var addOrganizationResult = await _AddOrganization(Organization,
+                                                                       async (_organization, _eventTrackingId) => {
+
+                                                                           await _LinkOrganizations(_organization,
+                                                                                                    Organization2OrganizationEdgeTypes.IsChildOf,
+                                                                                                    ParentOrganization,
+                                                                                                    _eventTrackingId,
+                                                                                                    CurrentUserId);
+
+                                                                           OnAdded(_organization,
+                                                                                   _eventTrackingId);
+
+                                                                       },
+                                                                       EventTrackingId,
+                                                                       CurrentUserId);
+
+                    addOrganizationResult.ParentOrganization = ParentOrganization;
+
+                    return addOrganizationResult;
+
+                }
+
+                return AddOrganizationResult.Failed(Organization,
+                                                    "Internal locking failed!",
+                                                    ParentOrganization);
+
+            }
+            catch (Exception e)
+            {
+                return AddOrganizationResult.Failed(Organization,
+                                                    e,
+                                                    ParentOrganization);
+            }
+            finally
+            {
+                try
+                {
+                    OrganizationsSemaphore.Release();
+                }
+                catch
+                { }
             }
 
         }
@@ -23517,6 +23674,8 @@ namespace social.OpenData.UsersAPI
         #endregion
 
         #endregion
+
+
 
         #region AddOrganizationIfNotExists(Organization,   ParentOrganization = null, CurrentUserId = null)
 
@@ -23760,9 +23919,6 @@ namespace social.OpenData.UsersAPI
                                                            User_Id?                                CurrentUserId     = null)
         {
 
-            if (Organization is null)
-                throw new ArgumentNullException(nameof(Organization), "The given organization must not be null!");
-
             try
             {
 
@@ -23876,9 +24032,6 @@ namespace social.OpenData.UsersAPI
                                                            EventTracking_Id                        EventTrackingId   = null,
                                                            User_Id?                                CurrentUserId     = null)
         {
-
-            if (OrganizationId.IsNullOrEmpty)
-                throw new ArgumentNullException(nameof(OrganizationId), "The given organization identification must not be null or empty!");
 
             try
             {
@@ -24341,7 +24494,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="OnRemoved">A delegate run whenever the organization had been removed successfully.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
-        protected internal async Task<DeleteOrganizationResult> _RemoveOrganization(Organization                            Organization,
+        protected internal async Task<RemoveOrganizationResult> _RemoveOrganization(Organization                            Organization,
                                                                                     Action<Organization, EventTracking_Id>  OnRemoved         = null,
                                                                                     EventTracking_Id                        EventTrackingId   = null,
                                                                                     User_Id?                                CurrentUserId     = null)
@@ -24399,11 +24552,11 @@ namespace social.OpenData.UsersAPI
                 OnRemoved?.Invoke(Organization,
                                   eventTrackingId);
 
-                return DeleteOrganizationResult.Success;
+                return RemoveOrganizationResult.Success(Organization);
 
             }
             else
-                return DeleteOrganizationResult.Failed(result);
+                return RemoveOrganizationResult.Failed(Organization, result);
 
         }
 
@@ -24418,7 +24571,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="OnRemoved">A delegate run whenever the organization had been removed successfully.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
-        public async Task<DeleteOrganizationResult> RemoveOrganization(Organization                            Organization,
+        public async Task<RemoveOrganizationResult> RemoveOrganization(Organization                            Organization,
                                                                        Action<Organization, EventTracking_Id>  OnRemoved         = null,
                                                                        EventTracking_Id                        EventTrackingId   = null,
                                                                        User_Id?                                CurrentUserId     = null)
@@ -24437,12 +24590,13 @@ namespace social.OpenData.UsersAPI
                                                         EventTrackingId,
                                                         CurrentUserId)
 
-                            : null;
+                            : RemoveOrganizationResult.Failed(Organization,
+                                                              "Internal locking failed!");
 
             }
             catch (Exception e)
             {
-                return DeleteOrganizationResult.Failed(e);
+                return RemoveOrganizationResult.Failed(Organization, e);
             }
             finally
             {
@@ -25621,7 +25775,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="OnRemoved">A delegate run whenever the organization group had been removed successfully.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional organization group identification initiating this command/request.</param>
-        protected internal async Task<DeleteOrganizationGroupResult> _RemoveOrganizationGroup(OrganizationGroup                            OrganizationGroup,
+        protected internal async Task<RemoveOrganizationGroupResult> _RemoveOrganizationGroup(OrganizationGroup                            OrganizationGroup,
                                                                                               Action<OrganizationGroup, EventTracking_Id>  OnRemoved         = null,
                                                                                               EventTracking_Id                             EventTrackingId   = null,
                                                                                               User_Id?                                     CurrentUserId     = null)
@@ -25667,11 +25821,11 @@ namespace social.OpenData.UsersAPI
                 OnRemoved?.Invoke(OrganizationGroup,
                                   eventTrackingId);
 
-                return DeleteOrganizationGroupResult.Success;
+                return RemoveOrganizationGroupResult.Success(OrganizationGroup);
 
             }
             else
-                return DeleteOrganizationGroupResult.Failed(result);
+                return RemoveOrganizationGroupResult.Failed(OrganizationGroup, result);
 
         }
 
@@ -25686,7 +25840,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="OnRemoved">A delegate run whenever the organization group had been removed successfully.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional organization group identification initiating this command/request.</param>
-        public async Task<DeleteOrganizationGroupResult> RemoveOrganizationGroup(OrganizationGroup                            OrganizationGroup,
+        public async Task<RemoveOrganizationGroupResult> RemoveOrganizationGroup(OrganizationGroup                            OrganizationGroup,
                                                                                  Action<OrganizationGroup, EventTracking_Id>  OnRemoved         = null,
                                                                                  EventTracking_Id                             EventTrackingId   = null,
                                                                                  User_Id?                                     CurrentUserId     = null)
@@ -25701,16 +25855,17 @@ namespace social.OpenData.UsersAPI
                 return (await OrganizationGroupsSemaphore.WaitAsync(SemaphoreSlimTimeout))
 
                             ? await _RemoveOrganizationGroup(OrganizationGroup,
-                                                     OnRemoved,
-                                                     EventTrackingId,
-                                                     CurrentUserId)
+                                                             OnRemoved,
+                                                             EventTrackingId,
+                                                             CurrentUserId)
 
-                            : null;
+                            : RemoveOrganizationGroupResult.Failed(OrganizationGroup,
+                                                                   "Internal locking failed!");
 
             }
             catch (Exception e)
             {
-                return DeleteOrganizationGroupResult.Failed(e);
+                return RemoveOrganizationGroupResult.Failed(OrganizationGroup, e);
             }
             finally
             {

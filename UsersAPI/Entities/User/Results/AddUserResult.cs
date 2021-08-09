@@ -26,26 +26,41 @@ using org.GraphDefined.Vanaheimr.Illias;
 namespace social.OpenData.UsersAPI
 {
 
-    public class AddUserResult : AddResult<User>
+    public class AddUserResult : AResult<User>
     {
 
-        public AddUserResult(User        UserUser,
-                             Boolean     IsSuccess,
-                             String      Argument          = null,
-                             I18NString  ErrorDescription  = null)
+        public User User
+            => Object;
+
+        public Organization  Organization   { get; internal set; }
+
+
+        public AddUserResult(User          UserUser,
+                             Boolean       IsSuccess,
+                             String        Argument          = null,
+                             I18NString    ErrorDescription  = null,
+                             Organization  Organization      = null)
 
             : base(UserUser,
                    IsSuccess,
                    Argument,
                    ErrorDescription)
 
-        { }
+        {
+
+            this.Organization = Organization;
+
+        }
 
 
-        public static AddUserResult Success(User User)
+        public static AddUserResult Success(User          User,
+                                            Organization  Organization = null)
 
             => new AddUserResult(User,
-                                 true);
+                                 true,
+                                 null,
+                                 null,
+                                 Organization);
 
 
         public static AddUserResult ArgumentError(User    User,
@@ -67,22 +82,38 @@ namespace social.OpenData.UsersAPI
                                  Argument,
                                  Description);
 
-        public static AddUserResult Failed(User        User,
-                                           I18NString  Description)
 
-            => new AddUserResult(User,
-                                 false,
-                                 null,
-                                 Description);
-
-        public static AddUserResult Failed(User       User,
-                                           Exception  Exception)
+        public static AddUserResult Failed(User          User,
+                                           String        Description,
+                                           Organization  Organization  = null)
 
             => new AddUserResult(User,
                                  false,
                                  null,
                                  I18NString.Create(Languages.en,
-                                                   Exception.Message));
+                                                   Description),
+                                 Organization);
+
+        public static AddUserResult Failed(User          User,
+                                           I18NString    Description,
+                                           Organization  Organization  = null)
+
+            => new AddUserResult(User,
+                                 false,
+                                 null,
+                                 Description,
+                                 Organization);
+
+        public static AddUserResult Failed(User          User,
+                                           Exception     Exception,
+                                           Organization  Organization  = null)
+
+            => new AddUserResult(User,
+                                 false,
+                                 null,
+                                 I18NString.Create(Languages.en,
+                                                   Exception.Message),
+                                 Organization);
 
     }
 

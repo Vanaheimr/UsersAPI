@@ -18,7 +18,8 @@
 #region Usings
 
 using System;
-
+using System.Linq;
+using Newtonsoft.Json.Linq;
 using org.GraphDefined.Vanaheimr.Illias;
 
 #endregion
@@ -26,36 +27,38 @@ using org.GraphDefined.Vanaheimr.Illias;
 namespace social.OpenData.UsersAPI
 {
 
-    public class DeleteOrganizationResult
+    public abstract class AResult<T>
     {
 
-        public Boolean     IsSuccess           { get; }
+        protected T           Object              { get; }
 
-        public I18NString  ErrorDescription    { get; }
+        public    Boolean     IsSuccess           { get; }
+
+        public    String      Argument            { get; }
+
+        public    I18NString  ErrorDescription    { get; }
 
 
-        private DeleteOrganizationResult(Boolean     IsSuccess,
-                                              I18NString  ErrorDescription  = null)
+        public AResult(T           Object,
+                       Boolean     IsSuccess,
+                       String      Argument          = null,
+                       I18NString  ErrorDescription  = null)
         {
+
+            this.Object            = Object;
             this.IsSuccess         = IsSuccess;
+            this.Argument          = Argument;
             this.ErrorDescription  = ErrorDescription;
+
         }
 
+        public JObject ToJSON()
 
-        public static DeleteOrganizationResult Success
-
-            => new DeleteOrganizationResult(true);
-
-        public static DeleteOrganizationResult Failed(I18NString Reason)
-
-            => new DeleteOrganizationResult(false,
-                                                 Reason);
-
-        public static DeleteOrganizationResult Failed(Exception Exception)
-
-            => new DeleteOrganizationResult(false,
-                                                 I18NString.Create(Languages.en,
-                                                                   Exception.Message));
+            => JSONObject.Create(
+                   ErrorDescription.Count == 1
+                       ? new JProperty("description",  ErrorDescription.FirstText())
+                       : new JProperty("description",  ErrorDescription.ToJSON())
+               );
 
         public override String ToString()
 
