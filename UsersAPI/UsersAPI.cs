@@ -8989,31 +8989,50 @@ namespace social.OpenData.UsersAPI
                                          HTTPResponseLogger: AddOrganizationHTTPResponse,
                                          HTTPDelegate:       async Request => {
 
-                                             #region Get HTTP user and its organizations
-
-                                             // Will return HTTP 401 Unauthorized, when the HTTP user is unknown!
-                                             if (!TryGetHTTPUser(Request,
-                                                                 out User                   HTTPUser,
-                                                                 out HashSet<Organization>  HTTPOrganizations,
-                                                                 out HTTPResponse.Builder   Response,
-                                                                 AccessLevel:               Access_Levels.ReadWrite,
-                                                                 Recursive:                 true))
+                                             try
                                              {
-                                                 return Response;
-                                             }
 
-                                             #endregion
+                                                 #region Get HTTP user and its organizations
 
-                                             #region Parse JSON and create the new child organization...
+                                                 // Will return HTTP 401 Unauthorized, when the HTTP user is unknown!
+                                                 if (!TryGetHTTPUser(Request,
+                                                                     out User                   HTTPUser,
+                                                                     out HashSet<Organization>  HTTPOrganizations,
+                                                                     out HTTPResponse.Builder   Response,
+                                                                     AccessLevel:               Access_Levels.ReadWrite,
+                                                                     Recursive:                 true))
+                                                 {
+                                                     return Response;
+                                                 }
 
-                                             if (!Request.TryParseJObjectRequestBody(out JObject JSONObj, out HTTPResponse.Builder HTTPResponse))
-                                                 return HTTPResponse;
+                                                 #endregion
 
-                                             if (Organization.TryParseJSON(JSONObj,
-                                                                           out Organization    newOrganization,
-                                                                           out String          ErrorResponse,
-                                                                           OrganizationIdURL:  Organization_Id.Random()))
-                                             {
+                                                 #region Parse JSON and create the new child organization...
+
+                                                 if (!Request.TryParseJObjectRequestBody(out JObject JSONObj, out HTTPResponse.Builder HTTPResponse))
+                                                     return HTTPResponse;
+
+                                                 if (!Organization.TryParseJSON(JSONObj,
+                                                                                out Organization    newOrganization,
+                                                                                out String          ErrorResponse,
+                                                                                OrganizationIdURL:  Organization_Id.Random()))
+                                                 {
+                                                     return new HTTPResponse.Builder(Request) {
+                                                                HTTPStatusCode              = HTTPStatusCode.BadRequest,
+                                                                Server                      = HTTPServer.DefaultServerName,
+                                                                Date                        = DateTime.UtcNow,
+                                                                AccessControlAllowOrigin    = "*",
+                                                                AccessControlAllowMethods   = "OPTIONS, GET, COUNT, ADD",
+                                                                AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
+                                                                ContentType                 = HTTPContentType.JSON_UTF8,
+                                                                Content                     = JSONObject.Create(
+                                                                                                  new JProperty("description", ErrorResponse)
+                                                                                              ).ToUTF8Bytes(),
+                                                                Connection                  = "close"
+                                                            }.AsImmutable;
+                                                 }
+
+                                                 #endregion
 
                                                  #region Parse parent organization
 
@@ -9032,92 +9051,74 @@ namespace social.OpenData.UsersAPI
                                                  {
 
                                                      return new HTTPResponse.Builder(Request) {
-                                                                HTTPStatusCode             = HTTPStatusCode.BadRequest,
-                                                                Server                     = HTTPServer.DefaultServerName,
-                                                                Date                       = DateTime.UtcNow,
-                                                                AccessControlAllowOrigin   = "*",
-                                                                AccessControlAllowMethods  = "OPTIONS, GET, COUNT, ADD",
-                                                                AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
-                                                                ContentType                = HTTPContentType.JSON_UTF8,
-                                                                Content                    = JSONObject.Create(
-                                                                                                 new JProperty("description",  "Unknown parent organization!")
-                                                                                             ).ToUTF8Bytes()
-                                                            }.AsImmutable;
+                                                             HTTPStatusCode             = HTTPStatusCode.BadRequest,
+                                                             Server                     = HTTPServer.DefaultServerName,
+                                                             Date                       = DateTime.UtcNow,
+                                                             AccessControlAllowOrigin   = "*",
+                                                             AccessControlAllowMethods  = "OPTIONS, GET, COUNT, ADD",
+                                                             AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
+                                                             ContentType                = HTTPContentType.JSON_UTF8,
+                                                             Content                    = JSONObject.Create(
+                                                                                              new JProperty("description",  "Unknown parent organization!")
+                                                                                          ).ToUTF8Bytes(),
+                                                             Connection                 = "close"
+                                                         }.AsImmutable;
 
                                                  }
 
                                                  #endregion
 
-                                                 try
-                                                 {
 
-                                                     var result = await AddOrganization(newOrganization,
-                                                                                        ParentOrganization,
-                                                                                        null,
-                                                                                        Request.EventTrackingId,
-                                                                                        HTTPUser.Id);
+                                                 var result = await AddOrganization(newOrganization,
+                                                                                    ParentOrganization,
+                                                                                    null,
+                                                                                    Request.EventTrackingId,
+                                                                                    HTTPUser.Id);
 
-                                                     return result?.IsSuccess == true
 
-                                                                ? new HTTPResponse.Builder(Request) {
-                                                                      HTTPStatusCode              = HTTPStatusCode.Created,
-                                                                      Server                      = HTTPServer.DefaultServerName,
-                                                                      Date                        = DateTime.UtcNow,
-                                                                      AccessControlAllowOrigin    = "*",
-                                                                      AccessControlAllowMethods   = "OPTIONS, GET, COUNT, ADD",
-                                                                      AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
-                                                                      ContentType                 = HTTPContentType.JSON_UTF8,
-                                                                      Content                     = result.Organization.ToJSON().ToUTF8Bytes(),
-                                                                      Connection                  = "close"
-                                                                  }.AsImmutable
+                                                 return result?.IsSuccess == true
 
-                                                                : new HTTPResponse.Builder(Request) {
-                                                                      HTTPStatusCode              = HTTPStatusCode.BadRequest,
-                                                                      Server                      = HTTPServer.DefaultServerName,
-                                                                      Date                        = DateTime.UtcNow,
-                                                                      AccessControlAllowOrigin    = "*",
-                                                                      AccessControlAllowMethods   = "OPTIONS, GET, COUNT, ADD",
-                                                                      AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
-                                                                      ContentType                 = HTTPContentType.JSON_UTF8,
-                                                                      Content                     = result.ToJSON().ToUTF8Bytes(),
-                                                                      Connection                  = "close"
-                                                                  }.AsImmutable;
+                                                            ? new HTTPResponse.Builder(Request) {
+                                                                  HTTPStatusCode              = HTTPStatusCode.Created,
+                                                                  Server                      = HTTPServer.DefaultServerName,
+                                                                  Date                        = DateTime.UtcNow,
+                                                                  AccessControlAllowOrigin    = "*",
+                                                                  AccessControlAllowMethods   = "OPTIONS, GET, COUNT, ADD",
+                                                                  AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
+                                                                  ContentType                 = HTTPContentType.JSON_UTF8,
+                                                                  Content                     = result.Organization.ToJSON().ToUTF8Bytes(),
+                                                                  Connection                  = "close"
+                                                              }.AsImmutable
 
-                                                 }
-                                                 catch (Exception e)
-                                                 {
-
-                                                     return new HTTPResponse.Builder(Request) {
-                                                                HTTPStatusCode             = HTTPStatusCode.BadRequest,
-                                                                Server                     = HTTPServer.DefaultServerName,
-                                                                Date                       = DateTime.UtcNow,
-                                                                AccessControlAllowOrigin   = "*",
-                                                                AccessControlAllowMethods  = "OPTIONS, GET, COUNT, ADD",
-                                                                AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
-                                                                ContentType                = HTTPContentType.JSON_UTF8,
-                                                                Content                    = JSONObject.Create(
-                                                                                                 new JProperty("description",  "Could not create the given child organization! " + e.Message)
-                                                                                             ).ToUTF8Bytes()
-                                                            }.AsImmutable;
-
-                                                 }
+                                                            : new HTTPResponse.Builder(Request) {
+                                                                  HTTPStatusCode              = HTTPStatusCode.BadRequest,
+                                                                  Server                      = HTTPServer.DefaultServerName,
+                                                                  Date                        = DateTime.UtcNow,
+                                                                  AccessControlAllowOrigin    = "*",
+                                                                  AccessControlAllowMethods   = "OPTIONS, GET, COUNT, ADD",
+                                                                  AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
+                                                                  ContentType                 = HTTPContentType.JSON_UTF8,
+                                                                  Content                     = result.ToJSON().ToUTF8Bytes(),
+                                                                  Connection                  = "close"
+                                                              }.AsImmutable;
 
                                              }
-
-                                             #endregion
-
-                                             return new HTTPResponse.Builder(Request) {
-                                                        HTTPStatusCode             = HTTPStatusCode.BadRequest,
-                                                        Server                     = HTTPServer.DefaultServerName,
-                                                        Date                       = DateTime.UtcNow,
-                                                        AccessControlAllowOrigin   = "*",
-                                                        AccessControlAllowMethods  = "OPTIONS, GET, COUNT, ADD",
-                                                        AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
-                                                        ContentType                = HTTPContentType.JSON_UTF8,
-                                                        Content                    = JSONObject.Create(
-                                                                                         new JProperty("description",  "Could not parse the given child organization data!")
-                                                                                     ).ToUTF8Bytes()
-                                                    }.AsImmutable;
+                                             catch (Exception e)
+                                             {
+                                                 return new HTTPResponse.Builder(Request) {
+                                                            HTTPStatusCode             = HTTPStatusCode.InternalServerError,
+                                                            Server                     = HTTPServer.DefaultServerName,
+                                                            Date                       = DateTime.UtcNow,
+                                                            AccessControlAllowOrigin   = "*",
+                                                            AccessControlAllowMethods  = "OPTIONS, GET, COUNT, ADD",
+                                                            AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
+                                                            ContentType                = HTTPContentType.JSON_UTF8,
+                                                            Content                    = JSONObject.Create(
+                                                                                             new JProperty("description",  "Could not create the given organization! " + e.Message)
+                                                                                         ).ToUTF8Bytes(),
+                                                            Connection                 = "close"
+                                                        }.AsImmutable;
+                                             }
 
                                          });
 
@@ -9399,192 +9400,12 @@ namespace social.OpenData.UsersAPI
                                              if (!Request.TryParseJObjectRequestBody(out JObject JSONObj, out HTTPResponse))
                                                  return HTTPResponse;
 
-                                             if (Organization.TryParseJSON(JSONObj,
-                                                                           out Organization  NewChildOrganization,
-                                                                           out String        ErrorResponse,
-                                                                           OrganizationIdURL))
+                                             if (!Organization.TryParseJSON(JSONObj,
+                                                                            out Organization  NewChildOrganization,
+                                                                            out String        ErrorResponse,
+                                                                            OrganizationIdURL))
                                              {
-
-                                                 // {
-                                                 //     "@id":                             newChildOrganizationId,
-                                                 //     "@context":                        "https://opendata.social/contexts/UsersAPI+json/organization",
-                                                 //     "parentOrganization":              organization["@id"],
-                                                 //     "name":                            { "eng": newChildOrganizationName != "" ? newChildOrganizationName : newChildOrganizationId },
-                                                 //     "admins": [{
-                                                 //         "@id":       SignInUser,
-                                                 //         "@context":  "https://opendata.social/contexts/usersAPI/user+json",
-                                                 //         "name":      Username,
-                                                 //         "email":     UserEMail
-                                                 //     }],
-                                                 //     "members":                         [],
-                                                 //     "youAreMember":                    true,
-                                                 //     "youCanAddMembers":                true,
-                                                 //     "youCanCreateChildOrganizations":  true,
-                                                 //     "childs":                          []
-                                                 // }
-
-                                                 #region Parse parent organization
-
-                                                 if (!JSONObj.ParseMandatory("parentOrganization",
-                                                                             "parent organization",
-                                                                             HTTPServer.DefaultHTTPServerName,
-                                                                             Organization_Id.TryParse,
-                                                                             out Organization_Id ParentOrganizationId,
-                                                                             Request,
-                                                                             out HTTPResponse))
-                                                 {
-                                                     return HTTPResponse;
-                                                 }
-
-                                                 if (!_Organizations.TryGetValue(ParentOrganizationId, out Organization ParentOrganization))
-                                                 {
-
-                                                     return new HTTPResponse.Builder(Request) {
-                                                                HTTPStatusCode             = HTTPStatusCode.BadRequest,
-                                                                Server                     = HTTPServer.DefaultServerName,
-                                                                Date                       = DateTime.UtcNow,
-                                                                AccessControlAllowOrigin   = "*",
-                                                                AccessControlAllowMethods  = "GET, SET",
-                                                                AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
-                                                                ContentType                = HTTPContentType.JSON_UTF8,
-                                                                Content                    = JSONObject.Create(
-                                                                                                 new JProperty("description",  "Unknown parent organization!")
-                                                                                             ).ToUTF8Bytes()
-                                                            }.AsImmutable;
-
-                                                 }
-
-                                                 #endregion
-
-                                                 #region Parse admins
-
-                                                 if (!JSONObj.ParseMandatory("admins",
-                                                                             "organization admins",
-                                                                             HTTPServer.DefaultHTTPServerName,
-                                                                             out JArray AdminsJSON,
-                                                                             Request,
-                                                                             out HTTPResponse))
-                                                 {
-                                                     return HTTPResponse;
-                                                 }
-
-
-                                                 User Admin      = null;
-                                                 var Admins      = new List<User>();
-                                                 var AdminNames  = AdminsJSON.Select(admin => (admin as JObject)).
-                                                                              Where(admin => admin != null).
-                                                                              Select(admin => User_Id.TryParse(admin["@id"].Value<String>())).
-                                                                              ToArray();
-
-                                                 foreach (var admin in AdminNames)
-                                                 {
-
-                                                     if (!admin.HasValue)
-                                                     {
-
-                                                         return new HTTPResponse.Builder(Request) {
-                                                                    HTTPStatusCode             = HTTPStatusCode.BadRequest,
-                                                                    Server                     = HTTPServer.DefaultServerName,
-                                                                    Date                       = DateTime.UtcNow,
-                                                                    AccessControlAllowOrigin   = "*",
-                                                                    AccessControlAllowMethods  = "GET, SET",
-                                                                    AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
-                                                                    ContentType                = HTTPContentType.JSON_UTF8,
-                                                                    Content                    = JSONObject.Create(
-                                                                                                     new JProperty("description",  "Invalid admin user '" + admin.Value  + "'!")
-                                                                                                 ).ToUTF8Bytes()
-                                                                }.AsImmutable;
-
-                                                     }
-
-                                                     Admin = GetUser(admin.Value);
-
-                                                     if (Admin == null)
-                                                     {
-
-                                                         return new HTTPResponse.Builder(Request) {
-                                                                    HTTPStatusCode             = HTTPStatusCode.BadRequest,
-                                                                    Server                     = HTTPServer.DefaultServerName,
-                                                                    Date                       = DateTime.UtcNow,
-                                                                    AccessControlAllowOrigin   = "*",
-                                                                    AccessControlAllowMethods  = "GET, SET",
-                                                                    AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
-                                                                    ContentType                = HTTPContentType.JSON_UTF8,
-                                                                    Content                    = JSONObject.Create(
-                                                                                                     new JProperty("description",  "Unknown admin user '" + admin.Value + "'!")
-                                                                                                 ).ToUTF8Bytes()
-                                                                }.AsImmutable;
-
-                                                     }
-
-                                                     Admins.Add(Admin);
-
-                                                 }
-
-                                                 #endregion
-
-
-                                                 try
-                                                 {
-
-                                                     var result = await AddOrganization(new Organization(NewChildOrganization.Id,
-                                                                                                         NewChildOrganization.Name,
-                                                                                                         NewChildOrganization.Description
-                                                                                                         //Website,
-                                                                                                         //EMail,
-                                                                                                         //Telephone,
-                                                                                                         //Address,
-                                                                                                         //GeoLocation,
-                                                                                                         //Tags,
-                                                                                                         //IsDisabled,
-                                                                                                         //DataSource: DataSource
-                                                                                                         ),
-                                                                                        ParentOrganization,
-                                                                                        async (_organization, _eventTrackingId) => {
-
-                                                                                            foreach (var admin in Admins)
-                                                                                                await _AddToOrganization(admin,
-                                                                                                                         User2OrganizationEdgeTypes.IsAdmin,
-                                                                                                                         _organization);
-
-                                                                                        },
-                                                                                        Request.EventTrackingId,
-                                                                                        HTTPUser.Id);
-
-                                                 }
-                                                 catch (Exception e)
-                                                 {
-
-                                                     return new HTTPResponse.Builder(Request) {
-                                                                HTTPStatusCode             = HTTPStatusCode.BadRequest,
-                                                                Server                     = HTTPServer.DefaultServerName,
-                                                                Date                       = DateTime.UtcNow,
-                                                                AccessControlAllowOrigin   = "*",
-                                                                AccessControlAllowMethods  = "GET, SET",
-                                                                AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
-                                                                ContentType                = HTTPContentType.JSON_UTF8,
-                                                                Content                    = JSONObject.Create(
-                                                                                                 new JProperty("description",  "Could not create the given child organization! " + e.Message)
-                                                                                             ).ToUTF8Bytes()
-                                                            }.AsImmutable;
-
-                                                 }
-
                                                  return new HTTPResponse.Builder(Request) {
-                                                            HTTPStatusCode              = HTTPStatusCode.Created,
-                                                            Server                      = HTTPServer.DefaultServerName,
-                                                            Date                        = DateTime.UtcNow,
-                                                            AccessControlAllowOrigin    = "*",
-                                                            AccessControlAllowMethods   = "GET, SET",
-                                                            AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
-                                                            Connection                  = "close"
-                                                        }.AsImmutable;
-
-                                             }
-
-                                             #endregion
-
-                                             return new HTTPResponse.Builder(Request) {
                                                         HTTPStatusCode             = HTTPStatusCode.BadRequest,
                                                         Server                     = HTTPServer.DefaultServerName,
                                                         Date                       = DateTime.UtcNow,
@@ -9596,6 +9417,184 @@ namespace social.OpenData.UsersAPI
                                                                                          new JProperty("description",  "Could not parse the given child organization data!")
                                                                                      ).ToUTF8Bytes()
                                                     }.AsImmutable;
+                                             }
+
+                                             #endregion
+
+                                             // {
+                                             //     "@id":                             newChildOrganizationId,
+                                             //     "@context":                        "https://opendata.social/contexts/UsersAPI+json/organization",
+                                             //     "parentOrganization":              organization["@id"],
+                                             //     "name":                            { "eng": newChildOrganizationName != "" ? newChildOrganizationName : newChildOrganizationId },
+                                             //     "admins": [{
+                                             //         "@id":       SignInUser,
+                                             //         "@context":  "https://opendata.social/contexts/usersAPI/user+json",
+                                             //         "name":      Username,
+                                             //         "email":     UserEMail
+                                             //     }],
+                                             //     "members":                         [],
+                                             //     "youAreMember":                    true,
+                                             //     "youCanAddMembers":                true,
+                                             //     "youCanCreateChildOrganizations":  true,
+                                             //     "childs":                          []
+                                             // }
+
+                                             #region Parse parent organization
+
+                                             if (!JSONObj.ParseMandatory("parentOrganization",
+                                                                        "parent organization",
+                                                                        HTTPServer.DefaultHTTPServerName,
+                                                                        Organization_Id.TryParse,
+                                                                        out Organization_Id ParentOrganizationId,
+                                                                        Request,
+                                                                        out HTTPResponse))
+                                             {
+                                                 return HTTPResponse;
+                                             }
+
+                                             if (!_TryGetOrganization(ParentOrganizationId, out Organization ParentOrganization))
+                                             {
+
+                                                 return new HTTPResponse.Builder(Request) {
+                                                         HTTPStatusCode             = HTTPStatusCode.BadRequest,
+                                                         Server                     = HTTPServer.DefaultServerName,
+                                                         Date                       = DateTime.UtcNow,
+                                                         AccessControlAllowOrigin   = "*",
+                                                         AccessControlAllowMethods  = "GET, SET",
+                                                         AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
+                                                         ContentType                = HTTPContentType.JSON_UTF8,
+                                                         Content                    = JSONObject.Create(
+                                                                                             new JProperty("description",  "Unknown parent organization!")
+                                                                                         ).ToUTF8Bytes()
+                                                     }.AsImmutable;
+
+                                             }
+
+                                             #endregion
+
+                                             #region Parse admins
+
+                                             if (!JSONObj.ParseMandatory("admins",
+                                                                         "organization admins",
+                                                                         HTTPServer.DefaultHTTPServerName,
+                                                                         out JArray AdminsJSON,
+                                                                         Request,
+                                                                         out HTTPResponse))
+                                             {
+                                                 return HTTPResponse;
+                                             }
+
+
+                                             User Admin      = null;
+                                             var Admins      = new List<User>();
+                                             var AdminNames  = AdminsJSON.Select(admin => (admin as JObject)).
+                                                                         Where(admin => admin != null).
+                                                                         Select(admin => User_Id.TryParse(admin["@id"].Value<String>())).
+                                                                         ToArray();
+
+                                             foreach (var admin in AdminNames)
+                                             {
+
+                                                 if (!admin.HasValue)
+                                                 {
+
+                                                     return new HTTPResponse.Builder(Request) {
+                                                             HTTPStatusCode             = HTTPStatusCode.BadRequest,
+                                                             Server                     = HTTPServer.DefaultServerName,
+                                                             Date                       = DateTime.UtcNow,
+                                                             AccessControlAllowOrigin   = "*",
+                                                             AccessControlAllowMethods  = "GET, SET",
+                                                             AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
+                                                             ContentType                = HTTPContentType.JSON_UTF8,
+                                                             Content                    = JSONObject.Create(
+                                                                                                 new JProperty("description",  "Invalid admin user '" + admin.Value  + "'!")
+                                                                                             ).ToUTF8Bytes()
+                                                         }.AsImmutable;
+
+                                                 }
+
+                                                 Admin = GetUser(admin.Value);
+
+                                                 if (Admin == null)
+                                                 {
+
+                                                     return new HTTPResponse.Builder(Request) {
+                                                             HTTPStatusCode             = HTTPStatusCode.BadRequest,
+                                                             Server                     = HTTPServer.DefaultServerName,
+                                                             Date                       = DateTime.UtcNow,
+                                                             AccessControlAllowOrigin   = "*",
+                                                             AccessControlAllowMethods  = "GET, SET",
+                                                             AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
+                                                             ContentType                = HTTPContentType.JSON_UTF8,
+                                                             Content                    = JSONObject.Create(
+                                                                                                 new JProperty("description",  "Unknown admin user '" + admin.Value + "'!")
+                                                                                             ).ToUTF8Bytes()
+                                                         }.AsImmutable;
+
+                                                 }
+
+                                                 Admins.Add(Admin);
+
+                                             }
+
+                                             #endregion
+
+
+                                             try
+                                             {
+
+                                                 var result = await AddOrganization(new Organization(NewChildOrganization.Id,
+                                                                                                     NewChildOrganization.Name,
+                                                                                                     NewChildOrganization.Description
+                                                                                                     //Website,
+                                                                                                     //EMail,
+                                                                                                     //Telephone,
+                                                                                                     //Address,
+                                                                                                     //GeoLocation,
+                                                                                                     //Tags,
+                                                                                                     //IsDisabled,
+                                                                                                     //DataSource: DataSource
+                                                                                                     ),
+                                                                                    ParentOrganization,
+                                                                                    async (_organization, _eventTrackingId) => {
+
+                                                                                        foreach (var admin in Admins)
+                                                                                            await _AddToOrganization(admin,
+                                                                                                                        User2OrganizationEdgeTypes.IsAdmin,
+                                                                                                                        _organization);
+
+                                                                                    },
+                                                                                    Request.EventTrackingId,
+                                                                                    HTTPUser.Id);
+
+                                                 return new HTTPResponse.Builder(Request) {
+                                                         HTTPStatusCode              = HTTPStatusCode.Created,
+                                                         Server                      = HTTPServer.DefaultServerName,
+                                                         Date                        = DateTime.UtcNow,
+                                                         AccessControlAllowOrigin    = "*",
+                                                         AccessControlAllowMethods   = "GET, SET",
+                                                         AccessControlAllowHeaders   = "Content-Type, Accept, Authorization",
+                                                         Connection                  = "close"
+                                                     }.AsImmutable;
+
+                                             }
+                                             catch (Exception e)
+                                             {
+
+                                                 return new HTTPResponse.Builder(Request) {
+                                                         HTTPStatusCode             = HTTPStatusCode.BadRequest,
+                                                         Server                     = HTTPServer.DefaultServerName,
+                                                         Date                       = DateTime.UtcNow,
+                                                         AccessControlAllowOrigin   = "*",
+                                                         AccessControlAllowMethods  = "GET, SET",
+                                                         AccessControlAllowHeaders  = "Content-Type, Accept, Authorization",
+                                                         ContentType                = HTTPContentType.JSON_UTF8,
+                                                         Content                    = JSONObject.Create(
+                                                                                             new JProperty("description",  "Could not create the given child organization! " + e.Message)
+                                                                                         ).ToUTF8Bytes()
+                                                     }.AsImmutable;
+
+                                             }
 
                                          });
 
@@ -16387,55 +16386,62 @@ namespace social.OpenData.UsersAPI
             var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
 
             if (User is null)
-                throw new ArgumentNullException(nameof(User),
-                                                "The given user must not be null!");
+                return RemoveUserResult.ArgumentError(User,
+                                                      eventTrackingId,
+                                                      nameof(User),
+                                                      "The given user must not be null!");
 
-            if (User.API != this || !_Users.TryGetValue(User.Id, out User UserToBeRemoved))
-                throw new ArgumentException    ("The given user '" + User.Id + "' does not exists in this API!",
-                                                nameof(User));
+            if (User.API != this)
+                return RemoveUserResult.ArgumentError(User,
+                                                      eventTrackingId,
+                                                      nameof(User),
+                                                      "The given user is not attached to this API!");
+
+            if (!_Users.TryGetValue(User.Id, out User UserToBeRemoved))
+                return RemoveUserResult.ArgumentError(User,
+                                                      eventTrackingId,
+                                                      nameof(User),
+                                                      "The given user does not exists in this API!");
 
 
             var result = CanDeleteUser(User);
 
-            if (result == null)
-            {
-
-                await WriteToDatabaseFile(removeUser_MessageType,
-                                          User.ToJSON(false, true),
-                                          eventTrackingId,
-                                          CurrentUserId);
-
-
-                // ToDo: Remove incoming edges
-
-
-                _Users.Remove(User.Id);
-
-
-                var OnUserRemovedLocal = OnUserRemoved;
-                if (OnUserRemovedLocal != null)
-                    await OnUserRemovedLocal?.Invoke(DateTime.UtcNow,
-                                                     User,
-                                                     eventTrackingId,
-                                                     CurrentUserId);
-
-                await SendNotifications(User,
-                                        removeUser_MessageType,
-                                        null,
-                                        eventTrackingId,
-                                        CurrentUserId);
-
-                OnRemoved?.Invoke(User,
-                                  eventTrackingId);
-
-                return RemoveUserResult.Success(User,
-                                                eventTrackingId);
-
-            }
-            else
+            if (result != null)
                 return RemoveUserResult.Failed(User,
                                                eventTrackingId,
                                                result);
+
+
+            await WriteToDatabaseFile(removeUser_MessageType,
+                                      User.ToJSON(false, true),
+                                      eventTrackingId,
+                                      CurrentUserId);
+
+
+            // ToDo: Remove incoming edges
+
+
+            _Users.Remove(User.Id);
+
+
+            var OnUserRemovedLocal = OnUserRemoved;
+            if (OnUserRemovedLocal != null)
+                await OnUserRemovedLocal?.Invoke(DateTime.UtcNow,
+                                                 User,
+                                                 eventTrackingId,
+                                                 CurrentUserId);
+
+            await SendNotifications(User,
+                                    removeUser_MessageType,
+                                    null,
+                                    eventTrackingId,
+                                    CurrentUserId);
+
+            OnRemoved?.Invoke(User,
+                              eventTrackingId);
+
+            return RemoveUserResult.Success(User,
+                                            eventTrackingId);
 
         }
 
@@ -16456,6 +16462,8 @@ namespace social.OpenData.UsersAPI
                                                        User_Id?                        CurrentUserId     = null)
         {
 
+            var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
+
             try
             {
 
@@ -16463,18 +16471,18 @@ namespace social.OpenData.UsersAPI
 
                             ? await _RemoveUser(User,
                                                 OnRemoved,
-                                                EventTrackingId,
+                                                eventTrackingId,
                                                 CurrentUserId)
 
                             : RemoveUserResult.Failed(User,
-                                                      EventTrackingId,
+                                                      eventTrackingId,
                                                       "Internal locking failed!");
 
             }
             catch (Exception e)
             {
                 return RemoveUserResult.Failed(User,
-                                               EventTrackingId,
+                                               eventTrackingId,
                                                e);
             }
             finally
@@ -17813,7 +17821,7 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
-        #region RemoveUserGroup             (UserGroup, OnRemoved = null, CurrentUserId = null)
+        #region RemoveUserGroup                      (UserGroup, OnRemoved = null, CurrentUserId = null)
 
         /// <summary>
         /// Remove the given user group from the API.
@@ -25065,63 +25073,70 @@ namespace social.OpenData.UsersAPI
             var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
 
             if (Organization is null)
-                throw new ArgumentNullException(nameof(Organization),
-                                                "The given organization must not be null!");
+                return RemoveOrganizationResult.ArgumentError(Organization,
+                                                              eventTrackingId,
+                                                              nameof(Organization),
+                                                              "The given organization must not be null!");
 
-            if (Organization.API != this || !_Organizations.TryGetValue(Organization.Id, out Organization OrganizationToBeRemoved))
-                throw new ArgumentException    ("The given organization '" + Organization.Id + "' does not exists in this API!",
-                                                nameof(Organization));
+            if (Organization.API != this)
+                return RemoveOrganizationResult.ArgumentError(Organization,
+                                                              eventTrackingId,
+                                                              nameof(Organization),
+                                                              "The given organization is not attached to this API!");
+
+            if (!_Organizations.TryGetValue(Organization.Id, out Organization OrganizationToBeRemoved))
+                return RemoveOrganizationResult.ArgumentError(Organization,
+                                                              eventTrackingId,
+                                                              nameof(Organization),
+                                                              "The given organization does not exists in this API!");
 
 
             var result = _CanDeleteOrganization(Organization);
 
-            if (result == null)
-            {
-
-                await WriteToDatabaseFile(removeOrganization_MessageType,
-                                          Organization.ToJSON(false, true),
-                                          eventTrackingId,
-                                          CurrentUserId);
-
-                // this --edge--> other_organization
-                foreach (var edge in Organization.Organization2OrganizationOutEdges)
-                    edge.Target.RemoveInEdge(edge);
-
-                // this <--edge-- other_organization
-                foreach (var edge in Organization.Organization2OrganizationInEdges)
-                    edge.Source.RemoveOutEdge(edge);
-
-                // this <--edge-- user
-                foreach (var edge in Organization.User2OrganizationEdges)
-                    edge.Source.RemoveOutEdge(edge);
-
-                _Organizations.Remove(Organization.Id);
-
-
-                var OnOrganizationRemovedLocal = OnOrganizationRemoved;
-                if (OnOrganizationRemovedLocal != null)
-                    await OnOrganizationRemovedLocal?.Invoke(DateTime.UtcNow,
-                                                             Organization,
-                                                             eventTrackingId,
-                                                             CurrentUserId);
-
-                await SendNotifications(Organization,
-                                        removeOrganization_MessageType,
-                                        null,
-                                        eventTrackingId,
-                                        CurrentUserId);
-
-                OnRemoved?.Invoke(Organization,
-                                  eventTrackingId);
-
-                return RemoveOrganizationResult.Success(Organization,
-                                                        eventTrackingId);
-
-            }
-            else
+            if (result != null)
                 return RemoveOrganizationResult.Failed(Organization,
                                                        eventTrackingId,
                                                        result);
+
+
+            await WriteToDatabaseFile(removeOrganization_MessageType,
+                                      Organization.ToJSON(false, true),
+                                      eventTrackingId,
+                                      CurrentUserId);
+
+            // this --edge--> other_organization
+            foreach (var edge in Organization.Organization2OrganizationOutEdges)
+                edge.Target.RemoveInEdge(edge);
+
+            // this <--edge-- other_organization
+            foreach (var edge in Organization.Organization2OrganizationInEdges)
+                edge.Source.RemoveOutEdge(edge);
+
+            // this <--edge-- user
+            foreach (var edge in Organization.User2OrganizationEdges)
+                edge.Source.RemoveOutEdge(edge);
+
+            _Organizations.Remove(Organization.Id);
+
+
+            var OnOrganizationRemovedLocal = OnOrganizationRemoved;
+            if (OnOrganizationRemovedLocal != null)
+                await OnOrganizationRemovedLocal?.Invoke(DateTime.UtcNow,
+                                                         Organization,
+                                                         eventTrackingId,
+                                                         CurrentUserId);
+
+            await SendNotifications(Organization,
+                                    removeOrganization_MessageType,
+                                    null,
+                                    eventTrackingId,
+                                    CurrentUserId);
+
+            OnRemoved?.Invoke(Organization,
+                                eventTrackingId);
+
+            return RemoveOrganizationResult.Success(Organization,
+                                                    eventTrackingId);
 
         }
 
