@@ -23601,7 +23601,7 @@ namespace social.OpenData.UsersAPI
         public event OnOrganizationAddedDelegate OnOrganizationAdded;
 
 
-        #region (protected internal) _AddOrganization(Organization,                            OnAdded = null, CurrentUserId = null)
+        #region (protected internal) _AddOrganization(Organization,                     OnAdded = null, CurrentUserId = null)
 
         /// <summary>
         /// Add the given organization to the API.
@@ -23687,7 +23687,7 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
-        #region AddOrganization                      (Organization,                            OnAdded = null, CurrentUserId = null)
+        #region AddOrganization                      (Organization,                     OnAdded = null, CurrentUserId = null)
 
         /// <summary>
         /// Add the given organization.
@@ -23739,7 +23739,7 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
-        #region AddOrganization                      (Organization, ParentOrganization = null, OnAdded = null, CurrentUserId = null)
+        #region AddOrganization                      (Organization, ParentOrganization, OnAdded = null, CurrentUserId = null)
 
         /// <summary>
         /// Add the given organization and add him/her to the given organization.
@@ -23750,7 +23750,7 @@ namespace social.OpenData.UsersAPI
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional organization identification initiating this command/request.</param>
         public async Task<AddOrganizationResult> AddOrganization(Organization                            Organization,
-                                                                 Organization                            ParentOrganization   = null,
+                                                                 Organization                            ParentOrganization,
                                                                  Action<Organization, EventTracking_Id>  OnAdded              = null,
                                                                  EventTracking_Id                        EventTrackingId      = null,
                                                                  User_Id?                                CurrentUserId        = null)
@@ -23770,8 +23770,6 @@ namespace social.OpenData.UsersAPI
             try
             {
 
-                // The new organization does not yet have an organization,
-                // therefore organization notifications do not work here yet!
                 if (await OrganizationsSemaphore.WaitAsync(SemaphoreSlimTimeout))
                 {
 
@@ -23790,11 +23788,16 @@ namespace social.OpenData.UsersAPI
                     var addOrganizationResult = await _AddOrganization(Organization,
                                                                        async (_organization, _eventTrackingId) => {
 
+                                                                           // The new organization does not yet have a parent organization,
+                                                                           // therefore parent organization notifications have to be done
+                                                                           // after this operation!
                                                                            await _LinkOrganizations(_organization,
                                                                                                     Organization2OrganizationEdgeTypes.IsChildOf,
                                                                                                     ParentOrganization,
                                                                                                     _eventTrackingId,
                                                                                                     CurrentUserId);
+
+                                                                           //ToDo: SendNotifications!
 
                                                                            OnAdded(_organization,
                                                                                    _eventTrackingId);
@@ -23998,18 +24001,21 @@ namespace social.OpenData.UsersAPI
             try
             {
 
-                // The new organization does not yet have an organization,
-                // therefore organization notifications do not work here yet!
                 return await OrganizationsSemaphore.WaitAsync(SemaphoreSlimTimeout)
 
                            ? await _AddOrganizationIfNotExists(Organization,
                                                                async (_organization, _eventTrackingId) => {
 
+                                                                   // The new organization does not yet have a parent organization,
+                                                                   // therefore parent organization notifications have to be done
+                                                                   // after this operation!
                                                                    await _LinkOrganizations(_organization,
                                                                                             Organization2OrganizationEdgeTypes.IsChildOf,
                                                                                             ParentOrganization,
                                                                                             _eventTrackingId,
                                                                                             CurrentUserId);
+
+                                                                   //ToDo: SendNotifications!
 
                                                                    OnAdded(_organization,
                                                                            _eventTrackingId);
