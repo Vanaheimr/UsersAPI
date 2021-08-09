@@ -66,6 +66,8 @@
     <Compile Include="Entities\Notification\NotificationMessageGroupId.cs" />
     <Compile Include="Entities\Notification\TelegramGroupNotification.cs" />
     <Compile Include="Entities\Notification\TelegramNotification.cs" />
+    <Compile Include="Entities\Organization\Results\AddOrUpdateOrganizationResult.cs" />
+    <Compile Include="Entities\Organization\Results\UpdateUserResult.cs" />
     <Compile Include="Entities\Organization\Results\AddOrganizationIfNotExistsResult.cs" />
     <Compile Include="Entities\Organization\Results\RemoveOrganizationResult.cs" />
     <Compile Include="Entities\Organization\Group\RemoveOrganizationGroupResult.cs" />
