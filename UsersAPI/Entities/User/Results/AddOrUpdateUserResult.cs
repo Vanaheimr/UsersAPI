@@ -26,23 +26,26 @@ using org.GraphDefined.Vanaheimr.Illias;
 namespace social.OpenData.UsersAPI
 {
 
-    public class AddOrganizationResult : AResult<Organization>
+    public class AddOrUpdateUserResult : AResult<User>
     {
 
-        public Organization  Organization
+        public User User
             => Object;
 
-        public Organization  ParentOrganization   { get; internal set; }
+        public Organization  Organization   { get; internal set; }
+
+        public AddOrUpdate?  AddOrUpdate    { get; internal set; }
 
 
-        public AddOrganizationResult(Organization      Organization,
+        public AddOrUpdateUserResult(User              User,
                                      EventTracking_Id  EventTrackingId,
                                      Boolean           IsSuccess,
-                                     String            Argument             = null,
-                                     I18NString        ErrorDescription     = null,
-                                     Organization      ParentOrganization   = null)
+                                     String            Argument           = null,
+                                     I18NString        ErrorDescription   = null,
+                                     Organization      Organization       = null,
+                                     AddOrUpdate?      AddOrUpdate        = null)
 
-            : base(Organization,
+            : base(User,
                    EventTrackingId,
                    IsSuccess,
                    Argument,
@@ -50,84 +53,87 @@ namespace social.OpenData.UsersAPI
 
         {
 
-            this.ParentOrganization = ParentOrganization;
+            this.Organization = Organization;
+            this.AddOrUpdate  = AddOrUpdate;
 
         }
 
 
-        public static AddOrganizationResult Success(Organization      Organization,
+        public static AddOrUpdateUserResult Success(User              User,
+                                                    AddOrUpdate       AddOrUpdate,
                                                     EventTracking_Id  EventTrackingId,
-                                                    Organization      ParentOrganization  = null)
+                                                    Organization      Organization = null)
 
-            => new AddOrganizationResult(Organization,
+            => new AddOrUpdateUserResult(User,
                                          EventTrackingId,
                                          true,
                                          null,
                                          null,
-                                         ParentOrganization);
+                                         Organization,
+                                         AddOrUpdate);
 
 
-        public static AddOrganizationResult ArgumentError(Organization      Organization,
+        public static AddOrUpdateUserResult ArgumentError(User              User,
                                                           EventTracking_Id  EventTrackingId,
                                                           String            Argument,
                                                           String            Description)
 
-            => new AddOrganizationResult(Organization,
+            => new AddOrUpdateUserResult(User,
                                          EventTrackingId,
                                          false,
                                          Argument,
                                          I18NString.Create(Languages.en,
                                                            Description));
 
-        public static AddOrganizationResult ArgumentError(Organization      Organization,
+        public static AddOrUpdateUserResult ArgumentError(User              User,
                                                           EventTracking_Id  EventTrackingId,
                                                           String            Argument,
                                                           I18NString        Description)
 
-            => new AddOrganizationResult(Organization,
+            => new AddOrUpdateUserResult(User,
                                          EventTrackingId,
                                          false,
                                          Argument,
                                          Description);
 
 
-        public static AddOrganizationResult Failed(Organization      Organization,
+        public static AddOrUpdateUserResult Failed(User              User,
                                                    EventTracking_Id  EventTrackingId,
                                                    String            Description,
-                                                   Organization      ParentOrganization = null)
+                                                   Organization      Organization  = null)
 
-            => new AddOrganizationResult(Organization,
+            => new AddOrUpdateUserResult(User,
                                          EventTrackingId,
                                          false,
                                          null,
                                          I18NString.Create(Languages.en,
                                                            Description),
-                                         ParentOrganization);
+                                         Organization);
 
-        public static AddOrganizationResult Failed(Organization      Organization,
+        public static AddOrUpdateUserResult Failed(User              User,
                                                    EventTracking_Id  EventTrackingId,
                                                    I18NString        Description,
-                                                   Organization      ParentOrganization = null)
+                                                   Organization      Organization  = null)
 
-            => new AddOrganizationResult(Organization,
+            => new AddOrUpdateUserResult(User,
                                          EventTrackingId,
                                          false,
                                          null,
                                          Description,
-                                         ParentOrganization);
+                                         Organization);
 
-        public static AddOrganizationResult Failed(Organization      Organization,
+        public static AddOrUpdateUserResult Failed(User              User,
                                                    EventTracking_Id  EventTrackingId,
                                                    Exception         Exception,
-                                                   Organization      ParentOrganization = null)
+                                                   Organization      Organization  = null)
 
-            => new AddOrganizationResult(Organization,
+            => new AddOrUpdateUserResult(User,
                                          EventTrackingId,
                                          false,
                                          null,
                                          I18NString.Create(Languages.en,
                                                            Exception.Message),
-                                         ParentOrganization);
+                                         Organization);
 
     }
 

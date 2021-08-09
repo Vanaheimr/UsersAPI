@@ -91,7 +91,9 @@
     <Compile Include="Entities\User\Group\RemoveUserGroupResult.cs" />
     <Compile Include="Entities\User\Group\UserGroup.cs" />
     <Compile Include="Entities\User\Group\UserGroup_Id.cs" />
-    <Compile Include="Entities\User\Results\AResult.cs" />
+    <Compile Include="Entities\User\Results\AddOrUpdateUserResult.cs" />
+    <Compile Include="Entities\User\Results\UpdateUserResult.cs" />
+    <Compile Include="Entities\AResult.cs" />
     <Compile Include="Entities\User\Results\AddUserIfNotExistsResult.cs" />
     <Compile Include="Entities\User\Results\RemoveUserResult.cs" />
     <Compile Include="Entities\User\Results\AddUserResult.cs" />

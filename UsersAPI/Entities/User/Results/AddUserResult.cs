@@ -35,13 +35,15 @@ namespace social.OpenData.UsersAPI
         public Organization  Organization   { get; internal set; }
 
 
-        public AddUserResult(User          UserUser,
-                             Boolean       IsSuccess,
-                             String        Argument          = null,
-                             I18NString    ErrorDescription  = null,
-                             Organization  Organization      = null)
+        public AddUserResult(User              User,
+                             EventTracking_Id  EventTrackingId,
+                             Boolean           IsSuccess,
+                             String            Argument           = null,
+                             I18NString        ErrorDescription   = null,
+                             Organization      Organization       = null)
 
-            : base(UserUser,
+            : base(User,
+                   EventTrackingId,
                    IsSuccess,
                    Argument,
                    ErrorDescription)
@@ -53,62 +55,74 @@ namespace social.OpenData.UsersAPI
         }
 
 
-        public static AddUserResult Success(User          User,
-                                            Organization  Organization = null)
+        public static AddUserResult Success(User              User,
+                                            EventTracking_Id  EventTrackingId,
+                                            Organization      Organization = null)
 
             => new AddUserResult(User,
+                                 EventTrackingId,
                                  true,
                                  null,
                                  null,
                                  Organization);
 
 
-        public static AddUserResult ArgumentError(User    User,
-                                                  String  Argument,
-                                                  String  Description)
+        public static AddUserResult ArgumentError(User              User,
+                                                  EventTracking_Id  EventTrackingId,
+                                                  String            Argument,
+                                                  String            Description)
 
             => new AddUserResult(User,
+                                 EventTrackingId,
                                  false,
                                  Argument,
                                  I18NString.Create(Languages.en,
                                                    Description));
 
-        public static AddUserResult ArgumentError(User        User,
-                                                  String      Argument,
-                                                  I18NString  Description)
+        public static AddUserResult ArgumentError(User              User,
+                                                  EventTracking_Id  EventTrackingId,
+                                                  String            Argument,
+                                                  I18NString        Description)
 
             => new AddUserResult(User,
+                                 EventTrackingId,
                                  false,
                                  Argument,
                                  Description);
 
 
-        public static AddUserResult Failed(User          User,
-                                           String        Description,
-                                           Organization  Organization  = null)
+        public static AddUserResult Failed(User              User,
+                                           EventTracking_Id  EventTrackingId,
+                                           String            Description,
+                                           Organization      Organization  = null)
 
             => new AddUserResult(User,
+                                 EventTrackingId,
                                  false,
                                  null,
                                  I18NString.Create(Languages.en,
                                                    Description),
                                  Organization);
 
-        public static AddUserResult Failed(User          User,
-                                           I18NString    Description,
-                                           Organization  Organization  = null)
+        public static AddUserResult Failed(User              User,
+                                           EventTracking_Id  EventTrackingId,
+                                           I18NString        Description,
+                                           Organization      Organization  = null)
 
             => new AddUserResult(User,
+                                 EventTrackingId,
                                  false,
                                  null,
                                  Description,
                                  Organization);
 
-        public static AddUserResult Failed(User          User,
-                                           Exception     Exception,
-                                           Organization  Organization  = null)
+        public static AddUserResult Failed(User              User,
+                                           EventTracking_Id  EventTrackingId,
+                                           Exception         Exception,
+                                           Organization      Organization  = null)
 
             => new AddUserResult(User,
+                                 EventTrackingId,
                                  false,
                                  null,
                                  I18NString.Create(Languages.en,

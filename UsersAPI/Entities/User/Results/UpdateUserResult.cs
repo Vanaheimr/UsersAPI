@@ -26,14 +26,18 @@ using org.GraphDefined.Vanaheimr.Illias;
 namespace social.OpenData.UsersAPI
 {
 
-    public class RemoveUserResult : AResult<User>
+    public class UpdateUserResult : AResult<User>
     {
 
-        private RemoveUserResult(User              User,
-                                 EventTracking_Id  EventTrackingId,
-                                 Boolean           IsSuccess,
-                                 String            Argument          = null,
-                                 I18NString        ErrorDescription  = null)
+        public User User
+            => Object;
+
+
+        public UpdateUserResult(User              User,
+                                EventTracking_Id  EventTrackingId,
+                                Boolean           IsSuccess,
+                                String            Argument          = null,
+                                I18NString        ErrorDescription  = null)
 
             : base(User,
                    EventTrackingId,
@@ -44,64 +48,66 @@ namespace social.OpenData.UsersAPI
         { }
 
 
-        public static RemoveUserResult Success(User              User,
+        public static UpdateUserResult Success(User              User,
                                                EventTracking_Id  EventTrackingId)
 
-            => new RemoveUserResult(User,
+            => new UpdateUserResult(User,
                                     EventTrackingId,
-                                    true);
+                                    true,
+                                    null,
+                                    null);
 
 
-        public static RemoveUserResult ArgumentError(User              User,
+        public static UpdateUserResult ArgumentError(User              User,
                                                      EventTracking_Id  EventTrackingId,
                                                      String            Argument,
                                                      String            Description)
 
-            => new RemoveUserResult(User,
+            => new UpdateUserResult(User,
                                     EventTrackingId,
                                     false,
                                     Argument,
                                     I18NString.Create(Languages.en,
                                                       Description));
 
-        public static RemoveUserResult ArgumentError(User              User,
+        public static UpdateUserResult ArgumentError(User              User,
                                                      EventTracking_Id  EventTrackingId,
                                                      String            Argument,
                                                      I18NString        Description)
 
-            => new RemoveUserResult(User,
+            => new UpdateUserResult(User,
                                     EventTrackingId,
                                     false,
                                     Argument,
                                     Description);
 
 
-        public static RemoveUserResult Failed(User              User,
+        public static UpdateUserResult Failed(User              User,
                                               EventTracking_Id  EventTrackingId,
                                               String            Description)
 
-            => new RemoveUserResult(User,
+            => new UpdateUserResult(User,
                                     EventTrackingId,
                                     false,
                                     null,
                                     I18NString.Create(Languages.en,
                                                       Description));
 
-        public static RemoveUserResult Failed(User              User,
+        public static UpdateUserResult Failed(User              User,
                                               EventTracking_Id  EventTrackingId,
                                               I18NString        Description)
 
-            => new RemoveUserResult(User,
+            => new UpdateUserResult(User,
                                     EventTrackingId,
                                     false,
                                     null,
                                     Description);
 
-        public static RemoveUserResult Failed(User              User,
+        public static UpdateUserResult Failed(User              User,
                                               EventTracking_Id  EventTrackingId,
                                               Exception         Exception)
 
-            => new RemoveUserResult(User,
+            => new UpdateUserResult(User,
                                     EventTrackingId,
                                     false,
                                     null,

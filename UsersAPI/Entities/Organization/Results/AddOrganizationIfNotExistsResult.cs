@@ -35,13 +35,15 @@ namespace social.OpenData.UsersAPI
         public Organization  ParentOrganization   { get; internal set; }
 
 
-        public AddOrganizationIfNotExistsResult(Organization  Organization,
-                                                Boolean       IsSuccess,
-                                                String        Argument             = null,
-                                                I18NString    ErrorDescription     = null,
-                                                Organization  ParentOrganization   = null)
+        public AddOrganizationIfNotExistsResult(Organization      Organization,
+                                                EventTracking_Id  EventTrackingId,
+                                                Boolean           IsSuccess,
+                                                String            Argument             = null,
+                                                I18NString        ErrorDescription     = null,
+                                                Organization      ParentOrganization   = null)
 
             : base(Organization,
+                   EventTrackingId,
                    IsSuccess,
                    Argument,
                    ErrorDescription)
@@ -53,62 +55,74 @@ namespace social.OpenData.UsersAPI
         }
 
 
-        public static AddOrganizationIfNotExistsResult Success(Organization  Organization,
-                                                               Organization  ParentOrganization  = null)
+        public static AddOrganizationIfNotExistsResult Success(Organization      Organization,
+                                                               EventTracking_Id  EventTrackingId,
+                                                               Organization      ParentOrganization  = null)
 
             => new AddOrganizationIfNotExistsResult(Organization,
+                                                    EventTrackingId,
                                                     true,
                                                     null,
                                                     null,
                                                     ParentOrganization);
 
 
-        public static AddOrganizationIfNotExistsResult ArgumentError(Organization  Organization,
-                                                                     String        Argument,
-                                                                     String        Description)
+        public static AddOrganizationIfNotExistsResult ArgumentError(Organization      Organization,
+                                                                     EventTracking_Id  EventTrackingId,
+                                                                     String            Argument,
+                                                                     String            Description)
 
             => new AddOrganizationIfNotExistsResult(Organization,
+                                                    EventTrackingId,
                                                     false,
                                                     Argument,
                                                     I18NString.Create(Languages.en,
                                                                       Description));
 
-        public static AddOrganizationIfNotExistsResult ArgumentError(Organization  Organization,
-                                                                     String        Argument,
-                                                                     I18NString    Description)
+        public static AddOrganizationIfNotExistsResult ArgumentError(Organization      Organization,
+                                                                     EventTracking_Id  EventTrackingId,
+                                                                     String            Argument,
+                                                                     I18NString        Description)
 
             => new AddOrganizationIfNotExistsResult(Organization,
+                                                    EventTrackingId,
                                                     false,
                                                     Argument,
                                                     Description);
 
 
-        public static AddOrganizationIfNotExistsResult Failed(Organization  Organization,
-                                                              String        Description,
-                                                              Organization  ParentOrganization  = null)
+        public static AddOrganizationIfNotExistsResult Failed(Organization      Organization,
+                                                              EventTracking_Id  EventTrackingId,
+                                                              String            Description,
+                                                              Organization      ParentOrganization  = null)
 
             => new AddOrganizationIfNotExistsResult(Organization,
+                                                    EventTrackingId,
                                                     false,
                                                     null,
                                                     I18NString.Create(Languages.en,
                                                                       Description),
                                                     ParentOrganization);
 
-        public static AddOrganizationIfNotExistsResult Failed(Organization  Organization,
-                                                              I18NString    Description,
-                                                              Organization  ParentOrganization  = null)
+        public static AddOrganizationIfNotExistsResult Failed(Organization      Organization,
+                                                              EventTracking_Id  EventTrackingId,
+                                                              I18NString        Description,
+                                                              Organization      ParentOrganization  = null)
 
             => new AddOrganizationIfNotExistsResult(Organization,
+                                                    EventTrackingId,
                                                     false,
                                                     null,
                                                     Description,
                                                     ParentOrganization);
 
-        public static AddOrganizationIfNotExistsResult Failed(Organization  Organization,
-                                                              Exception     Exception,
-                                                              Organization  ParentOrganization  = null)
+        public static AddOrganizationIfNotExistsResult Failed(Organization      Organization,
+                                                              EventTracking_Id  EventTrackingId,
+                                                              Exception         Exception,
+                                                              Organization      ParentOrganization  = null)
 
             => new AddOrganizationIfNotExistsResult(Organization,
+                                                    EventTrackingId,
                                                     false,
                                                     null,
                                                     I18NString.Create(Languages.en,

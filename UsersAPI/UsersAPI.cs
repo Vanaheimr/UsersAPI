@@ -7098,7 +7098,7 @@ namespace social.OpenData.UsersAPI
                                                             }.AsImmutable;
                                                  }
 
-                                                 await UpdateUser(validUser.Id,
+                                                 await UpdateUser(validUser,
                                                                   _user => _user.AcceptedEULA = DateTime.UtcNow,
                                                                   null,
                                                                   Request.EventTrackingId,
@@ -15073,40 +15073,46 @@ namespace social.OpenData.UsersAPI
                                                               User_Id?                        CurrentUserId     = null)
         {
 
+            var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
+
             if (User is null)
                 return AddUserResult.ArgumentError(User,
+                                                   eventTrackingId,
                                                    nameof(User),
                                                    "The given user must not be null!");
 
             if (User.API != null && User.API != this)
                 return AddUserResult.ArgumentError(User,
+                                                   eventTrackingId,
                                                    nameof(User),
                                                    "The given user is already attached to another API!");
 
             if (_Users.ContainsKey(User.Id))
                 return AddUserResult.ArgumentError(User,
+                                                   eventTrackingId,
                                                    nameof(User),
                                                    "User identification '" + User.Id + "' already exists!");
 
             if (User.Id.Length < MinUserIdLength)
                 return AddUserResult.ArgumentError(User,
+                                                   eventTrackingId,
                                                    nameof(User),
                                                    "User identification '" + User.Id + "' is too short!");
 
             if (User.Name.IsNullOrEmpty() || User.Name.Trim().IsNullOrEmpty())
                 return AddUserResult.ArgumentError(User,
+                                                   eventTrackingId,
                                                    nameof(User),
                                                    "The given user name must not be null!");
 
             if (User.Name.Length < MinUserNameLength)
                 return AddUserResult.ArgumentError(User,
+                                                   eventTrackingId,
                                                    nameof(User),
                                                    "User name '" + User.Name + "' is too short!");
 
             User.API = this;
 
-
-            var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
 
             await WriteToDatabaseFile(addUser_MessageType,
                                       User.ToJSON(false, true),
@@ -15141,19 +15147,20 @@ namespace social.OpenData.UsersAPI
             if (OnUserAddedLocal != null)
                 await OnUserAddedLocal?.Invoke(DateTime.UtcNow,
                                                User,
-                                               EventTrackingId,
+                                               eventTrackingId,
                                                CurrentUserId);
 
             await SendNotifications(User,
                                     addUser_MessageType,
                                     null,
-                                    EventTrackingId,
+                                    eventTrackingId,
                                     CurrentUserId);
 
             OnAdded?.Invoke(User,
                             eventTrackingId);
 
-            return AddUserResult.Success(User);
+            return AddUserResult.Success(User,
+                                         eventTrackingId);
 
         }
 
@@ -15174,6 +15181,8 @@ namespace social.OpenData.UsersAPI
                                                  User_Id?                        CurrentUserId     = null)
         {
 
+            var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
+
             try
             {
 
@@ -15181,16 +15190,19 @@ namespace social.OpenData.UsersAPI
 
                             ? await _AddUser(User,
                                              OnAdded,
-                                             EventTrackingId,
+                                             eventTrackingId,
                                              CurrentUserId)
 
                             : AddUserResult.Failed(User,
+                                                   eventTrackingId,
                                                    "Internal locking failed!");
 
             }
             catch (Exception e)
             {
-                return AddUserResult.Failed(User, e);
+                return AddUserResult.Failed(User,
+                                            eventTrackingId,
+                                            e);
             }
             finally
             {
@@ -15225,6 +15237,8 @@ namespace social.OpenData.UsersAPI
                                                  User_Id?                        CurrentUserId     = null)
         {
 
+            var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
+
             try
             {
 
@@ -15243,16 +15257,19 @@ namespace social.OpenData.UsersAPI
                                                   OnAdded(_user,
                                                           _eventTrackingId);
                                               },
-                                              EventTrackingId ?? EventTracking_Id.New,
+                                              eventTrackingId ?? EventTracking_Id.New,
                                               CurrentUserId)
 
                              : AddUserResult.Failed(User,
+                                                    eventTrackingId,
                                                     "Internal locking failed!");
 
             }
             catch (Exception e)
             {
-                return AddUserResult.Failed(User, e);
+                return AddUserResult.Failed(User,
+                                            eventTrackingId,
+                                            e);
             }
             finally
             {
@@ -15290,29 +15307,35 @@ namespace social.OpenData.UsersAPI
 
             if (User is null)
                 return AddUserIfNotExistsResult.ArgumentError(User,
+                                                              EventTrackingId,
                                                               nameof(User),
                                                               "The given user must not be null!");
 
             if (User.API != null && User.API != this)
                 return AddUserIfNotExistsResult.ArgumentError(User,
+                                                              EventTrackingId,
                                                               nameof(User),
                                                               "The given user is already attached to another API!");
 
             if (_Users.ContainsKey(User.Id))
-                return AddUserIfNotExistsResult.Success(_Users[User.Id]);
+                return AddUserIfNotExistsResult.Success(_Users[User.Id],
+                                                        EventTrackingId);
 
             if (User.Id.Length < MinUserIdLength)
                 return AddUserIfNotExistsResult.ArgumentError(User,
+                                                              EventTrackingId,
                                                               nameof(User),
                                                               "User identification '" + User.Id + "' is too short!");
 
             if (User.Name.IsNullOrEmpty() || User.Name.Trim().IsNullOrEmpty())
                 return AddUserIfNotExistsResult.ArgumentError(User,
+                                                              EventTrackingId,
                                                               nameof(User),
                                                               "The given user name must not be null!");
 
             if (User.Name.Length < MinUserNameLength)
                 return AddUserIfNotExistsResult.ArgumentError(User,
+                                                              EventTrackingId,
                                                               nameof(User),
                                                               "User name '" + User.Name + "' is too short!");
 
@@ -15365,7 +15388,8 @@ namespace social.OpenData.UsersAPI
             OnAdded?.Invoke(User,
                             eventTrackingId);
 
-            return AddUserIfNotExistsResult.Success(User);
+            return AddUserIfNotExistsResult.Success(User,
+                                                    EventTrackingId);
 
         }
 
@@ -15397,12 +15421,15 @@ namespace social.OpenData.UsersAPI
                                                         CurrentUserId)
 
                             : AddUserIfNotExistsResult.Failed(User,
+                                                              EventTrackingId,
                                                               "Internal locking failed!");
 
             }
             catch (Exception e)
             {
-                return AddUserIfNotExistsResult.Failed(User, e);
+                return AddUserIfNotExistsResult.Failed(User,
+                                                       EventTrackingId,
+                                                       e);
             }
             finally
             {
@@ -15459,12 +15486,15 @@ namespace social.OpenData.UsersAPI
                                                          CurrentUserId)
 
                              : AddUserIfNotExistsResult.Failed(User,
+                                                               EventTrackingId,
                                                                "Internal locking failed!");
 
             }
             catch (Exception e)
             {
-                return AddUserIfNotExistsResult.Failed(User, e);
+                return AddUserIfNotExistsResult.Failed(User,
+                                                       EventTrackingId,
+                                                       e);
             }
             finally
             {
@@ -15495,32 +15525,47 @@ namespace social.OpenData.UsersAPI
         /// <param name="OnUpdated">A delegate run whenever the user had been updated successfully.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
-        protected internal async Task<User> _AddOrUpdateUser(User                            User,
-                                                             Action<User, EventTracking_Id>  OnAdded           = null,
-                                                             Action<User, EventTracking_Id>  OnUpdated         = null,
-                                                             EventTracking_Id                EventTrackingId   = null,
-                                                             User_Id?                        CurrentUserId     = null)
+        protected internal async Task<AddOrUpdateUserResult> _AddOrUpdateUser(User                            User,
+                                                                              Action<User, EventTracking_Id>  OnAdded           = null,
+                                                                              Action<User, EventTracking_Id>  OnUpdated         = null,
+                                                                              EventTracking_Id                EventTrackingId   = null,
+                                                                              User_Id?                        CurrentUserId     = null)
         {
 
+            var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
+
             if (User is null)
-                throw new ArgumentNullException(nameof(User),
-                                                "The given user must not be null!");
+                return AddOrUpdateUserResult.ArgumentError(User,
+                                                           eventTrackingId,
+                                                           nameof(User),
+                                                           "The given user must not be null!");
 
             if (User.API != null && User.API != this)
-                throw new ArgumentException    ("The given user is already attached to another API!",
-                                                nameof(User));
-
-            if (_Users.ContainsKey(User.Id))
-                return _Users[User.Id];
+                return AddOrUpdateUserResult.ArgumentError(User,
+                                                           eventTrackingId,
+                                                           nameof(User.API),
+                                                           "The given user is already attached to another API!");
 
             if (User.Id.Length < MinUserIdLength)
-                throw new ArgumentException    ("User identification '" + User.Id + "' is too short!",
-                                                nameof(User));
+                return AddOrUpdateUserResult.ArgumentError(User,
+                                                           eventTrackingId,
+                                                           nameof(User),
+                                                           "User identification '" + User.Id + "' is too short!");
+
+            if (User.Name.IsNullOrEmpty() || User.Name.Trim().IsNullOrEmpty())
+                return AddOrUpdateUserResult.ArgumentError(User,
+                                                           eventTrackingId,
+                                                           nameof(User),
+                                                           "The given user name must not be null!");
+
+            if (User.Name.Length < MinUserNameLength)
+                return AddOrUpdateUserResult.ArgumentError(User,
+                                                           eventTrackingId,
+                                                           nameof(User),
+                                                           "User name '" + User.Name + "' is too short!");
 
             User.API = this;
 
-
-            var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
 
             await WriteToDatabaseFile(addOrUpdateUser_MessageType,
                                       User.ToJSON(false, true),
@@ -15554,6 +15599,10 @@ namespace social.OpenData.UsersAPI
 
                 OnUpdated?.Invoke(User,
                                   eventTrackingId);
+
+                return AddOrUpdateUserResult.Success(User,
+                                                     AddOrUpdate.Update,
+                                                     eventTrackingId);
 
             }
             else
@@ -15596,9 +15645,11 @@ namespace social.OpenData.UsersAPI
                 OnAdded?.Invoke(User,
                                 eventTrackingId);
 
-            }
+                return AddOrUpdateUserResult.Success(User,
+                                                     AddOrUpdate.Add,
+                                                     eventTrackingId);
 
-            return User;
+            }
 
         }
 
@@ -15614,15 +15665,14 @@ namespace social.OpenData.UsersAPI
         /// <param name="OnUpdated">A delegate run whenever the user had been updated successfully.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
-        public async Task<User> AddOrUpdateUser(User                            User,
-                                                Action<User, EventTracking_Id>  OnAdded           = null,
-                                                Action<User, EventTracking_Id>  OnUpdated         = null,
-                                                EventTracking_Id                EventTrackingId   = null,
-                                                User_Id?                        CurrentUserId     = null)
+        public async Task<AddOrUpdateUserResult> AddOrUpdateUser(User                            User,
+                                                                 Action<User, EventTracking_Id>  OnAdded           = null,
+                                                                 Action<User, EventTracking_Id>  OnUpdated         = null,
+                                                                 EventTracking_Id                EventTrackingId   = null,
+                                                                 User_Id?                        CurrentUserId     = null)
         {
 
-            if (User is null)
-                throw new ArgumentNullException(nameof(User), "The given user must not be null!");
+            var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
 
             try
             {
@@ -15632,11 +15682,19 @@ namespace social.OpenData.UsersAPI
                             ? await _AddOrUpdateUser(User,
                                                      OnAdded,
                                                      OnUpdated,
-                                                     EventTrackingId,
+                                                     eventTrackingId,
                                                      CurrentUserId)
 
-                            : null;
+                            : AddOrUpdateUserResult.Failed(User,
+                                                           eventTrackingId,
+                                                           "Internal locking failed!");
 
+            }
+            catch (Exception e)
+            {
+                return AddOrUpdateUserResult.Failed(User,
+                                                    eventTrackingId,
+                                                    e);
             }
             finally
             {
@@ -15664,17 +15722,16 @@ namespace social.OpenData.UsersAPI
         /// <param name="OnUpdated">A delegate run whenever the user had been updated successfully.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
-        public async Task<User> AddOrUpdateUser(User                            User,
-                                                User2OrganizationEdgeTypes      Membership,
-                                                Organization                    Organization,
-                                                Action<User, EventTracking_Id>  OnAdded           = null,
-                                                Action<User, EventTracking_Id>  OnUpdated         = null,
-                                                EventTracking_Id                EventTrackingId   = null,
-                                                User_Id?                        CurrentUserId     = null)
+        public async Task<AddOrUpdateUserResult> AddOrUpdateUser(User                            User,
+                                                                 User2OrganizationEdgeTypes      Membership,
+                                                                 Organization                    Organization,
+                                                                 Action<User, EventTracking_Id>  OnAdded           = null,
+                                                                 Action<User, EventTracking_Id>  OnUpdated         = null,
+                                                                 EventTracking_Id                EventTrackingId   = null,
+                                                                 User_Id?                        CurrentUserId     = null)
         {
 
-            if (User is null)
-                throw new ArgumentNullException(nameof(User), "The given user must not be null!");
+            var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
 
             try
             {
@@ -15683,20 +15740,31 @@ namespace social.OpenData.UsersAPI
 
                             ? await _AddOrUpdateUser(User,
                                                      async (_user, _eventTrackingId) => {
+
                                                          await _AddToOrganization(_user,
                                                                                   Membership,
                                                                                   Organization,
                                                                                   _eventTrackingId,
                                                                                   CurrentUserId);
+
                                                          OnAdded(_user,
                                                                  _eventTrackingId);
+
                                                      },
                                                      OnUpdated,
-                                                     EventTrackingId,
+                                                     eventTrackingId,
                                                      CurrentUserId)
 
-                            : null;
+                            : AddOrUpdateUserResult.Failed(User,
+                                                           eventTrackingId,
+                                                           "Internal locking failed!");
 
+            }
+            catch (Exception e)
+            {
+                return AddOrUpdateUserResult.Failed(User,
+                                                    eventTrackingId,
+                                                    e);
             }
             finally
             {
@@ -15745,28 +15813,34 @@ namespace social.OpenData.UsersAPI
         /// <param name="OnUpdated">A delegate run whenever the user had been updated successfully.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
-        protected internal async Task<User> _UpdateUser(User                            User,
-                                                        Action<User, EventTracking_Id>  OnUpdated         = null,
-                                                        EventTracking_Id                EventTrackingId   = null,
-                                                        User_Id?                        CurrentUserId     = null)
+        protected internal async Task<UpdateUserResult> _UpdateUser(User                            User,
+                                                                    Action<User, EventTracking_Id>  OnUpdated         = null,
+                                                                    EventTracking_Id                EventTrackingId   = null,
+                                                                    User_Id?                        CurrentUserId     = null)
         {
 
+            var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
+
             if (User is null)
-                throw new ArgumentNullException(nameof(User),
-                                                "The given user must not be null!");
+                return UpdateUserResult.ArgumentError(User,
+                                                      eventTrackingId,
+                                                      nameof(User),
+                                                      "The given user must not be null!");
 
-            if (User.API != null && User.API != this)
-                throw new ArgumentException    ("The given user is already attached to another API!",
-                                                nameof(User));
+            if (!_TryGetUser(User.Id, out User OldUser))
+                return UpdateUserResult.ArgumentError(User,
+                                                      eventTrackingId,
+                                                      nameof(User),
+                                                      "The given user '" + User.Id + "' does not exists in this API!");
 
-            if (!_Users.TryGetValue(User.Id, out User OldUser))
-                throw new ArgumentException    ("The given user '" + User.Id + "' does not exists in this API!",
-                                                nameof(User));
+            if (User.API != this)
+                return UpdateUserResult.ArgumentError(User,
+                                                      eventTrackingId,
+                                                      nameof(User.API),
+                                                      "The given user is not attached to this API!");
 
             User.API = this;
 
-
-            var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
 
             await WriteToDatabaseFile(updateUser_MessageType,
                                       User.ToJSON(),
@@ -15794,7 +15868,8 @@ namespace social.OpenData.UsersAPI
             OnUpdated?.Invoke(User,
                               eventTrackingId);
 
-            return User;
+            return UpdateUserResult.Success(User,
+                                            eventTrackingId);
 
         }
 
@@ -15809,14 +15884,11 @@ namespace social.OpenData.UsersAPI
         /// <param name="OnUpdated">A delegate run whenever the user had been updated successfully.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
-        public async Task<User> UpdateUser(User                            User,
-                                           Action<User, EventTracking_Id>  OnUpdated         = null,
-                                           EventTracking_Id                EventTrackingId   = null,
-                                           User_Id?                        CurrentUserId     = null)
+        public async Task<UpdateUserResult> UpdateUser(User                            User,
+                                                       Action<User, EventTracking_Id>  OnUpdated         = null,
+                                                       EventTracking_Id                EventTrackingId   = null,
+                                                       User_Id?                        CurrentUserId     = null)
         {
-
-            if (User is null)
-                throw new ArgumentNullException(nameof(User), "The given user must not be null!");
 
             try
             {
@@ -15828,8 +15900,16 @@ namespace social.OpenData.UsersAPI
                                                 EventTrackingId,
                                                 CurrentUserId)
 
-                            : null;
+                            : UpdateUserResult.Failed(User,
+                                                      EventTrackingId,
+                                                      "Internal locking failed!");
 
+            }
+            catch (Exception e)
+            {
+                return UpdateUserResult.Failed(User,
+                                               EventTrackingId,
+                                               e);
             }
             finally
             {
@@ -15846,108 +15926,127 @@ namespace social.OpenData.UsersAPI
         #endregion
 
 
-        #region (protected internal) _UpdateUser(UserId, UpdateDelegate, OnUpdated = null, CurrentUserId = null)
+        #region (protected internal) _UpdateUser(User, UpdateDelegate, OnUpdated = null, CurrentUserId = null)
 
         /// <summary>
         /// Update the given user.
         /// </summary>
-        /// <param name="UserId">An user identification.</param>
+        /// <param name="User">A user.</param>
         /// <param name="UpdateDelegate">A delegate to update the given user.</param>
         /// <param name="OnUpdated">A delegate run whenever the user had been updated successfully.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
-        protected internal async Task<User> _UpdateUser(User_Id                         UserId,
-                                                        Action<User.Builder>            UpdateDelegate,
-                                                        Action<User, EventTracking_Id>  OnUpdated         = null,
-                                                        EventTracking_Id                EventTrackingId   = null,
-                                                        User_Id?                        CurrentUserId     = null)
+        protected internal async Task<UpdateUserResult> _UpdateUser(User                            User,
+                                                                    Action<User.Builder>            UpdateDelegate,
+                                                                    Action<User, EventTracking_Id>  OnUpdated         = null,
+                                                                    EventTracking_Id                EventTrackingId   = null,
+                                                                    User_Id?                        CurrentUserId     = null)
         {
 
-            if (UserId.IsNullOrEmpty)
-                throw new ArgumentNullException(nameof(UserId),
-                                                "The given user identification must not be null or empty!");
+            var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
 
-            if (UpdateDelegate == null)
-                throw new ArgumentNullException(nameof(UpdateDelegate),
-                                                "The given update delegate must not be null!");
+            if (User is null)
+                return UpdateUserResult.ArgumentError(User,
+                                                      eventTrackingId,
+                                                      nameof(User),
+                                                      "The given user must not be null!");
 
-            if (!_Users.TryGetValue(UserId, out User existingUser))
-                throw new ArgumentException    ("The given user '" + UserId + "' does not exists in this API!",
-                                                nameof(UserId));
+            if (!_UserExists(User.Id))
+                return UpdateUserResult.ArgumentError(User,
+                                                      eventTrackingId,
+                                                      nameof(User),
+                                                      "The given user '" + User.Id + "' does not exists in this API!");
+
+            if (User.API != this)
+                return UpdateUserResult.ArgumentError(User,
+                                                      eventTrackingId,
+                                                      nameof(User.API),
+                                                      "The given user is not attached to this API!");
+
+            if (UpdateDelegate is null)
+                return UpdateUserResult.ArgumentError(User,
+                                                      eventTrackingId,
+                                                      nameof(UpdateDelegate),
+                                                      "The given update delegate must not be null!");
 
 
-            var builder = existingUser.ToBuilder();
+            var builder = User.ToBuilder();
             UpdateDelegate(builder);
             var updatedUser = builder.ToImmutable;
-
-
-            var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
 
             await WriteToDatabaseFile(updateUser_MessageType,
                                       updatedUser.ToJSON(),
                                       eventTrackingId,
                                       CurrentUserId);
 
-            _Users.Remove(existingUser.Id);
-            updatedUser.CopyAllLinkedDataFrom(existingUser);
+            _Users.Remove(User.Id);
+            updatedUser.CopyAllLinkedDataFrom(User);
 
 
             var OnUserUpdatedLocal = OnUserUpdated;
             if (OnUserUpdatedLocal != null)
                 await OnUserUpdatedLocal?.Invoke(DateTime.UtcNow,
                                                  updatedUser,
-                                                 existingUser,
+                                                 User,
                                                  eventTrackingId,
                                                  CurrentUserId);
 
             await SendNotifications(updatedUser,
                                     updateUser_MessageType,
-                                    existingUser,
+                                    User,
                                     eventTrackingId,
                                     CurrentUserId);
 
             OnUpdated?.Invoke(updatedUser,
                               eventTrackingId);
 
-            return updatedUser;
+            return UpdateUserResult.Success(User,
+                                            eventTrackingId);
 
         }
 
         #endregion
 
-        #region UpdateUser                      (UserId, UpdateDelegate, OnUpdated = null, CurrentUserId = null)
+        #region UpdateUser                      (User, UpdateDelegate, OnUpdated = null, CurrentUserId = null)
 
         /// <summary>
         /// Update the given user.
         /// </summary>
-        /// <param name="UserId">An user identification.</param>
+        /// <param name="User">A user.</param>
         /// <param name="UpdateDelegate">A delegate to update the given user.</param>
         /// <param name="OnUpdated">A delegate run whenever the user had been updated successfully.</param>
         /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
-        public async Task<User> UpdateUser(User_Id                         UserId,
-                                           Action<User.Builder>            UpdateDelegate,
-                                           Action<User, EventTracking_Id>  OnUpdated         = null,
-                                           EventTracking_Id                EventTrackingId   = null,
-                                           User_Id?                        CurrentUserId     = null)
+        public async Task<UpdateUserResult> UpdateUser(User                            User,
+                                                       Action<User.Builder>            UpdateDelegate,
+                                                       Action<User, EventTracking_Id>  OnUpdated         = null,
+                                                       EventTracking_Id                EventTrackingId   = null,
+                                                       User_Id?                        CurrentUserId     = null)
         {
 
-            if (UserId.IsNullOrEmpty)
-                throw new ArgumentNullException(nameof(UserId), "The given user identification must not be null or empty!");
+            var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
 
             try
             {
 
                 return (await UsersSemaphore.WaitAsync(SemaphoreSlimTimeout))
 
-                            ? await _UpdateUser(UserId,
+                            ? await _UpdateUser(User,
                                                 UpdateDelegate,
                                                 OnUpdated,
-                                                EventTrackingId,
+                                                eventTrackingId,
                                                 CurrentUserId)
 
-                            : null;
+                            : UpdateUserResult.Failed(User,
+                                                      eventTrackingId,
+                                                      "Internal locking failed!");
 
+            }
+            catch (Exception e)
+            {
+                return UpdateUserResult.Failed(User,
+                                               eventTrackingId,
+                                               e);
             }
             finally
             {
@@ -16283,6 +16382,8 @@ namespace social.OpenData.UsersAPI
                                                                     User_Id?                        CurrentUserId     = null)
         {
 
+            var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
+
             if (User is null)
                 throw new ArgumentNullException(nameof(User),
                                                 "The given user must not be null!");
@@ -16296,8 +16397,6 @@ namespace social.OpenData.UsersAPI
 
             if (result == null)
             {
-
-                var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
 
                 await WriteToDatabaseFile(removeUser_MessageType,
                                           User.ToJSON(false, true),
@@ -16327,11 +16426,14 @@ namespace social.OpenData.UsersAPI
                 OnRemoved?.Invoke(User,
                                   eventTrackingId);
 
-                return RemoveUserResult.Success(User);
+                return RemoveUserResult.Success(User,
+                                                eventTrackingId);
 
             }
             else
-                return RemoveUserResult.Failed(User, result);
+                return RemoveUserResult.Failed(User,
+                                               eventTrackingId,
+                                               result);
 
         }
 
@@ -16363,12 +16465,15 @@ namespace social.OpenData.UsersAPI
                                                 CurrentUserId)
 
                             : RemoveUserResult.Failed(User,
+                                                      EventTrackingId,
                                                       "Internal locking failed!");
 
             }
             catch (Exception e)
             {
-                return RemoveUserResult.Failed(User, e);
+                return RemoveUserResult.Failed(User,
+                                               EventTrackingId,
+                                               e);
             }
             finally
             {
@@ -17693,11 +17798,14 @@ namespace social.OpenData.UsersAPI
                 OnRemoved?.Invoke(UserGroup,
                                   eventTrackingId);
 
-                return RemoveUserGroupResult.Success(UserGroup);
+                return RemoveUserGroupResult.Success(UserGroup,
+                                                     EventTrackingId);
 
             }
             else
-                return RemoveUserGroupResult.Failed(UserGroup, result);
+                return RemoveUserGroupResult.Failed(UserGroup,
+                                                    EventTrackingId,
+                                                    result);
 
         }
 
@@ -17732,12 +17840,15 @@ namespace social.OpenData.UsersAPI
                                                      CurrentUserId)
 
                             : RemoveUserGroupResult.Failed(UserGroup,
+                                                           EventTrackingId,
                                                            "Internal locking failed!");
 
             }
             catch (Exception e)
             {
-                return RemoveUserGroupResult.Failed(UserGroup, e);
+                return RemoveUserGroupResult.Failed(UserGroup,
+                                                    EventTrackingId,
+                                                    e);
             }
             finally
             {
@@ -23505,28 +23616,35 @@ namespace social.OpenData.UsersAPI
                                                                               User_Id?                                CurrentUserId     = null)
         {
 
+            var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
+
             if (Organization is null)
                 return AddOrganizationResult.ArgumentError(Organization,
+                                                           eventTrackingId,
                                                            nameof(Organization),
                                                            "The given organization must not be null!");
 
             if (Organization.API != null && Organization.API != this)
                 return AddOrganizationResult.ArgumentError(Organization,
+                                                           eventTrackingId,
                                                            nameof(Organization),
                                                            "The given organization is already attached to another API!");
 
             if (_Organizations.ContainsKey(Organization.Id))
                 return AddOrganizationResult.ArgumentError(Organization,
+                                                           eventTrackingId,
                                                            nameof(Organization),
                                                            "Organization identification '" + Organization.Id + "' already exists!");
 
             if (Organization.Id.Length < MinOrganizationIdLength)
                 return AddOrganizationResult.ArgumentError(Organization,
+                                                           eventTrackingId,
                                                            nameof(Organization),
                                                            "Organization identification '" + Organization.Id + "' is too short!");
 
             if (Organization.Name.IsNullOrEmpty() || Organization.Name.IsNullOrEmpty())
                 return AddOrganizationResult.ArgumentError(Organization,
+                                                           eventTrackingId,
                                                            nameof(Organization),
                                                            "The given organization name must not be null!");
 
@@ -23537,8 +23655,6 @@ namespace social.OpenData.UsersAPI
 
             Organization.API = this;
 
-
-            var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
 
             await WriteToDatabaseFile(addOrganization_MessageType,
                                       Organization.ToJSON(false, true),
@@ -23552,19 +23668,20 @@ namespace social.OpenData.UsersAPI
             if (OnOrganizationAddedLocal != null)
                 await OnOrganizationAddedLocal?.Invoke(DateTime.UtcNow,
                                                        Organization,
-                                                       EventTrackingId,
+                                                       eventTrackingId,
                                                        CurrentUserId);
 
             await SendNotifications(Organization,
                                     addOrganization_MessageType,
                                     null,
-                                    EventTrackingId,
+                                    eventTrackingId,
                                     CurrentUserId);
 
             OnAdded?.Invoke(Organization,
                             eventTrackingId);
 
-            return AddOrganizationResult.Success(Organization);
+            return AddOrganizationResult.Success(Organization,
+                                                 eventTrackingId);
 
         }
 
@@ -23585,6 +23702,8 @@ namespace social.OpenData.UsersAPI
                                                                  User_Id?                                CurrentUserId     = null)
         {
 
+            var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
+
             try
             {
 
@@ -23592,16 +23711,19 @@ namespace social.OpenData.UsersAPI
 
                             ? await _AddOrganization(Organization,
                                                      OnAdded,
-                                                     EventTrackingId,
+                                                     eventTrackingId,
                                                      CurrentUserId)
 
                             : AddOrganizationResult.Failed(Organization,
+                                                           eventTrackingId,
                                                            "Internal locking failed!");
 
             }
             catch (Exception e)
             {
-                return AddOrganizationResult.Failed(Organization, e);
+                return AddOrganizationResult.Failed(Organization,
+                                                    eventTrackingId,
+                                                    e);
             }
             finally
             {
@@ -23634,11 +23756,14 @@ namespace social.OpenData.UsersAPI
                                                                  User_Id?                                CurrentUserId        = null)
         {
 
+            var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
+
             if (ParentOrganization is null)
                 ParentOrganization = NoOwner;
 
             else if (!_Organizations.ContainsKey(ParentOrganization.Id))
                 return AddOrganizationResult.ArgumentError(Organization,
+                                                           eventTrackingId,
                                                            nameof(ParentOrganization),
                                                            "Parent organization '" + ParentOrganization.Id + "' does not exists in this API!");
 
@@ -23657,6 +23782,7 @@ namespace social.OpenData.UsersAPI
                             Contains     (ParentOrganization))
                     {
                         return AddOrganizationResult.Failed(Organization,
+                                                            eventTrackingId,
                                                             "Your are not allowed to create this sub organization!",
                                                             ParentOrganization);
                     }
@@ -23674,7 +23800,7 @@ namespace social.OpenData.UsersAPI
                                                                                    _eventTrackingId);
 
                                                                        },
-                                                                       EventTrackingId,
+                                                                       eventTrackingId,
                                                                        CurrentUserId);
 
                     addOrganizationResult.ParentOrganization = ParentOrganization;
@@ -23684,6 +23810,7 @@ namespace social.OpenData.UsersAPI
                 }
 
                 return AddOrganizationResult.Failed(Organization,
+                                                    eventTrackingId,
                                                     "Internal locking failed!",
                                                     ParentOrganization);
 
@@ -23691,6 +23818,7 @@ namespace social.OpenData.UsersAPI
             catch (Exception e)
             {
                 return AddOrganizationResult.Failed(Organization,
+                                                    eventTrackingId,
                                                     e,
                                                     ParentOrganization);
             }
@@ -23727,28 +23855,35 @@ namespace social.OpenData.UsersAPI
                                                                                                     User_Id?                                CurrentUserId     = null)
         {
 
+            var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
+
             if (Organization is null)
                 return AddOrganizationIfNotExistsResult.ArgumentError(Organization,
-                                                              nameof(Organization),
-                                                              "The given organization must not be null!");
+                                                                      eventTrackingId,
+                                                                      nameof(Organization),
+                                                                      "The given organization must not be null!");
 
             if (Organization.API != null && Organization.API != this)
                 return AddOrganizationIfNotExistsResult.ArgumentError(Organization,
-                                                              nameof(Organization),
-                                                              "The given organization is already attached to another API!");
+                                                                      eventTrackingId,
+                                                                      nameof(Organization),
+                                                                      "The given organization is already attached to another API!");
 
             if (_Organizations.ContainsKey(Organization.Id))
-                return AddOrganizationIfNotExistsResult.Success(_Organizations[Organization.Id]);
+                return AddOrganizationIfNotExistsResult.Success(_Organizations[Organization.Id],
+                                                                eventTrackingId);
 
             if (Organization.Id.Length < MinOrganizationIdLength)
                 return AddOrganizationIfNotExistsResult.ArgumentError(Organization,
-                                                              nameof(Organization),
-                                                              "Organization identification '" + Organization.Id + "' is too short!");
+                                                                      eventTrackingId,
+                                                                      nameof(Organization),
+                                                                      "Organization identification '" + Organization.Id + "' is too short!");
 
             if (Organization.Name.IsNullOrEmpty() || Organization.Name.IsNullOrEmpty())
                 return AddOrganizationIfNotExistsResult.ArgumentError(Organization,
-                                                              nameof(Organization),
-                                                              "The given organization name must not be null!");
+                                                                      eventTrackingId,
+                                                                      nameof(Organization),
+                                                                      "The given organization name must not be null!");
 
             //if (Organization.Name.Length < MinOrganizationNameLength)
             //    return AddOrganizationIfNotExistsResult.ArgumentError(Organization,
@@ -23757,8 +23892,6 @@ namespace social.OpenData.UsersAPI
 
             Organization.API = this;
 
-
-            var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
 
             await WriteToDatabaseFile(addOrganizationIfNotExists_MessageType,
                                       Organization.ToJSON(false, true),
@@ -23784,7 +23917,8 @@ namespace social.OpenData.UsersAPI
             OnAdded?.Invoke(Organization,
                             eventTrackingId);
 
-            return AddOrganizationIfNotExistsResult.Success(Organization);
+            return AddOrganizationIfNotExistsResult.Success(Organization,
+                                                            eventTrackingId);
 
         }
 
@@ -23805,23 +23939,28 @@ namespace social.OpenData.UsersAPI
                                                                                        User_Id?                                CurrentUserId     = null)
         {
 
+            var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
+
             try
             {
 
                 return (await OrganizationsSemaphore.WaitAsync(SemaphoreSlimTimeout))
 
                             ? await _AddOrganizationIfNotExists(Organization,
-                                                        OnAdded,
-                                                        EventTrackingId,
-                                                        CurrentUserId)
+                                                                OnAdded,
+                                                                EventTrackingId,
+                                                                CurrentUserId)
 
                             : AddOrganizationIfNotExistsResult.Failed(Organization,
+                                                                      eventTrackingId,
                                                                       "Internal locking failed!");
 
             }
             catch (Exception e)
             {
-                return AddOrganizationIfNotExistsResult.Failed(Organization, e);
+                return AddOrganizationIfNotExistsResult.Failed(Organization,
+                                                               eventTrackingId,
+                                                               e);
             }
             finally
             {
@@ -23854,6 +23993,8 @@ namespace social.OpenData.UsersAPI
                                                                                        User_Id?                                CurrentUserId     = null)
         {
 
+            var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
+
             try
             {
 
@@ -23874,16 +24015,19 @@ namespace social.OpenData.UsersAPI
                                                                            _eventTrackingId);
 
                                                                },
-                                                               EventTrackingId,
+                                                               eventTrackingId,
                                                                CurrentUserId)
 
                            : AddOrganizationIfNotExistsResult.Failed(Organization,
+                                                                     eventTrackingId,
                                                                      "Internal locking failed!");
 
             }
             catch (Exception e)
             {
-                return AddOrganizationIfNotExistsResult.Failed(Organization, e);
+                return AddOrganizationIfNotExistsResult.Failed(Organization,
+                                                               eventTrackingId,
+                                                               e);
             }
             finally
             {
@@ -24628,7 +24772,7 @@ namespace social.OpenData.UsersAPI
         /// Determines whether the organization can safely be removed from the API.
         /// </summary>
         /// <param name="Organization">The organization to be removed.</param>
-        protected internal virtual I18NString CanDeleteOrganization(Organization Organization)
+        protected internal virtual I18NString _CanDeleteOrganization(Organization Organization)
         {
 
             if (Organization.Users.Any())
@@ -24658,6 +24802,8 @@ namespace social.OpenData.UsersAPI
                                                                                     User_Id?                                CurrentUserId     = null)
         {
 
+            var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
+
             if (Organization is null)
                 throw new ArgumentNullException(nameof(Organization),
                                                 "The given organization must not be null!");
@@ -24667,12 +24813,10 @@ namespace social.OpenData.UsersAPI
                                                 nameof(Organization));
 
 
-            var result = CanDeleteOrganization(Organization);
+            var result = _CanDeleteOrganization(Organization);
 
             if (result == null)
             {
-
-                var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
 
                 await WriteToDatabaseFile(removeOrganization_MessageType,
                                           Organization.ToJSON(false, true),
@@ -24710,11 +24854,14 @@ namespace social.OpenData.UsersAPI
                 OnRemoved?.Invoke(Organization,
                                   eventTrackingId);
 
-                return RemoveOrganizationResult.Success(Organization);
+                return RemoveOrganizationResult.Success(Organization,
+                                                        eventTrackingId);
 
             }
             else
-                return RemoveOrganizationResult.Failed(Organization, result);
+                return RemoveOrganizationResult.Failed(Organization,
+                                                       eventTrackingId,
+                                                       result);
 
         }
 
@@ -24735,8 +24882,7 @@ namespace social.OpenData.UsersAPI
                                                                        User_Id?                                CurrentUserId     = null)
         {
 
-            if (Organization is null)
-                throw new ArgumentNullException(nameof(Organization), "The given organization must not be null!");
+            var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
 
             try
             {
@@ -24745,16 +24891,19 @@ namespace social.OpenData.UsersAPI
 
                             ? await _RemoveOrganization(Organization,
                                                         OnRemoved,
-                                                        EventTrackingId,
+                                                        eventTrackingId,
                                                         CurrentUserId)
 
                             : RemoveOrganizationResult.Failed(Organization,
+                                                              eventTrackingId,
                                                               "Internal locking failed!");
 
             }
             catch (Exception e)
             {
-                return RemoveOrganizationResult.Failed(Organization, e);
+                return RemoveOrganizationResult.Failed(Organization,
+                                                       eventTrackingId,
+                                                       e);
             }
             finally
             {
@@ -25939,6 +26088,8 @@ namespace social.OpenData.UsersAPI
                                                                                               User_Id?                                     CurrentUserId     = null)
         {
 
+            var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
+
             if (OrganizationGroup is null)
                 throw new ArgumentNullException(nameof(OrganizationGroup),
                                                 "The given organization group must not be null!");
@@ -25952,8 +26103,6 @@ namespace social.OpenData.UsersAPI
 
             if (result == null)
             {
-
-                var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
 
                 await WriteToDatabaseFile(removeOrganizationGroup_MessageType,
                                           OrganizationGroup.ToJSON(false, true),
@@ -25979,11 +26128,14 @@ namespace social.OpenData.UsersAPI
                 OnRemoved?.Invoke(OrganizationGroup,
                                   eventTrackingId);
 
-                return RemoveOrganizationGroupResult.Success(OrganizationGroup);
+                return RemoveOrganizationGroupResult.Success(OrganizationGroup,
+                                                             eventTrackingId);
 
             }
             else
-                return RemoveOrganizationGroupResult.Failed(OrganizationGroup, result);
+                return RemoveOrganizationGroupResult.Failed(OrganizationGroup,
+                                                            eventTrackingId,
+                                                            result);
 
         }
 
@@ -26004,8 +26156,7 @@ namespace social.OpenData.UsersAPI
                                                                                  User_Id?                                     CurrentUserId     = null)
         {
 
-            if (OrganizationGroup is null)
-                throw new ArgumentNullException(nameof(OrganizationGroup), "The given organization group must not be null!");
+            var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
 
             try
             {
@@ -26014,16 +26165,19 @@ namespace social.OpenData.UsersAPI
 
                             ? await _RemoveOrganizationGroup(OrganizationGroup,
                                                              OnRemoved,
-                                                             EventTrackingId,
+                                                             eventTrackingId,
                                                              CurrentUserId)
 
                             : RemoveOrganizationGroupResult.Failed(OrganizationGroup,
+                                                                   eventTrackingId,
                                                                    "Internal locking failed!");
 
             }
             catch (Exception e)
             {
-                return RemoveOrganizationGroupResult.Failed(OrganizationGroup, e);
+                return RemoveOrganizationGroupResult.Failed(OrganizationGroup,
+                                                            eventTrackingId,
+                                                            e);
             }
             finally
             {

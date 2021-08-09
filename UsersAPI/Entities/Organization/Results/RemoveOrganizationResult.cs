@@ -29,12 +29,14 @@ namespace social.OpenData.UsersAPI
     public class RemoveOrganizationResult : AResult<Organization>
     {
 
-        private RemoveOrganizationResult(Organization  Organization,
-                                         Boolean       IsSuccess,
-                                         String        Argument           = null,
-                                         I18NString    ErrorDescription   = null)
+        private RemoveOrganizationResult(Organization      Organization,
+                                         EventTracking_Id  EventTrackingId,
+                                         Boolean           IsSuccess,
+                                         String            Argument           = null,
+                                         I18NString        ErrorDescription   = null)
 
             : base(Organization,
+                   EventTrackingId,
                    IsSuccess,
                    Argument,
                    ErrorDescription)
@@ -42,53 +44,65 @@ namespace social.OpenData.UsersAPI
         { }
 
 
-        public static RemoveOrganizationResult Success(Organization Organization)
+        public static RemoveOrganizationResult Success(Organization      Organization,
+                                                       EventTracking_Id  EventTrackingId)
 
             => new RemoveOrganizationResult(Organization,
+                                            EventTrackingId,
                                             true);
 
 
-        public static RemoveOrganizationResult ArgumentError(Organization  Organization,
-                                                             String        Argument,
-                                                             String        Description)
+        public static RemoveOrganizationResult ArgumentError(Organization      Organization,
+                                                             EventTracking_Id  EventTrackingId,
+                                                             String            Argument,
+                                                             String            Description)
 
             => new RemoveOrganizationResult(Organization,
+                                            EventTrackingId,
                                             false,
                                             Argument,
                                             I18NString.Create(Languages.en,
                                                               Description));
 
-        public static RemoveOrganizationResult ArgumentError(Organization  Organization,
-                                                             String        Argument,
-                                                             I18NString    Description)
+        public static RemoveOrganizationResult ArgumentError(Organization      Organization,
+                                                             EventTracking_Id  EventTrackingId,
+                                                             String            Argument,
+                                                             I18NString        Description)
 
             => new RemoveOrganizationResult(Organization,
+                                            EventTrackingId,
                                             false,
                                             Argument,
                                             Description);
 
 
-        public static RemoveOrganizationResult Failed(Organization  Organization,
-                                                      String        Description)
+        public static RemoveOrganizationResult Failed(Organization      Organization,
+                                                      EventTracking_Id  EventTrackingId,
+                                                      String            Description)
 
             => new RemoveOrganizationResult(Organization,
+                                            EventTrackingId,
                                             false,
                                             null,
                                             I18NString.Create(Languages.en,
                                                               Description));
 
-        public static RemoveOrganizationResult Failed(Organization  Organization,
-                                                      I18NString    Description)
+        public static RemoveOrganizationResult Failed(Organization      Organization,
+                                                      EventTracking_Id  EventTrackingId,
+                                                      I18NString        Description)
 
             => new RemoveOrganizationResult(Organization,
+                                            EventTrackingId,
                                             false,
                                             null,
                                             Description);
 
-        public static RemoveOrganizationResult Failed(Organization  Organization,
-                                                      Exception     Exception)
+        public static RemoveOrganizationResult Failed(Organization      Organization,
+                                                      EventTracking_Id  EventTrackingId,
+                                                      Exception         Exception)
 
             => new RemoveOrganizationResult(Organization,
+                                            EventTrackingId,
                                             false,
                                             null,
                                             I18NString.Create(Languages.en,
