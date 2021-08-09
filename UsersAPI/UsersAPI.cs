@@ -893,9 +893,9 @@ namespace social.OpenData.UsersAPI
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
         public async static Task<User> CreateUser(this UsersAPI       UsersAPI,
                                                   User_Id             Id,
+                                                  String              Name,
                                                   SimpleEMailAddress  EMail,
                                                   Password?           Password          = null,
-                                                  String              Name              = null,
                                                   I18NString          Description       = null,
                                                   PgpPublicKeyRing    PublicKeyRing     = null,
                                                   PgpSecretKeyRing    SecretKeyRing     = null,
@@ -992,11 +992,11 @@ namespace social.OpenData.UsersAPI
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
         public async static Task<User> CreateUser(this UsersAPI               UsersAPI,
                                                   User_Id                     Id,
+                                                  String                      Name,
                                                   SimpleEMailAddress          EMail,
                                                   User2OrganizationEdgeTypes  AccessRight,
                                                   Organization                Organization,
                                                   Password?                   Password          = null,
-                                                  String                      Name              = null,
                                                   I18NString                  Description       = null,
                                                   PgpPublicKeyRing            PublicKeyRing     = null,
                                                   PgpSecretKeyRing            SecretKeyRing     = null,
@@ -1094,9 +1094,9 @@ namespace social.OpenData.UsersAPI
         /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
         public async static Task<User> CreateUserIfNotExists(this UsersAPI       UsersAPI,
                                                              User_Id             Id,
+                                                             String              Name,
                                                              SimpleEMailAddress  EMail,
                                                              Password?           Password          = null,
-                                                             String              Name              = null,
                                                              I18NString          Description       = null,
                                                              PgpPublicKeyRing    PublicKeyRing     = null,
                                                              PgpSecretKeyRing    SecretKeyRing     = null,
@@ -1135,6 +1135,110 @@ namespace social.OpenData.UsersAPI
                                                                            IsAuthenticated,
                                                                            IsDisabled,
                                                                            DataSource: DataSource),
+
+                                                                  async (_user, _eventTrackingId) => {
+                                                                      if (Password.HasValue)
+                                                                      {
+                                                                          if (!await _user.API._TryChangePassword(_user.Id,
+                                                                                                                  Password.Value,
+                                                                                                                  null,
+                                                                                                                  _eventTrackingId,
+                                                                                                                  CurrentUserId))
+                                                                          {
+                                                                              throw new ApplicationException("The password for '" + _user.Id + "' could not be changed, as the given current password does not match!");
+                                                                          }
+                                                                      }
+                                                                  },
+
+                                                                  EventTrackingId ?? EventTracking_Id.New,
+                                                                  CurrentUserId);
+
+            return addUserResult.IsSuccess
+                       ? addUserResult.User
+                       : null;
+
+        }
+
+        #endregion
+
+        #region CreateUserIfNotExists(Id, EMail, Password, Name = null, Description = null, PublicKeyRing = null, SecretKeyRing = null, MobilePhone = null, IsPublic = true, IsDisabled = false, IsAuthenticated = false)
+
+        /// <summary>
+        /// Create a new user, if he/she does not already exist.
+        /// </summary>
+        /// <param name="UsersAPI">The Users API.</param>
+        /// <param name="Id">The unique identification of the user.</param>
+        /// <param name="EMail">The primary e-mail of the user.</param>
+        /// <param name="AccessRight">The organization membership of the new user.</param>
+        /// <param name="Organization">The organization of the new user.</param>
+        /// <param name="Password">An optional password of the user.</param>
+        /// <param name="Name">An offical (multi-language) name of the user.</param>
+        /// <param name="Description">An optional (multi-language) description of the user.</param>
+        /// <param name="PublicKeyRing">An optional PGP/GPG public keyring of the user.</param>
+        /// <param name="SecretKeyRing">An optional PGP/GPG secret keyring of the user.</param>
+        /// <param name="UserLanguage">The language setting of the user.</param>
+        /// <param name="Telephone">An optional telephone number of the user.</param>
+        /// <param name="MobilePhone">An optional telephone number of the user.</param>
+        /// <param name="Use2AuthFactor">Whether to use a second authentication factor.</param>
+        /// <param name="Telegram">An optional telegram account name of the user.</param>
+        /// <param name="Homepage">The homepage of the user.</param>
+        /// <param name="GeoLocation">An optional geographical location of the user.</param>
+        /// <param name="Address">An optional address of the user.</param>
+        /// <param name="AcceptedEULA">Timestamp when the user accepted the End-User-License-Agreement.</param>
+        /// <param name="IsAuthenticated">The user will not be shown in user listings, as its primary e-mail address is not yet authenticated.</param>
+        /// <param name="IsDisabled">The user will be shown in user listings.</param>
+        /// 
+        /// <param name="DataSource">The source of all this data, e.g. an automatic importer.</param>
+        /// <param name="EventTrackingId">An optional unique event tracking identification for correlating this request with other events.</param>
+        /// <param name="CurrentUserId">An optional user identification initiating this command/request.</param>
+        public async static Task<User> CreateUserIfNotExists(this UsersAPI               UsersAPI,
+                                                             User_Id                     Id,
+                                                             String                      Name,
+                                                             SimpleEMailAddress          EMail,
+                                                             User2OrganizationEdgeTypes  AccessRight,
+                                                             Organization                Organization,
+                                                             Password?                   Password          = null,
+                                                             I18NString                  Description       = null,
+                                                             PgpPublicKeyRing            PublicKeyRing     = null,
+                                                             PgpSecretKeyRing            SecretKeyRing     = null,
+                                                             Languages                   UserLanguage      = Languages.en,
+                                                             PhoneNumber?                Telephone         = null,
+                                                             PhoneNumber?                MobilePhone       = null,
+                                                             Use2AuthFactor              Use2AuthFactor    = Use2AuthFactor.None,
+                                                             String                      Telegram          = null,
+                                                             String                      Homepage          = null,
+                                                             GeoCoordinate?              GeoLocation       = null,
+                                                             Address                     Address           = null,
+                                                             DateTime?                   AcceptedEULA      = null,
+                                                             Boolean                     IsAuthenticated   = false,
+                                                             Boolean                     IsDisabled        = false,
+
+                                                             String                      DataSource        = "",
+                                                             EventTracking_Id            EventTrackingId   = null,
+                                                             User_Id?                    CurrentUserId     = null)
+        {
+
+            var addUserResult = await UsersAPI.AddUserIfNotExists(new User(Id,
+                                                                           EMail,
+                                                                           Name,
+                                                                           Description,
+                                                                           PublicKeyRing,
+                                                                           SecretKeyRing,
+                                                                           UserLanguage,
+                                                                           Telephone,
+                                                                           MobilePhone,
+                                                                           Use2AuthFactor,
+                                                                           Telegram,
+                                                                           Homepage,
+                                                                           GeoLocation,
+                                                                           Address,
+                                                                           AcceptedEULA,
+                                                                           IsAuthenticated,
+                                                                           IsDisabled,
+                                                                           DataSource: DataSource),
+
+                                                                  AccessRight,
+                                                                  Organization,
 
                                                                   async (_user, _eventTrackingId) => {
                                                                       if (Password.HasValue)
