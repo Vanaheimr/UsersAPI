@@ -496,9 +496,9 @@ namespace social.OpenData.UsersAPI
 
             #endregion
 
-            OrganizationId        = null;
-            Organization          = null;
-            HTTPResponse  = null;
+            OrganizationId  = null;
+            Organization    = null;
+            HTTPResponse    = null;
 
             if (HTTPRequest.ParsedURLParameters.Length < 1) {
 
@@ -1414,25 +1414,25 @@ namespace social.OpenData.UsersAPI
         private readonly Timer MaintenanceTimer;
 
 
-        private static readonly TimeSpan       SemaphoreSlimTimeout            = TimeSpan.FromSeconds(5);
+        protected static readonly TimeSpan       SemaphoreSlimTimeout            = TimeSpan.FromSeconds(5);
 
-        private static readonly SemaphoreSlim  MaintenanceLock                 = new SemaphoreSlim(1, 1);
-        private static readonly SemaphoreSlim  ServiceTicketsSemaphore         = new SemaphoreSlim(1, 1);
-        private static readonly SemaphoreSlim  SMTPLogSemaphore                = new SemaphoreSlim(1, 1);
-        private static readonly SemaphoreSlim  TelegramLogSemaphore            = new SemaphoreSlim(1, 1);
-        private static readonly SemaphoreSlim  LogFileSemaphore                = new SemaphoreSlim(1, 1);
+        private   static readonly SemaphoreSlim  MaintenanceLock                 = new SemaphoreSlim(1, 1);
+        private   static readonly SemaphoreSlim  ServiceTicketsSemaphore         = new SemaphoreSlim(1, 1);
+        private   static readonly SemaphoreSlim  SMTPLogSemaphore                = new SemaphoreSlim(1, 1);
+        private   static readonly SemaphoreSlim  TelegramLogSemaphore            = new SemaphoreSlim(1, 1);
+        private   static readonly SemaphoreSlim  LogFileSemaphore                = new SemaphoreSlim(1, 1);
         
-        private static readonly SemaphoreSlim  UsersSemaphore                  = new SemaphoreSlim(1, 1);
-        private static readonly SemaphoreSlim  UserGroupsSemaphore             = new SemaphoreSlim(1, 1);
-        private static readonly SemaphoreSlim  APIKeysSemaphore                = new SemaphoreSlim(1, 1);
-        private static readonly SemaphoreSlim  OrganizationsSemaphore          = new SemaphoreSlim(1, 1);
-        private static readonly SemaphoreSlim  OrganizationGroupsSemaphore     = new SemaphoreSlim(1, 1);
-        private static readonly SemaphoreSlim  MessagesSemaphore               = new SemaphoreSlim(1, 1);
-        private static readonly SemaphoreSlim  NotificationMessagesSemaphore   = new SemaphoreSlim(1, 1);
-        private static readonly SemaphoreSlim  DashboardsSemaphore             = new SemaphoreSlim(1, 1);
-        private static readonly SemaphoreSlim  NewsPostingsSemaphore           = new SemaphoreSlim(1, 1);
-        private static readonly SemaphoreSlim  NewsBannersSemaphore            = new SemaphoreSlim(1, 1);
-        private static readonly SemaphoreSlim  FAQsSemaphore                   = new SemaphoreSlim(1, 1);
+        private   static readonly SemaphoreSlim  UsersSemaphore                  = new SemaphoreSlim(1, 1);
+        private   static readonly SemaphoreSlim  UserGroupsSemaphore             = new SemaphoreSlim(1, 1);
+        private   static readonly SemaphoreSlim  APIKeysSemaphore                = new SemaphoreSlim(1, 1);
+        private   static readonly SemaphoreSlim  OrganizationsSemaphore          = new SemaphoreSlim(1, 1);
+        private   static readonly SemaphoreSlim  OrganizationGroupsSemaphore     = new SemaphoreSlim(1, 1);
+        private   static readonly SemaphoreSlim  MessagesSemaphore               = new SemaphoreSlim(1, 1);
+        private   static readonly SemaphoreSlim  NotificationMessagesSemaphore   = new SemaphoreSlim(1, 1);
+        private   static readonly SemaphoreSlim  DashboardsSemaphore             = new SemaphoreSlim(1, 1);
+        private   static readonly SemaphoreSlim  NewsPostingsSemaphore           = new SemaphoreSlim(1, 1);
+        private   static readonly SemaphoreSlim  NewsBannersSemaphore            = new SemaphoreSlim(1, 1);
+        private   static readonly SemaphoreSlim  FAQsSemaphore                   = new SemaphoreSlim(1, 1);
 
         /// <summary>
         /// The HTTP root for embedded ressources.
@@ -14712,7 +14712,7 @@ namespace social.OpenData.UsersAPI
         {
 
             if (User is null)
-                throw new ArgumentNullException(nameof(User),         "The given user must not be null or empty!");
+                throw new ArgumentNullException(nameof(User),         "The given user must not be null!");
 
             if (MessageType.IsNullOrEmpty)
                 throw new ArgumentNullException(nameof(MessageType),  "The given message type must not be null or empty!");
@@ -14757,7 +14757,7 @@ namespace social.OpenData.UsersAPI
         {
 
             if (User is null)
-                throw new ArgumentNullException(nameof(User),         "The given user must not be null or empty!");
+                throw new ArgumentNullException(nameof(User),         "The given user must not be null!");
 
             if (MessageType.IsNullOrEmpty)
                 throw new ArgumentNullException(nameof(MessageType),  "The given message type must not be null or empty!");
@@ -14792,7 +14792,7 @@ namespace social.OpenData.UsersAPI
         {
 
             if (User is null)
-                throw new ArgumentNullException(nameof(User),          "The given user must not be null or empty!");
+                throw new ArgumentNullException(nameof(User),          "The given user must not be null!");
 
             var messageTypesHash = new HashSet<NotificationMessageType>(MessageTypes.Where(messageType => !messageType.IsNullOrEmpty));
 
@@ -15408,44 +15408,44 @@ namespace social.OpenData.UsersAPI
                                                                                     User_Id?                        CurrentUserId     = null)
         {
 
+            var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
+
             if (User is null)
                 return AddUserIfNotExistsResult.ArgumentError(User,
-                                                              EventTrackingId,
+                                                              eventTrackingId,
                                                               nameof(User),
                                                               "The given user must not be null!");
 
             if (User.API != null && User.API != this)
                 return AddUserIfNotExistsResult.ArgumentError(User,
-                                                              EventTrackingId,
+                                                              eventTrackingId,
                                                               nameof(User),
                                                               "The given user is already attached to another API!");
 
             if (_Users.ContainsKey(User.Id))
                 return AddUserIfNotExistsResult.Success(_Users[User.Id],
-                                                        EventTrackingId);
+                                                        eventTrackingId);
 
             if (User.Id.Length < MinUserIdLength)
                 return AddUserIfNotExistsResult.ArgumentError(User,
-                                                              EventTrackingId,
+                                                              eventTrackingId,
                                                               nameof(User),
                                                               "User identification '" + User.Id + "' is too short!");
 
             if (User.Name.IsNullOrEmpty() || User.Name.Trim().IsNullOrEmpty())
                 return AddUserIfNotExistsResult.ArgumentError(User,
-                                                              EventTrackingId,
+                                                              eventTrackingId,
                                                               nameof(User),
                                                               "The given user name must not be null!");
 
             if (User.Name.Length < MinUserNameLength)
                 return AddUserIfNotExistsResult.ArgumentError(User,
-                                                              EventTrackingId,
+                                                              eventTrackingId,
                                                               nameof(User),
                                                               "User name '" + User.Name + "' is too short!");
 
             User.API = this;
 
-
-            var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
 
             await WriteToDatabaseFile(addUserIfNotExists_MessageType,
                                       User.ToJSON(false, true),
@@ -15492,7 +15492,7 @@ namespace social.OpenData.UsersAPI
                             eventTrackingId);
 
             return AddUserIfNotExistsResult.Success(User,
-                                                    EventTrackingId);
+                                                    eventTrackingId);
 
         }
 
@@ -15513,6 +15513,8 @@ namespace social.OpenData.UsersAPI
                                                                        User_Id?                        CurrentUserId     = null)
         {
 
+            var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
+
             try
             {
 
@@ -15520,18 +15522,18 @@ namespace social.OpenData.UsersAPI
 
                             ? await _AddUserIfNotExists(User,
                                                         OnAdded,
-                                                        EventTrackingId,
+                                                        eventTrackingId,
                                                         CurrentUserId)
 
                             : AddUserIfNotExistsResult.Failed(User,
-                                                              EventTrackingId,
+                                                              eventTrackingId,
                                                               "Internal locking failed!");
 
             }
             catch (Exception e)
             {
                 return AddUserIfNotExistsResult.Failed(User,
-                                                       EventTrackingId,
+                                                       eventTrackingId,
                                                        e);
             }
             finally
@@ -15567,6 +15569,8 @@ namespace social.OpenData.UsersAPI
                                                                        User_Id?                        CurrentUserId     = null)
         {
 
+            var eventTrackingId = EventTrackingId ?? EventTracking_Id.New;
+
             try
             {
 
@@ -15585,18 +15589,18 @@ namespace social.OpenData.UsersAPI
                                                              OnAdded(_user,
                                                                      _eventTrackingId);
                                                          },
-                                                         EventTrackingId,
+                                                         eventTrackingId,
                                                          CurrentUserId)
 
                              : AddUserIfNotExistsResult.Failed(User,
-                                                               EventTrackingId,
+                                                               eventTrackingId,
                                                                "Internal locking failed!");
 
             }
             catch (Exception e)
             {
                 return AddUserIfNotExistsResult.Failed(User,
-                                                       EventTrackingId,
+                                                       eventTrackingId,
                                                        e);
             }
             finally
@@ -15683,32 +15687,7 @@ namespace social.OpenData.UsersAPI
 
             _Users.Add(User.Id, User);
 
-            if (OldUser != null)
-            {
-
-                var OnUserUpdatedLocal = OnUserUpdated;
-                if (OnUserUpdatedLocal != null)
-                    await OnUserUpdatedLocal?.Invoke(DateTime.UtcNow,
-                                                     User,
-                                                     OldUser,
-                                                     eventTrackingId,
-                                                     CurrentUserId);
-
-                await SendNotifications(User,
-                                        updateUser_MessageType,
-                                        OldUser,
-                                        eventTrackingId,
-                                        CurrentUserId);
-
-                OnUpdated?.Invoke(User,
-                                  eventTrackingId);
-
-                return AddOrUpdateUserResult.Success(User,
-                                                     AddOrUpdate.Update,
-                                                     eventTrackingId);
-
-            }
-            else
+            if (OldUser is null)
             {
 
                 #region Register 'New User Default'-Notifications
@@ -15750,6 +15729,31 @@ namespace social.OpenData.UsersAPI
 
                 return AddOrUpdateUserResult.Success(User,
                                                      AddOrUpdate.Add,
+                                                     eventTrackingId);
+
+            }
+            else
+            {
+
+                var OnUserUpdatedLocal = OnUserUpdated;
+                if (OnUserUpdatedLocal != null)
+                    await OnUserUpdatedLocal?.Invoke(DateTime.UtcNow,
+                                                     User,
+                                                     OldUser,
+                                                     eventTrackingId,
+                                                     CurrentUserId);
+
+                await SendNotifications(User,
+                                        updateUser_MessageType,
+                                        OldUser,
+                                        eventTrackingId,
+                                        CurrentUserId);
+
+                OnUpdated?.Invoke(User,
+                                  eventTrackingId);
+
+                return AddOrUpdateUserResult.Success(User,
+                                                     AddOrUpdate.Update,
                                                      eventTrackingId);
 
             }
@@ -24248,7 +24252,31 @@ namespace social.OpenData.UsersAPI
 
             _Organizations.Add(Organization.Id, Organization);
 
-            if (OldOrganization != null)
+            if (OldOrganization is null)
+            {
+
+                var OnOrganizationAddedLocal = OnOrganizationAdded;
+                if (OnOrganizationAddedLocal != null)
+                    await OnOrganizationAddedLocal?.Invoke(DateTime.UtcNow,
+                                                           Organization,
+                                                           eventTrackingId,
+                                                           CurrentUserId);
+
+                await SendNotifications(Organization,
+                                        addOrganization_MessageType,
+                                        null,
+                                        eventTrackingId,
+                                        CurrentUserId);
+
+                OnAdded?.Invoke(Organization,
+                                eventTrackingId);
+
+                return AddOrUpdateOrganizationResult.Success(Organization,
+                                                             AddOrUpdate.Add,
+                                                             eventTrackingId);
+
+            }
+            else
             {
 
                 var OnOrganizationUpdatedLocal = OnOrganizationUpdated;
@@ -24270,30 +24298,6 @@ namespace social.OpenData.UsersAPI
 
                 return AddOrUpdateOrganizationResult.Success(Organization,
                                                              AddOrUpdate.Update,
-                                                             eventTrackingId);
-
-            }
-            else
-            {
-
-                var OnOrganizationAddedLocal = OnOrganizationAdded;
-                if (OnOrganizationAddedLocal != null)
-                    await OnOrganizationAddedLocal?.Invoke(DateTime.UtcNow,
-                                                           Organization,
-                                                           eventTrackingId,
-                                                           CurrentUserId);
-
-                await SendNotifications(Organization,
-                                        addOrganization_MessageType,
-                                        null,
-                                        eventTrackingId,
-                                        CurrentUserId);
-
-                OnAdded?.Invoke(Organization,
-                                eventTrackingId);
-
-                return AddOrUpdateOrganizationResult.Success(Organization,
-                                                             AddOrUpdate.Add,
                                                              eventTrackingId);
 
             }

@@ -2501,36 +2501,44 @@ namespace social.OpenData.UsersAPI
             /// Return an immutable version of the user.
             /// </summary>
             public User ToImmutable
+            {
+                get
+                {
 
-                => new User(Id,
-                            EMail.Address,
-                            Name,
-                            Description,
-                            PublicKeyRing,
-                            SecretKeyRing,
-                            UserLanguage,
-                            Telephone,
-                            MobilePhone,
-                            Use2AuthFactor ?? OpenData.UsersAPI.Use2AuthFactor.None,
-                            Telegram,
-                            Homepage,
-                            GeoLocation,
-                            Address,
-                            AcceptedEULA,
-                            IsDisabled,
-                            IsAuthenticated,
+                    //if (!Branch.HasValue || Branch.Value.IsNullOrEmpty)
+                    //    throw new ArgumentNullException(nameof(Branch), "The given branch must not be null or empty!");
 
-                            _NotificationStore,
+                    return new User(Id,
+                                    EMail.Address,
+                                    Name,
+                                    Description,
+                                    PublicKeyRing,
+                                    SecretKeyRing,
+                                    UserLanguage,
+                                    Telephone,
+                                    MobilePhone,
+                                    Use2AuthFactor ?? OpenData.UsersAPI.Use2AuthFactor.None,
+                                    Telegram,
+                                    Homepage,
+                                    GeoLocation,
+                                    Address,
+                                    AcceptedEULA,
+                                    IsDisabled,
+                                    IsAuthenticated,
 
-                            _User2UserEdges,
-                            _User2Group_OutEdges,
-                            _User2Organization_OutEdges,
+                                    _NotificationStore,
 
-                            CustomData,
-                            AttachedFiles,
-                            JSONLDContext,
-                            DataSource,
-                            LastChange);
+                                    _User2UserEdges,
+                                    _User2Group_OutEdges,
+                                    _User2Organization_OutEdges,
+
+                                    CustomData,
+                                    AttachedFiles,
+                                    JSONLDContext,
+                                    DataSource,
+                                    LastChange);
+                }
+            }
 
             #endregion
 

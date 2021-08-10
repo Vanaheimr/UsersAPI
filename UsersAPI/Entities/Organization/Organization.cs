@@ -1888,29 +1888,38 @@ namespace social.OpenData.UsersAPI
             /// Return an immutable version of the organization.
             /// </summary>
             public Organization ToImmutable
+            {
+                get
+                {
 
-                => new Organization(Id,
-                                    Name,
-                                    Description,
-                                    Website,
-                                    EMail,
-                                    Telephone,
-                                    Address,
-                                    GeoLocation,
-                                    _ => Tags,
-                                    IsDisabled,
+                    //if (!Branch.HasValue || Branch.Value.IsNullOrEmpty)
+                    //    throw new ArgumentNullException(nameof(Branch), "The given branch must not be null or empty!");
 
-                                    _Notifications,
+                    return new Organization(Id,
+                                            Name,
+                                            Description,
+                                            Website,
+                                            EMail,
+                                            Telephone,
+                                            Address,
+                                            GeoLocation,
+                                            _ => Tags,
+                                            IsDisabled,
 
-                                    _User2Organization_InEdges,
-                                    _Organization2Organization_InEdges,
-                                    _Organization2Organization_OutEdges,
+                                            _Notifications,
 
-                                    CustomData,
-                                    AttachedFiles,
-                                    JSONLDContext,
-                                    DataSource,
-                                    LastChange);
+                                            _User2Organization_InEdges,
+                                            _Organization2Organization_InEdges,
+                                            _Organization2Organization_OutEdges,
+
+                                            CustomData,
+                                            AttachedFiles,
+                                            JSONLDContext,
+                                            DataSource,
+                                            LastChange);
+
+                }
+            }
 
             #endregion
 
