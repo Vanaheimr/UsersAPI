@@ -6118,7 +6118,7 @@ namespace social.OpenData.UsersAPI
                                                                                               newUser.Use2AuthFactor == Use2AuthFactor.MobilePhoneSMS &&
                                                                                               newUser.MobilePhone.HasValue
                                                                                                   ? SecurityToken_Id.Parse(_Random.RandomString(5) + "-" + _Random.RandomString(5))
-                                                                                                  : null);
+                                                                                                  : default);
 
                                                  #endregion
 
@@ -6491,7 +6491,7 @@ namespace social.OpenData.UsersAPI
                                                                                               newUser.Use2AuthFactor == Use2AuthFactor.MobilePhoneSMS &&
                                                                                               newUser.MobilePhone.HasValue
                                                                                                   ? SecurityToken_Id.Parse(_Random.RandomString(5) + "-" + _Random.RandomString(5))
-                                                                                                  : null);
+                                                                                                  : default);
 
                                                  #endregion
 
