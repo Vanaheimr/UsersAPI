@@ -492,7 +492,7 @@ namespace social.OpenData.UsersAPI
             }
             catch (Exception e)
             {
-                e.Log(nameof(TelegramStore) + "." + nameof(OnSendTelegramRequest));
+                DebugX.Log(e, nameof(TelegramStore) + "." + nameof(OnSendTelegramRequest));
             }
 
             #endregion
@@ -537,7 +537,7 @@ namespace social.OpenData.UsersAPI
             }
             catch (Exception e)
             {
-                e.Log(nameof(TelegramStore) + "." + nameof(OnSendTelegramResponse));
+                DebugX.Log(e, nameof(TelegramStore) + "." + nameof(OnSendTelegramResponse));
             }
 
             #endregion
@@ -593,7 +593,7 @@ namespace social.OpenData.UsersAPI
             }
             catch (Exception e)
             {
-                e.Log(nameof(TelegramStore) + "." + nameof(OnSendTelegramRequest));
+                DebugX.Log(e, nameof(TelegramStore) + "." + nameof(OnSendTelegramRequest));
             }
 
             #endregion
@@ -636,7 +636,7 @@ namespace social.OpenData.UsersAPI
             }
             catch (Exception e)
             {
-                e.Log(nameof(TelegramStore) + "." + nameof(OnSendTelegramResponse));
+                DebugX.Log(e, nameof(TelegramStore) + "." + nameof(OnSendTelegramResponse));
             }
 
             #endregion
@@ -709,7 +709,7 @@ namespace social.OpenData.UsersAPI
             }
             catch (Exception e)
             {
-                e.Log(nameof(TelegramStore) + "." + nameof(OnSendTelegramRequest));
+                DebugX.Log(e, nameof(TelegramStore) + "." + nameof(OnSendTelegramRequest));
             }
 
             #endregion
@@ -757,7 +757,7 @@ namespace social.OpenData.UsersAPI
             }
             catch (Exception e)
             {
-                e.Log(nameof(TelegramStore) + "." + nameof(OnSendTelegramResponse));
+                DebugX.Log(e, nameof(TelegramStore) + "." + nameof(OnSendTelegramResponse));
             }
 
             #endregion
@@ -826,7 +826,7 @@ namespace social.OpenData.UsersAPI
             }
             catch (Exception e)
             {
-                e.Log(nameof(TelegramStore) + "." + nameof(OnSendTelegramRequest));
+                DebugX.Log(e, nameof(TelegramStore) + "." + nameof(OnSendTelegramRequest));
             }
 
             #endregion
@@ -874,7 +874,7 @@ namespace social.OpenData.UsersAPI
             }
             catch (Exception e)
             {
-                e.Log(nameof(TelegramStore) + "." + nameof(OnSendTelegramResponse));
+                DebugX.Log(e, nameof(TelegramStore) + "." + nameof(OnSendTelegramResponse));
             }
 
             #endregion

@@ -15303,9 +15303,13 @@ namespace social.OpenData.UsersAPI
             }
             catch (Exception e)
             {
+
+                DebugX.LogException(e);
+
                 return AddUserResult.Failed(User,
                                             eventTrackingId,
                                             e);
+
             }
             finally
             {
@@ -15370,9 +15374,13 @@ namespace social.OpenData.UsersAPI
             }
             catch (Exception e)
             {
+
+                DebugX.LogException(e);
+
                 return AddUserResult.Failed(User,
                                             eventTrackingId,
                                             e);
+
             }
             finally
             {
@@ -15532,9 +15540,13 @@ namespace social.OpenData.UsersAPI
             }
             catch (Exception e)
             {
+
+                DebugX.LogException(e);
+
                 return AddUserIfNotExistsResult.Failed(User,
                                                        eventTrackingId,
                                                        e);
+
             }
             finally
             {
@@ -15599,9 +15611,13 @@ namespace social.OpenData.UsersAPI
             }
             catch (Exception e)
             {
+
+                DebugX.LogException(e);
+
                 return AddUserIfNotExistsResult.Failed(User,
                                                        eventTrackingId,
                                                        e);
+
             }
             finally
             {
@@ -15799,9 +15815,13 @@ namespace social.OpenData.UsersAPI
             }
             catch (Exception e)
             {
+
+                DebugX.LogException(e);
+
                 return AddOrUpdateUserResult.Failed(User,
                                                     eventTrackingId,
                                                     e);
+
             }
             finally
             {
@@ -15869,9 +15889,13 @@ namespace social.OpenData.UsersAPI
             }
             catch (Exception e)
             {
+
+                DebugX.LogException(e);
+
                 return AddOrUpdateUserResult.Failed(User,
                                                     eventTrackingId,
                                                     e);
+
             }
             finally
             {
@@ -16016,9 +16040,13 @@ namespace social.OpenData.UsersAPI
             }
             catch (Exception e)
             {
+
+                DebugX.LogException(e);
+
                 return UpdateUserResult.Failed(User,
                                                eventTrackingId,
                                                e);
+
             }
             finally
             {
@@ -16153,9 +16181,13 @@ namespace social.OpenData.UsersAPI
             }
             catch (Exception e)
             {
+
+                DebugX.LogException(e);
+
                 return UpdateUserResult.Failed(User,
                                                eventTrackingId,
                                                e);
+
             }
             finally
             {
@@ -16589,9 +16621,13 @@ namespace social.OpenData.UsersAPI
             }
             catch (Exception e)
             {
+
+                DebugX.LogException(e);
+
                 return RemoveUserResult.Failed(User,
                                                eventTrackingId,
                                                e);
+
             }
             finally
             {
@@ -23839,6 +23875,9 @@ namespace social.OpenData.UsersAPI
             }
             catch (Exception e)
             {
+
+                DebugX.LogException(e);
+
                 return AddOrganizationResult.Failed(Organization,
                                                     eventTrackingId,
                                                     e);
@@ -23936,10 +23975,14 @@ namespace social.OpenData.UsersAPI
             }
             catch (Exception e)
             {
+
+                DebugX.LogException(e);
+
                 return AddOrganizationResult.Failed(Organization,
                                                     eventTrackingId,
                                                     e,
                                                     ParentOrganization);
+
             }
             finally
             {
@@ -24077,9 +24120,13 @@ namespace social.OpenData.UsersAPI
             }
             catch (Exception e)
             {
+
+                DebugX.LogException(e);
+
                 return AddOrganizationIfNotExistsResult.Failed(Organization,
                                                                eventTrackingId,
                                                                e);
+
             }
             finally
             {
@@ -24165,9 +24212,13 @@ namespace social.OpenData.UsersAPI
             }
             catch (Exception e)
             {
+
+                DebugX.LogException(e);
+
                 return AddOrganizationIfNotExistsResult.Failed(Organization,
                                                                eventTrackingId,
                                                                e);
+
             }
             finally
             {
@@ -24343,9 +24394,13 @@ namespace social.OpenData.UsersAPI
             }
             catch (Exception e)
             {
+
+                DebugX.LogException(e);
+
                 return AddOrUpdateOrganizationResult.Failed(Organization,
                                                             eventTrackingId,
                                                             e);
+
             }
             finally
             {
@@ -24438,9 +24493,13 @@ namespace social.OpenData.UsersAPI
             }
             catch (Exception e)
             {
+
+                DebugX.LogException(e);
+
                 return AddOrUpdateOrganizationResult.Failed(Organization,
                                                             eventTrackingId,
                                                             e);
+
             }
             finally
             {
@@ -24587,9 +24646,13 @@ namespace social.OpenData.UsersAPI
             }
             catch (Exception e)
             {
+
+                DebugX.LogException(e);
+
                 return UpdateOrganizationResult.Failed(Organization,
                                                        eventTrackingId,
                                                        e);
+
             }
             finally
             {
@@ -24724,9 +24787,13 @@ namespace social.OpenData.UsersAPI
             }
             catch (Exception e)
             {
+
+                DebugX.LogException(e);
+
                 return UpdateOrganizationResult.Failed(Organization,
                                                        eventTrackingId,
                                                        e);
+
             }
             finally
             {
@@ -25284,9 +25351,13 @@ namespace social.OpenData.UsersAPI
             }
             catch (Exception e)
             {
+
+                DebugX.LogException(e);
+
                 return RemoveOrganizationResult.Failed(Organization,
                                                        eventTrackingId,
                                                        e);
+
             }
             finally
             {
