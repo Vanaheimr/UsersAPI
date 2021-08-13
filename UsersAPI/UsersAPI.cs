@@ -863,7 +863,7 @@ namespace social.OpenData.UsersAPI
 
 
 
-        #region CreateUser           (Id, EMail, Password, Name = null, Description = null, PublicKeyRing = null, SecretKeyRing = null, MobilePhone = null, IsPublic = true, IsDisabled = false, IsAuthenticated = false)
+        #region CreateUser           (Id, Name, EMail,                            Password = null, Description = null, PublicKeyRing = null, SecretKeyRing = null, MobilePhone = null, IsPublic = true, IsDisabled = false, IsAuthenticated = false)
 
         /// <summary>
         /// Create a new user.
@@ -960,7 +960,7 @@ namespace social.OpenData.UsersAPI
 
         #endregion
 
-        #region CreateUser           (Id, EMail, Password, Name = null, Description = null, PublicKeyRing = null, SecretKeyRing = null, MobilePhone = null, IsPublic = true, IsDisabled = false, IsAuthenticated = false)
+        #region CreateUser           (Id, Name, EMail, AccessRight, Organization, Password = null, Description = null, PublicKeyRing = null, SecretKeyRing = null, MobilePhone = null, IsPublic = true, IsDisabled = false, IsAuthenticated = false)
 
         /// <summary>
         /// Create a new user.
